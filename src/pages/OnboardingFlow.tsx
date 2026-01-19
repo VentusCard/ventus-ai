@@ -226,7 +226,7 @@ const OnboardingFlow = () => {
                   className="flex items-center gap-2 px-8 py-3 text-base font-semibold min-h-[48px] min-w-[120px] touch-manipulation"
                   style={{ touchAction: 'manipulation' }}
                 >
-                  Download Free Ventus Rewards App Today <ArrowRight size={18} />
+                  Download Free Deals App Today <ArrowRight size={18} />
                 </Button>
               </Link>
             ) : (
