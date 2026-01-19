@@ -220,7 +220,7 @@ const OnboardingFlow = () => {
               </Button> : <div></div>}
             
             {step === totalSteps ? (
-              <Link to="/app/signup">
+              <Link to="/app">
                 <Button 
                   type="button" 
                   className="flex items-center gap-2 px-8 py-3 text-base font-semibold min-h-[48px] min-w-[120px] touch-manipulation"
