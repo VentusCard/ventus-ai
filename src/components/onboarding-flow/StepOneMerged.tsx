@@ -207,7 +207,7 @@ const StepOneMerged = ({
   // Custom slow scroll function
   const slowScrollTo = (element: HTMLElement) => {
     const startPosition = window.pageYOffset;
-    const targetPosition = element.offsetTop - 20; // 20px offset from top
+    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 20; // 20px offset from top
     const distance = targetPosition - startPosition;
     const duration = 1200; // 1.2 seconds for slower scroll
     let start: number | null = null;
