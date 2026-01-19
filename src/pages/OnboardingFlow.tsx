@@ -172,7 +172,7 @@ const OnboardingFlow = () => {
               className="px-8 py-6 text-lg"
               onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              Get Started Free
+              Get Started
             </Button>
           </div>
           
