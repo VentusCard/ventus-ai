@@ -969,7 +969,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                         aiPersonalized ? "line-clamp-2 italic text-violet-700" : "line-clamp-1",
                         isPreviewSelected ? "text-primary" : !aiPersonalized && "text-slate-700"
                       )}>
-                        {aiPersonalized ? `"${aiPersonalized.message}"` : personalizedMsg.headline}
+                        {aiPersonalized ? `"${aiPersonalized.message}"` : deal.dealDescription}
                       </p>
                       
                       {/* Bottom Row: Reward + Activations or CTA */}
@@ -1015,9 +1015,27 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
 
                 {/* Personalized Message */}
                 <div className="space-y-2 pt-3 border-t border-rose-800/50">
-                  <span className="text-[10px] font-medium text-rose-400 uppercase tracking-wide">AI-Personalized Message</span>
-                  <h4 className="text-base font-semibold text-rose-100">{personalizedMessage.headline}</h4>
-                  <p className="text-xs text-rose-300/70 leading-relaxed">{personalizedMessage.body}</p>
+                  <span className="text-[10px] font-medium text-rose-400 uppercase tracking-wide">
+                    {personalizedDeals.get(selectedDeal.id) ? 'AI-Personalized Message' : 'Deal Details'}
+                  </span>
+                  {(() => {
+                    const aiMsg = personalizedDeals.get(selectedDeal.id);
+                    return aiMsg ? (
+                      <>
+                        <h4 className="text-base font-semibold text-rose-100 italic">"{aiMsg.message}"</h4>
+                        <p className="text-xs text-rose-300/70 leading-relaxed">
+                          {selectedDeal.dealDescription}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <h4 className="text-base font-semibold text-rose-100">{selectedDeal.dealTitle}</h4>
+                        <p className="text-xs text-rose-300/70 leading-relaxed">
+                          {selectedDeal.dealDescription}
+                        </p>
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Deal Terms */}
