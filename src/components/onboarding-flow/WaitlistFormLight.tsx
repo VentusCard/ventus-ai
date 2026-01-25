@@ -146,9 +146,9 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
   };
 
   return (
-    <Card className="overflow-hidden border border-border/60 shadow-lg bg-card">
+    <Card className="overflow-hidden md:border md:border-border/60 shadow-lg bg-card">
       <div className="h-2 bg-gradient-to-r from-primary to-primary/70"></div>
-      <CardContent className="p-5 md:p-8">
+      <CardContent className="p-4 md:p-8">
         <h3 className="font-display text-lg md:text-2xl font-bold mb-4 flex items-center gap-3 text-foreground">
           <div className="p-2 bg-primary/10 rounded-xl flex-shrink-0">
             <Sparkles className="text-primary" size={20} />

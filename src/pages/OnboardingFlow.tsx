@@ -187,7 +187,7 @@ const OnboardingFlow = () => {
       </section>
       
       <div className="flex-grow" id="onboarding-content">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 pb-6">
+        <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 py-8 md:py-16 pb-6">
           {/* Progress Section */}
           <div className="mb-8">
             {/* Step Progress Bar */}
@@ -204,7 +204,7 @@ const OnboardingFlow = () => {
           </div>
           
           {/* Step Content */}
-          <div className="bg-card/80 border border-border/60 rounded-xl backdrop-blur-sm p-6 md:p-8 mb-8 transition-all duration-300" id="onboarding-step-content" style={{
+          <div className="bg-card/80 md:border md:border-border/60 rounded-xl backdrop-blur-sm p-4 md:p-8 mb-6 md:mb-8 transition-all duration-300" id="onboarding-step-content" style={{
           touchAction: 'manipulation',
           pointerEvents: 'auto',
           WebkitTapHighlightColor: 'transparent'
