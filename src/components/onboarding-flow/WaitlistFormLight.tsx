@@ -193,8 +193,8 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
           </div>
 
           <div className="form-field">
-            <label className="block text-sm md:text-base font-medium mb-2 text-foreground">
-              Main Category
+          <label className="block text-sm md:text-base font-medium mb-2 text-foreground">
+              Smart Rewards Category
             </label>
             <Select
               name="interest"
