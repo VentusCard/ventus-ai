@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, CheckCircle2, Copy, Share2, Check } from "lucide-react";
+import { Sparkles, Target, CheckCircle2, Copy, Share2, Check, Link2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -45,6 +45,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [generatedReferralCode, setGeneratedReferralCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -378,12 +379,32 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
                   setTimeout(() => setCopied(false), 2000);
                 }}
                 className="shrink-0"
+                aria-label="Copy referral code"
               >
                 {copied ? (
                   <Check className="w-4 h-4 text-green-500" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const fullUrl = `https://ventus.lovable.app/smartrewards?ref=${generatedReferralCode}`;
+                  navigator.clipboard.writeText(fullUrl);
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 2000);
+                }}
+                className="shrink-0 gap-1 text-xs"
+                aria-label="Copy referral link"
+              >
+                {copiedLink ? (
+                  <Check className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Link2 className="w-4 h-4" />
+                )}
+                Copy Link
               </Button>
             </div>
             
