@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, CheckCircle2 } from "lucide-react";
+import { Sparkles, Target, CheckCircle2, Copy, Share2, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -16,6 +16,12 @@ import { useToast } from "@/hooks/use-toast";
 import { LifestyleGoal, OnboardingFlowData } from "@/pages/OnboardingFlow";
 import { z } from "zod";
 import confetti from "canvas-confetti";
+
+const generateReferralCode = (email: string): string => {
+  const prefix = email.split("@")[0].slice(0, 4).toUpperCase();
+  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}${randomSuffix}`;
+};
 
 const lifestyleCategories: {
   label: string;
@@ -37,6 +43,8 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [generatedReferralCode, setGeneratedReferralCode] = useState("");
+  const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -164,7 +172,9 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
         // Trigger confetti celebration
         triggerConfetti();
         
-        // Show success modal (no toast - modal handles success messaging)
+        // Generate referral code and show success modal
+        const code = generateReferralCode(formData.email);
+        setGeneratedReferralCode(code);
         setShowSuccessModal(true);
 
         setFormData({
@@ -329,29 +339,63 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
     </Card>
 
     <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-      <DialogContent className="sm:max-w-md md:max-w-lg p-8 text-center">
-        <div className="flex flex-col items-center py-6">
-          <div className="mb-6 p-4 bg-green-500/10 rounded-full">
-            <CheckCircle2 className="w-16 h-16 md:w-20 md:h-20 text-green-500" />
+      <DialogContent className="sm:max-w-[90vw] md:max-w-md lg:max-w-lg p-4 sm:p-6 md:p-8">
+        <div className="flex flex-col items-center pt-2 pb-4">
+          {/* Success Icon */}
+          <div className="mb-4 p-3 bg-green-500/10 rounded-full">
+            <CheckCircle2 className="w-12 h-12 md:w-16 md:h-16 text-green-500" />
           </div>
           
-          <DialogHeader className="text-center space-y-3 mb-6">
-            <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground">
+          {/* Header */}
+          <DialogHeader className="text-center space-y-2 mb-4">
+            <DialogTitle className="text-xl md:text-2xl font-bold text-foreground">
               You're on the list!
             </DialogTitle>
-            <DialogDescription className="text-base md:text-lg text-muted-foreground">
-              We'll notify you when Ventus Card becomes available. 
-              In the meantime, download our free app to start discovering deals!
+            <DialogDescription className="text-sm md:text-base text-muted-foreground px-2">
+              We'll notify you when Ventus Card becomes available.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Referral Section */}
+          <div className="w-full bg-muted/50 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Share2 className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Share & Earn Rewards</span>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Invite friends with your code and earn bonus rewards when they join!
+            </p>
+            <div className="flex gap-2">
+              <div className="flex-1 bg-background border border-border rounded-lg px-3 py-2 font-mono text-sm text-foreground">
+                {generatedReferralCode}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(generatedReferralCode);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="shrink-0"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          </div>
           
+          {/* Download Button */}
           <Button 
             asChild 
             size="lg" 
-            className="w-full h-14 md:h-16 text-base md:text-lg font-semibold mt-4"
+            className="w-full h-12 md:h-14 text-sm md:text-base font-semibold"
           >
             <Link to="/app">
-              Download free Ventus AI Deals Finder App Today
+              Download Free Deals App
             </Link>
           </Button>
         </div>
