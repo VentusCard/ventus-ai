@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <div className="relative overflow-hidden flex flex-col justify-center pt-20 pb-2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="relative overflow-hidden flex flex-col justify-center pt-20 pb-8 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Metallic texture overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
       
