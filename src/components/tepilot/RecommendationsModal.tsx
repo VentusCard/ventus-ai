@@ -82,10 +82,10 @@ export function RecommendationsModal({ isOpen, onClose, recommendations, summary
                 <div className="space-y-4 pt-2">
                   
                   {/* Description */}
-                  <p className="text-muted-foreground">{rec.description}</p>
+                  <p className="text-slate-500">{rec.description}</p>
 
                   {/* Matching Data */}
-                  <Card className="bg-muted/50">
+                  <Card className="bg-slate-50">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-base flex items-center gap-2">
                         <Target className="h-4 w-4" />
@@ -128,7 +128,7 @@ export function RecommendationsModal({ isOpen, onClose, recommendations, summary
         {/* Summary Footer */}
         <Card className="mt-4 bg-primary/5 border-primary/20">
           <CardContent className="pt-4">
-            <p className="text-sm text-center text-muted-foreground">
+            <p className="text-sm text-center text-slate-500">
               {summary.message}
             </p>
           </CardContent>

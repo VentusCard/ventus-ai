@@ -16,7 +16,7 @@ export function TaskItem({ task, onToggle }: TaskItemProps) {
       : "text-slate-600";
 
   return (
-    <div className="flex items-start gap-2 py-1.5 px-2 rounded hover:bg-muted/50 transition-colors">
+    <div className="flex items-start gap-2 py-1.5 px-2 rounded hover:bg-slate-50 transition-colors">
       <Checkbox
         checked={task.completed}
         onCheckedChange={() => onToggle(task.id)}
@@ -25,7 +25,7 @@ export function TaskItem({ task, onToggle }: TaskItemProps) {
       <div className="flex-1 min-w-0">
         <p
           className={`text-xs ${
-            task.completed ? "line-through text-muted-foreground" : "text-foreground"
+            task.completed ? "line-through text-slate-400" : "text-slate-900"
           }`}
         >
           {task.title}

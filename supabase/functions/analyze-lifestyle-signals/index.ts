@@ -279,8 +279,7 @@ Analyze these patterns and detect any significant life events. Use the provided 
           { role: 'user', content: userPrompt }
         ],
         tools: [LIFESTYLE_SIGNAL_TOOL],
-        tool_choice: { type: "function", function: { name: "detect_lifestyle_signals" } },
-        temperature: 0.7
+        tool_choice: "auto"
       }),
     });
 

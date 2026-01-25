@@ -173,8 +173,7 @@ const WaitlistForm = ({
           </span>
         </h3>
         <div className="text-white/80 mb-6 text-base md:text-lg leading-relaxed">
-          
-          <p className="text-sm md:text-base">Be the first to experience Ventus. We're launching soon—exclusively for eligible U.S. customers, starting with our waitlist. Every Ventus account will be FDIC-insured at launch, delivering the security you expect and the innovation you've been waiting for.</p>
+          <p className="text-sm md:text-base">Be the first to experience Ventus. We're launching soon—exclusively for eligible U.S. customers, starting with our waitlist.</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4 mb-4">

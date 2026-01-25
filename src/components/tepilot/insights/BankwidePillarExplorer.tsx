@@ -77,9 +77,9 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-card p-3 rounded-lg border shadow-lg">
-          <p className="font-medium">{payload[0].payload.name}</p>
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-lg">
+          <p className="font-medium text-slate-900">{payload[0].payload.name}</p>
+          <p className="text-sm text-slate-500">
             {payload[0].value.toFixed(1)}% of total spend
           </p>
         </div>
@@ -90,14 +90,14 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
 
   const previewContent = (
     <div className="text-sm">
-      <span className="text-foreground font-medium" style={{ color: top1?.color }}>{top1?.pillarName}</span>
-      <span className="text-muted-foreground"> leads at </span>
+      <span className="text-slate-900 font-medium" style={{ color: top1?.color }}>{top1?.pillarName}</span>
+      <span className="text-slate-500"> leads at </span>
       <span className="text-primary font-medium">{top1?.percentageOfTotal.toFixed(1)}%</span>
-      <span className="text-muted-foreground"> of spend. Top 3 pillars = </span>
-      <span className="text-foreground font-medium">{top3Combined.toFixed(0)}%</span>
-      <span className="text-muted-foreground"> of total. </span>
-      <span className="text-amber-600 dark:text-amber-400 font-medium">{lowestPillar?.pillarName}</span>
-      <span className="text-muted-foreground"> underperforms — expansion opportunity.</span>
+      <span className="text-slate-500"> of spend. Top 3 pillars = </span>
+      <span className="text-slate-900 font-medium">{top3Combined.toFixed(0)}%</span>
+      <span className="text-slate-500"> of total. </span>
+      <span className="text-amber-600 font-medium">{lowestPillar?.pillarName}</span>
+      <span className="text-slate-500"> underperforms — expansion opportunity.</span>
     </div>
   );
 
@@ -121,7 +121,7 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
       </ToggleGroup>
       <div className="text-right">
         <div className="text-xl font-bold text-primary">{formatCurrency(totalSpend)}</div>
-        <div className="text-xs text-muted-foreground">Total Spend</div>
+        <div className="text-xs text-slate-500">Total Spend</div>
       </div>
     </div>
   );
@@ -142,19 +142,17 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
           /* Bar Chart View */
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis 
                 dataKey="name" 
                 angle={-45} 
                 textAnchor="end" 
                 height={100}
-                tick={{ fontSize: 12 }}
-                className="text-muted-foreground"
+                tick={{ fontSize: 12, fill: '#64748b' }}
               />
               <YAxis 
-                tick={{ fontSize: 12 }}
-                className="text-muted-foreground"
-                label={{ value: '% of Total Spend', angle: -90, position: 'insideLeft' }}
+                tick={{ fontSize: 12, fill: '#64748b' }}
+                label={{ value: '% of Total Spend', angle: -90, position: 'insideLeft', fill: '#64748b' }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar 
@@ -191,7 +189,7 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                     className={`relative flex flex-col p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                       isSelected
                         ? 'border-primary shadow-lg scale-105 bg-primary/5'
-                        : 'border-border hover:border-primary/50 hover:scale-105 hover:shadow-md bg-card'
+                        : 'border-slate-200 hover:border-primary/50 hover:scale-105 hover:shadow-md bg-white'
                     }`}
                     style={{
                       borderTopColor: isSelected ? pillar.color : undefined,
@@ -205,7 +203,7 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                     />
 
                     {/* Pillar Name */}
-                    <div className="text-xs font-semibold text-muted-foreground mt-2 mb-2 line-clamp-2">
+                    <div className="text-xs font-semibold text-slate-500 mt-2 mb-2 line-clamp-2">
                       {pillar.pillarName}
                     </div>
 
@@ -218,15 +216,15 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                     </div>
 
                     {/* Account Count & Percentage */}
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-slate-500">
                       {formatNumber(pillar.accountCount)} accounts
                     </div>
-                    <div className="text-xs font-medium mt-1">
+                    <div className="text-xs font-medium mt-1 text-slate-700">
                       {pillar.percentageOfTotal.toFixed(1)}% of total
                     </div>
 
                     {/* Visual Bar */}
-                    <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
@@ -278,10 +276,10 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: selectedPillarData.color }}
                           />
-                          <span className="text-sm font-medium">{product.name}</span>
-                        </div>
-                        <span className="text-sm font-bold">
-                          {formatCurrency(product.spend)}
+                        <span className="text-sm font-medium text-slate-900">{product.name}</span>
+                      </div>
+                      <span className="text-sm font-bold text-slate-900">
+                        {formatCurrency(product.spend)}
                         </span>
                       </div>
                     ))}
@@ -302,10 +300,10 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: selectedPillarData.color }}
                           />
-                          <span className="text-sm font-medium">{region.name}</span>
-                        </div>
-                        <span className="text-sm font-bold">
-                          {formatCurrency(region.spend)}
+                        <span className="text-sm font-medium text-slate-900">{region.name}</span>
+                      </div>
+                      <span className="text-sm font-bold text-slate-900">
+                        {formatCurrency(region.spend)}
                         </span>
                       </div>
                     ))}
@@ -313,7 +311,7 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
 
                   {/* Age Demographics */}
                   <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
                       Age Demographics
                     </h4>
                     <div className="space-y-2">
@@ -322,10 +320,10 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                         .map(([age, percentage]) => (
                           <div key={age} className="space-y-1">
                             <div className="flex items-center justify-between text-sm">
-                              <span className="font-medium">{age}</span>
-                              <span className="text-muted-foreground">{percentage}%</span>
+                              <span className="font-medium text-slate-900">{age}</span>
+                              <span className="text-slate-500">{percentage}%</span>
                             </div>
-                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all duration-300"
                                 style={{
@@ -341,28 +339,28 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
                 </div>
 
                 {/* Summary Stats */}
-                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t">
+                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-200">
                   <div>
-                    <div className="text-xs text-muted-foreground">Total Spend</div>
+                    <div className="text-xs text-slate-500">Total Spend</div>
                     <div className="text-lg font-bold" style={{ color: selectedPillarData.color }}>
                       {formatCurrency(selectedPillarData.totalSpend)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">Accounts</div>
-                    <div className="text-lg font-bold">
+                    <div className="text-xs text-slate-500">Accounts</div>
+                    <div className="text-lg font-bold text-slate-900">
                       {formatNumber(selectedPillarData.accountCount)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">Transactions</div>
-                    <div className="text-lg font-bold">
+                    <div className="text-xs text-slate-500">Transactions</div>
+                    <div className="text-lg font-bold text-slate-900">
                       {formatNumber(selectedPillarData.transactionCount)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">Avg per Account</div>
-                    <div className="text-lg font-bold">
+                    <div className="text-xs text-slate-500">Avg per Account</div>
+                    <div className="text-lg font-bold text-slate-900">
                       {formatCurrency(selectedPillarData.avgSpendPerAccount)}
                     </div>
                   </div>

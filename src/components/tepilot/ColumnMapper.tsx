@@ -49,9 +49,9 @@ export function ColumnMapper({
   };
 
   return (
-    <Card className="border-primary/20">
+    <Card className="border-slate-200 bg-white">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-slate-900">
           {isValid ? (
             <CheckCircle2 className="w-5 h-5 text-green-500" />
           ) : (
@@ -59,30 +59,30 @@ export function ColumnMapper({
           )}
           Map Your Columns
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-600">
           We detected {detectedColumns.length} columns. Map them to the required fields below.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Required Fields */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold flex items-center gap-2">
+          <h3 className="text-sm font-semibold flex items-center gap-2 text-slate-900">
             Required Fields
             <Badge variant="destructive" className="text-xs">Must have</Badge>
           </h3>
           {requiredFields.map((field) => (
             <div key={field} className="flex items-center gap-3">
-              <div className="w-32 text-sm font-medium capitalize">
+              <div className="w-32 text-sm font-medium capitalize text-slate-900">
                 {field.replace(/_/g, " ")}
               </div>
               <Select
                 value={mapping[field] || "none"}
                 onValueChange={(val) => handleMappingChange(field, val)}
               >
-                <SelectTrigger className={`flex-1 ${!mapping[field] ? "border-destructive" : ""}`}>
+                <SelectTrigger className={`flex-1 bg-white border-slate-300 text-slate-900 ${!mapping[field] ? "border-red-400" : ""}`}>
                   <SelectValue placeholder="Select column..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-slate-200">
                   <SelectItem value="none">-- None --</SelectItem>
                   {detectedColumns.map((col) => (
                     <SelectItem key={col} value={col}>
@@ -100,23 +100,23 @@ export function ColumnMapper({
 
         {/* Optional Fields */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold flex items-center gap-2">
+          <h3 className="text-sm font-semibold flex items-center gap-2 text-slate-900">
             Optional Fields
             <Badge variant="secondary" className="text-xs">Recommended</Badge>
           </h3>
           {optionalFields.map((field) => (
             <div key={field} className="flex items-center gap-3">
-              <div className="w-32 text-sm font-medium capitalize">
+              <div className="w-32 text-sm font-medium capitalize text-slate-900">
                 {field.replace(/_/g, " ")}
               </div>
               <Select
                 value={mapping[field] || "none"}
                 onValueChange={(val) => handleMappingChange(field, val)}
               >
-                <SelectTrigger className="flex-1">
+                <SelectTrigger className="flex-1 bg-white border-slate-300 text-slate-900">
                   <SelectValue placeholder="Select column..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border-slate-200">
                   <SelectItem value="none">-- None --</SelectItem>
                   {detectedColumns.map((col) => (
                     <SelectItem key={col} value={col}>
@@ -134,13 +134,13 @@ export function ColumnMapper({
 
         {/* Unmapped Columns Warning */}
         {getUnmappedColumns().length > 0 && (
-          <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs text-muted-foreground mb-2">
+          <div className="bg-slate-100 p-3 rounded-md">
+            <p className="text-xs text-slate-500 mb-2">
               These columns will be ignored:
             </p>
             <div className="flex flex-wrap gap-1">
               {getUnmappedColumns().map((col) => (
-                <Badge key={col} variant="outline" className="text-xs">
+                <Badge key={col} variant="outline" className="text-xs border-slate-300 text-slate-600">
                   {col}
                 </Badge>
               ))}

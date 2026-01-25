@@ -106,12 +106,12 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
 
   return (
     <>
-      <div className="bg-card border rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
+            <TableRow className="bg-slate-100">
               <TableHead 
-                className="cursor-pointer hover:bg-muted/80"
+                className="cursor-pointer hover:bg-slate-200"
                 onClick={() => handleSort('merchant')}
               >
                 <div className="flex items-center gap-1">
@@ -121,7 +121,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
               </TableHead>
               <TableHead>Gap</TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/80"
+                className="cursor-pointer hover:bg-slate-200"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center gap-1">
@@ -130,7 +130,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
                 </div>
               </TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/80 text-right"
+                className="cursor-pointer hover:bg-slate-200 text-right"
                 onClick={() => handleSort('revenue')}
               >
                 <div className="flex items-center gap-1 justify-end">
@@ -140,7 +140,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
               </TableHead>
               <TableHead className="text-right">Users</TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/80"
+                className="cursor-pointer hover:bg-slate-200"
                 onClick={() => handleSort('deadline')}
               >
                 <div className="flex items-center gap-1">
@@ -149,7 +149,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
                 </div>
               </TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/80 text-right"
+                className="cursor-pointer hover:bg-slate-200 text-right"
                 onClick={() => handleSort('confidence')}
               >
                 <div className="flex items-center gap-1 justify-end">
@@ -167,22 +167,22 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
               return (
                 <TableRow 
                   key={`${item.pitch.merchantName}-${idx}`}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer hover:bg-slate-50"
                   onClick={() => setSelectedMerchant(item)}
                 >
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-md bg-muted border">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <div className="p-1.5 rounded-md bg-slate-100 border border-slate-200">
+                        <Building2 className="h-4 w-4 text-slate-500" />
                       </div>
                       <div>
                         <p className="font-medium">{item.pitch.merchantName}</p>
-                        <p className="text-xs text-muted-foreground">{item.pitch.merchantCategory}</p>
+                        <p className="text-xs text-slate-500">{item.pitch.merchantCategory}</p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">{item.opportunityTitle}</span>
+                    <span className="text-sm text-slate-500">{item.opportunityTitle}</span>
                   </TableCell>
                   <TableCell onClick={e => e.stopPropagation()}>
                     <Select 
@@ -212,7 +212,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
                   <TableCell>
                     <div>
                       <p className="text-sm">{item.pitch.negotiationDeadline}</p>
-                      <p className="text-xs text-muted-foreground">{item.pitch.peakQuarter}</p>
+                      <p className="text-xs text-slate-500">{item.pitch.peakQuarter}</p>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -249,7 +249,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
               </DialogHeader>
               
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">{selectedMerchant.pitch.merchantCategory}</p>
+                <p className="text-sm text-slate-500">{selectedMerchant.pitch.merchantCategory}</p>
                 
                 {/* Proposed Deal */}
                 <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
@@ -276,40 +276,40 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
 
                 {/* Metrics */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <DollarSign className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
+                  <div className="text-center p-3 bg-slate-50 rounded-lg">
+                    <DollarSign className="h-4 w-4 mx-auto text-slate-500 mb-1" />
                     <p className="text-lg font-bold">{formatCurrency(selectedMerchant.pitch.estimatedRevenueCapture)}</p>
-                    <p className="text-xs text-muted-foreground">Est. Revenue</p>
+                    <p className="text-xs text-slate-500">Est. Revenue</p>
                   </div>
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <Users className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
+                  <div className="text-center p-3 bg-slate-50 rounded-lg">
+                    <Users className="h-4 w-4 mx-auto text-slate-500 mb-1" />
                     <p className="text-lg font-bold">{formatUsers(selectedMerchant.pitch.targetedUserCount)}</p>
-                    <p className="text-xs text-muted-foreground">Target Users</p>
+                    <p className="text-xs text-slate-500">Target Users</p>
                   </div>
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <Percent className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
+                  <div className="text-center p-3 bg-slate-50 rounded-lg">
+                    <Percent className="h-4 w-4 mx-auto text-slate-500 mb-1" />
                     <p className="text-lg font-bold">{selectedMerchant.pitch.projectedConversionRate}%</p>
-                    <p className="text-xs text-muted-foreground">Conversion</p>
+                    <p className="text-xs text-slate-500">Conversion</p>
                   </div>
                 </div>
 
                 {/* Timing */}
-                <div className="p-3 bg-muted/30 rounded-lg border">
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                    <CalendarClock className="h-4 w-4 text-slate-500" />
                     <span className="text-xs font-medium uppercase">Timeline</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Negotiate by</p>
+                      <p className="text-slate-500">Negotiate by</p>
                       <p className="font-semibold text-amber-600">{selectedMerchant.pitch.negotiationDeadline}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Deploy</p>
+                      <p className="text-slate-500">Deploy</p>
                       <p className="font-semibold text-primary">{selectedMerchant.pitch.deploymentWindow.split(' - ')[0]}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Peak</p>
+                      <p className="text-slate-500">Peak</p>
                       <p className="font-semibold">{selectedMerchant.pitch.peakQuarter}</p>
                     </div>
                   </div>

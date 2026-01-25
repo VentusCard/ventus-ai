@@ -64,15 +64,15 @@ export function OverviewMetrics({ originalTransactions, enrichedTransactions }: 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {metrics.map((metric, idx) => (
-        <Card key={idx} className="hover-scale cursor-pointer">
+        <Card key={idx} className="hover-scale cursor-pointer bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">
+                <p className="text-sm font-medium text-slate-500 mb-1">
                   {metric.title}
                 </p>
-                <p className="text-2xl font-bold mb-1">{metric.value}</p>
-                <p className="text-xs text-muted-foreground">{metric.subtitle}</p>
+                <p className="text-2xl font-bold mb-1 text-slate-900">{metric.value}</p>
+                <p className="text-xs text-slate-500">{metric.subtitle}</p>
               </div>
               <div className={`p-3 rounded-lg ${metric.bgColor}`}>
                 <metric.icon className={`w-5 h-5 ${metric.color}`} />

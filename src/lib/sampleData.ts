@@ -1,3 +1,222 @@
+import { ClientProfileData } from "@/types/clientProfile";
+
+// Sample customer profiles for each dataset
+export const SAMPLE_CUSTOMER_1: ClientProfileData = {
+  name: "Sarah Mitchell",
+  segment: "Preferred",
+  aum: "$650K",
+  tenure: "2.5 years",
+  contact: {
+    email: "sarah.mitchell@gmail.com",
+    phone: "(415) 555-1234",
+    address: "1250 Market St, San Francisco, CA 94102",
+  },
+  demographics: {
+    age: "32",
+    occupation: "Product Manager",
+    familyStatus: "Single",
+    incomeLevel: "$150K-$200K",
+    industry: "Technology",
+  },
+  holdings: {
+    deposit: "$85K",
+    credit: "$15K",
+    mortgage: "$0",
+    investments: "$550K",
+  },
+  compliance: {
+    kycStatus: "Current",
+    lastReview: "Oct 2024",
+    nextReview: "Apr 2025",
+    riskProfile: "Moderate",
+  },
+  milestones: [
+    { event: "Account Opening", date: "Jun 2022" },
+    { event: "Added Investment Account", date: "Sep 2022" },
+  ],
+};
+
+export const SAMPLE_CUSTOMER_2: ClientProfileData = {
+  name: "James Rodriguez",
+  segment: "Preferred",
+  aum: "$420K",
+  tenure: "1.8 years",
+  contact: {
+    email: "james.rodriguez@outlook.com",
+    phone: "(512) 555-8876",
+    address: "850 Congress Ave, Austin, TX 78701",
+  },
+  demographics: {
+    age: "29",
+    occupation: "Software Engineer",
+    familyStatus: "Engaged",
+    incomeLevel: "$175K-$225K",
+    industry: "Technology",
+  },
+  holdings: {
+    deposit: "$65K",
+    credit: "$8K",
+    mortgage: "$0",
+    investments: "$347K",
+  },
+  compliance: {
+    kycStatus: "Current",
+    lastReview: "Nov 2024",
+    nextReview: "May 2025",
+    riskProfile: "Aggressive",
+  },
+  milestones: [
+    { event: "Account Opening", date: "Mar 2023" },
+    { event: "IRA Rollover Completed", date: "Aug 2023" },
+  ],
+};
+
+export const SAMPLE_CUSTOMER_3: ClientProfileData = {
+  name: "Emily Chen",
+  segment: "Private",
+  aum: "$1.2M",
+  tenure: "4.5 years",
+  contact: {
+    email: "emily.chen@icloud.com",
+    phone: "(312) 555-4420",
+    address: "2340 N Lincoln Ave, Chicago, IL 60614",
+  },
+  demographics: {
+    age: "38",
+    occupation: "Director of Operations",
+    familyStatus: "Married, 2 children",
+    incomeLevel: "$250K-$350K",
+    industry: "Healthcare",
+  },
+  holdings: {
+    deposit: "$180K",
+    credit: "$22K",
+    mortgage: "$485K",
+    investments: "$997K",
+  },
+  compliance: {
+    kycStatus: "Current",
+    lastReview: "Sep 2024",
+    nextReview: "Mar 2025",
+    riskProfile: "Balanced",
+  },
+  milestones: [
+    { event: "Account Opening", date: "Jul 2020" },
+    { event: "Mortgage Refinance", date: "Feb 2022" },
+    { event: "College Savings Plan Setup", date: "May 2023" },
+  ],
+};
+
+export const SAMPLE_CUSTOMER_4: ClientProfileData = {
+  name: "Michael Thompson",
+  segment: "Premium",
+  aum: "$2.8M",
+  tenure: "8.2 years",
+  contact: {
+    email: "michael.thompson@gmail.com",
+    phone: "(415) 555-9921",
+    address: "789 Pacific Heights Blvd, San Francisco, CA 94102",
+  },
+  demographics: {
+    age: "48",
+    occupation: "Managing Partner",
+    familyStatus: "Married, 2 children",
+    incomeLevel: "$500K-$750K",
+    industry: "Legal",
+  },
+  holdings: {
+    deposit: "$320K",
+    credit: "$45K",
+    mortgage: "$950K",
+    investments: "$2.4M",
+  },
+  compliance: {
+    kycStatus: "Current",
+    lastReview: "Aug 2024",
+    nextReview: "Feb 2025",
+    riskProfile: "Balanced",
+  },
+  milestones: [
+    { event: "Account Opening", date: "Nov 2016" },
+    { event: "Trust Account Established", date: "Mar 2019" },
+    { event: "Premium Status Achieved", date: "Jun 2020" },
+    { event: "Estate Planning Review", date: "Sep 2024" },
+  ],
+};
+
+export const SAMPLE_CUSTOMER_5: ClientProfileData = {
+  name: "Amanda Williams",
+  segment: "Private",
+  aum: "$1.5M",
+  tenure: "5.5 years",
+  contact: {
+    email: "amanda.williams@yahoo.com",
+    phone: "(212) 555-3847",
+    address: "45 E 10th St, New York, NY 10003",
+  },
+  demographics: {
+    age: "42",
+    occupation: "Investment Banker",
+    familyStatus: "Married, 1 child",
+    incomeLevel: "$400K-$600K",
+    industry: "Finance",
+  },
+  holdings: {
+    deposit: "$210K",
+    credit: "$35K",
+    mortgage: "$720K",
+    investments: "$1.25M",
+  },
+  compliance: {
+    kycStatus: "Current",
+    lastReview: "Oct 2024",
+    nextReview: "Apr 2025",
+    riskProfile: "Moderate",
+  },
+  milestones: [
+    { event: "Account Opening", date: "Jun 2019" },
+    { event: "Added Joint Account", date: "Dec 2020" },
+    { event: "Wealth Planning Session", date: "Mar 2024" },
+  ],
+};
+
+export const SAMPLE_CUSTOMER_6: ClientProfileData = {
+  name: "Robert Garcia",
+  segment: "Premium",
+  aum: "$3.2M",
+  tenure: "10.3 years",
+  contact: {
+    email: "robert.garcia@outlook.com",
+    phone: "(312) 555-7712",
+    address: "1200 N State Pkwy, Chicago, IL 60610",
+  },
+  demographics: {
+    age: "55",
+    occupation: "Chief Technology Officer",
+    familyStatus: "Married, adult children",
+    incomeLevel: "$600K-$1M",
+    industry: "Technology",
+  },
+  holdings: {
+    deposit: "$450K",
+    credit: "$28K",
+    mortgage: "$380K",
+    investments: "$2.75M",
+  },
+  compliance: {
+    kycStatus: "Current",
+    lastReview: "Jul 2024",
+    nextReview: "Jan 2025",
+    riskProfile: "Conservative",
+  },
+  milestones: [
+    { event: "Account Opening", date: "Sep 2014" },
+    { event: "Premium Status Achieved", date: "Mar 2017" },
+    { event: "Trust Account Established", date: "Nov 2020" },
+    { event: "Retirement Planning Session", date: "Jun 2024" },
+  ],
+};
+
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code
 txn_001,STARBUCKS COFFEE #1234,Coffee and pastry purchase,5814,12.45,2025-08-15,94102
 txn_002,WHOLE FOODS MARKET,Weekly grocery shopping,5411,156.78,2025-08-16,94102

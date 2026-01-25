@@ -128,7 +128,7 @@ Please provide structured analysis with opportunities, psychological insights, a
                     className="flex flex-col items-start py-3"
                   >
                     <div className="font-medium">{transcript.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
+                    <div className="text-xs text-slate-500 mt-1">
                       {transcript.context} • {transcript.duration}
                     </div>
                   </DropdownMenuItem>
@@ -163,7 +163,7 @@ Client: I'm a bit anxious about whether I've saved enough..."
               rows={12}
               className="font-mono text-sm"
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               {transcriptText.split(/\s+/).length} words
             </p>
           </div>

@@ -86,9 +86,9 @@ const FinancialPlanningPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen bg-white">
       {/* Top Navigation Bar */}
-      <div className="border-b px-4 py-3 bg-background z-10 shadow-sm flex-shrink-0">
+      <div className="border-b border-slate-200 px-4 py-3 bg-white z-10 shadow-sm flex-shrink-0">
         <div className="flex items-center justify-between max-w-full">
           <Button
             variant="ghost"
@@ -98,7 +98,7 @@ const FinancialPlanningPage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Advisor Console
           </Button>
-          <h2 className="text-sm font-medium text-muted-foreground">
+          <h2 className="text-sm font-medium text-slate-600">
             Financial Planning Tool
           </h2>
         </div>

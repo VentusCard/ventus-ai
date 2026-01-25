@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RecommendationsCard } from "@/components/tepilot/RecommendationsCard";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { SubcategoryTransactionsModal } from "@/components/tepilot/insights/SubcategoryTransactionsModal";
@@ -140,13 +139,24 @@ const RecommendationsPage = () => {
               </Card>
             )}
             
-            {/* Recommendations Card */}
-            <RecommendationsCard
-              recommendations={recommendations.recommendations || []}
-              summary={recommendations.summary || {
-                message: "No recommendations available"
-              }}
-            />
+            {/* Personalized Recommendations Info */}
+            <Card className="bg-violet-50/50 border-violet-200">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-violet-500" />
+                  <CardTitle>Personalized Deal Messaging</CardTitle>
+                </div>
+                <CardDescription>
+                  View personalized deals in the Reward Personalization Experience section on TePilot
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => navigate("/tepilot")} variant="outline" className="border-violet-300">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Go to TePilot
+                </Button>
+              </CardContent>
+            </Card>
           </>
         ) : (
           <Card>

@@ -65,7 +65,7 @@ export function IncomeExpenseEditor({
         <div className="space-y-1">
           <div className="flex justify-between items-center mb-3">
             <Label className="font-medium">Monthly Expenses</Label>
-            <span className={`font-bold ${totalExpenses > monthlyIncome ? 'text-red-600' : 'text-foreground'}`}>
+            <span className={`font-bold ${totalExpenses > monthlyIncome ? 'text-red-600' : 'text-slate-900'}`}>
               {formatCurrency(totalExpenses)}
             </span>
           </div>
@@ -87,7 +87,7 @@ export function IncomeExpenseEditor({
                       <span>{expense.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground text-xs">
+                      <span className="text-slate-500 text-xs">
                         {percentage}%
                       </span>
                       <span className="font-medium w-20 text-right">
@@ -112,7 +112,7 @@ export function IncomeExpenseEditor({
         {/* Visual breakdown bar */}
         <div className="pt-4 border-t">
           <Label className="text-sm mb-2 block">Expense Breakdown</Label>
-          <div className="flex h-4 rounded-full overflow-hidden bg-muted">
+          <div className="flex h-4 rounded-full overflow-hidden bg-slate-200">
             {expenses.map((expense) => {
               const width = monthlyIncome > 0 
                 ? (expense.monthlyAmount / monthlyIncome) * 100 
@@ -130,7 +130,7 @@ export function IncomeExpenseEditor({
               );
             })}
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <div className="flex justify-between text-xs text-slate-500 mt-1">
             <span>0%</span>
             <span>50%</span>
             <span>100%</span>

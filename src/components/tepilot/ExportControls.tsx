@@ -36,11 +36,11 @@ export function ExportControls({ transactions }: ExportControlsProps) {
 
   return (
     <div className="flex gap-2">
-      <Button variant="outline" size="sm" onClick={exportAsCSV} disabled={transactions.length === 0}>
+      <Button variant="outline" size="sm" onClick={exportAsCSV} disabled={transactions.length === 0} className="border-slate-300 text-slate-700 hover:bg-slate-100">
         <FileSpreadsheet className="w-4 h-4 mr-2" />
         Export CSV
       </Button>
-      <Button variant="outline" size="sm" onClick={exportAsJSON} disabled={transactions.length === 0}>
+      <Button variant="outline" size="sm" onClick={exportAsJSON} disabled={transactions.length === 0} className="border-slate-300 text-slate-700 hover:bg-slate-100">
         <FileJson className="w-4 h-4 mr-2" />
         Export JSON
       </Button>

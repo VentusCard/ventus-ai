@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.analyze-pillar-transactions]
 verify_jwt = false
+
+[functions.semantic-deal-search]
+verify_jwt = false

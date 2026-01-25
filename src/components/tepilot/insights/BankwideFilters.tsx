@@ -42,15 +42,15 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
     filters.ageRanges.length > 0;
 
   return (
-    <Card className="p-6 space-y-4">
+    <Card className="p-6 space-y-4 bg-white border-slate-200">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Filters</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
         {hasActiveFilters && (
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={resetFilters}
-            className="h-8"
+            className="h-8 text-slate-700 hover:bg-slate-100"
           >
             <X className="h-4 w-4 mr-2" />
             Reset All
@@ -61,7 +61,7 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
       {/* Card Products */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground min-w-[120px]">
+          <span className="text-sm font-medium text-slate-500 min-w-[120px]">
             Card Products:
           </span>
           <div className="flex flex-wrap gap-2">
@@ -74,7 +74,7 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                   }`}
                 >
                   {product.name}
@@ -93,7 +93,7 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
       {/* Geographic Regions */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground min-w-[120px]">
+          <span className="text-sm font-medium text-slate-500 min-w-[120px]">
             Regions:
           </span>
           <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                   }`}
                 >
                   {region.name}
@@ -125,7 +125,7 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
       {/* Age Ranges */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground min-w-[120px]">
+          <span className="text-sm font-medium text-slate-500 min-w-[120px]">
             Age Ranges:
           </span>
           <div className="flex flex-wrap gap-2">
@@ -138,7 +138,7 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                   }`}
                 >
                   {ageRange.range}
@@ -154,22 +154,22 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="pt-2 border-t">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="pt-2 border-t border-slate-200">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
             <span>Active:</span>
             <div className="flex flex-wrap gap-1">
               {filters.cardProducts.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700 border-slate-200">
                   {filters.cardProducts.length} Card{filters.cardProducts.length !== 1 ? 's' : ''}
                 </Badge>
               )}
               {filters.regions.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700 border-slate-200">
                   {filters.regions.length} Region{filters.regions.length !== 1 ? 's' : ''}
                 </Badge>
               )}
               {filters.ageRanges.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700 border-slate-200">
                   {filters.ageRanges.length} Age Range{filters.ageRanges.length !== 1 ? 's' : ''}
                 </Badge>
               )}

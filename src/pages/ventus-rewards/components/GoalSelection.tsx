@@ -10,7 +10,7 @@ interface GoalSelectionProps {
 
 const GoalSelection = ({ lifestyleOptions, selectedGoal, onGoalSelect }: GoalSelectionProps) => {
   return (
-    <section className="py-16 bg-slate-900">
+    <section id="goal-selection" className="pt-0 pb-16 bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-white">

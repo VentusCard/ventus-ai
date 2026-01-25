@@ -96,10 +96,25 @@ const cities = [
   { city: 'Miami', state: 'FL', zip: '33101' },
 ];
 
+const industries = [
+  'Technology',
+  'Healthcare',
+  'Finance',
+  'Legal',
+  'Real Estate',
+  'Manufacturing',
+  'Education',
+  'Consulting',
+  'Retail',
+  'Energy',
+];
+
 const profilePersonaConfig: Record<Persona, {
   ageRange: [number, number];
   familyStatuses: string[];
   occupations: string[];
+  industries: string[];
+  incomeLevels: string[];
   segments: ClientProfileData['segment'][];
   aumRange: [number, number];
   riskProfiles: ClientProfileData['compliance']['riskProfile'][];
@@ -109,6 +124,8 @@ const profilePersonaConfig: Record<Persona, {
     ageRange: [28, 35],
     familyStatuses: ['Single', 'Engaged', 'Married, no children'],
     occupations: ['Software Engineer', 'Product Manager', 'Marketing Director', 'Financial Analyst', 'UX Designer', 'Data Scientist'],
+    industries: ['Technology', 'Finance', 'Consulting', 'Healthcare'],
+    incomeLevels: ['$75K-$100K', '$100K-$150K', '$150K-$200K'],
     segments: ['Preferred'],
     aumRange: [300000, 800000],
     riskProfiles: ['Aggressive', 'Moderate'],
@@ -118,6 +135,8 @@ const profilePersonaConfig: Record<Persona, {
     ageRange: [32, 45],
     familyStatuses: ['Married, 1 child', 'Married, 2 children', 'Married, 3 children'],
     occupations: ['Senior Manager', 'Director of Operations', 'Physician', 'Attorney', 'Business Owner', 'VP of Sales'],
+    industries: ['Healthcare', 'Legal', 'Finance', 'Technology', 'Real Estate'],
+    incomeLevels: ['$150K-$250K', '$250K-$350K', '$350K-$500K'],
     segments: ['Preferred', 'Private'],
     aumRange: [800000, 2000000],
     riskProfiles: ['Moderate', 'Balanced'],
@@ -127,6 +146,8 @@ const profilePersonaConfig: Record<Persona, {
     ageRange: [40, 55],
     familyStatuses: ['Married, 2 children', 'Married, adult children', 'Divorced, children'],
     occupations: ['Chief Technology Officer', 'Managing Partner', 'Surgeon', 'Investment Banker', 'Entrepreneur', 'Corporate Executive'],
+    industries: ['Finance', 'Technology', 'Healthcare', 'Legal', 'Consulting'],
+    incomeLevels: ['$250K-$400K', '$400K-$600K', '$600K-$1M'],
     segments: ['Private', 'Premium'],
     aumRange: [1500000, 3500000],
     riskProfiles: ['Balanced', 'Moderate'],
@@ -136,6 +157,8 @@ const profilePersonaConfig: Record<Persona, {
     ageRange: [55, 65],
     familyStatuses: ['Married, adult children', 'Empty nester', 'Married, grandchildren'],
     occupations: ['Senior Vice President', 'Retired Executive', 'Business Owner', 'Partner Emeritus', 'Board Member', 'Consultant'],
+    industries: ['Finance', 'Real Estate', 'Energy', 'Manufacturing', 'Consulting'],
+    incomeLevels: ['$300K-$500K', '$500K-$750K', '$750K+'],
     segments: ['Premium'],
     aumRange: [2000000, 5000000],
     riskProfiles: ['Conservative', 'Balanced'],
@@ -272,6 +295,8 @@ export function generateRandomProfile(): ClientProfileData {
       age: `${age}`,
       occupation: randomFromArray(config.occupations),
       familyStatus: randomFromArray(config.familyStatuses),
+      incomeLevel: randomFromArray(config.incomeLevels),
+      industry: randomFromArray(config.industries),
     },
     holdings: {
       deposit: formatCurrency(deposits),

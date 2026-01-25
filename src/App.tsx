@@ -17,11 +17,6 @@ import Gallery from "./pages/Gallery";
 import Privacy from "./pages/Privacy";
 import TermsOfService from "./pages/TermsOfService";
 import VentusAI from "./pages/VentusAI";
-import Login from "./pages/Login";
-import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
-import Deals from "./pages/Deals";
-import SavedDeals from "./pages/SavedDeals";
 import TePilot from "./pages/TePilot";
 import NotFound from "./pages/NotFound";
 import AppDownload from "./pages/AppDownload";
@@ -30,6 +25,19 @@ import RecommendationsPage from "./pages/RecommendationsPage";
 import AdvisorConsolePage from "./pages/AdvisorConsolePage";
 import FinancialPlanningPage from "./pages/FinancialPlanningPage";
 import RewardsPipelinePage from "./pages/RewardsPipelinePage";
+
+// Ventus Web App imports
+import { VentusAuthProvider } from "./contexts/VentusAuthContext";
+import { ProtectedRoute } from "./components/ventus-app/ProtectedRoute";
+import VentusLanding from "./pages/ventus-app/VentusLanding";
+import VentusAuth from "./pages/ventus-app/VentusAuth";
+import VentusSignupLifestyle from "./pages/ventus-app/VentusSignupLifestyle";
+import VentusSignupSports from "./pages/ventus-app/VentusSignupSports";
+import VentusSignupLocation from "./pages/ventus-app/VentusSignupLocation";
+import VentusHome from "./pages/ventus-app/VentusHome";
+import VentusSearch from "./pages/ventus-app/VentusSearch";
+import VentusProfile from "./pages/ventus-app/VentusProfile";
+import VentusForgotPassword from "./pages/ventus-app/VentusForgotPassword";
 
 const queryClient = new QueryClient();
 
@@ -42,13 +50,8 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Login />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/smartrewards" element={<OnboardingFlow />} />
           <Route path="/smartreward" element={<Navigate to="/smartrewards" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/deals" element={<Deals />} />
-          <Route path="/saved-deals" element={<SavedDeals />} />
           <Route path="/join-waitlist" element={<JoinWaitlist />} />
           <Route path="/partners" element={<Partners />} />
           <Route path="/partner" element={<Navigate to="/partners" replace />} />
@@ -65,8 +68,27 @@ const App = () => (
           <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
           <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
           <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
-          <Route path="/app" element={<AppDownload />} />
+          <Route path="/download" element={<AppDownload />} />
           <Route path="/archive" element={<Archive />} />
+
+          {/* Ventus Web App Routes - All wrapped in VentusAuthProvider */}
+          <Route path="/app/*" element={
+            <VentusAuthProvider>
+              <Routes>
+                <Route index element={<VentusLanding />} />
+                <Route path="signup" element={<VentusAuth />} />
+                <Route path="signup/lifestyle" element={<VentusSignupLifestyle />} />
+                <Route path="signup/sports" element={<VentusSignupSports />} />
+                <Route path="signup/location" element={<VentusSignupLocation />} />
+                <Route path="login" element={<VentusAuth />} />
+                <Route path="forgot-password" element={<VentusForgotPassword />} />
+                <Route path="home" element={<ProtectedRoute><VentusHome /></ProtectedRoute>} />
+                <Route path="search" element={<ProtectedRoute><VentusSearch /></ProtectedRoute>} />
+                <Route path="profile" element={<ProtectedRoute><VentusProfile /></ProtectedRoute>} />
+              </Routes>
+            </VentusAuthProvider>
+          } />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

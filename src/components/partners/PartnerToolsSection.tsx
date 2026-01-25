@@ -154,22 +154,17 @@ const PartnerToolsSection = () => {
     }
   };
 
-  return <section className="py-8 px-4 md:px-8 relative">
+  return <section className="py-16 px-4 md:px-8 relative">
       <div className="max-w-7xl mx-auto">
-      {/* Background tech pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
       
       <div className="relative">
         <div className="text-center mb-12 mt-0">
-          
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent mb-4">
-            Our Suite of Advanced Tools
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Our Suite of <span className="italic font-light text-muted-foreground">Advanced Tools</span>
           </h2>
-          <p className="text-lg text-white/80 w-full mx-auto">
-            Ventus leverages proprietary AI and analytics to create customizable tool suite 
-            to drive engagement and maximize revenue. 
-            <br />
-            Cutting-edge capabilities, zero-integration.
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            Ventus leverages proprietary AI and analytics to create a customizable tool suite 
+            to drive engagement and maximize revenue. Cutting-edge capabilities, zero integration.
           </p>
         </div>
         
@@ -180,7 +175,7 @@ const PartnerToolsSection = () => {
             
             return <Card 
               key={index} 
-              className="group hover:shadow-2xl transition-all duration-500 border-0 bg-slate-800/90 backdrop-blur-sm hover:scale-[1.02] animate-fade-in overflow-hidden relative"
+              className="group hover:shadow-xl transition-all duration-500 border-border bg-card hover:scale-[1.02] animate-fade-in overflow-hidden relative"
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={() => handleMouseLeave(index)}
               onTouchStart={(e) => onTouchStart(e, index)}
@@ -194,12 +189,12 @@ const PartnerToolsSection = () => {
                   <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tool.gradient} shadow-lg flex items-center justify-center mb-4`}>
                     <IconComponent className="h-7 w-7 text-white" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-white">
+                  <CardTitle className="text-xl font-bold text-foreground">
                     {tool.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="relative pt-0">
-                  <CardDescription className={`text-base leading-relaxed text-white/70 transition-all duration-300 ${animatingCards[index] ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'}`}>
+                  <CardDescription className={`text-base leading-relaxed text-muted-foreground transition-all duration-300 ${animatingCards[index] ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'}`}>
                     {tool.description}
                   </CardDescription>
                   

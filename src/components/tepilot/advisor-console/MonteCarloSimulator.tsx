@@ -156,7 +156,7 @@ export function MonteCarloSimulator({
             </Badge>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-slate-500">
           Simulate {simulations.toLocaleString()} possible market scenarios to estimate retirement outcomes
         </p>
       </CardHeader>
@@ -166,7 +166,7 @@ export function MonteCarloSimulator({
           <div>
             <Label className="text-sm">Starting Portfolio</Label>
             <div className="relative mt-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
               <Input
                 type="number"
                 value={portfolio}
@@ -178,7 +178,7 @@ export function MonteCarloSimulator({
           <div>
             <Label className="text-sm">Annual Contribution</Label>
             <div className="relative mt-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
               <Input
                 type="number"
                 value={contribution}
@@ -201,7 +201,7 @@ export function MonteCarloSimulator({
           <div>
             <Label className="text-sm">Target Goal</Label>
             <div className="relative mt-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
               <Input
                 type="number"
                 value={goal}
@@ -213,7 +213,7 @@ export function MonteCarloSimulator({
         </div>
 
         {/* Market Assumptions */}
-        <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+        <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
           <Label className="text-sm font-medium">Market Assumptions</Label>
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -228,7 +228,7 @@ export function MonteCarloSimulator({
                 max={12}
                 step={0.5}
               />
-              <p className="text-xs text-muted-foreground">Historical S&P 500: ~10%</p>
+              <p className="text-xs text-slate-500">Historical S&P 500: ~10%</p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -242,7 +242,7 @@ export function MonteCarloSimulator({
                 max={30}
                 step={1}
               />
-              <p className="text-xs text-muted-foreground">Historical S&P 500: ~15-16%</p>
+              <p className="text-xs text-slate-500">Historical S&P 500: ~15-16%</p>
             </div>
           </div>
         </div>
@@ -265,7 +265,7 @@ export function MonteCarloSimulator({
                 </span>
               </div>
               <Progress value={successRate} className="h-3" />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-slate-500">
                 Target: {formatCurrency(goal)} by {new Date().getFullYear() + years}
               </p>
             </div>
@@ -273,15 +273,15 @@ export function MonteCarloSimulator({
             {/* Outcome Distribution */}
             <div className="grid grid-cols-3 gap-4">
               <div className="p-3 bg-red-500/10 rounded-lg text-center">
-                <p className="text-xs text-muted-foreground mb-1">10th Percentile (Bad)</p>
+                <p className="text-xs text-slate-500 mb-1">10th Percentile (Bad)</p>
                 <p className="font-semibold text-red-600">{formatCurrency(finalP10)}</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-lg text-center">
-                <p className="text-xs text-muted-foreground mb-1">50th Percentile (Median)</p>
+                <p className="text-xs text-slate-500 mb-1">50th Percentile (Median)</p>
                 <p className="font-semibold text-primary">{formatCurrency(finalMedian)}</p>
               </div>
               <div className="p-3 bg-green-500/10 rounded-lg text-center">
-                <p className="text-xs text-muted-foreground mb-1">90th Percentile (Good)</p>
+                <p className="text-xs text-slate-500 mb-1">90th Percentile (Good)</p>
                 <p className="font-semibold text-green-600">{formatCurrency(finalP90)}</p>
               </div>
             </div>
@@ -353,7 +353,7 @@ export function MonteCarloSimulator({
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-xs text-slate-500 text-center">
                 Shaded area shows range between 10th and 90th percentile outcomes
               </p>
             </div>
@@ -365,7 +365,7 @@ export function MonteCarloSimulator({
                   <TrendingUp className="w-5 h-5 text-amber-600" />
                   <span className="font-medium text-amber-700 dark:text-amber-400">Suggestions to Improve Success Rate</span>
                 </div>
-                <ul className="text-sm text-muted-foreground space-y-1 ml-7 list-disc">
+                <ul className="text-sm text-slate-500 space-y-1 ml-7 list-disc">
                   {successRate < 60 && <li>Consider increasing annual contributions by {formatCurrency(contribution * 0.25)}</li>}
                   {years < 30 && <li>Delaying retirement by 2-3 years could significantly improve outcomes</li>}
                   <li>Review asset allocation to ensure appropriate risk level</li>

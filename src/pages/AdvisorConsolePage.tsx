@@ -149,7 +149,7 @@ const AdvisorConsolePage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to TePilot
           </Button>
-          <h2 className="text-sm font-medium text-muted-foreground">
+          <h2 className="text-sm font-medium text-slate-500">
             Wealth Management Copilot
           </h2>
         </div>

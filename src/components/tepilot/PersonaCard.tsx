@@ -35,7 +35,7 @@ export function PersonaCard({
   return (
     <Card
       className={cn(
-        "group relative transition-all duration-200 hover:shadow-md border-border min-h-[450px] flex flex-col",
+        "group relative transition-all duration-200 hover:shadow-md border-slate-200 bg-white min-h-[450px] flex flex-col",
         disabled && "opacity-50 cursor-not-allowed",
         !disabled && "hover:border-primary/20"
       )}
@@ -43,8 +43,8 @@ export function PersonaCard({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-gradient-to-br from-muted to-muted/80 group-hover:from-muted/80 group-hover:to-muted/60 transition-all">
-              <Icon className="w-8 h-8 text-foreground" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 group-hover:from-slate-50 group-hover:to-slate-100 transition-all">
+              <Icon className="w-8 h-8 text-slate-700" />
             </div>
             <div>
               <CardTitle className="text-xl leading-tight">{title}</CardTitle>
@@ -74,7 +74,7 @@ export function PersonaCard({
           {keyFeatures.map((feature, idx) => (
             <div key={idx} className="flex items-start gap-2.5">
               <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <span className="text-sm text-muted-foreground leading-relaxed">{feature}</span>
+              <span className="text-sm text-slate-600 leading-relaxed">{feature}</span>
             </div>
           ))}
         </div>

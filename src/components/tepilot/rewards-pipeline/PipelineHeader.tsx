@@ -69,19 +69,19 @@ export function PipelineHeader({
             <Sparkles className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">Consumer Rewards Pipeline (WIP not fully working)</h1>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-slate-500">
             Manage merchant partnerships and track deal progress across all revenue opportunities
           </p>
         </div>
         
         <div className="text-right">
           <div className="text-3xl font-bold text-primary">{formatCurrency(totalOpportunity)}</div>
-          <div className="text-sm text-muted-foreground">total opportunity</div>
+          <div className="text-sm text-slate-500">total opportunity</div>
         </div>
       </div>
 
       {/* Filters and Stats Row */}
-      <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
+      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Filter by Gap:</span>
@@ -101,7 +101,7 @@ export function PipelineHeader({
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{totalMerchants} merchants:</span>
+            <span className="text-sm text-slate-500">{totalMerchants} merchants:</span>
             {counts.live > 0 && <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
                 {counts.live} live
               </Badge>}

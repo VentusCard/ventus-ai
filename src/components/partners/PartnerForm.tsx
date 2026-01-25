@@ -40,12 +40,12 @@ const PartnerForm = () => {
   };
 
   return (
-    <section className="pt-4 pb-8 px-4 md:px-8">
+    <section className="py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-            Join The Waitlist Today
+        <div className="text-center mb-12">
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-foreground">
+            Join The <span className="italic font-light text-muted-foreground">Waitlist</span>
           </h2>
         </div>
         
@@ -72,22 +72,20 @@ const PartnerForm = () => {
           />
 
           {/* CTA Card to External Signup */}
-          <Card className="overflow-hidden border-0 shadow-premium bg-white/95 backdrop-blur-sm">
+          <Card className="overflow-hidden border-border bg-card">
             <CardContent className="p-4 md:p-6">
               <div className="flex items-center gap-2 md:gap-3 mb-3">
-                <div className="relative p-1.5 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-lg shadow-md">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-black/5 rounded-lg"></div>
-                  <div className="absolute inset-0.5 border border-white/40 rounded-md"></div>
-                  <ExternalLink size={16} className="text-white relative z-10 md:w-[18px] md:h-[18px]" strokeWidth={2} />
+                <div className="relative p-1.5 bg-primary rounded-lg shadow-md">
+                  <ExternalLink size={16} className="text-primary-foreground relative z-10 md:w-[18px] md:h-[18px]" strokeWidth={2} />
                 </div>
-                <h3 className="text-base md:text-2xl font-bold">Ready to Partner with Ventus?</h3>
+                <h3 className="text-base md:text-2xl font-bold text-foreground">Ready to Partner with Ventus?</h3>
               </div>
-              <p className="text-slate-600 text-sm md:text-base mb-4">
+              <p className="text-muted-foreground text-sm md:text-base mb-4">
                 Complete your merchant registration to start reaching customers who love what you offer.
               </p>
               <Button 
                 size="lg"
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-8"
+                className="font-semibold px-8"
                 onClick={() => window.open("https://www.ventusrewards.com/signup", "_blank")}
               >
                 Sign Up Now

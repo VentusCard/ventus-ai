@@ -103,10 +103,10 @@ export function ContextualInsightCards({ enrichedTransactions }: ContextualInsig
               <div className={`p-2 rounded-lg ${card.bgColor}`}>
                 <card.icon className={`w-4 h-4 ${card.color}`} />
               </div>
-              <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
+              <p className="text-xs font-medium text-slate-500">{card.label}</p>
             </div>
-            <p className="text-lg font-bold text-foreground">{card.value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+            <p className="text-lg font-bold text-slate-900">{card.value}</p>
+            <p className="text-xs text-slate-500 mt-1">{card.subtitle}</p>
           </CardContent>
         </Card>
       ))}

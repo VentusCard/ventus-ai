@@ -73,15 +73,15 @@ export function BankwideMetrics({ metrics }: BankwideMetricsProps) {
       {metricsData.map((metric) => {
         const Icon = metric.icon;
         return (
-          <Card key={metric.title} className="hover:shadow-lg transition-shadow">
+          <Card key={metric.title} className="hover:shadow-lg transition-shadow bg-white border-slate-200">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="space-y-2 flex-1">
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-sm font-medium text-slate-500">
                     {metric.title}
                   </p>
-                  <p className="text-3xl font-bold">{metric.value}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-3xl font-bold text-slate-900">{metric.value}</p>
+                  <p className="text-xs text-slate-500">
                     {metric.subtitle}
                   </p>
                 </div>

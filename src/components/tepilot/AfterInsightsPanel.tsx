@@ -109,9 +109,9 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
   return (
     <div className="space-y-6">
       {travelSpend > 0 && (
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-slate-900">
               <Plane className="h-5 w-5" />
               Travel Intelligence
             </CardTitle>
@@ -119,21 +119,21 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
           <CardContent>
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div>
-                <p className="text-sm text-muted-foreground">Travel Spend</p>
-                <p className="text-2xl font-bold">${travelSpend.toFixed(2)}</p>
+                <p className="text-sm text-slate-500">Travel Spend</p>
+                <p className="text-2xl font-bold text-slate-900">${travelSpend.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Travel Transactions</p>
-                <p className="text-2xl font-bold">{travelTransactions.length}</p>
+                <p className="text-sm text-slate-500">Travel Transactions</p>
+                <p className="text-2xl font-bold text-slate-900">{travelTransactions.length}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Reclassified</p>
-                <p className="text-2xl font-bold">{reclassifiedCount}</p>
+                <p className="text-sm text-slate-500">Reclassified</p>
+                <p className="text-2xl font-bold text-slate-900">{reclassifiedCount}</p>
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium mb-4">Travel Spending by Category</h4>
+              <h4 className="text-sm font-medium mb-4 text-slate-900">Travel Spending by Category</h4>
               <ResponsiveContainer width="100%" height={Math.max(300, travelSubcategoryData.length * 50)}>
                 <BarChart data={travelSubcategoryData} layout="vertical">
                   <XAxis type="number" />
@@ -151,14 +151,14 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
                         if (!data) return null;
                         
                         return (
-                          <div className="bg-background border rounded-lg shadow-lg p-3">
-                            <p className="font-semibold mb-2">{subcategory}</p>
-                            <p className="text-sm text-muted-foreground mb-2">
+                          <div className="bg-white border border-slate-200 rounded-lg shadow-lg p-3">
+                            <p className="font-semibold mb-2 text-slate-900">{subcategory}</p>
+                            <p className="text-sm text-slate-500 mb-2">
                               Total: ${data.totalSpend.toFixed(2)}
                             </p>
                             {data.segments.length > 1 && (
-                              <div className="space-y-1 pt-2 border-t">
-                                <p className="text-xs text-muted-foreground mb-1">Original Categories:</p>
+                              <div className="space-y-1 pt-2 border-t border-slate-200">
+                                <p className="text-xs text-slate-500 mb-1">Original Categories:</p>
                                 {data.segments.map((seg: any, idx: number) => (
                                   <div key={idx} className="flex items-center gap-2 text-sm">
                                     <div 
@@ -189,7 +189,7 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
                   ))}
                 </BarChart>
               </ResponsiveContainer>
-              <p className="text-xs text-muted-foreground mt-4">
+              <p className="text-xs text-slate-500 mt-4">
                 * Colors show which spending category transactions were originally classified as before travel detection
               </p>
             </div>
@@ -197,28 +197,28 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
         </Card>
       )}
       
-      <Card>
+      <Card className="bg-white border-slate-200">
         <CardHeader>
-          <CardTitle>After: Lifestyle Pillar Intelligence</CardTitle>
+          <CardTitle className="text-slate-900">After: Lifestyle Pillar Intelligence</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div>
-              <p className="text-sm text-muted-foreground">Total Spend</p>
-              <p className="text-2xl font-bold">${totalSpend.toFixed(2)}</p>
+              <p className="text-sm text-slate-500">Total Spend</p>
+              <p className="text-2xl font-bold text-slate-900">${totalSpend.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Misc Rate</p>
-              <p className="text-2xl font-bold">{miscRate.toFixed(1)}%</p>
+              <p className="text-sm text-slate-500">Misc Rate</p>
+              <p className="text-2xl font-bold text-slate-900">{miscRate.toFixed(1)}%</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Avg Confidence</p>
-              <p className="text-2xl font-bold">{(avgConfidence * 100).toFixed(0)}%</p>
+              <p className="text-sm text-slate-500">Avg Confidence</p>
+              <p className="text-2xl font-bold text-slate-900">{(avgConfidence * 100).toFixed(0)}%</p>
             </div>
           </div>
 
           <div>
-            <h4 className="text-sm font-medium mb-4">Spend by Lifestyle Pillar</h4>
+            <h4 className="text-sm font-medium mb-4 text-slate-900">Spend by Lifestyle Pillar</h4>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={chartData} layout="vertical">
                 <XAxis type="number" />
@@ -236,14 +236,14 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
                       if (!aggregate) return null;
                       
                       return (
-                        <div className="bg-background border rounded-lg shadow-lg p-3">
-                          <p className="font-semibold mb-2">{pillar}</p>
-                          <p className="text-sm text-muted-foreground mb-2">
+                        <div className="bg-white border border-slate-200 rounded-lg shadow-lg p-3">
+                          <p className="font-semibold mb-2 text-slate-900">{pillar}</p>
+                          <p className="text-sm text-slate-500 mb-2">
                             Total: ${aggregate.totalSpend.toFixed(2)}
                           </p>
                           {aggregate.segments.length > 1 && (
-                            <div className="space-y-1 pt-2 border-t">
-                              <p className="text-xs text-muted-foreground mb-1">Composition:</p>
+                            <div className="space-y-1 pt-2 border-t border-slate-200">
+                              <p className="text-xs text-slate-500 mb-1">Composition:</p>
                               {aggregate.segments.map((seg, idx) => (
                                 <div key={idx} className="flex items-center gap-2 text-sm">
                                   <div 
@@ -274,7 +274,7 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
                 ))}
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-xs text-muted-foreground mt-4">
+            <p className="text-xs text-slate-500 mt-4">
               * Colored segments in Travel & Exploration show original spending categories reclassified during detected travel periods
             </p>
           </div>

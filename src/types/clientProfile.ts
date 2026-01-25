@@ -12,6 +12,8 @@ export interface ClientProfileData {
     age: string;
     occupation: string;
     familyStatus: string;
+    incomeLevel: string;
+    industry: string;
   };
   holdings: {
     deposit: string;

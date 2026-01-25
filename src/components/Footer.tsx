@@ -33,24 +33,24 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <h3 className="text-xl font-bold tracking-wide mb-4">VENTUS CARD</h3>
-            <p className="text-slate-400 text-sm leading-relaxed">AI Powered Personalized Smart Rewards that Move with You. No Matter the Category</p>
+            <h3 className="text-xl font-bold tracking-wide mb-4 text-foreground">VENTUS CARD</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">AI Powered Personalized Smart Rewards that Move with You. No Matter the Category</p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4 text-foreground">Quick Links</h4>
             <div className="space-y-2">
-              <Link to="/about" className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <Link to="/about" className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 About Us
               </Link>
-              <Link to="/smartrewards" className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <Link to="/smartrewards" className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 How It Works
               </Link>
-              <Link to="/privacy" className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <Link to="/privacy" className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <Link to="/terms" className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 Terms of Service
               </Link>
             </div>
@@ -58,15 +58,15 @@ const Footer = () => {
 
           {/* Waitlist Access */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Waitlist Access</h4>
+            <h4 className="text-lg font-semibold mb-4 text-foreground">Waitlist Access</h4>
             <div className="space-y-2">
-              <a href="/join-waitlist" onClick={handleJoinWaitlistClick} className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <a href="/join-waitlist" onClick={handleJoinWaitlistClick} className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 Card Users
               </a>
-              <Link to="/benefits" className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <Link to="/benefits" className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 Benefits
               </Link>
-              <Link to="/partners" className="block text-slate-400 hover:text-white transition-colors text-sm">
+              <Link to="/partners" className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
                 Merchant Partners
               </Link>
             </div>
@@ -74,12 +74,12 @@ const Footer = () => {
 
           {/* Get in Touch */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Get in Touch</h4>
-            <p className="text-slate-400 text-sm mb-4">
+            <h4 className="text-lg font-semibold mb-4 text-foreground">Get in Touch</h4>
+            <p className="text-muted-foreground text-sm mb-4">
               Have questions? We're here to help.
             </p>
-            <Link to="/contact" className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium">
-              Contact Us
+            <Link to="/contact">
+              <Button size="sm">Contact Us</Button>
             </Link>
           </div>
         </div>

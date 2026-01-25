@@ -91,7 +91,7 @@ export function RetirementPlanningSection({
                     stroke="currentColor"
                     strokeWidth="12"
                     fill="none"
-                    className="text-muted"
+                    className="text-slate-200"
                   />
                   <circle
                     cx="64"
@@ -108,44 +108,44 @@ export function RetirementPlanningSection({
                   <span className={`text-3xl font-bold ${getReadinessColor(retirementAnalysis.readinessScore)}`}>
                     {retirementAnalysis.readinessScore}%
                   </span>
-                  <span className="text-xs text-muted-foreground">Readiness</span>
+                  <span className="text-xs text-slate-500">Readiness</span>
                 </div>
               </div>
               <div className="flex-1 space-y-2">
                 <div>
-                  <p className="text-sm text-muted-foreground">Years to Retirement</p>
+                  <p className="text-sm text-slate-500">Years to Retirement</p>
                   <p className="text-2xl font-bold">{yearsToRetirement}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Target Retirement</p>
+                  <p className="text-sm text-slate-500">Target Retirement</p>
                   <p className="font-semibold">Age {profile.retirementAge}</p>
                 </div>
               </div>
             </div>
 
             {/* Income Gap Analysis */}
-            <div className="p-4 rounded-lg bg-muted/50 space-y-3">
+            <div className="p-4 rounded-lg bg-slate-50 space-y-3">
               <h4 className="font-semibold flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 Retirement Income Analysis
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Desired Income:</span>
+                  <span className="text-slate-500">Desired Income:</span>
                   <span className="font-medium">{formatCurrency(profile.desiredRetirementIncome)}/yr</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Social Security:</span>
+                  <span className="text-slate-500">Social Security:</span>
                   <span className="font-medium">{formatCurrency(profile.socialSecurityEstimate)}/yr</span>
                 </div>
                 {profile.pensionIncome > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Pension:</span>
+                    <span className="text-slate-500">Pension:</span>
                     <span className="font-medium">{formatCurrency(profile.pensionIncome)}/yr</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Projected Portfolio Income:</span>
+                  <span className="text-slate-500">Projected Portfolio Income:</span>
                   <span className="font-medium">{formatCurrency(retirementAnalysis.projectedPortfolioIncome)}/yr</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between font-semibold">
@@ -242,7 +242,7 @@ export function RetirementPlanningSection({
                 onChange={(e) => onProfileChange({ ...profile, currentRetirementSavings: parseFloat(e.target.value) || 0 })}
                 className="mt-1"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Required at retirement (4% rule): {formatCurrency(retirementAnalysis.requiredPortfolio)}
               </p>
             </div>

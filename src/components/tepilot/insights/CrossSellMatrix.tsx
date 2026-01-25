@@ -27,13 +27,13 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
   const getColorClass = (level: string): string => {
     switch (level) {
       case 'high':
-        return 'bg-red-100 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 hover:bg-red-200 dark:hover:bg-red-950/50';
+        return 'bg-red-100 border-red-200 hover:bg-red-200';
       case 'medium':
-        return 'bg-yellow-100 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-950/50';
+        return 'bg-yellow-100 border-yellow-200 hover:bg-yellow-200';
       case 'low':
-        return 'bg-gray-100 dark:bg-gray-900/30 border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-900/50';
+        return 'bg-gray-100 border-gray-200 hover:bg-gray-200';
       default: // none
-        return 'bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800';
+        return 'bg-gray-50 border-gray-200';
     }
   };
 
@@ -52,20 +52,20 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
   const previewContent = (
     <div className="text-sm">
       <span className="text-primary font-medium">{formatCurrency(totalOpportunity)}</span>
-      <span className="text-muted-foreground"> in cross-sell potential. Top opportunity: </span>
-      <span className="text-foreground font-medium">{topOpportunity?.fromCard} → {topOpportunity?.toCard}</span>
-      <span className="text-muted-foreground"> worth </span>
+      <span className="text-slate-500"> in cross-sell potential. Top opportunity: </span>
+      <span className="text-slate-900 font-medium">{topOpportunity?.fromCard} → {topOpportunity?.toCard}</span>
+      <span className="text-slate-500"> worth </span>
       <span className="text-primary font-medium">{formatCurrency(topOpportunity?.annualOpportunity || 0)}</span>
-      <span className="text-muted-foreground"> with </span>
-      <span className="text-foreground font-medium">{formatNumber(topOpportunity?.potentialUsers || 0)} users</span>
-      <span className="text-muted-foreground">.</span>
+      <span className="text-slate-500"> with </span>
+      <span className="text-slate-900 font-medium">{formatNumber(topOpportunity?.potentialUsers || 0)} users</span>
+      <span className="text-slate-500">.</span>
     </div>
   );
 
   const headerRight = (
     <div className="text-right">
       <div className="text-xl font-bold text-primary">{formatCurrency(totalOpportunity)}</div>
-      <div className="text-xs text-muted-foreground">Total Opportunity</div>
+      <div className="text-xs text-slate-500">Total Opportunity</div>
     </div>
   );
 
@@ -78,9 +78,9 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
       previewContent={previewContent}
     >
       <div className="overflow-x-auto">
-        <div className="grid gap-0 border rounded-lg overflow-hidden min-w-[900px]" style={{ gridTemplateColumns: `auto repeat(${columnHeaders.length}, 1fr)` }}>
+        <div className="grid gap-0 border border-slate-200 rounded-lg overflow-hidden min-w-[900px]" style={{ gridTemplateColumns: `auto repeat(${columnHeaders.length}, 1fr)` }}>
           {/* Top-left empty corner */}
-          <div className="bg-muted p-4 border-r border-b font-semibold text-sm">
+          <div className="bg-slate-100 p-4 border-r border-b border-slate-200 font-semibold text-sm text-slate-900">
             From / To
           </div>
           
@@ -88,7 +88,7 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
           {columnHeaders.map((product) => (
             <div 
               key={`col-${product}`}
-              className="bg-muted p-3 border-r border-b font-semibold text-xs text-center"
+              className="bg-slate-100 p-3 border-r border-b border-slate-200 font-semibold text-xs text-center text-slate-900"
             >
               {product}
             </div>
@@ -100,7 +100,7 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
               {/* Row header (source card) */}
               <div 
                 key={`row-${rowIndex}`}
-                className="bg-muted p-3 border-r border-b font-semibold text-xs flex items-center"
+                className="bg-slate-100 p-3 border-r border-b border-slate-200 font-semibold text-xs flex items-center text-slate-900"
               >
                 {rowHeaders[rowIndex]}
               </div>
@@ -109,16 +109,16 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
               {row.map((cell, colIndex) => (
                 <div 
                   key={`cell-${rowIndex}-${colIndex}`}
-                  className={`p-3 border-r border-b transition-colors ${getColorClass(cell.opportunityLevel)}`}
+                  className={`p-3 border-r border-b border-slate-200 transition-colors ${getColorClass(cell.opportunityLevel)}`}
                 >
                   {cell.opportunityLevel === 'none' ? (
-                    <div className="text-muted-foreground text-center text-sm">N/A</div>
+                    <div className="text-slate-500 text-center text-sm">N/A</div>
                   ) : (
                     <div className="space-y-1">
-                      <div className="text-sm font-bold">
+                      <div className="text-sm font-bold text-slate-900">
                         {formatCurrency(cell.annualOpportunity)}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-slate-500">
                         {formatNumber(cell.potentialUsers)} users
                       </div>
                     </div>
@@ -130,22 +130,22 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
         </div>
       </div>
       
-      <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+      <div className="mt-4 p-4 bg-slate-50 rounded-lg">
         <div className="flex items-start gap-4 flex-wrap">
-          <div className="text-sm text-muted-foreground">
-            <strong>Color Legend:</strong>
+          <div className="text-sm text-slate-500">
+            <strong className="text-slate-700">Color Legend:</strong>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-100 border border-red-200 rounded" />
-            <span className="text-xs text-muted-foreground">$2B and above</span>
+            <span className="text-xs text-slate-500">$2B and above</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-yellow-100 border border-yellow-200 rounded" />
-            <span className="text-xs text-muted-foreground">$1-2B</span>
+            <span className="text-xs text-slate-500">$1-2B</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-gray-100 border border-gray-200 rounded" />
-            <span className="text-xs text-muted-foreground">Below $1B</span>
+            <span className="text-xs text-slate-500">Below $1B</span>
           </div>
         </div>
       </div>

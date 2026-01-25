@@ -26,13 +26,13 @@ const getPriorityStyles = (priority: 'high' | 'medium' | 'low') => {
     case 'medium':
       return 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300 border-amber-200 dark:border-amber-800';
     case 'low':
-      return 'bg-muted text-muted-foreground border-border';
+      return 'bg-slate-100 text-slate-500 border-slate-200';
   }
 };
 
 export function GapContextCard({ opportunity }: GapContextCardProps) {
   return (
-    <div className="bg-card border rounded-xl p-5 space-y-4">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -48,12 +48,12 @@ export function GapContextCard({ opportunity }: GapContextCardProps) {
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-primary">{formatCurrency(opportunity.totalOpportunityAmount)}</div>
-          <div className="text-sm text-muted-foreground">addressable revenue</div>
+          <div className="text-sm text-slate-500">addressable revenue</div>
         </div>
       </div>
 
       {/* Current → Target State */}
-      <div className="flex items-stretch gap-3 p-3 bg-muted/30 rounded-lg">
+      <div className="flex items-stretch gap-3 p-3 bg-slate-50 rounded-lg">
         <div className="flex-1 p-3 bg-rose-50/40 dark:bg-rose-950/10 rounded-lg border border-rose-200/40 dark:border-rose-800/20">
           <div className="text-xs font-medium text-rose-600/80 dark:text-rose-400/80 mb-1">Current State</div>
           <div className="text-sm">{opportunity.currentState}</div>
@@ -80,18 +80,18 @@ export function GapContextCard({ opportunity }: GapContextCardProps) {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-          <Users className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+          <Users className="h-5 w-5 text-slate-500" />
           <div>
             <div className="text-lg font-semibold">{formatUsers(opportunity.affectedUsers)}</div>
-            <div className="text-xs text-muted-foreground">Affected Users</div>
+            <div className="text-xs text-slate-500">Affected Users</div>
           </div>
         </div>
-        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-          <DollarSign className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+          <DollarSign className="h-5 w-5 text-slate-500" />
           <div>
             <div className="text-lg font-semibold">{formatCurrency(opportunity.totalOpportunityAmount / opportunity.affectedUsers)}</div>
-            <div className="text-xs text-muted-foreground">Per User Opportunity</div>
+            <div className="text-xs text-slate-500">Per User Opportunity</div>
           </div>
         </div>
       </div>

@@ -37,11 +37,11 @@ const VentusSimplificationSection = () => {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+      <div className="grid md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
         {aiFeatures.map((feature, index) => {
           const Icon = feature.icon;
           return (
-            <Card key={index} className="premium-card p-6">
+            <Card key={index} className="premium-card p-4 md:p-6">
               <CardContent className="p-0">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-blue-500/20 rounded-lg">
@@ -56,11 +56,11 @@ const VentusSimplificationSection = () => {
         })}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-3 md:gap-6">
         {simplicityBenefits.map((benefit, index) => {
           const Icon = benefit.icon;
           return (
-            <Card key={index} className="premium-card p-6">
+            <Card key={index} className="premium-card p-4 md:p-6">
               <CardContent className="p-0">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-green-500/20 rounded-lg">
