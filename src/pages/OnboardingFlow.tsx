@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import StepOneMerged from "@/components/onboarding-flow/StepOneMerged";
 import StepTwoMerged from "@/components/onboarding-flow/StepTwoMerged";
 import StepFourSpendingInput from "@/components/onboarding-flow/StepFourSpendingInput";
+import WaitlistFormLight from "@/components/onboarding-flow/WaitlistFormLight";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 export type LifestyleGoal = "sports" | "wellness" | "pets" | "gamers" | "creatives" | "homeowners";
@@ -35,7 +36,7 @@ const OnboardingFlow = () => {
     minCashbackPercentage: 5,
     maxCashbackPercentage: 15
   });
-  const totalSteps = 2;
+  const totalSteps = 3;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -115,17 +116,21 @@ const OnboardingFlow = () => {
         })} />;
       case 2:
         return (
-          <>
-            <StepTwoMerged selectedGoal={onboardingData.mainGoal as LifestyleGoal} selectedSubcategories={onboardingData.subcategories} />
-            <div className="text-center mt-12 pt-8 border-t border-border/40">
+          <StepTwoMerged selectedGoal={onboardingData.mainGoal as LifestyleGoal} selectedSubcategories={onboardingData.subcategories} />
+        );
+      case 3:
+        return (
+          <div className="max-w-xl mx-auto">
+            <div className="text-center mb-8">
               <h2 className="font-display text-xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Ready to Experience Smart Rewards?
               </h2>
               <p className="text-base md:text-xl text-muted-foreground max-w-4xl mx-auto">
-                Create your account to start earning personalized rewards tailored to your lifestyle.
+                Join the waitlist to be the first to earn personalized rewards tailored to your lifestyle.
               </p>
             </div>
-          </>
+            <WaitlistFormLight onboardingData={onboardingData} />
+          </div>
         );
       default:
         return <StepOneMerged selectedGoal={onboardingData.mainGoal} selectedSubcategories={onboardingData.subcategories} onSelectGoal={goal => updateOnboardingData({
@@ -146,6 +151,8 @@ const OnboardingFlow = () => {
         return 'Choose Your Reward Profile and Subcategories';
       case 2:
         return 'Understand Ventus Smart Rewards And Ventus AI Deals';
+      case 3:
+        return 'Join the Waitlist';
       default:
         return '';
     }
@@ -220,15 +227,7 @@ const OnboardingFlow = () => {
               </Button> : <div></div>}
             
             {step === totalSteps ? (
-              <Link to="/app">
-                <Button 
-                  type="button" 
-                  className="flex items-center gap-2 px-8 py-3 text-base font-semibold min-h-[48px] min-w-[120px] touch-manipulation"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  Download Free Deals App Today <ArrowRight size={18} />
-                </Button>
-              </Link>
+              <div></div>
             ) : (
               <Button 
                 type="button" 
