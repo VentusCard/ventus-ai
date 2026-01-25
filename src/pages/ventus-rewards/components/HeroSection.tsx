@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <div className="relative overflow-hidden flex flex-col justify-center pt-20 pb-2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="relative overflow-hidden flex flex-col justify-center pt-20 pb-1 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Metallic texture overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
       
@@ -55,7 +55,7 @@ const HeroSection = () => {
           {/* Scroll indicator */}
           <button 
             onClick={() => document.getElementById('goal-selection')?.scrollIntoView({ behavior: 'smooth' })}
-            className="animate-bounce mt-2"
+            className="animate-bounce mt-1"
             aria-label="Scroll down"
           >
             <ChevronDown className="h-6 w-6 text-slate-400 hover:text-white transition-colors" />
