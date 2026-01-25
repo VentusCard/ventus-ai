@@ -120,7 +120,7 @@ const OnboardingFlow = () => {
       case 2:
         return <StepTwoMerged selectedGoal={onboardingData.mainGoal as LifestyleGoal} selectedSubcategories={onboardingData.subcategories} />;
       case 3:
-        return <div className="max-w-xl mx-auto">
+        return <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="font-display text-xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Ready to Experience Smart Rewards?
