@@ -150,7 +150,7 @@ export function AssetAllocationEditor({
 
           {/* Arrow indicator */}
           <div className="hidden lg:flex items-center justify-center">
-            <ArrowRight className="w-8 h-8 text-muted-foreground" />
+            <ArrowRight className="w-8 h-8 text-slate-500" />
           </div>
 
           {/* Target Allocation with Sliders */}

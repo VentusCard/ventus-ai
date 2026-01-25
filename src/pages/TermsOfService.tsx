@@ -133,24 +133,24 @@ const TermsOfService = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-16 max-w-5xl">
+      <main className="container mx-auto px-4 pt-28 md:pt-32 pb-16 max-w-5xl">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-slate-900 mb-4">
+          <h1 className="text-4xl font-bold text-slate-900 mb-4">
             Terms of Service
           </h1>
-          <p className="text-xl text-slate-600">
+          <p className="text-lg text-slate-600">
             Please read these Terms of Service carefully before using our mobile application.
           </p>
-          <p className="text-sm text-slate-500 mt-4">Last updated: November 5, 2025</p>
+          <p className="text-xs text-slate-500 mt-4">Last updated: November 5, 2025</p>
         </div>
 
         {/* Introduction */}
         <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm mb-8">
           <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-bold text-slate-900">Introduction</CardTitle>
+            <CardTitle className="text-xl font-bold text-slate-900">Introduction</CardTitle>
           </CardHeader>
-          <CardContent className="text-slate-600 space-y-4 text-lg leading-relaxed pt-0">
+          <CardContent className="text-slate-600 space-y-4 text-base leading-relaxed pt-0">
             <p>
               Welcome to Ventus Financial Technologies Inc. ("Ventus," "we," "our," or "us"). These Terms of Service ("Terms") govern your access to and use of the Ventus mobile application and services (collectively, "Services").
             </p>
@@ -163,9 +163,9 @@ const TermsOfService = () => {
         {/* About Ventus */}
         <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm mb-8">
           <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-bold text-slate-900">About Ventus</CardTitle>
+            <CardTitle className="text-xl font-bold text-slate-900">About Ventus</CardTitle>
           </CardHeader>
-          <CardContent className="text-slate-600 space-y-3 text-lg leading-relaxed pt-0">
+          <CardContent className="text-slate-600 space-y-3 text-base leading-relaxed pt-0">
             <p>
               Ventus is a shopping assistant application that aggregates deals and discounts from external retailers. We provide AI-powered search functionality and personalized recommendations to help you discover savings. We are a deal aggregator and discovery platform - we do not sell products or process transactions.
             </p>
@@ -176,11 +176,11 @@ const TermsOfService = () => {
         <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm mb-8 border-l-4 border-l-blue-600">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-2">
-              <Store className="w-6 h-6 text-blue-600" />
-              <CardTitle className="text-2xl font-bold text-slate-900">External Merchant Links</CardTitle>
+              <Store className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-xl font-bold text-slate-900">External Merchant Links</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="text-slate-600 space-y-4 text-lg leading-relaxed pt-0">
+          <CardContent className="text-slate-600 space-y-4 text-base leading-relaxed pt-0">
             <p className="font-semibold text-slate-900">
               IMPORTANT: Ventus is a deal aggregator and discovery platform. When you click on deals, you are directed to external merchant websites where you can view products and complete purchases.
             </p>
@@ -213,12 +213,12 @@ const TermsOfService = () => {
               <Card key={index} className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
-                    <Icon className="w-6 h-6 text-blue-600" />
-                    <CardTitle className="text-2xl font-bold text-slate-900">{section.title}</CardTitle>
+                    <Icon className="w-5 h-5 text-blue-600" />
+                    <CardTitle className="text-xl font-bold text-slate-900">{section.title}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <ul className="space-y-2 text-slate-600 text-lg leading-relaxed">
+                  <ul className="space-y-2 text-slate-600 text-base leading-relaxed">
                     {section.content.map((item, itemIndex) => (
                       <li key={itemIndex} className={item.startsWith('•') ? 'ml-4' : ''}>
                         {item}
@@ -235,12 +235,12 @@ const TermsOfService = () => {
         <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm mt-8">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Eye className="w-6 h-6 text-blue-600" />
-              <CardTitle className="text-2xl font-bold text-slate-900">Privacy</CardTitle>
+              <Eye className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-xl font-bold text-slate-900">Privacy</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-600 text-lg leading-relaxed">
+            <p className="text-slate-600 text-base leading-relaxed">
               Your use of our services is governed by our Privacy Policy. By using Ventus, you consent to our collection, use, and sharing of your information as described in our Privacy Policy.
             </p>
           </CardContent>
@@ -250,11 +250,11 @@ const TermsOfService = () => {
         <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm mt-8">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-amber-600" />
-              <CardTitle className="text-2xl font-bold text-slate-900">Disclaimers and Limitations of Liability</CardTitle>
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              <CardTitle className="text-xl font-bold text-slate-900">Disclaimers and Limitations of Liability</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 text-slate-600 text-lg leading-relaxed">
+          <CardContent className="space-y-4 text-slate-600 text-base leading-relaxed">
             <p className="font-semibold text-slate-900">
               OUR SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED.
             </p>
@@ -293,10 +293,10 @@ const TermsOfService = () => {
         {/* Miscellaneous */}
         <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm mt-8">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-slate-900">Miscellaneous</CardTitle>
+            <CardTitle className="text-xl font-bold text-slate-900">Miscellaneous</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-3 text-slate-600 text-lg leading-relaxed">
+            <ul className="space-y-3 text-slate-600 text-base leading-relaxed">
               <li>
                 <strong className="text-slate-900">Severability:</strong> If any provision is found unenforceable, it will be limited to the minimum extent necessary
               </li>
@@ -314,25 +314,32 @@ const TermsOfService = () => {
         </Card>
 
         {/* Contact Section */}
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white mt-12">
+        <Card className="border-0 bg-white mt-12">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Contact Information</CardTitle>
+            <CardTitle className="text-xl font-bold text-slate-900 text-center">Contact Us</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
+            <p className="text-slate-600 text-base leading-relaxed mb-6">
+              If you have any questions about these Terms of Service, please contact us:
+            </p>
             <div className="space-y-2 mb-4">
-              <p className="text-white font-semibold text-lg">
-                Email: <a href="mailto:hello@ventuscard.com" className="text-white hover:text-blue-100 underline">hello@ventuscard.com</a>
+              <p className="text-slate-700 font-semibold text-base">
+                Email: <a href="mailto:hello@ventuscard.com" className="text-primary hover:text-primary/80 underline">hello@ventuscard.com</a>
               </p>
-              <p className="text-white font-semibold text-lg">
-                Website: <a href="https://www.ventuscard.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-100 underline">https://www.ventuscard.com</a>
+              <p className="text-slate-700 font-semibold text-base">
+                Website: <a href="https://www.ventuscard.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">https://www.ventuscard.com</a>
               </p>
             </div>
+            <p className="text-slate-500 text-xs mt-4">
+              Ventus<br />
+              Smart shopping with AI-powered deal discovery
+            </p>
           </CardContent>
         </Card>
       </main>
 
       {/* Seamless gradient transition to footer */}
-      <div className="h-32 bg-gradient-to-b from-purple-50 via-slate-600 to-slate-900"></div>
+      <div className="h-16 bg-gradient-to-b from-purple-50 to-slate-900"></div>
 
       <Footer />
     </div>

@@ -1,12 +1,15 @@
+/* ============================================
+   DARK THEME COMPONENT STYLES
+   Premium dark aesthetic with blue accents
+   ============================================ */
 
-/* Metallic utility classes */
+/* Metallic surface utility - Dark Theme */
 .metallic-surface {
-  background: linear-gradient(135deg, 
-    hsl(var(--metallic-silver)) 0%, 
-    hsl(var(--metallic-platinum)) 25%, 
-    hsl(var(--metallic-silver)) 50%, 
-    hsl(var(--metallic-titanium)) 75%, 
-    hsl(var(--metallic-platinum)) 100%
+  background: linear-gradient(
+    135deg,
+    hsl(222 47% 10%) 0%,
+    hsl(222 47% 8%) 50%,
+    hsl(222 47% 6%) 100%
   );
   position: relative;
 }
@@ -14,63 +17,77 @@
 .metallic-surface::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, 
-    transparent 30%, 
-    rgba(255, 255, 255, 0.1) 50%, 
-    transparent 70%
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    hsla(217, 91%, 60%, 0.05) 0%,
+    transparent 50%
   );
   pointer-events: none;
 }
 
+/* Dark titanium gradient */
 .titanium-gradient {
-  background: linear-gradient(135deg, 
-    #f8fafc 0%, 
-    #e2e8f0 20%, 
-    #cbd5e1 40%, 
-    #94a3b8 60%, 
-    #64748b 80%, 
-    #475569 100%
+  background: linear-gradient(
+    135deg,
+    hsl(222 47% 12%) 0%,
+    hsl(222 47% 8%) 50%,
+    hsl(222 47% 5%) 100%
   );
 }
 
+/* Blue titanium accent gradient */
 .blue-titanium-gradient {
-  background: linear-gradient(135deg, 
-    #dbeafe 0%, 
-    #bfdbfe 20%, 
-    #93c5fd 40%, 
-    #60a5fa 60%, 
-    #3b82f6 80%, 
-    #1d4ed8 100%
+  background: linear-gradient(
+    135deg,
+    hsl(217 91% 20%) 0%,
+    hsl(217 91% 15%) 50%,
+    hsl(222 47% 8%) 100%
   );
 }
 
+/* Metallic border - subtle glow */
 .metallic-border {
-  border: 1px solid;
-  border-image: linear-gradient(45deg, 
-    hsl(var(--metallic-silver)), 
-    hsl(var(--metallic-titanium)), 
-    hsl(var(--metallic-steel))
-  ) 1;
+  border: 1px solid hsl(222 30% 20%);
+  position: relative;
 }
 
+.metallic-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    hsla(217, 91%, 60%, 0.1) 0%,
+    transparent 50%,
+    hsla(217, 91%, 60%, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Metallic shadow - subtle glow */
 .metallic-shadow {
   box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+    0 4px 24px hsla(222, 47%, 5%, 0.4),
+    0 1px 3px hsla(222, 47%, 5%, 0.3),
+    inset 0 1px 0 hsla(217, 91%, 60%, 0.05);
 }
 
 /* Premium card styling for dark backgrounds - Blue theme */
 .premium-card {
-  @apply metallic-shadow rounded-xl border-0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(29, 78, 216, 0.15)) !important;
+  @apply rounded-xl;
+  background: hsl(222 47% 9%) !important;
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border: 1px solid hsl(222 30% 18%) !important;
+  box-shadow: 
+    0 4px 24px hsla(222, 47%, 3%, 0.5),
+    inset 0 1px 0 hsla(217, 91%, 60%, 0.03);
+}
+
+.premium-card:hover {
+  border-color: hsl(217 91% 60% / 0.3) !important;
 }
 
 /* Explicit text color overrides for premium cards */
@@ -82,53 +99,52 @@
 .premium-card h4,
 .premium-card h5,
 .premium-card h6 {
-  color: white !important;
+  color: hsl(210 20% 95%) !important;
 }
 
 .premium-card .card-description,
 .premium-card [class*="card-description"],
 .premium-card p {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: hsl(215 20% 65%) !important;
 }
 
 /* Dark mode chat interface styling */
 .chat-interface {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: hsl(222 47% 6%);
+  border: 1px solid hsl(222 30% 18%);
 }
 
 .chat-message-bot {
-  background: rgba(59, 130, 246, 0.2);
-  color: rgba(255, 255, 255, 0.95);
+  background: hsl(217 91% 60% / 0.15);
+  color: hsl(210 20% 95%);
 }
 
 .chat-message-user {
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.95);
+  background: hsl(222 30% 15%);
+  color: hsl(210 20% 95%);
 }
 
 .chat-input {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
+  background: hsl(222 47% 8%) !important;
+  border: 1px solid hsl(222 30% 20%) !important;
+  color: hsl(210 20% 95%) !important;
 }
 
 .chat-input::placeholder {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: hsl(215 20% 50%) !important;
 }
 
 .chat-input:focus {
   outline: none !important;
-  ring: 2px !important;
-  ring-color: rgba(59, 130, 246, 0.5) !important;
-  border-color: rgba(59, 130, 246, 0.7) !important;
+  border-color: hsl(217 91% 60% / 0.5) !important;
+  box-shadow: 0 0 0 2px hsl(217 91% 60% / 0.2) !important;
 }
 
 /* Mobile-specific legibility improvements */
 @media (max-width: 768px) {
   .premium-card {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.2)) !important;
-    border: 1px solid rgba(59, 130, 246, 0.4) !important;
+    background: hsl(222 47% 8%) !important;
+    border: 1px solid hsl(222 30% 20%) !important;
   }
 
   .premium-card .card-title,
@@ -142,12 +158,12 @@
   .premium-card [class*="card-description"] {
     font-size: 0.95rem !important;
     line-height: 1.5 !important;
-    color: rgba(255, 255, 255, 0.85) !important;
+    color: hsl(215 20% 70%) !important;
   }
 
   .chat-interface {
-    background: rgba(15, 23, 42, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: hsl(222 47% 5%) !important;
+    border: 1px solid hsl(222 30% 18%) !important;
   }
 
   .chat-message-bot,
@@ -158,8 +174,8 @@
 
   .chat-input {
     font-size: 1rem !important;
-    background: rgba(255, 255, 255, 0.12) !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    background: hsl(222 47% 7%) !important;
+    border: 1px solid hsl(222 30% 22%) !important;
   }
 }
 
@@ -177,7 +193,7 @@
   min-height: 700px;
   border: none;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.8);
+  background: hsl(222 47% 6%);
 }
 
 /* Mobile chat optimizations */
@@ -206,8 +222,96 @@
   }
 }
 
+/* Glass effect - dark theme */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.05);
+  background: hsl(222 47% 8% / 0.8);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid hsl(222 30% 18%);
+}
+
+/* Join waitlist card - dark theme override */
+.join-waitlist-card {
+  background: hsl(222 47% 8%) !important;
+  border: 1px solid hsl(222 30% 18%) !important;
+}
+
+.join-waitlist-card .text-slate-700,
+.join-waitlist-card .text-slate-600,
+.join-waitlist-card .text-slate-500 {
+  color: hsl(215 20% 65%) !important;
+}
+
+.join-waitlist-card input,
+.join-waitlist-card select {
+  background: hsl(222 47% 6%) !important;
+  border-color: hsl(222 30% 20%) !important;
+  color: hsl(210 20% 95%) !important;
+}
+
+.join-waitlist-card input::placeholder {
+  color: hsl(215 20% 45%) !important;
+}
+
+/* Shadow utility for premium elements */
+.shadow-premium {
+  box-shadow: 
+    0 8px 32px hsla(222, 47%, 3%, 0.6),
+    0 4px 16px hsla(222, 47%, 3%, 0.4);
+}
+
+/* Light scrollbar for TePilot and light-themed containers */
+.scrollbar-light {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(220 10% 78%) transparent;
+}
+
+.scrollbar-light::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-light::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 78%);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 65%);
+  background-clip: content-box;
+}
+
+/* Apply light scrollbars to all scrollable elements within tepilot container */
+.tepilot-container,
+.tepilot-container * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(220 10% 78%) transparent;
+}
+
+.tepilot-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tepilot-container ::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.tepilot-container ::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 78%);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.tepilot-container ::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 65%);
+  background-clip: content-box;
 }

@@ -25,7 +25,7 @@ export function ComparisonView({ selectedMetrics, bankAverageMetrics }: Comparis
   const DeltaIndicator = ({ delta }: { delta: number }) => {
     if (Math.abs(delta) < 0.5) {
       return (
-        <div className="flex items-center gap-1 text-muted-foreground">
+        <div className="flex items-center gap-1 text-slate-500">
           <Minus className="h-4 w-4" />
           <span className="text-sm">~0%</span>
         </div>
@@ -95,19 +95,19 @@ export function ComparisonView({ selectedMetrics, bankAverageMetrics }: Comparis
           {comparisonMetrics.map((metric, index) => (
             <div 
               key={index} 
-              className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-center p-3 rounded-lg hover:bg-muted/30 transition-colors"
+              className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-center p-3 rounded-lg hover:bg-slate-50 transition-colors"
             >
               <div className="font-medium">{metric.label}</div>
               <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-1">Selected</p>
+                <p className="text-sm text-slate-500 mb-1">Selected</p>
                 <p className="text-lg font-semibold text-primary">{metric.selected}</p>
               </div>
               <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-1">Bank Avg</p>
+                <p className="text-sm text-slate-500 mb-1">Bank Avg</p>
                 <p className="text-lg font-semibold">{metric.average}</p>
               </div>
               <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-1">Delta</p>
+                <p className="text-sm text-slate-500 mb-1">Delta</p>
                 <DeltaIndicator delta={metric.delta} />
               </div>
             </div>

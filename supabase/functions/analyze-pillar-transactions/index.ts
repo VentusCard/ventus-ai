@@ -383,7 +383,15 @@ serve(async (req) => {
   }
 
   try {
-    const { pillars, home_zip } = await req.json() as { pillars: PillarInput[]; home_zip?: string };
+    const { pillars, home_zip, customer_context } = await req.json() as { 
+      pillars: PillarInput[]; 
+      home_zip?: string;
+      customer_context?: {
+        income_level?: string;
+        industry?: string;
+        family_status?: string;
+      };
+    };
     
     if (!pillars || pillars.length === 0) {
       return new Response(
@@ -417,8 +425,19 @@ serve(async (req) => {
       })
     }));
 
-    const prompt = `Analyze these customer transactions and infer what they purchased.
+    // Build customer context section for the prompt if available
+    const customerContextSection = customer_context ? `
+CUSTOMER PROFILE:
+- Income Level: ${customer_context.income_level || 'Unknown'}
+- Industry: ${customer_context.industry || 'Unknown'}
+- Family Status: ${customer_context.family_status || 'Unknown'}
+- Home ZIP: ${home_zip || 'Unknown'}
 
+Use this customer profile to create a more accurate, personalized persona that reflects their demographic characteristics and likely lifestyle preferences.
+` : '';
+
+    const prompt = `Analyze these customer transactions and infer what they purchased.
+${customerContextSection}
 INPUT:
 ${JSON.stringify(pillarsSummary, null, 2)}
 
@@ -459,7 +478,49 @@ EXAMPLES:
 ✅ CORRECT: pre_tax $165.00 at TaylorMade → "TaylorMade Tour Response balls ($45) + golf glove ($35) + 2 headcovers ($85) ($165.00 pre-tax)"
 ❌ WRONG: "TaylorMade Stealth Driver ($165 pre-tax) - *Note: seems low for this item*"
 
-TASK 2: Create a customer persona based on all transactions.
+TASK 2: Create a customer persona based on all transactions${customer_context ? ' AND the provided customer profile. Incorporate the income level, industry, and family status into the persona summary and traits.' : '.'}
+
+For "spending_behaviors", ANALYZE THE ACTUAL TRANSACTION DATA to detect specific patterns:
+
+FREQUENCY PATTERNS (analyze transaction dates & counts):
+- "Weekly coffee ritual" (consistent weekly purchases in a category)
+- "Impulse buyer" (irregular, clustered purchases)
+- "Subscription-style spender" (recurring similar amounts)
+- "Seasonal spender" (concentrated in certain time periods)
+
+AMOUNT PATTERNS (analyze transaction amounts):
+- "Premium buyer" (consistently high-value purchases)
+- "Value-conscious shopper" (many smaller transactions)
+- "Big-ticket focused" (fewer, larger purchases)
+- "Micro-transaction heavy" (many small purchases under $20)
+
+CATEGORY PATTERNS (analyze pillar distribution):
+- "Lifestyle-balanced spender" (spread across multiple pillars)
+- "Category-concentrated" (heavy in 1-2 pillars)
+- "Diversified explorer" (many different merchants/categories)
+
+MERCHANT PATTERNS (analyze merchant diversity):
+- "Brand loyal" (repeat purchases at same merchants)
+- "Variety seeker" (wide variety of merchants)
+- "Convenience-driven" (proximity-based choices like local shops)
+
+Generate 3-5 SPECIFIC spending behaviors based on ACTUAL patterns you detect in the transaction data.
+Be specific and evidence-based, not generic.
+
+GOOD spending_behaviors examples:
+- "Weekly coffee ritual ($15-20 range)"
+- "Premium dining preference"
+- "Impulse sports equipment buyer"
+- "Brand-loyal in athletic wear"
+- "Weekend splurger"
+- "Subscription-style recurring purchases"
+- "Value-conscious grocery shopper"
+
+BAD spending_behaviors examples (too generic - NEVER USE):
+- "Spends money regularly"
+- "Makes purchases"
+- "Uses credit card"
+- "Shops at stores"
 
 RESPOND WITH JSON ONLY:
 {
@@ -479,7 +540,7 @@ RESPOND WITH JSON ONLY:
   "user_persona": {
     "summary": "2-3 sentence lifestyle summary",
     "lifestyle_traits": ["trait1", "trait2", "trait3"],
-    "spending_behaviors": ["behavior1", "behavior2"],
+    "spending_behaviors": ["Weekly coffee ritual", "Premium dining preference", "Brand-loyal in sportswear"],
     "interests": ["interest1", "interest2"]
   }
 }`;

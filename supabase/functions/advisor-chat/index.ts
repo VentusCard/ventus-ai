@@ -5,6 +5,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
+  "https://ventusai.com",
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   /^https:\/\/.*\.lovableproject\.com$/,

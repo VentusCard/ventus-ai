@@ -34,7 +34,7 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
           return (
             <Card
               key={pillar.pillar}
-              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl ${
+              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 ${
                 isSelected ? 'ring-2 shadow-xl' : ''
               }`}
               style={{
@@ -50,10 +50,10 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                     style={{ backgroundColor: color }}
                   />
                   <div>
-                    <p className="font-semibold text-sm mb-1 line-clamp-2">{pillar.pillar}</p>
+                    <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
                     <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
                     <span>{pillar.transactionCount} trans.</span>
                     <span>{percentage.toFixed(1)}%</span>
                   </div>
@@ -82,13 +82,13 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
 
       {/* Expanded Details */}
       {selectedPillar && (
-        <Card className="animate-fade-in">
-          <div className="p-6 flex items-center gap-3 border-b">
+        <Card className="animate-fade-in bg-white border-slate-200">
+          <div className="p-6 flex items-center gap-3 border-b border-slate-200">
             <div
               className="w-4 h-4 rounded"
               style={{ backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b" }}
             />
-            <h3 className="text-xl font-semibold">{selectedPillar} - Detailed Breakdown</h3>
+            <h3 className="text-xl font-semibold text-slate-900">{selectedPillar} - Detailed Breakdown</h3>
           </div>
           
           <CardContent className="pt-6">
@@ -101,7 +101,7 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                 <div className="space-y-6">
                   {/* Subcategories */}
                   <div>
-                    <h4 className="text-sm font-medium mb-4">Subcategories</h4>
+                    <h4 className="text-sm font-medium mb-4 text-slate-900">Subcategories</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {subcategories.slice(0, 6).map((subcat) => {
                         const percentage = (subcat.totalSpend / pillarTotal) * 100;
@@ -109,7 +109,7 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                         return (
                           <div
                             key={subcat.subcategory}
-                            className="p-4 rounded-lg bg-accent/30 border cursor-pointer hover:bg-accent/40 transition-colors"
+                            className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedSubcategory({
@@ -118,14 +118,14 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                               });
                             }}
                           >
-                            <p className="font-medium text-sm mb-2">{subcat.subcategory}</p>
-                            <p className="text-xl font-bold mb-1">${subcat.totalSpend.toFixed(2)}</p>
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
+                            <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                            <div className="flex items-center justify-between text-xs text-slate-500">
                               <span>{subcat.transactionCount} transactions</span>
                               <span>{percentage.toFixed(1)}% of pillar</span>
                             </div>
                             {/* Progress bar */}
-                            <div className="mt-2 h-1.5 bg-background rounded-full overflow-hidden">
+                            <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all"
                                 style={{
@@ -142,20 +142,20 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                   
                   {/* Recent Transactions */}
                   <div>
-                    <h4 className="text-sm font-medium mb-4">Recent Transactions</h4>
+                    <h4 className="text-sm font-medium mb-4 text-slate-900">Recent Transactions</h4>
                     <div className="space-y-2">
                       {pillarTransactions.slice(0, 5).map((t, idx) => (
-                        <div
+                         <div
                           key={idx}
-                          className="flex items-center justify-between p-3 rounded-lg bg-card border"
+                          className="flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200"
                         >
                           <div className="flex-1">
-                            <p className="font-medium text-sm">{t.merchant_name}</p>
-                            <p className="text-xs text-muted-foreground">{t.subcategory}</p>
+                            <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
+                            <p className="text-xs text-slate-500">{t.subcategory}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold">${t.amount.toFixed(2)}</p>
-                            <p className="text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()}</p>
+                            <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
+                            <p className="text-xs text-slate-500">{new Date(t.date).toLocaleDateString()}</p>
                           </div>
                         </div>
                       ))}

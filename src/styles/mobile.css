@@ -274,6 +274,28 @@
     .group.hover\:shadow-2xl .mt-3 {
       margin-top: 0.5rem !important;
     }
+
+    /* Onboarding flow mobile optimizations */
+    /* Remove nested card borders on mobile for cleaner look */
+    .premium-card {
+      border: none !important;
+      box-shadow: 0 1px 4px hsla(222, 47%, 3%, 0.25) !important;
+    }
+
+    /* Reduce main container horizontal padding */
+    .px-6 {
+      padding-left: 0.75rem !important;
+      padding-right: 0.75rem !important;
+    }
+
+    /* Reduce card content padding for tighter mobile layout */
+    .p-6 {
+      padding: 1rem !important;
+    }
+
+    .p-5 {
+      padding: 0.875rem !important;
+    }
   }
 
 /* Disable animations on mobile for better performance */

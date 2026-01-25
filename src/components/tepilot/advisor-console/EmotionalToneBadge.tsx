@@ -8,12 +8,12 @@ interface EmotionalToneBadgeProps {
 }
 
 const toneConfig = {
-  confident: { icon: TrendingUp, color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/20", label: "Confident" },
-  uncertain: { icon: AlertCircle, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-950/20", label: "Uncertain" },
-  stressed: { icon: ShieldAlert, color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/20", label: "Stressed" },
-  engaged: { icon: Sparkles, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/20", label: "Engaged" },
-  defensive: { icon: ShieldAlert, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/20", label: "Defensive" },
-  optimistic: { icon: Smile, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/20", label: "Optimistic" },
+  confident: { icon: TrendingUp, color: "text-green-600", bg: "bg-green-50", label: "Confident" },
+  uncertain: { icon: AlertCircle, color: "text-yellow-600", bg: "bg-yellow-50", label: "Uncertain" },
+  stressed: { icon: ShieldAlert, color: "text-red-600", bg: "bg-red-50", label: "Stressed" },
+  engaged: { icon: Sparkles, color: "text-blue-600", bg: "bg-blue-50", label: "Engaged" },
+  defensive: { icon: ShieldAlert, color: "text-orange-600", bg: "bg-orange-50", label: "Defensive" },
+  optimistic: { icon: Smile, color: "text-purple-600", bg: "bg-purple-50", label: "Optimistic" },
 };
 
 export function EmotionalToneBadge({ analysis }: EmotionalToneBadgeProps) {
@@ -35,9 +35,9 @@ export function EmotionalToneBadge({ analysis }: EmotionalToneBadgeProps) {
             
             {analysis.supportingQuotes.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-medium text-muted-foreground mb-1">Supporting Evidence:</p>
+                <p className="text-xs font-medium text-slate-500 mb-1">Supporting Evidence:</p>
                 {analysis.supportingQuotes.map((quote, idx) => (
-                  <p key={idx} className="text-xs italic text-muted-foreground ml-2 mb-1">
+                  <p key={idx} className="text-xs italic text-slate-500 ml-2 mb-1">
                     "{quote}"
                   </p>
                 ))}
@@ -46,10 +46,10 @@ export function EmotionalToneBadge({ analysis }: EmotionalToneBadgeProps) {
 
             {analysis.preparationTips.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">Preparation Tips:</p>
+                <p className="text-xs font-medium text-slate-500 mb-1">Preparation Tips:</p>
                 <ul className="space-y-1 ml-2">
                   {analysis.preparationTips.map((tip, idx) => (
-                    <li key={idx} className="text-xs text-foreground">
+                    <li key={idx} className="text-xs text-slate-900">
                       • {tip}
                     </li>
                   ))}

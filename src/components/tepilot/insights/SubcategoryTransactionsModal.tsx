@@ -26,26 +26,26 @@ export function SubcategoryTransactionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh]">
+      <DialogContent className="max-w-3xl max-h-[80vh] bg-white">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div
               className="w-3 h-3 rounded"
               style={{ backgroundColor: color }}
             />
-            <DialogTitle className="text-xl">{subcategory}</DialogTitle>
+            <DialogTitle className="text-xl text-slate-900">{subcategory}</DialogTitle>
             <Badge variant="outline" style={{ borderColor: color, color }}>
               {pillar}
             </Badge>
           </div>
           <div className="flex gap-6 mt-4 text-sm">
             <div>
-              <p className="text-muted-foreground">Total Spend</p>
+              <p className="text-slate-500">Total Spend</p>
               <p className="text-2xl font-bold" style={{ color }}>${totalSpend.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Transactions</p>
-              <p className="text-2xl font-bold">{transactions.length}</p>
+              <p className="text-slate-500">Transactions</p>
+              <p className="text-2xl font-bold text-slate-900">{transactions.length}</p>
             </div>
           </div>
         </DialogHeader>
@@ -55,16 +55,16 @@ export function SubcategoryTransactionsModal({
             {transactions.map((t, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-3 rounded-lg bg-card border cursor-pointer hover:bg-accent transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors"
                 onClick={() => onTransactionClick(t)}
               >
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{t.merchant_name}</p>
-                  <p className="text-xs text-muted-foreground">{t.subcategory}</p>
+                  <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
+                  <p className="text-xs text-slate-500">{t.subcategory}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">${t.amount.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()}</p>
+                  <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
+                  <p className="text-xs text-slate-500">{new Date(t.date).toLocaleDateString()}</p>
                 </div>
               </div>
             ))}

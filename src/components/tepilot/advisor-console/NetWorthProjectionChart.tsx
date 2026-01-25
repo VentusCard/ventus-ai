@@ -135,13 +135,13 @@ export function NetWorthProjectionChart({
             </>
           )}
           {showInflationAdjusted && (
-            <p className="text-muted-foreground border-t pt-1 mt-1">
+            <p className="text-slate-500 border-t pt-1 mt-1">
               Real (inflation-adj): {formatCurrency(dataPoint.inflationAdjusted || 0)}
             </p>
           )}
         </div>
         {currentNetWorth > 0 && (
-          <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+          <p className="text-xs text-slate-500 mt-2 pt-2 border-t">
             Growth: +{((dataPoint.expected / currentNetWorth - 1) * 100).toFixed(0)}% from today
           </p>
         )}
@@ -303,7 +303,7 @@ export function NetWorthProjectionChart({
           )}
           {showInflationAdjusted && (
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-muted-foreground" />
+              <div className="w-3 h-3 rounded-full bg-slate-400" />
               <span>Real Value</span>
             </div>
           )}
@@ -311,17 +311,17 @@ export function NetWorthProjectionChart({
         
         <div className="flex gap-6">
           <div className="text-center">
-            <p className="text-muted-foreground text-xs">Starting</p>
+            <p className="text-slate-500 text-xs">Starting</p>
             <p className="font-semibold">{formatCurrency(projectionData[0]?.expected || 0)}</p>
           </div>
           <div className="text-center">
-            <p className="text-muted-foreground text-xs">At Retirement</p>
+            <p className="text-slate-500 text-xs">At Retirement</p>
             <p className="font-semibold text-primary">
               {formatCurrency(projectionData.find(d => d.age === retirementAge)?.expected || projectionData[projectionData.length - 1]?.expected || 0)}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-muted-foreground text-xs">End of Projection</p>
+            <p className="text-slate-500 text-xs">End of Projection</p>
             <p className="font-semibold">
               {formatCurrency(projectionData[projectionData.length - 1]?.expected || 0)}
             </p>

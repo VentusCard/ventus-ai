@@ -19,11 +19,11 @@ export default {
 			}
 		},
 		extend: {
-			// Font Families
+		// Font Families - DM Sans as primary
 			fontFamily: {
-				sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
-				display: ['DM Sans', 'SF Pro Display', 'sans-serif'],
-				mono: ['SF Mono', 'Monaco', 'Cascadia Code', 'monospace'],
+				sans: ['"Rubik"', 'system-ui', '-apple-system', 'sans-serif'],
+				display: ['"Rubik"', 'system-ui', 'sans-serif'],
+				mono: ['"DM Mono"', 'SF Mono', 'Monaco', 'monospace'],
 			},
 
 			// Background Images & Gradients

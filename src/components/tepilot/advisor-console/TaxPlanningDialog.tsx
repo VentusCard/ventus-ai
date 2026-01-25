@@ -311,7 +311,7 @@ export function TaxPlanningDialog({
             <Calculator className="w-6 h-6 text-emerald-600" />
             Tax Planning Analysis
           </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             {clientProfile?.name ? `${clientProfile.name} • ` : ""}
             {STATE_TAX_RATES[selectedState]?.name || selectedState} ({stateRate}% state tax)
           </p>
@@ -326,7 +326,7 @@ export function TaxPlanningDialog({
                 <SelectTrigger className="w-[200px]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px] bg-background">
+                <SelectContent className="max-h-[300px] bg-white">
                   {Object.entries(STATE_TAX_RATES)
                     .sort((a, b) => a[1].name.localeCompare(b[1].name))
                     .map(([code, { name, rate }]) => (
@@ -354,19 +354,19 @@ export function TaxPlanningDialog({
               <CardContent>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Gross Income</p>
+                    <p className="text-xs text-slate-500 mb-1">Gross Income</p>
                     <p className="text-xl font-bold text-emerald-700">{formatCurrency(annualIncome)}</p>
                   </div>
                   <div className="text-center p-3 bg-rose-50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Total Expenses</p>
+                    <p className="text-xs text-slate-500 mb-1">Total Expenses</p>
                     <p className="text-xl font-bold text-rose-700">{formatCurrency(annualExpenses)}</p>
                   </div>
                   <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Net Savings</p>
+                    <p className="text-xs text-slate-500 mb-1">Net Savings</p>
                     <p className="text-xl font-bold text-blue-700">{formatCurrency(netSavings)}</p>
                   </div>
                   <div className="text-center p-3 bg-purple-50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Savings Rate</p>
+                    <p className="text-xs text-slate-500 mb-1">Savings Rate</p>
                     <p className="text-xl font-bold text-purple-700">{savingsRate.toFixed(1)}%</p>
                   </div>
                 </div>
@@ -395,7 +395,7 @@ export function TaxPlanningDialog({
                         value={account.utilization} 
                         className="h-2"
                       />
-                      <div className="flex justify-between text-xs text-muted-foreground">
+                      <div className="flex justify-between text-xs text-slate-500">
                         <span>{account.utilization.toFixed(0)}% utilized</span>
                         {account.remainingRoom > 0 && (
                           <span className="text-emerald-600">
@@ -406,7 +406,7 @@ export function TaxPlanningDialog({
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-sm text-slate-500 text-center py-4">
                     No tax-advantaged accounts detected. Consider adding 401(k), IRA, or HSA.
                   </p>
                 )}

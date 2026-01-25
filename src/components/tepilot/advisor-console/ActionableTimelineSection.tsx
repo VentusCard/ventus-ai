@@ -55,8 +55,8 @@ export function ActionableTimelineSection({ items, onToggleItem }: ActionableTim
         {items.map((item) => (
           <div key={item.id} className="flex items-start gap-3 group">
             <div className="flex flex-col items-center">
-              <div className={`w-3 h-3 rounded-full ${checkedItems.has(item.id) ? 'bg-primary' : 'bg-muted border-2 border-primary'}`} />
-              <div className="w-0.5 h-full bg-muted mt-1" />
+              <div className={`w-3 h-3 rounded-full ${checkedItems.has(item.id) ? 'bg-primary' : 'bg-slate-200 border-2 border-primary'}`} />
+              <div className="w-0.5 h-full bg-slate-200 mt-1" />
             </div>
             <div className="flex-1 pb-3">
               <div className="flex items-start gap-2">
@@ -67,7 +67,7 @@ export function ActionableTimelineSection({ items, onToggleItem }: ActionableTim
                 />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-primary">{item.timing}</p>
-                  <p className={`text-sm mt-1 ${checkedItems.has(item.id) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                  <p className={`text-sm mt-1 ${checkedItems.has(item.id) ? 'line-through text-slate-400' : 'text-slate-900'}`}>
                     {item.action}
                   </p>
                 </div>

@@ -23,12 +23,12 @@ export function ProductRecommendationCard({ product, onAddToAgenda }: ProductRec
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <h4 className="font-semibold text-foreground">{product.name}</h4>
+            <h4 className="font-semibold text-slate-900">{product.name}</h4>
             <Badge variant={priorityVariant} className="text-xs shrink-0">
               {product.priority}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground mb-3">{product.rationale}</p>
+          <p className="text-sm text-slate-500 mb-3">{product.rationale}</p>
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-green-600" />
             <span className="text-sm font-medium text-green-600">{product.estimated_value}</span>

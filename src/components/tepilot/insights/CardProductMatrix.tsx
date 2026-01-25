@@ -65,14 +65,14 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
 
   const previewContent = (
     <div className="text-sm">
-      <span className="text-foreground font-medium">{topProduct?.name}</span>
-      <span className="text-muted-foreground"> leads with </span>
+      <span className="text-slate-900 font-medium">{topProduct?.name}</span>
+      <span className="text-slate-500"> leads with </span>
       <span className="text-primary font-medium">{formatCurrency(topProduct?.avgSpendPerAccount || 0)}/account</span>
-      <span className="text-muted-foreground">. </span>
-      <span className="text-amber-600 dark:text-amber-400 font-medium">{lowestPenetration?.name}</span>
-      <span className="text-muted-foreground"> has lowest penetration at </span>
-      <span className="text-amber-600 dark:text-amber-400 font-medium">{lowestPenetration?.penetrationRate.toFixed(1)}%</span>
-      <span className="text-muted-foreground"> — growth opportunity.</span>
+      <span className="text-slate-500">. </span>
+      <span className="text-amber-600 font-medium">{lowestPenetration?.name}</span>
+      <span className="text-slate-500"> has lowest penetration at </span>
+      <span className="text-amber-600 font-medium">{lowestPenetration?.penetrationRate.toFixed(1)}%</span>
+      <span className="text-slate-500"> — growth opportunity.</span>
     </div>
   );
 
@@ -82,13 +82,13 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
       icon={<CreditCard className="h-5 w-5 text-primary" />}
       previewContent={previewContent}
     >
-      <div className="rounded-md border overflow-x-auto">
+      <div className="rounded-md border border-slate-200 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-semibold">Product Name</TableHead>
+              <TableHead className="font-semibold text-slate-900">Product Name</TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/50 font-semibold"
+                className="cursor-pointer hover:bg-slate-50 font-semibold text-slate-900"
                 onClick={() => handleSort('accountCount')}
               >
                 <div className="flex items-center gap-1">
@@ -97,7 +97,7 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
                 </div>
               </TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/50 font-semibold"
+                className="cursor-pointer hover:bg-slate-50 font-semibold text-slate-900"
                 onClick={() => handleSort('uniqueUsers')}
               >
                 <div className="flex items-center gap-1">
@@ -106,7 +106,7 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
                 </div>
               </TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/50 font-semibold"
+                className="cursor-pointer hover:bg-slate-50 font-semibold text-slate-900"
                 onClick={() => handleSort('penetrationRate')}
               >
                 <div className="flex items-center gap-1">
@@ -115,7 +115,7 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
                 </div>
               </TableHead>
               <TableHead 
-                className="cursor-pointer hover:bg-muted/50 font-semibold"
+                className="cursor-pointer hover:bg-slate-50 font-semibold text-slate-900"
                 onClick={() => handleSort('avgSpendPerAccount')}
               >
                 <div className="flex items-center gap-1">
@@ -123,12 +123,12 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
                   <ArrowUpDown className="h-3 w-3" />
                 </div>
               </TableHead>
-              <TableHead className="font-semibold">Top Pillar</TableHead>
+              <TableHead className="font-semibold text-slate-900">Top Pillar</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedProducts.map((product) => (
-              <TableRow key={product.name} className="hover:bg-muted/30 cursor-pointer">
+              <TableRow key={product.name} className="hover:bg-slate-50 cursor-pointer">
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{formatNumber(product.accountCount)}</TableCell>
                 <TableCell>{formatNumber(product.uniqueUsers)}</TableCell>

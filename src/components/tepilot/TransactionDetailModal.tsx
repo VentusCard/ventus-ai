@@ -22,10 +22,10 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-white">
         <DialogHeader>
-          <DialogTitle>Transaction Details</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-slate-900">Transaction Details</DialogTitle>
+          <DialogDescription className="text-slate-500">
             AI classification details and explanation
           </DialogDescription>
         </DialogHeader>
@@ -33,34 +33,34 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Merchant</p>
-              <p className="font-medium">{transaction.normalized_merchant}</p>
+              <p className="text-sm text-slate-500">Merchant</p>
+              <p className="font-medium text-slate-900">{transaction.normalized_merchant}</p>
               {transaction.merchant_name !== transaction.normalized_merchant && (
-                <p className="text-xs text-muted-foreground">Original: {transaction.merchant_name}</p>
+                <p className="text-xs text-slate-500">Original: {transaction.merchant_name}</p>
               )}
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Amount</p>
-              <p className="font-medium text-lg">${transaction.amount.toFixed(2)}</p>
+              <p className="text-sm text-slate-500">Amount</p>
+              <p className="font-medium text-lg text-slate-900">${transaction.amount.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Date</p>
-              <p className="font-medium">{transaction.date}</p>
+              <p className="text-sm text-slate-500">Date</p>
+              <p className="font-medium text-slate-900">{transaction.date}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">MCC Code</p>
-              <p className="font-medium">{transaction.mcc || "Not provided"}</p>
+              <p className="text-sm text-slate-500">MCC Code</p>
+              <p className="font-medium text-slate-900">{transaction.mcc || "Not provided"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Zip Code</p>
-              <p className="font-medium">{transaction.zip_code || "Not provided"}</p>
+              <p className="text-sm text-slate-500">Zip Code</p>
+              <p className="font-medium text-slate-900">{transaction.zip_code || "Not provided"}</p>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="bg-slate-200" />
 
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Lifestyle Pillar</p>
+            <p className="text-sm text-slate-500 mb-2">Lifestyle Pillar</p>
             {transaction.travel_context?.is_travel_related && transaction.travel_context.original_pillar && transaction.travel_context.original_pillar !== "Travel & Exploration" ? (
               <div className="flex items-center gap-2">
                 <Badge
@@ -101,28 +101,28 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Subcategory</p>
-            <p className="font-medium">{transaction.subcategory}</p>
+            <p className="text-sm text-slate-500 mb-2">Subcategory</p>
+            <p className="font-medium text-slate-900">{transaction.subcategory}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Confidence Score</p>
+            <p className="text-sm text-slate-500 mb-2">Confidence Score</p>
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all"
                   style={{ width: `${transaction.confidence * 100}%` }}
                 />
               </div>
-              <span className="font-medium">{(transaction.confidence * 100).toFixed(0)}%</span>
+              <span className="font-medium text-slate-900">{(transaction.confidence * 100).toFixed(0)}%</span>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="bg-slate-200" />
 
           <div>
-            <p className="text-sm font-medium mb-2">AI Explanation</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm font-medium mb-2 text-slate-900">AI Explanation</p>
+            <p className="text-sm text-slate-500 leading-relaxed">
               {transaction.explanation}
             </p>
           </div>
@@ -141,8 +141,8 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
                 <div className="space-y-3">
                   {transaction.travel_context.travel_destination && (
                     <div>
-                      <p className="text-xs text-muted-foreground">Destination</p>
-                      <p className="text-sm font-medium flex items-center gap-1">
+                      <p className="text-xs text-slate-500">Destination</p>
+                      <p className="text-sm font-medium flex items-center gap-1 text-slate-900">
                         <MapPin className="w-3 h-3" />
                         {transaction.travel_context.travel_destination}
                       </p>
@@ -151,8 +151,8 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
                   
                   {transaction.travel_context.travel_period_start && (
                     <div>
-                      <p className="text-xs text-muted-foreground">Travel Period</p>
-                      <p className="text-sm font-medium">
+                      <p className="text-xs text-slate-500">Travel Period</p>
+                      <p className="text-sm font-medium text-slate-900">
                         {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}
                       </p>
                     </div>
@@ -160,8 +160,8 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
                   
                   {transaction.travel_context.reclassification_reason && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">AI Reasoning</p>
-                      <p className="text-sm leading-relaxed italic">
+                      <p className="text-xs text-slate-500 mb-1">AI Reasoning</p>
+                      <p className="text-sm leading-relaxed italic text-slate-700">
                         {transaction.travel_context.reclassification_reason}
                       </p>
                     </div>
@@ -173,15 +173,15 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
 
           {transaction.description && (
             <>
-              <Separator />
+              <Separator className="bg-slate-200" />
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Description</p>
-                <p className="text-sm">{transaction.description}</p>
+                <p className="text-sm text-slate-500 mb-1">Description</p>
+                <p className="text-sm text-slate-900">{transaction.description}</p>
               </div>
             </>
           )}
 
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-slate-500">
             Enriched at: {new Date(transaction.enriched_at).toLocaleString()}
           </div>
         </div>

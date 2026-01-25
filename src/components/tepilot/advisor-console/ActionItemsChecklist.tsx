@@ -30,13 +30,13 @@ export function ActionItemsChecklist({ items }: ActionItemsChecklistProps) {
       </CardHeader>
       <CardContent className="space-y-3">
         {items.map((item, idx) => (
-          <div key={idx} className="flex items-start gap-3 p-2 rounded hover:bg-muted/50 transition-colors">
+          <div key={idx} className="flex items-start gap-3 p-2 rounded hover:bg-slate-50 transition-colors">
             <Checkbox 
               checked={checkedItems.has(idx)}
               onCheckedChange={() => toggleItem(idx)}
               className="mt-0.5"
             />
-            <span className={`text-sm flex-1 ${checkedItems.has(idx) ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+            <span className={`text-sm flex-1 ${checkedItems.has(idx) ? 'line-through text-slate-400' : 'text-slate-900'}`}>
               {item}
             </span>
           </div>

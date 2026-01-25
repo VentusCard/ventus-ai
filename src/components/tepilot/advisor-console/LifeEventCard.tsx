@@ -35,10 +35,10 @@ export function LifeEventCard({ event, onViewDetails, onDismiss, onPlanEvent }: 
               <TrendingUp className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">{event.event_name}</h3>
+              <h3 className="font-semibold text-slate-900">{event.event_name}</h3>
               <div className="flex items-center gap-2 mt-1">
                 <div className={`w-2 h-2 rounded-full ${confidenceColor}`} />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-slate-500">
                   {confidenceLabel} Confidence ({event.confidence}%)
                 </span>
               </div>
@@ -51,20 +51,20 @@ export function LifeEventCard({ event, onViewDetails, onDismiss, onPlanEvent }: 
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger className="w-full">
-            <div className="flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <div className="flex items-center justify-between text-xs text-slate-500 hover:text-slate-900 transition-colors">
               <span>View {event.evidence.length} supporting transactions</span>
               {isOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 space-y-2">
             {event.evidence.map((evidence, idx) => (
-              <div key={idx} className="bg-background/50 p-2 rounded text-xs">
+              <div key={idx} className="bg-slate-50 p-2 rounded text-xs">
                 <div className="flex justify-between items-start mb-1">
-                  <span className="font-medium text-foreground">{evidence.merchant}</span>
-                  <span className="text-muted-foreground">${evidence.amount.toFixed(2)}</span>
+                  <span className="font-medium text-slate-900">{evidence.merchant}</span>
+                  <span className="text-slate-500">${evidence.amount.toFixed(2)}</span>
                 </div>
-                <p className="text-muted-foreground text-xs">{evidence.relevance}</p>
-                <span className="text-muted-foreground text-xs">{evidence.date}</span>
+                <p className="text-slate-500 text-xs">{evidence.relevance}</p>
+                <span className="text-slate-500 text-xs">{evidence.date}</span>
               </div>
             ))}
           </CollapsibleContent>

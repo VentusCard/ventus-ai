@@ -22,19 +22,19 @@ export function DemographicBreakdown({ ageRanges }: DemographicBreakdownProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-card p-4 rounded-lg border shadow-lg space-y-2">
-          <p className="font-semibold">{label}</p>
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-lg space-y-2">
+          <p className="font-semibold text-slate-900">{label}</p>
           <p className="text-sm">
-            <span className="text-muted-foreground">Total Spend: </span>
-            <span className="font-medium">{formatBillions(payload[0].value)}</span>
+            <span className="text-slate-500">Total Spend: </span>
+            <span className="font-medium text-slate-900">{formatBillions(payload[0].value)}</span>
           </p>
           <p className="text-sm">
-            <span className="text-muted-foreground">Accounts: </span>
-            <span className="font-medium">{formatMillions(payload[0].payload.accounts)}</span>
+            <span className="text-slate-500">Accounts: </span>
+            <span className="font-medium text-slate-900">{formatMillions(payload[0].payload.accounts)}</span>
           </p>
           <p className="text-sm">
-            <span className="text-muted-foreground">Avg Spend/Account: </span>
-            <span className="font-medium">${payload[0].payload.avgSpend.toLocaleString()}</span>
+            <span className="text-slate-500">Avg Spend/Account: </span>
+            <span className="font-medium text-slate-900">${payload[0].payload.avgSpend.toLocaleString()}</span>
           </p>
         </div>
       );
@@ -50,14 +50,14 @@ export function DemographicBreakdown({ ageRanges }: DemographicBreakdownProps) {
   
   const previewContent = (
     <div className="text-sm">
-      <span className="text-foreground font-medium">{topGroup?.name.split('\n')[0]}</span>
-      <span className="text-muted-foreground"> drives </span>
+      <span className="text-slate-900 font-medium">{topGroup?.name.split('\n')[0]}</span>
+      <span className="text-slate-500"> drives </span>
       <span className="text-primary font-medium">{formatBillions(topGroup?.totalSpend || 0)}</span>
-      <span className="text-muted-foreground"> in spend. </span>
-      <span className="text-foreground font-medium">{highestAvgSpend?.range}</span>
-      <span className="text-muted-foreground"> has highest per-account spend at </span>
+      <span className="text-slate-500"> in spend. </span>
+      <span className="text-slate-900 font-medium">{highestAvgSpend?.range}</span>
+      <span className="text-slate-500"> has highest per-account spend at </span>
       <span className="text-primary font-medium">${highestAvgSpend?.avgSpendPerAccount.toLocaleString()}</span>
-      <span className="text-muted-foreground">.</span>
+      <span className="text-slate-500">.</span>
     </div>
   );
 
@@ -70,17 +70,15 @@ export function DemographicBreakdown({ ageRanges }: DemographicBreakdownProps) {
     >
       <ResponsiveContainer width="100%" height={400}>
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis 
             dataKey="name" 
-            tick={{ fontSize: 11 }}
-            className="text-muted-foreground"
+            tick={{ fontSize: 11, fill: '#64748b' }}
             height={80}
           />
           <YAxis 
-            tick={{ fontSize: 12 }}
-            className="text-muted-foreground"
-            label={{ value: 'Total Annual Spend ($B)', angle: -90, position: 'insideLeft' }}
+            tick={{ fontSize: 12, fill: '#64748b' }}
+            label={{ value: 'Total Annual Spend ($B)', angle: -90, position: 'insideLeft', fill: '#64748b' }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Bar 

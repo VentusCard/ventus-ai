@@ -74,15 +74,15 @@ const Hero = () => {
   };
 
   return (
-    <div id="hero" className="relative bg-black text-white flex items-center justify-center overflow-hidden min-h-screen pt-20">
+    <div id="hero" className="relative bg-[hsl(220,50%,8%)] text-white flex items-center justify-center overflow-hidden min-h-screen pt-20">
       {/* Seamless gradient overlay for smooth transition to footer */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-black/80 to-slate-900 z-20 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-[hsl(220,50%,8%)]/80 to-[hsl(220,50%,8%)] z-0 pointer-events-none"></div>
       
       <div className="max-w-6xl mx-auto px-6 md:px-8 relative z-10 text-center py-2 w-full flex flex-col justify-center h-full">
         {/* Add spacing between navbar and hero content */}
         <div className="flex flex-col items-center justify-center space-y-4 md:space-y-6 pt-8 md:pt-12">
           {/* Headline with enhanced typography and brushstroke animation */}
-          <h1 className="font-sans text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight tracking-tight">
+          <h1 className="font-sans text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight tracking-tight">
             <span className="font-bold text-white">Rewards</span>, <span className="relative font-display font-normal italic text-white inline-block">
               <span className="relative z-20 animate-[unleashed_2s_ease-out_0.5s_both]">
                 Made Smarter
@@ -110,7 +110,7 @@ const Hero = () => {
                 <path d="M5,15 Q25,8 50,12 T100,10 Q125,8 150,11 T190,13" stroke="url(#brushstroke-gradient)" strokeWidth="3" strokeLinecap="round" fill="none" filter="url(#shimmer)" className="animate-[shimmer_3s_ease-in-out_infinite]" />
               </svg>
               {/* Brushstroke reveal overlay */}
-              <div className="absolute inset-0 bg-black animate-[brushstroke_1.5s_ease-out_0.5s_both] origin-left z-10"></div>
+              <div className="absolute inset-0 bg-[hsl(220,50%,8%)] animate-[brushstroke_1.5s_ease-out_0.5s_both] origin-left z-10"></div>
             </span>
           </h1>
           
@@ -125,13 +125,13 @@ const Hero = () => {
               {/* Enhanced gradient overlays for seamless blending */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 {/* Stronger feathered edges that blend into black background */}
-                <div className="absolute top-0 left-0 right-0 h-8 md:h-12 bg-gradient-to-b from-black via-black/60 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-12 md:h-16 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-                <div className="absolute top-0 bottom-0 left-0 w-8 md:w-12 bg-gradient-to-r from-black via-black/60 to-transparent"></div>
-                <div className="absolute top-0 bottom-0 right-0 w-8 md:w-12 bg-gradient-to-l from-black via-black/60 to-transparent"></div>
+                <div className="absolute top-0 left-0 right-0 h-8 md:h-12 bg-gradient-to-b from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/60 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-12 md:h-16 bg-gradient-to-t from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/80 to-transparent"></div>
+                <div className="absolute top-0 bottom-0 left-0 w-8 md:w-12 bg-gradient-to-r from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/60 to-transparent"></div>
+                <div className="absolute top-0 bottom-0 right-0 w-8 md:w-12 bg-gradient-to-l from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/60 to-transparent"></div>
                 
                 {/* Subtle vignette effect */}
-                <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/20"></div>
+                <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-[hsl(220,50%,8%)]/20"></div>
               </div>
               
               {/* Video element with reduced opacity for better blending */}
@@ -142,29 +142,23 @@ const Hero = () => {
             </div>
             
             {/* Softer shadow effects that blend with background */}
-            <div className="absolute -inset-8 md:-inset-12 bg-gradient-radial from-black/10 via-black/30 to-black opacity-60 blur-3xl -z-10"></div>
+            <div className="absolute -inset-8 md:-inset-12 bg-gradient-radial from-[hsl(220,50%,8%)]/10 via-[hsl(220,50%,8%)]/30 to-[hsl(220,50%,8%)] opacity-60 blur-3xl -z-10"></div>
           </div>
           
-          {/* Enhanced Learn More button - now smaller on mobile */}
-          <div className="mt-6 md:mt-8 h-[48px] md:h-[64px] flex items-center justify-center">
+          {/* Learn More button */}
+          <div className="mt-6 md:mt-8 flex items-center justify-center relative z-30">
             <Link to="/smartrewards">
-              <Button 
-                size="sm"
-                className="bg-gradient-to-r from-[#1E40AF] to-[#2563EB] text-white hover:from-[#1E3A8A] hover:to-[#1E40AF] hover:brightness-110 rounded-full px-8 md:px-12 py-3 md:py-4 text-sm md:text-base font-medium transition-all duration-300 shadow-[0_0_30px_rgba(30,64,175,0.4)] hover:shadow-[0_0_40px_rgba(30,64,175,0.6)] hover:scale-105 min-h-[40px] md:min-h-[48px] min-w-[120px] md:min-w-[160px] border-0 opacity-100 visible animate-fade-in"
-              >
+              <Button size="lg">
                 Learn More
               </Button>
             </Link>
           </div>
           
-          {/* Scroll cue with extremely subtle animation - always reserve space, control visibility */}
-          <div className="mt-4 md:mt-6 h-6 flex flex-col items-center justify-center">
-            <div className="opacity-100 visible animate-fade-in">
-              <ChevronDown className="h-5 w-5 md:h-6 md:w-6 text-white/60" />
-            </div>
-          </div>
         </div>
       </div>
+      
+      {/* Subtle bottom line separator */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10"></div>
     </div>
   );
 };

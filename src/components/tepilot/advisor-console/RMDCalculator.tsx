@@ -99,7 +99,7 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-sm text-slate-500 text-center py-4">
             No RMD-eligible accounts (Traditional IRA or 401k) found. 
             Add these accounts in the Tax-Advantaged Accounts section above.
           </p>
@@ -115,10 +115,10 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
           <div className="flex items-center gap-2">
             <Calculator className="w-5 h-5 text-primary" />
             <CardTitle className="text-lg">RMD Calculator</CardTitle>
-            <TooltipProvider>
+          <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <Info className="w-4 h-4 text-muted-foreground" />
+                  <Info className="w-4 h-4 text-slate-500" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p>Required Minimum Distributions must be taken from traditional IRAs and 401(k)s starting at age 73 (SECURE 2.0 Act). Roth IRAs and HSAs are not subject to RMD.</p>
@@ -138,13 +138,13 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label className="text-sm">Client Age</Label>
-            <div className="mt-1 h-10 flex items-center px-3 bg-muted rounded-md font-medium">
+            <div className="mt-1 h-10 flex items-center px-3 bg-slate-200 rounded-md font-medium">
               {clientAge} years old
             </div>
           </div>
           <div>
             <Label className="text-sm">Distribution Period</Label>
-            <div className="mt-1 h-10 flex items-center px-3 bg-muted rounded-md font-medium">
+            <div className="mt-1 h-10 flex items-center px-3 bg-slate-200 rounded-md font-medium">
               {calculations.distributionPeriod > 0 ? `${calculations.distributionPeriod.toFixed(1)} years` : 'N/A (under 73)'}
             </div>
           </div>
@@ -154,19 +154,19 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">RMD-Eligible Accounts</Label>
-            <span className="text-xs text-muted-foreground">Synced from Tax-Advantaged Accounts</span>
+            <span className="text-xs text-slate-500">Synced from Tax-Advantaged Accounts</span>
           </div>
           {calculations.accountRMDs.map((account, idx) => (
-            <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
               <div>
                 <span className="text-sm font-medium">{account.label}</span>
-                <p className="text-xs text-muted-foreground">Balance: {formatCurrency(account.currentBalance)}</p>
+                <p className="text-xs text-slate-500">Balance: {formatCurrency(account.currentBalance)}</p>
               </div>
               <div className="text-right">
                 <span className="text-sm font-semibold text-primary">
                   {isRMDRequired ? formatCurrency(account.rmd) : '—'}
                 </span>
-                <p className="text-xs text-muted-foreground">Annual RMD</p>
+                <p className="text-xs text-slate-500">Annual RMD</p>
               </div>
             </div>
           ))}
@@ -184,11 +184,11 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
               {isRMDRequired ? formatCurrency(calculations.totalRMD) : `${formatCurrency(calculations.totalRMD)} (at age 73)`}
             </span>
           </div>
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <div className="flex justify-between items-center text-sm text-slate-500">
             <span>Estimated Tax (22% bracket)</span>
             <span>{formatCurrency(calculations.estimatedTax)}</span>
           </div>
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <div className="flex justify-between items-center text-sm text-slate-500">
             <span>Monthly Distribution</span>
             <span>{formatCurrency(calculations.totalRMD / 12)}</span>
           </div>
@@ -199,8 +199,8 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
           <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-amber-700 dark:text-amber-400">RMD Deadline Reminder</p>
-              <p className="text-muted-foreground mt-1">
+              <p className="font-medium text-amber-700">RMD Deadline Reminder</p>
+              <p className="text-slate-500 mt-1">
                 RMDs must be taken by December 31st each year. First-year RMDs can be delayed until April 1st of the following year, but this requires two distributions in the second year.
               </p>
             </div>
@@ -210,7 +210,7 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         {/* 10-Year Projection Table */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">10-Year RMD Projection</Label>
-          <p className="text-xs text-muted-foreground">Assumes 5% annual growth after RMD withdrawal</p>
+          <p className="text-xs text-slate-500">Assumes 5% annual growth after RMD withdrawal</p>
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-muted/50">

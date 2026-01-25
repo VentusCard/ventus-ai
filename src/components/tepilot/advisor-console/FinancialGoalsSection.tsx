@@ -129,7 +129,7 @@ export function FinancialGoalsSection({
     return (
       <div 
         key={goal.id}
-        className="p-4 border rounded-lg bg-background hover:shadow-sm transition-shadow"
+        className="p-4 border rounded-lg bg-white hover:shadow-sm transition-shadow"
       >
         <div className="flex items-start justify-between mb-3">
           <div>
@@ -145,7 +145,7 @@ export function FinancialGoalsSection({
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500">
               Target: {targetYear} ({yearsRemaining > 0 ? `${yearsRemaining} years` : "This year"})
             </p>
           </div>
@@ -176,13 +176,13 @@ export function FinancialGoalsSection({
             <span>{formatCurrency(goal.currentAmount)}</span>
             <span className="font-medium">{formatCurrency(goal.targetAmount)}</span>
           </div>
-          <div className="relative h-3 rounded-full bg-muted overflow-hidden">
+          <div className="relative h-3 rounded-full bg-slate-200 overflow-hidden">
             <div 
               className={`absolute h-full rounded-full transition-all ${getProgressColor(progress)}`}
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
+          <div className="flex justify-between text-xs text-slate-500">
             <span>{progress.toFixed(0)}% funded</span>
             <span>
               {goal.monthlyContribution > 0 && (
@@ -306,7 +306,7 @@ export function FinancialGoalsSection({
       </CardHeader>
       <CardContent>
         {goals.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-slate-500">
             <Target className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No financial goals defined yet</p>
             <p className="text-sm">Add long-term goals like retirement, legacy planning, or education</p>

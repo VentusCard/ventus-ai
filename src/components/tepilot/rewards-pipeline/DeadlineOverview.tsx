@@ -76,7 +76,7 @@ export function DeadlineOverview({ opportunities }: DeadlineOverviewProps) {
   const urgentCount = deadlines.filter(d => d.urgency === 'overdue' || d.urgency === 'this_week').length;
 
   return (
-    <div className="bg-card border rounded-xl p-5">
+    <div className="bg-white border border-slate-200 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-primary" />
@@ -101,8 +101,8 @@ export function DeadlineOverview({ opportunities }: DeadlineOverviewProps) {
                 "flex items-center justify-between p-3 rounded-lg border",
                 item.urgency === 'overdue' && "bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-800",
                 item.urgency === 'this_week' && "bg-amber-50/50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800",
-                item.urgency === 'this_month' && "bg-muted/30 border-border",
-                item.urgency === 'upcoming' && "bg-muted/20 border-border/50"
+                item.urgency === 'this_month' && "bg-slate-50 border-slate-200",
+                item.urgency === 'upcoming' && "bg-slate-50/50 border-slate-200"
               )}
             >
               <div className="flex items-center gap-3">
@@ -114,12 +114,12 @@ export function DeadlineOverview({ opportunities }: DeadlineOverviewProps) {
                 )} />
                 <div>
                   <p className="font-medium text-sm">{item.merchantName}</p>
-                  <p className="text-xs text-muted-foreground">{item.opportunityTitle}</p>
+                  <p className="text-xs text-slate-500">{item.opportunityTitle}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium">{item.deadline}</p>
-                <p className="text-xs text-muted-foreground">Peak: {item.peakQuarter}</p>
+                <p className="text-xs text-slate-500">Peak: {item.peakQuarter}</p>
               </div>
             </div>
           );

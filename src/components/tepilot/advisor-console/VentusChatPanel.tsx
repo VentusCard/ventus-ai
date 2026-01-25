@@ -304,7 +304,7 @@ export function VentusChatPanel({
               Ventus AI Advisor Chat
             </h2>
           </div>
-          {isLoadingInsights && <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        {isLoadingInsights && <div className="flex items-center gap-2 text-sm text-slate-500">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Analyzing lifestyle signals...</span>
             </div>}
@@ -341,7 +341,7 @@ export function VentusChatPanel({
         {messages.length === 0 && <div className="text-center py-12">
             
             <h3 className="font-semibold mb-2">Start a Conversation</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500">
               Ask me anything about the client's spending patterns, life events, or get recommendations
             </p>
           </div>}

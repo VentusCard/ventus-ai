@@ -34,7 +34,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
 
   return (
     <>
-      <Card>
+      <Card className="bg-white border-slate-200">
         <CardHeader>
           <CardTitle>Enriched Results</CardTitle>
           <CardDescription>
@@ -44,24 +44,24 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
         <CardContent>
           {currentPhase === "classification" && transactions.length > 0 && (
             <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+              <div className="flex items-center gap-2 text-sm text-blue-700">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="font-medium">{statusMessage}</span>
               </div>
             </div>
           )}
           {transactions.length === 0 && currentPhase === "classification" && (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-slate-500">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
               <p>Waiting for first batch of results...</p>
               <p className="text-sm mt-2">This should take ~3 seconds</p>
             </div>
           )}
           {transactions.length > 0 && (
-            <div className="border rounded-lg overflow-hidden">
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
             <div className="max-h-[600px] overflow-y-auto">
               <Table>
-                <TableHeader className="sticky top-0 bg-background">
+                <TableHeader className="sticky top-0 bg-white">
                   <TableRow>
                     <TableHead>Merchant</TableHead>
                     <TableHead>Amount</TableHead>
@@ -82,7 +82,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         <div>
                           <div className="font-medium">{transaction.normalized_merchant}</div>
                           {transaction.merchant_name !== transaction.normalized_merchant && (
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-slate-500">
                               {transaction.merchant_name}
                             </div>
                           )}
@@ -111,7 +111,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                       <Plane className="w-3 h-3" />
                                       Travel
                                     </Badge>
-                                    <span className="text-muted-foreground">:</span>
+                                    <span className="text-slate-500">:</span>
                                     <Badge
                                       className="border"
                                       style={{
@@ -137,7 +137,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                       <p>🗓️ Period: {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
                                     )}
                                     {transaction.travel_context.reclassification_reason && (
-                                      <p className="text-muted-foreground italic pt-1 border-t mt-1">
+                                      <p className="text-slate-500 italic pt-1 border-t border-slate-200 mt-1">
                                         {transaction.travel_context.reclassification_reason}
                                       </p>
                                     )}

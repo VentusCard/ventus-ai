@@ -45,7 +45,7 @@ export function EducationalContentPanel({ education, eventName }: EducationalCon
       <CardContent>
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger className="w-full mb-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <div className="flex items-center justify-between text-sm text-slate-500 hover:text-slate-900 transition-colors">
               <span>{education.length} key insights for client discussion</span>
               {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
@@ -53,7 +53,7 @@ export function EducationalContentPanel({ education, eventName }: EducationalCon
           <CollapsibleContent>
             <ul className="space-y-2 mb-4">
               {education.map((item, idx) => (
-                <li key={idx} className="text-sm text-muted-foreground flex gap-2">
+                <li key={idx} className="text-sm text-slate-500 flex gap-2">
                   <span className="text-primary font-semibold shrink-0">{idx + 1}.</span>
                   <span>{item}</span>
                 </li>

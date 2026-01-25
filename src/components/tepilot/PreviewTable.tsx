@@ -19,7 +19,7 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
   const anchorZip = transactions.length > 0 && transactions[0].home_zip ? transactions[0].home_zip : null;
 
   return (
-    <Card>
+    <Card className="bg-white border-slate-200">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -35,31 +35,31 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
         
         <div className="flex gap-6 pt-4 text-sm">
           <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Total:</span>
-            <span className="font-semibold">${totalAmount.toFixed(2)}</span>
+            <DollarSign className="w-4 h-4 text-slate-500" />
+            <span className="text-slate-500">Total:</span>
+            <span className="font-semibold text-slate-900">${totalAmount.toFixed(2)}</span>
           </div>
           {dateRange && (
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Range:</span>
-              <span className="font-semibold">{dateRange.start} to {dateRange.end}</span>
+              <Calendar className="w-4 h-4 text-slate-500" />
+              <span className="text-slate-500">Range:</span>
+              <span className="font-semibold text-slate-900">{dateRange.start} to {dateRange.end}</span>
             </div>
           )}
           {anchorZip && (
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Anchor ZIP:</span>
-              <span className="font-semibold font-mono">{anchorZip}</span>
+              <MapPin className="w-4 h-4 text-slate-500" />
+              <span className="text-slate-500">Anchor ZIP:</span>
+              <span className="font-semibold font-mono text-slate-900">{anchorZip}</span>
             </div>
           )}
         </div>
       </CardHeader>
       <CardContent>
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-slate-200 rounded-lg overflow-hidden">
           <div className="max-h-[400px] overflow-y-auto">
             <Table>
-              <TableHeader className="sticky top-0 bg-background">
+              <TableHeader className="sticky top-0 bg-white">
                 <TableRow>
                   <TableHead>Merchant</TableHead>
                   <TableHead>Description</TableHead>
@@ -72,8 +72,8 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
               <TableBody>
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.transaction_id}>
-                    <TableCell className="font-medium">{transaction.merchant_name}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell className="font-medium text-slate-900">{transaction.merchant_name}</TableCell>
+                    <TableCell className="text-slate-500 text-sm">
                       {transaction.description || "—"}
                     </TableCell>
                     <TableCell>
@@ -82,7 +82,7 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                           {transaction.mcc}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground text-sm">—</span>
+                        <span className="text-slate-400 text-sm">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right font-mono">

@@ -32,9 +32,9 @@ export function BankwideView() {
   return (
     <div className="space-y-4">
       {/* Intro Text */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 rounded-lg border">
-        <h2 className="text-2xl font-bold mb-2">Bank-wide Analytics Dashboard (Example)</h2>
-        <p className="text-muted-foreground">
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 rounded-lg border border-slate-200">
+        <h2 className="text-2xl font-bold mb-2 text-slate-900">Bank-wide Analytics Dashboard (Example)</h2>
+        <p className="text-slate-500">
           This interactive dashboard demonstrates how Ventus AI insights scale to institutional portfolios.
           Explore spending patterns, cross-sell opportunities, and revenue gaps across 70 million accounts from 45 million users.
           Use filters to drill down into specific segments by card product, region, and demographics.

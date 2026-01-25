@@ -105,19 +105,19 @@ export function CashFlowChart({ years, costCategories, fundingSources, currentSa
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-1">Total Costs</p>
+            <p className="text-xs text-slate-500 mb-1">Total Costs</p>
             <p className="text-lg font-semibold text-red-600">
               {formatCurrency(chartData.reduce((sum, d) => sum + d.totalCosts, 0))}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-1">Total Funding</p>
+            <p className="text-xs text-slate-500 mb-1">Total Funding</p>
             <p className="text-lg font-semibold text-green-600">
               {formatCurrency(chartData.reduce((sum, d) => sum + d.totalFunding, 0))}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-1">Final Position</p>
+            <p className="text-xs text-slate-500 mb-1">Final Position</p>
             <p className={`text-lg font-semibold ${chartData[chartData.length - 1]?.cumulative >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(chartData[chartData.length - 1]?.cumulative || 0)}
             </p>

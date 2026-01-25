@@ -98,7 +98,7 @@ export function GlidePathVisualization({
           </div>
         </div>
         {label === currentAge && (
-          <p className="text-xs text-muted-foreground mt-2 border-t pt-2">
+          <p className="text-xs text-slate-500 mt-2 border-t pt-2">
             ← You are here
           </p>
         )}
@@ -234,11 +234,11 @@ export function GlidePathVisualization({
           
           <div className="flex gap-6 text-sm">
             <div>
-              <span className="text-muted-foreground">Current: </span>
+              <span className="text-slate-500">Current: </span>
               <span className="font-medium">{currentAllocation.stocks}% stocks</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Target: </span>
+              <span className="text-slate-500">Target: </span>
               <span className="font-medium">{targetPosition.stocks}% stocks</span>
             </div>
             {needsRebalancing && (

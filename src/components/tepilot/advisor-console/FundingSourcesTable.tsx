@@ -108,7 +108,7 @@ export function FundingSourcesTable({ sources, years, projectType, onChange }: F
             </thead>
             <tbody>
               {sources.map((source) => (
-                <tr key={source.id} className="border-b hover:bg-muted/50">
+                <tr key={source.id} className="border-b hover:bg-slate-50">
                   <td className="p-2">
                     <Select value={source.type} onValueChange={(value) => updateSourceType(source.id, value as FundingSource["type"])}>
                       <SelectTrigger className="w-[180px] h-8">
@@ -139,7 +139,7 @@ export function FundingSourcesTable({ sources, years, projectType, onChange }: F
                   </td>
                 </tr>
               ))}
-              <tr className="font-semibold bg-muted/30">
+              <tr className="font-semibold bg-slate-50">
                 <td className="p-2">Total Funding</td>
                 {years.map(year => (
                   <td key={year} className="p-2 text-right text-green-600">

@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
-import { Brain, Target, TrendingUp, Zap, Shield, MessageCircle, ArrowRight, Bot, User, Sparkles } from "lucide-react";
+import { Brain, Target, TrendingUp, Zap, Shield, ArrowRight, Sparkles, ChevronDown } from "lucide-react";
+
 const VentusAI = () => {
   // Auto-scroll disabled per user request
   const scrollToChat = () => {
     // Scroll functionality disabled
   };
+
   const features = [{
     icon: Brain,
     title: "Intelligent Analysis",
@@ -34,6 +36,7 @@ const VentusAI = () => {
     title: "AI Shopping",
     description: "Secures eligible deals and completes wishlist items purchases with your permission"
   }];
+
   const steps = [{
     step: "1",
     title: "Connect Your Data",
@@ -51,46 +54,64 @@ const VentusAI = () => {
     title: "Continuous Optimization",
     description: "Ventus AI continuously learns and adapts, ensuring you're always maximizing your rewards"
   }];
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+
+  return (
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="pt-16 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="text-center">
-          <div className="flex items-center justify-center mb-2 pt-8 py-[12px]">
-            <Bot className="h-12 w-12 text-blue-400 mr-4" />
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
-              Ventus AI
-            </h1>
-          </div>
-          <p className="text-xl md:text-2xl text-white/80 mb-3 max-w-6xl mx-auto leading-relaxed">Your intelligent assistant for maximizing rewards. Get personalized insights, deals, and instant answers to all your reward questions.</p>
+      {/* Hero Section - Full Height */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-8">
+        <div className="text-center max-w-5xl mx-auto flex flex-col items-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8">
+            <span className="text-foreground">Ventus AI:</span>{" "}
+            <span className="italic font-light text-muted-foreground">Your Intelligent</span>
+            <br />
+            <span className="italic font-light text-muted-foreground">Rewards Partner</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
+            Harness the power of AI to maximize your rewards and unlock personalized deals with zero complexity.
+          </p>
+          <Link to="/app">
+            <Button size="lg" className="px-10 py-6 text-lg rounded-full">
+              Get Started
+            </Button>
+          </Link>
           
+          {/* Scroll indicator */}
+          <button 
+            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+            className="mt-8 animate-fade-in"
+            aria-label="Scroll down"
+          >
+            <ChevronDown className="h-6 w-6 text-muted-foreground/60 hover:text-muted-foreground transition-colors" />
+          </button>
         </div>
+        
+        {/* Subtle bottom line separator */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10"></div>
       </section>
 
       {/* What Ventus AI Does Section */}
-      <section className="py-8 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">What Ventus AI Can Do For You</h2>
-          <p className="text-xl text-white/70 max-w-3xl mx-auto">
-            Harness the power of artificial intelligence to unlock maximum value from your credit card rewards
+      <section className="py-24 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Our Suite of Advanced AI Tools</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Powerful capabilities that put the right deals in front of you at the right time.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((feature, index) => <Card key={index} className="premium-card hover:border-white/20 transition-all duration-300">
-              <CardHeader className="text-center pb-1">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <feature.icon className="h-7 w-7 text-white" />
-                </div>
-                <CardTitle className="card-title text-lg">{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1">
-                <p className="card-description text-center leading-snug text-sm">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <Card key={index} className="p-8 bg-[#0064E0]/10 border-[#0064E0]/20 hover:border-[#0064E0]/40 transition-all duration-300">
+              <div className="w-12 h-12 bg-[#0064E0]/20 rounded-xl flex items-center justify-center mb-6">
+                <feature.icon className="h-6 w-6 text-[#0064E0]" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {feature.description}
+              </p>
+            </Card>
+          ))}
         </div>
       </section>
 
@@ -102,26 +123,26 @@ const VentusAI = () => {
 
 
       {/* CTA Section */}
-      <section className="py-8 px-4 md:px-8 max-w-7xl mx-auto text-center">
-        <Card className="premium-card max-w-4xl mx-auto">
-          <CardContent className="py-8 px-12 md:py-12 md:px-16">
-            <h2 className="text-3xl md:text-4xl font-bold card-title mb-3">
-              Ready to Maximize Your Rewards?
-            </h2>
-            <p className="text-xl card-description mb-4 max-w-2xl mx-auto">
-              Join thousands of users who are already earning more with intelligent reward optimization. Be among the first to experience Ventus AI.
-            </p>
-            <Link to="/app">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                Try Ventus AI
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </CardContent>
+      <section className="py-24 px-4 md:px-8 max-w-7xl mx-auto text-center">
+        <Card className="max-w-4xl mx-auto p-12 md:p-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Ready to Maximize Your Rewards?
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Join thousands of users who are already earning more with intelligent reward optimization.
+          </p>
+          <Link to="/app">
+            <Button size="lg" className="px-10 py-6 text-lg rounded-full">
+              Try Ventus AI
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </Card>
       </section>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default VentusAI;

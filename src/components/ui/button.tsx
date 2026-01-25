@@ -6,27 +6,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-premium hover:from-blue-700 hover:to-blue-800 hover:shadow-titanium transform hover:scale-[1.02] active:scale-[0.98]",
-        destructive:
-          "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-premium hover:from-red-600 hover:to-red-700",
-        outline:
-          "border border-slate-300 bg-white/80 backdrop-blur-sm hover:bg-slate-50 hover:text-slate-900 shadow-metallic hover:shadow-premium",
-        secondary:
-          "bg-gradient-to-r from-slate-100 to-slate-200 text-slate-900 shadow-metallic hover:from-slate-200 hover:to-slate-300 hover:shadow-premium",
-        ghost: "hover:bg-slate-100/80 hover:text-slate-900 backdrop-blur-sm",
-        link: "text-blue-600 underline-offset-4 hover:underline font-medium",
-        premium: "bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-premium hover:shadow-titanium border border-slate-600/50 backdrop-blur-sm before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
-        whiteText: "bg-white hover:bg-white/90 transition-all duration-300 hover:scale-105 text-white",
-        ai: "bg-gradient-to-r from-blue-600 via-blue-600 to-purple-600 text-white shadow-premium hover:from-blue-700 hover:via-blue-700 hover:to-purple-700 hover:shadow-titanium transform hover:scale-[1.02] active:scale-[0.98]",
+        default: "bg-primary text-white hover:bg-primary/85",
+        destructive: "bg-destructive text-white hover:bg-destructive/85",
+        outline: "border border-slate-300 bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+        secondary: "bg-secondary text-white hover:bg-secondary/85",
+        ghost: "hover:bg-slate-100 hover:text-slate-900",
+        link: "text-primary underline-offset-4 hover:underline font-medium",
+        premium: "bg-primary text-white hover:bg-primary/85",
+        whiteText: "bg-primary text-white hover:bg-primary/85",
+        ai: "bg-primary text-white hover:bg-primary/85",
       },
       size: {
-        default: "h-11 px-6 py-2",
-        sm: "h-9 rounded-md px-4 text-xs",
-        lg: "h-12 rounded-lg px-8 text-base font-semibold",
+        default: "h-12 px-8 py-3",
+        sm: "h-10 px-6 py-2 text-sm",
+        lg: "h-14 px-10 py-4 text-base",
         icon: "h-10 w-10",
       },
     },

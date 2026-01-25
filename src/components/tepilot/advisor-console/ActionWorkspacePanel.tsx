@@ -122,7 +122,7 @@ export function ActionWorkspacePanel({
                           <span className={`font-medium ${!isAssessed ? 'text-slate-400' : ''}`}>
                             {insight.aspect}
                           </span>
-                          <span className={`text-[10px] ${!isAssessed ? 'text-slate-400' : 'text-muted-foreground'}`}>
+                          <span className={`text-[10px] ${!isAssessed ? 'text-slate-400' : 'text-slate-500'}`}>
                             {insight.assessment}
                           </span>
                         </div>
@@ -180,9 +180,9 @@ export function ActionWorkspacePanel({
           <div className="flex-1 min-h-0 overflow-y-auto space-y-4 mb-3">
             {/* Empty State - only for action items */}
             {nextStepsData.actionItems.length === 0 && !isAddingItem && <Card className="border-dashed p-6 text-center">
-                <MessageSquare className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3" />
+                <MessageSquare className="w-10 h-10 mx-auto text-slate-400 mb-3" />
                 <h4 className="font-medium text-slate-900 mb-1">No Action Items Yet</h4>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-500">
                   Chat with Ventus AI or upload a meeting transcript to generate action items.
                 </p>
               </Card>}

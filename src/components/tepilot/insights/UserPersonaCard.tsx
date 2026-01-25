@@ -15,17 +15,17 @@ interface UserPersonaCardProps {
 
 export function UserPersonaCard({ persona }: UserPersonaCardProps) {
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent bg-white">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-slate-900">
           <User className="h-5 w-5 text-primary" />
           Customer Persona
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary */}
-        <div className="p-4 bg-background rounded-lg border">
-          <p className="text-sm leading-relaxed italic">"{persona.summary}"</p>
+        <div className="p-4 bg-white rounded-lg border border-slate-200">
+          <p className="text-sm leading-relaxed italic text-slate-700">"{persona.summary}"</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">

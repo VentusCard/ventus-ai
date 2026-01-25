@@ -55,15 +55,23 @@ interface UserPersona {
   interests: string[];
 }
 
+interface CustomerContext {
+  homeZip?: string;
+  incomeLevel?: string;
+  industry?: string;
+  familyStatus?: string;
+}
+
 interface TopPillarsAnalysisProps {
   transactions: EnrichedTransaction[];
   autoAnalyze?: boolean;
   onPersonaGenerated?: (persona: UserPersona) => void;
+  customerContext?: CustomerContext;
 }
 
 const PILLAR_ICON = "💳";
 
-export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPersonaGenerated }: TopPillarsAnalysisProps) {
+export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPersonaGenerated, customerContext }: TopPillarsAnalysisProps) {
   const [analyzedPillars, setAnalyzedPillars] = useState<AnalyzedPillar[]>([]);
   const [userPersona, setUserPersona] = useState<UserPersona | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -103,8 +111,8 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
     
     try {
       // Prepare data for AI analysis
-      // Find the most common home_zip from transactions for fallback
-      const homeZip = transactions.find(t => t.home_zip)?.home_zip;
+      // Prefer customerContext.homeZip, fallback to transaction-derived ZIP
+      const homeZip = customerContext?.homeZip || transactions.find(t => t.home_zip)?.home_zip;
 
       const pillarsData = pillarAggregates.map(agg => {
         const pillarTransactions = transactions
@@ -128,7 +136,15 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
       });
 
       const { data, error } = await supabase.functions.invoke('analyze-pillar-transactions', {
-        body: { pillars: pillarsData, home_zip: homeZip }
+        body: { 
+          pillars: pillarsData, 
+          home_zip: homeZip,
+          customer_context: customerContext ? {
+            income_level: customerContext.incomeLevel,
+            industry: customerContext.industry,
+            family_status: customerContext.familyStatus,
+          } : undefined
+        }
       });
 
       if (error) throw error;
@@ -167,16 +183,16 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-white border-slate-200">
       <Collapsible open={isCardExpanded} onOpenChange={setIsCardExpanded}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+          <CardHeader className="cursor-pointer hover:bg-slate-50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex flex-col items-start gap-2">
-                <CardTitle className="text-2xl">
+                <CardTitle className="text-2xl text-slate-900">
                   Spending Profile Deep Dive
                 </CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-500">
                   Analyze parent-SKU level spending insight and construct spending persona
                 </p>
               </div>
@@ -196,7 +212,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
             
             {/* Collapsed Preview - Top 3 Pillars */}
             {!isCardExpanded && (
-              <div className="space-y-2 mt-4 pt-4 border-t">
+              <div className="space-y-2 mt-4 pt-4 border-t border-slate-200">
                 {pillarAggregates.map((pillar) => {
                   const percentage = (pillar.totalSpend / totalSpend) * 100;
                   return (
@@ -209,7 +225,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                         <span className="font-semibold">{pillar.pillar}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground">
+                        <span className="text-slate-500">
                           ${pillar.totalSpend.toLocaleString(undefined, { minimumFractionDigits: 0 })}
                         </span>
                         <Badge variant="outline" className="text-xs min-w-[45px] justify-center">
@@ -225,7 +241,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <CardContent className="border-t pt-4 space-y-6">
+          <CardContent className="border-t border-slate-200 pt-4 space-y-6">
             {/* Analyze Button */}
             {!hasAnalyzed && !isAnalyzing && (
               <div className="flex justify-end">
@@ -237,9 +253,9 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
             )}
             
             {isAnalyzing && (
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                <span className="text-muted-foreground">Analyzing transactions...</span>
+                <span className="text-slate-500">Analyzing transactions...</span>
               </div>
             )}
 
@@ -254,18 +270,18 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                   .slice(0, 10);
 
                 return (
-                  <Card key={pillar.pillar} className="overflow-hidden border-muted">
+                  <Card key={pillar.pillar} className="overflow-hidden border-slate-200 bg-white">
                     <Collapsible open={isExpanded} onOpenChange={() => togglePillar(pillar.pillar)}>
                       <CollapsibleTrigger asChild>
-                        <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+                        <CardHeader className="cursor-pointer hover:bg-slate-50 transition-colors py-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <span className="text-2xl">{PILLAR_ICON}</span>
                               <div>
-                                <CardTitle className="text-base font-medium">
+                                <CardTitle className="text-base font-medium text-slate-900">
                                   {pillar.pillar}
                                 </CardTitle>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-slate-500">
                                   {pillar.transactionCount} transactions
                                 </p>
                               </div>
@@ -278,9 +294,9 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                                 </Badge>
                               </div>
                               {isExpanded ? (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                                <ChevronDown className="h-5 w-5 text-slate-500" />
                               ) : (
-                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                <ChevronRight className="h-5 w-5 text-slate-500" />
                               )}
                             </div>
                           </div>
@@ -288,7 +304,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                       </CollapsibleTrigger>
                       
                       <CollapsibleContent>
-                        <CardContent className="border-t bg-muted/20 pt-4">
+                        <CardContent className="border-t border-slate-200 bg-slate-50 pt-4">
                           <div className="space-y-3">
                             {pillarTransactions.map((txn) => {
                               const analyzed = analyzedTxns.find(a => a.transaction_id === txn.transaction_id);
@@ -297,7 +313,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                               return (
                                 <div 
                                   key={txn.transaction_id}
-                                  className="p-3 bg-background rounded-lg border hover:shadow-sm transition-all"
+                                  className="p-3 bg-white rounded-lg border border-slate-200 hover:shadow-sm transition-all"
                                 >
                                   {/* Line 1: Merchant + Amount */}
                                   <div className="flex items-center justify-between">
@@ -314,14 +330,14 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                                   
                                   {/* Line 2: Date/Category + AI inference/Confidence */}
                                   <div className="flex items-center justify-between mt-1.5 text-sm">
-                                    <span className="text-muted-foreground">
+                                    <span className="text-slate-500">
                                       {new Date(txn.date).toLocaleDateString()}
                                       {txn.subcategory && ` · ${txn.subcategory}`}
                                     </span>
                                     
                                     {analyzed ? (
                                       <div className="flex items-center gap-2 flex-wrap justify-end">
-                                        <span className="text-muted-foreground text-right">
+                                        <span className="text-slate-500 text-right">
                                           {analyzed.inferred_purchase}
                                         </span>
                                         <Badge 
@@ -332,7 +348,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                                         </Badge>
                                       </div>
                                     ) : isAnalyzing ? (
-                                      <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
                                     ) : null}
                                   </div>
                                 </div>

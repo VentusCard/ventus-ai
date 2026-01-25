@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import StepOneMerged from "@/components/onboarding-flow/StepOneMerged";
 import StepTwoMerged from "@/components/onboarding-flow/StepTwoMerged";
 import StepFourSpendingInput from "@/components/onboarding-flow/StepFourSpendingInput";
+import WaitlistFormLight from "@/components/onboarding-flow/WaitlistFormLight";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 export type LifestyleGoal = "sports" | "wellness" | "pets" | "gamers" | "creatives" | "homeowners";
@@ -22,7 +23,9 @@ export interface OnboardingFlowData {
 }
 const OnboardingFlow = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingFlowData>({
@@ -36,7 +39,6 @@ const OnboardingFlow = () => {
     maxCashbackPercentage: 15
   });
   const totalSteps = 3;
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -45,50 +47,50 @@ const OnboardingFlow = () => {
       navigate("/ventus-ai");
     } else {
       setStep(prev => prev + 1);
-      window.scrollTo(0, 0);
+      document.getElementById('onboarding-content')?.scrollIntoView({
+        behavior: 'smooth'
+      });
     }
   };
-
   const handleCompleteOnboarding = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         toast({
           title: "Error",
           description: "Please log in to continue",
-          variant: "destructive",
+          variant: "destructive"
         });
         navigate("/auth");
         return;
       }
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          lifestyle_goal: onboardingData.mainGoal,
-          selected_categories: onboardingData.subcategories,
-          spending_frequency: onboardingData.spendingFrequency,
-          spending_amount: onboardingData.spendingAmount,
-          estimated_annual_spend: onboardingData.estimatedAnnualSpend,
-          estimated_rewards: onboardingData.estimatedPoints,
-          onboarding_completed: true,
-        })
-        .eq("id", session.user.id);
-
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        lifestyle_goal: onboardingData.mainGoal,
+        selected_categories: onboardingData.subcategories,
+        spending_frequency: onboardingData.spendingFrequency,
+        spending_amount: onboardingData.spendingAmount,
+        estimated_annual_spend: onboardingData.estimatedAnnualSpend,
+        estimated_rewards: onboardingData.estimatedPoints,
+        onboarding_completed: true
+      }).eq("id", session.user.id);
       if (error) throw error;
-
       toast({
         title: "Success!",
-        description: "Your preferences have been saved.",
+        description: "Your preferences have been saved."
       });
-
       navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to save preferences",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -96,7 +98,9 @@ const OnboardingFlow = () => {
   };
   const goToPreviousStep = () => {
     setStep(prev => Math.max(prev - 1, 1));
-    window.scrollTo(0, 0);
+    document.getElementById('onboarding-content')?.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
   const updateOnboardingData = (data: Partial<OnboardingFlowData>) => {
     setOnboardingData(prev => ({
@@ -116,7 +120,15 @@ const OnboardingFlow = () => {
       case 2:
         return <StepTwoMerged selectedGoal={onboardingData.mainGoal as LifestyleGoal} selectedSubcategories={onboardingData.subcategories} />;
       case 3:
-        return <StepFourSpendingInput onboardingData={onboardingData} updateOnboardingData={updateOnboardingData} />;
+        return <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="font-display text-xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                Ready to Experience Smart Rewards?
+              </h2>
+              
+            </div>
+            <WaitlistFormLight onboardingData={onboardingData} />
+          </div>;
       default:
         return <StepOneMerged selectedGoal={onboardingData.mainGoal} selectedSubcategories={onboardingData.subcategories} onSelectGoal={goal => updateOnboardingData({
           mainGoal: goal,
@@ -137,64 +149,62 @@ const OnboardingFlow = () => {
       case 2:
         return 'Understand Ventus Smart Rewards And Ventus AI Deals';
       case 3:
-        return 'Input Your Spending & Join Waitlist';
+        return 'Join the Waitlist';
       default:
         return '';
     }
   };
-  return <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+  return <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
-      {/* Optimized Hero Section with VentusAI dark theme */}
-      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden pt-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-blue-800/10 to-transparent"></div>
-        
-        {/* Abstract geometric patterns */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute left-10 top-10 w-24 h-24 bg-blue-400 rounded-full filter blur-3xl"></div>
-          <div className="absolute right-20 bottom-10 w-32 h-32 bg-blue-500 rounded-full filter blur-3xl"></div>
-          <div className="absolute left-1/2 top-1/2 w-20 h-20 bg-blue-300 rounded-full filter blur-2xl"></div>
-        </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
-          <div className="text-center max-w-6xl mx-auto">
-            <h1 className="font-display text-2xl md:text-5xl lg:text-6xl font-bold mb-6 leading-none mt-10">
-              <span className="bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
-                Discover Your
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-blue-300 via-blue-200 to-white bg-clip-text text-transparent">
-                Ventus Smart Rewards
-              </span>
-            </h1>
-            
-            <p className="text-base md:text-xl text-white/80 leading-relaxed max-w-6xl mx-auto">Most cards reward categories. Ventus rewards you. Set your goals like fitness, pet care, or home upgrades and earn cross category rewards with personalized deals. No more juggling cards or missing out.<br />Join the waitlist with your reward profile today with 3 quick steps!</p>
+      {/* Hero Section - Full Height */}
+      <section className="min-h-screen flex flex-col items-center justify-center px-4 md:px-8">
+        <div className="text-center max-w-5xl mx-auto">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8">
+            <span className="text-foreground">Discover Your</span>
+            <br />
+            <span className="italic font-light text-muted-foreground">Ventus Smart Rewards</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
+            Most cards reward categories. Ventus rewards you. Set your goals and earn cross-category rewards with personalized deals.
+          </p>
+          
+          {/* Get Started button */}
+          <div className="flex justify-center mb-8">
+            <Button size="lg" className="px-8 py-6 text-lg" onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({
+            behavior: 'smooth'
+          })}>
+              Get Started
+            </Button>
           </div>
+          
+          <button className="mt-4 p-3 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({
+          behavior: 'smooth'
+        })}>
+            <ChevronDown className="w-6 h-6" />
+          </button>
         </div>
-
-        {/* Subtle bottom border */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent"></div>
       </section>
       
-      <div className="flex-grow">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 pb-6">
-          {/* Progress Section - updated for dark theme */}
-          <div className="mb-6">
+      <div className="flex-grow" id="onboarding-content">
+        <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 py-8 md:py-16 pb-6">
+          {/* Progress Section */}
+          <div className="mb-8">
             {/* Step Progress Bar */}
-            <div className="flex items-center justify-center mt-4 mb-6 overflow-x-auto pt-4 pb-4 px-4 md:px-8">
+            <div className="flex items-center justify-center mb-8 overflow-x-auto pt-4 pb-4 px-4 md:px-8">
               {Array.from({
               length: totalSteps
             }, (_, i) => i + 1).map(stepNumber => <div key={stepNumber} className="flex items-center">
-                  <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 flex-shrink-0 ${step > stepNumber ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg' : step === stepNumber ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg ring-2 md:ring-4 ring-blue-400/30' : 'bg-slate-700 text-slate-300 border border-2 border-slate-600'}`}>
-                    {step > stepNumber ? <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4" /> : stepNumber}
+                  <div className={`h-10 w-10 md:h-12 md:w-12 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 flex-shrink-0 ${step > stepNumber ? 'bg-primary text-white' : step === stepNumber ? 'bg-primary text-white ring-4 ring-primary/30' : 'bg-muted text-muted-foreground border-2 border-border'}`}>
+                    {step > stepNumber ? <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" /> : stepNumber}
                   </div>
-                  {stepNumber < totalSteps && <div className={`h-0.5 md:h-1 w-16 md:w-20 lg:w-24 transition-all duration-300 flex-shrink-0 ${step > stepNumber ? 'bg-gradient-to-r from-green-400 to-emerald-300' : 'bg-slate-700'}`}></div>}
+                  {stepNumber < totalSteps && <div className={`h-1 w-16 md:w-24 lg:w-32 transition-all duration-300 flex-shrink-0 ${step > stepNumber ? 'bg-primary' : 'bg-border'}`}></div>}
                 </div>)}
             </div>
           </div>
           
-          {/* Step Content - premium dark card styling */}
-          <div className="premium-card shadow-premium hover:shadow-titanium p-6 md:p-8 mb-6 border border-slate-700/50 touch-manipulation transition-all duration-300" id="onboarding-step-content" style={{
+          {/* Step Content */}
+          <div className="bg-card/80 md:border md:border-border/60 rounded-xl backdrop-blur-sm p-4 md:p-8 mb-6 md:mb-8 transition-all duration-300" id="onboarding-step-content" style={{
           touchAction: 'manipulation',
           pointerEvents: 'auto',
           WebkitTapHighlightColor: 'transparent'
@@ -202,24 +212,19 @@ const OnboardingFlow = () => {
             {renderStep()}
           </div>
           
-          {/* Navigation - updated for dark theme */}
+          {/* Navigation */}
           <div className="flex justify-between items-center max-w-2xl mx-auto">
-            {step > 1 ? <Button type="button" variant="outline" onClick={goToPreviousStep} className="flex items-center gap-2 px-6 py-3 text-base font-medium bg-slate-800 border-slate-600 text-white hover:bg-slate-700 hover:border-slate-500 transition-all duration-200 min-h-[48px] min-w-[120px] touch-manipulation" style={{
+            {step > 1 ? <Button type="button" variant="outline" onClick={goToPreviousStep} className="flex items-center gap-2 px-6 py-3 text-base font-medium min-h-[48px] min-w-[120px] touch-manipulation" style={{
             touchAction: 'manipulation'
           }}>
                 <ArrowLeft size={18} /> Back
               </Button> : <div></div>}
             
-            <Button 
-              type="button" 
-              onClick={goToNextStep} 
-              disabled={isNextButtonDisabled() || loading} 
-              className={`flex items-center gap-2 px-8 py-3 text-base font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg transition-all duration-200 min-h-[48px] min-w-[120px] touch-manipulation ${isNextButtonDisabled() || loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`} 
-              style={{ touchAction: 'manipulation' }}
-            >
-              {step === totalSteps ? "Learn More" : "Next"} 
-              {!loading && <ArrowRight size={18} />}
-            </Button>
+            {step === totalSteps ? <div></div> : <Button type="button" onClick={goToNextStep} disabled={isNextButtonDisabled() || loading} className={`flex items-center gap-2 px-8 py-3 text-base font-semibold min-h-[48px] min-w-[120px] touch-manipulation ${isNextButtonDisabled() || loading ? 'opacity-50 cursor-not-allowed' : ''}`} style={{
+            touchAction: 'manipulation'
+          }}>
+                Next <ArrowRight size={18} />
+              </Button>}
           </div>
         </div>
       </div>

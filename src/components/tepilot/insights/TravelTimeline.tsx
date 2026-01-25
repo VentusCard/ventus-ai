@@ -105,32 +105,32 @@ function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: 
   
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="border rounded-lg bg-accent/20">
+      <div className="border border-slate-200 rounded-lg bg-slate-50">
         <CollapsibleTrigger className="w-full">
-          <div className="p-4 flex items-center justify-between hover:bg-accent/30 transition-colors rounded-t-lg">
+          <div className="p-4 flex items-center justify-between hover:bg-slate-100 transition-colors rounded-t-lg">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
                 <Plane className="w-4 h-4 text-purple-500" />
               </div>
               <div className="text-left">
-                <p className="font-semibold">{trip.destination}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="font-semibold text-slate-900">{trip.destination}</p>
+                <p className="text-sm text-slate-500">
                   {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4 text-sm">
-              <span className="text-muted-foreground">{trip.transactions.length} txns</span>
-              <span className="font-medium">${trip.totalSpend.toFixed(2)}</span>
-              <ChevronDown className={`w-5 h-5 transition-transform text-muted-foreground ${isOpen ? 'rotate-180' : ''}`} />
+              <span className="text-slate-500">{trip.transactions.length} txns</span>
+              <span className="font-medium text-slate-900">${trip.totalSpend.toFixed(2)}</span>
+              <ChevronDown className={`w-5 h-5 transition-transform text-slate-500 ${isOpen ? 'rotate-180' : ''}`} />
             </div>
           </div>
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <div className="px-4 pb-4 pt-2 border-t">
+          <div className="px-4 pb-4 pt-2 border-t border-slate-200">
             <div className="relative">
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
+              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200" />
               
               {sortedDates.map((date) => {
                 const dayTransactions = dateGroups[date];
@@ -138,25 +138,25 @@ function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: 
                 
                 return (
                   <div key={date} className="relative pl-10 pb-4 last:pb-0">
-                    <div className="absolute left-2.5 w-3 h-3 bg-purple-500 rounded-full border-2 border-background" />
+                    <div className="absolute left-2.5 w-3 h-3 bg-purple-500 rounded-full border-2 border-white" />
                     
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm">{new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
-                        <p className="text-sm text-muted-foreground">${daySpend.toFixed(2)}</p>
+                        <p className="font-medium text-sm text-slate-900">{new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                        <p className="text-sm text-slate-500">${daySpend.toFixed(2)}</p>
                       </div>
                       
                       {dayTransactions.map((t, tidx) => (
-                        <div key={tidx} className="flex items-center gap-2 text-sm bg-background/50 p-2 rounded">
-                          <span className="flex-1 truncate">{t.merchant_name}</span>
+                        <div key={tidx} className="flex items-center gap-2 text-sm bg-white p-2 rounded">
+                          <span className="flex-1 truncate text-slate-900">{t.merchant_name}</span>
                           {t.travel_context?.original_pillar && t.travel_context.original_pillar !== "Travel & Experiences" && (
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1 text-xs text-slate-500">
                               <span className="hidden sm:inline">{t.travel_context.original_pillar}</span>
                               <ArrowRight className="w-3 h-3" />
                               <span className="text-purple-500">Travel</span>
                             </div>
                           )}
-                          <span className="text-muted-foreground">${t.amount.toFixed(2)}</span>
+                          <span className="text-slate-500">${t.amount.toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
@@ -181,15 +181,15 @@ export function TravelTimeline({ transactions }: TravelTimelineProps) {
   
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card>
+      <Card className="bg-white border-slate-200">
         <CollapsibleTrigger className="w-full">
-          <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+          <CardHeader className="cursor-pointer hover:bg-slate-50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-purple-500" />
-                <CardTitle>Travel Intelligence (Pattern Recognition)</CardTitle>
+                <CardTitle className="text-slate-900">Travel Intelligence (Pattern Recognition)</CardTitle>
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-4 text-sm text-slate-500">
                 <span>{trips.length} trip{trips.length !== 1 ? 's' : ''}</span>
                 <span>{totalTravelTransactions} txns</span>
                 <span>${totalTravelSpend.toFixed(2)}</span>
@@ -202,15 +202,15 @@ export function TravelTimeline({ transactions }: TravelTimelineProps) {
         <CollapsibleContent>
           <CardContent className="pt-0">
             {trips.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-slate-500">
                 <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p className="font-medium mb-1">No travel patterns detected</p>
+                <p className="font-medium mb-1 text-slate-900">No travel patterns detected</p>
                 <p className="text-sm">Travel Intelligence uses AI pattern recognition to identify and contextualize travel-related spending across all transaction categories.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {totalReclassified > 0 && (
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-sm text-slate-500 mb-4">
                     {totalReclassified} transaction{totalReclassified !== 1 ? 's' : ''} reclassified from other pillars to Travel
                   </p>
                 )}

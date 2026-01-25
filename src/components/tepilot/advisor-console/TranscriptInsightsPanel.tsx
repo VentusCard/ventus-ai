@@ -56,13 +56,13 @@ export function TranscriptInsightsPanel({ insights, onClose }: TranscriptInsight
   };
 
   return (
-    <div className="space-y-4 p-4 bg-background border rounded-lg">
+    <div className="space-y-4 p-4 bg-white border rounded-lg">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-lg font-semibold">Meeting Transcript Analysis</h3>
           {(clientName || meetingDate) && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500">
               {clientName && <span>{clientName}</span>}
               {clientName && meetingDate && <span> • </span>}
               {meetingDate && <span>{new Date(meetingDate).toLocaleDateString()}</span>}
@@ -90,13 +90,13 @@ export function TranscriptInsightsPanel({ insights, onClose }: TranscriptInsight
           </CardHeader>
           <CardContent className="space-y-3">
             {opportunities.map((opp, idx) => (
-              <div key={idx} className="border-l-4 border-l-green-600 pl-3 py-2 bg-green-50 dark:bg-green-950/20 rounded-r">
+              <div key={idx} className="border-l-4 border-l-green-600 pl-3 py-2 bg-green-50 rounded-r">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <Badge variant="outline" className="mb-1">{opp.category}</Badge>
                     <p className="text-sm font-medium">{opp.description}</p>
                     {opp.quote && (
-                      <p className="text-xs text-muted-foreground mt-1 italic">
+                      <p className="text-xs text-slate-500 mt-1 italic">
                         "{opp.quote}"
                       </p>
                     )}
@@ -127,13 +127,13 @@ export function TranscriptInsightsPanel({ insights, onClose }: TranscriptInsight
           </CardHeader>
           <CardContent className="space-y-3">
             {psychological_insights.map((emotion, idx) => (
-              <div key={idx} className="border-l-4 border-l-purple-600 pl-3 py-2 bg-purple-50 dark:bg-purple-950/20 rounded-r">
+              <div key={idx} className="border-l-4 border-l-purple-600 pl-3 py-2 bg-purple-50 rounded-r">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <p className="text-sm font-medium">{emotion.aspect}</p>
-                    <p className="text-sm text-muted-foreground">{emotion.assessment}</p>
+                    <p className="text-sm text-slate-500">{emotion.assessment}</p>
                     {emotion.evidence && (
-                      <p className="text-xs text-muted-foreground mt-1 italic">
+                      <p className="text-xs text-slate-500 mt-1 italic">
                         Evidence: "{emotion.evidence}"
                       </p>
                     )}
@@ -181,11 +181,11 @@ export function TranscriptInsightsPanel({ insights, onClose }: TranscriptInsight
           </CardHeader>
           <CardContent className="space-y-2">
             {life_events.map((event, idx) => (
-              <div key={idx} className="flex items-center justify-between p-2 bg-orange-50 dark:bg-orange-950/20 rounded">
+              <div key={idx} className="flex items-center justify-between p-2 bg-orange-50 rounded">
                 <div className="flex-1">
                   <span className="text-sm font-medium">{event.event}</span>
                   {event.evidence && (
-                    <p className="text-xs text-muted-foreground mt-1">"{event.evidence}"</p>
+                    <p className="text-xs text-slate-500 mt-1">"{event.evidence}"</p>
                   )}
                 </div>
                 <Badge className="shrink-0">{Math.round(event.confidence * 100)}%</Badge>

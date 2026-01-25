@@ -15,7 +15,7 @@ export function FilterControls({
   onFiltersChange,
   onReset
 }: FilterControlsProps) {
-  return <Card>
+  return <Card className="bg-white border-slate-200">
       
     </Card>;
 }

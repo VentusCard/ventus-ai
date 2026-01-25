@@ -34,15 +34,15 @@ const Privacy = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="pt-[80px] pb-8 px-4 md:px-8">
+      <div className="pt-28 md:pt-32 pb-8 px-4 md:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
             Privacy Policy
           </h1>
-          <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto">
             Your privacy is important to us. This policy explains how we collect, use, and protect your information.
           </p>
-          <p className="text-sm text-slate-500 mt-4">Last updated: November 5, 2025</p>
+          <p className="text-xs text-slate-500 mt-4">Last updated: November 5, 2025</p>
         </div>
       </div>
 
@@ -52,9 +52,9 @@ const Privacy = () => {
           {/* Introduction */}
           <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm mb-8">
             <CardHeader className="pb-4">
-              <CardTitle className="text-2xl font-bold text-slate-900">Introduction</CardTitle>
+              <CardTitle className="text-xl font-bold text-slate-900">Introduction</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-600 space-y-3 text-lg leading-relaxed pt-0">
+            <CardContent className="text-slate-600 space-y-3 text-base leading-relaxed pt-0">
               <p>
                 Ventus Financial Technologies Inc. ("Ventus," "we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application or services.
               </p>
@@ -67,9 +67,9 @@ const Privacy = () => {
           {/* About Ventus Section */}
           <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm mb-8">
             <CardHeader className="pb-4">
-              <CardTitle className="text-2xl font-bold text-slate-900">About Ventus</CardTitle>
+              <CardTitle className="text-xl font-bold text-slate-900">About Ventus</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-600 space-y-3 text-lg leading-relaxed pt-0">
+            <CardContent className="text-slate-600 space-y-3 text-base leading-relaxed pt-0">
               <p>
                 Ventus is a shopping assistant mobile application that helps you discover personalized deals and discounts from retailers. Our AI-powered chatbot allows you to search for deals using natural language, and we provide daily curated recommendations based on your interests.
               </p>
@@ -79,9 +79,9 @@ const Privacy = () => {
           {/* Mobile Application Section */}
           <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm mb-8">
             <CardHeader className="pb-4">
-              <CardTitle className="text-2xl font-bold text-slate-900">Mobile Application</CardTitle>
+              <CardTitle className="text-xl font-bold text-slate-900">Mobile Application</CardTitle>
             </CardHeader>
-            <CardContent className="text-slate-600 space-y-3 text-lg leading-relaxed pt-0">
+            <CardContent className="text-slate-600 space-y-3 text-base leading-relaxed pt-0">
               <p>
                 This privacy policy applies to the Ventus mobile application available on iOS and Android.
               </p>
@@ -120,9 +120,9 @@ const Privacy = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-blue-100 rounded-lg">
-                      <section.icon className="h-6 w-6 text-blue-600" />
+                      <section.icon className="h-5 w-5 text-blue-600" />
                     </div>
-                    <CardTitle className="text-xl font-semibold text-slate-900">{section.title}</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-slate-900">{section.title}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -214,7 +214,7 @@ const Privacy = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-slate-900">Data Security</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Data Security</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 leading-relaxed">
@@ -225,7 +225,7 @@ const Privacy = () => {
 
             <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-slate-900">Data Retention</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Data Retention</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 leading-relaxed">
@@ -236,7 +236,7 @@ const Privacy = () => {
 
             <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-slate-900">Children's Privacy</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Children's Privacy</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 leading-relaxed">
@@ -247,7 +247,7 @@ const Privacy = () => {
 
             <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-slate-900">Third-Party Links</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Third-Party Links</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 leading-relaxed">
@@ -258,7 +258,7 @@ const Privacy = () => {
 
             <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-slate-900">Changes to This Policy</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Changes to This Policy</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 leading-relaxed">
@@ -272,7 +272,7 @@ const Privacy = () => {
 
             <Card className="border-0 shadow-lg bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-slate-900">Account Deletion</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900">Account Deletion</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 leading-relaxed mb-3">
@@ -294,23 +294,23 @@ const Privacy = () => {
           </div>
 
           {/* Contact Section */}
-          <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
+          <Card className="border-0 bg-white">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-slate-900 text-center">Contact Us</CardTitle>
+              <CardTitle className="text-xl font-bold text-slate-900 text-center">Contact Us</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-slate-600 text-lg leading-relaxed mb-6">
+              <p className="text-slate-600 text-base leading-relaxed mb-6">
                 If you have any questions about this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="space-y-2 mb-6">
-                <p className="text-slate-700 font-semibold">
-                  Email: <a href="mailto:hello@ventuscard.com" className="text-blue-600 hover:text-blue-700">hello@ventuscard.com</a>
+                <p className="text-slate-700 font-semibold text-base">
+                  Email: <a href="mailto:hello@ventuscard.com" className="text-primary hover:text-primary/80 underline">hello@ventuscard.com</a>
                 </p>
-                <p className="text-slate-700 font-semibold">
-                  Website: <a href="https://www.ventuscard.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">https://www.ventuscard.com</a>
+                <p className="text-slate-700 font-semibold text-base">
+                  Website: <a href="https://www.ventuscard.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">https://www.ventuscard.com</a>
                 </p>
               </div>
-              <p className="text-slate-500 text-sm mt-4">
+              <p className="text-slate-500 text-xs mt-4">
                 Ventus<br />
                 Smart shopping with AI-powered deal discovery
               </p>
@@ -320,7 +320,7 @@ const Privacy = () => {
       </div>
 
       {/* Seamless gradient transition to footer */}
-      <div className="h-32 bg-gradient-to-b from-blue-50 via-slate-600 to-slate-900"></div>
+      <div className="h-16 bg-gradient-to-b from-slate-50 to-slate-900"></div>
 
       <Footer />
     </div>;
