@@ -1,9 +1,17 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target } from "lucide-react";
+import { Sparkles, Target, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { LifestyleGoal, OnboardingFlowData } from "@/pages/OnboardingFlow";
 import { z } from "zod";
@@ -28,6 +36,7 @@ interface WaitlistFormLightProps {
 const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -155,10 +164,8 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
         // Trigger confetti celebration
         triggerConfetti();
         
-        toast({
-          title: "Successfully joined the waitlist!",
-          description: "We'll notify you when Ventus Card becomes available.",
-        });
+        // Show success modal (no toast - modal handles success messaging)
+        setShowSuccessModal(true);
 
         setFormData({
           firstName: "",
@@ -195,6 +202,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
   };
 
   return (
+    <>
     <Card className="overflow-hidden md:border md:border-border/60 shadow-lg bg-card">
       <div className="h-2 bg-gradient-to-r from-primary to-primary/70"></div>
       <CardContent className="p-4 md:p-8">
@@ -319,6 +327,37 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
         </form>
       </CardContent>
     </Card>
+
+    <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+      <DialogContent className="sm:max-w-md md:max-w-lg p-8 text-center">
+        <div className="flex flex-col items-center py-6">
+          <div className="mb-6 p-4 bg-green-500/10 rounded-full">
+            <CheckCircle2 className="w-16 h-16 md:w-20 md:h-20 text-green-500" />
+          </div>
+          
+          <DialogHeader className="text-center space-y-3 mb-6">
+            <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground">
+              You're on the list!
+            </DialogTitle>
+            <DialogDescription className="text-base md:text-lg text-muted-foreground">
+              We'll notify you when Ventus Card becomes available. 
+              In the meantime, download our free app to start discovering deals!
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Button 
+            asChild 
+            size="lg" 
+            className="w-full h-14 md:h-16 text-base md:text-lg font-semibold mt-4"
+          >
+            <Link to="/app">
+              Download free Ventus AI Deals Finder App Today
+            </Link>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 
