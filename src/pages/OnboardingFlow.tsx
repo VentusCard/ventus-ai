@@ -23,7 +23,9 @@ export interface OnboardingFlowData {
 }
 const OnboardingFlow = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingFlowData>({
@@ -37,7 +39,6 @@ const OnboardingFlow = () => {
     maxCashbackPercentage: 15
   });
   const totalSteps = 3;
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -46,50 +47,50 @@ const OnboardingFlow = () => {
       navigate("/ventus-ai");
     } else {
       setStep(prev => prev + 1);
-      document.getElementById('onboarding-content')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('onboarding-content')?.scrollIntoView({
+        behavior: 'smooth'
+      });
     }
   };
-
   const handleCompleteOnboarding = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         toast({
           title: "Error",
           description: "Please log in to continue",
-          variant: "destructive",
+          variant: "destructive"
         });
         navigate("/auth");
         return;
       }
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          lifestyle_goal: onboardingData.mainGoal,
-          selected_categories: onboardingData.subcategories,
-          spending_frequency: onboardingData.spendingFrequency,
-          spending_amount: onboardingData.spendingAmount,
-          estimated_annual_spend: onboardingData.estimatedAnnualSpend,
-          estimated_rewards: onboardingData.estimatedPoints,
-          onboarding_completed: true,
-        })
-        .eq("id", session.user.id);
-
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        lifestyle_goal: onboardingData.mainGoal,
+        selected_categories: onboardingData.subcategories,
+        spending_frequency: onboardingData.spendingFrequency,
+        spending_amount: onboardingData.spendingAmount,
+        estimated_annual_spend: onboardingData.estimatedAnnualSpend,
+        estimated_rewards: onboardingData.estimatedPoints,
+        onboarding_completed: true
+      }).eq("id", session.user.id);
       if (error) throw error;
-
       toast({
         title: "Success!",
-        description: "Your preferences have been saved.",
+        description: "Your preferences have been saved."
       });
-
       navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to save preferences",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -97,7 +98,9 @@ const OnboardingFlow = () => {
   };
   const goToPreviousStep = () => {
     setStep(prev => Math.max(prev - 1, 1));
-    document.getElementById('onboarding-content')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('onboarding-content')?.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
   const updateOnboardingData = (data: Partial<OnboardingFlowData>) => {
     setOnboardingData(prev => ({
@@ -115,23 +118,17 @@ const OnboardingFlow = () => {
           subcategories
         })} />;
       case 2:
-        return (
-          <StepTwoMerged selectedGoal={onboardingData.mainGoal as LifestyleGoal} selectedSubcategories={onboardingData.subcategories} />
-        );
+        return <StepTwoMerged selectedGoal={onboardingData.mainGoal as LifestyleGoal} selectedSubcategories={onboardingData.subcategories} />;
       case 3:
-        return (
-          <div className="max-w-xl mx-auto">
+        return <div className="max-w-xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="font-display text-xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Ready to Experience Smart Rewards?
               </h2>
-              <p className="text-base md:text-xl text-muted-foreground max-w-4xl mx-auto">
-                Join the waitlist to be the first to earn personalized rewards tailored to your lifestyle.
-              </p>
+              
             </div>
             <WaitlistFormLight onboardingData={onboardingData} />
-          </div>
-        );
+          </div>;
       default:
         return <StepOneMerged selectedGoal={onboardingData.mainGoal} selectedSubcategories={onboardingData.subcategories} onSelectGoal={goal => updateOnboardingData({
           mainGoal: goal,
@@ -174,19 +171,16 @@ const OnboardingFlow = () => {
           
           {/* Get Started button */}
           <div className="flex justify-center mb-8">
-            <Button 
-              size="lg" 
-              className="px-8 py-6 text-lg"
-              onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({ behavior: 'smooth' })}
-            >
+            <Button size="lg" className="px-8 py-6 text-lg" onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({
+            behavior: 'smooth'
+          })}>
               Get Started
             </Button>
           </div>
           
-          <button 
-            className="mt-4 p-3 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({ behavior: 'smooth' })}
-          >
+          <button className="mt-4 p-3 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" onClick={() => document.getElementById('onboarding-content')?.scrollIntoView({
+          behavior: 'smooth'
+        })}>
             <ChevronDown className="w-6 h-6" />
           </button>
         </div>
@@ -226,19 +220,11 @@ const OnboardingFlow = () => {
                 <ArrowLeft size={18} /> Back
               </Button> : <div></div>}
             
-            {step === totalSteps ? (
-              <div></div>
-            ) : (
-              <Button 
-                type="button" 
-                onClick={goToNextStep} 
-                disabled={isNextButtonDisabled() || loading} 
-                className={`flex items-center gap-2 px-8 py-3 text-base font-semibold min-h-[48px] min-w-[120px] touch-manipulation ${isNextButtonDisabled() || loading ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                style={{ touchAction: 'manipulation' }}
-              >
+            {step === totalSteps ? <div></div> : <Button type="button" onClick={goToNextStep} disabled={isNextButtonDisabled() || loading} className={`flex items-center gap-2 px-8 py-3 text-base font-semibold min-h-[48px] min-w-[120px] touch-manipulation ${isNextButtonDisabled() || loading ? 'opacity-50 cursor-not-allowed' : ''}`} style={{
+            touchAction: 'manipulation'
+          }}>
                 Next <ArrowRight size={18} />
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
       </div>
