@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <div className="relative overflow-hidden min-h-[calc(100vh-80px)] flex flex-col justify-center pt-20 pb-8 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="relative overflow-hidden min-h-[85vh] flex flex-col justify-center pt-20 pb-4 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Metallic texture overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
       
@@ -24,7 +24,7 @@ const HeroSection = () => {
       </div>
       
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-        <div className="text-center">
+        <div className="text-center space-y-6">
           <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-slate-200 bg-clip-text text-transparent drop-shadow-sm">
             Ventus Rewards
           </h1>
@@ -39,7 +39,7 @@ const HeroSection = () => {
           </p>
           
           {/* Get Started / Sign In buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Link to="/app/signup">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8">
                 Get Started Free
