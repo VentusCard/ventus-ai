@@ -200,10 +200,9 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
               name="interest"
               value={formData.interest}
               onValueChange={(value) => handleInputChange("interest", value)}
-              disabled={!!onboardingData?.mainGoal}
               required
             >
-              <SelectTrigger className="h-12 text-base text-white disabled:opacity-100">
+              <SelectTrigger className="h-12 text-base text-white">
                 <SelectValue
                   placeholder={
                     onboardingData?.mainGoal ? getSelectedCategoryLabel() : "Select a category"
