@@ -12,12 +12,12 @@ const lifestyleCategories: {
   label: string;
   value: LifestyleGoal;
 }[] = [
-  { label: "Sports", value: "sports" },
-  { label: "Wellness", value: "wellness" },
-  { label: "Pets", value: "pets" },
-  { label: "Gamers", value: "gamers" },
-  { label: "Creatives", value: "creatives" },
-  { label: "Homeowners", value: "homeowners" },
+  { label: "Sports: 5x on everything sports with Ventus AI deal co-pilot", value: "sports" },
+  { label: "Wellness: 5x on everything wellness with Ventus AI deal co-pilot", value: "wellness" },
+  { label: "Pets: 5x on everything pets with Ventus AI deal co-pilot", value: "pets" },
+  { label: "Gamers: 5x on everything gaming with Ventus AI deal co-pilot", value: "gamers" },
+  { label: "Creatives: 5x on everything creative with Ventus AI deal co-pilot", value: "creatives" },
+  { label: "Homeowners: 5x on everything home with Ventus AI deal co-pilot", value: "homeowners" },
 ];
 
 interface WaitlistFormLightProps {
