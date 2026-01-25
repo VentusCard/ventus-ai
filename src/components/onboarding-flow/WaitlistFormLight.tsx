@@ -170,7 +170,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
               placeholder="First Name"
               value={formData.firstName}
               onChange={(e) => handleInputChange("firstName", e.target.value)}
-              className="h-12 text-base"
+              className="h-12 text-base text-white placeholder:text-slate-400"
               minLength={2}
               maxLength={50}
               required
@@ -187,7 +187,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
               placeholder="Last Name"
               value={formData.lastName}
               onChange={(e) => handleInputChange("lastName", e.target.value)}
-              className="h-12 text-base"
+              className="h-12 text-base text-white placeholder:text-slate-400"
               maxLength={50}
             />
           </div>
@@ -203,7 +203,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
               disabled={!!onboardingData?.mainGoal}
               required
             >
-              <SelectTrigger className="h-12 text-base disabled:opacity-100">
+              <SelectTrigger className="h-12 text-base text-white disabled:opacity-100">
                 <SelectValue
                   placeholder={
                     onboardingData?.mainGoal ? getSelectedCategoryLabel() : "Select a category"
@@ -239,7 +239,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
               placeholder="Enter referral code if you have one"
               value={formData.referralCode}
               onChange={(e) => handleInputChange("referralCode", e.target.value)}
-              className="h-12 text-base"
+              className="h-12 text-base text-white placeholder:text-slate-400"
               maxLength={50}
             />
           </div>
@@ -254,7 +254,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
               placeholder="Email Address"
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              className={`h-12 text-base ${emailError ? "border-destructive focus:border-destructive" : ""}`}
+              className={`h-12 text-base text-white placeholder:text-slate-400 ${emailError ? "border-destructive focus:border-destructive" : ""}`}
               maxLength={255}
               required
             />
