@@ -509,7 +509,7 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
             className="w-full h-12 md:h-14 text-sm md:text-base font-semibold"
           >
             <Link to="/app">
-              Download Free Deals App
+              Download Free Ventus AI Deals App
             </Link>
           </Button>
         </div>
