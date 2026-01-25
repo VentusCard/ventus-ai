@@ -21,8 +21,8 @@ const SelectedCategoriesImpactCard = ({
     if (cardName.includes('Grocery')) return 'bg-green-500';
     return 'bg-gray-500'; // fallback
   };
-  return <Card className="premium-card bg-gradient-to-r from-blue-500/20 to-blue-600/10 border-blue-400/30 mb-6">
-      <CardContent className="p-4 md:p-6">
+  return <Card className="premium-card bg-gradient-to-r from-blue-500/20 to-blue-600/10 border-0 md:border md:border-blue-400/30 mb-4 md:mb-6">
+      <CardContent className="p-3 md:p-6">
         <div className="flex items-center gap-3 mb-3 md:mb-4">
           <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg">
             <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-white" />
@@ -37,7 +37,7 @@ const SelectedCategoriesImpactCard = ({
         </p>
 
         <div className="space-y-3 md:space-y-4">
-          {scenarios.map((scenario, index) => <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-600/50 gap-2 sm:gap-4">
+          {scenarios.map((scenario, index) => <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 md:p-3 bg-slate-800/50 rounded-lg border border-slate-600/50 gap-2 sm:gap-4">
               <span className="text-white font-medium text-sm md:text-base leading-relaxed">
                 {scenario.subcategory}
               </span>

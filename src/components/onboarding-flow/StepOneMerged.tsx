@@ -261,7 +261,7 @@ const StepOneMerged = ({
       <h2 className="font-display text-lg md:text-2xl font-bold mb-3">What would you like your Ventus Card to reward you on?</h2>
       <p className="text-base text-slate-600 mb-6">Select one category to earn personalized smart rewards from Ventus. </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6 items-stretch">
         {goalOptions.map(option => {
         const isDisabled = disabledGoals.includes(option.id);
         const getCardStyles = () => {
@@ -341,7 +341,7 @@ const StepOneMerged = ({
 
             {selectedSubcategories.length >= 3}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 mb-6">
               {subcategories.map(subcategory => <button key={subcategory} onClick={() => toggleSubcategory(subcategory)} className={`p-3 rounded-xl border-2 text-center transition-all duration-300 hover:scale-105 touch-manipulation min-h-[48px] ${selectedSubcategories.includes(subcategory) ? 'border-blue-400 bg-gradient-to-br from-blue-500/60 to-blue-600/60 text-white shadow-lg ring-2 ring-blue-500/40' : 'border-slate-500/50 bg-gradient-to-br from-slate-600/20 to-slate-700/20 text-slate-300 hover:border-slate-400 hover:from-slate-500/30 hover:to-slate-600/30 shadow-md'}`} style={{
             touchAction: 'manipulation',
             pointerEvents: 'auto',
