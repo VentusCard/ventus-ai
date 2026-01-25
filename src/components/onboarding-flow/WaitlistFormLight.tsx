@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, CheckCircle2, Copy, Share2, Check, Link2 } from "lucide-react";
+import { Sparkles, Target, CheckCircle2, Copy, Share2, Check, Link2, Share } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -409,8 +409,30 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
             </div>
             
             {/* Social Share Buttons */}
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
               <span className="text-xs text-muted-foreground mr-1">Share via:</span>
+              {typeof navigator !== 'undefined' && navigator.share && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 rounded-full bg-primary/10 border-primary/30 hover:bg-primary/20 gap-1.5"
+                  onClick={async () => {
+                    try {
+                      await navigator.share({
+                        title: 'Join Ventus',
+                        text: `Join me on Ventus and get exclusive deals! Use my referral code: ${generatedReferralCode}`,
+                        url: `https://ventus.lovable.app/smartrewards?ref=${generatedReferralCode}`,
+                      });
+                    } catch (err) {
+                      // User cancelled or share failed silently
+                    }
+                  }}
+                  aria-label="Share"
+                >
+                  <Share className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-medium text-primary">Share</span>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
