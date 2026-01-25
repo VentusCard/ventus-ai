@@ -7,6 +7,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { useToast } from "@/hooks/use-toast";
 import { LifestyleGoal, OnboardingFlowData } from "@/pages/OnboardingFlow";
 import { z } from "zod";
+import confetti from "canvas-confetti";
 
 const lifestyleCategories: {
   label: string;
@@ -43,6 +44,51 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
     interest: z.string().min(1, "Please select a category"),
     referralCode: z.string().trim().max(50, "Referral code must be less than 50 characters").optional(),
   });
+
+  const triggerConfetti = () => {
+    // Fire confetti from both sides
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+      zIndex: 9999,
+    };
+
+    function fire(particleRatio: number, opts: confetti.Options) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+      });
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      origin: { x: 0.2, y: 0.7 },
+    });
+    fire(0.2, {
+      spread: 60,
+      origin: { x: 0.8, y: 0.7 },
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      origin: { x: 0.5, y: 0.7 },
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      origin: { x: 0.5, y: 0.7 },
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      origin: { x: 0.5, y: 0.7 },
+    });
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -106,6 +152,9 @@ const WaitlistFormLight = ({ onboardingData }: WaitlistFormLightProps) => {
         response.status === 302 ||
         (responseText && responseText.toLowerCase().includes("success"))
       ) {
+        // Trigger confetti celebration
+        triggerConfetti();
+        
         toast({
           title: "Successfully joined the waitlist!",
           description: "We'll notify you when Ventus Card becomes available.",
