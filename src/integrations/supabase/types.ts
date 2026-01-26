@@ -10,133 +10,20 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          created_at: string | null
-          email: string | null
-          estimated_annual_spend: number | null
-          estimated_rewards: number | null
-          full_name: string | null
-          id: string
-          lifestyle_goal: string | null
-          onboarding_completed: boolean | null
-          selected_categories: string[] | null
-          spending_amount: number | null
-          spending_frequency: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          estimated_annual_spend?: number | null
-          estimated_rewards?: number | null
-          full_name?: string | null
-          id: string
-          lifestyle_goal?: string | null
-          onboarding_completed?: boolean | null
-          selected_categories?: string[] | null
-          spending_amount?: number | null
-          spending_frequency?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          estimated_annual_spend?: number | null
-          estimated_rewards?: number | null
-          full_name?: string | null
-          id?: string
-          lifestyle_goal?: string | null
-          onboarding_completed?: boolean | null
-          selected_categories?: string[] | null
-          spending_amount?: number | null
-          spending_frequency?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      saved_deals: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          deal_description: string | null
-          deal_title: string
-          deal_url: string | null
-          discount_percentage: number | null
-          discounted_price: number | null
-          id: string
-          merchant_name: string | null
-          original_price: number | null
-          user_id: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          deal_description?: string | null
-          deal_title: string
-          deal_url?: string | null
-          discount_percentage?: number | null
-          discounted_price?: number | null
-          id?: string
-          merchant_name?: string | null
-          original_price?: number | null
-          user_id: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          deal_description?: string | null
-          deal_title?: string
-          deal_url?: string | null
-          discount_percentage?: number | null
-          discounted_price?: number | null
-          id?: string
-          merchant_name?: string | null
-          original_price?: number | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "user" | "merchant" | "admin"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -263,8 +150,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["user", "merchant", "admin"],
-    },
+    Enums: {},
   },
 } as const
