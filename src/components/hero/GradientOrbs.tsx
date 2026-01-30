@@ -8,7 +8,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Layer 1: Animated Conic Gradient Mesh Base */}
       <div 
-        className="absolute inset-0 animate-gradient-rotate opacity-15"
+        className="absolute inset-0 animate-gradient-rotate opacity-40"
         style={{
           background: `
             conic-gradient(from 0deg at 30% 30%, 
@@ -28,7 +28,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       
       {/* Layer 1b: Second rotating gradient (opposite direction) */}
       <div 
-        className="absolute inset-0 animate-gradient-rotate-reverse opacity-[0.12] mix-blend-screen"
+        className="absolute inset-0 animate-gradient-rotate-reverse opacity-35 mix-blend-screen"
         style={{
           background: `
             conic-gradient(from 180deg at 70% 70%, 
@@ -46,7 +46,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
 
       {/* Layer 2: Floating Radial Gradient Spots */}
       <div
-        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] animate-mesh-breathe opacity-20 transition-transform duration-500 ease-out"
+        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] animate-mesh-breathe opacity-50 transition-transform duration-500 ease-out"
         style={{
           background: 'radial-gradient(ellipse at 40% 40%, hsl(217, 91%, 60%) 0%, transparent 60%)',
           filter: 'blur(60px)',
@@ -57,7 +57,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       />
       
       <div
-        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] animate-mesh-breathe opacity-[0.18] transition-transform duration-500 ease-out"
+        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] animate-mesh-breathe opacity-45 transition-transform duration-500 ease-out"
         style={{
           background: 'radial-gradient(ellipse at 60% 60%, hsl(271, 81%, 56%) 0%, transparent 55%)',
           filter: 'blur(70px)',
@@ -69,7 +69,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       />
       
       <div
-        className="absolute top-1/3 right-1/4 w-[500px] h-[500px] animate-mesh-breathe opacity-15 transition-transform duration-500 ease-out"
+        className="absolute top-1/3 right-1/4 w-[500px] h-[500px] animate-mesh-breathe opacity-40 transition-transform duration-500 ease-out"
         style={{
           background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, transparent 50%)',
           filter: 'blur(50px)',
@@ -82,7 +82,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
 
       {/* Layer 3: Soft gradient clouds instead of wavy lines */}
       <div
-        className="absolute top-0 left-1/4 w-[900px] h-[400px] animate-float-slow opacity-10 transition-transform duration-700 ease-out"
+        className="absolute top-0 left-1/4 w-[900px] h-[400px] animate-float-slow opacity-25 transition-transform duration-700 ease-out"
         style={{
           background: 'radial-gradient(ellipse at 50% 50%, hsl(217, 91%, 60%) 0%, hsl(271, 81%, 56%) 40%, transparent 70%)',
           filter: 'blur(80px)',
@@ -93,7 +93,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       />
       
       <div
-        className="absolute bottom-1/4 right-1/3 w-[700px] h-[350px] animate-float-slow opacity-[0.08] transition-transform duration-700 ease-out"
+        className="absolute bottom-1/4 right-1/3 w-[700px] h-[350px] animate-float-slow opacity-20 transition-transform duration-700 ease-out"
         style={{
           background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, hsl(217, 91%, 60%) 45%, transparent 70%)',
           filter: 'blur(70px)',
@@ -107,7 +107,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
 
       {/* Layer 5: Subtle hue-shifting overlay */}
       <div
-        className="absolute inset-0 animate-hue-dance opacity-[0.04] mix-blend-overlay"
+        className="absolute inset-0 animate-hue-dance opacity-[0.12] mix-blend-overlay"
         style={{
           background: 'linear-gradient(135deg, hsl(217, 91%, 60%) 0%, hsl(271, 81%, 56%) 50%, hsl(187, 96%, 42%) 100%)',
           willChange: 'filter',
@@ -119,7 +119,7 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backdropFilter: 'blur(1px)',
-          background: 'linear-gradient(180deg, transparent 0%, hsl(220, 50%, 8%) 100%)',
+          background: 'linear-gradient(180deg, transparent 0%, black 100%)',
         }}
       />
 
@@ -136,8 +136,8 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 0%, transparent 50%, hsl(220, 50%, 8%) 100%)',
-          opacity: 0.6,
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 0%, transparent 50%, black 100%)',
+          opacity: 0.5,
         }}
       />
     </div>
