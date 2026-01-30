@@ -56,7 +56,7 @@ ${name}
       {/* Contact Form */}
       <div className="px-4 md:px-8 pt-24 md:pt-28 pb-12 md:pb-16">
         <div className={`mx-auto relative ${isMobile ? 'max-w-full' : 'max-w-2xl'}`}>
-          <Card className="bg-card border-border">
+          <Card className="bg-white/5 backdrop-blur-xl border-white/10">
             <CardHeader className="text-center p-4 md:p-6">
               <CardTitle className="text-xl md:text-2xl font-bold text-foreground">Send us a Message</CardTitle>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">

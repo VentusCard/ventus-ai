@@ -45,7 +45,7 @@ const Technology = () => {
             {capabilities.map((capability, index) => (
               <div 
                 key={index}
-                className="p-8 rounded-2xl border border-border/50 bg-card hover:border-primary/30 transition-all duration-300"
+                className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/8 hover:border-white/15 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
                   <capability.icon className="w-6 h-6 text-primary" />

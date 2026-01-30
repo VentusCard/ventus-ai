@@ -14,7 +14,7 @@ const About = () => {
           
           <div className="space-y-12 text-foreground/80">
             {/* What is Ventus AI */}
-            <section className="p-8 rounded-2xl border border-border/50 bg-card">
+            <section className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-6 h-6 text-primary" />
@@ -32,7 +32,7 @@ const About = () => {
             </section>
             
             {/* Our Approach */}
-            <section className="p-8 rounded-2xl border border-border/50 bg-card">
+            <section className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Building2 className="w-6 h-6 text-primary" />
@@ -51,7 +51,7 @@ const About = () => {
             </section>
             
             {/* How We Work */}
-            <section className="p-8 rounded-2xl border border-border/50 bg-card">
+            <section className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Handshake className="w-6 h-6 text-primary" />
