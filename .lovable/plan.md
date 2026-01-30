@@ -1,67 +1,66 @@
 
-# Darken Hero Gradient Animation
+# Brighten Network Shapes and Lines
 
 ## Overview
-Reduce the brightness and intensity of the animated gradient orbs/mesh in the hero background while preserving the color palette and animation style. The network overlay (lines, nodes, pulses) will remain unchanged.
+Increase the visibility and brightness of the data network elements (nodes, connection lines, pulses, particles, grid) in `DataNetworkSVG.tsx` while leaving the gradient orb background unchanged.
 
-## Current State
-The `GradientOrbs` component contains several animated layers that are currently too bright:
-- Layer 1 & 1b: Rotating conic gradients at 30% and 25% opacity
-- Layer 2: Three floating radial gradient spots at 40%, 35%, and 30% opacity with saturated blues, violets, and cyans
-- Layer 3: Two soft gradient clouds at 20% and 15% opacity
-- Layer 5: Hue-shifting overlay at 8% opacity
-- Layer 8: Vignette at 40% opacity
+## Current State Analysis
+The network overlay currently has reduced visibility due to:
+- **SVG container**: `opacity-50` (line 77) - cuts all element brightness in half
+- **Primary line gradient**: opacity values of 0.4 / 0.7 / 0.4
+- **Secondary line gradient**: opacity values of 0.15 / 0.25 / 0.15
+- **Secondary connections group**: `opacity-40`
+- **Secondary nodes**: `opacity="0.4"`
+- **Primary node inner glow**: `opacity="0.5"`
+- **Primary node middle ring**: `opacity="0.3"`
+- **Grid pattern**: `opacity-10`
+- **Floating particles**: opacity range 0.2-0.6
 
 ## Changes
 
-### 1. Reduce Rotating Conic Gradient Opacity
-**File:** `src/components/hero/GradientOrbs.tsx`
+### 1. Increase Overall SVG Opacity
+**Line 77**: Change `opacity-50` to `opacity-80`
 
-- Layer 1 (primary rotating gradient): `opacity-30` to `opacity-15`
-- Layer 1b (secondary rotating gradient): `opacity-25` to `opacity-12`
+### 2. Brighten Primary Connection Line Gradient
+**Lines 107-111**: Increase stop opacities from 0.4/0.7/0.4 to 0.7/1.0/0.7
 
-### 2. Dim Floating Radial Gradient Spots
-**File:** `src/components/hero/GradientOrbs.tsx`
+### 3. Brighten Secondary Connection Line Gradient  
+**Lines 114-118**: Increase stop opacities from 0.15/0.25/0.15 to 0.4/0.6/0.4
 
-Reduce the three floating spots to roughly half their current opacity:
-- Blue spot (top-left): `opacity-40` to `opacity-20`
-- Violet spot (bottom-right): `opacity-35` to `opacity-18`
-- Cyan spot (right-center): `opacity-30` to `opacity-15`
+### 4. Increase Secondary Connections Group Opacity
+**Line 174**: Change `opacity-40` to `opacity-70`
 
-### 3. Reduce Soft Gradient Clouds
-**File:** `src/components/hero/GradientOrbs.tsx`
+### 5. Brighten Secondary Nodes
+**Line 269**: Change `opacity="0.4"` to `opacity="0.7"`
 
-- Top cloud: `opacity-20` to `opacity-10`
-- Bottom cloud: `opacity-15` to `opacity-08`
+### 6. Brighten Primary Node Elements
+- **Line 304** (middle ring): `opacity="0.3"` to `opacity="0.6"`
+- **Line 314** (inner glow): `opacity="0.5"` to `opacity="0.8"`
 
-### 4. Reduce Hue-Shifting Overlay
-**File:** `src/components/hero/GradientOrbs.tsx`
+### 7. Enhance Grid Visibility
+**Line 148**: Change `opacity-10` to `opacity-20`
 
-- Hue-dance overlay: `opacity-[0.08]` to `opacity-[0.04]`
-
-### 5. Strengthen Vignette (Anchor Edges Darker)
-**File:** `src/components/hero/GradientOrbs.tsx`
-
-- Increase vignette opacity from `0.4` to `0.6` so the edges of the hero are darker, making the center gradient feel less expansive
+### 8. Brighten Floating Particles
+**Line 343**: Change opacity range from `0.2 + (i % 5) * 0.1` to `0.4 + (i % 5) * 0.12`
 
 ---
 
 ## Technical Summary
 
-| Layer | Current Opacity | New Opacity |
-|-------|----------------|-------------|
-| Conic gradient (Layer 1) | 30% | 15% |
-| Conic gradient reverse (Layer 1b) | 25% | 12% |
-| Blue radial spot | 40% | 20% |
-| Violet radial spot | 35% | 18% |
-| Cyan radial spot | 30% | 15% |
-| Top gradient cloud | 20% | 10% |
-| Bottom gradient cloud | 15% | 8% |
-| Hue-dance overlay | 8% | 4% |
-| Vignette | 40% | 60% |
+| Element | Current | New |
+|---------|---------|-----|
+| SVG container | opacity-50 | opacity-80 |
+| Primary line gradient | 0.4/0.7/0.4 | 0.7/1.0/0.7 |
+| Secondary line gradient | 0.15/0.25/0.15 | 0.4/0.6/0.4 |
+| Secondary connections group | opacity-40 | opacity-70 |
+| Secondary nodes | 0.4 | 0.7 |
+| Primary node middle ring | 0.3 | 0.6 |
+| Primary node inner glow | 0.5 | 0.8 |
+| Background grid | opacity-10 | opacity-20 |
+| Floating particles | 0.2-0.6 | 0.4-1.0 |
 
-## Files Modified
-- `src/components/hero/GradientOrbs.tsx`
+## File Modified
+- `src/components/hero/DataNetworkSVG.tsx`
 
 ## Visual Result
-The animated gradient mesh will retain its color palette and motion but appear significantly darker and more subdued, allowing the hero content (headline, subheading, button) to stand out while blending seamlessly into the dark page below.
+The network nodes, connecting lines, traveling pulses, and floating particles will appear significantly brighter and more prominent against the dark background, while the gradient orb mesh remains unchanged.
