@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LifeEvent } from "@/types/lifestyle-signals";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 import { ChevronDown, Receipt, MessageSquare, Calendar, Sparkles } from "lucide-react";
 import { useState } from "react";
 

@@ -12,7 +12,7 @@ import { CashFlowChart } from "./CashFlowChart";
 import { ActionableTimelineSection } from "./ActionableTimelineSection";
 import { Save, FileDown, ListPlus, Lightbulb, Sparkles, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { FinancialGoal, getTimeHorizon } from "@/types/financial-planning";

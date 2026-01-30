@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Landmark, CheckCircle, AlertTriangle } from "lucide-react";
 import { TaxAdvantagedAccount } from "@/types/financial-planning";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 
 interface TaxAdvantagedAccountsSectionProps {
   accounts: TaxAdvantagedAccount[];
