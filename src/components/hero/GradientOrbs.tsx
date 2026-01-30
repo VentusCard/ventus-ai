@@ -8,17 +8,17 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Layer 1: Animated Conic Gradient Mesh Base */}
       <div 
-        className="absolute inset-0 animate-gradient-rotate opacity-15"
+        className="absolute inset-0 animate-gradient-rotate opacity-30"
         style={{
           background: `
             conic-gradient(from 0deg at 30% 30%, 
-              hsl(220, 70%, 12%) 0deg,
-              hsl(260, 60%, 15%) 60deg,
-              hsl(200, 80%, 15%) 120deg,
-              hsl(280, 50%, 12%) 180deg,
-              hsl(210, 70%, 14%) 240deg,
-              hsl(250, 60%, 14%) 300deg,
-              hsl(220, 70%, 12%) 360deg
+              hsl(220, 70%, 20%) 0deg,
+              hsl(260, 60%, 25%) 60deg,
+              hsl(200, 80%, 25%) 120deg,
+              hsl(280, 50%, 20%) 180deg,
+              hsl(210, 70%, 22%) 240deg,
+              hsl(250, 60%, 23%) 300deg,
+              hsl(220, 70%, 20%) 360deg
             )
           `,
           filter: 'blur(80px)',
@@ -28,15 +28,15 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       
       {/* Layer 1b: Second rotating gradient (opposite direction) */}
       <div 
-        className="absolute inset-0 animate-gradient-rotate-reverse opacity-12 mix-blend-screen"
+        className="absolute inset-0 animate-gradient-rotate-reverse opacity-25 mix-blend-screen"
         style={{
           background: `
             conic-gradient(from 180deg at 70% 70%, 
-              hsl(280, 60%, 15%) 0deg,
-              hsl(200, 70%, 18%) 90deg,
-              hsl(320, 50%, 15%) 180deg,
-              hsl(240, 60%, 16%) 270deg,
-              hsl(280, 60%, 15%) 360deg
+              hsl(280, 60%, 25%) 0deg,
+              hsl(200, 70%, 30%) 90deg,
+              hsl(320, 50%, 25%) 180deg,
+              hsl(240, 60%, 28%) 270deg,
+              hsl(280, 60%, 25%) 360deg
             )
           `,
           filter: 'blur(100px)',
@@ -46,9 +46,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
 
       {/* Layer 2: Floating Radial Gradient Spots */}
       <div
-        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] animate-mesh-breathe opacity-20 transition-transform duration-500 ease-out"
+        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] animate-mesh-breathe opacity-40 transition-transform duration-500 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 40% 40%, hsl(217, 91%, 40%) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse at 40% 40%, hsl(217, 91%, 60%) 0%, transparent 60%)',
           filter: 'blur(60px)',
           mixBlendMode: 'screen',
           transform: `translate(${-parallaxX * 1.5}px, ${-parallaxY * 1.5}px)`,
@@ -57,9 +57,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       />
       
       <div
-        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] animate-mesh-breathe opacity-18 transition-transform duration-500 ease-out"
+        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] animate-mesh-breathe opacity-35 transition-transform duration-500 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 60% 60%, hsl(271, 81%, 36%) 0%, transparent 55%)',
+          background: 'radial-gradient(ellipse at 60% 60%, hsl(271, 81%, 56%) 0%, transparent 55%)',
           filter: 'blur(70px)',
           mixBlendMode: 'screen',
           animationDelay: '5s',
@@ -69,9 +69,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       />
       
       <div
-        className="absolute top-1/3 right-1/4 w-[500px] h-[500px] animate-mesh-breathe opacity-15 transition-transform duration-500 ease-out"
+        className="absolute top-1/3 right-1/4 w-[500px] h-[500px] animate-mesh-breathe opacity-30 transition-transform duration-500 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 30%) 0%, transparent 50%)',
+          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, transparent 50%)',
           filter: 'blur(50px)',
           mixBlendMode: 'screen',
           animationDelay: '2.5s',
@@ -82,9 +82,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
 
       {/* Layer 3: Soft gradient clouds instead of wavy lines */}
       <div
-        className="absolute top-0 left-1/4 w-[900px] h-[400px] animate-float-slow opacity-10 transition-transform duration-700 ease-out"
+        className="absolute top-0 left-1/4 w-[900px] h-[400px] animate-float-slow opacity-20 transition-transform duration-700 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, hsl(217, 91%, 35%) 0%, hsl(271, 81%, 30%) 40%, transparent 70%)',
+          background: 'radial-gradient(ellipse at 50% 50%, hsl(217, 91%, 60%) 0%, hsl(271, 81%, 56%) 40%, transparent 70%)',
           filter: 'blur(80px)',
           mixBlendMode: 'screen',
           transform: `translate(${parallaxX * 1.8}px, ${parallaxY * 1.8}px)`,
@@ -93,9 +93,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       />
       
       <div
-        className="absolute bottom-1/4 right-1/3 w-[700px] h-[350px] animate-float-slow opacity-8 transition-transform duration-700 ease-out"
+        className="absolute bottom-1/4 right-1/3 w-[700px] h-[350px] animate-float-slow opacity-15 transition-transform duration-700 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 28%) 0%, hsl(217, 91%, 35%) 45%, transparent 70%)',
+          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, hsl(217, 91%, 60%) 45%, transparent 70%)',
           filter: 'blur(70px)',
           mixBlendMode: 'screen',
           animationDelay: '4s',
@@ -106,9 +106,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
 
       {/* Layer 4: Moving Spotlight - mouse responsive */}
       <div
-        className="absolute top-1/2 left-1/2 w-[1000px] h-[1000px] animate-spotlight-wander opacity-8 transition-transform duration-700 ease-out"
+        className="absolute top-1/2 left-1/2 w-[1000px] h-[1000px] animate-spotlight-wander opacity-15 transition-transform duration-700 ease-out"
         style={{
-          background: 'radial-gradient(circle at center, hsl(217, 91%, 35%) 0%, transparent 50%)',
+          background: 'radial-gradient(circle at center, hsl(217, 91%, 60%) 0%, transparent 50%)',
           filter: 'blur(40px)',
           mixBlendMode: 'screen',
           transform: `translate(calc(-50% + ${parallaxX * 4}px), calc(-50% + ${parallaxY * 4}px))`,
@@ -118,9 +118,9 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
       
       {/* Secondary spotlight - opposite movement */}
       <div
-        className="absolute top-1/3 left-2/3 w-[600px] h-[600px] animate-spotlight-wander opacity-5 transition-transform duration-500 ease-out"
+        className="absolute top-1/3 left-2/3 w-[600px] h-[600px] animate-spotlight-wander opacity-10 transition-transform duration-500 ease-out"
         style={{
-          background: 'radial-gradient(circle at center, hsl(271, 81%, 36%) 0%, transparent 45%)',
+          background: 'radial-gradient(circle at center, hsl(271, 81%, 56%) 0%, transparent 45%)',
           filter: 'blur(50px)',
           mixBlendMode: 'screen',
           animationDelay: '12s',
