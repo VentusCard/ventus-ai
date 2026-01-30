@@ -87,7 +87,7 @@ const Hero = () => {
           >
             <Link to="/contact">
               <Button size="lg" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all duration-300">
-                Schedule Demo
+                Learn More
               </Button>
             </Link>
           </div>
