@@ -161,12 +161,29 @@ export default {
 					'100%': { opacity: '1', transform: 'scaleX(1)', 'transform-origin': 'left' }
 				},
 
-				// Movement Animations
-				'float': {
-					'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-					'33%': { transform: 'translateY(-8px) rotate(0.5deg)' },
-					'66%': { transform: 'translateY(-4px) rotate(-0.5deg)' }
-				},
+			// Movement Animations
+			'float': {
+				'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+				'33%': { transform: 'translateY(-8px) rotate(0.5deg)' },
+				'66%': { transform: 'translateY(-4px) rotate(-0.5deg)' }
+			},
+			'float-slow': {
+				'0%, 100%': { transform: 'translateY(0px)' },
+				'50%': { transform: 'translateY(-15px)' }
+			},
+			'pulse-glow': {
+				'0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+				'50%': { opacity: '1', transform: 'scale(1.1)' }
+			},
+			'draw-line': {
+				'0%': { strokeDashoffset: '200', opacity: '0' },
+				'20%': { opacity: '1' },
+				'100%': { strokeDashoffset: '0', opacity: '1' }
+			},
+			'fade-float': {
+				'0%': { opacity: '0', transform: 'translateY(20px)' },
+				'100%': { opacity: '1', transform: 'translateY(0)' }
+			},
 				'bounce': {
 					'0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },
 					'40%': { transform: 'translateY(-8px)' },
@@ -204,14 +221,18 @@ export default {
 				'brushstroke': 'brushstroke 1.5s ease-out',
 				'brushstroke-draw': 'brushstroke-draw 1.5s ease-out',
 
-				// Movement Animations
-				'float': 'float 6s ease-in-out infinite',
-				'bounce': 'bounce 4s ease-in-out infinite',
+			// Movement Animations
+			'float': 'float 6s ease-in-out infinite',
+			'bounce': 'bounce 4s ease-in-out infinite',
+			'float-slow': 'float-slow 10s ease-in-out infinite',
+			'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+			'draw-line': 'draw-line 1.5s ease-out forwards',
+			'fade-float': 'fade-float 0.8s ease-out forwards',
 
-				// Effect Animations
-				'shimmer': 'shimmer 3s ease-in-out infinite',
-				'metallic-shimmer': 'metallic-shimmer 2s infinite',
-				'premium-glow': 'premium-glow 3s ease-in-out infinite'
+			// Effect Animations
+			'shimmer': 'shimmer 3s ease-in-out infinite',
+			'metallic-shimmer': 'metallic-shimmer 2s infinite',
+			'premium-glow': 'premium-glow 3s ease-in-out infinite'
 			}
 		}
 	},
