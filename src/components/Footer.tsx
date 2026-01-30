@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-900 text-white py-12">
+    <footer className="bg-black text-white py-12">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Brand */}
@@ -26,8 +26,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-slate-800 mt-8 pt-8 text-center">
-          <p className="text-slate-400 text-sm">
+        <div className="border-t border-white/10 mt-8 pt-8 text-center">
+          <p className="text-white/50 text-sm">
             © 2026 Ventus Financial Technologies Inc. All rights reserved.
           </p>
         </div>
