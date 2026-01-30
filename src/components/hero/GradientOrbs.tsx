@@ -104,31 +104,6 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
         }}
       />
 
-      {/* Layer 4: Moving Spotlight - mouse responsive */}
-      <div
-        className="absolute top-1/2 left-1/2 w-[1000px] h-[1000px] animate-spotlight-wander opacity-15 transition-transform duration-700 ease-out"
-        style={{
-          background: 'radial-gradient(circle at center, hsl(217, 91%, 60%) 0%, transparent 50%)',
-          filter: 'blur(40px)',
-          mixBlendMode: 'screen',
-          transform: `translate(calc(-50% + ${parallaxX * 4}px), calc(-50% + ${parallaxY * 4}px))`,
-          willChange: 'transform',
-        }}
-      />
-      
-      {/* Secondary spotlight - opposite movement */}
-      <div
-        className="absolute top-1/3 left-2/3 w-[600px] h-[600px] animate-spotlight-wander opacity-10 transition-transform duration-500 ease-out"
-        style={{
-          background: 'radial-gradient(circle at center, hsl(271, 81%, 56%) 0%, transparent 45%)',
-          filter: 'blur(50px)',
-          mixBlendMode: 'screen',
-          animationDelay: '12s',
-          animationDirection: 'reverse',
-          transform: `translate(${-parallaxX * 3}px, ${-parallaxY * 3}px)`,
-          willChange: 'transform',
-        }}
-      />
 
       {/* Layer 5: Subtle hue-shifting overlay */}
       <div
