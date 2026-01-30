@@ -1,71 +1,73 @@
 
-# Convert Site to Pure Black Theme
+# Add Glass Morphism Effect to Cards
 
 ## Overview
-Transform the site from a blue-tinted dark theme to a pure black theme. This involves updating CSS variables and component-level styling to use true blacks (`#000` or `hsl(0, 0%, 0%)`) instead of the current navy-blue tones.
+Add a semi-transparent glass/frosted glass effect to all cards across the site. This will give cards a modern, translucent appearance with backdrop blur that allows the dark background to subtly show through.
 
 ## Current State
-The site currently uses blue-tinted dark colors:
-- Background: `hsl(220 50% 8%)` - dark navy blue
-- Card: `hsl(220 50% 10%)` - slightly lighter navy
-- Secondary: `hsl(220 40% 14%)` - muted navy
-- Borders: `hsl(220 40% 20%)` - navy borders
+- Base `Card` component uses opaque `bg-white` with light theme styling
+- Page sections (About, Technology, FAQ, Contact) use `bg-card` which resolves to `hsl(0 0% 5%)`
+- A `.glass-effect` class exists in `components.css` but uses opaque background
 
 ## Changes
 
-### 1. Update Base CSS Variables
-**File:** `src/styles/base.css`
+### 1. Update Base Card Component
+**File:** `src/components/ui/card.tsx`
 
-Convert all blue-tinted backgrounds to pure blacks:
+Transform the Card component to use glass morphism styling:
+- Change from `bg-white` to semi-transparent black `bg-white/5`
+- Add stronger backdrop blur `backdrop-blur-xl`
+- Update border to subtle white/10 glow
+- Update text colors for dark theme (white headings, gray descriptions)
 
-| Variable | Current | New |
-|----------|---------|-----|
-| --background | 220 50% 8% | 0 0% 0% |
-| --card | 220 50% 10% | 0 0% 5% |
-| --popover | 220 50% 10% | 0 0% 5% |
-| --secondary | 220 40% 14% | 0 0% 8% |
-| --muted | 220 40% 17% | 0 0% 12% |
-| --accent | 220 40% 16% | 0 0% 10% |
-| --border | 220 40% 20% | 0 0% 15% |
-| --input | 220 40% 20% | 0 0% 15% |
-| --sidebar-background | 220 50% 6% | 0 0% 0% |
-| --sidebar-accent | 220 40% 14% | 0 0% 8% |
-| --sidebar-border | 220 40% 17% | 0 0% 12% |
-
-Update foreground colors to work with pure black:
-- --foreground: `0 0% 95%` (bright white)
-- --muted-foreground: `0 0% 60%` (medium gray)
-
-### 2. Update Component CSS
+### 2. Enhance Glass Effect in CSS
 **File:** `src/styles/components.css`
 
-Update hardcoded blue-tinted HSL values to pure black equivalents:
+Update the `.glass-effect` class with proper translucency:
+- Background: `hsla(0, 0%, 8%, 0.6)` (60% opacity dark gray)
+- Backdrop blur: `blur(20px)`
+- Border: subtle white glow `rgba(255, 255, 255, 0.08)`
+- Box shadow for depth
 
-- `.metallic-surface`: Change `hsl(222 47% 10%)` to `hsl(0 0% 5%)`
-- `.titanium-gradient`: Change navy tones to black/dark gray gradient
-- `.premium-card`: Update to `hsl(0 0% 3%)` background
-- `.chat-interface` and related: Update to pure black shades
-- `.glass-effect`: Update to `hsl(0 0% 5%)`
+Add new `.glass-card` utility class for consistent styling across the site.
 
-### 3. Update Footer Component
-**File:** `src/components/Footer.tsx`
+### 3. Update About Page Cards
+**File:** `src/pages/About.tsx`
 
-Change `bg-slate-900` to `bg-black` and `border-slate-800` to `border-white/10`.
+Apply glass styling to section cards:
+- Change `bg-card` to `bg-white/5 backdrop-blur-xl`
+- Update border to `border-white/10`
 
-### 4. Update CTA Component  
-**File:** `src/components/CTA.tsx`
+### 4. Update Technology Page Cards  
+**File:** `src/pages/Technology.tsx`
 
-Change `bg-[hsl(220,50%,8%)]` to `bg-black`.
+Apply glass styling to capability cards:
+- Same treatment as About page
+
+### 5. Update FAQ Page Accordion Items
+**File:** `src/pages/FAQ.tsx`
+
+Apply glass styling to accordion items:
+- Change `bg-card` to glass effect
+
+### 6. Update Contact Page Card
+**File:** `src/pages/ContactUs.tsx`
+
+Apply glass styling to the contact form card.
+
+---
 
 ## Visual Result
-- Pure black backgrounds throughout the site
-- Neutral gray accents instead of blue-tinted grays
-- Primary blue accent color retained for interactive elements
-- Better contrast with the hero section which already uses pure black
-- More unified, sleek appearance
+- Cards will appear as frosted glass panels floating over the black background
+- 5-10% white overlay with strong backdrop blur creates the glass effect
+- Subtle white border glow adds definition
+- Hover states will slightly increase opacity for interactivity
+- Text remains crisp and readable with proper contrast
 
 ## Files to Modify
-1. `src/styles/base.css`
+1. `src/components/ui/card.tsx`
 2. `src/styles/components.css`
-3. `src/components/Footer.tsx`
-4. `src/components/CTA.tsx`
+3. `src/pages/About.tsx`
+4. `src/pages/Technology.tsx`
+5. `src/pages/FAQ.tsx`
+6. `src/pages/ContactUs.tsx`
