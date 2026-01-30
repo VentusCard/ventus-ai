@@ -1,165 +1,67 @@
 
-# Sophisticated Animated Gradient Background
+# Darken Hero Gradient Animation
 
 ## Overview
-Transform the hero background into a premium, animated gradient mesh effect inspired by modern design trends (Apple, Stripe, Linear). The new background will feature flowing color waves, aurora-like effects, and sophisticated color transitions that create an immersive, high-end feel.
+Reduce the brightness and intensity of the animated gradient orbs/mesh in the hero background while preserving the color palette and animation style. The network overlay (lines, nodes, pulses) will remain unchanged.
+
+## Current State
+The `GradientOrbs` component contains several animated layers that are currently too bright:
+- Layer 1 & 1b: Rotating conic gradients at 30% and 25% opacity
+- Layer 2: Three floating radial gradient spots at 40%, 35%, and 30% opacity with saturated blues, violets, and cyans
+- Layer 3: Two soft gradient clouds at 20% and 15% opacity
+- Layer 5: Hue-shifting overlay at 8% opacity
+- Layer 8: Vignette at 40% opacity
+
+## Changes
+
+### 1. Reduce Rotating Conic Gradient Opacity
+**File:** `src/components/hero/GradientOrbs.tsx`
+
+- Layer 1 (primary rotating gradient): `opacity-30` to `opacity-15`
+- Layer 1b (secondary rotating gradient): `opacity-25` to `opacity-12`
+
+### 2. Dim Floating Radial Gradient Spots
+**File:** `src/components/hero/GradientOrbs.tsx`
+
+Reduce the three floating spots to roughly half their current opacity:
+- Blue spot (top-left): `opacity-40` to `opacity-20`
+- Violet spot (bottom-right): `opacity-35` to `opacity-18`
+- Cyan spot (right-center): `opacity-30` to `opacity-15`
+
+### 3. Reduce Soft Gradient Clouds
+**File:** `src/components/hero/GradientOrbs.tsx`
+
+- Top cloud: `opacity-20` to `opacity-10`
+- Bottom cloud: `opacity-15` to `opacity-08`
+
+### 4. Reduce Hue-Shifting Overlay
+**File:** `src/components/hero/GradientOrbs.tsx`
+
+- Hue-dance overlay: `opacity-[0.08]` to `opacity-[0.04]`
+
+### 5. Strengthen Vignette (Anchor Edges Darker)
+**File:** `src/components/hero/GradientOrbs.tsx`
+
+- Increase vignette opacity from `0.4` to `0.6` so the edges of the hero are darker, making the center gradient feel less expansive
 
 ---
 
-## Design Concept
+## Technical Summary
 
-**Visual Elements:**
-- **Animated Gradient Mesh**: Multiple overlapping gradients that smoothly blend and shift colors
-- **Aurora Borealis Effect**: Flowing light ribbons that animate across the screen
-- **Gradient Wave Animation**: Gentle wave-like motion in the color fields
-- **Spotlight Effects**: Subtle moving light sources that create depth
-- **Glass Morphism Layer**: Frosted overlay that adds sophistication
+| Layer | Current Opacity | New Opacity |
+|-------|----------------|-------------|
+| Conic gradient (Layer 1) | 30% | 15% |
+| Conic gradient reverse (Layer 1b) | 25% | 12% |
+| Blue radial spot | 40% | 20% |
+| Violet radial spot | 35% | 18% |
+| Cyan radial spot | 30% | 15% |
+| Top gradient cloud | 20% | 10% |
+| Bottom gradient cloud | 15% | 8% |
+| Hue-dance overlay | 8% | 4% |
+| Vignette | 40% | 60% |
 
-**Color Palette:**
-- Deep indigo/navy base: `hsl(220, 50%, 8%)`
-- Electric blue accents: `#3b82f6`
-- Violet highlights: `#8b5cf6`
-- Cyan touches: `#06b6d4`
-- Subtle pink/magenta: `#ec4899`
+## Files Modified
+- `src/components/hero/GradientOrbs.tsx`
 
----
-
-## Technical Implementation
-
-### 1. New AnimatedGradientBackground Component
-
-Create a new component that replaces/enhances `GradientOrbs.tsx` with:
-
-**Layer 1 - Base Gradient Mesh:**
-- Full-screen animated conic gradients
-- Multiple overlapping gradients with different rotation speeds
-- Smooth hue rotation animation
-
-**Layer 2 - Aurora Ribbons:**
-- SVG-based flowing curves with gradient fills
-- Animated along paths with varying speeds
-- Blur and glow effects for soft light appearance
-
-**Layer 3 - Moving Spotlight:**
-- Large radial gradients that slowly traverse the screen
-- Creates dynamic lighting effect
-- Responds to mouse position (existing parallax)
-
-**Layer 4 - Glass Overlay:**
-- Subtle frosted glass effect
-- Adds depth and sophistication
-- Helps text readability
-
-### 2. New CSS Animations (`tailwind.config.ts`)
-
-```text
-New keyframes:
-- gradient-rotate: 360deg rotation for conic gradients (20s cycle)
-- gradient-shift: Background position animation (15s cycle)
-- aurora-flow: Path animation for aurora ribbons (12s cycle)
-- hue-rotate: Subtle hue shift animation (30s cycle)
-- spotlight-drift: Large circular motion (25s cycle)
-- wave-motion: Sine-wave-like vertical movement
-```
-
-### 3. Gradient Mesh Implementation
-
-Using CSS `conic-gradient` and `radial-gradient` with animation:
-
-```text
-Layer structure:
-+--------------------------------------------------+
-|  [Animated Conic Gradient - slow rotation]       |
-|    +--------------------------------------------+|
-|    | [Radial Gradient Spots - floating]        ||
-|    |   +----------------------------------------+|
-|    |   | [Aurora SVG Ribbons - flowing]        ||
-|    |   |   +------------------------------------+|
-|    |   |   | [Spotlight - mouse responsive]    ||
-|    |   |   |   +--------------------------------+|
-|    |   |   |   | [Glass/Noise Overlay]         ||
-+--------------------------------------------------+
-```
-
----
-
-## File Changes
-
-### `src/components/hero/GradientOrbs.tsx` - Complete Redesign
-
-Transform into `AnimatedGradientBackground` with:
-
-**New elements:**
-1. **Conic gradient base** - Rotating color wheel effect
-2. **Multiple radial gradient layers** - Different blend modes
-3. **Aurora SVG component** - Inline flowing light ribbons
-4. **Animated mesh blobs** - Morphing gradient shapes
-5. **Spotlight overlay** - Large moving light source
-6. **Enhanced noise texture** - More visible grain for depth
-
-**Animation approach:**
-- Use CSS custom properties for animation values
-- Leverage `mix-blend-mode` for color interactions
-- Apply `backdrop-filter: blur()` for glass effects
-- Use SVG `animate` elements for aurora flow
-
-### `tailwind.config.ts` - New Animation Keyframes
-
-Add sophisticated animation keyframes:
-
-| Keyframe | Duration | Effect |
-|----------|----------|--------|
-| `gradient-rotate` | 20s | Full 360deg rotation |
-| `gradient-shift` | 15s | Background position shift |
-| `aurora-wave` | 8s | Vertical wave motion |
-| `hue-dance` | 30s | Subtle hue rotation |
-| `spotlight-wander` | 25s | Circular spotlight drift |
-| `mesh-breathe` | 10s | Scale + opacity pulse |
-
----
-
-## Visual Effect Details
-
-### Animated Conic Gradient
-```text
-Background layers:
-1. conic-gradient(from var(--angle), colors...) - rotates via CSS animation
-2. radial-gradient(ellipse at 20% 30%, blue transparent)
-3. radial-gradient(ellipse at 80% 70%, purple transparent)
-4. Blend mode: screen/overlay for rich color mixing
-```
-
-### Aurora Ribbons
-- 2-3 flowing SVG paths positioned across the screen
-- Animated `d` attribute or `stroke-dashoffset` for flow effect
-- Gradient stroke with glow filter
-- Very subtle opacity (0.1-0.2) for ethereal look
-
-### Spotlight Effect
-- Large (800px+) radial gradient
-- Animates in circular or figure-8 pattern
-- Responds to mouse via existing parallax
-- Creates dynamic "breathing" light effect
-
----
-
-## Performance Considerations
-
-- Use `will-change: transform` on animated elements
-- Limit blur radius to prevent GPU strain
-- Use `transform` and `opacity` for animations (GPU-accelerated)
-- Consider `prefers-reduced-motion` media query for accessibility
-
----
-
-## Summary
-
-| Current | New |
-|---------|-----|
-| Static gradient orbs | Animated gradient mesh |
-| Simple float animations | Rotating/flowing animations |
-| Basic radial gradients | Conic + radial + linear gradients |
-| Single noise texture | Multi-layer glass effect |
-| Floating orbs | Aurora ribbons + spotlights |
-
-This creates a premium, Apple/Stripe-inspired animated background that feels sophisticated and modern while maintaining excellent performance.
+## Visual Result
+The animated gradient mesh will retain its color palette and motion but appear significantly darker and more subdued, allowing the hero content (headline, subheading, button) to stand out while blending seamlessly into the dark page below.
