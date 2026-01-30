@@ -85,7 +85,7 @@ const Hero = () => {
               transform: `translate(${parallax.x * 0.1}px, ${parallax.y * 0.1}px)`,
             }}
           >
-            <Link to="/contact">
+            <Link to="/technology">
               <Button size="lg" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all duration-300">
                 Learn More
               </Button>
