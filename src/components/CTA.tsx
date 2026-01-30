@@ -9,10 +9,10 @@ const CTA = () => {
           {/* Main CTA Content */}
           <div className="text-center">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-white">
-              Ready to Experience Ventus Card? <span className="text-white/80">Coming Soon</span>
+              Ready to Experience Ventus AI? <span className="text-white/80">Coming Soon</span>
             </h2>
             <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
-              Join the waitlist today and elevate your financial experience with premium benefits and rewards designed for your lifestyle.
+              Discover intelligent financial technology that transforms how you manage and grow your wealth.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/contact">

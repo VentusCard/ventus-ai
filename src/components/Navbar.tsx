@@ -22,7 +22,7 @@ const Navbar = () => {
           <Link to="/" onClick={closeMobileMenu} className="group">
             <img 
               src={ventusLogo} 
-              alt="Ventus Card" 
+              alt="Ventus AI" 
               className="h-6 md:h-8 w-auto transition-opacity duration-300 group-hover:opacity-90"
             />
           </Link>

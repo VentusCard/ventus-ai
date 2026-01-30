@@ -21,7 +21,7 @@ const ContactUs = () => {
     const message = formData.get('message') as string;
     const emailSubject = `Contact Form: ${subject}`;
     const emailBody = `
-Hello Ventus Card Team,
+Hello Ventus AI Team,
 
 I'm reaching out through your contact form with the following information:
 
