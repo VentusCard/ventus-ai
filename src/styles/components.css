@@ -3,13 +3,13 @@
    Premium dark aesthetic with blue accents
    ============================================ */
 
-/* Metallic surface utility - Dark Theme */
+/* Metallic surface utility - Pure Black Theme */
 .metallic-surface {
   background: linear-gradient(
     135deg,
-    hsl(222 47% 10%) 0%,
-    hsl(222 47% 8%) 50%,
-    hsl(222 47% 6%) 100%
+    hsl(0 0% 5%) 0%,
+    hsl(0 0% 3%) 50%,
+    hsl(0 0% 0%) 100%
   );
   position: relative;
 }
@@ -20,7 +20,7 @@
   inset: 0;
   background: linear-gradient(
     135deg,
-    hsla(217, 91%, 60%, 0.05) 0%,
+    hsla(0, 0%, 100%, 0.03) 0%,
     transparent 50%
   );
   pointer-events: none;
@@ -30,9 +30,9 @@
 .titanium-gradient {
   background: linear-gradient(
     135deg,
-    hsl(222 47% 12%) 0%,
-    hsl(222 47% 8%) 50%,
-    hsl(222 47% 5%) 100%
+    hsl(0 0% 8%) 0%,
+    hsl(0 0% 4%) 50%,
+    hsl(0 0% 0%) 100%
   );
 }
 
@@ -42,13 +42,13 @@
     135deg,
     hsl(217 91% 20%) 0%,
     hsl(217 91% 15%) 50%,
-    hsl(222 47% 8%) 100%
+    hsl(0 0% 0%) 100%
   );
 }
 
 /* Metallic border - subtle glow */
 .metallic-border {
-  border: 1px solid hsl(222 30% 20%);
+  border: 1px solid hsl(0 0% 15%);
   position: relative;
 }
 
@@ -59,9 +59,9 @@
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    hsla(217, 91%, 60%, 0.1) 0%,
+    hsla(0, 0%, 100%, 0.05) 0%,
     transparent 50%,
-    hsla(217, 91%, 60%, 0.05) 100%
+    hsla(0, 0%, 100%, 0.02) 100%
   );
   pointer-events: none;
   z-index: -1;
@@ -70,24 +70,24 @@
 /* Metallic shadow - subtle glow */
 .metallic-shadow {
   box-shadow: 
-    0 4px 24px hsla(222, 47%, 5%, 0.4),
-    0 1px 3px hsla(222, 47%, 5%, 0.3),
-    inset 0 1px 0 hsla(217, 91%, 60%, 0.05);
+    0 4px 24px hsla(0, 0%, 0%, 0.6),
+    0 1px 3px hsla(0, 0%, 0%, 0.4),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.03);
 }
 
-/* Premium card styling for dark backgrounds - Blue theme */
+/* Premium card styling for dark backgrounds - Pure Black theme */
 .premium-card {
   @apply rounded-xl;
-  background: hsl(222 47% 9%) !important;
+  background: hsl(0 0% 3%) !important;
   backdrop-filter: blur(20px);
-  border: 1px solid hsl(222 30% 18%) !important;
+  border: 1px solid hsl(0 0% 12%) !important;
   box-shadow: 
-    0 4px 24px hsla(222, 47%, 3%, 0.5),
-    inset 0 1px 0 hsla(217, 91%, 60%, 0.03);
+    0 4px 24px hsla(0, 0%, 0%, 0.7),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.02);
 }
 
 .premium-card:hover {
-  border-color: hsl(217 91% 60% / 0.3) !important;
+  border-color: hsl(0 0% 20%) !important;
 }
 
 /* Explicit text color overrides for premium cards */
@@ -108,30 +108,30 @@
   color: hsl(215 20% 65%) !important;
 }
 
-/* Dark mode chat interface styling */
+/* Pure black chat interface styling */
 .chat-interface {
-  background: hsl(222 47% 6%);
-  border: 1px solid hsl(222 30% 18%);
+  background: hsl(0 0% 0%);
+  border: 1px solid hsl(0 0% 12%);
 }
 
 .chat-message-bot {
   background: hsl(217 91% 60% / 0.15);
-  color: hsl(210 20% 95%);
+  color: hsl(0 0% 95%);
 }
 
 .chat-message-user {
-  background: hsl(222 30% 15%);
-  color: hsl(210 20% 95%);
+  background: hsl(0 0% 10%);
+  color: hsl(0 0% 95%);
 }
 
 .chat-input {
-  background: hsl(222 47% 8%) !important;
-  border: 1px solid hsl(222 30% 20%) !important;
-  color: hsl(210 20% 95%) !important;
+  background: hsl(0 0% 5%) !important;
+  border: 1px solid hsl(0 0% 15%) !important;
+  color: hsl(0 0% 95%) !important;
 }
 
 .chat-input::placeholder {
-  color: hsl(215 20% 50%) !important;
+  color: hsl(0 0% 50%) !important;
 }
 
 .chat-input:focus {
@@ -143,8 +143,8 @@
 /* Mobile-specific legibility improvements */
 @media (max-width: 768px) {
   .premium-card {
-    background: hsl(222 47% 8%) !important;
-    border: 1px solid hsl(222 30% 20%) !important;
+    background: hsl(0 0% 3%) !important;
+    border: 1px solid hsl(0 0% 15%) !important;
   }
 
   .premium-card .card-title,
@@ -158,12 +158,12 @@
   .premium-card [class*="card-description"] {
     font-size: 0.95rem !important;
     line-height: 1.5 !important;
-    color: hsl(215 20% 70%) !important;
+    color: hsl(0 0% 70%) !important;
   }
 
   .chat-interface {
-    background: hsl(222 47% 5%) !important;
-    border: 1px solid hsl(222 30% 18%) !important;
+    background: hsl(0 0% 0%) !important;
+    border: 1px solid hsl(0 0% 12%) !important;
   }
 
   .chat-message-bot,
@@ -174,8 +174,8 @@
 
   .chat-input {
     font-size: 1rem !important;
-    background: hsl(222 47% 7%) !important;
-    border: 1px solid hsl(222 30% 22%) !important;
+    background: hsl(0 0% 5%) !important;
+    border: 1px solid hsl(0 0% 18%) !important;
   }
 }
 
@@ -193,7 +193,7 @@
   min-height: 700px;
   border: none;
   border-radius: 12px;
-  background: hsl(222 47% 6%);
+  background: hsl(0 0% 0%);
 }
 
 /* Mobile chat optimizations */
@@ -222,41 +222,41 @@
   }
 }
 
-/* Glass effect - dark theme */
+/* Glass effect - pure black theme */
 .glass-effect {
-  background: hsl(222 47% 8% / 0.8);
+  background: hsl(0 0% 5% / 0.8);
   backdrop-filter: blur(20px);
-  border: 1px solid hsl(222 30% 18%);
+  border: 1px solid hsl(0 0% 12%);
 }
 
-/* Join waitlist card - dark theme override */
+/* Join waitlist card - pure black theme override */
 .join-waitlist-card {
-  background: hsl(222 47% 8%) !important;
-  border: 1px solid hsl(222 30% 18%) !important;
+  background: hsl(0 0% 3%) !important;
+  border: 1px solid hsl(0 0% 12%) !important;
 }
 
 .join-waitlist-card .text-slate-700,
 .join-waitlist-card .text-slate-600,
 .join-waitlist-card .text-slate-500 {
-  color: hsl(215 20% 65%) !important;
+  color: hsl(0 0% 65%) !important;
 }
 
 .join-waitlist-card input,
 .join-waitlist-card select {
-  background: hsl(222 47% 6%) !important;
-  border-color: hsl(222 30% 20%) !important;
-  color: hsl(210 20% 95%) !important;
+  background: hsl(0 0% 0%) !important;
+  border-color: hsl(0 0% 15%) !important;
+  color: hsl(0 0% 95%) !important;
 }
 
 .join-waitlist-card input::placeholder {
-  color: hsl(215 20% 45%) !important;
+  color: hsl(0 0% 45%) !important;
 }
 
 /* Shadow utility for premium elements */
 .shadow-premium {
   box-shadow: 
-    0 8px 32px hsla(222, 47%, 3%, 0.6),
-    0 4px 16px hsla(222, 47%, 3%, 0.4);
+    0 8px 32px hsla(0, 0%, 0%, 0.8),
+    0 4px 16px hsla(0, 0%, 0%, 0.6);
 }
 
 /* Light scrollbar for TePilot and light-themed containers */
