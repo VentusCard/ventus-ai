@@ -1,106 +1,144 @@
 
-# Update Site Content with Confirmed ventusai.com Information
+# New Hero Design: Abstract Gradient with Animated AI Graphics
 
 ## Overview
-Update the site pages with verified content from the official ventusai.com website, including the Hero, About, Technology pages, adding a new FAQ page, and updating the navigation with a "Schedule Demo" CTA button.
+Replace the current credit card video hero with a clean, modern design featuring bold typography as the focal point, complemented by subtle animated AI/data visualization graphics. The design will feel sophisticated, tech-forward, and aligned with the "transaction intelligence" positioning.
 
 ---
 
-## Content Updates from ventusai.com
+## Design Concept
 
-### Confirmed Content to Use
+**Visual Style:**
+- Dark gradient background with subtle color shifts (blues, purples, indigos)
+- Animated floating data nodes/particles in the background
+- Glowing connection lines between nodes representing data flow
+- Clean typography with the brushstroke animation retained for "consumer intelligence"
 
-**Main Headline:**
-- "Turn transaction data into consumer intelligence"
-
-**Main Description:**
-- "Beyond basic enrichment—interpreting transaction data to reveal consumer intent, behavior, and life events. Designed for financial institutions seeking deeper customer engagement."
-
-**What is Ventus AI (for About page):**
-- "Ventus AI is a transaction intelligence platform designed for financial institutions. We go beyond basic enrichment, using advanced AI to interpret transaction data and reveal consumer intent, behavior, and life events. This helps banks, credit unions, and wealth managers create more personalized, proactive customer experiences."
-
-**Four Core Capabilities:**
-1. **Advanced Transaction Enrichment** - "Our semantic AI goes beyond basic merchant name cleaning. We extract deep, contextual signals from every transaction—merchant category, location patterns, spending velocity, and more—to build a complete picture of customer behavior."
-
-2. **Intelligent Reward Personalization** - "Using AI-driven purchase personas, we help institutions deliver rewards, offers, and content that resonate with each customer's unique lifestyle and spending habits."
-
-3. **Holistic Customer Engagement** - "We enable banks to offer a unified experience—combining rewards, perks, and educational content—in a way that feels seamless and personalized, not like a patchwork of products."
-
-4. **Wealth Management CoPilot** - "For advisors and wealth managers, Ventus surfaces lifestyle events and behavioral insights that automate administrative tasks and create opportunities for proactive, meaningful client engagement."
-
-**FAQ Content (6 confirmed FAQs):**
-1. What is Ventus AI?
-2. How does Ventus AI work with banks?
-3. Is Ventus AI a credit card company or a fintech startup?
-4. How secure is the platform?
-5. How do customers access Ventus AI features?
-6. What outcomes can we expect?
+**Layout:**
+- Centered text hierarchy (headline, subheading, CTA)
+- Animated SVG graphics positioned around the text
+- Subtle gradient orbs/blobs that gently animate
 
 ---
 
-## Files to Modify
+## Technical Implementation
 
-### 1. Hero Component (`src/components/Hero.tsx`)
-**Current:** "Rewards, Made Smarter" with "AI-powered smart rewards personalized to you"
-**Update to:**
-- Main headline: "Turn transaction data into consumer intelligence"
-- Subheading: "Beyond basic enrichment—interpreting transaction data to reveal consumer intent, behavior, and life events"
-- Button text: "Schedule Demo" linking to contact page
+### 1. Remove Video, Add Animated Background (`src/components/Hero.tsx`)
 
-### 2. About Page (`src/pages/About.tsx`)
-**Current:** Generic placeholder content
-**Update to:**
-- Title: "About Ventus AI"
-- Add "What is Ventus AI?" section with confirmed description
-- Update "Our Mission" with bank-first collaboration approach
-- Add "How We Work" section explaining integration approach
+**What's changing:**
+- Remove the video element and its intersection observer logic
+- Add animated SVG elements representing data nodes and connections
+- Add floating gradient orbs that slowly animate
+- Add animated particles/dots moving across the background
 
-### 3. Technology Page (`src/pages/Technology.tsx`)
-**Current:** Generic AI/tech capabilities
-**Update to the 4 confirmed core capabilities:**
-1. Advanced Transaction Enrichment
-2. Intelligent Reward Personalization
-3. Holistic Customer Engagement
-4. Wealth Management CoPilot
+**New visual elements:**
+```text
++--------------------------------------------------+
+|                                                  |
+|     ○───○        (floating data nodes)           |
+|       ╲                                          |
+|    ○───○──○                                      |
+|                                                  |
+|     Turn transaction data into                   |
+|     ~~~consumer intelligence~~~                  |
+|                                                  |
+|     Beyond basic enrichment...                   |
+|                                                  |
+|         [ Schedule Demo ]                        |
+|                                                  |
+|          ○──○                                    |
+|            ╲───○     (more floating nodes)       |
++--------------------------------------------------+
+```
 
-Each with the confirmed descriptions from ventusai.com.
+### 2. Animated Data Network SVG Component
 
-### 4. New FAQ Page (`src/pages/FAQ.tsx`)
-Create a new page with the 6 confirmed FAQs using an accordion component:
-- What is Ventus AI?
-- How does Ventus AI work with banks?
-- Is Ventus AI a credit card company or a fintech startup?
-- How secure is the platform?
-- How do customers access Ventus AI features?
-- What outcomes can we expect?
+Create floating animated nodes with:
+- **Nodes**: Small glowing circles that fade in/out
+- **Lines**: Connecting paths that draw themselves
+- **Movement**: Gentle floating animation on the network
+- **Glow effects**: Subtle pulse on nodes
 
-### 5. Navbar (`src/components/Navbar.tsx`)
-- Add "FAQ" navigation link
-- Add "Schedule Demo" CTA button (styled prominently)
-- Update mobile menu accordingly
+### 3. Gradient Orb Animations
 
-### 6. App Router (`src/App.tsx`)
-- Add route for `/faq` page
+Add soft gradient blobs that:
+- Float slowly in the background
+- Use CSS blur for a soft glow effect
+- Colors: Primary blues, soft purples, subtle teals
+
+### 4. New Animation Keyframes (`tailwind.config.ts`)
+
+Add new keyframes:
+- `float-slow`: Gentle vertical floating (slower than current)
+- `pulse-glow`: Subtle glow pulsing for nodes
+- `draw-line`: SVG line drawing animation
+- `fade-float`: Combined fade + float for staggered entrance
 
 ---
 
-## Technical Details
+## File Changes
 
-### New Dependencies
-None required - using existing Accordion component from `@radix-ui/react-accordion`
+### `src/components/Hero.tsx` - Complete Redesign
 
-### File Changes Summary
+**Remove:**
+- Video element and videoRef
+- Intersection observer useEffect
+- Video-related gradient overlays
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/components/Hero.tsx` | Modify | Update headline, subheading, button text |
-| `src/pages/About.tsx` | Modify | Complete content rewrite with confirmed info |
-| `src/pages/Technology.tsx` | Modify | Replace capabilities with 4 confirmed ones |
-| `src/pages/FAQ.tsx` | Create | New page with 6 FAQs in accordion |
-| `src/components/Navbar.tsx` | Modify | Add FAQ link + Schedule Demo button |
-| `src/App.tsx` | Modify | Add `/faq` route |
+**Add:**
+- Animated SVG network visualization component
+- Floating gradient orb elements
+- Enhanced background gradients
+- Staggered entrance animations for text elements
 
-### Design Consistency
-- All pages will maintain the existing dark theme and styling
-- FAQ page will use the existing Accordion component for expandable questions
-- "Schedule Demo" button will be styled as a primary CTA in the navbar
+**Keep:**
+- Main headline structure with brushstroke animation
+- "Schedule Demo" CTA button
+- Dark theme color scheme
+
+### `tailwind.config.ts` - New Animations
+
+Add keyframes:
+```text
+float-slow: Gentle Y movement over 8-10s
+pulse-glow: Opacity + scale pulse for glowing nodes
+draw-line: Stroke-dashoffset animation for line drawing
+particle-drift: Subtle horizontal + vertical drift
+```
+
+---
+
+## Visual Elements Detail
+
+### Data Network SVG
+- 8-12 nodes positioned strategically around the hero
+- Connecting lines that animate on page load
+- Nodes have subtle glow/pulse effect
+- Entire network floats gently
+
+### Gradient Orbs
+- 2-3 large blurred gradient circles
+- Positioned behind text for depth
+- Colors: `#3b82f6` (blue), `#8b5cf6` (violet), `#06b6d4` (cyan)
+- Very slow floating animation (10-15s cycle)
+
+### Text Animations
+- Headline fades up with stagger
+- Subheading fades in slightly delayed
+- Button fades in last
+- Brushstroke animation on "consumer intelligence" retained
+
+---
+
+## Summary
+
+| Element | Change |
+|---------|--------|
+| Video | Removed entirely |
+| Background | Dark gradient + animated orbs |
+| Visual focal point | Animated data network SVG |
+| Typography | Kept with enhanced entrance animations |
+| CTA Button | Kept with fade-in animation |
+| Mobile responsive | Simplified animations on mobile |
+
+This creates a modern, sophisticated hero that emphasizes Ventus AI's data intelligence focus while maintaining excellent performance (no video loading) and a cleaner aesthetic.
