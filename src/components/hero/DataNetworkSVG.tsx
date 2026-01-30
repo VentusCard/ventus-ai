@@ -1,4 +1,9 @@
-const DataNetworkSVG = () => {
+interface DataNetworkSVGProps {
+  parallaxX?: number;
+  parallaxY?: number;
+}
+
+const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) => {
   // Primary layer nodes
   const primaryNodes = [
     { cx: 80, cy: 120, r: 5, delay: "0s" },
@@ -69,9 +74,12 @@ const DataNetworkSVG = () => {
 
   return (
     <svg
-      className="absolute inset-0 w-full h-full opacity-50"
+      className="absolute inset-0 w-full h-full opacity-50 transition-transform duration-100 ease-out"
       viewBox="0 0 700 320"
       preserveAspectRatio="xMidYMid slice"
+      style={{
+        transform: `translate(${parallaxX * 1.5}px, ${parallaxY * 1.5}px)`,
+      }}
     >
       <defs>
         {/* Enhanced glow filter for nodes */}
@@ -203,43 +211,39 @@ const DataNetworkSVG = () => {
       ))}
 
       {/* Data pulses traveling along paths */}
-      {pulsePaths.map((path, i) => {
-        const dx = path.x2 - path.x1;
-        const dy = path.y2 - path.y1;
-        return (
-          <g key={`pulse-${i}`}>
-            <circle r="3" fill="url(#pulse-gradient)" filter="url(#node-glow)">
-              <animateMotion
-                dur={path.duration}
-                repeatCount="indefinite"
-                begin={path.delay}
-              >
-                <mpath xlinkHref={`#pulse-path-${i}`} />
-              </animateMotion>
-              <animate
-                attributeName="opacity"
-                values="0;1;1;0"
-                dur={path.duration}
-                repeatCount="indefinite"
-                begin={path.delay}
-              />
-              <animate
-                attributeName="r"
-                values="2;3;2"
-                dur={path.duration}
-                repeatCount="indefinite"
-                begin={path.delay}
-              />
-            </circle>
-            <path
-              id={`pulse-path-${i}`}
-              d={`M${path.x1},${path.y1} L${path.x2},${path.y2}`}
-              fill="none"
-              stroke="none"
+      {pulsePaths.map((path, i) => (
+        <g key={`pulse-${i}`}>
+          <circle r="3" fill="url(#pulse-gradient)" filter="url(#node-glow)">
+            <animateMotion
+              dur={path.duration}
+              repeatCount="indefinite"
+              begin={path.delay}
+            >
+              <mpath xlinkHref={`#pulse-path-${i}`} />
+            </animateMotion>
+            <animate
+              attributeName="opacity"
+              values="0;1;1;0"
+              dur={path.duration}
+              repeatCount="indefinite"
+              begin={path.delay}
             />
-          </g>
-        );
-      })}
+            <animate
+              attributeName="r"
+              values="2;3;2"
+              dur={path.duration}
+              repeatCount="indefinite"
+              begin={path.delay}
+            />
+          </circle>
+          <path
+            id={`pulse-path-${i}`}
+            d={`M${path.x1},${path.y1} L${path.x2},${path.y2}`}
+            fill="none"
+            stroke="none"
+          />
+        </g>
+      ))}
 
       {/* Secondary nodes */}
       {secondaryNodes.map((node, i) => (
