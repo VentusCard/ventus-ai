@@ -31,36 +31,23 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
     { cx: 680, cy: 180, r: 2, delay: "1.6s" },
   ];
 
-  // Primary connections with morphing control points for animation
+  // Primary connections - straight lines with looping draw animation
   const primaryConnections = [
-    { x1: 80, y1: 120, x2: 180, y2: 80, dur: "4s" },
-    { x1: 180, y1: 80, x2: 280, y2: 140, dur: "5s" },
-    { x1: 180, y1: 80, x2: 150, y2: 200, dur: "4.5s" },
-    { x1: 280, y1: 140, x2: 350, y2: 100, dur: "3.5s" },
-    { x1: 280, y1: 140, x2: 320, y2: 240, dur: "5.5s" },
-    { x1: 350, y1: 100, x2: 420, y2: 180, dur: "4s" },
-    { x1: 350, y1: 100, x2: 480, y2: 120, dur: "4.2s" },
-    { x1: 420, y1: 180, x2: 520, y2: 200, dur: "3.8s" },
-    { x1: 480, y1: 120, x2: 600, y2: 140, dur: "4.5s" },
-    { x1: 520, y1: 200, x2: 600, y2: 140, dur: "5s" },
-    { x1: 600, y1: 140, x2: 650, y2: 80, dur: "4.3s" },
-    { x1: 50, y1: 220, x2: 80, y2: 120, dur: "5.2s" },
-    { x1: 50, y1: 220, x2: 150, y2: 200, dur: "4.8s" },
-    { x1: 320, y1: 240, x2: 420, y2: 180, dur: "3.6s" },
+    { x1: 80, y1: 120, x2: 180, y2: 80, dur: "3s", delay: "0s" },
+    { x1: 180, y1: 80, x2: 280, y2: 140, dur: "3.5s", delay: "0.2s" },
+    { x1: 180, y1: 80, x2: 150, y2: 200, dur: "4s", delay: "0.4s" },
+    { x1: 280, y1: 140, x2: 350, y2: 100, dur: "3.2s", delay: "0.3s" },
+    { x1: 280, y1: 140, x2: 320, y2: 240, dur: "4.5s", delay: "0.5s" },
+    { x1: 350, y1: 100, x2: 420, y2: 180, dur: "3s", delay: "0.6s" },
+    { x1: 350, y1: 100, x2: 480, y2: 120, dur: "3.8s", delay: "0.1s" },
+    { x1: 420, y1: 180, x2: 520, y2: 200, dur: "3.3s", delay: "0.7s" },
+    { x1: 480, y1: 120, x2: 600, y2: 140, dur: "4s", delay: "0.2s" },
+    { x1: 520, y1: 200, x2: 600, y2: 140, dur: "3.5s", delay: "0.8s" },
+    { x1: 600, y1: 140, x2: 650, y2: 80, dur: "3.2s", delay: "0.4s" },
+    { x1: 50, y1: 220, x2: 80, y2: 120, dur: "4.2s", delay: "0.3s" },
+    { x1: 50, y1: 220, x2: 150, y2: 200, dur: "3.6s", delay: "0.5s" },
+    { x1: 320, y1: 240, x2: 420, y2: 180, dur: "3s", delay: "0.6s" },
   ];
-
-  // Helper to generate morphing path with control point variations
-  const getMorphingPath = (x1: number, y1: number, x2: number, y2: number, offset: number) => {
-    const midX = (x1 + x2) / 2;
-    const midY = (y1 + y2) / 2;
-    const variance = 15 + offset * 5;
-    return {
-      base: `M${x1},${y1} Q${midX},${midY} ${x2},${y2}`,
-      morph1: `M${x1},${y1} Q${midX + variance},${midY - variance} ${x2},${y2}`,
-      morph2: `M${x1},${y1} Q${midX - variance},${midY + variance} ${x2},${y2}`,
-      morph3: `M${x1},${y1} Q${midX + variance * 0.7},${midY + variance * 0.5} ${x2},${y2}`,
-    };
-  };
 
   // Secondary connections (fainter)
   const secondaryConnections = [
@@ -204,32 +191,35 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
         ))}
       </g>
 
-      {/* Primary connections - morphing curved paths */}
+      {/* Primary connections - straight lines with looping draw animation */}
       {primaryConnections.map((line, i) => {
-        const paths = getMorphingPath(line.x1, line.y1, line.x2, line.y2, i % 4);
+        const length = Math.sqrt(Math.pow(line.x2 - line.x1, 2) + Math.pow(line.y2 - line.y1, 2));
         return (
-          <path
+          <line
             key={`line-${i}`}
-            d={paths.base}
+            x1={line.x1}
+            y1={line.y1}
+            x2={line.x2}
+            y2={line.y2}
             stroke="url(#line-gradient-primary)"
             strokeWidth="1.2"
-            fill="none"
-            className="animate-draw-line"
+            strokeLinecap="round"
             style={{
-              animationDelay: `${0.1 + i * 0.1}s`,
-              strokeDasharray: "200",
-              strokeDashoffset: "200",
+              strokeDasharray: length,
+              strokeDashoffset: length,
             }}
           >
             <animate
-              attributeName="d"
-              values={`${paths.base};${paths.morph1};${paths.morph2};${paths.morph3};${paths.base}`}
+              attributeName="stroke-dashoffset"
+              values={`${length};0;0;${-length}`}
+              keyTimes="0;0.4;0.6;1"
               dur={line.dur}
+              begin={line.delay}
               repeatCount="indefinite"
               calcMode="spline"
-              keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"
+              keySplines="0.4 0 0.6 1; 0 0 1 1; 0.4 0 0.6 1"
             />
-          </path>
+          </line>
         );
       })}
 
