@@ -36,7 +36,7 @@ import { GlidePathVisualization } from "./GlidePathVisualization";
 import { TaxAdvantagedAccountsSection } from "./TaxAdvantagedAccountsSection";
 import { RMDCalculator } from "./RMDCalculator";
 import { MonteCarloSimulator } from "./MonteCarloSimulator";
-import { formatCurrency } from "@/lib/formatHelper";
+import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 

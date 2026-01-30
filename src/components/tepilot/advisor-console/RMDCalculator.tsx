@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Calculator, AlertTriangle, Info } from "lucide-react";
-import { formatCurrency } from "@/lib/formatHelper";
+import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
 import { TaxAdvantagedAccount } from "@/types/financial-planning";
 import {
   Tooltip,

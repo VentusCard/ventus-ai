@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, TrendingUp } from "lucide-react";
 import { FundingSource } from "@/types/lifestyle-signals";
-import { formatCurrency } from "@/lib/formatHelper";
+import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
 
 interface FundingSourcesTableProps {
   sources: FundingSource[];

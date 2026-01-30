@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-interface DealForSearch {
+interface Deal {
   id: string;
   merchantName: string;
   category: string;
@@ -10,78 +11,96 @@ interface DealForSearch {
   rewardValue: string;
 }
 
-interface SemanticSearchResult {
-  isSearching: boolean;
-  searchQuery: string;
-  handleSearchChange: (query: string) => void;
-  clearSearch: () => void;
+interface SearchResult {
   matchingDealIds: string[];
-  searchReasoning: string;
+  reasoning: string;
 }
 
-export function useSemanticDealSearch(deals: DealForSearch[]): SemanticSearchResult {
-  const [isSearching, setIsSearching] = useState(false);
+export function useSemanticDealSearch(allDeals: Deal[]) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [matchingDealIds, setMatchingDealIds] = useState<string[]>([]);
-  const [searchReasoning, setSearchReasoning] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearchChange = useCallback((query: string) => {
-    setSearchQuery(query);
-  }, []);
-
-  const clearSearch = useCallback(() => {
-    setSearchQuery('');
-    setMatchingDealIds([]);
-    setSearchReasoning('');
-  }, []);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setMatchingDealIds([]);
-      setSearchReasoning('');
+  const performSearch = useCallback(async (query: string) => {
+    if (!query || query.length < 2) {
+      setSearchResults(null);
+      setIsSearching(false);
       return;
     }
 
-    const searchLower = searchQuery.toLowerCase();
-    
-    // Simple local search fallback
-    const matching = deals.filter(deal => 
-      deal.merchantName.toLowerCase().includes(searchLower) ||
-      deal.dealTitle.toLowerCase().includes(searchLower) ||
-      deal.category.toLowerCase().includes(searchLower) ||
-      deal.subcategory.toLowerCase().includes(searchLower)
-    );
-    
-    setMatchingDealIds(matching.map(d => d.id));
-    setSearchReasoning(matching.length > 0 
-      ? `Found ${matching.length} deals matching "${searchQuery}"`
-      : `No deals found for "${searchQuery}"`
-    );
-
-    // Try semantic search via edge function
     setIsSearching(true);
-    
-    supabase.functions
-      .invoke('semantic-deal-search', {
-        body: { query: searchQuery, dealIds: deals.map(d => d.id) }
-      })
-      .then(({ data, error }) => {
-        if (!error && data?.matchingIds) {
-          setMatchingDealIds(data.matchingIds);
-          setSearchReasoning(data.reasoning || '');
-        }
-      })
-      .catch(console.error)
-      .finally(() => setIsSearching(false));
 
-  }, [searchQuery, deals]);
+    try {
+      // Prepare a simplified deal list for the API
+      const dealsForSearch = allDeals.map(d => ({
+        id: d.id,
+        merchantName: d.merchantName,
+        category: d.category,
+        subcategory: d.subcategory,
+        dealTitle: d.dealTitle,
+        rewardValue: d.rewardValue,
+      }));
+
+      const { data, error } = await supabase.functions.invoke('semantic-deal-search', {
+        body: { query, deals: dealsForSearch }
+      });
+
+      if (error) {
+        console.error('Semantic search error:', error);
+        toast.error('Search failed. Please try again.');
+        setSearchResults(null);
+      } else if (data?.matchingDealIds) {
+        setSearchResults(data as SearchResult);
+      } else {
+        setSearchResults({ matchingDealIds: [], reasoning: 'No matches found' });
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      toast.error('Search failed. Please try again.');
+      setSearchResults(null);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [allDeals]);
+
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+
+    // Clear previous debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // If empty, clear results immediately
+    if (!query || query.length < 2) {
+      setSearchResults(null);
+      setIsSearching(false);
+      return;
+    }
+
+    // Debounce the search
+    debounceRef.current = setTimeout(() => {
+      performSearch(query);
+    }, 400);
+  }, [performSearch]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchResults(null);
+    setIsSearching(false);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+  }, []);
 
   return {
-    isSearching,
     searchQuery,
+    isSearching,
+    searchResults,
     handleSearchChange,
     clearSearch,
-    matchingDealIds,
-    searchReasoning,
+    matchingDealIds: searchResults?.matchingDealIds || null,
+    searchReasoning: searchResults?.reasoning || null,
   };
 }

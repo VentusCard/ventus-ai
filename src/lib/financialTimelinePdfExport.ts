@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
-import { formatCurrency } from "@/lib/formatHelper";
+import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
 
 const projectTypeLabels: Record<string, string> = {
   education: "Education",

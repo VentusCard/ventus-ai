@@ -6,7 +6,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw } from "lucide-react";
 import { AdvisorContext } from "@/lib/advisorContextBuilder";
 import { AIInsights, LifeEvent } from "@/types/lifestyle-signals";
-import { formatCurrency } from "@/lib/formatHelper";
+import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
 import { ClientProfileData } from "@/types/clientProfile";
 import { LifeEventDetailsDialog } from "./LifeEventDetailsDialog";
 interface ClientSnapshotPanelProps {
