@@ -74,7 +74,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
 
   return (
     <svg
-      className="absolute inset-0 w-full h-full opacity-50 transition-transform duration-100 ease-out"
+      className="absolute inset-0 w-full h-full opacity-30 transition-transform duration-100 ease-out"
       viewBox="0 0 700 320"
       preserveAspectRatio="xMidYMid slice"
       style={{
