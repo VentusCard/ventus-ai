@@ -1,28 +1,28 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Brain, Zap, Shield, BarChart3 } from "lucide-react";
+import { Brain, Gift, Users, Briefcase } from "lucide-react";
 
 const Technology = () => {
   const capabilities = [
     {
       icon: Brain,
-      title: "AI-Powered Enrichment",
-      description: "Advanced machine learning models classify and enrich transactions in real-time, extracting merchant details, spending categories, and lifestyle signals."
+      title: "Advanced Transaction Enrichment",
+      description: "Our semantic AI goes beyond basic merchant name cleaning. We extract deep, contextual signals from every transaction—merchant category, location patterns, spending velocity, and more—to build a complete picture of customer behavior."
     },
     {
-      icon: Zap,
-      title: "Real-Time Processing",
-      description: "Stream processing architecture handles millions of transactions per second with sub-second latency for instant insights."
+      icon: Gift,
+      title: "Intelligent Reward Personalization",
+      description: "Using AI-driven purchase personas, we help institutions deliver rewards, offers, and content that resonate with each customer's unique lifestyle and spending habits."
     },
     {
-      icon: Shield,
-      title: "Enterprise Security",
-      description: "Bank-grade encryption, SOC 2 compliance, and zero-knowledge architecture ensure your data remains protected at all times."
+      icon: Users,
+      title: "Holistic Customer Engagement",
+      description: "We enable banks to offer a unified experience—combining rewards, perks, and educational content—in a way that feels seamless and personalized, not like a patchwork of products."
     },
     {
-      icon: BarChart3,
-      title: "Predictive Analytics",
-      description: "Monte Carlo simulations, cash flow projections, and retirement planning tools powered by sophisticated financial modeling."
+      icon: Briefcase,
+      title: "Wealth Management CoPilot",
+      description: "For advisors and wealth managers, Ventus surfaces lifestyle events and behavioral insights that automate administrative tasks and create opportunities for proactive, meaningful client engagement."
     }
   ];
 
@@ -33,11 +33,11 @@ const Technology = () => {
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Our Technology
+              What We Do
             </h1>
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto">
-              Built on cutting-edge AI and cloud infrastructure to deliver 
-              intelligent financial insights at scale.
+              Turn transaction data into actionable consumer intelligence 
+              with our four core capabilities.
             </p>
           </div>
           
@@ -59,28 +59,6 @@ const Technology = () => {
               </div>
             ))}
           </div>
-          
-          <section className="mt-20">
-            <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
-              Platform Architecture
-            </h2>
-            <div className="p-8 rounded-2xl border border-border/50 bg-card">
-              <div className="grid md:grid-cols-3 gap-8 text-center">
-                <div>
-                  <div className="text-4xl font-bold text-primary mb-2">99.9%</div>
-                  <div className="text-foreground/70">Uptime SLA</div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-primary mb-2">&lt;100ms</div>
-                  <div className="text-foreground/70">API Response Time</div>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold text-primary mb-2">50M+</div>
-                  <div className="text-foreground/70">Transactions Processed Daily</div>
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
       </main>
       <Footer />

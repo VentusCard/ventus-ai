@@ -35,11 +35,12 @@ const Hero = () => {
       <div className="max-w-6xl mx-auto px-6 md:px-8 relative z-10 text-center py-2 w-full flex flex-col justify-center h-full">
         {/* Add spacing between navbar and hero content */}
         <div className="flex flex-col items-center justify-center space-y-4 md:space-y-6 pt-8 md:pt-12">
-          {/* Headline with enhanced typography and brushstroke animation */}
+          {/* Headline with enhanced typography */}
           <h1 className="font-sans text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight tracking-tight">
-            <span className="font-bold text-white">Rewards</span>, <span className="relative font-display font-normal italic text-white inline-block">
+            <span className="font-bold text-white">Turn transaction data into</span>{" "}
+            <span className="relative font-display font-normal italic text-white inline-block">
               <span className="relative z-20 animate-[unleashed_2s_ease-out_0.5s_both]">
-                Made Smarter
+                consumer intelligence
               </span>
               {/* Elegant brushstroke with metallic shimmer */}
               <svg className="absolute bottom-0 left-0 w-full h-3 md:h-4 lg:h-5 animate-[brushstroke-draw_1.5s_ease-out_0.5s_both] opacity-90" viewBox="0 0 200 20" preserveAspectRatio="none" style={{
@@ -68,9 +69,9 @@ const Hero = () => {
             </span>
           </h1>
           
-          {/* Enhanced subheading with soft blue-gray tone */}
-          <p className="text-base md:text-lg font-bold text-blue-gray-300 max-w-2xl mx-auto leading-relaxed">
-            AI-powered smart rewards personalized to you
+          {/* Enhanced subheading */}
+          <p className="text-base md:text-lg font-medium text-white/70 max-w-2xl mx-auto leading-relaxed">
+            Beyond basic enrichment—interpreting transaction data to reveal consumer intent, behavior, and life events
           </p>
           
           {/* Video Centerpiece */}
@@ -94,11 +95,11 @@ const Hero = () => {
             <div className="absolute -inset-8 md:-inset-12 bg-gradient-radial from-[hsl(220,50%,8%)]/10 via-[hsl(220,50%,8%)]/30 to-[hsl(220,50%,8%)] opacity-60 blur-3xl -z-10"></div>
           </div>
           
-          {/* Learn More button */}
+          {/* Schedule Demo button */}
           <div className="mt-6 md:mt-8 flex items-center justify-center relative z-30">
             <Link to="/contact">
               <Button size="lg">
-                Learn More
+                Schedule Demo
               </Button>
             </Link>
           </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 
 const Navbar = () => {
@@ -44,18 +45,23 @@ const Navbar = () => {
             className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 px-3 group"
           >
             <span className="relative">
-              Technology
+              What We Do
               <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
             </span>
           </Link>
           <Link 
-            to="/contact"
+            to="/faq"
             className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 px-3 group"
           >
             <span className="relative">
-              Contact
+              FAQ
               <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
             </span>
+          </Link>
+          <Link to="/contact">
+            <Button size="sm">
+              Schedule Demo
+            </Button>
           </Link>
         </div>
         
@@ -95,14 +101,23 @@ const Navbar = () => {
             onClick={closeMobileMenu}
             className="block text-white/90 hover:text-white font-medium text-lg py-3 px-2 transition-all duration-300 border-b border-white/10 hover:bg-white/5 rounded"
           >
-            Technology
+            What We Do
+          </Link>
+          <Link 
+            to="/faq"
+            onClick={closeMobileMenu}
+            className="block text-white/90 hover:text-white font-medium text-lg py-3 px-2 transition-all duration-300 border-b border-white/10 hover:bg-white/5 rounded"
+          >
+            FAQ
           </Link>
           <Link 
             to="/contact"
             onClick={closeMobileMenu}
-            className="block text-white/90 hover:text-white font-medium text-lg py-3 px-2 transition-all duration-300 border-b border-white/10 hover:bg-white/5 rounded"
+            className="block pt-2"
           >
-            Contact
+            <Button className="w-full">
+              Schedule Demo
+            </Button>
           </Link>
         </div>
       </div>
