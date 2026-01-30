@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Target, Plus, Trash2, ExternalLink } from "lucide-react";
 import { FinancialGoal, goalTypeLabels, timeHorizonLabels, getTimeHorizon } from "@/types/financial-planning";
 import { LifeEvent } from "@/types/lifestyle-signals";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 
 interface FinancialGoalsSectionProps {
   goals: FinancialGoal[];

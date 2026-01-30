@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 
 interface ProjectionData {
   year: number;

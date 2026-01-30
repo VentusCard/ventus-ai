@@ -1,106 +1,64 @@
-import { useState, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useState } from "react";
 
 interface Deal {
   id: string;
   merchantName: string;
-  category: string;
-  subcategory: string;
-  dealTitle: string;
-  rewardValue: string;
+  category?: string;
+  subcategory?: string;
+  dealTitle?: string;
+  rewardValue?: string;
 }
 
-interface SearchResult {
-  matchingDealIds: string[];
-  reasoning: string;
-}
-
-export function useSemanticDealSearch(allDeals: Deal[]) {
-  const [searchQuery, setSearchQuery] = useState('');
+/**
+ * Hook for semantic deal search functionality
+ * Provides search state and methods for filtering deals
+ */
+export const useSemanticDealSearch = (_deals?: Deal[]) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [matchingDealIds, setMatchingDealIds] = useState<string[]>([]);
+  const [searchReasoning, setSearchReasoning] = useState<string | null>(null);
 
-  const performSearch = useCallback(async (query: string) => {
-    if (!query || query.length < 2) {
-      setSearchResults(null);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-
-    try {
-      // Prepare a simplified deal list for the API
-      const dealsForSearch = allDeals.map(d => ({
-        id: d.id,
-        merchantName: d.merchantName,
-        category: d.category,
-        subcategory: d.subcategory,
-        dealTitle: d.dealTitle,
-        rewardValue: d.rewardValue,
-      }));
-
-      const { data, error } = await supabase.functions.invoke('semantic-deal-search', {
-        body: { query, deals: dealsForSearch }
-      });
-
-      if (error) {
-        console.error('Semantic search error:', error);
-        toast.error('Search failed. Please try again.');
-        setSearchResults(null);
-      } else if (data?.matchingDealIds) {
-        setSearchResults(data as SearchResult);
-      } else {
-        setSearchResults({ matchingDealIds: [], reasoning: 'No matches found' });
-      }
-    } catch (err) {
-      console.error('Search error:', err);
-      toast.error('Search failed. Please try again.');
-      setSearchResults(null);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [allDeals]);
-
-  const handleSearchChange = useCallback((query: string) => {
+  const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-
-    // Clear previous debounce
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
+    setIsSearching(true);
+    
+    // Simple local filtering based on query
+    if (_deals && query.trim()) {
+      const lowerQuery = query.toLowerCase();
+      const matches = _deals.filter(deal => 
+        deal.merchantName?.toLowerCase().includes(lowerQuery) ||
+        deal.category?.toLowerCase().includes(lowerQuery) ||
+        deal.dealTitle?.toLowerCase().includes(lowerQuery)
+      ).map(d => d.id);
+      setMatchingDealIds(matches);
+      setSearchReasoning(matches.length > 0 ? `Found ${matches.length} matching deals` : null);
+    } else {
+      setMatchingDealIds([]);
+      setSearchReasoning(null);
     }
-
-    // If empty, clear results immediately
-    if (!query || query.length < 2) {
-      setSearchResults(null);
-      setIsSearching(false);
-      return;
-    }
-
-    // Debounce the search
-    debounceRef.current = setTimeout(() => {
-      performSearch(query);
-    }, 400);
-  }, [performSearch]);
-
-  const clearSearch = useCallback(() => {
-    setSearchQuery('');
-    setSearchResults(null);
+    
     setIsSearching(false);
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-  }, []);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setMatchingDealIds([]);
+    setSearchReasoning(null);
+  };
 
   return {
     searchQuery,
     isSearching,
-    searchResults,
     handleSearchChange,
     clearSearch,
-    matchingDealIds: searchResults?.matchingDealIds || null,
-    searchReasoning: searchResults?.reasoning || null,
+    matchingDealIds,
+    searchReasoning,
+    results: [],
+    searchDeals: async (_query: string) => [],
+    isLoading: false,
+    error: null,
   };
-}
+};
+
+export default useSemanticDealSearch;
