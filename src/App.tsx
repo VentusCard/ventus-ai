@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import ContactUs from "./pages/ContactUs";
+import About from "./pages/About";
+import Technology from "./pages/Technology";
 import TePilot from "./pages/TePilot";
 import NotFound from "./pages/NotFound";
 import RecommendationsPage from "./pages/RecommendationsPage";
@@ -24,6 +26,8 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/technology" element={<Technology />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/tepilot" element={<TePilot />} />
           <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />

@@ -31,6 +31,24 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <Link 
+            to="/about"
+            className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 px-3 group"
+          >
+            <span className="relative">
+              About
+              <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+            </span>
+          </Link>
+          <Link 
+            to="/technology"
+            className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 px-3 group"
+          >
+            <span className="relative">
+              Technology
+              <span className="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+            </span>
+          </Link>
+          <Link 
             to="/contact"
             className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 px-3 group"
           >
@@ -65,6 +83,20 @@ const Navbar = () => {
           : 'opacity-0 invisible -translate-y-2'
       }`}>
         <div className="px-4 py-6 space-y-4">
+          <Link 
+            to="/about"
+            onClick={closeMobileMenu}
+            className="block text-white/90 hover:text-white font-medium text-lg py-3 px-2 transition-all duration-300 border-b border-white/10 hover:bg-white/5 rounded"
+          >
+            About
+          </Link>
+          <Link 
+            to="/technology"
+            onClick={closeMobileMenu}
+            className="block text-white/90 hover:text-white font-medium text-lg py-3 px-2 transition-all duration-300 border-b border-white/10 hover:bg-white/5 rounded"
+          >
+            Technology
+          </Link>
           <Link 
             to="/contact"
             onClick={closeMobileMenu}
