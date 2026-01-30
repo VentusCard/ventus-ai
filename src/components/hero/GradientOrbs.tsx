@@ -148,7 +148,144 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
         }}
       />
 
-      {/* Layer 7: Enhanced noise texture for grain */}
+      {/* Layer 7: Animated Trend Lines for "pattern finding" effect */}
+      <svg
+        className="absolute inset-0 w-full h-full opacity-20 transition-transform duration-500 ease-out"
+        viewBox="0 0 1200 600"
+        preserveAspectRatio="xMidYMid slice"
+        style={{
+          transform: `translate(${parallaxX * 0.8}px, ${parallaxY * 0.8}px)`,
+        }}
+      >
+        <defs>
+          <linearGradient id="trend-gradient-1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0" />
+            <stop offset="20%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.6" />
+            <stop offset="50%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0.8" />
+            <stop offset="80%" stopColor="hsl(187, 96%, 42%)" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="hsl(187, 96%, 42%)" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="trend-gradient-2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0" />
+            <stop offset="30%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0.5" />
+            <stop offset="70%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0" />
+          </linearGradient>
+          <filter id="trend-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        
+        {/* Primary trend line - upward momentum */}
+        <path
+          d="M0,400 Q150,380 250,320 T450,280 Q550,250 650,300 T850,220 Q950,180 1050,240 T1200,180"
+          fill="none"
+          stroke="url(#trend-gradient-1)"
+          strokeWidth="2"
+          filter="url(#trend-glow)"
+          className="animate-trend-wave"
+          style={{ strokeDasharray: '1200', strokeDashoffset: '1200' }}
+        >
+          <animate
+            attributeName="stroke-dashoffset"
+            from="1200"
+            to="0"
+            dur="4s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="d"
+            dur="8s"
+            repeatCount="indefinite"
+            values="
+              M0,400 Q150,380 250,320 T450,280 Q550,250 650,300 T850,220 Q950,180 1050,240 T1200,180;
+              M0,380 Q150,340 250,360 T450,300 Q550,320 650,260 T850,280 Q950,220 1050,200 T1200,220;
+              M0,420 Q150,360 250,300 T450,320 Q550,280 650,340 T850,240 Q950,200 1050,260 T1200,200;
+              M0,400 Q150,380 250,320 T450,280 Q550,250 650,300 T850,220 Q950,180 1050,240 T1200,180
+            "
+          />
+        </path>
+        
+        {/* Secondary trend line - discovery pattern */}
+        <path
+          d="M0,480 Q200,440 350,400 T600,360 Q750,320 900,380 T1200,300"
+          fill="none"
+          stroke="url(#trend-gradient-2)"
+          strokeWidth="1.5"
+          filter="url(#trend-glow)"
+          opacity="0.6"
+          style={{ strokeDasharray: '1200', strokeDashoffset: '1200' }}
+        >
+          <animate
+            attributeName="stroke-dashoffset"
+            from="1200"
+            to="0"
+            dur="5s"
+            begin="1s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="d"
+            dur="10s"
+            repeatCount="indefinite"
+            values="
+              M0,480 Q200,440 350,400 T600,360 Q750,320 900,380 T1200,300;
+              M0,460 Q200,420 350,450 T600,380 Q750,400 900,340 T1200,320;
+              M0,500 Q200,460 350,380 T600,400 Q750,340 900,400 T1200,280;
+              M0,480 Q200,440 350,400 T600,360 Q750,320 900,380 T1200,300
+            "
+          />
+        </path>
+        
+        {/* Tertiary subtle line - background depth */}
+        <path
+          d="M0,520 Q300,480 500,440 T800,400 Q1000,360 1200,380"
+          fill="none"
+          stroke="hsl(217, 91%, 60%)"
+          strokeWidth="1"
+          opacity="0.2"
+          style={{ strokeDasharray: '8 12' }}
+        >
+          <animate
+            attributeName="stroke-dashoffset"
+            from="0"
+            to="-40"
+            dur="2s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="d"
+            dur="12s"
+            repeatCount="indefinite"
+            values="
+              M0,520 Q300,480 500,440 T800,400 Q1000,360 1200,380;
+              M0,500 Q300,520 500,460 T800,420 Q1000,380 1200,400;
+              M0,540 Q300,500 500,480 T800,380 Q1000,400 1200,360;
+              M0,520 Q300,480 500,440 T800,400 Q1000,360 1200,380
+            "
+          />
+        </path>
+        
+        {/* Data point markers that pulse along the primary line */}
+        <circle cx="250" cy="320" r="4" fill="hsl(217, 91%, 60%)" filter="url(#trend-glow)">
+          <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="320;360;300;320" dur="8s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="650" cy="300" r="3" fill="hsl(271, 81%, 56%)" filter="url(#trend-glow)">
+          <animate attributeName="opacity" values="0;1;0" dur="4s" begin="1s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="300;260;340;300" dur="8s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="1050" cy="240" r="4" fill="hsl(187, 96%, 42%)" filter="url(#trend-glow)">
+          <animate attributeName="opacity" values="0;1;0" dur="4s" begin="2s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="240;200;260;240" dur="8s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+
+      {/* Layer 8: Enhanced noise texture for grain */}
       <div
         className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
         style={{
