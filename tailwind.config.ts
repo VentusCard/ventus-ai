@@ -168,21 +168,44 @@ export default {
 				'66%': { transform: 'translateY(-4px) rotate(-0.5deg)' }
 			},
 			'float-slow': {
-				'0%, 100%': { transform: 'translateY(0px)' },
-				'50%': { transform: 'translateY(-15px)' }
+				'0%, 100%': { transform: 'translateY(0px) translateX(0px)' },
+				'25%': { transform: 'translateY(-12px) translateX(5px)' },
+				'50%': { transform: 'translateY(-20px) translateX(0px)' },
+				'75%': { transform: 'translateY(-12px) translateX(-5px)' }
 			},
 			'pulse-glow': {
-				'0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
-				'50%': { opacity: '1', transform: 'scale(1.1)' }
+				'0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+				'50%': { opacity: '1', transform: 'scale(1.15)' }
 			},
 			'draw-line': {
 				'0%': { strokeDashoffset: '200', opacity: '0' },
-				'20%': { opacity: '1' },
+				'15%': { opacity: '0.5' },
 				'100%': { strokeDashoffset: '0', opacity: '1' }
 			},
 			'fade-float': {
-				'0%': { opacity: '0', transform: 'translateY(20px)' },
+				'0%': { opacity: '0', transform: 'translateY(30px)' },
 				'100%': { opacity: '1', transform: 'translateY(0)' }
+			},
+			'ripple': {
+				'0%': { transform: 'scale(0.8)', opacity: '0.6' },
+				'50%': { transform: 'scale(1.5)', opacity: '0.3' },
+				'100%': { transform: 'scale(2)', opacity: '0' }
+			},
+			'particle-drift': {
+				'0%, 100%': { transform: 'translateY(0) translateX(0)', opacity: '0.2' },
+				'25%': { transform: 'translateY(-30px) translateX(15px)', opacity: '0.5' },
+				'50%': { transform: 'translateY(-50px) translateX(-10px)', opacity: '0.3' },
+				'75%': { transform: 'translateY(-20px) translateX(20px)', opacity: '0.5' }
+			},
+			'morph-slow': {
+				'0%, 100%': { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', transform: 'rotate(0deg) scale(1)' },
+				'25%': { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%', transform: 'rotate(5deg) scale(1.05)' },
+				'50%': { borderRadius: '50% 60% 30% 60% / 30% 70% 50% 60%', transform: 'rotate(-5deg) scale(0.98)' },
+				'75%': { borderRadius: '60% 40% 60% 40% / 70% 30% 50% 60%', transform: 'rotate(3deg) scale(1.02)' }
+			},
+			'color-shift': {
+				'0%, 100%': { backgroundPosition: '0% 50%' },
+				'50%': { backgroundPosition: '100% 50%' }
 			},
 				'bounce': {
 					'0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },
@@ -224,10 +247,14 @@ export default {
 			// Movement Animations
 			'float': 'float 6s ease-in-out infinite',
 			'bounce': 'bounce 4s ease-in-out infinite',
-			'float-slow': 'float-slow 10s ease-in-out infinite',
-			'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
-			'draw-line': 'draw-line 1.5s ease-out forwards',
-			'fade-float': 'fade-float 0.8s ease-out forwards',
+			'float-slow': 'float-slow 12s ease-in-out infinite',
+			'pulse-glow': 'pulse-glow 4s ease-in-out infinite',
+			'draw-line': 'draw-line 2s ease-out forwards',
+			'fade-float': 'fade-float 1s ease-out forwards',
+			'ripple': 'ripple 3s ease-out infinite',
+			'particle-drift': 'particle-drift 20s ease-in-out infinite',
+			'morph-slow': 'morph-slow 15s ease-in-out infinite',
+			'color-shift': 'color-shift 10s ease-in-out infinite',
 
 			// Effect Animations
 			'shimmer': 'shimmer 3s ease-in-out infinite',
