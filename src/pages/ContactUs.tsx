@@ -35,7 +35,7 @@ ${message}
 Best regards,
 ${name}
     `.trim();
-    const mailtoLink = `mailto:hello@ventusai.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    const mailtoLink = `mailto:info@ventusai.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     const link = document.createElement('a');
     link.href = mailtoLink;
     link.style.display = 'none';
@@ -60,7 +60,7 @@ ${name}
             <CardHeader className="text-center p-4 md:p-6">
               <CardTitle className="text-xl md:text-2xl font-bold text-foreground">Send us a Message</CardTitle>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                Fill out the form below to contact us at hello@ventusai.com and we'll get back to you within one business day!
+                Fill out the form below to contact us at info@ventusai.com and we'll get back to you within one business day!
               </p>
             </CardHeader>
             <CardContent className="p-4 md:p-6">
@@ -102,7 +102,7 @@ ${name}
                 <CheckCircle className="w-12 h-12 md:w-16 md:h-16 text-green-400 mx-auto mb-4" />
                 <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">Email Client Opened</h3>
                 <p className="text-sm md:text-base text-muted-foreground mb-6 leading-relaxed">
-                  Your default email client should open with the pre-filled message. It may not open if you do not have a default email client set up, you can always reach out to us directly at hello@ventusai.com.
+                  Your default email client should open with the pre-filled message. It may not open if you do not have a default email client set up, you can always reach out to us directly at info@ventusai.com.
                 </p>
                 <Button onClick={handleCloseOverlay} className="h-12 px-6 text-base min-w-[120px]">
                   Close
