@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { DollarSign } from "lucide-react";
 import { ExpenseCategory } from "@/types/financial-planning";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 
 interface IncomeExpenseEditorProps {
   monthlyIncome: number;

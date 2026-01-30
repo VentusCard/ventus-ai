@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Sunset, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
 import { RetirementProfile } from "@/types/financial-planning";
-import { formatCurrency } from "@/components/onboarding/step-three/FormatHelper";
+import { formatCurrency } from "@/lib/formatHelper";
 import { useMemo } from "react";
 
 interface RetirementPlanningSectionProps {
