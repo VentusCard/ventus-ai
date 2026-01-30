@@ -8,9 +8,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-xl font-bold tracking-wide mb-4 text-foreground">VENTUS CARD</h3>
+            <h3 className="text-xl font-bold tracking-wide mb-4 text-foreground">VENTUS AI</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              AI Powered Personalized Smart Rewards that Move with You. No Matter the Category
+              Intelligent Financial Technology. AI-Powered Insights for Modern Banking.
             </p>
           </div>
 
