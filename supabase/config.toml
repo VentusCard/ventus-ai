@@ -1,21 +1,9 @@
 project_id = "theaknjrmfsyauxxvhmk"
 
-[functions.search-deals]
-verify_jwt = true
-
-[functions.generate-city-deals]
-verify_jwt = false
-
 [functions.classify-transactions]
 verify_jwt = false
 
 [functions.travel-detection]
-verify_jwt = false
-
-[functions.send-feedback]
-verify_jwt = false
-
-[functions.generate-partner-recommendations]
 verify_jwt = false
 
 [functions.parse-bank-statement-pdf]
@@ -28,7 +16,4 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.analyze-pillar-transactions]
-verify_jwt = false
-
-[functions.semantic-deal-search]
 verify_jwt = false

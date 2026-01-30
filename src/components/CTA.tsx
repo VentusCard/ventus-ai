@@ -15,9 +15,9 @@ const CTA = () => {
               Join the waitlist today and elevate your financial experience with premium benefits and rewards designed for your lifestyle.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/smartrewards">
+              <Link to="/contact">
                 <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-                  Join Waitlist
+                  Contact Us
                 </Button>
               </Link>
             </div>
