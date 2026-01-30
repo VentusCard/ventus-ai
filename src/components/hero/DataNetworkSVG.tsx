@@ -74,7 +74,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
 
   return (
     <svg
-      className="absolute inset-0 w-full h-full opacity-50 transition-transform duration-100 ease-out"
+      className="absolute inset-0 w-full h-full opacity-80 transition-transform duration-100 ease-out"
       viewBox="0 0 700 320"
       preserveAspectRatio="xMidYMid slice"
       style={{
@@ -105,16 +105,16 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
 
         {/* Gradient for primary connection lines */}
         <linearGradient id="line-gradient-primary" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4" />
+          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.7" />
+          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="1.0" />
+          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.7" />
         </linearGradient>
 
         {/* Gradient for secondary connection lines */}
         <linearGradient id="line-gradient-secondary" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
-          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.15" />
+          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
+          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4" />
         </linearGradient>
 
         {/* Gradient for data pulses */}
@@ -145,7 +145,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
       </defs>
 
       {/* Background grid pattern (very subtle) */}
-      <g className="opacity-10">
+      <g className="opacity-20">
         {Array.from({ length: 15 }).map((_, i) => (
           <line
             key={`grid-h-${i}`}
@@ -171,7 +171,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
       </g>
 
       {/* Secondary connections (drawn first, appear behind) */}
-      <g className="opacity-40">
+      <g className="opacity-70">
         {secondaryConnections.map((line, i) => (
           <line
             key={`sec-line-${i}`}
@@ -266,7 +266,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             cy={node.cy}
             r={node.r}
             fill="#94a3b8"
-            opacity="0.4"
+            opacity="0.7"
             className="animate-pulse-glow"
             style={{ animationDelay: node.delay }}
           />
@@ -301,7 +301,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
               strokeWidth="1"
               className="animate-pulse-glow"
               style={{ animationDelay: node.delay }}
-              opacity="0.3"
+              opacity="0.6"
             />
             {/* Inner glow */}
             <circle
@@ -310,7 +310,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
               r={node.r * 1.5}
               fill={`url(#${gradient})`}
               filter="url(#node-glow)"
-              opacity="0.5"
+              opacity="0.8"
             />
             {/* Core node */}
             <circle
@@ -339,7 +339,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             animationDelay: `${i * 0.3}s`,
             animationDuration: `${15 + (i % 10)}s`,
           }}
-          opacity={0.2 + (i % 5) * 0.1}
+          opacity={0.4 + (i % 5) * 0.12}
         />
       ))}
     </svg>
