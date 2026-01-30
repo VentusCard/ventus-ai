@@ -6,19 +6,19 @@ interface GradientOrbsProps {
 const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Layer 1: Animated Conic Gradient Mesh Base */}
+      {/* Layer 1: Animated Conic Gradient Mesh Base - black base with colored accents */}
       <div 
-        className="absolute inset-0 animate-gradient-rotate opacity-40"
+        className="absolute inset-0 animate-gradient-rotate opacity-60"
         style={{
           background: `
             conic-gradient(from 0deg at 30% 30%, 
-              hsl(220, 70%, 20%) 0deg,
-              hsl(260, 60%, 25%) 60deg,
-              hsl(200, 80%, 25%) 120deg,
-              hsl(280, 50%, 20%) 180deg,
-              hsl(210, 70%, 22%) 240deg,
-              hsl(250, 60%, 23%) 300deg,
-              hsl(220, 70%, 20%) 360deg
+              hsl(0, 0%, 0%) 0deg,
+              hsl(220, 70%, 15%) 60deg,
+              hsl(0, 0%, 0%) 120deg,
+              hsl(260, 60%, 18%) 180deg,
+              hsl(0, 0%, 0%) 240deg,
+              hsl(200, 80%, 15%) 300deg,
+              hsl(0, 0%, 0%) 360deg
             )
           `,
           filter: 'blur(80px)',
@@ -26,17 +26,17 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
         }}
       />
       
-      {/* Layer 1b: Second rotating gradient (opposite direction) */}
+      {/* Layer 1b: Second rotating gradient (opposite direction) - black base */}
       <div 
-        className="absolute inset-0 animate-gradient-rotate-reverse opacity-35 mix-blend-screen"
+        className="absolute inset-0 animate-gradient-rotate-reverse opacity-50 mix-blend-screen"
         style={{
           background: `
             conic-gradient(from 180deg at 70% 70%, 
-              hsl(280, 60%, 25%) 0deg,
-              hsl(200, 70%, 30%) 90deg,
-              hsl(320, 50%, 25%) 180deg,
-              hsl(240, 60%, 28%) 270deg,
-              hsl(280, 60%, 25%) 360deg
+              hsl(0, 0%, 0%) 0deg,
+              hsl(280, 60%, 18%) 90deg,
+              hsl(0, 0%, 0%) 180deg,
+              hsl(200, 70%, 20%) 270deg,
+              hsl(0, 0%, 0%) 360deg
             )
           `,
           filter: 'blur(100px)',
