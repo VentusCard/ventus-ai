@@ -80,95 +80,29 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
         }}
       />
 
-      {/* Layer 3: Aurora SVG Ribbons */}
-      <svg 
-        className="absolute inset-0 w-full h-full opacity-20"
-        viewBox="0 0 1920 1080" 
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <defs>
-          {/* Aurora gradient definitions */}
-          <linearGradient id="aurora-gradient-1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0" />
-            <stop offset="20%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0.8" />
-            <stop offset="80%" stopColor="hsl(187, 96%, 42%)" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="hsl(187, 96%, 42%)" stopOpacity="0" />
-          </linearGradient>
-          
-          <linearGradient id="aurora-gradient-2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0" />
-            <stop offset="30%" stopColor="hsl(330, 70%, 50%)" stopOpacity="0.5" />
-            <stop offset="70%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0" />
-          </linearGradient>
-          
-          <linearGradient id="aurora-gradient-3" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(187, 96%, 42%)" stopOpacity="0" />
-            <stop offset="40%" stopColor="hsl(187, 96%, 42%)" stopOpacity="0.4" />
-            <stop offset="60%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="hsl(271, 81%, 56%)" stopOpacity="0" />
-          </linearGradient>
-          
-          {/* Glow filter for aurora */}
-          <filter id="aurora-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="20" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        
-        {/* Aurora ribbon 1 - top flowing */}
-        <path
-          d="M-100,200 Q300,100 600,250 T1200,180 T1800,280 T2100,200"
-          fill="none"
-          stroke="url(#aurora-gradient-1)"
-          strokeWidth="120"
-          strokeLinecap="round"
-          filter="url(#aurora-glow)"
-          className="animate-aurora-wave"
-          style={{ 
-            transformOrigin: 'center',
-            willChange: 'transform',
-          }}
-        />
-        
-        {/* Aurora ribbon 2 - middle flowing */}
-        <path
-          d="M-200,500 Q200,400 500,550 T1100,450 T1700,550 T2200,480"
-          fill="none"
-          stroke="url(#aurora-gradient-2)"
-          strokeWidth="100"
-          strokeLinecap="round"
-          filter="url(#aurora-glow)"
-          className="animate-aurora-wave"
-          style={{ 
-            animationDelay: '3s',
-            animationDuration: '12s',
-            transformOrigin: 'center',
-            willChange: 'transform',
-          }}
-        />
-        
-        {/* Aurora ribbon 3 - bottom flowing */}
-        <path
-          d="M-150,800 Q350,700 700,850 T1300,750 T1900,880 T2200,800"
-          fill="none"
-          stroke="url(#aurora-gradient-3)"
-          strokeWidth="80"
-          strokeLinecap="round"
-          filter="url(#aurora-glow)"
-          className="animate-aurora-wave"
-          style={{ 
-            animationDelay: '6s',
-            animationDuration: '10s',
-            transformOrigin: 'center',
-            willChange: 'transform',
-          }}
-        />
-      </svg>
+      {/* Layer 3: Soft gradient clouds instead of wavy lines */}
+      <div
+        className="absolute top-0 left-1/4 w-[900px] h-[400px] animate-float-slow opacity-20 transition-transform duration-700 ease-out"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, hsl(217, 91%, 60%) 0%, hsl(271, 81%, 56%) 40%, transparent 70%)',
+          filter: 'blur(80px)',
+          mixBlendMode: 'screen',
+          transform: `translate(${parallaxX * 1.8}px, ${parallaxY * 1.8}px)`,
+          willChange: 'transform',
+        }}
+      />
+      
+      <div
+        className="absolute bottom-1/4 right-1/3 w-[700px] h-[350px] animate-float-slow opacity-15 transition-transform duration-700 ease-out"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, hsl(217, 91%, 60%) 45%, transparent 70%)',
+          filter: 'blur(70px)',
+          mixBlendMode: 'screen',
+          animationDelay: '4s',
+          transform: `translate(${-parallaxX * 2}px, ${-parallaxY * 2}px)`,
+          willChange: 'transform',
+        }}
+      />
 
       {/* Layer 4: Moving Spotlight - mouse responsive */}
       <div
