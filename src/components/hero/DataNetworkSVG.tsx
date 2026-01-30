@@ -33,20 +33,20 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
 
   // Primary connections - straight lines with looping draw animation
   const primaryConnections = [
-    { x1: 80, y1: 120, x2: 180, y2: 80, dur: "3s", delay: "0s" },
-    { x1: 180, y1: 80, x2: 280, y2: 140, dur: "3.5s", delay: "0.2s" },
-    { x1: 180, y1: 80, x2: 150, y2: 200, dur: "4s", delay: "0.4s" },
-    { x1: 280, y1: 140, x2: 350, y2: 100, dur: "3.2s", delay: "0.3s" },
-    { x1: 280, y1: 140, x2: 320, y2: 240, dur: "4.5s", delay: "0.5s" },
-    { x1: 350, y1: 100, x2: 420, y2: 180, dur: "3s", delay: "0.6s" },
-    { x1: 350, y1: 100, x2: 480, y2: 120, dur: "3.8s", delay: "0.1s" },
-    { x1: 420, y1: 180, x2: 520, y2: 200, dur: "3.3s", delay: "0.7s" },
-    { x1: 480, y1: 120, x2: 600, y2: 140, dur: "4s", delay: "0.2s" },
-    { x1: 520, y1: 200, x2: 600, y2: 140, dur: "3.5s", delay: "0.8s" },
-    { x1: 600, y1: 140, x2: 650, y2: 80, dur: "3.2s", delay: "0.4s" },
-    { x1: 50, y1: 220, x2: 80, y2: 120, dur: "4.2s", delay: "0.3s" },
-    { x1: 50, y1: 220, x2: 150, y2: 200, dur: "3.6s", delay: "0.5s" },
-    { x1: 320, y1: 240, x2: 420, y2: 180, dur: "3s", delay: "0.6s" },
+    { x1: 80, y1: 120, x2: 180, y2: 80, dur: "5s", delay: "0s" },
+    { x1: 180, y1: 80, x2: 280, y2: 140, dur: "5.5s", delay: "0.3s" },
+    { x1: 180, y1: 80, x2: 150, y2: 200, dur: "6s", delay: "0.6s" },
+    { x1: 280, y1: 140, x2: 350, y2: 100, dur: "5.2s", delay: "0.5s" },
+    { x1: 280, y1: 140, x2: 320, y2: 240, dur: "6.5s", delay: "0.8s" },
+    { x1: 350, y1: 100, x2: 420, y2: 180, dur: "5s", delay: "1s" },
+    { x1: 350, y1: 100, x2: 480, y2: 120, dur: "5.8s", delay: "0.2s" },
+    { x1: 420, y1: 180, x2: 520, y2: 200, dur: "5.3s", delay: "1.1s" },
+    { x1: 480, y1: 120, x2: 600, y2: 140, dur: "6s", delay: "0.4s" },
+    { x1: 520, y1: 200, x2: 600, y2: 140, dur: "5.5s", delay: "1.2s" },
+    { x1: 600, y1: 140, x2: 650, y2: 80, dur: "5.2s", delay: "0.6s" },
+    { x1: 50, y1: 220, x2: 80, y2: 120, dur: "6.2s", delay: "0.5s" },
+    { x1: 50, y1: 220, x2: 150, y2: 200, dur: "5.6s", delay: "0.8s" },
+    { x1: 320, y1: 240, x2: 420, y2: 180, dur: "5s", delay: "1s" },
   ];
 
   // Secondary connections (fainter)
@@ -63,13 +63,13 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
 
   // Data pulse paths (subset of connections for animated pulses)
   const pulsePaths = [
-    { x1: 80, y1: 120, x2: 180, y2: 80, duration: "2s", delay: "0s" },
-    { x1: 180, y1: 80, x2: 280, y2: 140, duration: "2.5s", delay: "0.5s" },
-    { x1: 280, y1: 140, x2: 350, y2: 100, duration: "2s", delay: "1s" },
-    { x1: 350, y1: 100, x2: 480, y2: 120, duration: "2.2s", delay: "1.5s" },
-    { x1: 480, y1: 120, x2: 600, y2: 140, duration: "2s", delay: "2s" },
-    { x1: 150, y1: 200, x2: 320, y2: 240, duration: "3s", delay: "0.8s" },
-    { x1: 420, y1: 180, x2: 520, y2: 200, duration: "2.5s", delay: "1.2s" },
+    { x1: 80, y1: 120, x2: 180, y2: 80, duration: "3.5s", delay: "0s" },
+    { x1: 180, y1: 80, x2: 280, y2: 140, duration: "4s", delay: "0.8s" },
+    { x1: 280, y1: 140, x2: 350, y2: 100, duration: "3.5s", delay: "1.6s" },
+    { x1: 350, y1: 100, x2: 480, y2: 120, duration: "3.8s", delay: "2.4s" },
+    { x1: 480, y1: 120, x2: 600, y2: 140, duration: "3.5s", delay: "3.2s" },
+    { x1: 150, y1: 200, x2: 320, y2: 240, duration: "4.5s", delay: "1.2s" },
+    { x1: 420, y1: 180, x2: 520, y2: 200, duration: "4s", delay: "2s" },
   ];
 
   return (
@@ -336,8 +336,8 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
           fill="#94a3b8"
           className="animate-particle-drift"
           style={{
-            animationDelay: `${i * 0.3}s`,
-            animationDuration: `${15 + (i % 10)}s`,
+            animationDelay: `${i * 0.5}s`,
+            animationDuration: `${22 + (i % 10)}s`,
           }}
           opacity={0.4 + (i % 5) * 0.12}
         />
