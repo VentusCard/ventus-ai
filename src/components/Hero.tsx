@@ -1,42 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import DataNetworkSVG from "@/components/hero/DataNetworkSVG";
+import GradientOrbs from "@/components/hero/GradientOrbs";
 
 const Hero = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && videoRef.current) {
-          videoRef.current.play();
-        } else if (videoRef.current) {
-          videoRef.current.pause();
-        }
-      });
-    }, {
-      threshold: 0.5
-    });
-
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   return (
     <div id="hero" className="relative bg-[hsl(220,50%,8%)] text-white flex items-center justify-center overflow-hidden min-h-screen pt-20">
-      {/* Seamless gradient overlay for smooth transition to footer */}
+      {/* Gradient Orbs Background */}
+      <GradientOrbs />
+      
+      {/* Data Network Visualization */}
+      <div className="absolute inset-0 z-0">
+        <DataNetworkSVG />
+      </div>
+
+      {/* Seamless gradient overlay for smooth transition */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-[hsl(220,50%,8%)]/80 to-[hsl(220,50%,8%)] z-0 pointer-events-none"></div>
       
       <div className="max-w-6xl mx-auto px-6 md:px-8 relative z-10 text-center py-2 w-full flex flex-col justify-center h-full">
-        {/* Add spacing between navbar and hero content */}
+        {/* Content container with staggered animations */}
         <div className="flex flex-col items-center justify-center space-y-4 md:space-y-6 pt-8 md:pt-12">
           {/* Headline with enhanced typography */}
-          <h1 className="font-sans text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight tracking-tight">
+          <h1 
+            className="font-sans text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight tracking-tight animate-fade-float"
+            style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+          >
             <span className="font-bold text-white">Turn transaction data into</span>{" "}
             <span className="relative font-display font-normal italic text-white inline-block">
               <span className="relative z-20 animate-[unleashed_2s_ease-out_0.5s_both]">
@@ -70,33 +58,18 @@ const Hero = () => {
           </h1>
           
           {/* Enhanced subheading */}
-          <p className="text-base md:text-lg font-medium text-white/70 max-w-2xl mx-auto leading-relaxed">
+          <p 
+            className="text-base md:text-lg font-medium text-white/70 max-w-2xl mx-auto leading-relaxed animate-fade-float"
+            style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+          >
             Beyond basic enrichment—interpreting transaction data to reveal consumer intent, behavior, and life events
           </p>
           
-          {/* Video Centerpiece */}
-          <div className="relative w-full max-w-2xl md:max-w-3xl mx-auto transform scale-60 md:scale-65 lg:scale-70 transition-all duration-700 ease-out">
-            <div className="relative aspect-video overflow-hidden">
-              {/* Enhanced gradient overlays for seamless blending */}
-              <div className="absolute inset-0 z-10 pointer-events-none">
-                <div className="absolute top-0 left-0 right-0 h-8 md:h-12 bg-gradient-to-b from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/60 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-12 md:h-16 bg-gradient-to-t from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/80 to-transparent"></div>
-                <div className="absolute top-0 bottom-0 left-0 w-8 md:w-12 bg-gradient-to-r from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/60 to-transparent"></div>
-                <div className="absolute top-0 bottom-0 right-0 w-8 md:w-12 bg-gradient-to-l from-[hsl(220,50%,8%)] via-[hsl(220,50%,8%)]/60 to-transparent"></div>
-                <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-[hsl(220,50%,8%)]/20"></div>
-              </div>
-              
-              <video ref={videoRef} className="w-full h-full object-cover opacity-90" autoPlay muted loop playsInline preload="auto">
-                <source src="https://github.com/rojchen98/ventuscard/raw/refs/heads/main/Gen-4%20A%20premium%20credit%20card%20named%20Ventus%20Card%20is%20displayed%20in%20the%20center%20of%20the%20frame%20against%20a%20smooth%20black%20background%20The%20card%20has%20a%20sleek%20marbled%20design%20in%20deep%20shades%20of%20blue,%20indigo,%20and%20violet,%20(6).mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            
-            <div className="absolute -inset-8 md:-inset-12 bg-gradient-radial from-[hsl(220,50%,8%)]/10 via-[hsl(220,50%,8%)]/30 to-[hsl(220,50%,8%)] opacity-60 blur-3xl -z-10"></div>
-          </div>
-          
           {/* Schedule Demo button */}
-          <div className="mt-6 md:mt-8 flex items-center justify-center relative z-30">
+          <div 
+            className="mt-6 md:mt-8 flex items-center justify-center relative z-30 animate-fade-float"
+            style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
+          >
             <Link to="/contact">
               <Button size="lg">
                 Schedule Demo
