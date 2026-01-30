@@ -207,26 +207,59 @@ export default {
 				'0%, 100%': { backgroundPosition: '0% 50%' },
 				'50%': { backgroundPosition: '100% 50%' }
 			},
-				'bounce': {
-					'0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },
-					'40%': { transform: 'translateY(-8px)' },
-					'60%': { transform: 'translateY(-4px)' }
-				},
-
-				// Effect Animations
-				'shimmer': {
-					'0%, 100%': { filter: 'brightness(1) contrast(1)' },
-					'50%': { filter: 'brightness(1.2) contrast(1.1)' }
-				},
-				'metallic-shimmer': {
-					'0%': { backgroundPosition: '-200% 0' },
-					'100%': { backgroundPosition: '200% 0' }
-				},
-				'premium-glow': {
-					'0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)' },
-					'50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.25)' }
-				}
+			'bounce': {
+				'0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },
+				'40%': { transform: 'translateY(-8px)' },
+				'60%': { transform: 'translateY(-4px)' }
 			},
+
+			// Gradient Background Animations
+			'gradient-rotate': {
+				'0%': { transform: 'rotate(0deg) scale(1.5)' },
+				'100%': { transform: 'rotate(360deg) scale(1.5)' }
+			},
+			'gradient-rotate-reverse': {
+				'0%': { transform: 'rotate(360deg) scale(1.6)' },
+				'100%': { transform: 'rotate(0deg) scale(1.6)' }
+			},
+			'aurora-wave': {
+				'0%': { transform: 'translateY(0px) translateX(0px)' },
+				'25%': { transform: 'translateY(-30px) translateX(20px)' },
+				'50%': { transform: 'translateY(10px) translateX(-10px)' },
+				'75%': { transform: 'translateY(-20px) translateX(15px)' },
+				'100%': { transform: 'translateY(0px) translateX(0px)' }
+			},
+			'spotlight-wander': {
+				'0%': { transform: 'translate(-50%, -50%) translate(0px, 0px)' },
+				'25%': { transform: 'translate(-50%, -50%) translate(100px, -80px)' },
+				'50%': { transform: 'translate(-50%, -50%) translate(-60px, 100px)' },
+				'75%': { transform: 'translate(-50%, -50%) translate(80px, 60px)' },
+				'100%': { transform: 'translate(-50%, -50%) translate(0px, 0px)' }
+			},
+			'mesh-breathe': {
+				'0%, 100%': { transform: 'scale(1)', opacity: '0.4' },
+				'50%': { transform: 'scale(1.15)', opacity: '0.25' }
+			},
+			'hue-dance': {
+				'0%': { filter: 'hue-rotate(0deg)' },
+				'50%': { filter: 'hue-rotate(30deg)' },
+				'100%': { filter: 'hue-rotate(0deg)' }
+			},
+
+			// Effect Animations
+			'shimmer': {
+				'0%, 100%': { filter: 'brightness(1) contrast(1)' },
+				'50%': { filter: 'brightness(1.2) contrast(1.1)' }
+			},
+			'metallic-shimmer': {
+				'0%': { backgroundPosition: '-200% 0' },
+				'100%': { backgroundPosition: '200% 0' }
+			},
+			'premium-glow': {
+				'0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)' },
+				'50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.25)' }
+			}
+		},
 
 			// Animations
 			animation: {
@@ -256,12 +289,20 @@ export default {
 			'morph-slow': 'morph-slow 15s ease-in-out infinite',
 			'color-shift': 'color-shift 10s ease-in-out infinite',
 
-			// Effect Animations
-			'shimmer': 'shimmer 3s ease-in-out infinite',
-			'metallic-shimmer': 'metallic-shimmer 2s infinite',
-			'premium-glow': 'premium-glow 3s ease-in-out infinite'
-			}
+		// Effect Animations
+		'shimmer': 'shimmer 3s ease-in-out infinite',
+		'metallic-shimmer': 'metallic-shimmer 2s infinite',
+		'premium-glow': 'premium-glow 3s ease-in-out infinite',
+
+		// Gradient Background Animations
+		'gradient-rotate': 'gradient-rotate 20s linear infinite',
+		'gradient-rotate-reverse': 'gradient-rotate-reverse 25s linear infinite',
+		'aurora-wave': 'aurora-wave 8s ease-in-out infinite',
+		'spotlight-wander': 'spotlight-wander 25s ease-in-out infinite',
+		'mesh-breathe': 'mesh-breathe 10s ease-in-out infinite',
+		'hue-dance': 'hue-dance 30s ease-in-out infinite'
 		}
-	},
-	plugins: [require("tailwindcss-animate")],
+	}
+},
+plugins: [require("tailwindcss-animate")],
 } satisfies Config;
