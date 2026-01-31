@@ -271,8 +271,9 @@ Deno.serve(async (req) => {
           }));
 
           let travelUpdates: any[] = [];
-          const PRIMARY_MODEL = "google/gemini-2.5-flash";
-          const BACKUP_MODEL = "openai/gpt-5-mini";
+          // Use OpenAI as primary (reliable forced tool calls), Gemini as backup
+          const PRIMARY_MODEL = "openai/gpt-5-mini";
+          const BACKUP_MODEL = "google/gemini-2.5-flash";
 
           // Try primary model first
           try {
@@ -282,14 +283,20 @@ Deno.serve(async (req) => {
             console.warn(`[Travel Detection] Primary model (${PRIMARY_MODEL}) failed:`, primaryError.message);
           }
 
-          // Retry with backup model if primary failed or returned no results
-          if (travelUpdates.length === 0) {
+          // Retry with backup model if primary failed or returned insufficient results
+          // Consider "insufficient" if we got less than 10% of expected responses
+          const insufficientResults = travelUpdates.length < Math.max(1, Math.floor(transactionSummary.length * 0.1));
+          if (travelUpdates.length === 0 || insufficientResults) {
             console.log(`[Travel Detection] Retrying with backup model (${BACKUP_MODEL})...`);
-            sendEvent("status", { message: "Retrying with backup AI model..." });
+            sendEvent("status", { message: "Enhancing travel analysis..." });
 
             try {
-              travelUpdates = await callTravelDetectionAI(BACKUP_MODEL, transactionSummary, homeZip);
-              console.log(`[Travel Detection] Backup model returned ${travelUpdates.length} updates`);
+              const backupUpdates = await callTravelDetectionAI(BACKUP_MODEL, transactionSummary, homeZip);
+              console.log(`[Travel Detection] Backup model returned ${backupUpdates.length} updates`);
+              // Use backup if it returned more results
+              if (backupUpdates.length > travelUpdates.length) {
+                travelUpdates = backupUpdates;
+              }
             } catch (backupError: any) {
               console.error(`[Travel Detection] Backup model (${BACKUP_MODEL}) also failed:`, backupError.message);
             }
