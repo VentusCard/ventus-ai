@@ -1,9 +1,29 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  "https://ventuscard.com",
+  "https://ventusai.com",
+  /^https:\/\/.*\.ventusai\.com$/,
+  /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.lovable\.dev$/,
+  /^https:\/\/.*\.lovableproject\.com$/,
+  /^https:\/\/.*\.amplifyapp\.com$/,
+  /^http:\/\/localhost:\d+$/,
+];
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const isAllowed =
+    origin &&
+    ALLOWED_ORIGINS.some((allowed) => (typeof allowed === "string" ? allowed === origin : allowed.test(origin)));
+
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin! : "",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
+
+const corsHeaders = getCorsHeaders(null); // Fallback for non-request contexts
 
 // ============================================================================
 // STATE SALES TAX CONFIGURATION
@@ -378,6 +398,8 @@ interface UserPersona {
 // ============================================================================
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -570,9 +592,9 @@ RESPOND WITH JSON ONLY:
         }),
         signal: controller.signal,
       });
-    } catch (fetchError) {
+    } catch (fetchError: unknown) {
       clearTimeout(timeoutId);
-      if (fetchError.name === 'AbortError') {
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         return new Response(
           JSON.stringify({ error: 'AI analysis timed out.' }),
           { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -702,7 +724,7 @@ RESPOND WITH JSON ONLY:
         console.error('Could not repair JSON, returning fallback response');
         result = {
           pillar_analyses: pillars.map(p => ({
-            pillar_name: p.pillarName,
+            pillar_name: p.pillar,
             total_spend: p.totalSpend,
             transaction_count: p.transactions.length,
             transactions: p.transactions.slice(0, 3).map(t => ({
