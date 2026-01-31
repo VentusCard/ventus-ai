@@ -132,12 +132,35 @@ const TRAVEL_DETECTION_TOOL = [
 async function callTravelDetectionAI(model: string, transactionSummary: any[], homeZip: string): Promise<any[]> {
   console.log(`[Travel Detection] Calling AI with model: ${model}`);
 
-  // Use correct token parameter based on model type
-  // OpenAI GPT-5 models require max_completion_tokens and need more tokens for reasoning
   const isOpenAI = model.startsWith("openai/");
+  const isGemini = model.startsWith("google/");
+  
+  // Use correct token parameter based on model type
   const tokenParam = isOpenAI
-    ? { max_completion_tokens: 16000 } // Higher limit for reasoning + output
+    ? { max_completion_tokens: 16000 }
     : { max_tokens: 4000 };
+
+  // Build request body - Gemini doesn't support forced tool_choice well
+  const requestBody: any = {
+    model,
+    ...tokenParam,
+    messages: [
+      { role: "system", content: TRAVEL_DETECTION_PROMPT.replace("{homeZip}", homeZip) },
+      {
+        role: "user",
+        content: `Analyze these PRE-FILTERED travel candidates and call detect_travel_patterns with your results:\n\n${JSON.stringify(transactionSummary, null, 2)}`,
+      },
+    ],
+    tools: TRAVEL_DETECTION_TOOL,
+  };
+
+  // Only use forced tool_choice for OpenAI models
+  if (isOpenAI) {
+    requestBody.tool_choice = { type: "function", function: { name: "detect_travel_patterns" } };
+  } else if (isGemini) {
+    // For Gemini, use "auto" mode but strongly hint in the prompt
+    requestBody.tool_choice = "auto";
+  }
 
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -145,19 +168,7 @@ async function callTravelDetectionAI(model: string, transactionSummary: any[], h
       "Content-Type": "application/json",
       Authorization: `Bearer ${LOVABLE_API_KEY}`,
     },
-    body: JSON.stringify({
-      model,
-      ...tokenParam,
-      messages: [
-        { role: "system", content: TRAVEL_DETECTION_PROMPT.replace("{homeZip}", homeZip) },
-        {
-          role: "user",
-          content: `Analyze these PRE-FILTERED travel candidates:\n\n${JSON.stringify(transactionSummary, null, 2)}`,
-        },
-      ],
-      tools: TRAVEL_DETECTION_TOOL,
-      tool_choice: { type: "function", function: { name: "detect_travel_patterns" } },
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
@@ -169,8 +180,13 @@ async function callTravelDetectionAI(model: string, transactionSummary: any[], h
   const data = await response.json();
   console.log(`[Travel Detection] ${model} raw response:`, JSON.stringify(data, null, 2));
 
-  // Check for API errors
+  // Check for API errors or malformed function calls
   const choice = data.choices?.[0];
+  if (choice?.finish_reason === "error" || choice?.native_finish_reason === "MALFORMED_FUNCTION_CALL") {
+    console.error(`[Travel Detection] ${model} returned error finish_reason:`, choice.finish_reason, choice.native_finish_reason);
+    throw new Error(`AI returned malformed function call`);
+  }
+  
   if (choice?.error) {
     console.error(`[Travel Detection] ${model} API error:`, choice.error);
     throw new Error(`AI API error: ${choice.error.message || "Unknown error"}`);
@@ -179,7 +195,7 @@ async function callTravelDetectionAI(model: string, transactionSummary: any[], h
   const toolCalls = choice?.message?.tool_calls;
   if (!toolCalls || toolCalls.length === 0) {
     console.warn(`[Travel Detection] ${model} returned no tool calls`);
-    return [];
+    throw new Error(`No tool calls returned`);
   }
 
   try {
@@ -188,7 +204,7 @@ async function callTravelDetectionAI(model: string, transactionSummary: any[], h
     return results.travel_updates || [];
   } catch (parseError: any) {
     console.error(`[Travel Detection] Failed to parse ${model} response:`, parseError.message);
-    return [];
+    throw new Error(`Failed to parse response: ${parseError.message}`);
   }
 }
 
@@ -255,8 +271,9 @@ Deno.serve(async (req) => {
           }));
 
           let travelUpdates: any[] = [];
-          const PRIMARY_MODEL = "google/gemini-2.5-flash";
-          const BACKUP_MODEL = "openai/gpt-5-mini";
+          // Use OpenAI as primary (reliable forced tool calls), Gemini as backup
+          const PRIMARY_MODEL = "openai/gpt-5-mini";
+          const BACKUP_MODEL = "google/gemini-2.5-flash";
 
           // Try primary model first
           try {
@@ -266,14 +283,20 @@ Deno.serve(async (req) => {
             console.warn(`[Travel Detection] Primary model (${PRIMARY_MODEL}) failed:`, primaryError.message);
           }
 
-          // Retry with backup model if primary failed or returned no results
-          if (travelUpdates.length === 0) {
+          // Retry with backup model if primary failed or returned insufficient results
+          // Consider "insufficient" if we got less than 10% of expected responses
+          const insufficientResults = travelUpdates.length < Math.max(1, Math.floor(transactionSummary.length * 0.1));
+          if (travelUpdates.length === 0 || insufficientResults) {
             console.log(`[Travel Detection] Retrying with backup model (${BACKUP_MODEL})...`);
-            sendEvent("status", { message: "Retrying with backup AI model..." });
+            sendEvent("status", { message: "Enhancing travel analysis..." });
 
             try {
-              travelUpdates = await callTravelDetectionAI(BACKUP_MODEL, transactionSummary, homeZip);
-              console.log(`[Travel Detection] Backup model returned ${travelUpdates.length} updates`);
+              const backupUpdates = await callTravelDetectionAI(BACKUP_MODEL, transactionSummary, homeZip);
+              console.log(`[Travel Detection] Backup model returned ${backupUpdates.length} updates`);
+              // Use backup if it returned more results
+              if (backupUpdates.length > travelUpdates.length) {
+                travelUpdates = backupUpdates;
+              }
             } catch (backupError: any) {
               console.error(`[Travel Detection] Backup model (${BACKUP_MODEL}) also failed:`, backupError.message);
             }
