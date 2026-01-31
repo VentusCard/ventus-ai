@@ -570,9 +570,9 @@ RESPOND WITH JSON ONLY:
         }),
         signal: controller.signal,
       });
-    } catch (fetchError) {
+    } catch (fetchError: unknown) {
       clearTimeout(timeoutId);
-      if (fetchError.name === 'AbortError') {
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         return new Response(
           JSON.stringify({ error: 'AI analysis timed out.' }),
           { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -702,7 +702,7 @@ RESPOND WITH JSON ONLY:
         console.error('Could not repair JSON, returning fallback response');
         result = {
           pillar_analyses: pillars.map(p => ({
-            pillar_name: p.pillarName,
+            pillar_name: p.pillar,
             total_spend: p.totalSpend,
             transaction_count: p.transactions.length,
             transactions: p.transactions.slice(0, 3).map(t => ({
