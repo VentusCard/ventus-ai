@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import PDFParser from "npm:pdf-parse@1.1.1";
+import pdfParse from "https://esm.sh/pdf-parse@1.1.1";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   /^https:\/\/.*\.lovableproject\.com$/,
@@ -61,7 +62,7 @@ serve(async (req) => {
     const base64Data = fileData.replace(/^data:application\/pdf;base64,/, "");
     const pdfBuffer = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
 
-    const pdfData = await PDFParser(pdfBuffer);
+    const pdfData = await pdfParse(pdfBuffer);
     const extractedText = pdfData.text;
 
     console.log(`Extracted ${extractedText.length} characters from PDF`);

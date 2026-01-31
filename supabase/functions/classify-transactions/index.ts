@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+/// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
@@ -6,6 +6,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
   /^https:\/\/.*\.lovableproject\.com$/,

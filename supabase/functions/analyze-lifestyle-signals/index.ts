@@ -1,10 +1,28 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  "https://ventuscard.com",
+  "https://ventusai.com",
+  /^https:\/\/.*\.ventusai\.com$/,
+  /^https:\/\/.*\.lovable\.app$/,
+  /^https:\/\/.*\.lovable\.dev$/,
+  /^https:\/\/.*\.lovableproject\.com$/,
+  /^https:\/\/.*\.amplifyapp\.com$/,
+  /^http:\/\/localhost:\d+$/,
+];
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const isAllowed =
+    origin &&
+    ALLOWED_ORIGINS.some((allowed) => (typeof allowed === "string" ? allowed === origin : allowed.test(origin)));
+
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin! : "*",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
@@ -133,6 +151,8 @@ const LIFESTYLE_SIGNAL_TOOL = {
 };
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
