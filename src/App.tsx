@@ -15,6 +15,10 @@ import RecommendationsPage from "./pages/RecommendationsPage";
 import AdvisorConsolePage from "./pages/AdvisorConsolePage";
 import FinancialPlanningPage from "./pages/FinancialPlanningPage";
 import RewardsPipelinePage from "./pages/RewardsPipelinePage";
+import Enrichment from "./pages/Enrichment";
+import SmartRewards from "./pages/SmartRewards";
+import Engagement from "./pages/Engagement";
+import Wealth from "./pages/Wealth";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +33,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/technology" element={<Technology />} />
+          <Route path="/enrichment" element={<Enrichment />} />
+          <Route path="/smartrewards" element={<SmartRewards />} />
+          <Route path="/engagement" element={<Engagement />} />
+          <Route path="/wealth" element={<Wealth />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/tepilot" element={<TePilot />} />
