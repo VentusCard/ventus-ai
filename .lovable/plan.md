@@ -1,73 +1,92 @@
 
-# Add Glass Morphism Effect to Cards
+# Create Capability Detail Pages
 
 ## Overview
-Add a semi-transparent glass/frosted glass effect to all cards across the site. This will give cards a modern, translucent appearance with backdrop blur that allows the dark background to subtly show through.
 
-## Current State
-- Base `Card` component uses opaque `bg-white` with light theme styling
-- Page sections (About, Technology, FAQ, Contact) use `bg-card` which resolves to `hsl(0 0% 5%)`
-- A `.glass-effect` class exists in `components.css` but uses opaque background
+Create 4 new detail pages for each capability card on the `/technology` page. Each page will provide an expanded explanation with use cases, benefits, and visual elements. The Technology page cards will become clickable links.
 
-## Changes
+## Routes & Files
 
-### 1. Update Base Card Component
-**File:** `src/components/ui/card.tsx`
+| Capability | Route | File |
+|------------|-------|------|
+| Advanced Transaction Enrichment | `/enrichment` | `src/pages/Enrichment.tsx` |
+| Intelligent Reward Personalization | `/smartrewards` | `src/pages/SmartRewards.tsx` |
+| Holistic Customer Engagement | `/engagement` | `src/pages/Engagement.tsx` |
+| Wealth Management CoPilot | `/wealth` | `src/pages/Wealth.tsx` |
 
-Transform the Card component to use glass morphism styling:
-- Change from `bg-white` to semi-transparent black `bg-white/5`
-- Add stronger backdrop blur `backdrop-blur-xl`
-- Update border to subtle white/10 glow
-- Update text colors for dark theme (white headings, gray descriptions)
+## Page Structure (Each Detail Page)
 
-### 2. Enhance Glass Effect in CSS
-**File:** `src/styles/components.css`
+Each page will follow existing design patterns and include:
 
-Update the `.glass-effect` class with proper translucency:
-- Background: `hsla(0, 0%, 8%, 0.6)` (60% opacity dark gray)
-- Backdrop blur: `blur(20px)`
-- Border: subtle white glow `rgba(255, 255, 255, 0.08)`
-- Box shadow for depth
+1. **Hero Section** - Title, icon, and brief value proposition
+2. **Overview Section** - Expanded description of the capability
+3. **Key Features Section** - 3-4 feature cards with icons explaining specific functionality
+4. **Use Cases Section** - Real-world scenarios where this capability applies
+5. **Benefits Section** - Tangible outcomes for financial institutions
+6. **CTA Section** - Link back to Technology overview and Schedule Demo button
 
-Add new `.glass-card` utility class for consistent styling across the site.
+## Files to Modify
 
-### 3. Update About Page Cards
-**File:** `src/pages/About.tsx`
+1. **`src/App.tsx`** - Add 4 new routes
+2. **`src/pages/Technology.tsx`** - Make cards clickable with links to detail pages
 
-Apply glass styling to section cards:
-- Change `bg-card` to `bg-white/5 backdrop-blur-xl`
-- Update border to `border-white/10`
+## Files to Create
 
-### 4. Update Technology Page Cards  
-**File:** `src/pages/Technology.tsx`
-
-Apply glass styling to capability cards:
-- Same treatment as About page
-
-### 5. Update FAQ Page Accordion Items
-**File:** `src/pages/FAQ.tsx`
-
-Apply glass styling to accordion items:
-- Change `bg-card` to glass effect
-
-### 6. Update Contact Page Card
-**File:** `src/pages/ContactUs.tsx`
-
-Apply glass styling to the contact form card.
+1. `src/pages/Enrichment.tsx`
+2. `src/pages/SmartRewards.tsx`
+3. `src/pages/Engagement.tsx`
+4. `src/pages/Wealth.tsx`
 
 ---
 
-## Visual Result
-- Cards will appear as frosted glass panels floating over the black background
-- 5-10% white overlay with strong backdrop blur creates the glass effect
-- Subtle white border glow adds definition
-- Hover states will slightly increase opacity for interactivity
-- Text remains crisp and readable with proper contrast
+## Technical Details
 
-## Files to Modify
-1. `src/components/ui/card.tsx`
-2. `src/styles/components.css`
-3. `src/pages/About.tsx`
-4. `src/pages/Technology.tsx`
-5. `src/pages/FAQ.tsx`
-6. `src/pages/ContactUs.tsx`
+### Route Configuration (App.tsx)
+
+Add these routes alongside existing ones:
+```text
+/enrichment     -> Enrichment.tsx
+/smartrewards   -> SmartRewards.tsx
+/engagement     -> Engagement.tsx
+/wealth         -> Wealth.tsx
+```
+
+### Technology.tsx Changes
+
+- Wrap each capability card in a `<Link>` component
+- Add arrow icon or "Learn More" indicator to show cards are clickable
+- Maintain existing hover styling
+
+### Page Content Outline
+
+**1. Enrichment Page (`/enrichment`)**
+- Semantic AI analysis beyond merchant name cleaning
+- Location patterns, spending velocity, category detection
+- Integration with existing banking systems
+- Use cases: fraud detection, personalized insights, spending reports
+
+**2. SmartRewards Page (`/smartrewards`)**
+- AI-driven purchase persona creation
+- Dynamic offer matching based on behavior
+- Real-time reward recommendations
+- Use cases: increased redemption rates, targeted promotions
+
+**3. Engagement Page (`/engagement`)**
+- Unified experience across rewards, perks, and content
+- Seamless integration with banking platforms
+- Personalized educational content
+- Use cases: improved retention, cross-sell opportunities
+
+**4. Wealth Page (`/wealth`)**
+- Lifestyle event detection from transactions
+- Proactive client engagement triggers
+- Administrative task automation
+- Use cases: client reviews, life milestone planning
+
+### Styling Approach
+
+- Reuse existing glassmorphism card styles (`border-white/20 bg-white/10 backdrop-blur-sm`)
+- Consistent typography with foreground/foreground-muted colors
+- Icon styling from existing pages (`bg-primary/10` containers)
+- Responsive grid layouts matching About and FAQ pages
+- Back navigation arrow to return to `/technology`
