@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Brain, Zap, CheckCircle, ArrowRight, ArrowLeft, Upload, BarChart3, Scan, RefreshCw, TrendingUp, Sparkles, Gift, Users, MapPin, Briefcase, PieChart, Shield, Building2, Award, TrendingDown, Loader2, ShoppingBag, CalendarClock, CalendarHeart, MessageSquare, ChevronDown } from "lucide-react";
+import { Target, Brain, Zap, CheckCircle, ArrowRight, ArrowLeft, Upload, BarChart3, Scan, RefreshCw, TrendingUp, Sparkles, Gift, Users, MapPin, Briefcase, PieChart, Shield, Building2, Award, TrendingDown, Loader2, ShoppingBag, CalendarClock, CalendarHeart, MessageSquare, ChevronDown, Monitor } from "lucide-react";
+import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
@@ -48,6 +49,9 @@ import { DealActivationPreview } from "@/components/tepilot/insights/DealActivat
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
 const CURRENT_VERSION = "V2.5";
 const TePilot = () => {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isSmallScreen = isMobile || isTablet; // < 1024px
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
@@ -417,6 +421,34 @@ const TePilot = () => {
     }
   };
   if (!isAuthenticated) {
+    // Block mobile and small tablet users before showing password form
+    if (isSmallScreen) {
+      return (
+        <div className="min-h-screen bg-white flex items-center justify-center p-6">
+          <Card className="max-w-md w-full border-slate-200 bg-white">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <Monitor className="w-8 h-8 text-primary" />
+              </div>
+              <CardTitle className="text-slate-900">Desktop Required</CardTitle>
+              <CardDescription className="text-slate-600">
+                The TePilot demo requires a larger screen for the best experience.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-sm text-slate-500">
+                Please access this page from a desktop computer or large tablet (landscape mode) 
+                to explore the full transaction enrichment and analytics capabilities.
+              </p>
+              <Button onClick={() => navigate("/")} variant="outline" className="w-full">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Return to Home
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
     return <div className="min-h-screen flex items-center justify-center bg-white p-4 tepilot-container">
         <Card className="w-full max-w-6xl bg-white border-slate-200">
           <CardHeader>
