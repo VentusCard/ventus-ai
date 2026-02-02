@@ -20,9 +20,9 @@ export default {
 		},
 		extend: {
 		// Font Families - DM Sans as primary
-			fontFamily: {
-				sans: ['"Rubik"', 'system-ui', '-apple-system', 'sans-serif'],
-				display: ['"Rubik"', 'system-ui', 'sans-serif'],
+		fontFamily: {
+				sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+				display: ['"Inter"', 'system-ui', 'sans-serif'],
 				mono: ['"DM Mono"', 'SF Mono', 'Monaco', 'monospace'],
 			},
 
