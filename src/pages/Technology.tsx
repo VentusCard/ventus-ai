@@ -1,28 +1,33 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Brain, Gift, Users, Briefcase } from "lucide-react";
+import { Brain, Gift, Users, Briefcase, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Technology = () => {
   const capabilities = [
     {
       icon: Brain,
       title: "Advanced Transaction Enrichment",
-      description: "Our semantic AI goes beyond basic merchant name cleaning. We extract deep, contextual signals from every transaction—merchant category, location patterns, spending velocity, and more—to build a complete picture of customer behavior."
+      description: "Our semantic AI goes beyond basic merchant name cleaning. We extract deep, contextual signals from every transaction—merchant category, location patterns, spending velocity, and more—to build a complete picture of customer behavior.",
+      route: "/enrichment"
     },
     {
       icon: Gift,
       title: "Intelligent Reward Personalization",
-      description: "Using AI-driven purchase personas, we help institutions deliver rewards, offers, and content that resonate with each customer's unique lifestyle and spending habits."
+      description: "Using AI-driven purchase personas, we help institutions deliver rewards, offers, and content that resonate with each customer's unique lifestyle and spending habits.",
+      route: "/smartrewards"
     },
     {
       icon: Users,
       title: "Holistic Customer Engagement",
-      description: "We enable banks to offer a unified experience—combining rewards, perks, and educational content—in a way that feels seamless and personalized, not like a patchwork of products."
+      description: "We enable banks to offer a unified experience—combining rewards, perks, and educational content—in a way that feels seamless and personalized, not like a patchwork of products.",
+      route: "/engagement"
     },
     {
       icon: Briefcase,
       title: "Wealth Management CoPilot",
-      description: "For advisors and wealth managers, Ventus surfaces lifestyle events and behavioral insights that automate administrative tasks and create opportunities for proactive, meaningful client engagement."
+      description: "For advisors and wealth managers, Ventus surfaces lifestyle events and behavioral insights that automate administrative tasks and create opportunities for proactive, meaningful client engagement.",
+      route: "/wealth"
     }
   ];
 
@@ -43,9 +48,10 @@ const Technology = () => {
           
           <div className="grid md:grid-cols-2 gap-8">
             {capabilities.map((capability, index) => (
-              <div 
+              <Link 
                 key={index}
-                className="p-8 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+                to={capability.route}
+                className="group p-8 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/30 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
                   <capability.icon className="w-6 h-6 text-primary" />
@@ -53,10 +59,13 @@ const Technology = () => {
                 <h3 className="text-xl font-semibold text-foreground mb-3">
                   {capability.title}
                 </h3>
-                <p className="text-foreground/70 leading-relaxed">
+                <p className="text-foreground/70 leading-relaxed mb-4">
                   {capability.description}
                 </p>
-              </div>
+                <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+                  Learn More <ArrowRight className="w-4 h-4" />
+                </span>
+              </Link>
             ))}
           </div>
         </div>
