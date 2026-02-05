@@ -961,7 +961,7 @@ const TePilot = () => {
                       aiInsights: null,
                       needsAnalysis: true
                     }));
-                    navigate('/tepilot/recommendations');
+                    navigate('/tepilot/advisor-console');
                   }}
                   buttonText="Access Wealth Management CoPilot" 
                   buttonVariant="ai" 
