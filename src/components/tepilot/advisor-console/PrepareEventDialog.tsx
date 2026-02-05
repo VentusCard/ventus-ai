@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  CreditCard, Mail, MessageSquare, CheckCircle2,
+  CreditCard, Mail, MessageSquare, CheckCircle2, Sparkles,
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart, AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,16 @@ const cardColorMap: Record<string, string> = {
 
 const getCardBadgeColor = (cardType: string): string => {
   return cardColorMap[cardType] || 'bg-slate-100 text-slate-600 border-slate-200';
+};
+
+const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = {
+  retirement: "Based on recent transaction patterns, this client appears to be actively preparing for retirement. Increased contributions to investment accounts and retirement planning services suggest a deliberate transition strategy. Travel bookings for leisure destinations and AARP membership indicate lifestyle planning. Estate planning activity shows comprehensive wealth preservation awareness.",
+  education: "This client is entering a significant education funding phase. SAT preparation and college application fees indicate a child approaching higher education. Campus visit travel and early tuition deposits suggest proactive planning. The pattern shows a family prioritizing educational investment with 529 plan activity supporting long-term savings goals.",
+  home_purchase: "Transaction patterns reveal active home purchasing behavior. Home improvement store purchases and moving services indicate imminent relocation. Earnest money deposits and closing cost payments confirm a property transaction in progress. This represents a major liquidity event with implications for cash flow and asset allocation.",
+  wealth_transfer: "This client is engaging in deliberate wealth transfer planning. Legal service payments for estate documentation and trust setup indicate formal succession planning. The pattern suggests intergenerational wealth considerations and potential tax optimization strategies.",
+  business_liquidity: "Business sale indicators are present in recent transactions. M&A advisory fees and business valuation services suggest active deal exploration. Escrow deposits indicate transaction momentum. This represents a significant liquidity event requiring comprehensive investment and tax planning.",
+  family_formation: "Transaction patterns indicate family expansion. Baby product purchases and nursery preparation spending suggest an expected addition. Education savings account setup shows forward-thinking financial planning. Life insurance and beneficiary updates would be timely considerations.",
+  elder_care: "Increased healthcare and care facility transactions suggest elder care responsibilities. Pharmacy spending patterns and senior living deposits indicate active caregiving. Long-term care planning and Medicaid considerations may be relevant topics for discussion.",
 };
 
 export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
@@ -135,22 +145,36 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               </div>
             </div>
 
-            {/* Recommended Next Steps Section */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                Recommended Next Steps
-              </h3>
-              <ol className="space-y-2">
-                {recommendedSteps.map((step, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-sm">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
-                      {idx + 1}
-                    </span>
-                    <span className="text-slate-600">{step}</span>
-                  </li>
-                ))}
-              </ol>
+            {/* Two-column layout for Insights and Steps */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Ventus Insights - Left */}
+              <div>
+                <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  Ventus Insights
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {mockInsightsByEventType[event.eventType]}
+                </p>
+              </div>
+
+              {/* Recommended Next Steps - Right */}
+              <div>
+                <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  Recommended Next Steps
+                </h3>
+                <ol className="space-y-2">
+                  {recommendedSteps.map((step, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
+                        {idx + 1}
+                      </span>
+                      <span className="text-slate-600">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </div>
           </div>
         </ScrollArea>
