@@ -181,7 +181,7 @@ export function PrepareEventDialog({ open, onOpenChange, data }: PrepareEventDia
         <DialogFooter className="border-t pt-4 flex items-center gap-2">
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
             <MessageSquare className="h-4 w-4" />
-            Ask Ventus
+            Prepare with Ventus WM Co-Pilot
           </Button>
           <Button onClick={handleEmailMe} className="gap-2">
             <Mail className="h-4 w-4" />
