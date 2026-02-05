@@ -180,7 +180,7 @@ export function LifeEventsAlertDashboard({
           </div>
           
           <Select value={eventFilter} onValueChange={(v) => setEventFilter(v as EventTypeFilter)}>
-            <SelectTrigger className="w-[180px] h-9 bg-white">
+            <SelectTrigger className="w-[180px] h-9 bg-white text-slate-700 border-slate-300">
               <SelectValue placeholder="All Events" />
             </SelectTrigger>
             <SelectContent>
@@ -194,7 +194,7 @@ export function LifeEventsAlertDashboard({
           </Select>
 
           <Select value={confidenceFilter} onValueChange={setConfidenceFilter}>
-            <SelectTrigger className="w-[140px] h-9 bg-white">
+            <SelectTrigger className="w-[140px] h-9 bg-white text-slate-700 border-slate-300">
               <SelectValue placeholder="Confidence" />
             </SelectTrigger>
             <SelectContent>
@@ -206,7 +206,7 @@ export function LifeEventsAlertDashboard({
           </Select>
 
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-            <SelectTrigger className="w-[130px] h-9 bg-white">
+            <SelectTrigger className="w-[130px] h-9 bg-white text-slate-700 border-slate-300">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
