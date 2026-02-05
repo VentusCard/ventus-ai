@@ -948,19 +948,36 @@ const TePilot = () => {
                     "Client Psychology Profiler with actionable communication cues",
                     "Smart conversation chips for Meeting Prep, Financial Standing, and more",
                     "AI-extracted action items from chat and planning tools"
-                  ]} buttonText="Access Wealth Management CoPilot" buttonVariant="ai" onClick={() => {
-                if (enrichedTransactions.length === 0) {
-                  toast.error('Please enrich transactions first to access this tool');
-                  return;
-                }
-                // Save enriched transactions immediately and navigate - analysis happens on target page
-                sessionStorage.setItem("tepilot_advisor_context", JSON.stringify({
-                  enrichedTransactions: enrichedTransactions,
-                  aiInsights: null,
-                  needsAnalysis: true
-                }));
-                navigate('/tepilot/advisor-console');
-              }} disabled={enrichedTransactions.length === 0} />
+                  ]} 
+                  secondaryButtonText="Access Relationship Intelligence Dashboard"
+                  secondaryButtonVariant="outline"
+                  onSecondaryClick={() => {
+                    if (enrichedTransactions.length === 0) {
+                      toast.error('Please enrich transactions first to access this tool');
+                      return;
+                    }
+                    sessionStorage.setItem("tepilot_advisor_context", JSON.stringify({
+                      enrichedTransactions: enrichedTransactions,
+                      aiInsights: null,
+                      needsAnalysis: true
+                    }));
+                    navigate('/tepilot/recommendations');
+                  }}
+                  buttonText="Access Wealth Management CoPilot" 
+                  buttonVariant="ai" 
+                  onClick={() => {
+                    if (enrichedTransactions.length === 0) {
+                      toast.error('Please enrich transactions first to access this tool');
+                      return;
+                    }
+                    sessionStorage.setItem("tepilot_advisor_context", JSON.stringify({
+                      enrichedTransactions: enrichedTransactions,
+                      aiInsights: null,
+                      needsAnalysis: true
+                    }));
+                    navigate('/tepilot/advisor-console');
+                  }} 
+                  disabled={enrichedTransactions.length === 0} />
                 </div>
               </>}
 
