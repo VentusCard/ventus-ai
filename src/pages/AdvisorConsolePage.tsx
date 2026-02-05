@@ -10,8 +10,9 @@ import { buildAdvisorContext, AdvisorContext } from "@/lib/advisorContextBuilder
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
-import { DashboardClient } from "@/types/dashboardClient";
+import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
+import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
 
 type ViewMode = "dashboard" | "client";
 
@@ -20,6 +21,7 @@ const AdvisorConsolePage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [advisorContext, setAdvisorContext] = useState<AdvisorContext | undefined>(undefined);
+  const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
 
   // Generate dashboard clients once on mount
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
@@ -56,6 +58,23 @@ const AdvisorConsolePage = () => {
   const handleBackToDashboard = useCallback(() => {
     setViewMode("dashboard");
     setSelectedClientId(null);
+    setPendingVentusMessage(null);
+  }, []);
+
+  const handlePrepareWithVentus = useCallback((data: EventPreparationData) => {
+    // Store client profile
+    sessionStorage.setItem("tepilot_client_profile", JSON.stringify(data.client.profile));
+    
+    // Store event preparation context for the chat
+    sessionStorage.setItem("tepilot_event_preparation", JSON.stringify(data));
+    
+    // Build context-rich prompt
+    const prompt = buildEventPreparationPrompt(data);
+    
+    // Set pending message and switch view
+    setPendingVentusMessage(prompt);
+    setSelectedClientId(data.client.id);
+    setViewMode("client");
   }, []);
 
   const [enrichedTransactions, setEnrichedTransactions] = useState<EnrichedTransaction[]>([]);
@@ -230,6 +249,7 @@ const AdvisorConsolePage = () => {
             clients={dashboardClients}
             onOpenClient={handleOpenClient}
             onScheduleCall={handleScheduleCall}
+            onPrepareWithVentus={handlePrepareWithVentus}
           />
         ) : (
           <AdvisorConsole 
@@ -238,6 +258,8 @@ const AdvisorConsolePage = () => {
             isLoadingInsights={isLoadingInsights}
             advisorContext={advisorContext}
             onBackToDashboard={handleBackToDashboard}
+            initialPendingMessage={pendingVentusMessage}
+            onPendingMessageConsumed={() => setPendingVentusMessage(null)}
           />
         )}
       </div>

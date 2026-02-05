@@ -25,6 +25,7 @@ interface PrepareEventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   data: EventPreparationData | null;
+  onPrepareWithVentus?: (data: EventPreparationData) => void;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -49,7 +50,7 @@ function groupByCard(transactions: CardTransaction[]) {
   }, {} as Record<string, { cardType: string; cardLast4: string; transactions: CardTransaction[] }>);
 }
 
-export function PrepareEventDialog({ open, onOpenChange, data }: PrepareEventDialogProps) {
+export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
   if (!data) return null;
@@ -71,10 +72,15 @@ export function PrepareEventDialog({ open, onOpenChange, data }: PrepareEventDia
   };
 
   const handleAskVentus = () => {
-    toast({
-      title: "Opening Ventus Chat",
-      description: "Ventus AI is ready to help you prepare for this conversation.",
-    });
+    if (onPrepareWithVentus && data) {
+      onPrepareWithVentus(data);
+      onOpenChange(false);
+    } else {
+      toast({
+        title: "Opening Ventus Chat",
+        description: "Ventus AI is ready to help you prepare for this conversation.",
+      });
+    }
   };
 
   const formatAmount = (amount: number) => {

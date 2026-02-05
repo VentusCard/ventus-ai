@@ -20,6 +20,8 @@ interface AdvisorConsoleProps {
   enrichedTransactions?: EnrichedTransaction[];
   advisorContext?: AdvisorContext;
   onBackToDashboard?: () => void;
+  initialPendingMessage?: string | null;
+  onPendingMessageConsumed?: () => void;
 }
 
 export function AdvisorConsole({ 
@@ -27,7 +29,9 @@ export function AdvisorConsole({
   isLoadingInsights = false,
   enrichedTransactions = [],
   advisorContext,
-  onBackToDashboard
+  onBackToDashboard,
+  initialPendingMessage,
+  onPendingMessageConsumed
 }: AdvisorConsoleProps) {
   const { toast } = useToast();
   const [selectedLifestyleChip, setSelectedLifestyleChip] = useState<string | null>(null);
@@ -46,6 +50,14 @@ export function AdvisorConsole({
   const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
   const [pendingTimelineEvent, setPendingTimelineEvent] = useState<LifeEvent | null>(null);
   const [openTimelineTrigger, setOpenTimelineTrigger] = useState(false);
+
+  // Handle initial pending message from parent (e.g., Prepare with Ventus)
+  useEffect(() => {
+    if (initialPendingMessage) {
+      setPendingChatMessage(initialPendingMessage);
+      onPendingMessageConsumed?.();
+    }
+  }, [initialPendingMessage, onPendingMessageConsumed]);
 
   // Load financial plan data from sessionStorage
   useEffect(() => {

@@ -15,6 +15,7 @@ interface LifeEventsAlertDashboardProps {
   clients: DashboardClient[];
   onOpenClient: (clientId: string) => void;
   onScheduleCall: (clientId: string) => void;
+  onPrepareWithVentus?: (data: EventPreparationData) => void;
 }
 
 type EventTypeFilter = 'all' | DetectedLifeEvent['eventType'];
@@ -34,6 +35,7 @@ export function LifeEventsAlertDashboard({
   clients,
   onOpenClient,
   onScheduleCall,
+  onPrepareWithVentus,
 }: LifeEventsAlertDashboardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [eventFilter, setEventFilter] = useState<EventTypeFilter>('all');
@@ -281,6 +283,7 @@ export function LifeEventsAlertDashboard({
         open={prepareDialogOpen}
         onOpenChange={setPrepareDialogOpen}
         data={prepareData}
+        onPrepareWithVentus={onPrepareWithVentus}
       />
     </div>
   );
