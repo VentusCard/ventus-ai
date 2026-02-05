@@ -91,8 +91,8 @@ export function LifeEventAlertCard({
           {/* Event Details */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              {showEventLabel && (
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0 text-slate-600 border-slate-300">
+            {showEventLabel && (
+                <Badge className={cn('text-[10px] px-1.5 py-0 shrink-0', `bg-${config.color}-100 text-${config.color}-700 border-${config.color}-200`)}>
                   {config.label}
                 </Badge>
               )}
