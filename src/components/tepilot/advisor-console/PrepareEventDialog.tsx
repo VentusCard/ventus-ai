@@ -148,9 +148,9 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
             <div className="grid grid-cols-2 gap-4">
               {/* Ventus Insights - Left */}
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-500" />
-                  Ventus Insights
+                  Ventus AI Insights
                 </h3>
                 <p className="text-sm text-slate-600 leading-relaxed">
                   {mockInsightsByEventType[event.eventType]}
@@ -158,9 +158,9 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  Recommended Next Steps
+                  Ventus AI Recommended Next Steps
                 </h3>
                 <ol className="space-y-1.5">
                   {recommendedSteps.map((step, idx) => (
