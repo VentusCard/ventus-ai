@@ -436,7 +436,7 @@ const TePilot = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-600">
                 Please access this page from a desktop computer or large tablet (landscape mode) 
                 to explore the full transaction enrichment and analytics capabilities.
               </p>
@@ -458,9 +458,9 @@ const TePilot = () => {
               <Accordion type="single" collapsible className="w-full mt-2">
                 <AccordionItem value="release-notes" className="border-none">
                   <AccordionTrigger className="text-sm text-slate-900 py-1 hover:no-underline">
-                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-500 font-normal">— Deal messaging personalization engine and merchant aggregator compatibility layer</span></span>
+                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-600 font-normal">— Deal messaging personalization engine and merchant aggregator compatibility layer</span></span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-xs text-slate-500 space-y-2">
+                  <AccordionContent className="text-xs text-slate-600 space-y-2">
                     <div className="border-l-2 border-blue-600 pl-3 py-1">
                       <p className="font-semibold">V2.5 - Current</p>
                       <p>Deal messaging personalization engine for dynamic customer-specific deal messaging, plus merchant aggregator compatibility layer for seamless integration with third-party deal providers</p>
@@ -528,7 +528,7 @@ const TePilot = () => {
                 <AccordionTrigger className="text-lg font-semibold group text-slate-900">
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Ventus AI Workflows</span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
+                    <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
                       Three workflows transform raw data to insights
                     </span>
                   </div>
@@ -571,7 +571,7 @@ const TePilot = () => {
                 <AccordionTrigger className="text-lg font-semibold group text-slate-900">
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Why Semantic AI is Different</span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
+                    <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
                       AI delivers accuracy legacy methods can't match
                     </span>
                   </div>
@@ -596,7 +596,7 @@ const TePilot = () => {
                               Events
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-500 text-sm">Too generic</TableCell>
+                          <TableCell className="text-slate-600 text-sm">Too generic</TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell className="font-medium text-slate-900">Text-Based</TableCell>
@@ -606,7 +606,7 @@ const TePilot = () => {
                               Furniture
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-500 text-sm">Completely wrong</TableCell>
+                          <TableCell className="text-slate-600 text-sm">Completely wrong</TableCell>
                         </TableRow>
                         <TableRow className="bg-green-500/5">
                           <TableCell className="font-medium text-slate-900">Ventus AI (Semantic)</TableCell>
@@ -630,7 +630,7 @@ const TePilot = () => {
                 <AccordionTrigger className="text-lg font-semibold text-slate-900 group">
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Use Cases</span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
+                    <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
                       Real-world applications across financial services
                     </span>
                   </div>

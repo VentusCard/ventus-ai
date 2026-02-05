@@ -66,13 +66,13 @@ export function CardProductMatrix({ products }: CardProductMatrixProps) {
   const previewContent = (
     <div className="text-sm">
       <span className="text-slate-900 font-medium">{topProduct?.name}</span>
-      <span className="text-slate-500"> leads with </span>
+      <span className="text-slate-600"> leads with </span>
       <span className="text-primary font-medium">{formatCurrency(topProduct?.avgSpendPerAccount || 0)}/account</span>
-      <span className="text-slate-500">. </span>
+      <span className="text-slate-600">. </span>
       <span className="text-amber-600 font-medium">{lowestPenetration?.name}</span>
-      <span className="text-slate-500"> has lowest penetration at </span>
+      <span className="text-slate-600"> has lowest penetration at </span>
       <span className="text-amber-600 font-medium">{lowestPenetration?.penetrationRate.toFixed(1)}%</span>
-      <span className="text-slate-500"> — growth opportunity.</span>
+      <span className="text-slate-600"> — growth opportunity.</span>
     </div>
   );
 

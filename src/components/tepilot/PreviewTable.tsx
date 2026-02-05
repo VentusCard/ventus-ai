@@ -35,21 +35,21 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
         
         <div className="flex gap-6 pt-4 text-sm">
           <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-slate-500" />
-            <span className="text-slate-500">Total:</span>
+            <DollarSign className="w-4 h-4 text-slate-600" />
+            <span className="text-slate-600">Total:</span>
             <span className="font-semibold text-slate-900">${totalAmount.toFixed(2)}</span>
           </div>
           {dateRange && (
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-slate-500" />
-              <span className="text-slate-500">Range:</span>
+              <Calendar className="w-4 h-4 text-slate-600" />
+              <span className="text-slate-600">Range:</span>
               <span className="font-semibold text-slate-900">{dateRange.start} to {dateRange.end}</span>
             </div>
           )}
           {anchorZip && (
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-slate-500" />
-              <span className="text-slate-500">Anchor ZIP:</span>
+              <MapPin className="w-4 h-4 text-slate-600" />
+              <span className="text-slate-600">Anchor ZIP:</span>
               <span className="font-semibold font-mono text-slate-900">{anchorZip}</span>
             </div>
           )}
@@ -73,7 +73,7 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.transaction_id}>
                     <TableCell className="font-medium text-slate-900">{transaction.merchant_name}</TableCell>
-                    <TableCell className="text-slate-500 text-sm">
+                    <TableCell className="text-slate-600 text-sm">
                       {transaction.description || "—"}
                     </TableCell>
                     <TableCell>

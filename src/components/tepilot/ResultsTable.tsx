@@ -51,7 +51,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             </div>
           )}
           {transactions.length === 0 && currentPhase === "classification" && (
-            <div className="text-center py-12 text-slate-500">
+            <div className="text-center py-12 text-slate-600">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
               <p>Waiting for first batch of results...</p>
               <p className="text-sm mt-2">This should take ~3 seconds</p>
@@ -82,7 +82,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         <div>
                           <div className="font-medium">{transaction.normalized_merchant}</div>
                           {transaction.merchant_name !== transaction.normalized_merchant && (
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-slate-600">
                               {transaction.merchant_name}
                             </div>
                           )}

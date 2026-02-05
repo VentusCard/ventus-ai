@@ -192,7 +192,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                 <CardTitle className="text-2xl text-slate-900">
                   Spending Profile Deep Dive
                 </CardTitle>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-600">
                   Analyze parent-SKU level spending insight and construct spending persona
                 </p>
               </div>
@@ -225,7 +225,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                         <span className="font-semibold">{pillar.pillar}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-slate-500">
+                        <span className="text-slate-600">
                           ${pillar.totalSpend.toLocaleString(undefined, { minimumFractionDigits: 0 })}
                         </span>
                         <Badge variant="outline" className="text-xs min-w-[45px] justify-center">
@@ -255,7 +255,7 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
             {isAnalyzing && (
               <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                <span className="text-slate-500">Analyzing transactions...</span>
+                <span className="text-slate-600">Analyzing transactions...</span>
               </div>
             )}
 
@@ -278,10 +278,10 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                             <div className="flex items-center gap-3">
                               <span className="text-2xl">{PILLAR_ICON}</span>
                               <div>
-                                <CardTitle className="text-base font-medium text-slate-900">
+                              <CardTitle className="text-base font-medium text-slate-900">
                                   {pillar.pillar}
                                 </CardTitle>
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-slate-600">
                                   {pillar.transactionCount} transactions
                                 </p>
                               </div>
@@ -330,14 +330,14 @@ export function TopPillarsAnalysis({ transactions, autoAnalyze = false, onPerson
                                   
                                   {/* Line 2: Date/Category + AI inference/Confidence */}
                                   <div className="flex items-center justify-between mt-1.5 text-sm">
-                                    <span className="text-slate-500">
+                                    <span className="text-slate-600">
                                       {new Date(txn.date).toLocaleDateString()}
                                       {txn.subcategory && ` · ${txn.subcategory}`}
                                     </span>
                                     
                                     {analyzed ? (
                                       <div className="flex items-center gap-2 flex-wrap justify-end">
-                                        <span className="text-slate-500 text-right">
+                                        <span className="text-slate-600 text-right">
                                           {analyzed.inferred_purchase}
                                         </span>
                                         <Badge 

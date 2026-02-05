@@ -77,11 +77,11 @@ export function BankwideMetrics({ metrics }: BankwideMetricsProps) {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="space-y-2 flex-1">
-                  <p className="text-sm font-medium text-slate-500">
+                  <p className="text-sm font-medium text-slate-600">
                     {metric.title}
                   </p>
                   <p className="text-3xl font-bold text-slate-900">{metric.value}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-600">
                     {metric.subtitle}
                   </p>
                 </div>
