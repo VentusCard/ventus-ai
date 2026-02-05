@@ -67,74 +67,78 @@ export function LifeEventAlertCard({
   };
 
   return (
-    <Card className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all">
-      <CardContent className="p-4 space-y-3">
-        {/* Header: Client Name + Segment */}
-        <div className="flex items-start justify-between gap-2">
+    <Card className="bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all">
+      <CardContent className="p-3">
+        <div className="flex items-center gap-4">
+          {/* Event Icon */}
+          <div className={cn('p-2 rounded-lg shrink-0', `bg-${config.color}-50`)}>
+            <IconComponent className={cn('h-5 w-5', `text-${config.color}-600`)} />
+          </div>
+
+          {/* Client Info */}
+          <div className="min-w-0 w-32 shrink-0">
+            <h3 className="font-medium text-slate-900 truncate text-sm">{client.profile.name}</h3>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xs text-slate-500">{client.profile.aum}</span>
+              <Badge className={cn('text-[10px] px-1.5 py-0', segmentColors[client.profile.segment])}>
+                {client.profile.segment}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Event Details */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-slate-900 truncate">{client.profile.name}</h3>
-            <p className="text-sm text-slate-500">{client.profile.aum} AUM</p>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-800 truncate">{event.eventName}</span>
+              <Badge className={cn('text-[10px] px-1.5 py-0 shrink-0', urgencyBadge.className)}>
+                {urgencyBadge.label}
+              </Badge>
+            </div>
+            <p className="text-xs text-slate-500 truncate mt-0.5">
+              {event.keyEvidence[0] || event.estimatedTiming}
+            </p>
           </div>
-          <Badge className={cn('text-xs shrink-0', segmentColors[client.profile.segment])}>
-            {client.profile.segment}
-          </Badge>
-        </div>
 
-        {/* Life Event + Confidence */}
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50">
-          <div className={cn('p-1.5 rounded', `bg-${config.color}-100`)}>
-            <IconComponent className={cn('h-4 w-4', `text-${config.color}-600`)} />
+          {/* Confidence + Timing */}
+          <div className="text-right shrink-0 w-20">
+            <Badge className={cn('text-[10px]', getConfidenceColor(event.confidence))}>
+              {event.confidence}% conf
+            </Badge>
+            <p className="text-[10px] text-slate-400 mt-1">{event.estimatedTiming}</p>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-800 truncate">{event.eventName}</p>
-            <p className="text-xs text-slate-500">{event.estimatedTiming}</p>
+
+          {/* Last Contact */}
+          <div className="text-right shrink-0 w-20 hidden lg:block">
+            <p className="text-[10px] text-slate-400">Last contact</p>
+            <p className="text-xs text-slate-600">{formatLastContact(client.lastContactDate)}</p>
           </div>
-          <Badge className={cn('text-xs', getConfidenceColor(event.confidence))}>
-            {event.confidence}%
-          </Badge>
-        </div>
 
-        {/* Evidence snippet */}
-        {event.keyEvidence.length > 0 && (
-          <p className="text-xs text-slate-600 italic line-clamp-2">
-            "{event.keyEvidence[0]}"
-          </p>
-        )}
-
-        {/* Metadata Row */}
-        <div className="flex items-center justify-between text-xs text-slate-500">
-          <span>Last contact: {formatLastContact(client.lastContactDate)}</span>
-          <Badge className={cn('text-[10px]', urgencyBadge.className)}>
-            {urgencyBadge.label}
-          </Badge>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 pt-1">
-          <Button
-            size="sm"
-            onClick={() => onPrepare(client.id)}
-            className="flex-1 h-8 text-xs"
-          >
-            <Calendar className="h-3 w-3 mr-1" />
-            Prepare
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onView(client.id)}
-            className="h-8 px-3"
-          >
-            <Eye className="h-3 w-3" />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onScheduleCall(client.id)}
-            className="h-8 px-3"
-          >
-            <Phone className="h-3 w-3" />
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-1 shrink-0">
+            <Button
+              size="sm"
+              onClick={() => onPrepare(client.id)}
+              className="h-7 px-3 text-xs"
+            >
+              Prepare
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onView(client.id)}
+              className="h-7 w-7 p-0"
+            >
+              <Eye className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onScheduleCall(client.id)}
+              className="h-7 w-7 p-0"
+            >
+              <Phone className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
