@@ -365,7 +365,7 @@ export function VentusChatPanel({
                   </span>
                 </div>
                 
-                <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                <p className="text-sm text-slate-900 whitespace-pre-wrap">
                   {message.content}
                 </p>
 
