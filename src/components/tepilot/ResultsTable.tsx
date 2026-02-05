@@ -181,7 +181,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             size="sm"
                             onClick={() => setSelectedTransaction(transaction)}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-4 h-4 text-slate-700" />
                           </Button>
                           <Button
                             variant="ghost"
