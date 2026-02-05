@@ -118,9 +118,25 @@ export function LifeEventsAlertDashboard({
     items.sort((a, b) => {
       switch (sortBy) {
         case 'urgency':
-          return b.event.urgencyScore - a.event.urgencyScore;
+          // Primary: urgency score, Secondary: confidence for ties
+          if (b.event.urgencyScore !== a.event.urgencyScore) {
+            return b.event.urgencyScore - a.event.urgencyScore;
+          }
+          return b.event.confidence - a.event.confidence;
         case 'confidence':
           return b.event.confidence - a.event.confidence;
+        case 'timing':
+          // Parse timing strings to approximate months
+          const getMonths = (timing: string): number => {
+            const lower = timing.toLowerCase();
+            if (lower.includes('1-3 months') || lower.includes('q1')) return 2;
+            if (lower.includes('3-6 months') || lower.includes('q2')) return 4;
+            if (lower.includes('6-12 months') || lower.includes('q3')) return 9;
+            if (lower.includes('12-18 months') || lower.includes('q4')) return 15;
+            if (lower.includes('18-24 months')) return 21;
+            return 12; // default to mid-range
+          };
+          return getMonths(a.event.estimatedTiming) - getMonths(b.event.estimatedTiming);
         case 'aum':
           const aumA = parseFloat(a.client.profile.aum.replace(/[$MK,]/g, ''));
           const aumB = parseFloat(b.client.profile.aum.replace(/[$MK,]/g, ''));
@@ -224,6 +240,7 @@ export function LifeEventsAlertDashboard({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="urgency">Urgency</SelectItem>
+              <SelectItem value="timing">Timeline</SelectItem>
               <SelectItem value="confidence">Confidence</SelectItem>
               <SelectItem value="aum">AUM</SelectItem>
             </SelectContent>
