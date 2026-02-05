@@ -774,7 +774,7 @@ const TePilot = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-600">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
             <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Preview</TabsTrigger>
             <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Enrichment</TabsTrigger>
