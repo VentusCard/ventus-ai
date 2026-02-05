@@ -78,7 +78,7 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                     </TableCell>
                     <TableCell>
                       {transaction.mcc ? (
-                        <Badge variant="outline" className="font-mono text-xs">
+                        <Badge variant="outline" className="font-mono text-xs text-slate-700">
                           {transaction.mcc}
                         </Badge>
                       ) : (
