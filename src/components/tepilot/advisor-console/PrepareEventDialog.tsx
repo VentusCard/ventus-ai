@@ -46,12 +46,12 @@ const getCardBadgeColor = (cardType: string): string => {
 };
 
 const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = {
-  retirement: "This client is actively architecting their next chapter. The combination of increased retirement contributions, cruise bookings, and estate planning activity reveals someone who envisions an active, travel-rich retirement. AARP enrollment signals they're embracing this life stage. Their trust account setup suggests they're thinking beyond themselves—legacy and family security are priorities. This is a client ready for comprehensive retirement income planning conversations.",
-  education: "A focused parent preparing for a major milestone. The SAT prep investment and campus visit flights show hands-on involvement in their child's college journey. Early tuition deposits indicate they've likely identified top-choice schools and are moving decisively. The 529 contribution timing suggests tax-aware planning. This client values education highly and is willing to invest significantly—they'll be receptive to comprehensive education funding strategies.",
+  retirement: "This client is in the early exploration phase of retirement planning—a critical window for proactive engagement. The increased 401k contributions and AARP enrollment signal they're mentally preparing for this transition. Viking Cruises booking reveals aspirations for an active, travel-rich retirement. Estate planning consultations show they're thinking about legacy. Crucially, they haven't yet established dedicated retirement income vehicles—this is your opportunity to guide them on Roth conversions, income strategies, and trust structures before they go elsewhere.",
+  education: "This parent is deep in the college planning research phase—the ideal moment for advisor involvement. SAT prep, Princeton Review enrollment, and campus visits indicate serious commitment. Admissions consulting and research subscriptions show they're gathering intelligence but haven't yet committed to funding strategies. This is your window to introduce 529 optimization, financial aid positioning, and parent-student loan comparisons before they make uninformed funding decisions.",
   home_purchase: "This client is in active home acquisition mode. The pattern of home improvement purchases before closing suggests they're preparing a new property for move-in, indicating deal momentum. Earnest money and closing cost payments confirm an imminent transaction. The moving rental booking shows a firm timeline. Expect questions about mortgage optimization, down payment sourcing, and how this purchase fits their broader wealth picture.",
-  wealth_transfer: "A sophisticated wealth holder thinking intergenerationally. Goldman Sachs Private Wealth engagement and Northern Trust administration indicate institutional-grade planning. The Sotheby's appraisal suggests significant collectibles or art in the estate—assets requiring specialized transfer strategies. Donor-advised fund activity reveals charitable intentions. This client is building a deliberate legacy and will appreciate nuanced estate planning discussions.",
+  wealth_transfer: "A sophisticated wealth holder beginning to think intergenerationally. Goldman Sachs Private Wealth engagement shows they're seeking institutional-grade advice. Sotheby's appraisals reveal significant art or collectibles requiring specialized valuation. Family Wealth Alliance and Purposeful Planning seminars indicate they're educating themselves on governance and transfer strategies. They're in learning mode—not execution mode—making this the perfect time to position yourself as their trusted guide before they formalize structures elsewhere.",
   business_liquidity: "An entrepreneur approaching a transformational exit. The Merrill DataSite subscription and Deloitte advisory engagement indicate a sophisticated seller running a structured M&A process. IP valuation activity suggests they understand their business's intangible assets. The significant escrow deposit signals deal progression past LOI stage. This client needs holistic guidance on life after exit—investment of proceeds, tax minimization, and finding purpose post-business.",
-  family_formation: "A growing family preparing thoughtfully for a new arrival. Baby registry activity and nursery purchases show nesting behavior in full swing. The early 529 plan setup is notable—this parent is already thinking 18+ years ahead. Hospital pre-registration indicates timeline clarity. This life event triggers a cascade of planning needs: life insurance, disability coverage, guardianship designations, and emergency fund expansion.",
+  family_formation: "A growing family in the early stages of preparing for a new arrival—a pivotal moment for relationship deepening. Baby registry activity, nursery purchases, and maternity clothing signal nesting behavior. Hospital pre-registration and pregnancy tracking app subscriptions confirm timeline clarity. Notably, they haven't yet established education savings or updated estate documents—this is your opportunity to proactively introduce 529 plans, life insurance benchmarking, and guardianship planning before they're overwhelmed post-birth.",
   elder_care: "This client is stepping into a caregiver role for an aging family member. Medical alert system purchases and home accessibility modifications suggest a parent or in-law is transitioning to needing daily support. The assisted living deposit indicates they're exploring residential care options. Medicare supplement payments show active healthcare management. This is often emotionally complex—approach with empathy while addressing Medicaid planning, long-term care costs, and potential real estate decisions.",
 };
 
@@ -254,18 +254,18 @@ export function generateEventPreparationData(
 
   const recommendedStepsByEventType: Record<DetectedLifeEvent['eventType'], string[]> = {
     retirement: [
-      'Model retirement income scenarios using current 401k trajectory and Social Security timing',
-      'Propose Roth conversion strategy during lower-income years before RMDs begin',
+      'Open conversation about retirement vision—what does their ideal day look like?',
+      'Introduce retirement income modeling using current 401k trajectory and Social Security timing',
+      'Propose establishing a trust structure now while they\'re in planning mode',
+      'Discuss Roth conversion strategy during remaining working years before RMDs begin',
       'Review healthcare bridge options between employer coverage and Medicare eligibility',
-      'Discuss travel budget integration into sustainable withdrawal rate planning',
-      'Confirm estate documents reflect current wishes and beneficiary designations are updated',
     ],
     education: [
-      'Calculate projected college costs for target schools vs. current 529 balance',
-      'Review financial aid implications—discuss FAFSA timing and asset positioning',
-      'Model parent loan vs. student loan scenarios with long-term cost comparison',
-      'Explore grandparent superfunding strategy for additional 529 contributions',
-      'Discuss post-graduation cash flow: how tuition payments affect retirement savings rate',
+      'Initiate 529 plan discussion—they\'re researching schools but haven\'t established funding',
+      'Calculate projected costs for likely target schools to frame the planning conversation',
+      'Review financial aid implications—discuss FAFSA timing and asset positioning strategies',
+      'Explore grandparent superfunding strategy if extended family wants to contribute',
+      'Model parent loan vs. student loan scenarios so they understand trade-offs early',
     ],
     home_purchase: [
       'Analyze liquid asset positioning for optimal down payment without disrupting investments',
@@ -275,11 +275,11 @@ export function generateEventPreparationData(
       'Review homeowners insurance options and umbrella liability coverage needs',
     ],
     wealth_transfer: [
+      'Schedule discovery meeting to understand their wealth transfer intentions and family dynamics',
       'Map current estate structure and identify gaps in beneficiary designations',
-      'Model gift tax exclusion strategy: annual gifts vs. lifetime exemption usage',
-      'Discuss trust options: revocable vs. irrevocable, generation-skipping considerations',
-      'Review charitable giving vehicles: DAF timing, CRT for appreciated assets, private foundation',
-      'Schedule family governance conversation to align heirs on wealth transfer intentions',
+      'Introduce trust options: revocable vs. irrevocable, generation-skipping considerations',
+      'Discuss charitable giving vehicles: donor-advised funds, CRTs for appreciated assets',
+      'Offer to facilitate a family governance conversation before structures are formalized',
     ],
     business_liquidity: [
       'Model after-tax proceeds under different deal structures: asset vs. stock sale, earnout scenarios',
@@ -289,11 +289,11 @@ export function generateEventPreparationData(
       'Coordinate with CPA on installment sale, QSBS exclusion, and opportunity zone deferrals',
     ],
     family_formation: [
+      'Proactively introduce 529 plan options—they\'re preparing for baby but haven\'t set up education savings',
       'Benchmark life insurance needs: 10-12x income replacement plus future education costs',
-      'Review disability insurance coverage—often overlooked but critical for new parents',
-      'Update wills to include guardianship designations for the child',
-      'Model childcare costs and reduced income scenarios into long-term financial plan',
-      'Discuss parental leave cash flow: ensure emergency fund covers income gap',
+      'Discuss updating wills to include guardianship designations before the birth',
+      'Review disability insurance coverage—critical protection often overlooked by new parents',
+      'Model childcare costs and parental leave cash flow into their financial plan',
     ],
     elder_care: [
       'Assess long-term care insurance options or Medicaid planning if coverage is lacking',
