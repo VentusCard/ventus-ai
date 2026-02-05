@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { EventPreparationData, CardTransaction, LIFE_EVENT_CONFIG, DetectedLifeEvent } from "@/types/dashboardClient";
 import {
   Dialog,
@@ -9,14 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  ChevronDown, CreditCard, Mail, MessageSquare, CheckCircle2,
+  CreditCard, Mail, MessageSquare, CheckCircle2,
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart, AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,31 +33,17 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Heart,
 };
 
-// Group transactions by card type
-function groupByCard(transactions: CardTransaction[]) {
-  return transactions.reduce((acc, txn) => {
-    const key = `${txn.cardType}-${txn.cardLast4}`;
-    if (!acc[key]) {
-      acc[key] = { cardType: txn.cardType, cardLast4: txn.cardLast4, transactions: [] };
-    }
-    acc[key].transactions.push(txn);
-    return acc;
-  }, {} as Record<string, { cardType: string; cardLast4: string; transactions: CardTransaction[] }>);
-}
-
 export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
-  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
   if (!data) return null;
 
   const { client, event, transactions, recommendedSteps } = data;
   const config = LIFE_EVENT_CONFIG[event.eventType];
   const IconComponent = iconMap[config?.icon] || AlertTriangle;
-  const groupedTransactions = groupByCard(transactions);
 
-  const toggleCard = (key: string) => {
-    setExpandedCards(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+  const sortedTransactions = [...transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 
   const handleEmailMe = () => {
     toast({
@@ -122,47 +102,21 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
                 <CreditCard className="h-4 w-4 text-slate-500" />
                 Evidence Transactions ({transactions.length} total)
               </h3>
-              <div className="space-y-2">
-                {Object.entries(groupedTransactions).map(([key, group]) => (
-                  <Collapsible
-                    key={key}
-                    open={expandedCards[key] !== false}
-                    onOpenChange={() => toggleCard(key)}
-                  >
-                    <CollapsibleTrigger className="w-full">
-                      <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="h-4 w-4 text-slate-400" />
-                          <span className="text-sm font-medium text-slate-700">
-                            {group.cardType} (...{group.cardLast4})
-                          </span>
-                          <Badge variant="secondary" className="text-xs">
-                            {group.transactions.length} txns
-                          </Badge>
-                        </div>
-                        <ChevronDown className={cn(
-                          "h-4 w-4 text-slate-400 transition-transform",
-                          expandedCards[key] !== false && "rotate-180"
-                        )} />
+              <div className="space-y-0">
+                {sortedTransactions.map((txn, idx) => (
+                  <div key={idx} className="py-2 border-b last:border-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-slate-700">{txn.merchant}</span>
+                        <Badge variant="outline" className="text-xs">{txn.cardType} ...{txn.cardLast4}</Badge>
                       </div>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="mt-1 ml-6 border-l-2 border-slate-200 pl-4 space-y-2 py-2">
-                        {group.transactions.map((txn, idx) => (
-                          <div key={idx} className="flex items-center justify-between text-sm">
-                            <div className="flex-1">
-                              <span className="font-medium text-slate-700">{txn.merchant}</span>
-                              <p className="text-xs text-slate-400">{txn.relevance}</p>
-                            </div>
-                            <div className="text-right shrink-0 ml-4">
-                              <span className="font-medium text-slate-800">{formatAmount(txn.amount)}</span>
-                              <p className="text-xs text-slate-400">{txn.date}</p>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="text-right text-sm">
+                        <span className="font-medium">{formatAmount(txn.amount)}</span>
+                        <span className="text-slate-400 ml-2">{txn.date}</span>
                       </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">{txn.relevance}</p>
+                  </div>
                 ))}
               </div>
             </div>
