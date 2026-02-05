@@ -93,8 +93,8 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
-        <DialogHeader className="pb-4 border-b">
-          <div className="flex items-center gap-3">
+        <DialogHeader className="pb-3 border-b">
+          <div className="flex items-center gap-2">
             <div className={cn('p-2 rounded-lg', `bg-${config?.color || 'slate'}-100`)}>
               <IconComponent className={cn('h-5 w-5', `text-${config?.color || 'slate'}-600`)} />
             </div>
@@ -117,10 +117,10 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
         </DialogHeader>
 
         <ScrollArea className="flex-1 pr-4">
-          <div className="py-4 space-y-6">
+          <div className="py-3 space-y-4">
             {/* Evidence Transactions Section */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-slate-500" />
                 Detected Supporting Transactions ({transactions.length} total)
               </h3>
@@ -145,11 +145,10 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               </div>
             </div>
 
-            {/* Two-column layout for Insights and Steps */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
               {/* Ventus Insights - Left */}
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-500" />
                   Ventus Insights
                 </h3>
@@ -158,13 +157,12 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
                 </p>
               </div>
 
-              {/* Recommended Next Steps - Right */}
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
                   Recommended Next Steps
                 </h3>
-                <ol className="space-y-2">
+                <ol className="space-y-1.5">
                   {recommendedSteps.map((step, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm">
                       <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
@@ -179,7 +177,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </div>
         </ScrollArea>
 
-        <DialogFooter className="border-t pt-4 flex items-center gap-2">
+        <DialogFooter className="border-t pt-3 flex items-center gap-2">
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
             <MessageSquare className="h-4 w-4" />
             Prepare with Ventus WM Co-Pilot
