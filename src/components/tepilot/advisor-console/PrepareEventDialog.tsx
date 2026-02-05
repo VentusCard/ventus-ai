@@ -14,6 +14,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   ChevronDown, CreditCard, Mail, MessageSquare, CheckCircle2,
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart, AlertTriangle
@@ -113,76 +114,78 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto py-4 space-y-6">
-          {/* Evidence Transactions Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-slate-500" />
-              Evidence Transactions ({transactions.length} total)
-            </h3>
-            <div className="space-y-2">
-              {Object.entries(groupedTransactions).map(([key, group]) => (
-                <Collapsible
-                  key={key}
-                  open={expandedCards[key] !== false}
-                  onOpenChange={() => toggleCard(key)}
-                >
-                  <CollapsibleTrigger className="w-full">
-                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4 text-slate-400" />
-                        <span className="text-sm font-medium text-slate-700">
-                          {group.cardType} Card (...{group.cardLast4})
-                        </span>
-                        <Badge variant="secondary" className="text-xs">
-                          {group.transactions.length} txns
-                        </Badge>
-                      </div>
-                      <ChevronDown className={cn(
-                        "h-4 w-4 text-slate-400 transition-transform",
-                        expandedCards[key] !== false && "rotate-180"
-                      )} />
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="mt-1 ml-6 border-l-2 border-slate-200 pl-4 space-y-2 py-2">
-                      {group.transactions.map((txn, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm">
-                          <div className="flex-1">
-                            <span className="font-medium text-slate-700">{txn.merchant}</span>
-                            <p className="text-xs text-slate-400">{txn.relevance}</p>
-                          </div>
-                          <div className="text-right shrink-0 ml-4">
-                            <span className="font-medium text-slate-800">{formatAmount(txn.amount)}</span>
-                            <p className="text-xs text-slate-400">{txn.date}</p>
-                          </div>
+        <ScrollArea className="flex-1 pr-4">
+          <div className="py-4 space-y-6">
+            {/* Evidence Transactions Section */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-slate-500" />
+                Evidence Transactions ({transactions.length} total)
+              </h3>
+              <div className="space-y-2">
+                {Object.entries(groupedTransactions).map(([key, group]) => (
+                  <Collapsible
+                    key={key}
+                    open={expandedCards[key] !== false}
+                    onOpenChange={() => toggleCard(key)}
+                  >
+                    <CollapsibleTrigger className="w-full">
+                      <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-slate-400" />
+                          <span className="text-sm font-medium text-slate-700">
+                            {group.cardType} (...{group.cardLast4})
+                          </span>
+                          <Badge variant="secondary" className="text-xs">
+                            {group.transactions.length} txns
+                          </Badge>
                         </div>
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              ))}
+                        <ChevronDown className={cn(
+                          "h-4 w-4 text-slate-400 transition-transform",
+                          expandedCards[key] !== false && "rotate-180"
+                        )} />
+                      </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="mt-1 ml-6 border-l-2 border-slate-200 pl-4 space-y-2 py-2">
+                        {group.transactions.map((txn, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-sm">
+                            <div className="flex-1">
+                              <span className="font-medium text-slate-700">{txn.merchant}</span>
+                              <p className="text-xs text-slate-400">{txn.relevance}</p>
+                            </div>
+                            <div className="text-right shrink-0 ml-4">
+                              <span className="font-medium text-slate-800">{formatAmount(txn.amount)}</span>
+                              <p className="text-xs text-slate-400">{txn.date}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+            </div>
+
+            {/* Recommended Next Steps Section */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                Recommended Next Steps
+              </h3>
+              <ol className="space-y-2">
+                {recommendedSteps.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-sm">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
+                      {idx + 1}
+                    </span>
+                    <span className="text-slate-600">{step}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
-
-          {/* Recommended Next Steps Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              Recommended Next Steps
-            </h3>
-            <ol className="space-y-2">
-              {recommendedSteps.map((step, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-sm">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <span className="text-slate-600">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
+        </ScrollArea>
 
         <DialogFooter className="border-t pt-4 flex items-center gap-2">
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
