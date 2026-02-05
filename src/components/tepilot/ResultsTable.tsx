@@ -80,7 +80,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     <TableRow key={transaction.transaction_id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{transaction.normalized_merchant}</div>
+                          <div className="font-medium text-slate-900">{transaction.normalized_merchant}</div>
                           {transaction.merchant_name !== transaction.normalized_merchant && (
                             <div className="text-xs text-slate-600">
                               {transaction.merchant_name}
