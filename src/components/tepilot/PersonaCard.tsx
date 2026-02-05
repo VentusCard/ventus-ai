@@ -74,7 +74,7 @@ export function PersonaCard({
           {keyFeatures.map((feature, idx) => (
             <div key={idx} className="flex items-start gap-2.5">
               <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <span className="text-sm text-slate-600 leading-relaxed">{feature}</span>
+              <span className="text-sm text-slate-700 leading-relaxed">{feature}</span>
             </div>
           ))}
         </div>
