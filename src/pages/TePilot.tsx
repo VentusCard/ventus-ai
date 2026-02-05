@@ -463,7 +463,7 @@ const TePilot = () => {
                   <AccordionContent className="text-xs text-slate-600 space-y-2">
                     <div className="border-l-2 border-blue-600 pl-3 py-1">
                       <p className="font-semibold">V3.0 - Current</p>
-                      <p>Life Event Intelligence Dashboard now detects early behavioral signals before clients take financial action—enabling proactive advisor engagement. Updated Ventus AI Insights and Recommended Next Steps with opportunity-focused guidance. Flat list view with urgency-based sorting replaces grouped layout.</p>
+                      <p>Life Event Intelligence Dashboard now detects early behavioral signals before clients take financial action—enabling proactive advisor engagement. Updated Ventus AI Insights and Recommended Next Steps with opportunity-focused guidance.</p>
                     </div>
                     <div className="border-l-2 border-slate-300 pl-3 py-1">
                       <p className="font-semibold text-slate-700">V2.5 - January 2026</p>
