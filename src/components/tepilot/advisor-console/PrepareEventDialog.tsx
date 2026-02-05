@@ -33,6 +33,18 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Heart,
 };
 
+const cardColorMap: Record<string, string> = {
+  'Platinum Rewards': 'bg-violet-100 text-violet-700 border-violet-200',
+  'Cashback Plus': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  'Travel Elite': 'bg-sky-100 text-sky-700 border-sky-200',
+  'Business Platinum': 'bg-amber-100 text-amber-700 border-amber-200',
+  'Primary Checking': 'bg-slate-100 text-slate-700 border-slate-200',
+};
+
+const getCardBadgeColor = (cardType: string): string => {
+  return cardColorMap[cardType] || 'bg-slate-100 text-slate-600 border-slate-200';
+};
+
 export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
 
   if (!data) return null;
@@ -108,7 +120,9 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-slate-700">{txn.merchant}</span>
-                        <Badge variant="outline" className="text-xs">{txn.cardType} ...{txn.cardLast4}</Badge>
+                        <Badge variant="outline" className={cn("text-xs", getCardBadgeColor(txn.cardType))}>
+                          {txn.cardType} ...{txn.cardLast4}
+                        </Badge>
                       </div>
                       <div className="text-right text-sm">
                         <span className="font-medium">{formatAmount(txn.amount)}</span>
