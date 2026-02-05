@@ -112,7 +112,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
             <div>
               <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-slate-500" />
-                Evidence Transactions ({transactions.length} total)
+                Detected Supporting Transactions ({transactions.length} total)
               </h3>
               <div className="space-y-0">
                 {sortedTransactions.map((txn, idx) => (
