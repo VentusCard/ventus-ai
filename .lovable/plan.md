@@ -1,118 +1,164 @@
 
-# Plan: Add Prepare Dialog for Life Event Cards
+# Plan: Transfer Event Preparation Data to Ventus WM Co-Pilot
 
 ## Overview
-When users click the "Prepare" button on a Life Event Alert Card, a dialog will open showing:
-1. **Transaction history across different card types** (Travel, Cashback, etc.) that indicate the detected event
-2. **Recommended next steps** for the advisor
-3. **"Email Me" button** to send a summary
+When a user clicks "Prepare with Ventus WM Co-Pilot" in the PrepareEventDialog, all relevant information (client profile, detected event, transaction evidence, and recommended steps) should be transferred to the Ventus Chat Panel so the AI can help prepare for the client conversation.
 
 ---
 
-## Components to Create/Modify
+## Architecture Changes
 
-### 1. New Component: `PrepareEventDialog.tsx`
-A new dialog component that displays when "Prepare" is clicked.
-
-**Structure:**
-- **Header**: Client name, event type badge, confidence score
-- **Card Transactions Section**: Collapsible list showing transactions grouped by card type (e.g., "Travel Rewards Card", "Cashback Card")
-  - Each transaction shows: merchant, amount, date, and relevance to the detected event
-- **Recommended Next Steps**: Numbered checklist of actions the advisor should take
-- **Footer Actions**: "Email Me" button and "Close" button
-
-### 2. New Type: `CardTransaction` in `dashboardClient.ts`
-```typescript
-interface CardTransaction {
-  cardType: string;       // e.g., "Travel Rewards", "Cashback Plus"
-  cardLast4: string;      // e.g., "4532"
-  merchant: string;
-  amount: number;
-  date: string;
-  relevance: string;      // Why this transaction indicates the life event
-}
-
-interface EventPreparationData {
-  transactions: CardTransaction[];
-  recommendedSteps: string[];
-}
-```
-
-### 3. Modify `LifeEventAlertCard.tsx`
-- Update `onPrepare` callback to pass both `clientId` and `event` data
-- Signature change: `onPrepare: (clientId: string, event: DetectedLifeEvent) => void`
-
-### 4. Modify `LifeEventsAlertDashboard.tsx`
-- Add state for the prepare dialog: `prepareDialogOpen` and `selectedPrepareData`
-- Add handler to open dialog with mock/generated transaction data
-- Render `PrepareEventDialog` component
-
-### 5. Mock Data Generator: `generateEventTransactions()`
-A utility function that generates realistic transaction data based on event type:
-- **Retirement**: 401k contributions, financial advisor fees, AARP purchases
-- **Home Purchase**: Zillow, Home Depot, moving companies
-- **Education**: Tuition payments, textbook stores, SAT prep
-- **Travel**: Airlines, hotels, luggage stores
-- etc.
-
----
-
-## UI Layout (PrepareEventDialog)
-
+### Data Flow
 ```text
-+--------------------------------------------------+
-| [Icon] Prepare: {Event Name}                     |
-| Client: {Name} | {Segment} | Confidence: 87%     |
-+--------------------------------------------------+
-|                                                  |
-| 📊 Evidence Transactions (12 total)              |
-|   [v] Travel Rewards Card (...4532) - 5 txns     |
-|       • Delta Airlines    $1,250   Jan 15        |
-|       • Marriott Hotels   $890     Jan 16        |
-|       ...                                        |
-|   [v] Cashback Plus (...7891) - 4 txns           |
-|       • Home Depot        $2,340   Feb 1         |
-|       • Lowe's            $567     Feb 3         |
-|                                                  |
-| ✅ Recommended Next Steps                         |
-|   1. Review recent large purchases pattern        |
-|   2. Discuss retirement timeline expectations     |
-|   3. Propose portfolio rebalancing consultation   |
-|   4. Schedule follow-up in 2 weeks               |
-|                                                  |
-+--------------------------------------------------+
-| [Email Me Summary]            [Ask Ventus] [Close]|
-+--------------------------------------------------+
+PrepareEventDialog
+    ↓ (onPrepareWithVentus callback)
+LifeEventsAlertDashboard
+    ↓ (passes up to parent)
+AdvisorConsolePage
+    ↓ (stores data, switches to client view)
+AdvisorConsole
+    ↓ (passes pending message with context)
+VentusChatPanel
+    ↓ (receives context, pre-fills input, sends to AI)
 ```
 
 ---
 
-## Technical Details
+## Implementation Details
 
-### File Changes
+### 1. Add Callback Props to PrepareEventDialog
 
-| File | Action |
-|------|--------|
-| `src/types/dashboardClient.ts` | Add `CardTransaction` and `EventPreparationData` interfaces |
-| `src/components/tepilot/advisor-console/PrepareEventDialog.tsx` | **New file** - Dialog component |
-| `src/components/tepilot/advisor-console/LifeEventAlertCard.tsx` | Update `onPrepare` signature to include event |
-| `src/components/tepilot/advisor-console/LifeEventsAlertDashboard.tsx` | Add dialog state, handler, and render dialog |
+Add a new prop `onPrepareWithVentus` that gets called when the button is clicked:
 
-### Email Me Functionality
-- Clicking "Email Me" will show a toast notification: "Summary sent to your email"
-- For now, this will be a mock action (no actual email sent)
-- Future integration could use an edge function to send the actual email
+```typescript
+interface PrepareEventDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  data: EventPreparationData | null;
+  onPrepareWithVentus?: (data: EventPreparationData) => void;  // NEW
+}
+```
 
-### Transaction Data Generation
-Each life event type will have a curated set of realistic transactions:
-- Grouped by card type with card last 4 digits
-- Includes relevance explanation (e.g., "Consistent airline bookings suggest upcoming travel plans")
-- Sorted by recency
+### 2. Update LifeEventsAlertDashboard
+
+- Add a new prop `onPrepareWithVentus` to pass up to the parent
+- Wire it through to the `PrepareEventDialog`
+
+```typescript
+interface LifeEventsAlertDashboardProps {
+  clients: DashboardClient[];
+  onOpenClient: (clientId: string) => void;
+  onScheduleCall: (clientId: string) => void;
+  onPrepareWithVentus?: (data: EventPreparationData) => void;  // NEW
+}
+```
+
+### 3. Update AdvisorConsolePage
+
+- Add handler `handlePrepareWithVentus` that:
+  1. Stores the client profile to sessionStorage
+  2. Stores the event preparation data to sessionStorage
+  3. Builds a context-rich prompt message
+  4. Switches to client view with the pending message
+
+```typescript
+const handlePrepareWithVentus = useCallback((data: EventPreparationData) => {
+  // Store client profile
+  sessionStorage.setItem("tepilot_client_profile", JSON.stringify(data.client.profile));
+  
+  // Store event preparation context for the chat
+  sessionStorage.setItem("tepilot_event_preparation", JSON.stringify(data));
+  
+  // Build context-rich prompt
+  const prompt = buildEventPreparationPrompt(data);
+  
+  // Set pending message and switch view
+  setPendingVentusMessage(prompt);
+  setSelectedClientId(data.client.id);
+  setViewMode("client");
+}, []);
+```
+
+### 4. Build Context-Rich Prompt
+
+Create a helper function that builds a comprehensive prompt:
+
+```typescript
+function buildEventPreparationPrompt(data: EventPreparationData): string {
+  const { client, event, transactions, recommendedSteps } = data;
+  
+  return `I need to prepare for a client meeting about a detected ${event.eventName} event.
+
+**Client:** ${client.profile.name} (${client.profile.segment})
+**Event:** ${event.eventName} (${event.confidence}% confidence)
+**Estimated Timing:** ${event.estimatedTiming}
+
+**Key Evidence from Transactions:**
+${transactions.slice(0, 5).map(t => 
+  `- ${t.merchant}: $${t.amount} (${t.cardType}) - ${t.relevance}`
+).join('\n')}
+
+**Suggested Steps:**
+${recommendedSteps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+
+Help me prepare talking points and questions for this client conversation about their ${event.eventName} planning.`;
+}
+```
+
+### 5. Pass Pending Message to AdvisorConsole
+
+Add state and props to pass the pending message from AdvisorConsolePage to AdvisorConsole:
+
+```typescript
+// In AdvisorConsolePage
+const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
+
+<AdvisorConsole 
+  // ... existing props
+  initialPendingMessage={pendingVentusMessage}
+  onPendingMessageConsumed={() => setPendingVentusMessage(null)}
+/>
+```
+
+### 6. Update AdvisorConsole
+
+Receive the initial pending message and forward it to VentusChatPanel:
+
+```typescript
+interface AdvisorConsoleProps {
+  // ... existing props
+  initialPendingMessage?: string | null;
+  onPendingMessageConsumed?: () => void;
+}
+```
 
 ---
 
-## Implementation Order
-1. Add new types to `dashboardClient.ts`
-2. Create `PrepareEventDialog.tsx` component
-3. Update `LifeEventAlertCard.tsx` callback signature
-4. Update `LifeEventsAlertDashboard.tsx` to manage dialog state and render
+## File Changes Summary
+
+| File | Changes |
+|------|---------|
+| `src/components/tepilot/advisor-console/PrepareEventDialog.tsx` | Add `onPrepareWithVentus` prop, call it on button click, close dialog |
+| `src/components/tepilot/advisor-console/LifeEventsAlertDashboard.tsx` | Add `onPrepareWithVentus` prop, pass to PrepareEventDialog |
+| `src/pages/AdvisorConsolePage.tsx` | Add handler, state for pending message, pass to AdvisorConsole |
+| `src/components/tepilot/advisor-console/AdvisorConsole.tsx` | Accept initial pending message prop, merge with existing pending message logic |
+
+---
+
+## User Experience Flow
+
+1. User clicks "Prepare" on a life event card
+2. PrepareEventDialog opens showing transaction evidence and recommended steps
+3. User clicks "Prepare with Ventus WM Co-Pilot"
+4. Dialog closes, view switches to Client View
+5. VentusChatPanel shows with a pre-filled, context-rich message
+6. Message is automatically sent or ready for the advisor to review and send
+7. Ventus AI responds with tailored preparation guidance
+
+---
+
+## Technical Notes
+
+- The event preparation data is also stored in sessionStorage (`tepilot_event_preparation`) for potential use by the AI context builder
+- The prompt is designed to give the AI enough context to provide meaningful preparation assistance
+- All transaction evidence, recommended steps, and client details are included in the prompt
