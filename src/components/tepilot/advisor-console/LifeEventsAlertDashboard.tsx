@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { DashboardClient, DetectedLifeEvent, LIFE_EVENT_CONFIG } from "@/types/dashboardClient";
+import { DashboardClient, DetectedLifeEvent, LIFE_EVENT_CONFIG, EventPreparationData } from "@/types/dashboardClient";
 import { LifeEventAlertCard } from "./LifeEventAlertCard";
+import { PrepareEventDialog, generateEventPreparationData } from "./PrepareEventDialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
@@ -39,6 +39,17 @@ export function LifeEventsAlertDashboard({
   const [eventFilter, setEventFilter] = useState<EventTypeFilter>('all');
   const [confidenceFilter, setConfidenceFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('urgency');
+  const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
+  const [prepareData, setPrepareData] = useState<EventPreparationData | null>(null);
+
+  const handlePrepare = (clientId: string, event: DetectedLifeEvent) => {
+    const client = clients.find(c => c.id === clientId);
+    if (client) {
+      const data = generateEventPreparationData(client, event);
+      setPrepareData(data);
+      setPrepareDialogOpen(true);
+    }
+  };
 
   // Flatten clients with events for display
   const clientsWithEvents = useMemo(() => {
@@ -246,7 +257,7 @@ export function LifeEventsAlertDashboard({
                     key={`${item.client.id}-${item.event.eventType}-${idx}`}
                     client={item.client}
                     event={item.event}
-                    onPrepare={onOpenClient}
+                    onPrepare={handlePrepare}
                     onView={onOpenClient}
                     onScheduleCall={onScheduleCall}
                     showEventLabel
@@ -265,6 +276,12 @@ export function LifeEventsAlertDashboard({
           </div>
         )}
       </div>
+
+      <PrepareEventDialog
+        open={prepareDialogOpen}
+        onOpenChange={setPrepareDialogOpen}
+        data={prepareData}
+      />
     </div>
   );
 }
