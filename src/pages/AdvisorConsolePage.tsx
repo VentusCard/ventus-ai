@@ -1,17 +1,28 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
-import { ArrowLeft } from "lucide-react";
+import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
+import { ArrowLeft, LayoutDashboard, User } from "lucide-react";
 import { EnrichedTransaction } from "@/types/transaction";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { buildAdvisorContext, AdvisorContext } from "@/lib/advisorContextBuilder";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateDashboardClients } from "@/lib/randomProfileGenerator";
+import { DashboardClient } from "@/types/dashboardClient";
+import { cn } from "@/lib/utils";
+
+type ViewMode = "dashboard" | "client";
 
 const AdvisorConsolePage = () => {
   const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [advisorContext, setAdvisorContext] = useState<AdvisorContext | undefined>(undefined);
+
+  // Generate dashboard clients once on mount
+  const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
   const handleBackToTePilot = () => {
     // Clear all advisor console related sessionStorage
@@ -26,6 +37,27 @@ const AdvisorConsolePage = () => {
     // Navigate back to TePilot
     navigate("/tepilot", { state: { activeTab: "insights" } });
   };
+
+  const handleOpenClient = useCallback((clientId: string) => {
+    const client = dashboardClients.find(c => c.id === clientId);
+    if (client) {
+      // Store client profile in sessionStorage for AdvisorConsole to pick up
+      sessionStorage.setItem("tepilot_client_profile", JSON.stringify(client.profile));
+      setSelectedClientId(clientId);
+      setViewMode("client");
+    }
+  }, [dashboardClients]);
+
+  const handleScheduleCall = useCallback((clientId: string) => {
+    const client = dashboardClients.find(c => c.id === clientId);
+    toast.success(`Scheduling call with ${client?.profile.name || 'client'}...`);
+  }, [dashboardClients]);
+
+  const handleBackToDashboard = useCallback(() => {
+    setViewMode("dashboard");
+    setSelectedClientId(null);
+  }, []);
+
   const [enrichedTransactions, setEnrichedTransactions] = useState<EnrichedTransaction[]>([]);
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
@@ -141,29 +173,73 @@ const AdvisorConsolePage = () => {
       {/* Top Navigation Bar */}
       <div className="border-b px-4 py-3 bg-white z-10 shadow-sm flex-shrink-0">
         <div className="flex items-center justify-between max-w-full">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleBackToTePilot}
-            className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to TePilot
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBackToTePilot}
+              className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to TePilot
+            </Button>
+            
+            {/* View Toggle */}
+            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("dashboard")}
+                className={cn(
+                  "h-8 px-3 rounded-md",
+                  viewMode === "dashboard" 
+                    ? "bg-white shadow-sm text-slate-900" 
+                    : "text-slate-600 hover:text-slate-900"
+                )}
+              >
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                Dashboard
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode("client")}
+                className={cn(
+                  "h-8 px-3 rounded-md",
+                  viewMode === "client" 
+                    ? "bg-white shadow-sm text-slate-900" 
+                    : "text-slate-600 hover:text-slate-900"
+                )}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Client View
+              </Button>
+            </div>
+          </div>
+          
           <h2 className="text-sm font-medium text-slate-500">
             Wealth Management Copilot
           </h2>
         </div>
       </div>
 
-      {/* Full Advisor Console */}
+      {/* Content Area */}
       <div className="flex-1 min-h-0">
-        <AdvisorConsole 
-          enrichedTransactions={enrichedTransactions}
-          aiInsights={aiInsights}
-          isLoadingInsights={isLoadingInsights}
-          advisorContext={advisorContext}
-        />
+        {viewMode === "dashboard" ? (
+          <LifeEventsAlertDashboard
+            clients={dashboardClients}
+            onOpenClient={handleOpenClient}
+            onScheduleCall={handleScheduleCall}
+          />
+        ) : (
+          <AdvisorConsole 
+            enrichedTransactions={enrichedTransactions}
+            aiInsights={aiInsights}
+            isLoadingInsights={isLoadingInsights}
+            advisorContext={advisorContext}
+            onBackToDashboard={handleBackToDashboard}
+          />
+        )}
       </div>
     </div>
   );
