@@ -124,31 +124,31 @@ export function ClientSnapshotPanel({
             
             <div className="grid grid-cols-2 gap-3 text-xs mb-3">
               <div>
-                <div className="text-slate-500">AUM</div>
-                <div className="font-semibold text-slate-700">
+                <div className="text-slate-600">AUM</div>
+                <div className="font-semibold text-slate-900">
                   {displayData.aum}
                 </div>
               </div>
               <div>
-                <div className="text-slate-500">Tenure</div>
-                <div className="font-semibold text-slate-700">
+                <div className="text-slate-600">Tenure</div>
+                <div className="font-semibold text-slate-900">
                   {displayData.tenure}
                 </div>
               </div>
             </div>
 
             <div className="text-xs space-y-1 pt-3 border-t">
-              <div className="text-slate-500">Contact</div>
-              <div className="text-slate-700">{displayData.contact.email}</div>
-              <div className="text-slate-700">{displayData.contact.phone}</div>
-              <div className="text-slate-700">{displayData.contact.address}</div>
+              <div className="text-slate-600">Contact</div>
+              <div className="text-slate-900">{displayData.contact.email}</div>
+              <div className="text-slate-900">{displayData.contact.phone}</div>
+              <div className="text-slate-900">{displayData.contact.address}</div>
             </div>
 
             <div className="text-xs space-y-1 pt-3 border-t mt-3">
-              <div className="text-slate-500">Demographics</div>
-              <div className="text-slate-700">Age: {displayData.demographics.age}</div>
-              <div className="text-slate-700">{displayData.demographics.occupation}</div>
-              <div className="text-slate-700">{displayData.demographics.familyStatus}</div>
+              <div className="text-slate-600">Demographics</div>
+              <div className="text-slate-900">Age: {displayData.demographics.age}</div>
+              <div className="text-slate-900">{displayData.demographics.occupation}</div>
+              <div className="text-slate-900">{displayData.demographics.familyStatus}</div>
             </div>
           </div>
         </Card>
@@ -169,15 +169,15 @@ export function ClientSnapshotPanel({
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center justify-between py-2 border-b">
                     <span className="text-slate-600">Total Spend</span>
-                    <span className="font-semibold text-slate-700">{formatCurrency(advisorContext.overview.totalSpend)}</span>
+                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.totalSpend)}</span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b">
                     <span className="text-slate-600">Avg. Transaction</span>
-                    <span className="font-semibold text-slate-700">{formatCurrency(advisorContext.overview.avgTransactionAmount)}</span>
+                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.avgTransactionAmount)}</span>
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <span className="text-slate-600">Date Range</span>
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {advisorContext.overview.dateRange.start} - {advisorContext.overview.dateRange.end}
                     </span>
                   </div>
@@ -227,7 +227,7 @@ export function ClientSnapshotPanel({
                     style={{ animationDelay: `${idx * 100}ms` }}
                     onClick={() => setSelectedEvent(event)}
                   >
-                    <div className="font-semibold text-slate-700 flex items-center gap-2">
+                    <div className="font-semibold text-slate-900 flex items-center gap-2">
                       {event.event_name}
                       <Badge variant="outline" className="text-xs">{event.confidence}%</Badge>
                     </div>
@@ -273,7 +273,7 @@ export function ClientSnapshotPanel({
                     Deposits
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.deposit}
                     </span>
                     {displayData.holdingsChange?.deposit && (
@@ -296,7 +296,7 @@ export function ClientSnapshotPanel({
                     Credit
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.credit}
                     </span>
                     {displayData.holdingsChange?.credit && (
@@ -319,7 +319,7 @@ export function ClientSnapshotPanel({
                     Mortgage
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.mortgage}
                     </span>
                     {displayData.holdingsChange?.mortgage && (
@@ -338,7 +338,7 @@ export function ClientSnapshotPanel({
                     Investments
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.investments}
                     </span>
                     {displayData.holdingsChange?.investments && (

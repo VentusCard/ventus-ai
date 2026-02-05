@@ -115,7 +115,7 @@ export function ActionWorkspacePanel({
                       <li 
                         key={idx} 
                         className={`text-xs ${
-                          !isAssessed ? 'text-slate-400 italic' : 'text-slate-700'
+                          !isAssessed ? 'text-slate-400 italic' : 'text-slate-900'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-0.5">
@@ -240,7 +240,7 @@ export function ActionWorkspacePanel({
                           onCheckedChange={() => onToggleActionItem(item.id)}
                           className="mt-0.5"
                         />
-                        <span className="text-xs text-slate-700 flex-1">{item.text}</span>
+                        <span className="text-xs text-slate-900 flex-1">{item.text}</span>
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                           {item.source}
                         </Badge>
