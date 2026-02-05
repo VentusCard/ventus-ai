@@ -153,7 +153,7 @@ export function LifeEventsAlertDashboard({
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">Life Event Detection <span className="text-sm font-normal text-slate-500">Powered by Ventus</span></h1>
+            <h1 className="text-xl font-semibold text-slate-900">Wealth Management Client Life Event Intelligence <span className="text-sm font-normal text-slate-500">Powered by Ventus AI</span></h1>
             <p className="text-sm text-slate-500 mt-1">
               {metrics.totalClients} clients with upcoming life events need attention
             </p>
