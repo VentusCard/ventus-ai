@@ -415,7 +415,7 @@ export function VentusChatPanel({
       {/* Input Area */}
       <div className="border-t px-4 py-3 bg-slate-50 flex-shrink-0">
         <div className="flex gap-2">
-          <Input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Ask about spending patterns, life events, product recommendations..." className="flex-1" onKeyDown={e => {
+          <Input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Ask about spending patterns, life events, product recommendations..." className="flex-1 bg-white text-slate-900" onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
