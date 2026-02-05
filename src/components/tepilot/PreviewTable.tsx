@@ -61,12 +61,12 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
             <Table>
               <TableHeader className="sticky top-0 bg-white">
                 <TableRow>
-                  <TableHead>Merchant</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>MCC</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Zip Code</TableHead>
+                  <TableHead className="text-slate-700">Merchant</TableHead>
+                  <TableHead className="text-slate-700">Description</TableHead>
+                  <TableHead className="text-slate-700">MCC</TableHead>
+                  <TableHead className="text-right text-slate-700">Amount</TableHead>
+                  <TableHead className="text-slate-700">Date</TableHead>
+                  <TableHead className="text-slate-700">Zip Code</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -85,11 +85,11 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                         <span className="text-slate-400 text-sm">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right font-mono text-slate-900">
                       ${transaction.amount.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-sm">{transaction.date}</TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm text-slate-700">{transaction.date}</TableCell>
+                    <TableCell className="text-sm text-slate-700">
                       {transaction.zip_code || "—"}
                     </TableCell>
                   </TableRow>
