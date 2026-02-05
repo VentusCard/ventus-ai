@@ -266,8 +266,7 @@ export function AdvisorConsole({
       <div className="border-b px-4 py-3 flex items-center justify-between bg-gradient-to-r from-white to-slate-50 flex-shrink-0">
         <div>
         <h1 className="text-2xl font-semibold text-slate-900">
-          Wealth Management Advisor Console{" "}
-          <span className="text-primary">Powered by Ventus</span>
+          Wealth Management Advisor Co-Pilot
         </h1>
           <p className="text-sm text-slate-600 mt-1">
             AI-powered relationship intelligence and client engagement platform
