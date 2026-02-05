@@ -1,57 +1,60 @@
 
 
-# Plan: Add Checking Account Transactions for Large Fees/Payments
+# Plan: Simplify Evidence Transactions - 2-Line Layout, Chronological Order
 
 ## Overview
-Add checking account transactions only where credit cards would be impractical or incur extra fees - primarily for large payments to attorneys, deposits, and financial institution transfers.
+Remove card/account grouping and display transactions as a flat list with a compact 2-line format, sorted by date (oldest to newest).
+
+## Layout
+
+Each transaction shows:
+- **Line 1:** Merchant name + account badge on left, amount + date on right
+- **Line 2:** Relevance text (muted)
+
+```text
+┌──────────────────────────────────────────────────────────────────────┐
+│ Check #1042 - Estate Attorney  [Primary Checking ...5678]  $2,500  Jan 12│
+│ Estate planning legal fees                                           │
+├──────────────────────────────────────────────────────────────────────┤
+│ Fidelity Investments  [Platinum Rewards ...4532]          $6,500  Jan 15│
+│ 401k contribution increase                                           │
+├──────────────────────────────────────────────────────────────────────┤
+│ Viking Cruises  [Travel Elite ...2234]                    $8,500  Jan 20│
+│ Retirement travel planning                                           │
+└──────────────────────────────────────────────────────────────────────┘
+```
 
 ## Changes
 
-### Update Mock Data in PrepareEventDialog.tsx
+**File:** `src/components/tepilot/advisor-console/PrepareEventDialog.tsx`
 
-Add checking account transactions only for appropriate payment types:
+**Remove:**
+- `groupByCard` function
+- `expandedCards` state and `toggleCard` handler
+- `Collapsible`, `CollapsibleContent`, `CollapsibleTrigger` imports
+- `ChevronDown` import
 
-| Keep as Credit Card | Change to Checking Account |
-|---------------------|---------------------------|
-| Costco, retail stores | Attorney fees (large amounts) |
-| Travel bookings | Earnest money deposits |
-| Subscriptions, memberships | Tuition deposits |
-| Regular purchases | Wire transfers to institutions |
-| | Large care facility payments |
+**Add:**
+- Sort transactions by date before rendering
 
-### Example Updates by Event Type
-
-**Retirement:**
-- Keep: Fidelity (credit card contribution portal), AARP membership, Viking Cruises
-- Add: Check #1042 to Estate Attorney ($2,500), Wire to Trust Account
-
-**Education:**
-- Keep: Princeton Review, Southwest Airlines
-- Add: Check #2156 for Tuition Deposit ($5,000), ACH to 529 Plan
-
-**Home Purchase:**
-- Keep: Home Depot, Lowe's, U-Haul
-- Add: Check #3201 for Earnest Money ($15,000), Wire for Closing Costs
-
-**Wealth Transfer:**
-- Keep: Trust & Will, LegalZoom (online services)
-- Add: Check #1587 to Estate Attorney ($3,500)
-
-**Business Liquidity:**
-- Keep: BizBuySell Premium (subscription)
-- Add: Check #4023 to M&A Advisory ($10,000), Wire to Escrow
-
-**Family Formation:**
-- Keep: Buy Buy Baby, Pottery Barn Kids, Delta Airlines
-- Add: ACH to 529 Plan Setup ($1,000)
-
-**Elder Care:**
-- Keep: CVS Pharmacy
-- Add: Check #2341 to Sunrise Senior Living ($8,500), ACH to Home Care Service
-
-## File to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/tepilot/advisor-console/PrepareEventDialog.tsx` | Add checking account transactions for attorney fees, deposits, and large institutional payments in `generateEventPreparationData` |
+**Replace grouped structure with:**
+```tsx
+{[...transactions]
+  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  .map((txn, idx) => (
+    <div key={idx} className="py-2 border-b last:border-0">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-slate-700">{txn.merchant}</span>
+          <Badge variant="outline" className="text-xs">{txn.cardType} ...{txn.cardLast4}</Badge>
+        </div>
+        <div className="text-right text-sm">
+          <span className="font-medium">{formatAmount(txn.amount)}</span>
+          <span className="text-slate-400 ml-2">{txn.date}</span>
+        </div>
+      </div>
+      <p className="text-xs text-slate-500 mt-1">{txn.relevance}</p>
+    </div>
+  ))}
+```
 
