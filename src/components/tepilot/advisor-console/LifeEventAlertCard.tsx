@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 interface LifeEventAlertCardProps {
   client: DashboardClient;
   event: DetectedLifeEvent;
-  onPrepare: (clientId: string) => void;
+  onPrepare: (clientId: string, event: DetectedLifeEvent) => void;
   onView: (clientId: string) => void;
   onScheduleCall: (clientId: string) => void;
   showEventLabel?: boolean;
@@ -124,7 +124,7 @@ export function LifeEventAlertCard({
           <div className="flex items-center gap-1 shrink-0">
             <Button
               size="sm"
-              onClick={() => onPrepare(client.id)}
+              onClick={() => onPrepare(client.id, event)}
               className="h-7 px-3 text-xs"
             >
               Prepare

@@ -9,6 +9,22 @@ export interface DetectedLifeEvent {
   urgencyScore: number; // 1-5
 }
 
+export interface CardTransaction {
+  cardType: string;
+  cardLast4: string;
+  merchant: string;
+  amount: number;
+  date: string;
+  relevance: string;
+}
+
+export interface EventPreparationData {
+  client: DashboardClient;
+  event: DetectedLifeEvent;
+  transactions: CardTransaction[];
+  recommendedSteps: string[];
+}
+
 export interface DashboardClient {
   id: string;
   profile: ClientProfileData;
