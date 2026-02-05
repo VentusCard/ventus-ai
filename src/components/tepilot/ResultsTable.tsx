@@ -188,7 +188,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             size="sm"
                             onClick={() => setCorrectionTransaction(transaction)}
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4 text-slate-700" />
                           </Button>
                         </div>
                       </TableCell>
