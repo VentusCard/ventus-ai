@@ -1,60 +1,70 @@
 
-
-# Plan: Simplify Evidence Transactions - 2-Line Layout, Chronological Order
+# Plan: Add "Ventus Insights" Section to Prepare Event Dialog
 
 ## Overview
-Remove card/account grouping and display transactions as a flat list with a compact 2-line format, sorted by date (oldest to newest).
+Add a new "Ventus Insights" section to the left of "Recommended Next Steps" that will display a holistic lifestyle summary of the client in natural language. For now, this will be a placeholder with mock content - the edge function will be built later.
 
-## Layout
+## Layout Change
 
-Each transaction shows:
-- **Line 1:** Merchant name + account badge on left, amount + date on right
-- **Line 2:** Relevance text (muted)
-
+Current layout (stacked vertically):
 ```text
-┌──────────────────────────────────────────────────────────────────────┐
-│ Check #1042 - Estate Attorney  [Primary Checking ...5678]  $2,500  Jan 12│
-│ Estate planning legal fees                                           │
-├──────────────────────────────────────────────────────────────────────┤
-│ Fidelity Investments  [Platinum Rewards ...4532]          $6,500  Jan 15│
-│ 401k contribution increase                                           │
-├──────────────────────────────────────────────────────────────────────┤
-│ Viking Cruises  [Travel Elite ...2234]                    $8,500  Jan 20│
-│ Retirement travel planning                                           │
-└──────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│ Detected Supporting Transactions        │
+├─────────────────────────────────────────┤
+│ Recommended Next Steps                  │
+└─────────────────────────────────────────┘
+```
+
+New layout (two-column for bottom section):
+```text
+┌─────────────────────────────────────────┐
+│ Detected Supporting Transactions        │
+├───────────────────┬─────────────────────┤
+│ Ventus Insights   │ Recommended Steps   │
+│ (left column)     │ (right column)      │
+└───────────────────┴─────────────────────┘
 ```
 
 ## Changes
 
 **File:** `src/components/tepilot/advisor-console/PrepareEventDialog.tsx`
 
-**Remove:**
-- `groupByCard` function
-- `expandedCards` state and `toggleCard` handler
-- `Collapsible`, `CollapsibleContent`, `CollapsibleTrigger` imports
-- `ChevronDown` import
+1. **Add Sparkles icon import** from lucide-react for the Ventus Insights header
 
-**Add:**
-- Sort transactions by date before rendering
+2. **Add placeholder insight text** - Mock natural language summary based on event type that describes the client's lifestyle picture
 
-**Replace grouped structure with:**
+3. **Create two-column grid layout** below transactions:
+   - Left column: "Ventus Insights" with a Sparkles icon and placeholder paragraph text
+   - Right column: Existing "Recommended Next Steps" list
+
+## Technical Details
+
 ```tsx
-{[...transactions]
-  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  .map((txn, idx) => (
-    <div key={idx} className="py-2 border-b last:border-0">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-slate-700">{txn.merchant}</span>
-          <Badge variant="outline" className="text-xs">{txn.cardType} ...{txn.cardLast4}</Badge>
-        </div>
-        <div className="text-right text-sm">
-          <span className="font-medium">{formatAmount(txn.amount)}</span>
-          <span className="text-slate-400 ml-2">{txn.date}</span>
-        </div>
-      </div>
-      <p className="text-xs text-slate-500 mt-1">{txn.relevance}</p>
-    </div>
-  ))}
-```
+// Add to imports
+import { Sparkles } from "lucide-react";
 
+// Mock insights by event type (placeholder until edge function)
+const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = {
+  retirement: "Based on recent transaction patterns, this client appears to be actively preparing for retirement...",
+  // ... other event types
+};
+
+// New two-column layout structure
+<div className="grid grid-cols-2 gap-6">
+  {/* Ventus Insights - Left */}
+  <div>
+    <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
+      <Sparkles className="h-4 w-4 text-amber-500" />
+      Ventus Insights
+    </h3>
+    <p className="text-sm text-slate-600 leading-relaxed">
+      {mockInsightsByEventType[event.eventType]}
+    </p>
+  </div>
+  
+  {/* Recommended Next Steps - Right */}
+  <div>
+    {/* existing content */}
+  </div>
+</div>
+```
