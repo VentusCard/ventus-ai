@@ -90,7 +90,7 @@ export function PrepareEventDialog({ open, onOpenChange, data }: PrepareEventDia
               <IconComponent className={cn('h-5 w-5', `text-${config?.color || 'slate'}-600`)} />
             </div>
             <div>
-              <DialogTitle className="text-lg">Prepare: {event.eventName}</DialogTitle>
+              <DialogTitle className="text-lg font-bold text-slate-900">Prepare: {event.eventName}</DialogTitle>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm text-slate-600">{client.profile.name}</span>
                 <Badge variant="secondary" className="text-xs">{client.profile.segment}</Badge>
