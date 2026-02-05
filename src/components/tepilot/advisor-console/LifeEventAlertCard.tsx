@@ -14,6 +14,7 @@ interface LifeEventAlertCardProps {
   onPrepare: (clientId: string) => void;
   onView: (clientId: string) => void;
   onScheduleCall: (clientId: string) => void;
+  showEventLabel?: boolean;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -38,6 +39,7 @@ export function LifeEventAlertCard({
   onPrepare,
   onView,
   onScheduleCall,
+  showEventLabel = false,
 }: LifeEventAlertCardProps) {
   const config = LIFE_EVENT_CONFIG[event.eventType];
   const IconComponent = iconMap[config.icon] || AlertTriangle;
@@ -89,6 +91,11 @@ export function LifeEventAlertCard({
           {/* Event Details */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
+              {showEventLabel && (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0 text-slate-600 border-slate-300">
+                  {config.label}
+                </Badge>
+              )}
               <span className="text-sm font-medium text-slate-800 truncate">{event.eventName}</span>
               <Badge className={cn('text-[10px] px-1.5 py-0 shrink-0', urgencyBadge.className)}>
                 {urgencyBadge.label}

@@ -220,25 +220,27 @@ export function LifeEventsAlertDashboard({
 
       {/* Content - Grouped by Event Type */}
       <div className="flex-1 overflow-y-auto p-6">
-        {Object.entries(groupedByType).map(([eventType, items]) => {
+        {Object.entries(groupedByType).map(([eventType, items], groupIdx) => {
           const config = LIFE_EVENT_CONFIG[eventType as DetectedLifeEvent['eventType']];
           const IconComponent = iconMap[config?.icon] || AlertCircle;
           
           return (
-            <div key={eventType} className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
+            <div key={eventType} className="mb-6">
+              {/* Section Header with Divider */}
+              <div className="flex items-center gap-3 mb-3">
                 <div className={cn('p-1.5 rounded', `bg-${config?.color || 'slate'}-100`)}>
                   <IconComponent className={cn('h-4 w-4', `text-${config?.color || 'slate'}-600`)} />
                 </div>
-                <h2 className="text-lg font-semibold text-slate-800">
+                <h2 className="text-base font-semibold text-slate-800">
                   {config?.label || eventType}
                 </h2>
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="text-xs">
                   {items.length}
                 </Badge>
+                <div className="flex-1 h-px bg-slate-200" />
               </div>
               
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2 pl-2 border-l-2 border-slate-200 ml-3">
                 {items.map((item, idx) => (
                   <LifeEventAlertCard
                     key={`${item.client.id}-${item.event.eventType}-${idx}`}
@@ -247,6 +249,7 @@ export function LifeEventsAlertDashboard({
                     onPrepare={onOpenClient}
                     onView={onOpenClient}
                     onScheduleCall={onScheduleCall}
+                    showEventLabel
                   />
                 ))}
               </div>
