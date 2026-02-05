@@ -161,7 +161,7 @@ export function ClientSnapshotPanel({
               <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">Transaction Overview</span>
+                  <span className="text-sm font-semibold text-blue-900">Transaction Overview</span>
                   <Badge variant="secondary" className="ml-auto text-xs">{advisorContext.overview.totalTransactions} txns</Badge>
                 </div>
               </AccordionTrigger>
