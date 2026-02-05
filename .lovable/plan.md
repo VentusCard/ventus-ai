@@ -1,140 +1,118 @@
 
-# Life Events Alert Dashboard for Wealth Managers
+# Plan: Add Prepare Dialog for Life Event Cards
 
 ## Overview
-Create a new dashboard view focused on surfacing detected life events across all clients. This enables wealth managers to proactively prepare for upcoming client needs before meetings. The dashboard prioritizes actionable intelligence over general client management.
+When users click the "Prepare" button on a Life Event Alert Card, a dialog will open showing:
+1. **Transaction history across different card types** (Travel, Cashback, etc.) that indicate the detected event
+2. **Recommended next steps** for the advisor
+3. **"Email Me" button** to send a summary
 
-## New Components
+---
 
-### 1. LifeEventsAlertDashboard
-**File:** `src/components/tepilot/advisor-console/LifeEventsAlertDashboard.tsx`
+## Components to Create/Modify
 
-Main dashboard with:
-- **Summary Alert Bar**: Count of clients with detected life events by urgency
-- **Life Event Cards Grid**: Grouped by event type (Retirement, Home Purchase, Education, etc.)
-- **Quick Filters**: Filter by event type, confidence level, time sensitivity
-- **Client Quick-View**: Expandable row showing client details + detected events
+### 1. New Component: `PrepareEventDialog.tsx`
+A new dialog component that displays when "Prepare" is clicked.
 
-### 2. LifeEventAlertCard
-**File:** `src/components/tepilot/advisor-console/LifeEventAlertCard.tsx`
+**Structure:**
+- **Header**: Client name, event type badge, confidence score
+- **Card Transactions Section**: Collapsible list showing transactions grouped by card type (e.g., "Travel Rewards Card", "Cashback Card")
+  - Each transaction shows: merchant, amount, date, and relevance to the detected event
+- **Recommended Next Steps**: Numbered checklist of actions the advisor should take
+- **Footer Actions**: "Email Me" button and "Close" button
 
-Card for each client-event combination:
-- Client name, segment badge, AUM
-- Event type with icon and confidence score
-- Key evidence snippets (e.g., "College tour bookings detected")
-- Time sensitivity indicator (e.g., "Event in ~6 months")
-- Action buttons: "Prepare Meeting", "View Client", "Schedule Call"
-
-### 3. DashboardClientData Type + Generator
-**File:** `src/lib/randomProfileGenerator.ts` (extend)
-
-Add function `generateDashboardClients(count: number)` that creates clients with:
-- Full profile data (using existing generator)
-- Assigned life events with varied types and confidence scores
-- Last contact date for recency tracking
-- Urgency score based on event timing
-
-## Life Event Types to Feature
-
-| Event Type | Icon | Typical Signals |
-|------------|------|-----------------|
-| Retirement Planning | Sunset | RMD approaching, pension inquiries |
-| Education Funding | GraduationCap | College tour bookings, 529 activity |
-| Home Purchase | Home | Mortgage inquiries, home inspection |
-| Wealth Transfer | Gift | Estate attorney visits, trust activity |
-| Business Liquidity | Briefcase | M&A signals, business valuations |
-| Family Formation | Baby | Childcare expenses, insurance queries |
-| Elder Care | Heart | Healthcare spending patterns |
-
-## Changes to Existing Files
-
-### AdvisorConsolePage.tsx
-- Add view mode state: `"dashboard" | "client"`
-- Add toggle buttons/tabs in header
-- Conditionally render `LifeEventsAlertDashboard` or `AdvisorConsole`
-- Pass callback to open specific client from dashboard
-
-### AdvisorConsole.tsx
-- Add optional `selectedClientId` prop to pre-load a specific client
-- Add "Back to Dashboard" navigation option
-
-## User Flow
-
-```text
-1. Manager opens /advisor-console
-2. Sees Dashboard View: "18 clients have life events detected"
-3. Scans cards organized by event type or urgency
-4. Clicks "Prepare Meeting" on Robert Chen (Retirement)
-5. Transitions to single-client Co-Pilot view
-6. Reviews AI-generated talking points and recommendations
-7. Clicks "Back to Dashboard" to continue triaging
-```
-
-## Dashboard Layout
-
-```text
-+------------------------------------------------------------------+
-| Back to TePilot              [Dashboard]  [Client View]          |
-+------------------------------------------------------------------+
-| LIFE EVENTS DETECTED                                              |
-| 18 clients need attention  |  5 urgent  |  8 this quarter        |
-+------------------------------------------------------------------+
-| [All Events v]  [Confidence: 70%+ v]  [Sort: Urgency v]          |
-+------------------------------------------------------------------+
-| RETIREMENT (4)                                                    |
-| +------------------------+ +------------------------+             |
-| | Robert Chen | Premium  | | Linda Park | Private   |             |
-| | $3.2M AUM             | | $1.8M AUM             |             |
-| | Confidence: 87%       | | Confidence: 78%       |             |
-| | "RMD due in 8 months" | | "Pension rollover"    |             |
-| | [Prepare] [View] [Call]| | [Prepare] [View] [Call]|            |
-| +------------------------+ +------------------------+             |
-+------------------------------------------------------------------+
-| EDUCATION FUNDING (6)                                             |
-| +------------------------+ +------------------------+             |
-| | Sarah Mitchell | Pref  | | James Wong | Private   |             |
-| ...                                                               |
-+------------------------------------------------------------------+
-```
-
-## Technical Details
-
-### Data Structure for Dashboard Client
-
+### 2. New Type: `CardTransaction` in `dashboardClient.ts`
 ```typescript
-interface DashboardClient {
-  id: string;
-  profile: ClientProfileData;
-  detectedEvents: Array<{
-    eventType: string;
-    eventName: string;
-    confidence: number;
-    estimatedTiming: string;  // "Q2 2026", "6-12 months"
-    keyEvidence: string[];
-    urgencyScore: number;     // 1-5, for sorting
-  }>;
-  lastContactDate: Date;
-  nextScheduledMeeting?: Date;
+interface CardTransaction {
+  cardType: string;       // e.g., "Travel Rewards", "Cashback Plus"
+  cardLast4: string;      // e.g., "4532"
+  merchant: string;
+  amount: number;
+  date: string;
+  relevance: string;      // Why this transaction indicates the life event
+}
+
+interface EventPreparationData {
+  transactions: CardTransaction[];
+  recommendedSteps: string[];
 }
 ```
 
-### Mock Data Generation
-- Generate 50-80 clients
-- ~40% have 1+ life events detected
-- Distribute across event types realistically
-- Vary confidence from 65-95%
+### 3. Modify `LifeEventAlertCard.tsx`
+- Update `onPrepare` callback to pass both `clientId` and `event` data
+- Signature change: `onPrepare: (clientId: string, event: DetectedLifeEvent) => void`
 
-### State Management
-- Dashboard client list generated on mount (memoized)
-- Selected client ID passed to AdvisorConsole
-- Preserve dashboard scroll position when returning
+### 4. Modify `LifeEventsAlertDashboard.tsx`
+- Add state for the prepare dialog: `prepareDialogOpen` and `selectedPrepareData`
+- Add handler to open dialog with mock/generated transaction data
+- Render `PrepareEventDialog` component
 
-## Files Summary
+### 5. Mock Data Generator: `generateEventTransactions()`
+A utility function that generates realistic transaction data based on event type:
+- **Retirement**: 401k contributions, financial advisor fees, AARP purchases
+- **Home Purchase**: Zillow, Home Depot, moving companies
+- **Education**: Tuition payments, textbook stores, SAT prep
+- **Travel**: Airlines, hotels, luggage stores
+- etc.
+
+---
+
+## UI Layout (PrepareEventDialog)
+
+```text
++--------------------------------------------------+
+| [Icon] Prepare: {Event Name}                     |
+| Client: {Name} | {Segment} | Confidence: 87%     |
++--------------------------------------------------+
+|                                                  |
+| 📊 Evidence Transactions (12 total)              |
+|   [v] Travel Rewards Card (...4532) - 5 txns     |
+|       • Delta Airlines    $1,250   Jan 15        |
+|       • Marriott Hotels   $890     Jan 16        |
+|       ...                                        |
+|   [v] Cashback Plus (...7891) - 4 txns           |
+|       • Home Depot        $2,340   Feb 1         |
+|       • Lowe's            $567     Feb 3         |
+|                                                  |
+| ✅ Recommended Next Steps                         |
+|   1. Review recent large purchases pattern        |
+|   2. Discuss retirement timeline expectations     |
+|   3. Propose portfolio rebalancing consultation   |
+|   4. Schedule follow-up in 2 weeks               |
+|                                                  |
++--------------------------------------------------+
+| [Email Me Summary]            [Ask Ventus] [Close]|
++--------------------------------------------------+
+```
+
+---
+
+## Technical Details
+
+### File Changes
 
 | File | Action |
 |------|--------|
-| `src/components/tepilot/advisor-console/LifeEventsAlertDashboard.tsx` | Create |
-| `src/components/tepilot/advisor-console/LifeEventAlertCard.tsx` | Create |
-| `src/lib/randomProfileGenerator.ts` | Extend with dashboard client generator |
-| `src/pages/AdvisorConsolePage.tsx` | Add view toggle and dashboard rendering |
-| `src/components/tepilot/advisor-console/AdvisorConsole.tsx` | Add back-to-dashboard callback prop |
+| `src/types/dashboardClient.ts` | Add `CardTransaction` and `EventPreparationData` interfaces |
+| `src/components/tepilot/advisor-console/PrepareEventDialog.tsx` | **New file** - Dialog component |
+| `src/components/tepilot/advisor-console/LifeEventAlertCard.tsx` | Update `onPrepare` signature to include event |
+| `src/components/tepilot/advisor-console/LifeEventsAlertDashboard.tsx` | Add dialog state, handler, and render dialog |
+
+### Email Me Functionality
+- Clicking "Email Me" will show a toast notification: "Summary sent to your email"
+- For now, this will be a mock action (no actual email sent)
+- Future integration could use an edge function to send the actual email
+
+### Transaction Data Generation
+Each life event type will have a curated set of realistic transactions:
+- Grouped by card type with card last 4 digits
+- Includes relevance explanation (e.g., "Consistent airline bookings suggest upcoming travel plans")
+- Sorted by recency
+
+---
+
+## Implementation Order
+1. Add new types to `dashboardClient.ts`
+2. Create `PrepareEventDialog.tsx` component
+3. Update `LifeEventAlertCard.tsx` callback signature
+4. Update `LifeEventsAlertDashboard.tsx` to manage dialog state and render
