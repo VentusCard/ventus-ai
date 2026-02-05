@@ -11,19 +11,23 @@ import { exportFinancialTimelinePDF } from "@/lib/financialTimelinePdfExport";
 import { useToast } from "@/hooks/use-toast";
 import { ClientProfileData } from "@/types/clientProfile";
 import { generateRandomProfile, generateRandomPsychologicalInsights } from "@/lib/randomProfileGenerator";
+import { Button } from "@/components/ui/button";
+import { LayoutDashboard } from "lucide-react";
 
 interface AdvisorConsoleProps {
   aiInsights?: AIInsights | null;
   isLoadingInsights?: boolean;
   enrichedTransactions?: EnrichedTransaction[];
   advisorContext?: AdvisorContext;
+  onBackToDashboard?: () => void;
 }
 
 export function AdvisorConsole({ 
   aiInsights: propAiInsights, 
   isLoadingInsights = false,
   enrichedTransactions = [],
-  advisorContext
+  advisorContext,
+  onBackToDashboard
 }: AdvisorConsoleProps) {
   const { toast } = useToast();
   const [selectedLifestyleChip, setSelectedLifestyleChip] = useState<string | null>(null);
@@ -264,13 +268,26 @@ export function AdvisorConsole({
     <div className="flex flex-col w-full h-full bg-white">
       {/* Header with BofA/Merrill/Ventus branding */}
       <div className="border-b px-4 py-3 flex items-center justify-between bg-gradient-to-r from-white to-slate-50 flex-shrink-0">
-        <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Wealth Management Advisor Co-Pilot
-        </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            AI-powered relationship intelligence and client engagement platform
-          </p>
+        <div className="flex items-center gap-4">
+          {onBackToDashboard && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBackToDashboard}
+              className="text-slate-700 border-slate-300 hover:bg-slate-100"
+            >
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Wealth Management Advisor Co-Pilot
+            </h1>
+            <p className="text-sm text-slate-600 mt-1">
+              AI-powered relationship intelligence and client engagement platform
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
