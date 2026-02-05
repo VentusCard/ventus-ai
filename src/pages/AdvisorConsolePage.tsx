@@ -142,9 +142,10 @@ const AdvisorConsolePage = () => {
       <div className="border-b px-4 py-3 bg-white z-10 shadow-sm flex-shrink-0">
         <div className="flex items-center justify-between max-w-full">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleBackToTePilot}
+            className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to TePilot
