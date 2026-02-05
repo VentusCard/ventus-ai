@@ -63,16 +63,16 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
               <Table>
                 <TableHeader className="sticky top-0 bg-white">
                   <TableRow>
-                    <TableHead>Merchant</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="text-slate-700">Merchant</TableHead>
+                    <TableHead className="text-slate-700">Amount</TableHead>
+                    <TableHead className="text-slate-700">Date</TableHead>
                     <TableHead>
                       <ArrowRight className="w-4 h-4 mx-auto" />
                     </TableHead>
-                    <TableHead>Pillar</TableHead>
-                    <TableHead>Subcategory</TableHead>
-                    <TableHead>Confidence</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-slate-700">Pillar</TableHead>
+                    <TableHead className="text-slate-700">Subcategory</TableHead>
+                    <TableHead className="text-slate-700">Confidence</TableHead>
+                    <TableHead className="text-right text-slate-700">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -88,8 +88,8 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono">${transaction.amount.toFixed(2)}</TableCell>
-                      <TableCell className="text-sm">{transaction.date}</TableCell>
+                      <TableCell className="font-mono text-slate-900">${transaction.amount.toFixed(2)}</TableCell>
+                      <TableCell className="text-sm text-slate-700">{transaction.date}</TableCell>
                       <TableCell>
                         <ArrowRight className="w-4 h-4 text-primary mx-auto" />
                       </TableCell>
@@ -111,7 +111,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                       <Plane className="w-3 h-3" />
                                       Travel
                                     </Badge>
-                                    <span className="text-slate-500">:</span>
+                                    <span className="text-slate-600">:</span>
                                     <Badge
                                       className="border"
                                       style={{
@@ -137,7 +137,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                       <p>🗓️ Period: {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
                                     )}
                                     {transaction.travel_context.reclassification_reason && (
-                                      <p className="text-slate-500 italic pt-1 border-t border-slate-200 mt-1">
+                                      <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
                                         {transaction.travel_context.reclassification_reason}
                                       </p>
                                     )}
@@ -165,7 +165,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">{transaction.subcategory}</TableCell>
+                      <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
