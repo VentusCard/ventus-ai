@@ -90,7 +90,7 @@ export function PersonaCard({
           {secondaryButtonText && onSecondaryClick && (
             <Button
               variant={secondaryButtonVariant}
-              className="w-full group-hover:shadow-sm transition-shadow"
+              className="w-full group-hover:shadow-sm transition-shadow bg-primary text-white hover:bg-primary/90"
               onClick={onSecondaryClick}
               disabled={disabled}
             >
