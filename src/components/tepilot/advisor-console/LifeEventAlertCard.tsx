@@ -7,6 +7,7 @@ import {
   Phone, Eye, Calendar, AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getSegmentColorClasses } from "@/lib/segmentColors";
 
 interface LifeEventAlertCardProps {
   client: DashboardClient;
@@ -27,11 +28,6 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Heart,
 };
 
-const segmentColors: Record<string, string> = {
-  Preferred: 'bg-blue-100 text-blue-800',
-  Private: 'bg-purple-100 text-purple-800',
-  Premium: 'bg-amber-100 text-amber-800',
-};
 
 export function LifeEventAlertCard({
   client,
@@ -82,7 +78,7 @@ export function LifeEventAlertCard({
             <h3 className="font-medium text-slate-900 truncate text-sm">{client.profile.name}</h3>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-slate-500">{client.profile.aum}</span>
-              <Badge className={cn('text-[10px] px-1.5 py-0', segmentColors[client.profile.segment])}>
+              <Badge className={cn('text-[10px] px-1.5 py-0', getSegmentColorClasses(client.profile.segment))}>
                 {client.profile.segment}
               </Badge>
             </div>
