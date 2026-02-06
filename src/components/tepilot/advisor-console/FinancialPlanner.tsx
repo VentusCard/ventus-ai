@@ -402,23 +402,23 @@ export function FinancialPlanner({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Client Name</p>
+              <p className="text-sm text-slate-700">Client Name</p>
               <p className="font-semibold">{clientProfile?.name || "—"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Age</p>
+              <p className="text-sm text-slate-700">Age</p>
               <p className="font-semibold">{retirementProfile.currentAge}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Current Net Worth</p>
+              <p className="text-sm text-slate-700">Current Net Worth</p>
               <p className="font-semibold text-primary">{formatCurrency(currentNetWorth)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Years to Retirement</p>
+              <p className="text-sm text-slate-700">Years to Retirement</p>
               <p className="font-semibold">{retirementProfile.retirementAge - retirementProfile.currentAge}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Risk Profile</p>
+              <p className="text-sm text-slate-700">Risk Profile</p>
               <p className="font-semibold">{clientProfile?.compliance?.riskProfile || "Moderate"}</p>
             </div>
           </div>
@@ -544,7 +544,7 @@ export function FinancialPlanner({
         </CardHeader>
         <CardContent>
           {actionItems.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-slate-600">
               <CalendarClock className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>Click "Generate Timeline" to create decade-based action items</p>
               <p className="text-sm">Based on your retirement profile and long-term goals</p>
@@ -593,8 +593,8 @@ export function FinancialPlanner({
                     Savings Rate: {savingsRate.toFixed(0)}%
                   </Badge>
                 </div>
-                <span className="text-sm text-muted-foreground group-open:hidden">Click to expand</span>
-                <span className="text-sm text-muted-foreground hidden group-open:inline">Click to collapse</span>
+                <span className="text-sm text-slate-600 group-open:hidden">Click to expand</span>
+                <span className="text-sm text-slate-600 hidden group-open:inline">Click to collapse</span>
               </div>
             </CardHeader>
           </Card>
