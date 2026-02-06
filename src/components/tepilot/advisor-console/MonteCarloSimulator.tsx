@@ -171,7 +171,7 @@ export function MonteCarloSimulator({
                 type="number"
                 value={portfolio}
                 onChange={(e) => setPortfolio(parseFloat(e.target.value) || 0)}
-                className="pl-7"
+                className="pl-7 bg-white text-slate-900"
               />
             </div>
           </div>
@@ -183,7 +183,7 @@ export function MonteCarloSimulator({
                 type="number"
                 value={contribution}
                 onChange={(e) => setContribution(parseFloat(e.target.value) || 0)}
-                className="pl-7"
+                className="pl-7 bg-white text-slate-900"
               />
             </div>
           </div>
@@ -195,7 +195,7 @@ export function MonteCarloSimulator({
               onChange={(e) => setYears(parseInt(e.target.value) || 1)}
               min={1}
               max={50}
-              className="mt-1"
+              className="mt-1 bg-white text-slate-900"
             />
           </div>
           <div>
@@ -206,7 +206,7 @@ export function MonteCarloSimulator({
                 type="number"
                 value={goal}
                 onChange={(e) => setGoal(parseFloat(e.target.value) || 0)}
-                className="pl-7"
+                className="pl-7 bg-white text-slate-900"
               />
             </div>
           </div>

@@ -57,7 +57,7 @@ export function IncomeExpenseEditor({
             type="number"
             value={monthlyIncome}
             onChange={(e) => onIncomeChange(parseFloat(e.target.value) || 0)}
-            className="text-right font-medium"
+            className="text-right font-medium bg-white text-slate-900"
           />
         </div>
 

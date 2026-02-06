@@ -178,7 +178,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.currentAge}
                   onChange={(e) => onProfileChange({ ...profile, currentAge: parseInt(e.target.value) || 45 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
               <div>
@@ -187,7 +187,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.retirementAge}
                   onChange={(e) => onProfileChange({ ...profile, retirementAge: parseInt(e.target.value) || 65 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -199,7 +199,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.lifeExpectancy}
                   onChange={(e) => onProfileChange({ ...profile, lifeExpectancy: parseInt(e.target.value) || 90 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
               <div>
@@ -208,7 +208,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.desiredRetirementIncome}
                   onChange={(e) => onProfileChange({ ...profile, desiredRetirementIncome: parseFloat(e.target.value) || 0 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -220,7 +220,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.socialSecurityEstimate}
                   onChange={(e) => onProfileChange({ ...profile, socialSecurityEstimate: parseFloat(e.target.value) || 0 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
               <div>
@@ -229,7 +229,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.pensionIncome}
                   onChange={(e) => onProfileChange({ ...profile, pensionIncome: parseFloat(e.target.value) || 0 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -240,7 +240,7 @@ export function RetirementPlanningSection({
                 type="number"
                 value={profile.currentRetirementSavings}
                 onChange={(e) => onProfileChange({ ...profile, currentRetirementSavings: parseFloat(e.target.value) || 0 })}
-                className="mt-1"
+                className="mt-1 bg-white text-slate-900"
               />
               <p className="text-xs text-slate-500 mt-1">
                 Required at retirement (4% rule): {formatCurrency(retirementAnalysis.requiredPortfolio)}
