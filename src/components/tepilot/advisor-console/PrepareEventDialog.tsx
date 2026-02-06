@@ -10,12 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  CreditCard, Mail, MessageSquare, CheckCircle2, Sparkles,
+  CreditCard, Mail, MessageSquare, CheckCircle2, Sparkles, Download,
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart, AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { toast } from "@/hooks/use-toast";
+import { exportEventPreparationPDF } from "@/lib/eventPreparationPdfExport";
 
 interface PrepareEventDialogProps {
   open: boolean;
@@ -73,6 +74,23 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
       title: "Summary sent!",
       description: `Event preparation summary for ${client.profile.name} has been sent to your email.`,
     });
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      await exportEventPreparationPDF(data);
+      toast({
+        title: "PDF Downloaded",
+        description: `Event preparation summary for ${client.profile.name} has been saved.`,
+      });
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast({
+        title: "Download Failed",
+        description: "Could not generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAskVentus = () => {
@@ -182,6 +200,10 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
             <MessageSquare className="h-4 w-4" />
             Prepare with Ventus WM Co-Pilot
+          </Button>
+          <Button variant="outline" onClick={handleDownloadPDF} className="gap-2">
+            <Download className="h-4 w-4" />
+            Download PDF
           </Button>
           <Button onClick={handleEmailMe} className="gap-2">
             <Mail className="h-4 w-4" />
