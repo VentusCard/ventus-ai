@@ -283,7 +283,7 @@ export function ActionWorkspacePanel({
           </div>
 
           {/* Action Buttons */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-shrink-0">
             {savedProjection && <Button size="sm" variant="default" className="w-full text-xs" onClick={onExportTimelinePDF}>
                 <FileDown className="w-3 h-3 mr-1" />
                 Export {savedProjection.projectName} PDF
