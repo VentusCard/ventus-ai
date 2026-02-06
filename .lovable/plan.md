@@ -1,82 +1,64 @@
 
-
-# Add Segment-Specific Badge Colors
+# Fix Dialog Backgrounds to White with Dark Text
 
 ## Overview
-Implement consistent color-coded badges for client segments (Preferred, Private, Premium) across all components in the Advisor Console.
+Update all dialog/popup components in the Advisor Console to use white backgrounds with dark text instead of inheriting the site's pure black theme.
 
 ## Current State
-- `LifeEventAlertCard.tsx` already has a `segmentColors` mapping:
-  - **Preferred**: Blue (bg-blue-100 text-blue-800)
-  - **Private**: Purple (bg-purple-100 text-purple-800)  
-  - **Premium**: Amber/Gold (bg-amber-100 text-amber-800)
-- Other components use generic `variant="outline"` or `variant="secondary"` badges without segment-specific colors
+The site uses a pure black theme (`--background: 0 0% 0%`) which causes dialogs to appear with black backgrounds by default. Currently:
+- **PrepareEventDialog.tsx** - Already fixed with `bg-white text-slate-900`
+- **LifeEventDetailsDialog.tsx** - Uses default (black background)
+- **ClientPsychologyDialog.tsx** - Uses default (black background)
+- **TranscriptUploadDialog.tsx** - Uses default (black background)
+- **TaxPlanningDialog.tsx** - Uses default (black background)
+- **FinancialTimelineTool.tsx** - Uses default (black background)
 
 ## Implementation Plan
 
-### Step 1: Create Shared Segment Colors Utility
-Create a shared utility file to define segment colors once and reuse across all components.
+### Step 1: Update LifeEventDetailsDialog.tsx
+Add `bg-white text-slate-900` to DialogContent className (line 50):
+```tsx
+<DialogContent className="max-w-2xl max-h-[85vh] flex flex-col bg-white text-slate-900">
+```
 
-**File:** `src/lib/segmentColors.ts`
-- Export a `SEGMENT_COLORS` constant mapping each segment to its color classes
-- Export a helper function `getSegmentColorClasses(segment: string)` for easy usage
+### Step 2: Update ClientPsychologyDialog.tsx
+Add `bg-white text-slate-900` to DialogContent className (line 143):
+```tsx
+<DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-white text-slate-900">
+```
 
-### Step 2: Update Components to Use Shared Colors
+### Step 3: Update TranscriptUploadDialog.tsx
+Add `bg-white text-slate-900` to DialogContent className (line 109):
+```tsx
+<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
+```
 
-**Files to update:**
+### Step 4: Update TaxPlanningDialog.tsx
+Add `bg-white text-slate-900` to DialogContent className (line 308):
+```tsx
+<DialogContent className="max-w-4xl max-h-[90vh] p-0 bg-white text-slate-900">
+```
 
-1. **ClientSnapshotPanel.tsx** (line 135)
-   - Replace `<Badge variant="outline">` with colored badge using segment colors
-
-2. **PrepareEventDialog.tsx** (line 105)
-   - Replace `<Badge variant="secondary">` with colored badge
-
-3. **FinancialPlanner.tsx** (line 402)
-   - Replace `<Badge variant="secondary">` with colored badge
-
-4. **LifeEventAlertCard.tsx** (lines 30-34)
-   - Remove local `segmentColors` definition
-   - Import from shared utility
+### Step 5: Update FinancialTimelineTool.tsx
+Add `bg-white text-slate-900` to DialogContent className (line 882):
+```tsx
+<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
+```
 
 ## Technical Details
 
-### Segment Color Mapping
-```text
-+-----------+--------------------------+
-| Segment   | Colors                   |
-+-----------+--------------------------+
-| Preferred | bg-blue-100 text-blue-800|
-| Private   | bg-purple-100 text-purple-800|
-| Premium   | bg-amber-100 text-amber-800|
-+-----------+--------------------------+
-```
+### Color Classes Applied
+- `bg-white` - Sets the dialog background to pure white
+- `text-slate-900` - Sets the default text color to near-black for high contrast
 
-### Code Example
-```typescript
-// src/lib/segmentColors.ts
-export const SEGMENT_COLORS: Record<string, string> = {
-  Preferred: 'bg-blue-100 text-blue-800 border-blue-200',
-  Private: 'bg-purple-100 text-purple-800 border-purple-200',
-  Premium: 'bg-amber-100 text-amber-800 border-amber-200',
-};
+### Files to Update
+| File | Line | Change |
+|------|------|--------|
+| LifeEventDetailsDialog.tsx | 50 | Add `bg-white text-slate-900` |
+| ClientPsychologyDialog.tsx | 143 | Add `bg-white text-slate-900` |
+| TranscriptUploadDialog.tsx | 109 | Add `bg-white text-slate-900` |
+| TaxPlanningDialog.tsx | 308 | Add `bg-white text-slate-900` |
+| FinancialTimelineTool.tsx | 882 | Add `bg-white text-slate-900` |
 
-export function getSegmentColorClasses(segment: string): string {
-  return SEGMENT_COLORS[segment] || 'bg-slate-100 text-slate-800';
-}
-```
-
-### Usage in Components
-```tsx
-import { getSegmentColorClasses } from "@/lib/segmentColors";
-
-<Badge className={cn('text-xs', getSegmentColorClasses(displayData.segment))}>
-  {displayData.segment}
-</Badge>
-```
-
-## Benefits
-- Consistent visual language for client segments across the entire application
-- Single source of truth for segment colors (easy to update globally)
-- Premium clients get a distinctive gold/amber badge that visually communicates their status
-- Improved scannability when viewing client lists
-
+### Consistency Note
+This matches the existing pattern used in PrepareEventDialog.tsx which already has `bg-white text-slate-900` applied.
