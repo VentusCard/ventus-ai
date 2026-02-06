@@ -114,7 +114,7 @@ export function ClientSnapshotPanel({
 
   return (
     <div className="h-full flex flex-col bg-slate-50">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 advisor-console-panel">
         {/* Client Header Card - Always Visible */}
         <Card className="bg-white">
           <div className="p-4">
