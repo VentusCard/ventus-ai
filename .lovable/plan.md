@@ -1,146 +1,110 @@
 
-# Fix: Add Retry Logic for Failed Classification Batches
+## What’s happening (why some batches still fail)
+Even with retries, you can still get “empty classifications” for a batch because the `classify-transactions` backend function is currently doing **all batches in parallel**:
 
-## Problem
-The most recent classification run returned many "Miscellaneous & Unclassified" transactions because **Batch 2 classified 0 out of 24 transactions**:
+- 75 transactions → 4 batches (24/24/24/3)
+- It fires **4 concurrent AI requests** to `ai.gateway.lovable.dev`
+- Under load or transient instability, one request can come back with **no tool call / empty results** (your logs show this consistently for Batch 2)
+- The retry loop currently retries the *same request shape* after a short delay, so it can repeatedly hit the same transient failure mode
 
-```
-[BATCH 1] ✓ Classified 24/24 
-[BATCH 2] ✓ Classified 0/24  ← Problem!
-[BATCH 3] ✓ Classified 24/24 
-[BATCH 4] ✓ Classified 3/3
-```
+So the system is resilient to occasional empties, but not to **repeatable empties under concurrency pressure**.
 
-When the AI model returns empty results (no error, just no classifications), those 24 transactions fall back to "Miscellaneous & Unclassified" with `confidence: 0.1`.
+## Goal
+Make classification robust so that:
+1. Batches don’t fail due to concurrency/rate/load artifacts.
+2. If a batch still fails after retries, we degrade gracefully by retrying with smaller payloads and/or a more reliable model.
+3. We reduce “Miscellaneous & Unclassified” fallbacks to near-zero for normal inputs.
 
-## Root Cause
-The `classify-transactions` edge function has **no retry logic**. When a batch fails silently (model returns empty tool_calls), the transactions are assigned fallback values instead of being retried.
+---
 
-## Solution
-Add retry logic to the `classifyBatch` function to attempt classification up to 2 times before giving up.
+## Implementation plan (backend only)
 
-## File to Update
+### 1) Limit concurrency for batch classification (biggest win)
+**Change:** Replace `Promise.all(batches.map(...))` with a small concurrency pool (e.g., 2 at a time, or even 1 for maximum reliability).
 
-### `supabase/functions/classify-transactions/index.ts`
+**Why:** This prevents simultaneous AI calls from competing and causing silent/empty tool call responses. In practice, concurrency=2 usually keeps throughput good while greatly improving reliability.
 
-**Add retry constants at the top:**
-```typescript
-const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 1000;
-```
+**Details:**
+- Implement a simple `runWithConcurrency(items, limit, worker)` helper in `supabase/functions/classify-transactions/index.ts`.
+- Emit SSE status updates as each batch starts/completes (you already do).
+- Keep the same BATCH_SIZE (24) initially.
 
-**Update the `classifyBatch` function to include retry logic:**
+### 2) Add exponential backoff + jitter for retries
+**Change:** Instead of fixed 1s delay, use exponential backoff with jitter:
+- attempt 1: ~1s
+- attempt 2: ~2–3s
+- attempt 3: ~4–6s (if you decide to increase retries)
 
-```typescript
-async function classifyBatch(
-  batch: any[],
-  batchIndex: number,
-  totalBatches: number,
-  sendEvent: Function,
-): Promise<any[]> {
-  const batchNum = batchIndex + 1;
-  
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    const startTime = Date.now();
-    
-    if (attempt > 0) {
-      console.log(`[BATCH ${batchNum}] Retry attempt ${attempt}/${MAX_RETRIES}`);
-      await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
-    }
-    
-    sendEvent("status", {
-      message: `Classifying batch ${batchNum}/${totalBatches}${attempt > 0 ? ` (retry ${attempt})` : ''}...`,
-      progress: Math.round((batchIndex / totalBatches) * 100),
-    });
+**Why:** If the gateway/model is temporarily degraded, fixed short delays often re-hit the same issue window.
 
-    try {
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash-lite",
-          messages: [
-            { role: "system", content: CLASSIFICATION_PROMPT },
-            { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
-          ],
-          tools: CLASSIFICATION_TOOL,
-          tool_choice: { type: "function", function: { name: "classify_batch" } },
-          temperature: 0,
-          max_tokens: 3500, // Increased from 2500
-        }),
-      });
+**Details:**
+- Keep `MAX_RETRIES = 2` or bump to `3` (I’d recommend `3` once concurrency is limited).
+- Replace `RETRY_DELAY_MS` with a function `getDelayMs(attempt)`.
 
-      if (!response.ok) {
-        console.error(`[BATCH ${batchNum}] Classification failed (${response.status})`);
-        continue; // Retry
-      }
+### 3) Fallback strategy when a batch still fails: split and retry smaller
+**Change:** If a batch returns empty after all retries:
+- Split that batch into 2 halves (or into size 8/8/8 chunks)
+- Classify sub-batches sequentially (or with concurrency=1)
+- Merge results
 
-      const data = await response.json();
-      const toolCalls = data.choices?.[0]?.message?.tool_calls;
+**Why:** Smaller payloads often avoid edge-case model/tool-call failures and reduce response complexity.
 
-      if (!toolCalls || toolCalls.length === 0) {
-        console.warn(`[BATCH ${batchNum}] No tool calls returned, retrying...`);
-        continue; // Retry
-      }
+**Details:**
+- Add `classifyBatchWithFallback(batch, ...)`:
+  - try normal `classifyBatch`
+  - if empty → split and classify parts
+  - if still empty → final fallback classification as today
 
-      const results = JSON.parse(toolCalls[0].function.arguments);
-      const classifications = results.classifications || [];
-      
-      // If we got 0 classifications, retry
-      if (classifications.length === 0) {
-        console.warn(`[BATCH ${batchNum}] Empty classifications array, retrying...`);
-        continue;
-      }
-      
-      const elapsed = Date.now() - startTime;
-      console.log(`[BATCH ${batchNum}] ✓ Classified ${classifications.length}/${batch.length} in ${elapsed}ms`);
+### 4) Optional “retry with stronger model” on the final attempt
+**Change:** Keep the fast model for first attempt(s), but if we’re on the last retry (or after the first failure), switch to a more reliable model.
 
-      sendEvent("batch_complete", {
-        batchIndex,
-        batchNum,
-        totalBatches,
-        count: classifications.length,
-        elapsed,
-        model: "flash-lite",
-        retries: attempt,
-      });
+**Why:** Some models are faster but occasionally flake on forced tool calls. A stronger model used only for retries is a good cost/performance trade.
 
-      return classifications;
-    } catch (error) {
-      console.error(`[BATCH ${batchNum}] Error:`, error);
-      // Continue to retry
-    }
-  }
-  
-  // All retries exhausted
-  console.error(`[BATCH ${batchNum}] All ${MAX_RETRIES + 1} attempts failed`);
-  return [];
-}
-```
+**Concrete option:**
+- Attempt 0–1: `google/gemini-2.5-flash-lite`
+- Final attempt (or fallback sub-batches): `google/gemini-3-flash-preview` or `openai/gpt-5-mini`
 
-## Key Changes
+**Notes:**
+- We’ll keep your tool schema and forced `tool_choice`.
+- We’ll log which model succeeded to help diagnosis.
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Retry logic** | None | Up to 2 retries with 1s delay |
-| **Empty results handling** | Immediately return `[]` | Retry before giving up |
-| **max_tokens** | 2500 | 3500 (more headroom) |
-| **Status messages** | Basic | Shows retry attempts |
-| **Logging** | Silent failures | Explicit retry logs |
+### 5) Improve observability for “empty tool calls”
+**Change:** When empty tool calls happen, log:
+- batch number
+- attempt number
+- response status
+- (safely) whether `choices[0].message` exists
+- and the first ~200 chars of raw response text if JSON parse fails
 
-## Why This Fixes the Problem
+**Why:** Right now we know it’s empty, but not if it’s a gateway partial response, JSON shape mismatch, or a model hiccup.
 
-1. **Transient model failures** are automatically retried
-2. **Empty classifications arrays** trigger a retry instead of silent failure
-3. **Increased token limit** gives the model more room to respond
-4. **Better logging** helps diagnose future issues
+---
 
-## Expected Outcome
+## Files affected
+- `supabase/functions/classify-transactions/index.ts`
+  - Replace parallel `Promise.all` with concurrency-limited runner
+  - Improve retry backoff
+  - Add split-and-retry fallback
+  - (Optional) model escalation on final attempt
+  - Add stronger logs around empty tool_calls
 
-After this fix:
-- Failed batches will be retried up to 2 times
-- Fewer transactions will fall back to "Miscellaneous & Unclassified"
-- Success rate should improve from 68% to closer to 95%+
+No frontend changes required for this fix.
+
+---
+
+## Testing plan (end-to-end)
+1. In `/tepilot`, run enrichment multiple times on the same dataset (75 txns) and confirm:
+   - No batch logs show “All attempts failed”
+   - Success rate rises significantly (target: >95%)
+2. Try a larger dataset (e.g., 200–400 txns) to confirm stability:
+   - Ensure SSE stays responsive
+   - Ensure total runtime is acceptable
+3. Force a “worst-case” scenario:
+   - Temporarily set concurrency higher (dev check) to confirm failures correlate with concurrency (then keep it low)
+
+---
+
+## Rollout / risk
+- Low risk: changes are contained to the classification backend function.
+- Primary tradeoff: slightly slower classification (because fewer parallel calls), but materially more reliable results and fewer “Miscellaneous & Unclassified” fallbacks.
+
