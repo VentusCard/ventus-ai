@@ -71,7 +71,7 @@ export function LifeEventDetailsDialog({
                 <CollapsibleContent className="mt-2">
                   <div className="space-y-2">
                     {event.evidence.map((item, idx) => (
-                      <Card key={idx} className="p-3 bg-slate-50">
+                      <Card key={idx} className="p-3 bg-white border-slate-200 shadow-sm">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-medium text-slate-700">{item.merchant}</span>
                           <span className="font-semibold text-slate-900">{formatCurrency(item.amount)}</span>
