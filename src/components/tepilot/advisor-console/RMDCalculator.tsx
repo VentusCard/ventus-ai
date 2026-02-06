@@ -118,7 +118,7 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
           <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <Info className="w-4 h-4 text-slate-500" />
+                  <Info className="w-4 h-4 text-slate-600" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p>Required Minimum Distributions must be taken from traditional IRAs and 401(k)s starting at age 73 (SECURE 2.0 Act). Roth IRAs and HSAs are not subject to RMD.</p>
@@ -184,11 +184,11 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
               {isRMDRequired ? formatCurrency(calculations.totalRMD) : `${formatCurrency(calculations.totalRMD)} (at age 73)`}
             </span>
           </div>
-          <div className="flex justify-between items-center text-sm text-slate-600">
+          <div className="flex justify-between items-center text-sm text-slate-700">
             <span>Estimated Tax (22% bracket)</span>
             <span>{formatCurrency(calculations.estimatedTax)}</span>
           </div>
-          <div className="flex justify-between items-center text-sm text-slate-600">
+          <div className="flex justify-between items-center text-sm text-slate-700">
             <span>Monthly Distribution</span>
             <span>{formatCurrency(calculations.totalRMD / 12)}</span>
           </div>
@@ -200,7 +200,7 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="text-sm">
               <p className="font-medium text-amber-700">RMD Deadline Reminder</p>
-              <p className="text-slate-600 mt-1">
+              <p className="text-slate-700 mt-1">
                 RMDs must be taken by December 31st each year. First-year RMDs can be delayed until April 1st of the following year, but this requires two distributions in the second year.
               </p>
             </div>
