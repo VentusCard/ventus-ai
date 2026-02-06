@@ -1,77 +1,78 @@
 
-# Sleek White-Themed Scrollbar for Advisor Console
+# Sleek White-Themed Resizable Handle for Advisor Console
 
-## Overview
-Update the scrollbar styling to be sleeker and white-themed for the advisor console panels. The current scrollbar is too thick and uses dark theme colors that clash with the white backgrounds.
+## Problem Identified
+The **ResizableHandle** component between the Client Snapshot panel and the main chat section is using dark-themed styling that clashes with the white/light background of the Advisor Console:
 
-## Current Issues
-- ScrollArea component uses `bg-border` (dark gray at 15% lightness) for the thumb
-- Scrollbar width is `w-2.5` (10px) - too thick
-- Light scrollbar styles in `components.css` only target `.tepilot-container` class
+| Element | Current Value | Issue |
+|---------|--------------|-------|
+| Handle background | `bg-border` | Resolves to `hsl(0 0% 15%)` - very dark |
+| Grip box | `bg-border` + `border` | Dark gray appearance |
+| Handle width | `w-px` (1px) + `after:w-1` | Thin but visible dark line |
 
-## Changes Required
+## Root Cause
+The global CSS variables in `src/styles/base.css` define `--border: 0 0% 15%` for the dark theme, but the Advisor Console uses light backgrounds (`bg-white`, `bg-slate-50`). The ResizableHandle inherits these dark values.
 
-### 1. Update ScrollArea Component
-**File: `src/components/ui/scroll-area.tsx`**
+## Solution
+Update the `ResizableHandle` component in `src/components/ui/resizable.tsx` to use light-themed colors that work with the Advisor Console's white background:
 
-Make the default scrollbar thinner and update thumb color to use a lighter, more subtle color:
-- Change width from `w-2.5` to `w-1.5` (6px - sleeker)
-- Update thumb color from `bg-border` to a light gray (`bg-slate-300`) with hover state (`hover:bg-slate-400`)
-- Add smooth transition for hover effect
+### Changes Required
 
-### 2. Update CSS Scrollbar Styles
-**File: `src/styles/components.css`**
+**File: `src/components/ui/resizable.tsx`**
 
-Add advisor-console specific scrollbar styling to ensure native scrollbars also match:
-- Add `.advisor-console-panel` scrollbar styles
-- Use light gray colors (`hsl(220 10% 85%)`) for the thumb
-- Keep scrollbar thin (`4px` width)
-- Add hover states for better UX
+1. **Main handle line (line 30)**
+   - Change: `bg-border`
+   - To: `bg-slate-200` (light gray, subtle)
 
-## Technical Details
+2. **Grip handle box (line 36)**
+   - Change: `border bg-border`
+   - To: `border-slate-300 bg-white shadow-sm` (white with subtle border)
 
-### ScrollArea Component Changes (scroll-area.tsx)
+3. **Grip icon (line 37)**
+   - Change: default color
+   - To: `text-slate-400` (light gray icon)
+
+### Technical Details
 
 ```tsx
-// Current (thick, dark)
-"h-full w-2.5 border-l border-l-transparent p-[1px]"
-<ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
+// Current (dark themed)
+<ResizablePrimitive.PanelResizeHandle
+  className={cn(
+    "relative flex w-px items-center justify-center bg-border after:absolute...",
+    className
+  )}
+>
+  {withHandle && (
+    <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
+      <GripVertical className="h-2.5 w-2.5" />
+    </div>
+  )}
+</ResizablePrimitive.PanelResizeHandle>
 
-// Updated (thin, light)  
-"h-full w-1.5 border-l border-l-transparent p-[1px]"
-<ScrollAreaThumb className="relative flex-1 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors" />
+// Updated (light themed)
+<ResizablePrimitive.PanelResizeHandle
+  className={cn(
+    "relative flex w-px items-center justify-center bg-slate-200 after:absolute...",
+    className
+  )}
+>
+  {withHandle && (
+    <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border-slate-300 bg-white shadow-sm">
+      <GripVertical className="h-2.5 w-2.5 text-slate-400" />
+    </div>
+  )}
+</ResizablePrimitive.PanelResizeHandle>
 ```
 
-### CSS Additions (components.css)
+## Visual Result
+- The divider line becomes a subtle light gray (`bg-slate-200`)
+- The grip handle becomes white with a soft shadow
+- The grip icon becomes a subtle slate-400 gray
+- Matches the light aesthetic of the Advisor Console panels
+- Provides clear visual affordance for resizing without being visually heavy
 
-```css
-/* Advisor console light scrollbars */
-.advisor-console-panel {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(220 10% 85%) transparent;
-}
+## Files to Modify
+- `src/components/ui/resizable.tsx` - Update handle and grip styling
 
-.advisor-console-panel::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
-.advisor-console-panel::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.advisor-console-panel::-webkit-scrollbar-thumb {
-  background: hsl(220 10% 85%);
-  border-radius: 4px;
-}
-
-.advisor-console-panel::-webkit-scrollbar-thumb:hover {
-  background: hsl(220 10% 70%);
-}
-```
-
-## Result
-- Scrollbars will be 60% thinner (from 10px to 4-6px)
-- Light gray color scheme that complements white backgrounds
-- Smooth hover transitions for better interactivity
-- Consistent styling across both Radix ScrollArea and native scrollbars
+## Note
+This change affects the global ResizableHandle component. If there are other parts of the app using dark backgrounds with resizable panels, we may need to add a prop-based variant system. However, based on the codebase, the Advisor Console is the primary user of this component.
