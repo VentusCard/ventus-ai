@@ -158,7 +158,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             </Badge>
                           )}
                           {!transaction.travel_context && currentPhase === "travel" && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 font-medium">
                               <Loader2 className="h-3 w-3 animate-spin mr-1" />
                               Analyzing...
                             </Badge>
