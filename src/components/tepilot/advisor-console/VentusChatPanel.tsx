@@ -337,7 +337,7 @@ export function VentusChatPanel({
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3 advisor-console-panel">
         {messages.length === 0 && <div className="text-center py-12">
             
             <h3 className="font-semibold mb-2">Start a Conversation</h3>

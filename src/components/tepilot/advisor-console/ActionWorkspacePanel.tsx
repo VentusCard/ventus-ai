@@ -177,7 +177,7 @@ export function ActionWorkspacePanel({
           </div>
 
           {/* Content Area - Scrollable */}
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 mb-3">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 mb-3 advisor-console-panel">
             {/* Empty State - only for action items */}
             {nextStepsData.actionItems.length === 0 && !isAddingItem && <Card className="border-dashed p-6 text-center">
                 <MessageSquare className="w-10 h-10 mx-auto text-slate-400 mb-3" />
