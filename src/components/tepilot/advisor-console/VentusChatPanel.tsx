@@ -376,7 +376,7 @@ export function VentusChatPanel({
                       Save to Document
                     </Button>
                     
-                    <Button variant="outline" size="sm" onClick={() => handleAddToTodoFromMessage(message.content)} className="text-xs text-foreground border-border hover:bg-accent">
+                    <Button size="sm" onClick={() => handleAddToTodoFromMessage(message.content)} className="text-xs bg-primary text-foreground hover:bg-primary/90">
                       <ListTodo className="w-3 h-3 mr-1" />
                       Add to To-Do
                     </Button>
