@@ -372,14 +372,8 @@ export function FinancialPlanner({
   return (
     <div id="financial-plan-content" className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/tepilot/advisor-console")}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Console
-          </Button>
-        </div>
-        <h1 className="text-2xl font-bold">Long-Term Financial Planning</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold text-slate-900">Long-Term Financial Planning</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleExportPDF}>
             <FileDown className="w-4 h-4 mr-2" />
