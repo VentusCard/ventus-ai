@@ -979,7 +979,7 @@ const TePilot = () => {
                       aiInsights: null,
                       needsAnalysis: true
                     }));
-                    navigate('/tepilot/advisor-console');
+                    navigate('/tepilot/financial-planning');
                   }} 
                   disabled={enrichedTransactions.length === 0} />
                 </div>
