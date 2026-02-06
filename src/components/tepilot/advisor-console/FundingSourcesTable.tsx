@@ -81,14 +81,14 @@ export function FundingSourcesTable({ sources, years, projectType, onChange }: F
   };
 
   return (
-    <Card>
+    <Card className="bg-white border-slate-200 shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-green-600" />
-            <CardTitle className="text-base">Funding Sources</CardTitle>
+            <CardTitle className="text-base text-slate-900">Funding Sources</CardTitle>
           </div>
-          <Button variant="outline" size="sm" onClick={addSource}>
+          <Button variant="outline" size="sm" onClick={addSource} className="border-slate-300 text-slate-700 hover:bg-slate-50">
             <Plus className="w-4 h-4 mr-1" />
             Add Source
           </Button>
@@ -98,20 +98,20 @@ export function FundingSourcesTable({ sources, years, projectType, onChange }: F
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b">
-                <th className="text-left p-2 font-medium">Source Type</th>
+              <tr className="border-b border-slate-200">
+                <th className="text-left p-2 font-medium text-slate-700">Source Type</th>
                 {years.map(year => (
-                  <th key={year} className="text-right p-2 font-medium">{year}</th>
+                  <th key={year} className="text-right p-2 font-medium text-slate-700">{year}</th>
                 ))}
                 <th className="w-10"></th>
               </tr>
             </thead>
             <tbody>
               {sources.map((source) => (
-                <tr key={source.id} className="border-b hover:bg-slate-50">
+                <tr key={source.id} className="border-b border-slate-200 hover:bg-slate-50">
                   <td className="p-2">
                     <Select value={source.type} onValueChange={(value) => updateSourceType(source.id, value as FundingSource["type"])}>
-                      <SelectTrigger className="w-[180px] h-8">
+                      <SelectTrigger className="w-[180px] h-8 bg-white border-slate-300 text-slate-900">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -128,7 +128,7 @@ export function FundingSourcesTable({ sources, years, projectType, onChange }: F
                         value={source.amounts[year] || ''}
                         onChange={(e) => updateSourceAmount(source.id, year, e.target.value)}
                         placeholder="$0"
-                        className="h-8 text-right"
+                        className="h-8 text-right bg-white border-slate-300 text-slate-900"
                       />
                     </td>
                   ))}
@@ -140,7 +140,7 @@ export function FundingSourcesTable({ sources, years, projectType, onChange }: F
                 </tr>
               ))}
               <tr className="font-semibold bg-slate-50">
-                <td className="p-2">Total Funding</td>
+                <td className="p-2 text-slate-700">Total Funding</td>
                 {years.map(year => (
                   <td key={year} className="p-2 text-right text-green-600">
                     {formatCurrency(getTotalForYear(year))}
