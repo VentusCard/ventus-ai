@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw } from "lucide-react";
 import { AdvisorContext } from "@/lib/advisorContextBuilder";
+import { cn } from "@/lib/utils";
 import { AIInsights, LifeEvent } from "@/types/lifestyle-signals";
 import { formatCurrency } from "@/lib/formatHelper";
 import { ClientProfileData } from "@/types/clientProfile";
+import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { LifeEventDetailsDialog } from "./LifeEventDetailsDialog";
 import { DetectedLifeEvent } from "@/types/dashboardClient";
 
@@ -132,7 +134,7 @@ export function ClientSnapshotPanel({
                     New Client
                   </Button>
                 </div>
-                <Badge variant="outline" className="mt-1">
+                <Badge className={cn('mt-1', getSegmentColorClasses(displayData.segment))}>
                   {displayData.segment}
                 </Badge>
               </div>

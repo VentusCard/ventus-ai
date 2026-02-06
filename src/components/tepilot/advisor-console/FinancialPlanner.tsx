@@ -37,6 +37,8 @@ import { TaxAdvantagedAccountsSection } from "./TaxAdvantagedAccountsSection";
 import { RMDCalculator } from "./RMDCalculator";
 import { MonteCarloSimulator } from "./MonteCarloSimulator";
 import { formatCurrency } from "@/lib/formatHelper";
+import { getSegmentColorClasses } from "@/lib/segmentColors";
+import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -399,7 +401,7 @@ export function FinancialPlanner({
               <CardTitle className="text-lg">Client Overview</CardTitle>
             </div>
             {clientProfile && (
-              <Badge variant="secondary">{clientProfile.segment}</Badge>
+              <Badge className={cn(getSegmentColorClasses(clientProfile.segment))}>{clientProfile.segment}</Badge>
             )}
           </div>
         </CardHeader>

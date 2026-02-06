@@ -14,6 +14,7 @@ import {
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart, AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { toast } from "@/hooks/use-toast";
 
 interface PrepareEventDialogProps {
@@ -102,7 +103,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               <DialogTitle className="text-lg font-bold text-slate-900">Prepare: {event.eventName}</DialogTitle>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm text-slate-600">{client.profile.name}</span>
-                <Badge variant="secondary" className="text-xs">{client.profile.segment}</Badge>
+                <Badge className={cn('text-xs', getSegmentColorClasses(client.profile.segment))}>{client.profile.segment}</Badge>
                 <Badge className={cn(
                   'text-xs',
                   event.confidence >= 85 ? 'bg-green-100 text-green-700' :
