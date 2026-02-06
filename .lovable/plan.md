@@ -1,112 +1,73 @@
 
+# Fix Travel Transactions Being Counted as New Pillars
 
-# Separate White Theme for TePilot Pages
+## Problem
+Travel transactions are creating new invalid pillars like "Dining Away" and "Travel Essentials" instead of being grouped under **"Travel & Exploration"**. The AI edge function is working correctly, but the client-side code is blindly applying `reclassified_pillar` values without enforcing the travel pillar.
 
-## Overview
-Create a dedicated light theme scope for all TePilot pages to prevent theme conflicts. This will ensure that:
-- **Marketing/Corporate pages** use the existing dark theme (black background, light text)
-- **TePilot demo pages** use a consistent white/light theme (white background, dark text)
+## Root Cause
 
-## Approach: CSS Scoped Theme Class
+In `src/hooks/useSSEEnrichment.ts` (lines 281-286), the code applies whatever value the AI returns for `reclassified_pillar`:
 
-Instead of manually fixing colors across 50+ files, we'll create a `.tepilot-theme` CSS class that overrides the CSS variables to use light mode values. All TePilot pages will wrap their content in this class.
-
-## Files to Update
-
-### 1. Create Light Theme Variables in base.css
-Add a new `.tepilot-theme` class that defines light mode CSS variables:
-
-```css
-/* TePilot Light Theme - scoped override */
-.tepilot-theme {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
-  
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
-  
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 217 91% 60%;
-  
-  color-scheme: light;
+```typescript
+if (travelUpdate.reclassified_pillar) {
+  updated[idx].pillar = travelUpdate.reclassified_pillar;
 }
 ```
 
-### 2. Update TePilot Pages to Use the Theme Wrapper
+When the AI returns `reclassified_pillar: "Dining Away"`, this incorrectly becomes a new pillar instead of a subcategory under Travel.
 
-Each TePilot page needs to add the `tepilot-theme` class to its root container:
+## Solution
 
-**TePilot.tsx** (main demo page)
-- Already uses `bg-white` - add `tepilot-theme` class to root
+Update the client-side logic to **always use "Travel & Exploration"** as the pillar when `is_travel_related` is true, regardless of what the AI returns for `reclassified_pillar`.
 
-**FinancialPlanningPage.tsx**
-- Line 89: `<div className="flex flex-col h-screen bg-white">` 
-- Change to: `<div className="tepilot-theme flex flex-col h-screen bg-background">`
+## File to Update
 
-**AdvisorConsolePage.tsx**
-- Line 198: `<div className="flex flex-col h-screen bg-white">`
-- Change to: `<div className="tepilot-theme flex flex-col h-screen bg-background">`
+### `src/hooks/useSSEEnrichment.ts`
 
-**RecommendationsPage.tsx**
-- Line 49: `<div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">`
-- Change to: `<div className="tepilot-theme min-h-screen bg-background p-6">`
+**Current code (lines 278-286):**
+```typescript
+// Store original pillar before updating
+const originalPillar = updated[idx].pillar;
 
-**RewardsPipelinePage.tsx**
-- Line 8: `<div className="min-h-screen bg-white">`
-- Change to: `<div className="tepilot-theme min-h-screen bg-background">`
+// Update pillar and subcategory if reclassified
+if (travelUpdate.reclassified_pillar) {
+  updated[idx].pillar = travelUpdate.reclassified_pillar;
+}
+if (travelUpdate.reclassified_subcategory) {
+  updated[idx].subcategory = travelUpdate.reclassified_subcategory;
+}
+```
 
-### 3. Simplify Component Colors
+**Updated code:**
+```typescript
+// Store original pillar before updating
+const originalPillar = updated[idx].pillar;
 
-After adding the theme scope, we can safely replace hardcoded slate colors with semantic CSS variable-based classes:
+// If travel-related, ALWAYS set pillar to "Travel & Exploration"
+// The reclassified values from AI should be used as subcategories only
+if (travelUpdate.is_travel_related) {
+  updated[idx].pillar = "Travel & Exploration";
+  // Use reclassified_subcategory if provided, otherwise use reclassified_pillar as subcategory
+  if (travelUpdate.reclassified_subcategory) {
+    updated[idx].subcategory = travelUpdate.reclassified_subcategory;
+  } else if (travelUpdate.reclassified_pillar) {
+    // AI may have put subcategory name in reclassified_pillar field
+    updated[idx].subcategory = travelUpdate.reclassified_pillar;
+  }
+}
+```
 
-| Current | New (uses CSS vars) |
-|---------|---------------------|
-| `text-slate-900` | `text-foreground` |
-| `text-slate-700` | `text-foreground/80` |
-| `text-slate-600` | `text-muted-foreground` |
-| `text-slate-500` | `text-muted-foreground` |
-| `bg-white` | `bg-background` |
-| `bg-slate-50` | `bg-muted` |
-| `border-slate-200` | `border-border` |
+## Behavior After Fix
 
-This is optional but recommended for future maintainability.
+| Transaction | AI Returns | Before Fix | After Fix |
+|-------------|-----------|------------|-----------|
+| Restaurant in Miami during trip | `reclassified_pillar: "Dining Away"` | Pillar: "Dining Away" (wrong) | Pillar: "Travel & Exploration", Subcategory: "Dining Away" |
+| Gas station in Vermont | `reclassified_pillar: "Travel Transportation"` | Pillar: "Travel Transportation" (wrong) | Pillar: "Travel & Exploration", Subcategory: "Travel Transportation" |
+| Hotel booking | `reclassified_pillar: "Hotels & Lodging"` | Pillar: "Hotels & Lodging" (wrong) | Pillar: "Travel & Exploration", Subcategory: "Hotels & Lodging" |
 
-## Benefits
+## Summary
 
-1. **Single source of truth** - Theme colors defined in one place
-2. **No more conflicts** - TePilot pages are isolated from the dark theme
-3. **Easy maintenance** - Future TePilot components automatically get the right colors
-4. **Semantic colors** - Components use `text-foreground` instead of `text-slate-900`
-
-## Implementation Order
-
-1. Add `.tepilot-theme` CSS class to `src/styles/base.css`
-2. Update the 5 TePilot page files to wrap content in `tepilot-theme`
-3. Verify all pages render correctly with proper dark text on white backgrounds
-
-## Technical Notes
-
-- The CSS scoped theme approach uses CSS custom property inheritance
-- Child components automatically inherit the light theme variables
-- No changes needed to shared UI components (Button, Card, etc.) - they already use CSS variables
-- The `color-scheme: light` ensures browser UI elements (scrollbars, inputs) match
-
+- **1 file change** in `useSSEEnrichment.ts`
+- Travel-related transactions will always be grouped under "Travel & Exploration"
+- The reclassified value becomes the subcategory, preserving the granularity
+- No edge function changes needed
