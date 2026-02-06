@@ -1,81 +1,112 @@
 
 
-# Fix Text Colors in RMD Calculator and Asset Allocation Cards
+# Separate White Theme for TePilot Pages
 
 ## Overview
-Update text colors in both components to ensure all text is dark enough for optimal readability, following the established pattern of using `text-slate-700` or `text-slate-900` for important content.
+Create a dedicated light theme scope for all TePilot pages to prevent theme conflicts. This will ensure that:
+- **Marketing/Corporate pages** use the existing dark theme (black background, light text)
+- **TePilot demo pages** use a consistent white/light theme (white background, dark text)
+
+## Approach: CSS Scoped Theme Class
+
+Instead of manually fixing colors across 50+ files, we'll create a `.tepilot-theme` CSS class that overrides the CSS variables to use light mode values. All TePilot pages will wrap their content in this class.
 
 ## Files to Update
 
-### 1. RMDCalculator.tsx
+### 1. Create Light Theme Variables in base.css
+Add a new `.tepilot-theme` class that defines light mode CSS variables:
 
-| Line | Element | Current | New |
-|------|---------|---------|-----|
-| 121 | Info icon | `text-slate-500` | `text-slate-600` |
-| 187 | "Estimated Tax" row | `text-sm text-slate-600` | `text-sm text-slate-700` |
-| 191 | "Monthly Distribution" row | `text-sm text-slate-600` | `text-sm text-slate-700` |
-| 203 | Deadline reminder text | `text-slate-600` | `text-slate-700` |
-
-### 2. AssetAllocationEditor.tsx
-
-| Line | Element | Current | New |
-|------|---------|---------|-----|
-| 140 | Legend item wrapper | `text-xs` (no color) | `text-xs text-slate-900` |
-| 201 | Percentage display | `text-sm font-medium` (no color) | `text-sm font-medium text-slate-900` |
-
-## Technical Changes
-
-### RMDCalculator.tsx
-
-**Line 121** - Info icon:
-```tsx
-// Before
-<Info className="w-4 h-4 text-slate-500" />
-
-// After
-<Info className="w-4 h-4 text-slate-600" />
+```css
+/* TePilot Light Theme - scoped override */
+.tepilot-theme {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 217 91% 60%;
+  
+  color-scheme: light;
+}
 ```
 
-**Lines 187 and 191** - Summary section text:
-```tsx
-// Before
-<div className="flex justify-between items-center text-sm text-slate-600">
+### 2. Update TePilot Pages to Use the Theme Wrapper
 
-// After
-<div className="flex justify-between items-center text-sm text-slate-700">
-```
+Each TePilot page needs to add the `tepilot-theme` class to its root container:
 
-**Line 203** - Deadline reminder:
-```tsx
-// Before
-<p className="text-slate-600 mt-1">
+**TePilot.tsx** (main demo page)
+- Already uses `bg-white` - add `tepilot-theme` class to root
 
-// After
-<p className="text-slate-700 mt-1">
-```
+**FinancialPlanningPage.tsx**
+- Line 89: `<div className="flex flex-col h-screen bg-white">` 
+- Change to: `<div className="tepilot-theme flex flex-col h-screen bg-background">`
 
-### AssetAllocationEditor.tsx
+**AdvisorConsolePage.tsx**
+- Line 198: `<div className="flex flex-col h-screen bg-white">`
+- Change to: `<div className="tepilot-theme flex flex-col h-screen bg-background">`
 
-**Line 140** - Legend items:
-```tsx
-// Before
-<div key={entry.name} className="flex items-center gap-1 text-xs">
+**RecommendationsPage.tsx**
+- Line 49: `<div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">`
+- Change to: `<div className="tepilot-theme min-h-screen bg-background p-6">`
 
-// After
-<div key={entry.name} className="flex items-center gap-1 text-xs text-slate-900">
-```
+**RewardsPipelinePage.tsx**
+- Line 8: `<div className="min-h-screen bg-white">`
+- Change to: `<div className="tepilot-theme min-h-screen bg-background">`
 
-**Line 201** - Percentage value:
-```tsx
-// Before
-<span className="text-sm font-medium">{targetAllocation[key]}%</span>
+### 3. Simplify Component Colors
 
-// After
-<span className="text-sm font-medium text-slate-900">{targetAllocation[key]}%</span>
-```
+After adding the theme scope, we can safely replace hardcoded slate colors with semantic CSS variable-based classes:
 
-## Summary
-- 4 changes in RMDCalculator.tsx
-- 2 changes in AssetAllocationEditor.tsx
-- All changes darken text for better readability while maintaining visual hierarchy
+| Current | New (uses CSS vars) |
+|---------|---------------------|
+| `text-slate-900` | `text-foreground` |
+| `text-slate-700` | `text-foreground/80` |
+| `text-slate-600` | `text-muted-foreground` |
+| `text-slate-500` | `text-muted-foreground` |
+| `bg-white` | `bg-background` |
+| `bg-slate-50` | `bg-muted` |
+| `border-slate-200` | `border-border` |
+
+This is optional but recommended for future maintainability.
+
+## Benefits
+
+1. **Single source of truth** - Theme colors defined in one place
+2. **No more conflicts** - TePilot pages are isolated from the dark theme
+3. **Easy maintenance** - Future TePilot components automatically get the right colors
+4. **Semantic colors** - Components use `text-foreground` instead of `text-slate-900`
+
+## Implementation Order
+
+1. Add `.tepilot-theme` CSS class to `src/styles/base.css`
+2. Update the 5 TePilot page files to wrap content in `tepilot-theme`
+3. Verify all pages render correctly with proper dark text on white backgrounds
+
+## Technical Notes
+
+- The CSS scoped theme approach uses CSS custom property inheritance
+- Child components automatically inherit the light theme variables
+- No changes needed to shared UI components (Button, Card, etc.) - they already use CSS variables
+- The `color-scheme: light` ensures browser UI elements (scrollbars, inputs) match
 
