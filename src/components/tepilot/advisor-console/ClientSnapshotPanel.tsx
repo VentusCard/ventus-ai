@@ -247,7 +247,13 @@ export function ClientSnapshotPanel({
                   >
                     <div className="font-semibold text-slate-900 flex items-center gap-2">
                       {event.event_name}
-                      <Badge variant="outline" className="text-xs">{event.confidence}%</Badge>
+                      <Badge variant="outline" className={`text-xs ${
+                        event.confidence >= 80 
+                          ? 'bg-green-100 text-green-700 border-green-200' 
+                          : event.confidence >= 60 
+                            ? 'bg-yellow-100 text-yellow-700 border-yellow-200' 
+                            : 'bg-orange-100 text-orange-700 border-orange-200'
+                      }`}>{event.confidence}%</Badge>
                     </div>
                     <div className="text-slate-500 mt-1">{event.evidence.length} supporting transactions</div>
                   </div>
