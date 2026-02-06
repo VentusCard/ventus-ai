@@ -1,78 +1,106 @@
 
-# Sleek White-Themed Resizable Handle for Advisor Console
 
-## Problem Identified
-The **ResizableHandle** component between the Client Snapshot panel and the main chat section is using dark-themed styling that clashes with the white/light background of the Advisor Console:
+# Add Download PDF Button to Event Preparation Dialog
 
-| Element | Current Value | Issue |
-|---------|--------------|-------|
-| Handle background | `bg-border` | Resolves to `hsl(0 0% 15%)` - very dark |
-| Grip box | `bg-border` + `border` | Dark gray appearance |
-| Handle width | `w-px` (1px) + `after:w-1` | Thin but visible dark line |
+## Overview
+Add a new "Download PDF" button alongside the existing "Email Me Summary" button in the PrepareEventDialog. This will generate and download a professional PDF summary of the life event preparation data.
 
-## Root Cause
-The global CSS variables in `src/styles/base.css` define `--border: 0 0% 15%` for the dark theme, but the Advisor Console uses light backgrounds (`bg-white`, `bg-slate-50`). The ResizableHandle inherits these dark values.
+## Changes Required
 
-## Solution
-Update the `ResizableHandle` component in `src/components/ui/resizable.tsx` to use light-themed colors that work with the Advisor Console's white background:
+### 1. Create PDF Export Function
+**New File: `src/lib/eventPreparationPdfExport.ts`**
 
-### Changes Required
+Create a function following the existing pattern from `financialTimelinePdfExport.ts`:
+- Header with event type, client name, segment, and confidence score
+- Detected Supporting Transactions table
+- Ventus AI Insights section
+- Ventus AI Recommended Next Steps checklist
+- Footer with generation timestamp
 
-**File: `src/components/ui/resizable.tsx`**
+### 2. Update PrepareEventDialog Component
+**File: `src/components/tepilot/advisor-console/PrepareEventDialog.tsx`**
 
-1. **Main handle line (line 30)**
-   - Change: `bg-border`
-   - To: `bg-slate-200` (light gray, subtle)
-
-2. **Grip handle box (line 36)**
-   - Change: `border bg-border`
-   - To: `border-slate-300 bg-white shadow-sm` (white with subtle border)
-
-3. **Grip icon (line 37)**
-   - Change: default color
-   - To: `text-slate-400` (light gray icon)
+| Change | Location |
+|--------|----------|
+| Add `Download` icon import | Line 12-15 (icon imports) |
+| Import PDF export function | New import statement |
+| Add `handleDownloadPDF` function | After `handleEmailMe` (around line 91) |
+| Add Download PDF button | DialogFooter (line 181-190) |
 
 ### Technical Details
 
-```tsx
-// Current (dark themed)
-<ResizablePrimitive.PanelResizeHandle
-  className={cn(
-    "relative flex w-px items-center justify-center bg-border after:absolute...",
-    className
-  )}
->
-  {withHandle && (
-    <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
-      <GripVertical className="h-2.5 w-2.5" />
-    </div>
-  )}
-</ResizablePrimitive.PanelResizeHandle>
+**New PDF Export Function:**
+```typescript
+// src/lib/eventPreparationPdfExport.ts
+import jsPDF from "jspdf";
+import { EventPreparationData, LIFE_EVENT_CONFIG } from "@/types/dashboardClient";
 
-// Updated (light themed)
-<ResizablePrimitive.PanelResizeHandle
-  className={cn(
-    "relative flex w-px items-center justify-center bg-slate-200 after:absolute...",
-    className
-  )}
->
-  {withHandle && (
-    <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border-slate-300 bg-white shadow-sm">
-      <GripVertical className="h-2.5 w-2.5 text-slate-400" />
-    </div>
-  )}
-</ResizablePrimitive.PanelResizeHandle>
+export async function exportEventPreparationPDF(
+  data: EventPreparationData,
+  insights: string
+): Promise<void> {
+  const doc = new jsPDF();
+  // Generate formatted PDF with all sections
+  doc.save(`${clientName}_${eventType}_Preparation.pdf`);
+}
 ```
 
-## Visual Result
-- The divider line becomes a subtle light gray (`bg-slate-200`)
-- The grip handle becomes white with a soft shadow
-- The grip icon becomes a subtle slate-400 gray
-- Matches the light aesthetic of the Advisor Console panels
-- Provides clear visual affordance for resizing without being visually heavy
+**Updated DialogFooter (3 buttons):**
+```tsx
+<DialogFooter className="border-t pt-3 flex items-center gap-2">
+  <Button variant="outline" onClick={handleAskVentus} className="gap-2">
+    <MessageSquare className="h-4 w-4" />
+    Prepare with Ventus WM Co-Pilot
+  </Button>
+  <Button variant="outline" onClick={handleDownloadPDF} className="gap-2">
+    <Download className="h-4 w-4" />
+    Download PDF
+  </Button>
+  <Button onClick={handleEmailMe} className="gap-2">
+    <Mail className="h-4 w-4" />
+    Email Me Summary
+  </Button>
+</DialogFooter>
+```
 
-## Files to Modify
-- `src/components/ui/resizable.tsx` - Update handle and grip styling
+## PDF Content Layout
 
-## Note
-This change affects the global ResizableHandle component. If there are other parts of the app using dark backgrounds with resizable panels, we may need to add a prop-based variant system. However, based on the codebase, the Advisor Console is the primary user of this component.
+```text
++------------------------------------------+
+|  PREPARE: RETIREMENT TRANSITION          |
+|  Margaret Chen | Premium | 92% confidence|
++------------------------------------------+
+|                                          |
+|  DETECTED SUPPORTING TRANSACTIONS        |
+|  ----------------------------------------|
+|  Fidelity Investments    $6,500  Jan 15  |
+|  401k contribution increase              |
+|  ----------------------------------------|
+|  AARP Membership           $16   Dec 28  |
+|  Retirement association membership       |
+|  ... (all transactions)                  |
+|                                          |
++------------------------------------------+
+|  VENTUS AI INSIGHTS                      |
+|  This client is in the early exploration |
+|  phase of retirement planning...         |
+|                                          |
++------------------------------------------+
+|  RECOMMENDED NEXT STEPS                  |
+|  1. Open conversation about retirement   |
+|     vision...                            |
+|  2. Introduce retirement income modeling |
+|  3. Propose establishing a trust...      |
+|                                          |
++------------------------------------------+
+|  Generated: Feb 6, 2026 at 2:30 PM       |
++------------------------------------------+
+```
+
+## Files Summary
+
+| File | Action |
+|------|--------|
+| `src/lib/eventPreparationPdfExport.ts` | Create |
+| `src/components/tepilot/advisor-console/PrepareEventDialog.tsx` | Modify |
+
