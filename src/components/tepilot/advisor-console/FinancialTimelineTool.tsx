@@ -879,7 +879,7 @@ export function FinancialTimelineTool({
   // Funding gap = what's still needed
   const fundingGap = totalCosts - totalFunding;
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lightbulb className="w-5 h-5" />
