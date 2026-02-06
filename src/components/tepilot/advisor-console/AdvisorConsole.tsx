@@ -11,6 +11,7 @@ import { exportFinancialTimelinePDF } from "@/lib/financialTimelinePdfExport";
 import { useToast } from "@/hooks/use-toast";
 import { ClientProfileData } from "@/types/clientProfile";
 import { generateRandomProfile, generateRandomPsychologicalInsights } from "@/lib/randomProfileGenerator";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard } from "lucide-react";
 
@@ -45,6 +46,7 @@ export function AdvisorConsole({
   const [clientProfile, setClientProfile] = useState<ClientProfileData | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [financialPlanData, setFinancialPlanData] = useState<FinancialPlanContext | null>(null);
+  const [dashboardEvents, setDashboardEvents] = useState<DetectedLifeEvent[] | null>(null);
   
   // Cross-panel communication state
   const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
@@ -92,6 +94,16 @@ export function AdvisorConsole({
     // Check sessionStorage for existing data (returning from another page)
     const existingProfile = sessionStorage.getItem("tepilot_client_profile");
     const existingPsych = sessionStorage.getItem("tepilot_psychological_insights");
+    const existingEvents = sessionStorage.getItem("tepilot_detected_events");
+
+    // Load dashboard events if available
+    if (existingEvents) {
+      try {
+        setDashboardEvents(JSON.parse(existingEvents));
+      } catch (e) {
+        console.error("Failed to parse dashboard events:", e);
+      }
+    }
 
     if (existingProfile && existingPsych) {
       // Restore from session
@@ -135,6 +147,10 @@ export function AdvisorConsole({
       actionItems: [], // Clear action items for new client
       lastUpdated: new Date()
     }));
+    
+    // Clear dashboard events for fresh client
+    sessionStorage.removeItem("tepilot_detected_events");
+    setDashboardEvents(null);
     
     // Persist to sessionStorage
     sessionStorage.setItem("tepilot_client_profile", JSON.stringify(newProfile));
@@ -321,6 +337,7 @@ export function AdvisorConsole({
             isLoadingInsights={isLoadingInsights}
             clientData={clientProfile}
             onGenerateProfile={handleGenerateProfile}
+            dashboardEvents={dashboardEvents}
           />
         </ResizablePanel>
 

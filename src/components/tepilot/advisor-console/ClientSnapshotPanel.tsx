@@ -9,6 +9,8 @@ import { AIInsights, LifeEvent } from "@/types/lifestyle-signals";
 import { formatCurrency } from "@/lib/formatHelper";
 import { ClientProfileData } from "@/types/clientProfile";
 import { LifeEventDetailsDialog } from "./LifeEventDetailsDialog";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
+
 interface ClientSnapshotPanelProps {
   onAskVentus?: (context: string) => void;
   onPlanEvent?: (event: LifeEvent) => void;
@@ -17,6 +19,7 @@ interface ClientSnapshotPanelProps {
   isLoadingInsights?: boolean;
   clientData?: ClientProfileData | null;
   onGenerateProfile?: () => void;
+  dashboardEvents?: DetectedLifeEvent[] | null;
 }
 
 const pillarIconMap: Record<string, any> = {
@@ -74,7 +77,8 @@ export function ClientSnapshotPanel({
   aiInsights,
   isLoadingInsights = false,
   clientData,
-  onGenerateProfile
+  onGenerateProfile,
+  dashboardEvents
 }: ClientSnapshotPanelProps) {
   const [selectedEvent, setSelectedEvent] = useState<LifeEvent | null>(null);
   // Use clientData if provided, otherwise use placeholder
@@ -88,8 +92,20 @@ export function ClientSnapshotPanel({
     icon: pillarIconMap[pillar.pillar] || Activity
   })) || [];
 
-  // Get life events from AI insights
-  const lifeEvents = aiInsights?.detected_events || [];
+  // Prioritize dashboard events if available, otherwise use AI insights
+  const lifeEvents: LifeEvent[] = dashboardEvents?.length 
+    ? dashboardEvents.map(e => ({
+        event_name: e.eventName,
+        confidence: e.confidence,
+        evidence: e.keyEvidence.map(k => ({ 
+          merchant: "", 
+          amount: 0, 
+          date: "", 
+          relevance: k 
+        })),
+        talking_points: []
+      }))
+    : (aiInsights?.detected_events || []);
 
   // Calculate overview stats
   const hasRealData = advisorContext && advisorContext.overview.totalTransactions > 0;
