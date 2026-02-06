@@ -178,7 +178,7 @@ export function ClientSnapshotPanel({
             <AccordionItem value="overview" className="bg-white rounded-lg border">
               <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-primary" />
+                  <TrendingUp className="w-4 h-4 text-blue-600" />
                   <span className="text-sm font-semibold text-blue-900">Transaction Overview</span>
                   <Badge variant="secondary" className="ml-auto text-xs">{advisorContext.overview.totalTransactions} txns</Badge>
                 </div>
@@ -208,7 +208,7 @@ export function ClientSnapshotPanel({
           <AccordionItem value="events" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <Sparkles className={`w-4 h-4 text-primary ${isLoadingInsights ? 'animate-pulse' : ''}`} />
+                <Sparkles className={`w-4 h-4 text-blue-600 ${isLoadingInsights ? 'animate-pulse' : ''}`} />
                 <span className="text-sm font-semibold text-blue-900">Detected Life Events</span>
                 {isLoadingInsights ? (
                   <Badge variant="secondary" className="ml-auto text-xs animate-pulse bg-primary/10 text-primary">
@@ -387,7 +387,7 @@ export function ClientSnapshotPanel({
           <AccordionItem value="lifestyle" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
+                <Activity className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-900">Top Spending Categories</span>
                 {lifestyleSignals.length > 0 && (
                   <Badge variant="secondary" className="ml-auto text-xs">{lifestyleSignals.length}</Badge>
@@ -425,7 +425,7 @@ export function ClientSnapshotPanel({
           <AccordionItem value="compliance" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
+                <AlertCircle className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-900">Compliance & Risk</span>
               </div>
             </AccordionTrigger>
@@ -455,7 +455,7 @@ export function ClientSnapshotPanel({
           <AccordionItem value="milestones" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-900">Relationship Milestones</span>
               </div>
             </AccordionTrigger>
