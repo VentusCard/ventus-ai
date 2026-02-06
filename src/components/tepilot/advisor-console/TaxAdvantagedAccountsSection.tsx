@@ -125,7 +125,7 @@ export function TaxAdvantagedAccountsSection({
                       onChange={(e) => handleAccountChange(index, { 
                         annualContribution: parseFloat(e.target.value) || 0 
                       })}
-                      className="h-8 mt-1"
+                      className="h-8 mt-1 bg-white text-slate-900"
                     />
                   </div>
                 </div>

@@ -223,6 +223,7 @@ export function FinancialGoalsSection({
                       value={newGoal.name}
                       onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
                       placeholder="e.g., Retirement, College Fund"
+                      className="bg-white text-slate-900"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -266,6 +267,7 @@ export function FinancialGoalsSection({
                         type="number"
                         value={newGoal.targetAmount}
                         onChange={(e) => setNewGoal({ ...newGoal, targetAmount: parseFloat(e.target.value) || 0 })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                     <div>
@@ -274,6 +276,7 @@ export function FinancialGoalsSection({
                         type="number"
                         value={newGoal.currentAmount}
                         onChange={(e) => setNewGoal({ ...newGoal, currentAmount: parseFloat(e.target.value) || 0 })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                   </div>
@@ -284,6 +287,7 @@ export function FinancialGoalsSection({
                         type="date"
                         value={newGoal.targetDate}
                         onChange={(e) => setNewGoal({ ...newGoal, targetDate: e.target.value })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                     <div>
@@ -292,6 +296,7 @@ export function FinancialGoalsSection({
                         type="number"
                         value={newGoal.monthlyContribution}
                         onChange={(e) => setNewGoal({ ...newGoal, monthlyContribution: parseFloat(e.target.value) || 0 })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                   </div>
