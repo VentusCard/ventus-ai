@@ -1,45 +1,77 @@
 
-# Make All Accordion Section Icons Blue and Consistent
+# Sleek White-Themed Scrollbar for Advisor Console
 
 ## Overview
-Update all icons in the Client Snapshot Panel accordion sections to use consistent `text-blue-600` color styling.
+Update the scrollbar styling to be sleeker and white-themed for the advisor console panels. The current scrollbar is too thick and uses dark theme colors that clash with the white backgrounds.
 
-## Current State
-| Section | Icon | Current Color |
-|---------|------|---------------|
-| Transaction Overview | TrendingUp | `text-primary` |
-| Detected Life Events | Sparkles | `text-primary` |
-| Holdings Overview | Landmark | `text-blue-600` (already correct) |
-| Top Spending Categories | Activity | No color class |
-| Compliance & Risk | AlertCircle | No color class |
-| Relationship Milestones | TrendingUp | No color class |
+## Current Issues
+- ScrollArea component uses `bg-border` (dark gray at 15% lightness) for the thumb
+- Scrollbar width is `w-2.5` (10px) - too thick
+- Light scrollbar styles in `components.css` only target `.tepilot-container` class
 
 ## Changes Required
 
-### File: `src/components/tepilot/advisor-console/ClientSnapshotPanel.tsx`
+### 1. Update ScrollArea Component
+**File: `src/components/ui/scroll-area.tsx`**
 
-1. **Line 181** - Transaction Overview icon
-   - Change: `<TrendingUp className="w-4 h-4 text-primary" />`
-   - To: `<TrendingUp className="w-4 h-4 text-blue-600" />`
+Make the default scrollbar thinner and update thumb color to use a lighter, more subtle color:
+- Change width from `w-2.5` to `w-1.5` (6px - sleeker)
+- Update thumb color from `bg-border` to a light gray (`bg-slate-300`) with hover state (`hover:bg-slate-400`)
+- Add smooth transition for hover effect
 
-2. **Line 211** - Detected Life Events icon
-   - Change: `<Sparkles className={\`w-4 h-4 text-primary ${isLoadingInsights ? 'animate-pulse' : ''}\`} />`
-   - To: `<Sparkles className={\`w-4 h-4 text-blue-600 ${isLoadingInsights ? 'animate-pulse' : ''}\`} />`
+### 2. Update CSS Scrollbar Styles
+**File: `src/styles/components.css`**
 
-3. **Line 288** - Holdings Overview icon
-   - Already using `text-blue-600` - no change needed
+Add advisor-console specific scrollbar styling to ensure native scrollbars also match:
+- Add `.advisor-console-panel` scrollbar styles
+- Use light gray colors (`hsl(220 10% 85%)`) for the thumb
+- Keep scrollbar thin (`4px` width)
+- Add hover states for better UX
 
-4. **Line 390** - Top Spending Categories icon
-   - Change: `<Activity className="w-4 h-4" />`
-   - To: `<Activity className="w-4 h-4 text-blue-600" />`
+## Technical Details
 
-5. **Line 428** - Compliance & Risk icon
-   - Change: `<AlertCircle className="w-4 h-4" />`
-   - To: `<AlertCircle className="w-4 h-4 text-blue-600" />`
+### ScrollArea Component Changes (scroll-area.tsx)
 
-6. **Line 458** - Relationship Milestones icon
-   - Change: `<TrendingUp className="w-4 h-4" />`
-   - To: `<TrendingUp className="w-4 h-4 text-blue-600" />`
+```tsx
+// Current (thick, dark)
+"h-full w-2.5 border-l border-l-transparent p-[1px]"
+<ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
+
+// Updated (thin, light)  
+"h-full w-1.5 border-l border-l-transparent p-[1px]"
+<ScrollAreaThumb className="relative flex-1 rounded-full bg-slate-300 hover:bg-slate-400 transition-colors" />
+```
+
+### CSS Additions (components.css)
+
+```css
+/* Advisor console light scrollbars */
+.advisor-console-panel {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(220 10% 85%) transparent;
+}
+
+.advisor-console-panel::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.advisor-console-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.advisor-console-panel::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 85%);
+  border-radius: 4px;
+}
+
+.advisor-console-panel::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 70%);
+}
+```
 
 ## Result
-All six accordion section icons will display with consistent `text-blue-600` styling, creating a unified visual appearance in the left panel.
+- Scrollbars will be 60% thinner (from 10px to 4-6px)
+- Light gray color scheme that complements white backgrounds
+- Smooth hover transitions for better interactivity
+- Consistent styling across both Radix ScrollArea and native scrollbars
