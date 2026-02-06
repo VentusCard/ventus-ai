@@ -371,12 +371,12 @@ export function VentusChatPanel({
 
                 {/* Action Buttons for AI messages */}
                 {message.role === 'assistant' && <div className="flex gap-2 mt-3">
-                    <Button variant="ghost" size="sm" onClick={() => handleSaveToDoc(message.content)} className="text-xs">
+                    <Button variant="outline" size="sm" onClick={() => handleSaveToDoc(message.content)} className="text-xs text-foreground border-border hover:bg-accent">
                       <Save className="w-3 h-3 mr-1" />
                       Save to Document
                     </Button>
                     
-                    <Button variant="ghost" size="sm" onClick={() => handleAddToTodoFromMessage(message.content)} className="text-xs">
+                    <Button variant="outline" size="sm" onClick={() => handleAddToTodoFromMessage(message.content)} className="text-xs text-foreground border-border hover:bg-accent">
                       <ListTodo className="w-3 h-3 mr-1" />
                       Add to To-Do
                     </Button>
