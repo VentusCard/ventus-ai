@@ -145,7 +145,7 @@ export function FinancialGoalsSection({
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-700">
               Target: {targetYear} ({yearsRemaining > 0 ? `${yearsRemaining} years` : "This year"})
             </p>
           </div>
@@ -182,7 +182,7 @@ export function FinancialGoalsSection({
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-slate-500">
+          <div className="flex justify-between text-xs text-slate-600">
             <span>{progress.toFixed(0)}% funded</span>
             <span>
               {goal.monthlyContribution > 0 && (
@@ -311,7 +311,7 @@ export function FinancialGoalsSection({
       </CardHeader>
       <CardContent>
         {goals.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
+          <div className="text-center py-8 text-slate-600">
             <Target className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No financial goals defined yet</p>
             <p className="text-sm">Add long-term goals like retirement, legacy planning, or education</p>

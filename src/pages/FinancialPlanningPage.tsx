@@ -99,7 +99,7 @@ const FinancialPlanningPage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Advisor Console
           </Button>
-          <h2 className="text-sm font-medium text-slate-500">
+          <h2 className="text-sm font-medium text-slate-700">
             Financial Planning Tool
           </h2>
         </div>
