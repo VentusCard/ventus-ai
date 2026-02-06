@@ -1,53 +1,82 @@
 
 
-# Fix Visibility of Action Buttons in Advisor Console
+# Add Segment-Specific Badge Colors
 
-## Problem Identified
+## Overview
+Implement consistent color-coded badges for client segments (Preferred, Private, Premium) across all components in the Advisor Console.
 
-Looking at your screenshot, the bottom action buttons (Call, Email, Schedule) in the right panel are being cut off or not fully visible. This is happening because:
+## Current State
+- `LifeEventAlertCard.tsx` already has a `segmentColors` mapping:
+  - **Preferred**: Blue (bg-blue-100 text-blue-800)
+  - **Private**: Purple (bg-purple-100 text-purple-800)  
+  - **Premium**: Amber/Gold (bg-amber-100 text-amber-800)
+- Other components use generic `variant="outline"` or `variant="secondary"` badges without segment-specific colors
 
-1. The `ActionWorkspacePanel` uses a flex layout with a scrollable content area
-2. The bottom action buttons are positioned **outside** the scrollable area but the container height constraints are causing them to be pushed below the visible viewport
+## Implementation Plan
 
-## Root Cause
+### Step 1: Create Shared Segment Colors Utility
+Create a shared utility file to define segment colors once and reuse across all components.
 
-In `ActionWorkspacePanel.tsx`:
-- The "Next Steps" section uses `flex-1 min-h-0 overflow-hidden` (line 165)
-- The action buttons section (lines 286-304) has `space-y-2` but no `flex-shrink-0` protection
-- This means when content expands, the buttons can get squeezed out of view
+**File:** `src/lib/segmentColors.ts`
+- Export a `SEGMENT_COLORS` constant mapping each segment to its color classes
+- Export a helper function `getSegmentColorClasses(segment: string)` for easy usage
 
-## Solution
+### Step 2: Update Components to Use Shared Colors
 
-Add `flex-shrink-0` to the bottom action buttons container to prevent them from being compressed, ensuring they always remain visible at the bottom of the panel.
+**Files to update:**
 
-### Changes Required
+1. **ClientSnapshotPanel.tsx** (line 135)
+   - Replace `<Badge variant="outline">` with colored badge using segment colors
 
-**File: `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx`**
+2. **PrepareEventDialog.tsx** (line 105)
+   - Replace `<Badge variant="secondary">` with colored badge
 
-Update line 286 from:
-```tsx
-<div className="space-y-2">
-```
+3. **FinancialPlanner.tsx** (line 402)
+   - Replace `<Badge variant="secondary">` with colored badge
 
-To:
-```tsx
-<div className="space-y-2 flex-shrink-0">
-```
-
-This single CSS class addition ensures the button container maintains its natural height and doesn't get compressed when the scrollable content area expands.
+4. **LifeEventAlertCard.tsx** (lines 30-34)
+   - Remove local `segmentColors` definition
+   - Import from shared utility
 
 ## Technical Details
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| Button container | `space-y-2` | `space-y-2 flex-shrink-0` |
-| Behavior | Can be squeezed by flex layout | Always maintains full height |
-| Visibility | Gets cut off when content is large | Always visible at bottom |
+### Segment Color Mapping
+```text
++-----------+--------------------------+
+| Segment   | Colors                   |
++-----------+--------------------------+
+| Preferred | bg-blue-100 text-blue-800|
+| Private   | bg-purple-100 text-purple-800|
+| Premium   | bg-amber-100 text-amber-800|
++-----------+--------------------------+
+```
 
-## Expected Result
+### Code Example
+```typescript
+// src/lib/segmentColors.ts
+export const SEGMENT_COLORS: Record<string, string> = {
+  Preferred: 'bg-blue-100 text-blue-800 border-blue-200',
+  Private: 'bg-purple-100 text-purple-800 border-purple-200',
+  Premium: 'bg-amber-100 text-amber-800 border-amber-200',
+};
 
-After this fix:
-- The Call, Email, and Schedule buttons will always be visible at the bottom of the right panel
-- The "Next Steps" content area will scroll independently while keeping the buttons fixed
-- No layout shifts or overflow issues
+export function getSegmentColorClasses(segment: string): string {
+  return SEGMENT_COLORS[segment] || 'bg-slate-100 text-slate-800';
+}
+```
+
+### Usage in Components
+```tsx
+import { getSegmentColorClasses } from "@/lib/segmentColors";
+
+<Badge className={cn('text-xs', getSegmentColorClasses(displayData.segment))}>
+  {displayData.segment}
+</Badge>
+```
+
+## Benefits
+- Consistent visual language for client segments across the entire application
+- Single source of truth for segment colors (easy to update globally)
+- Premium clients get a distinctive gold/amber badge that visually communicates their status
+- Improved scannability when viewing client lists
 
