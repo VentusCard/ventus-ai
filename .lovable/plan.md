@@ -1,106 +1,48 @@
 
 
-# Add Download PDF Button to Event Preparation Dialog
+# Navigate to Advisor Console Client View
 
 ## Overview
-Add a new "Download PDF" button alongside the existing "Email Me Summary" button in the PrepareEventDialog. This will generate and download a professional PDF summary of the life event preparation data.
+Update the primary "Access Wealth Management CoPilot" button to navigate to `/tepilot/advisor-console` with the client view, while the secondary "Access Relationship Intelligence Dashboard" button continues to open the dashboard view.
 
 ## Changes Required
 
-### 1. Create PDF Export Function
-**New File: `src/lib/eventPreparationPdfExport.ts`**
+### 1. Update TePilot.tsx Primary Button
+**File: `src/pages/TePilot.tsx`**
 
-Create a function following the existing pattern from `financialTimelinePdfExport.ts`:
-- Header with event type, client name, segment, and confidence score
-- Detected Supporting Transactions table
-- Ventus AI Insights section
-- Ventus AI Recommended Next Steps checklist
-- Footer with generation timestamp
-
-### 2. Update PrepareEventDialog Component
-**File: `src/components/tepilot/advisor-console/PrepareEventDialog.tsx`**
-
-| Change | Location |
-|--------|----------|
-| Add `Download` icon import | Line 12-15 (icon imports) |
-| Import PDF export function | New import statement |
-| Add `handleDownloadPDF` function | After `handleEmailMe` (around line 91) |
-| Add Download PDF button | DialogFooter (line 181-190) |
-
-### Technical Details
-
-**New PDF Export Function:**
+Change the primary button's `onClick` handler to navigate to advisor-console with client view state:
 ```typescript
-// src/lib/eventPreparationPdfExport.ts
-import jsPDF from "jspdf";
-import { EventPreparationData, LIFE_EVENT_CONFIG } from "@/types/dashboardClient";
-
-export async function exportEventPreparationPDF(
-  data: EventPreparationData,
-  insights: string
-): Promise<void> {
-  const doc = new jsPDF();
-  // Generate formatted PDF with all sections
-  doc.save(`${clientName}_${eventType}_Preparation.pdf`);
-}
+onClick={() => {
+  // ... existing session storage logic ...
+  navigate('/tepilot/advisor-console', { state: { initialView: 'client' } });
+}}
 ```
 
-**Updated DialogFooter (3 buttons):**
-```tsx
-<DialogFooter className="border-t pt-3 flex items-center gap-2">
-  <Button variant="outline" onClick={handleAskVentus} className="gap-2">
-    <MessageSquare className="h-4 w-4" />
-    Prepare with Ventus WM Co-Pilot
-  </Button>
-  <Button variant="outline" onClick={handleDownloadPDF} className="gap-2">
-    <Download className="h-4 w-4" />
-    Download PDF
-  </Button>
-  <Button onClick={handleEmailMe} className="gap-2">
-    <Mail className="h-4 w-4" />
-    Email Me Summary
-  </Button>
-</DialogFooter>
+### 2. Update AdvisorConsolePage.tsx to Read Initial View State
+**File: `src/pages/AdvisorConsolePage.tsx`**
+
+Add `useLocation` import and read the navigation state to set initial view:
+```typescript
+import { useNavigate, useLocation } from "react-router-dom";
+
+// Inside component
+const location = useLocation();
+const initialView = (location.state as { initialView?: ViewMode })?.initialView;
+
+const [viewMode, setViewMode] = useState<ViewMode>(initialView || "dashboard");
 ```
 
-## PDF Content Layout
+## Button Behavior Summary
 
-```text
-+------------------------------------------+
-|  PREPARE: RETIREMENT TRANSITION          |
-|  Margaret Chen | Premium | 92% confidence|
-+------------------------------------------+
-|                                          |
-|  DETECTED SUPPORTING TRANSACTIONS        |
-|  ----------------------------------------|
-|  Fidelity Investments    $6,500  Jan 15  |
-|  401k contribution increase              |
-|  ----------------------------------------|
-|  AARP Membership           $16   Dec 28  |
-|  Retirement association membership       |
-|  ... (all transactions)                  |
-|                                          |
-+------------------------------------------+
-|  VENTUS AI INSIGHTS                      |
-|  This client is in the early exploration |
-|  phase of retirement planning...         |
-|                                          |
-+------------------------------------------+
-|  RECOMMENDED NEXT STEPS                  |
-|  1. Open conversation about retirement   |
-|     vision...                            |
-|  2. Introduce retirement income modeling |
-|  3. Propose establishing a trust...      |
-|                                          |
-+------------------------------------------+
-|  Generated: Feb 6, 2026 at 2:30 PM       |
-+------------------------------------------+
-```
+| Button | Route | Initial View |
+|--------|-------|--------------|
+| Access Relationship Intelligence Dashboard | `/tepilot/advisor-console` | Dashboard (default) |
+| Access Wealth Management CoPilot | `/tepilot/advisor-console` | Client |
 
-## Files Summary
+## Files to Modify
 
-| File | Action |
+| File | Change |
 |------|--------|
-| `src/lib/eventPreparationPdfExport.ts` | Create |
-| `src/components/tepilot/advisor-console/PrepareEventDialog.tsx` | Modify |
+| `src/pages/TePilot.tsx` | Update primary button to navigate with `{ state: { initialView: 'client' } }` |
+| `src/pages/AdvisorConsolePage.tsx` | Add `useLocation` hook and read initial view state |
 
