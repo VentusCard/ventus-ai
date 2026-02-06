@@ -45,6 +45,8 @@ const AdvisorConsolePage = () => {
     if (client) {
       // Store client profile in sessionStorage for AdvisorConsole to pick up
       sessionStorage.setItem("tepilot_client_profile", JSON.stringify(client.profile));
+      // Also store the detected life events from dashboard
+      sessionStorage.setItem("tepilot_detected_events", JSON.stringify(client.detectedEvents));
       setSelectedClientId(clientId);
       setViewMode("client");
     }
@@ -56,6 +58,7 @@ const AdvisorConsolePage = () => {
   }, [dashboardClients]);
 
   const handleBackToDashboard = useCallback(() => {
+    sessionStorage.removeItem("tepilot_detected_events");
     setViewMode("dashboard");
     setSelectedClientId(null);
     setPendingVentusMessage(null);
@@ -64,6 +67,8 @@ const AdvisorConsolePage = () => {
   const handlePrepareWithVentus = useCallback((data: EventPreparationData) => {
     // Store client profile
     sessionStorage.setItem("tepilot_client_profile", JSON.stringify(data.client.profile));
+    // Store all detected events from this client
+    sessionStorage.setItem("tepilot_detected_events", JSON.stringify(data.client.detectedEvents));
     
     // Store event preparation context for the chat
     sessionStorage.setItem("tepilot_event_preparation", JSON.stringify(data));
