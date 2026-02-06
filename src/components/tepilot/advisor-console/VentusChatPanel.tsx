@@ -382,7 +382,7 @@ export function VentusChatPanel({
                     </Button>
 
                     {/* Show timeline button if message mentions financial planning keywords */}
-                    {(message.content.toLowerCase().includes('timeline') || message.content.toLowerCase().includes('projection') || message.content.toLowerCase().includes('college') || message.content.toLowerCase().includes('retirement') || message.content.toLowerCase().includes('financial plan')) && <Button variant="ghost" size="sm" onClick={() => {
+                    {(message.content.toLowerCase().includes('timeline') || message.content.toLowerCase().includes('projection') || message.content.toLowerCase().includes('college') || message.content.toLowerCase().includes('retirement') || message.content.toLowerCase().includes('financial plan')) && <Button size="sm" onClick={() => {
                 // Find best event or use null for custom timeline
                 const bestEvent = visibleEvents.filter(e => e.financial_projection).sort((a, b) => b.confidence - a.confidence)[0];
                 setSelectedTimelineEvent(bestEvent || null);
