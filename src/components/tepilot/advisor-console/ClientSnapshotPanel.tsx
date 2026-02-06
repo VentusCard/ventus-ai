@@ -285,7 +285,7 @@ export function ClientSnapshotPanel({
           <AccordionItem value="holdings" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <Landmark className="w-4 h-4" />
+                <Landmark className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-900">Holdings Overview</span>
               </div>
             </AccordionTrigger>
