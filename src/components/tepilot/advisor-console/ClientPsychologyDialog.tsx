@@ -158,12 +158,12 @@ export function ClientPsychologyDialog({ open, onOpenChange, onSaveInsights }: C
             const isNeutral = currentValue === 3;
 
             return (
-              <Card key={category.id} className="p-4">
+              <Card key={category.id} className="p-4 bg-white border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <Label className="text-sm font-semibold">{category.label}</Label>
+                  <Label className="text-sm font-semibold text-slate-700">{category.label}</Label>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded ${
                     isNeutral 
-                      ? 'bg-muted text-muted-foreground' 
+                      ? 'bg-slate-100 text-slate-600' 
                       : 'bg-primary/10 text-primary'
                   }`}>
                     {currentMarker}
@@ -172,7 +172,7 @@ export function ClientPsychologyDialog({ open, onOpenChange, onSaveInsights }: C
                 
                 {/* Slider with labels */}
                 <div className="px-1">
-                  <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                  <div className="flex justify-between text-xs text-slate-500 mb-2">
                     <span>{category.leftLabel}</span>
                     <span>{category.rightLabel}</span>
                   </div>
@@ -194,7 +194,7 @@ export function ClientPsychologyDialog({ open, onOpenChange, onSaveInsights }: C
                         className={`w-2 h-2 rounded-full transition-colors ${
                           marker === currentValue 
                             ? 'bg-primary' 
-                            : 'bg-muted'
+                            : 'bg-slate-200'
                         }`}
                       />
                     ))}
