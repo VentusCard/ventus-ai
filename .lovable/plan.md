@@ -1,76 +1,90 @@
 
 
-# Fix Input Fields - White Background with Dark Text
+# Fix Text Colors on Financial Planning Page
 
 ## Overview
-Update all input fields in the Financial Planning page components to have explicit white backgrounds with dark text, ensuring consistent and readable styling across all form elements.
+Multiple text elements throughout the Financial Planning page use `text-slate-500`, `text-muted-foreground`, or `text-xs text-slate-500` which render as light gray and are difficult to read. These need to be updated to darker colors for better readability.
 
-## Issue Identified
-The `Input` component from `src/components/ui/input.tsx` inherits from the theme's `bg-background` which may not consistently render as white. Input fields need explicit white backgrounds and dark text for clarity.
+## Color Mapping Strategy
+
+| Current Color | New Color | Use Case |
+|---------------|-----------|----------|
+| `text-slate-500` | `text-slate-700` | Primary descriptive labels |
+| `text-muted-foreground` | `text-slate-700` | Supporting text |
+| `text-xs text-slate-500` | `text-xs text-slate-600` | Small helper text |
+| `text-slate-400` | `text-slate-600` | Very light text |
 
 ## Files to Update
 
-| File | Input Count | Changes Needed |
-|------|-------------|----------------|
-| `src/components/tepilot/advisor-console/RetirementPlanningSection.tsx` | 7 inputs | Add `bg-white text-slate-900` |
-| `src/components/tepilot/advisor-console/IncomeExpenseEditor.tsx` | 1 input | Add `bg-white text-slate-900` |
-| `src/components/tepilot/advisor-console/FinancialGoalsSection.tsx` | 6 inputs | Add `bg-white text-slate-900` |
-| `src/components/tepilot/advisor-console/MonteCarloSimulator.tsx` | 4 inputs | Add `bg-white text-slate-900` |
-| `src/components/tepilot/advisor-console/TaxAdvantagedAccountsSection.tsx` | 3 inputs (dynamic) | Add `bg-white text-slate-900` |
+### 1. FinancialPlanningPage.tsx
+- Line 102: `text-slate-500` on page title -> `text-slate-700`
 
-## Technical Changes
+### 2. FinancialPlanner.tsx
+- Line 405: `text-sm text-muted-foreground` (Client Name label) -> `text-sm text-slate-700`
+- Line 409: `text-sm text-muted-foreground` (Age label) -> `text-sm text-slate-700`
+- Line 413: `text-sm text-muted-foreground` (Current Net Worth label) -> `text-sm text-slate-700`
+- Line 417: `text-sm text-muted-foreground` (Years to Retirement label) -> `text-sm text-slate-700`
+- Line 421: `text-sm text-muted-foreground` (Risk Profile label) -> `text-sm text-slate-700`
+- Lines 547-550: `text-muted-foreground` in empty state -> `text-slate-600`
+- Line 596-597: `text-sm text-muted-foreground` on expand/collapse hints -> `text-sm text-slate-600`
 
-### 1. RetirementPlanningSection.tsx (7 inputs)
-Add `className="mt-1 bg-white text-slate-900"` to all Input components:
-- Current Age (line 177-181)
-- Retirement Age (line 186-190)
-- Life Expectancy (line 198-202)
-- Desired Annual Income (line 207-211)
-- Social Security (line 219-223)
-- Pension Income (line 229-233)
-- Current Retirement Savings (line 239-244)
+### 3. RetirementPlanningSection.tsx
+- Line 111: `text-xs text-slate-500` (Readiness label) -> `text-xs text-slate-600`
+- Line 116: `text-sm text-slate-500` (Years to Retirement) -> `text-sm text-slate-700`
+- Line 120: `text-sm text-slate-500` (Target Retirement) -> `text-sm text-slate-700`
+- Lines 134, 138, 144, 148: `text-slate-500` on income labels -> `text-slate-700`
+- Line 245: `text-xs text-slate-500` (Required at retirement hint) -> `text-xs text-slate-600`
 
-### 2. IncomeExpenseEditor.tsx (1 input)
-Update the Monthly Income input (line 56-60):
-```tsx
-<Input
-  type="number"
-  value={monthlyIncome}
-  onChange={(e) => onIncomeChange(parseFloat(e.target.value) || 0)}
-  className="text-right font-medium bg-white text-slate-900"
-/>
-```
+### 4. FinancialGoalsSection.tsx
+- Line 148: `text-sm text-slate-500` (Target date) -> `text-sm text-slate-700`
+- Line 185: `text-xs text-slate-500` (Progress %) -> `text-xs text-slate-600`
+- Lines 211, 233: `text-slate-500` empty state text -> `text-slate-600`
 
-### 3. FinancialGoalsSection.tsx (6 inputs in dialog)
-Update all inputs in the Add Goal dialog (lines 222-296):
-- Goal Name input
-- Target Amount input
-- Current Amount input
-- Target Date input
-- Monthly Contribution input
+### 5. TaxAdvantagedAccountsSection.tsx
+- Line 96: `text-xs text-slate-500` (Balance label) -> `text-xs text-slate-600`
+- Line 103: `text-slate-500` (max contribution) -> `text-slate-600`
+- Lines 141, 145, 149, 153: `text-sm text-slate-500` (summary labels) -> `text-sm text-slate-700`
+- Line 164: `text-slate-500` (optimization opportunities) -> `text-slate-600`
 
-Add `className="bg-white text-slate-900"` to each.
+### 6. MonteCarloSimulator.tsx
+- Line 159: `text-sm text-slate-500` (simulator description) -> `text-sm text-slate-700`
+- Lines 169, 181, 204: `text-slate-500 text-sm` ($ prefix) -> `text-slate-600 text-sm`
+- Lines 231, 245: `text-xs text-slate-500` (historical references) -> `text-xs text-slate-600`
+- Lines 268, 276, 280, 284: `text-xs text-slate-500` (percentile labels) -> `text-xs text-slate-600`
+- Line 356: `text-xs text-slate-500` (chart description) -> `text-xs text-slate-600`
+- Line 368: `text-sm text-slate-500` (suggestions list) -> `text-sm text-slate-600`
 
-### 4. MonteCarloSimulator.tsx (4 inputs)
-Update inputs at lines 170-212:
-- Starting Portfolio (add `bg-white text-slate-900`)
-- Annual Contribution (add `bg-white text-slate-900`)
-- Years to Retirement (add `bg-white text-slate-900`)
-- Target Goal (add `bg-white text-slate-900`)
+### 7. IncomeExpenseEditor.tsx
+- Line 90: `text-slate-500 text-xs` (percentage) -> `text-slate-600 text-xs`
+- Line 133: `text-xs text-slate-500` (breakdown labels) -> `text-xs text-slate-600`
 
-### 5. TaxAdvantagedAccountsSection.tsx (3 dynamic inputs)
-Update the Annual Contribution input inside the accounts map (line 72):
-```tsx
-<Input
-  type="number"
-  value={account.annualContribution}
-  onChange={(e) => handleAccountChange(index, { 
-    annualContribution: parseFloat(e.target.value) || 0 
-  })}
-  className="h-8 mt-1 bg-white text-slate-900"
-/>
-```
+### 8. GlidePathVisualization.tsx
+- Line 101: `text-xs text-slate-500` (You are here) -> `text-xs text-slate-600`
+- Lines 237, 241: `text-slate-500` (Current/Target labels) -> `text-slate-700`
 
-## Summary
-This will ensure all 20+ input fields across the Financial Planning page have consistent white backgrounds with dark slate text for maximum readability and visual consistency with the light theme of the financial planning interface.
+### 9. AssetAllocationEditor.tsx
+- No significant changes needed - uses proper contrast
+
+### 10. NetWorthProjectionChart.tsx
+- Lines 314, 318, 324: `text-slate-500 text-xs` (Starting/At Retirement labels) -> `text-slate-600 text-xs`
+
+### 11. RMDCalculator.tsx
+- Line 102: `text-sm text-slate-500` (no accounts message) -> `text-sm text-slate-600`
+- Line 157: `text-xs text-slate-500` (synced label) -> `text-xs text-slate-600`
+- Line 163: `text-xs text-slate-500` (Balance label) -> `text-xs text-slate-600`
+- Line 169: `text-xs text-slate-500` (Annual RMD) -> `text-xs text-slate-600`
+- Lines 187, 191: `text-sm text-slate-500` (tax/monthly labels) -> `text-sm text-slate-600`
+- Line 204: `text-slate-500` (deadline reminder) -> `text-slate-600`
+- Line 213: `text-xs text-slate-500` (projection note) -> `text-xs text-slate-600`
+
+## Summary of Changes
+- Replace all `text-slate-500` with `text-slate-700` for larger/important labels
+- Replace all `text-xs text-slate-500` with `text-xs text-slate-600` for small helper text
+- Replace all `text-muted-foreground` with `text-slate-700` or `text-slate-600`
+- This affects 11 files with approximately 50+ text color changes
+
+## Technical Notes
+- The changes are purely CSS class replacements
+- No functional changes to the components
+- All changes follow the pattern of increasing contrast by using darker slate variants (600/700 instead of 400/500)
 
