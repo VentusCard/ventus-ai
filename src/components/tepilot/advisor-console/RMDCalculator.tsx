@@ -154,19 +154,19 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">RMD-Eligible Accounts</Label>
-            <span className="text-xs text-slate-600">Synced from Tax-Advantaged Accounts</span>
+            <span className="text-xs text-slate-700">Synced from Tax-Advantaged Accounts</span>
           </div>
           {calculations.accountRMDs.map((account, idx) => (
             <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
               <div>
                 <span className="text-sm font-medium">{account.label}</span>
-                <p className="text-xs text-slate-600">Balance: {formatCurrency(account.currentBalance)}</p>
+                <p className="text-xs text-slate-700">Balance: {formatCurrency(account.currentBalance)}</p>
               </div>
               <div className="text-right">
                 <span className="text-sm font-semibold text-primary">
                   {isRMDRequired ? formatCurrency(account.rmd) : '—'}
                 </span>
-                <p className="text-xs text-slate-600">Annual RMD</p>
+                <p className="text-xs text-slate-700">Annual RMD</p>
               </div>
             </div>
           ))}
@@ -210,7 +210,7 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         {/* 10-Year Projection Table */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">10-Year RMD Projection</Label>
-          <p className="text-xs text-slate-600">Assumes 5% annual growth after RMD withdrawal</p>
+          <p className="text-xs text-slate-700">Assumes 5% annual growth after RMD withdrawal</p>
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-muted/50">
