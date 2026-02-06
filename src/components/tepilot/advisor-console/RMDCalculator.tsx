@@ -99,7 +99,7 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-sm text-slate-600 text-center py-4">
             No RMD-eligible accounts (Traditional IRA or 401k) found. 
             Add these accounts in the Tax-Advantaged Accounts section above.
           </p>
@@ -138,13 +138,13 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label className="text-sm">Client Age</Label>
-            <div className="mt-1 h-10 flex items-center px-3 bg-white/10 rounded-md font-medium text-foreground">
+            <div className="mt-1 h-10 flex items-center px-3 bg-slate-200 rounded-md font-medium">
               {clientAge} years old
             </div>
           </div>
           <div>
             <Label className="text-sm">Distribution Period</Label>
-            <div className="mt-1 h-10 flex items-center px-3 bg-white/10 rounded-md font-medium text-foreground">
+            <div className="mt-1 h-10 flex items-center px-3 bg-slate-200 rounded-md font-medium">
               {calculations.distributionPeriod > 0 ? `${calculations.distributionPeriod.toFixed(1)} years` : 'N/A (under 73)'}
             </div>
           </div>
@@ -154,41 +154,41 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">RMD-Eligible Accounts</Label>
-            <span className="text-xs text-muted-foreground">Synced from Tax-Advantaged Accounts</span>
+            <span className="text-xs text-slate-700">Synced from Tax-Advantaged Accounts</span>
           </div>
           {calculations.accountRMDs.map((account, idx) => (
-            <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+            <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
               <div>
-                <span className="text-sm font-medium text-foreground">{account.label}</span>
-                <p className="text-xs text-muted-foreground">Balance: {formatCurrency(account.currentBalance)}</p>
+                <span className="text-sm font-medium">{account.label}</span>
+                <p className="text-xs text-slate-700">Balance: {formatCurrency(account.currentBalance)}</p>
               </div>
               <div className="text-right">
                 <span className="text-sm font-semibold text-primary">
                   {isRMDRequired ? formatCurrency(account.rmd) : '—'}
                 </span>
-                <p className="text-xs text-muted-foreground">Annual RMD</p>
+                <p className="text-xs text-slate-700">Annual RMD</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Summary */}
-        <div className="bg-white/5 rounded-lg p-4 space-y-3">
+        <div className="bg-primary/5 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-foreground">Total RMD-Eligible Balance</span>
-            <span className="font-semibold text-foreground">{formatCurrency(calculations.totalBalance)}</span>
+            <span className="text-sm font-medium">Total RMD-Eligible Balance</span>
+            <span className="font-semibold">{formatCurrency(calculations.totalBalance)}</span>
           </div>
           <div className="flex justify-between items-center text-lg">
-            <span className="font-medium text-foreground">Required Minimum Distribution</span>
+            <span className="font-medium">Required Minimum Distribution</span>
             <span className="font-bold text-primary">
               {isRMDRequired ? formatCurrency(calculations.totalRMD) : `${formatCurrency(calculations.totalRMD)} (at age 73)`}
             </span>
           </div>
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <div className="flex justify-between items-center text-sm text-slate-700">
             <span>Estimated Tax (22% bracket)</span>
             <span>{formatCurrency(calculations.estimatedTax)}</span>
           </div>
-          <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <div className="flex justify-between items-center text-sm text-slate-700">
             <span>Monthly Distribution</span>
             <span>{formatCurrency(calculations.totalRMD / 12)}</span>
           </div>
@@ -199,8 +199,8 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
           <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-amber-400">RMD Deadline Reminder</p>
-              <p className="text-white/80 mt-1">
+              <p className="font-medium text-amber-700">RMD Deadline Reminder</p>
+              <p className="text-slate-700 mt-1">
                 RMDs must be taken by December 31st each year. First-year RMDs can be delayed until April 1st of the following year, but this requires two distributions in the second year.
               </p>
             </div>
@@ -210,24 +210,24 @@ export function RMDCalculator({ clientAge, taxAdvantagedAccounts }: RMDCalculato
         {/* 10-Year Projection Table */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">10-Year RMD Projection</Label>
-          <p className="text-xs text-muted-foreground">Assumes 5% annual growth after RMD withdrawal</p>
-          <div className="border border-white/10 rounded-lg overflow-hidden">
+          <p className="text-xs text-slate-700">Assumes 5% annual growth after RMD withdrawal</p>
+          <div className="border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-white/5">
+              <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-foreground">Year</th>
-                  <th className="px-3 py-2 text-left font-medium text-foreground">Age</th>
-                  <th className="px-3 py-2 text-right font-medium text-foreground">Balance</th>
-                  <th className="px-3 py-2 text-right font-medium text-foreground">RMD</th>
+                  <th className="px-3 py-2 text-left font-medium">Year</th>
+                  <th className="px-3 py-2 text-left font-medium">Age</th>
+                  <th className="px-3 py-2 text-right font-medium">Balance</th>
+                  <th className="px-3 py-2 text-right font-medium">RMD</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-border">
                 {calculations.projection.slice(0, 5).map((row) => (
-                  <tr key={row.year} className="hover:bg-white/5">
-                    <td className="px-3 py-2 text-foreground">{row.year}</td>
-                    <td className="px-3 py-2 text-foreground">{row.age}</td>
-                    <td className="px-3 py-2 text-right text-foreground">{formatCurrency(row.balance)}</td>
-                    <td className="px-3 py-2 text-right font-medium text-foreground">{formatCurrency(row.rmd)}</td>
+                  <tr key={row.year} className="hover:bg-muted/30">
+                    <td className="px-3 py-2">{row.year}</td>
+                    <td className="px-3 py-2">{row.age}</td>
+                    <td className="px-3 py-2 text-right">{formatCurrency(row.balance)}</td>
+                    <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.rmd)}</td>
                   </tr>
                 ))}
               </tbody>
