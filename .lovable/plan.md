@@ -1,73 +1,146 @@
 
-# Fix Travel Transactions Being Counted as New Pillars
+# Fix: Add Retry Logic for Failed Classification Batches
 
 ## Problem
-Travel transactions are creating new invalid pillars like "Dining Away" and "Travel Essentials" instead of being grouped under **"Travel & Exploration"**. The AI edge function is working correctly, but the client-side code is blindly applying `reclassified_pillar` values without enforcing the travel pillar.
+The most recent classification run returned many "Miscellaneous & Unclassified" transactions because **Batch 2 classified 0 out of 24 transactions**:
 
-## Root Cause
-
-In `src/hooks/useSSEEnrichment.ts` (lines 281-286), the code applies whatever value the AI returns for `reclassified_pillar`:
-
-```typescript
-if (travelUpdate.reclassified_pillar) {
-  updated[idx].pillar = travelUpdate.reclassified_pillar;
-}
+```
+[BATCH 1] ✓ Classified 24/24 
+[BATCH 2] ✓ Classified 0/24  ← Problem!
+[BATCH 3] ✓ Classified 24/24 
+[BATCH 4] ✓ Classified 3/3
 ```
 
-When the AI returns `reclassified_pillar: "Dining Away"`, this incorrectly becomes a new pillar instead of a subcategory under Travel.
+When the AI model returns empty results (no error, just no classifications), those 24 transactions fall back to "Miscellaneous & Unclassified" with `confidence: 0.1`.
+
+## Root Cause
+The `classify-transactions` edge function has **no retry logic**. When a batch fails silently (model returns empty tool_calls), the transactions are assigned fallback values instead of being retried.
 
 ## Solution
-
-Update the client-side logic to **always use "Travel & Exploration"** as the pillar when `is_travel_related` is true, regardless of what the AI returns for `reclassified_pillar`.
+Add retry logic to the `classifyBatch` function to attempt classification up to 2 times before giving up.
 
 ## File to Update
 
-### `src/hooks/useSSEEnrichment.ts`
+### `supabase/functions/classify-transactions/index.ts`
 
-**Current code (lines 278-286):**
+**Add retry constants at the top:**
 ```typescript
-// Store original pillar before updating
-const originalPillar = updated[idx].pillar;
-
-// Update pillar and subcategory if reclassified
-if (travelUpdate.reclassified_pillar) {
-  updated[idx].pillar = travelUpdate.reclassified_pillar;
-}
-if (travelUpdate.reclassified_subcategory) {
-  updated[idx].subcategory = travelUpdate.reclassified_subcategory;
-}
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1000;
 ```
 
-**Updated code:**
-```typescript
-// Store original pillar before updating
-const originalPillar = updated[idx].pillar;
+**Update the `classifyBatch` function to include retry logic:**
 
-// If travel-related, ALWAYS set pillar to "Travel & Exploration"
-// The reclassified values from AI should be used as subcategories only
-if (travelUpdate.is_travel_related) {
-  updated[idx].pillar = "Travel & Exploration";
-  // Use reclassified_subcategory if provided, otherwise use reclassified_pillar as subcategory
-  if (travelUpdate.reclassified_subcategory) {
-    updated[idx].subcategory = travelUpdate.reclassified_subcategory;
-  } else if (travelUpdate.reclassified_pillar) {
-    // AI may have put subcategory name in reclassified_pillar field
-    updated[idx].subcategory = travelUpdate.reclassified_pillar;
+```typescript
+async function classifyBatch(
+  batch: any[],
+  batchIndex: number,
+  totalBatches: number,
+  sendEvent: Function,
+): Promise<any[]> {
+  const batchNum = batchIndex + 1;
+  
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const startTime = Date.now();
+    
+    if (attempt > 0) {
+      console.log(`[BATCH ${batchNum}] Retry attempt ${attempt}/${MAX_RETRIES}`);
+      await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+    }
+    
+    sendEvent("status", {
+      message: `Classifying batch ${batchNum}/${totalBatches}${attempt > 0 ? ` (retry ${attempt})` : ''}...`,
+      progress: Math.round((batchIndex / totalBatches) * 100),
+    });
+
+    try {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-lite",
+          messages: [
+            { role: "system", content: CLASSIFICATION_PROMPT },
+            { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
+          ],
+          tools: CLASSIFICATION_TOOL,
+          tool_choice: { type: "function", function: { name: "classify_batch" } },
+          temperature: 0,
+          max_tokens: 3500, // Increased from 2500
+        }),
+      });
+
+      if (!response.ok) {
+        console.error(`[BATCH ${batchNum}] Classification failed (${response.status})`);
+        continue; // Retry
+      }
+
+      const data = await response.json();
+      const toolCalls = data.choices?.[0]?.message?.tool_calls;
+
+      if (!toolCalls || toolCalls.length === 0) {
+        console.warn(`[BATCH ${batchNum}] No tool calls returned, retrying...`);
+        continue; // Retry
+      }
+
+      const results = JSON.parse(toolCalls[0].function.arguments);
+      const classifications = results.classifications || [];
+      
+      // If we got 0 classifications, retry
+      if (classifications.length === 0) {
+        console.warn(`[BATCH ${batchNum}] Empty classifications array, retrying...`);
+        continue;
+      }
+      
+      const elapsed = Date.now() - startTime;
+      console.log(`[BATCH ${batchNum}] ✓ Classified ${classifications.length}/${batch.length} in ${elapsed}ms`);
+
+      sendEvent("batch_complete", {
+        batchIndex,
+        batchNum,
+        totalBatches,
+        count: classifications.length,
+        elapsed,
+        model: "flash-lite",
+        retries: attempt,
+      });
+
+      return classifications;
+    } catch (error) {
+      console.error(`[BATCH ${batchNum}] Error:`, error);
+      // Continue to retry
+    }
   }
+  
+  // All retries exhausted
+  console.error(`[BATCH ${batchNum}] All ${MAX_RETRIES + 1} attempts failed`);
+  return [];
 }
 ```
 
-## Behavior After Fix
+## Key Changes
 
-| Transaction | AI Returns | Before Fix | After Fix |
-|-------------|-----------|------------|-----------|
-| Restaurant in Miami during trip | `reclassified_pillar: "Dining Away"` | Pillar: "Dining Away" (wrong) | Pillar: "Travel & Exploration", Subcategory: "Dining Away" |
-| Gas station in Vermont | `reclassified_pillar: "Travel Transportation"` | Pillar: "Travel Transportation" (wrong) | Pillar: "Travel & Exploration", Subcategory: "Travel Transportation" |
-| Hotel booking | `reclassified_pillar: "Hotels & Lodging"` | Pillar: "Hotels & Lodging" (wrong) | Pillar: "Travel & Exploration", Subcategory: "Hotels & Lodging" |
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Retry logic** | None | Up to 2 retries with 1s delay |
+| **Empty results handling** | Immediately return `[]` | Retry before giving up |
+| **max_tokens** | 2500 | 3500 (more headroom) |
+| **Status messages** | Basic | Shows retry attempts |
+| **Logging** | Silent failures | Explicit retry logs |
 
-## Summary
+## Why This Fixes the Problem
 
-- **1 file change** in `useSSEEnrichment.ts`
-- Travel-related transactions will always be grouped under "Travel & Exploration"
-- The reclassified value becomes the subcategory, preserving the granularity
-- No edge function changes needed
+1. **Transient model failures** are automatically retried
+2. **Empty classifications arrays** trigger a retry instead of silent failure
+3. **Increased token limit** gives the model more room to respond
+4. **Better logging** helps diagnose future issues
+
+## Expected Outcome
+
+After this fix:
+- Failed batches will be retried up to 2 times
+- Fewer transactions will fall back to "Miscellaneous & Unclassified"
+- Success rate should improve from 68% to closer to 95%+
