@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
 import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
@@ -18,7 +18,9 @@ type ViewMode = "dashboard" | "client";
 
 const AdvisorConsolePage = () => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
+  const location = useLocation();
+  const initialView = (location.state as { initialView?: ViewMode })?.initialView;
+  const [viewMode, setViewMode] = useState<ViewMode>(initialView || "dashboard");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [advisorContext, setAdvisorContext] = useState<AdvisorContext | undefined>(undefined);
   const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
