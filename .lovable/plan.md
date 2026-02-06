@@ -1,48 +1,96 @@
 
-
-# Navigate to Advisor Console Client View
+# Fix Colors and Text Styling for Financial Planning Page
 
 ## Overview
-Update the primary "Access Wealth Management CoPilot" button to navigate to `/tepilot/advisor-console` with the client view, while the secondary "Access Relationship Intelligence Dashboard" button continues to open the dashboard view.
+Align the Financial Planning page (`/tepilot/financial-planning`) with the styling patterns established in the Advisor Console page, removing redundant navigation and ensuring consistent color/text treatment.
 
-## Changes Required
+## Issues to Fix
 
-### 1. Update TePilot.tsx Primary Button
-**File: `src/pages/TePilot.tsx`**
+| Issue | Current State | Fix |
+|-------|---------------|-----|
+| Duplicate back buttons | Page wrapper has "Back to Advisor Console", component has "Back to Console" | Remove the back button from FinancialPlanner component header |
+| Title text color | Uses `text-slate-600` | Change to `text-slate-500` to match AdvisorConsolePage |
+| Navigation bar border | Uses `border-slate-200` explicitly | Remove explicit color, use `border-b` only like AdvisorConsolePage |
+| Back button styling | Uses plain `variant="ghost"` | Apply blue styling: `text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300` with `variant="outline"` |
 
-Change the primary button's `onClick` handler to navigate to advisor-console with client view state:
-```typescript
-onClick={() => {
-  // ... existing session storage logic ...
-  navigate('/tepilot/advisor-console', { state: { initialView: 'client' } });
-}}
+## Technical Changes
+
+### 1. Update FinancialPlanningPage.tsx
+
+**Location:** Lines 88-105
+
+**Changes:**
+- Update top navigation bar to match AdvisorConsolePage:
+  - Change border from `border-slate-200` to just `border-b`
+  - Update button from `variant="ghost"` to `variant="outline"` with blue styling
+  - Change title color from `text-slate-600` to `text-slate-500`
+
+```tsx
+// Before
+<div className="border-b border-slate-200 px-4 py-3 bg-white z-10 shadow-sm flex-shrink-0">
+  ...
+  <Button variant="ghost" size="sm" onClick={...}>
+  ...
+  <h2 className="text-sm font-medium text-slate-600">
+
+// After
+<div className="border-b px-4 py-3 bg-white z-10 shadow-sm flex-shrink-0">
+  ...
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={...}
+    className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+  >
+  ...
+  <h2 className="text-sm font-medium text-slate-500">
 ```
 
-### 2. Update AdvisorConsolePage.tsx to Read Initial View State
-**File: `src/pages/AdvisorConsolePage.tsx`**
+### 2. Update FinancialPlanner.tsx
 
-Add `useLocation` import and read the navigation state to set initial view:
-```typescript
-import { useNavigate, useLocation } from "react-router-dom";
+**Location:** Lines 373-393
 
-// Inside component
-const location = useLocation();
-const initialView = (location.state as { initialView?: ViewMode })?.initialView;
+**Changes:**
+- Remove the redundant header row that contains "Back to Console" button and duplicate title
+- Keep only the action buttons (Export PDF, Save Plan) in a simpler header
 
-const [viewMode, setViewMode] = useState<ViewMode>(initialView || "dashboard");
+```tsx
+// Before (Lines 373-393)
+<div className="flex items-center justify-between mb-2">
+  <div className="flex items-center gap-3">
+    <Button variant="ghost" size="sm" onClick={() => navigate("/tepilot/advisor-console")}>
+      <ArrowLeft className="w-4 h-4 mr-2" />
+      Back to Console
+    </Button>
+  </div>
+  <h1 className="text-2xl font-bold">Long-Term Financial Planning</h1>
+  <div className="flex gap-2">
+    <Button variant="outline" size="sm" onClick={handleExportPDF}>...</Button>
+    <Button size="sm" onClick={handleSavePlan}>...</Button>
+  </div>
+</div>
+
+// After
+<div className="flex items-center justify-between mb-4">
+  <h1 className="text-2xl font-bold text-slate-900">Long-Term Financial Planning</h1>
+  <div className="flex gap-2">
+    <Button variant="outline" size="sm" onClick={handleExportPDF}>...</Button>
+    <Button size="sm" onClick={handleSavePlan}>...</Button>
+  </div>
+</div>
 ```
-
-## Button Behavior Summary
-
-| Button | Route | Initial View |
-|--------|-------|--------------|
-| Access Relationship Intelligence Dashboard | `/tepilot/advisor-console` | Dashboard (default) |
-| Access Wealth Management CoPilot | `/tepilot/advisor-console` | Client |
 
 ## Files to Modify
 
-| File | Change |
-|------|--------|
-| `src/pages/TePilot.tsx` | Update primary button to navigate with `{ state: { initialView: 'client' } }` |
-| `src/pages/AdvisorConsolePage.tsx` | Add `useLocation` hook and read initial view state |
+| File | Changes |
+|------|---------|
+| `src/pages/FinancialPlanningPage.tsx` | Update top nav bar styling and colors |
+| `src/components/tepilot/advisor-console/FinancialPlanner.tsx` | Remove redundant back button and simplify header |
 
+## Visual Result
+
+After changes:
+- Single "Back to Advisor Console" button in page wrapper (blue styled, matching AdvisorConsolePage)
+- Consistent title text color (`text-slate-500`)
+- Clean header in FinancialPlanner with just title and action buttons
+- No duplicate navigation elements
