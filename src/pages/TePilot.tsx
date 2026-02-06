@@ -424,7 +424,7 @@ const TePilot = () => {
     // Block mobile and small tablet users before showing password form
     if (isSmallScreen) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-6">
+        <div className="tepilot-theme min-h-screen bg-background flex items-center justify-center p-6">
           <Card className="max-w-md w-full border-slate-200 bg-white">
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -449,7 +449,7 @@ const TePilot = () => {
         </div>
       );
     }
-    return <div className="min-h-screen flex items-center justify-center bg-white p-4 tepilot-container">
+    return <div className="tepilot-theme min-h-screen flex items-center justify-center bg-background p-4 tepilot-container">
         <Card className="w-full max-w-6xl bg-white border-slate-200">
           <CardHeader>
             <CardTitle className="text-3xl text-slate-900">Ventus AI Transaction Enrichment & Personalization Engine</CardTitle>
@@ -726,7 +726,7 @@ const TePilot = () => {
         </Card>
       </div>;
   }
-  return <div className="min-h-screen bg-white p-4 md:p-8 tepilot-container">
+  return <div className="tepilot-theme min-h-screen bg-background p-4 md:p-8 tepilot-container">
       <div className="max-w-[95%] 2xl:max-w-[1800px] mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
