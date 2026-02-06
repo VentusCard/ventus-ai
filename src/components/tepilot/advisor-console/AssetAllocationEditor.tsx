@@ -137,7 +137,7 @@ export function AssetAllocationEditor({
             </div>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
               {currentData.map((entry) => (
-                <div key={entry.name} className="flex items-center gap-1 text-xs">
+                <div key={entry.name} className="flex items-center gap-1 text-xs text-slate-900">
                   <div 
                     className="w-3 h-3 rounded-full" 
                     style={{ backgroundColor: entry.color }}
@@ -198,7 +198,7 @@ export function AssetAllocationEditor({
                     />
                     <Label className="text-sm">{LABELS[key]}</Label>
                   </div>
-                  <span className="text-sm font-medium">{targetAllocation[key]}%</span>
+                  <span className="text-sm font-medium text-slate-900">{targetAllocation[key]}%</span>
                 </div>
                 <Slider
                   value={[targetAllocation[key]]}
