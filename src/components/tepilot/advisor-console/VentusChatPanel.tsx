@@ -337,7 +337,7 @@ export function VentusChatPanel({
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3 advisor-console-panel">
         {messages.length === 0 && <div className="text-center py-12">
             
             <h3 className="font-semibold mb-2">Start a Conversation</h3>
@@ -365,24 +365,24 @@ export function VentusChatPanel({
                   </span>
                 </div>
                 
-                <p className="text-sm text-slate-700 whitespace-pre-wrap">
+                <p className="text-sm text-slate-900 whitespace-pre-wrap">
                   {message.content}
                 </p>
 
                 {/* Action Buttons for AI messages */}
                 {message.role === 'assistant' && <div className="flex gap-2 mt-3">
-                    <Button variant="ghost" size="sm" onClick={() => handleSaveToDoc(message.content)} className="text-xs">
+                    <Button size="sm" onClick={() => handleSaveToDoc(message.content)} className="text-xs bg-primary text-white hover:bg-primary/90">
                       <Save className="w-3 h-3 mr-1" />
                       Save to Document
                     </Button>
                     
-                    <Button variant="ghost" size="sm" onClick={() => handleAddToTodoFromMessage(message.content)} className="text-xs">
+                    <Button size="sm" onClick={() => handleAddToTodoFromMessage(message.content)} className="text-xs bg-primary text-foreground hover:bg-primary/90">
                       <ListTodo className="w-3 h-3 mr-1" />
                       Add to To-Do
                     </Button>
 
                     {/* Show timeline button if message mentions financial planning keywords */}
-                    {(message.content.toLowerCase().includes('timeline') || message.content.toLowerCase().includes('projection') || message.content.toLowerCase().includes('college') || message.content.toLowerCase().includes('retirement') || message.content.toLowerCase().includes('financial plan')) && <Button variant="ghost" size="sm" onClick={() => {
+                    {(message.content.toLowerCase().includes('timeline') || message.content.toLowerCase().includes('projection') || message.content.toLowerCase().includes('college') || message.content.toLowerCase().includes('retirement') || message.content.toLowerCase().includes('financial plan')) && <Button size="sm" onClick={() => {
                 // Find best event or use null for custom timeline
                 const bestEvent = visibleEvents.filter(e => e.financial_projection).sort((a, b) => b.confidence - a.confidence)[0];
                 setSelectedTimelineEvent(bestEvent || null);
@@ -415,7 +415,7 @@ export function VentusChatPanel({
       {/* Input Area */}
       <div className="border-t px-4 py-3 bg-slate-50 flex-shrink-0">
         <div className="flex gap-2">
-          <Input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Ask about spending patterns, life events, product recommendations..." className="flex-1" onKeyDown={e => {
+          <Input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Ask about spending patterns, life events, product recommendations..." className="flex-1 bg-white text-slate-900" onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();

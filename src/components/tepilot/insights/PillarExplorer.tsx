@@ -53,7 +53,7 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                     <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
                     <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
+                  <div className="flex items-center justify-between text-xs text-slate-600">
                     <span>{pillar.transactionCount} trans.</span>
                     <span>{percentage.toFixed(1)}%</span>
                   </div>
@@ -120,7 +120,7 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                           >
                             <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
                             <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
-                            <div className="flex items-center justify-between text-xs text-slate-500">
+                            <div className="flex items-center justify-between text-xs text-slate-600">
                               <span>{subcat.transactionCount} transactions</span>
                               <span>{percentage.toFixed(1)}% of pillar</span>
                             </div>
@@ -151,11 +151,11 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                         >
                           <div className="flex-1">
                             <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
-                            <p className="text-xs text-slate-500">{t.subcategory}</p>
+                            <p className="text-xs text-slate-600">{t.subcategory}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
-                            <p className="text-xs text-slate-500">{new Date(t.date).toLocaleDateString()}</p>
+                            <p className="text-xs text-slate-600">{new Date(t.date).toLocaleDateString()}</p>
                           </div>
                         </div>
                       ))}

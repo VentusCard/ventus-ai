@@ -37,7 +37,7 @@ export function EnrichActionBar({
                 {statusMessage || "Processing transactions..."}
               </p>
             </div>
-            <p className="text-xs text-center text-slate-500">
+            <p className="text-xs text-center text-slate-600">
               {currentPhase === "classification" && statusMessage.includes("Batch") 
                 ? "Results are appearing below as each batch completes..." 
                 : currentPhase === "classification" 

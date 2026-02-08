@@ -68,7 +68,7 @@ export function BeforeAfterTransformation({
                 <BarChart3 className="w-5 h-5 text-blue-500" />
                 <CardTitle className="text-slate-900">MCC vs Lifestyle Pillar Visualization</CardTitle>
               </div>
-              <div className="flex items-center gap-4 text-sm text-slate-500">
+              <div className="flex items-center gap-4 text-sm text-slate-600">
                 <span>See AI transformation</span>
                 <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </div>
@@ -90,7 +90,7 @@ export function BeforeAfterTransformation({
               {/* Left: Before (MCC) */}
               <div>
                 <h4 className="text-sm font-medium mb-2 text-slate-900">Before: MCCs</h4>
-                <p className="text-xs text-slate-500 mb-4">
+                <p className="text-xs text-slate-600 mb-4">
                   Raw merchant category codes - limited insight
                 </p>
                 <ResponsiveContainer width="100%" height={350}>
@@ -106,7 +106,7 @@ export function BeforeAfterTransformation({
               {/* Right: After (Lifestyle) - Stacked */}
               <div>
                 <h4 className="text-sm font-medium mb-2 text-slate-900">After: Lifestyle Pillars</h4>
-                <p className="text-xs text-slate-500 mb-4">
+                <p className="text-xs text-slate-600 mb-4">
                   AI-organized spending categories with breakdown
                 </p>
                 <ResponsiveContainer width="100%" height={350}>
@@ -123,11 +123,11 @@ export function BeforeAfterTransformation({
                       if (!data) return null;
                       return <div className="bg-white border border-slate-200 rounded-lg shadow-lg p-3">
                               <p className="font-semibold mb-2 text-slate-900">{pillar}</p>
-                              <p className="text-sm text-slate-500 mb-2">
+                              <p className="text-sm text-slate-600 mb-2">
                                 Total: ${data.totalSpend.toFixed(2)}
                               </p>
                               {data.segments.length > 1 && <div className="space-y-1 pt-2 border-t border-slate-200">
-                                  <p className="text-xs text-slate-500 mb-1">Original Categories:</p>
+                                  <p className="text-xs text-slate-600 mb-1">Original Categories:</p>
                                   {data.segments.map((seg, idx) => <div key={idx} className="flex items-center gap-2 text-sm">
                                       <div className="w-3 h-3 rounded-sm" style={{
                               backgroundColor: seg.color
@@ -152,7 +152,7 @@ export function BeforeAfterTransformation({
                     ))}
                   </BarChart>
                 </ResponsiveContainer>
-                <p className="text-xs text-slate-500 mt-4">
+                <p className="text-xs text-slate-600 mt-4">
                   * Stacked segments show original spending categories before travel reclassification
                 </p>
               </div>
@@ -171,10 +171,10 @@ export function BeforeAfterTransformation({
                 return <div key={mcc} className={`p-3 rounded-lg border cursor-pointer transition-all ${isHighlighted ? 'bg-primary/10 border-primary shadow-lg' : 'bg-white border-slate-200 hover:bg-slate-50'}`} onMouseEnter={() => setHighlightedNode(mcc)} onMouseLeave={() => setHighlightedNode(null)}>
                       <div className="flex justify-between items-start">
                         <p className="text-sm font-medium text-slate-900">{mcc}</p>
-                        <p className="text-xs text-slate-500">${amount.toFixed(0)}</p>
+                        <p className="text-xs text-slate-600">${amount.toFixed(0)}</p>
                       </div>
                       {isHighlighted && <div className="mt-2 space-y-1">
-                          {connectedLinks.map((link, idx) => <p key={idx} className="text-xs text-slate-500 flex items-center gap-1">
+                          {connectedLinks.map((link, idx) => <p key={idx} className="text-xs text-slate-600 flex items-center gap-1">
                               <ArrowRight className="w-3 h-3" />
                               {link.target}: ${link.value.toFixed(2)}
                             </p>)}
@@ -201,10 +201,10 @@ export function BeforeAfterTransformation({
                 }} onMouseEnter={() => setHighlightedNode(pillar)} onMouseLeave={() => setHighlightedNode(null)}>
                       <div className="flex justify-between items-start">
                         <p className="text-sm font-medium text-slate-900">{pillar}</p>
-                        <p className="text-xs text-slate-500">${amount.toFixed(0)}</p>
+                        <p className="text-xs text-slate-600">${amount.toFixed(0)}</p>
                       </div>
                       {isHighlighted && <div className="mt-2 space-y-1">
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-slate-600">
                             From {connectedLinks.length} MCC{connectedLinks.length > 1 ? 's' : ''}
                           </p>
                         </div>}

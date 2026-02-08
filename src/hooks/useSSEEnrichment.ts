@@ -277,12 +277,17 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
                   // Store original pillar before updating
                   const originalPillar = updated[idx].pillar;
                   
-                  // Update pillar and subcategory if reclassified
-                  if (travelUpdate.reclassified_pillar) {
-                    updated[idx].pillar = travelUpdate.reclassified_pillar;
-                  }
-                  if (travelUpdate.reclassified_subcategory) {
-                    updated[idx].subcategory = travelUpdate.reclassified_subcategory;
+                  // If travel-related, ALWAYS set pillar to "Travel & Exploration"
+                  // The reclassified values from AI should be used as subcategories only
+                  if (travelUpdate.is_travel_related) {
+                    updated[idx].pillar = "Travel & Exploration";
+                    // Use reclassified_subcategory if provided, otherwise use reclassified_pillar as subcategory
+                    if (travelUpdate.reclassified_subcategory) {
+                      updated[idx].subcategory = travelUpdate.reclassified_subcategory;
+                    } else if (travelUpdate.reclassified_pillar) {
+                      // AI may have put subcategory name in reclassified_pillar field
+                      updated[idx].subcategory = travelUpdate.reclassified_pillar;
+                    }
                   }
                   
                   // Add travel_context object with proper structure

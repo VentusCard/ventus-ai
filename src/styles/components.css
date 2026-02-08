@@ -334,3 +334,27 @@
   background: hsl(220 10% 65%);
   background-clip: content-box;
 }
+
+/* Advisor console light scrollbars */
+.advisor-console-panel {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(220 10% 85%) transparent;
+}
+
+.advisor-console-panel::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.advisor-console-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.advisor-console-panel::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 85%);
+  border-radius: 4px;
+}
+
+.advisor-console-panel::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 70%);
+}

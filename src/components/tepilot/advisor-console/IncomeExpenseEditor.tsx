@@ -57,7 +57,7 @@ export function IncomeExpenseEditor({
             type="number"
             value={monthlyIncome}
             onChange={(e) => onIncomeChange(parseFloat(e.target.value) || 0)}
-            className="text-right font-medium"
+            className="text-right font-medium bg-white text-slate-900"
           />
         </div>
 
@@ -87,7 +87,7 @@ export function IncomeExpenseEditor({
                       <span>{expense.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-500 text-xs">
+                      <span className="text-slate-600 text-xs">
                         {percentage}%
                       </span>
                       <span className="font-medium w-20 text-right">
@@ -130,7 +130,7 @@ export function IncomeExpenseEditor({
               );
             })}
           </div>
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
+          <div className="flex justify-between text-xs text-slate-600 mt-1">
             <span>0%</span>
             <span>50%</span>
             <span>100%</span>

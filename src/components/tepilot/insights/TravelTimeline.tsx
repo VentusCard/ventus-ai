@@ -114,15 +114,15 @@ function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: 
               </div>
               <div className="text-left">
                 <p className="font-semibold text-slate-900">{trip.destination}</p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-600">
                   {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4 text-sm">
-              <span className="text-slate-500">{trip.transactions.length} txns</span>
+              <span className="text-slate-600">{trip.transactions.length} txns</span>
               <span className="font-medium text-slate-900">${trip.totalSpend.toFixed(2)}</span>
-              <ChevronDown className={`w-5 h-5 transition-transform text-slate-500 ${isOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-5 h-5 transition-transform text-slate-600 ${isOpen ? 'rotate-180' : ''}`} />
             </div>
           </div>
         </CollapsibleTrigger>
@@ -143,22 +143,22 @@ function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: 
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-sm text-slate-900">{new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
-                        <p className="text-sm text-slate-500">${daySpend.toFixed(2)}</p>
+                        <p className="text-sm text-slate-600">${daySpend.toFixed(2)}</p>
                       </div>
                       
-                      {dayTransactions.map((t, tidx) => (
-                        <div key={tidx} className="flex items-center gap-2 text-sm bg-white p-2 rounded">
-                          <span className="flex-1 truncate text-slate-900">{t.merchant_name}</span>
-                          {t.travel_context?.original_pillar && t.travel_context.original_pillar !== "Travel & Experiences" && (
-                            <div className="flex items-center gap-1 text-xs text-slate-500">
-                              <span className="hidden sm:inline">{t.travel_context.original_pillar}</span>
-                              <ArrowRight className="w-3 h-3" />
-                              <span className="text-purple-500">Travel</span>
-                            </div>
-                          )}
-                          <span className="text-slate-500">${t.amount.toFixed(2)}</span>
-                        </div>
-                      ))}
+                        {dayTransactions.map((t, tidx) => (
+                          <div key={tidx} className="flex items-center gap-2 text-sm bg-white p-2 rounded">
+                            <span className="flex-1 truncate text-slate-900">{t.merchant_name}</span>
+                            {t.travel_context?.original_pillar && t.travel_context.original_pillar !== "Travel & Experiences" && (
+                              <div className="flex items-center gap-1 text-xs text-slate-600">
+                                <span className="hidden sm:inline">{t.travel_context.original_pillar}</span>
+                                <ArrowRight className="w-3 h-3" />
+                                <span className="text-purple-500">Travel</span>
+                              </div>
+                            )}
+                            <span className="text-slate-600">${t.amount.toFixed(2)}</span>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 );
@@ -189,7 +189,7 @@ export function TravelTimeline({ transactions }: TravelTimelineProps) {
                 <MapPin className="w-5 h-5 text-purple-500" />
                 <CardTitle className="text-slate-900">Travel Intelligence (Pattern Recognition)</CardTitle>
               </div>
-              <div className="flex items-center gap-4 text-sm text-slate-500">
+            <div className="flex items-center gap-4 text-sm text-slate-600">
                 <span>{trips.length} trip{trips.length !== 1 ? 's' : ''}</span>
                 <span>{totalTravelTransactions} txns</span>
                 <span>${totalTravelSpend.toFixed(2)}</span>
@@ -202,7 +202,7 @@ export function TravelTimeline({ transactions }: TravelTimelineProps) {
         <CollapsibleContent>
           <CardContent className="pt-0">
             {trips.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-600">
                 <MapPin className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p className="font-medium mb-1 text-slate-900">No travel patterns detected</p>
                 <p className="text-sm">Travel Intelligence uses AI pattern recognition to identify and contextualize travel-related spending across all transaction categories.</p>
@@ -210,7 +210,7 @@ export function TravelTimeline({ transactions }: TravelTimelineProps) {
             ) : (
               <div className="space-y-3">
                 {totalReclassified > 0 && (
-                  <p className="text-sm text-slate-500 mb-4">
+                  <p className="text-sm text-slate-600 mb-4">
                     {totalReclassified} transaction{totalReclassified !== 1 ? 's' : ''} reclassified from other pillars to Travel
                   </p>
                 )}

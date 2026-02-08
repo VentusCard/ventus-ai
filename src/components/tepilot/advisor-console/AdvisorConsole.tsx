@@ -11,19 +11,28 @@ import { exportFinancialTimelinePDF } from "@/lib/financialTimelinePdfExport";
 import { useToast } from "@/hooks/use-toast";
 import { ClientProfileData } from "@/types/clientProfile";
 import { generateRandomProfile, generateRandomPsychologicalInsights } from "@/lib/randomProfileGenerator";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
+import { Button } from "@/components/ui/button";
+import { LayoutDashboard } from "lucide-react";
 
 interface AdvisorConsoleProps {
   aiInsights?: AIInsights | null;
   isLoadingInsights?: boolean;
   enrichedTransactions?: EnrichedTransaction[];
   advisorContext?: AdvisorContext;
+  onBackToDashboard?: () => void;
+  initialPendingMessage?: string | null;
+  onPendingMessageConsumed?: () => void;
 }
 
 export function AdvisorConsole({ 
   aiInsights: propAiInsights, 
   isLoadingInsights = false,
   enrichedTransactions = [],
-  advisorContext
+  advisorContext,
+  onBackToDashboard,
+  initialPendingMessage,
+  onPendingMessageConsumed
 }: AdvisorConsoleProps) {
   const { toast } = useToast();
   const [selectedLifestyleChip, setSelectedLifestyleChip] = useState<string | null>(null);
@@ -37,11 +46,20 @@ export function AdvisorConsole({
   const [clientProfile, setClientProfile] = useState<ClientProfileData | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [financialPlanData, setFinancialPlanData] = useState<FinancialPlanContext | null>(null);
+  const [dashboardEvents, setDashboardEvents] = useState<DetectedLifeEvent[] | null>(null);
   
   // Cross-panel communication state
   const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
   const [pendingTimelineEvent, setPendingTimelineEvent] = useState<LifeEvent | null>(null);
   const [openTimelineTrigger, setOpenTimelineTrigger] = useState(false);
+
+  // Handle initial pending message from parent (e.g., Prepare with Ventus)
+  useEffect(() => {
+    if (initialPendingMessage) {
+      setPendingChatMessage(initialPendingMessage);
+      onPendingMessageConsumed?.();
+    }
+  }, [initialPendingMessage, onPendingMessageConsumed]);
 
   // Load financial plan data from sessionStorage
   useEffect(() => {
@@ -76,6 +94,16 @@ export function AdvisorConsole({
     // Check sessionStorage for existing data (returning from another page)
     const existingProfile = sessionStorage.getItem("tepilot_client_profile");
     const existingPsych = sessionStorage.getItem("tepilot_psychological_insights");
+    const existingEvents = sessionStorage.getItem("tepilot_detected_events");
+
+    // Load dashboard events if available
+    if (existingEvents) {
+      try {
+        setDashboardEvents(JSON.parse(existingEvents));
+      } catch (e) {
+        console.error("Failed to parse dashboard events:", e);
+      }
+    }
 
     if (existingProfile && existingPsych) {
       // Restore from session
@@ -119,6 +147,10 @@ export function AdvisorConsole({
       actionItems: [], // Clear action items for new client
       lastUpdated: new Date()
     }));
+    
+    // Clear dashboard events for fresh client
+    sessionStorage.removeItem("tepilot_detected_events");
+    setDashboardEvents(null);
     
     // Persist to sessionStorage
     sessionStorage.setItem("tepilot_client_profile", JSON.stringify(newProfile));
@@ -264,14 +296,26 @@ export function AdvisorConsole({
     <div className="flex flex-col w-full h-full bg-white">
       {/* Header with BofA/Merrill/Ventus branding */}
       <div className="border-b px-4 py-3 flex items-center justify-between bg-gradient-to-r from-white to-slate-50 flex-shrink-0">
-        <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Wealth Management Advisor Console{" "}
-          <span className="text-primary">Powered by Ventus</span>
-        </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            AI-powered relationship intelligence and client engagement platform
-          </p>
+        <div className="flex items-center gap-4">
+          {onBackToDashboard && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBackToDashboard}
+              className="text-slate-700 border-slate-300 hover:bg-slate-100"
+            >
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Wealth Management Advisor Co-Pilot
+            </h1>
+            <p className="text-sm text-slate-600 mt-1">
+              AI-powered relationship intelligence and client engagement platform
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
@@ -293,6 +337,7 @@ export function AdvisorConsole({
             isLoadingInsights={isLoadingInsights}
             clientData={clientProfile}
             onGenerateProfile={handleGenerateProfile}
+            dashboardEvents={dashboardEvents}
           />
         </ResizablePanel>
 

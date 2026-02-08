@@ -47,7 +47,7 @@ import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailMo
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
-const CURRENT_VERSION = "V2.5";
+const CURRENT_VERSION = "V3.0";
 const TePilot = () => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -424,7 +424,7 @@ const TePilot = () => {
     // Block mobile and small tablet users before showing password form
     if (isSmallScreen) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-6">
+        <div className="tepilot-theme min-h-screen bg-background flex items-center justify-center p-6">
           <Card className="max-w-md w-full border-slate-200 bg-white">
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -436,7 +436,7 @@ const TePilot = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-600">
                 Please access this page from a desktop computer or large tablet (landscape mode) 
                 to explore the full transaction enrichment and analytics capabilities.
               </p>
@@ -449,7 +449,7 @@ const TePilot = () => {
         </div>
       );
     }
-    return <div className="min-h-screen flex items-center justify-center bg-white p-4 tepilot-container">
+    return <div className="tepilot-theme min-h-screen flex items-center justify-center bg-background p-4 tepilot-container">
         <Card className="w-full max-w-6xl bg-white border-slate-200">
           <CardHeader>
             <CardTitle className="text-3xl text-slate-900">Ventus AI Transaction Enrichment & Personalization Engine</CardTitle>
@@ -458,11 +458,15 @@ const TePilot = () => {
               <Accordion type="single" collapsible className="w-full mt-2">
                 <AccordionItem value="release-notes" className="border-none">
                   <AccordionTrigger className="text-sm text-slate-900 py-1 hover:no-underline">
-                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-500 font-normal">— Deal messaging personalization engine and merchant aggregator compatibility layer</span></span>
+                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-600 font-normal">— Life Event Intelligence Dashboard with early behavioral signal detection</span></span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-xs text-slate-500 space-y-2">
+                  <AccordionContent className="text-xs text-slate-600 space-y-2">
                     <div className="border-l-2 border-blue-600 pl-3 py-1">
-                      <p className="font-semibold">V2.5 - Current</p>
+                      <p className="font-semibold">V3.0 - Current</p>
+                      <p>Life Event Intelligence Dashboard now detects early behavioral signals before clients take financial action—enabling proactive advisor engagement. Updated Ventus AI Insights and Recommended Next Steps with opportunity-focused guidance.</p>
+                    </div>
+                    <div className="border-l-2 border-slate-300 pl-3 py-1">
+                      <p className="font-semibold text-slate-700">V2.5 - January 2026</p>
                       <p>Deal messaging personalization engine for dynamic customer-specific deal messaging, plus merchant aggregator compatibility layer for seamless integration with third-party deal providers</p>
                     </div>
                     <div className="border-l-2 border-slate-300 pl-3 py-1">
@@ -528,7 +532,7 @@ const TePilot = () => {
                 <AccordionTrigger className="text-lg font-semibold group text-slate-900">
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Ventus AI Workflows</span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
+                    <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
                       Three workflows transform raw data to insights
                     </span>
                   </div>
@@ -571,7 +575,7 @@ const TePilot = () => {
                 <AccordionTrigger className="text-lg font-semibold group text-slate-900">
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Why Semantic AI is Different</span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
+                    <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
                       AI delivers accuracy legacy methods can't match
                     </span>
                   </div>
@@ -596,7 +600,7 @@ const TePilot = () => {
                               Events
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-500 text-sm">Too generic</TableCell>
+                          <TableCell className="text-slate-600 text-sm">Too generic</TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell className="font-medium text-slate-900">Text-Based</TableCell>
@@ -606,7 +610,7 @@ const TePilot = () => {
                               Furniture
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-500 text-sm">Completely wrong</TableCell>
+                          <TableCell className="text-slate-600 text-sm">Completely wrong</TableCell>
                         </TableRow>
                         <TableRow className="bg-green-500/5">
                           <TableCell className="font-medium text-slate-900">Ventus AI (Semantic)</TableCell>
@@ -626,118 +630,11 @@ const TePilot = () => {
                   </div>
                 </AccordionContent>
               </AccordionItem>
-
-              {/* Section 3: Key Features */}
-              <AccordionItem value="item-3">
-                <AccordionTrigger className="text-lg font-semibold group text-slate-900">
-                  <div className="flex flex-col items-start gap-1 text-left">
-                    <span>Key Features <span className="text-primary">(New!)</span></span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
-                      Full-stack AI capabilities from enrichment to personalization
-                    </span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <Target className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Context-Aware</h4>
-                        <p className="text-sm text-slate-600">
-                          Recognizes messy transactions like "PAYPAL *UBER" or "APPLE PAY STARBUCKS" and extracts the true merchant for accurate classification
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <Brain className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Semantic Intelligence</h4>
-                        <p className="text-sm text-slate-600">
-                          Infinitely scalable knowledge base that continuously learns new merchants, categories, and spending patterns without manual updates
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <Zap className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Multi-Category Mapping</h4>
-                        <p className="text-sm text-slate-600">
-                          Semantic merchant clustering maps disparate entities (Titleist, Country Club, PGA Superstore) to unified Sports → Golf taxonomy
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Higher Accuracy</h4>
-                        <p className="text-sm text-slate-600">
-                          Multi-algorithm ensemble dynamically routes each task to the optimal model for maximum classification precision
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <Scan className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Pattern Recognition</h4>
-                        <p className="text-sm text-slate-600">
-                          Currently detects travel spending patterns and destinations. Additional behavioral patterns in training to unlock deeper insights.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <Gift className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Personalized Deals & Rewards</h4>
-                        <p className="text-sm text-slate-600">
-                          Lifestyle pillar signals power rewritten deal descriptions and precision deployment from your rewards aggregator
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <ShoppingBag className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Parent-SKU Level Inference</h4>
-                        <p className="text-sm text-slate-600">
-                          Uses price-matching and merchant context to infer specific purchases (e.g., "$58.57 Titleist → dozen Pro V1 golf balls + tax") rather than generic "merchandise"
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <CalendarClock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Merchant Deal Timing Optimization</h4>
-                        <p className="text-sm text-slate-600">
-                          Analyzes 52-week spending patterns to identify optimal weeks for merchant promotions, maximizing campaign ROI
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <CalendarHeart className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Life Event Financial Planning</h4>
-                        <p className="text-sm text-slate-600">
-                          Automatically detects life events (new baby, home purchase, career change) and generates multi-year financial projections
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                      <MessageSquare className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm mb-1 text-slate-900">Wealth Management Relationship Co-Pilot</h4>
-                        <p className="text-sm text-slate-600">
-                          AI advisor chatbot with client psychology profiling, transaction-grounded insights, and Monte Carlo retirement planning
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
               <AccordionItem value="item-4">
                 <AccordionTrigger className="text-lg font-semibold text-slate-900 group">
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Use Cases</span>
-                    <span className="text-sm font-normal text-slate-500 group-data-[state=closed]:block group-data-[state=open]:hidden">
+                    <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
                       Real-world applications across financial services
                     </span>
                   </div>
@@ -829,7 +726,7 @@ const TePilot = () => {
         </Card>
       </div>;
   }
-  return <div className="min-h-screen bg-white p-4 md:p-8 tepilot-container">
+  return <div className="tepilot-theme min-h-screen bg-background p-4 md:p-8 tepilot-container">
       <div className="max-w-[95%] 2xl:max-w-[1800px] mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -881,7 +778,7 @@ const TePilot = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-600">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
             <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Preview</TabsTrigger>
             <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Enrichment</TabsTrigger>
@@ -1055,19 +952,36 @@ const TePilot = () => {
                     "Client Psychology Profiler with actionable communication cues",
                     "Smart conversation chips for Meeting Prep, Financial Standing, and more",
                     "AI-extracted action items from chat and planning tools"
-                  ]} buttonText="Access Wealth Management CoPilot" buttonVariant="ai" onClick={() => {
-                if (enrichedTransactions.length === 0) {
-                  toast.error('Please enrich transactions first to access this tool');
-                  return;
-                }
-                // Save enriched transactions immediately and navigate - analysis happens on target page
-                sessionStorage.setItem("tepilot_advisor_context", JSON.stringify({
-                  enrichedTransactions: enrichedTransactions,
-                  aiInsights: null,
-                  needsAnalysis: true
-                }));
-                navigate('/tepilot/advisor-console');
-              }} disabled={enrichedTransactions.length === 0} />
+                  ]} 
+                  secondaryButtonText="Access Relationship Intelligence Dashboard"
+                  secondaryButtonVariant="outline"
+                  onSecondaryClick={() => {
+                    if (enrichedTransactions.length === 0) {
+                      toast.error('Please enrich transactions first to access this tool');
+                      return;
+                    }
+                    sessionStorage.setItem("tepilot_advisor_context", JSON.stringify({
+                      enrichedTransactions: enrichedTransactions,
+                      aiInsights: null,
+                      needsAnalysis: true
+                    }));
+                    navigate('/tepilot/advisor-console');
+                  }}
+                  buttonText="Access Wealth Management CoPilot" 
+                  buttonVariant="ai" 
+                  onClick={() => {
+                    if (enrichedTransactions.length === 0) {
+                      toast.error('Please enrich transactions first to access this tool');
+                      return;
+                    }
+                    sessionStorage.setItem("tepilot_advisor_context", JSON.stringify({
+                      enrichedTransactions: enrichedTransactions,
+                      aiInsights: null,
+                      needsAnalysis: true
+                    }));
+                    navigate('/tepilot/advisor-console', { state: { initialView: 'client' } });
+                  }}
+                  disabled={enrichedTransactions.length === 0} />
                 </div>
               </>}
 

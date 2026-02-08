@@ -2,10 +2,24 @@
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
+// Retry configuration
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 1000;
+
+// Model configuration
+const FAST_MODEL = "google/gemini-2.5-flash-lite";
+const FALLBACK_MODEL = "google/gemini-2.5-flash";
+
+// Concurrency configuration
+const CONCURRENCY_LIMIT = 2;
+const BATCH_SIZE = 24;
+const SUB_BATCH_SIZE = 8;
+
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
@@ -23,6 +37,37 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     "Access-Control-Allow-Origin": isAllowed ? origin! : "",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   };
+}
+
+// Exponential backoff with jitter
+function getDelayMs(attempt: number): number {
+  const baseDelay = BASE_DELAY_MS * Math.pow(2, attempt);
+  const jitter = Math.random() * 0.5 * baseDelay;
+  return Math.min(baseDelay + jitter, 10000); // Cap at 10s
+}
+
+// Concurrency-limited runner
+async function runWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let currentIndex = 0;
+
+  async function processNext(): Promise<void> {
+    while (currentIndex < items.length) {
+      const index = currentIndex++;
+      results[index] = await worker(items[index], index);
+    }
+  }
+
+  const workers = Array(Math.min(limit, items.length))
+    .fill(null)
+    .map(() => processNext());
+
+  await Promise.all(workers);
+  return results;
 }
 
 // Classification Prompt with Examples
@@ -255,73 +300,188 @@ const CLASSIFICATION_TOOL = [
   },
 ];
 
-// Batch Processing Helper
+// Core classification call with model selection
+async function callClassificationAPI(
+  batch: any[],
+  model: string,
+  batchNum: number,
+  attempt: number,
+): Promise<{ classifications: any[]; rawResponse?: string }> {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: CLASSIFICATION_PROMPT },
+        { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
+      ],
+      tools: CLASSIFICATION_TOOL,
+      tool_choice: { type: "function", function: { name: "classify_batch" } },
+      temperature: 0,
+      max_tokens: 4000,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    console.error(`[BATCH ${batchNum}] API error (${response.status}): ${errorText.slice(0, 200)}`);
+    return { classifications: [], rawResponse: errorText };
+  }
+
+  const data = await response.json();
+  const toolCalls = data.choices?.[0]?.message?.tool_calls;
+
+  if (!toolCalls || toolCalls.length === 0) {
+    const rawStr = JSON.stringify(data).slice(0, 300);
+    console.warn(`[BATCH ${batchNum}] No tool calls (attempt ${attempt}, model ${model}). Response: ${rawStr}`);
+    return { classifications: [], rawResponse: rawStr };
+  }
+
+  try {
+    const results = JSON.parse(toolCalls[0].function.arguments);
+    return { classifications: results.classifications || [] };
+  } catch (parseError) {
+    const rawArgs = toolCalls[0]?.function?.arguments?.slice(0, 200) || "";
+    console.error(`[BATCH ${batchNum}] JSON parse error: ${rawArgs}`);
+    return { classifications: [], rawResponse: rawArgs };
+  }
+}
+
+// Single batch classification with retries and model escalation
 async function classifyBatch(
   batch: any[],
   batchIndex: number,
   totalBatches: number,
-  sendEvent: Function,
+  sendEvent: (event: string, data: any) => void,
 ): Promise<any[]> {
-  const startTime = Date.now();
   const batchNum = batchIndex + 1;
-  sendEvent("status", {
-    message: `Classifying batch ${batchNum}/${totalBatches} (${batch.length} transactions)...`,
-    progress: Math.round((batchIndex / totalBatches) * 100),
-  });
 
-  try {
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          { role: "system", content: CLASSIFICATION_PROMPT },
-          { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
-        ],
-        tools: CLASSIFICATION_TOOL,
-        tool_choice: { type: "function", function: { name: "classify_batch" } },
-        temperature: 0,
-        max_tokens: 2500,
-      }),
-    });
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const startTime = Date.now();
 
-    if (!response.ok) {
-      console.error(`[BATCH ${batchNum}] Classification failed (${response.status})`);
-      return [];
+    // Use fallback model on final attempt
+    const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : FAST_MODEL;
+
+    if (attempt > 0) {
+      const delay = getDelayMs(attempt - 1);
+      console.log(
+        `[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`,
+      );
+      await new Promise((r) => setTimeout(r, delay));
     }
 
-    const data = await response.json();
-    const toolCalls = data.choices?.[0]?.message?.tool_calls;
-
-    if (!toolCalls || toolCalls.length === 0) {
-      console.warn(`[BATCH ${batchNum}] No tool calls returned`);
-      return [];
-    }
-
-    const results = JSON.parse(toolCalls[0].function.arguments);
-    const classifications = results.classifications || [];
-    const elapsed = Date.now() - startTime;
-
-    console.log(`[BATCH ${batchNum}] ✓ Classified ${classifications.length}/${batch.length} in ${elapsed}ms`);
-
-    sendEvent("batch_complete", {
-      batchIndex,
-      batchNum,
-      totalBatches,
-      count: classifications.length,
-      elapsed,
-      model: "flash-lite",
+    sendEvent("status", {
+      message: `Classifying batch ${batchNum}/${totalBatches}${attempt > 0 ? ` (retry ${attempt})` : ""}...`,
+      progress: Math.round((batchIndex / totalBatches) * 100),
     });
 
-    return classifications;
-  } catch (error) {
-    console.error(`[BATCH ${batchNum}] Error:`, error);
-    return [];
+    try {
+      const { classifications } = await callClassificationAPI(batch, model, batchNum, attempt);
+
+      if (classifications.length === 0) {
+        console.warn(`[BATCH ${batchNum}] Empty classifications (attempt ${attempt}, model ${model})`);
+        continue;
+      }
+
+      const elapsed = Date.now() - startTime;
+      console.log(
+        `[BATCH ${batchNum}] ✓ ${classifications.length}/${batch.length} in ${elapsed}ms (model: ${model}, retries: ${attempt})`,
+      );
+
+      sendEvent("batch_complete", {
+        batchIndex,
+        batchNum,
+        totalBatches,
+        count: classifications.length,
+        elapsed,
+        model,
+        retries: attempt,
+      });
+
+      return classifications;
+    } catch (error) {
+      console.error(`[BATCH ${batchNum}] Exception (attempt ${attempt}):`, error);
+    }
   }
+
+  console.error(`[BATCH ${batchNum}] All ${MAX_RETRIES + 1} attempts failed`);
+  return [];
+}
+
+// Fallback: split batch into smaller sub-batches and classify sequentially
+async function classifyWithSubBatchFallback(
+  batch: any[],
+  batchIndex: number,
+  totalBatches: number,
+  sendEvent: (event: string, data: any) => void,
+): Promise<any[]> {
+  const batchNum = batchIndex + 1;
+
+  // First try normal classification
+  const results = await classifyBatch(batch, batchIndex, totalBatches, sendEvent);
+
+  if (results.length > 0) {
+    return results;
+  }
+
+  // If failed and batch is large enough, split into sub-batches
+  if (batch.length > SUB_BATCH_SIZE) {
+    console.log(`[BATCH ${batchNum}] Splitting into sub-batches of ${SUB_BATCH_SIZE}`);
+
+    const subBatches: any[][] = [];
+    for (let i = 0; i < batch.length; i += SUB_BATCH_SIZE) {
+      subBatches.push(batch.slice(i, i + SUB_BATCH_SIZE));
+    }
+
+    const allSubResults: any[] = [];
+
+    // Process sub-batches sequentially for maximum reliability
+    for (let subIdx = 0; subIdx < subBatches.length; subIdx++) {
+      const subBatch = subBatches[subIdx];
+      const subBatchNum = `${batchNum}.${subIdx + 1}`;
+
+      sendEvent("status", {
+        message: `Classifying sub-batch ${subBatchNum} (${subBatch.length} items)...`,
+        progress: Math.round((batchIndex / totalBatches) * 100),
+      });
+
+      // Use fallback model directly for sub-batches
+      for (let attempt = 0; attempt <= 2; attempt++) {
+        if (attempt > 0) {
+          await new Promise((r) => setTimeout(r, getDelayMs(attempt)));
+        }
+
+        try {
+          const { classifications } = await callClassificationAPI(
+            subBatch,
+            FALLBACK_MODEL,
+            parseInt(subBatchNum),
+            attempt,
+          );
+
+          if (classifications.length > 0) {
+            console.log(`[SUB-BATCH ${subBatchNum}] ✓ ${classifications.length}/${subBatch.length}`);
+            allSubResults.push(...classifications);
+            break;
+          }
+        } catch (error) {
+          console.error(`[SUB-BATCH ${subBatchNum}] Error:`, error);
+        }
+      }
+    }
+
+    if (allSubResults.length > 0) {
+      console.log(`[BATCH ${batchNum}] Sub-batch fallback recovered ${allSubResults.length}/${batch.length}`);
+      return allSubResults;
+    }
+  }
+
+  console.error(`[BATCH ${batchNum}] All fallback strategies exhausted`);
+  return [];
 }
 
 Deno.serve(async (req) => {
@@ -402,19 +562,21 @@ Deno.serve(async (req) => {
         try {
           sendEvent("status", { message: "Starting classification...", progress: 0 });
 
-          // Split into batches of 24
-          const BATCH_SIZE = 24;
+          // Split into batches
           const batches: any[][] = [];
           for (let i = 0; i < transactionSummary.length; i += BATCH_SIZE) {
             batches.push(transactionSummary.slice(i, i + BATCH_SIZE));
           }
 
-          console.log(`[CLASSIFY] Processing ${transactionSummary.length} transactions in ${batches.length} batches`);
+          console.log(
+            `[CLASSIFY] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`,
+          );
 
-          // Process all batches in parallel
-          const batchPromises = batches.map((batch, idx) => classifyBatch(batch, idx, batches.length, sendEvent));
+          // Process batches with limited concurrency
+          const batchResults = await runWithConcurrency(batches, CONCURRENCY_LIMIT, (batch, idx) =>
+            classifyWithSubBatchFallback(batch, idx, batches.length, sendEvent),
+          );
 
-          const batchResults = await Promise.all(batchPromises);
           const allClassifications = batchResults.flat();
 
           const totalTime = Date.now() - startTime;
@@ -435,7 +597,7 @@ Deno.serve(async (req) => {
                 pillar: "Miscellaneous & Unclassified",
                 subcategory: "General",
                 confidence: 0.1,
-                explanation: "Classification failed",
+                explanation: "Classification failed after all retries",
                 enriched_at: new Date().toISOString(),
               };
             }
@@ -459,7 +621,7 @@ Deno.serve(async (req) => {
               classified: allClassifications.length,
               success_rate: successRate,
               time_ms: totalTime,
-              model: "flash-lite",
+              concurrency: CONCURRENCY_LIMIT,
             },
             timestamp: new Date().toISOString(),
           });

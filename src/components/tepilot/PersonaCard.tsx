@@ -17,6 +17,9 @@ interface PersonaCardProps {
   onClick: () => void;
   disabled?: boolean;
   requiresUnlock?: boolean;
+  secondaryButtonText?: string;
+  secondaryButtonVariant?: "default" | "outline" | "ai";
+  onSecondaryClick?: () => void;
 }
 
 export function PersonaCard({
@@ -31,6 +34,9 @@ export function PersonaCard({
   onClick,
   disabled = false,
   requiresUnlock = false,
+  secondaryButtonText,
+  secondaryButtonVariant = "outline",
+  onSecondaryClick,
 }: PersonaCardProps) {
   return (
     <Card
@@ -74,24 +80,39 @@ export function PersonaCard({
           {keyFeatures.map((feature, idx) => (
             <div key={idx} className="flex items-start gap-2.5">
               <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <span className="text-sm text-slate-600 leading-relaxed">{feature}</span>
+              <span className="text-sm text-slate-700 leading-relaxed">{feature}</span>
             </div>
           ))}
         </div>
 
-        {/* Button */}
-        <Button
-          variant={buttonVariant}
-          className="w-full group-hover:shadow-sm transition-shadow mt-auto"
-          onClick={onClick}
-          disabled={disabled}
-        >
-          {requiresUnlock && <Lock className="w-4 h-4 mr-2" />}
-          {buttonText}
-          {!requiresUnlock && !disabled && (
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+        {/* Buttons */}
+        <div className="space-y-2 mt-auto">
+          {secondaryButtonText && onSecondaryClick && (
+            <Button
+              variant={secondaryButtonVariant}
+              className="w-full group-hover:shadow-sm transition-shadow bg-primary text-white hover:bg-primary/90"
+              onClick={onSecondaryClick}
+              disabled={disabled}
+            >
+              {secondaryButtonText}
+              {!disabled && (
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+              )}
+            </Button>
           )}
-        </Button>
+          <Button
+            variant={buttonVariant}
+            className="w-full group-hover:shadow-sm transition-shadow"
+            onClick={onClick}
+            disabled={disabled}
+          >
+            {requiresUnlock && <Lock className="w-4 h-4 mr-2" />}
+            {buttonText}
+            {!requiresUnlock && !disabled && (
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

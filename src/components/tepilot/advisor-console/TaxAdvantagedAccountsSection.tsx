@@ -93,14 +93,14 @@ export function TaxAdvantagedAccountsSection({
                 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-slate-500">Balance</p>
+                    <p className="text-xs text-slate-600">Balance</p>
                     <p className="text-lg font-bold">{formatCurrency(account.currentBalance)}</p>
                   </div>
                   
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span>{formatCurrency(account.annualContribution)}</span>
-                      <span className="text-slate-500">/{formatCurrency(account.maxContribution)}</span>
+                      <span className="text-slate-600">/{formatCurrency(account.maxContribution)}</span>
                     </div>
                     <div className="relative h-2 rounded-full bg-slate-200 overflow-hidden">
                       <div 
@@ -125,7 +125,7 @@ export function TaxAdvantagedAccountsSection({
                       onChange={(e) => handleAccountChange(index, { 
                         annualContribution: parseFloat(e.target.value) || 0 
                       })}
-                      className="h-8 mt-1"
+                      className="h-8 mt-1 bg-white text-slate-900"
                     />
                   </div>
                 </div>
@@ -138,19 +138,19 @@ export function TaxAdvantagedAccountsSection({
         <div className="p-4 rounded-lg bg-slate-50">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-slate-500">Total Tax-Advantaged</p>
+              <p className="text-sm text-slate-700">Total Tax-Advantaged</p>
               <p className="text-xl font-bold">{formatCurrency(totalBalance)}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-500">Annual Contributions</p>
+              <p className="text-sm text-slate-700">Annual Contributions</p>
               <p className="text-xl font-bold">{formatCurrency(totalContributions)}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-500">Employer Match</p>
+              <p className="text-sm text-slate-700">Employer Match</p>
               <p className="text-xl font-bold text-green-600">+{formatCurrency(totalEmployerMatch)}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-500">Utilization Rate</p>
+              <p className="text-sm text-slate-700">Utilization Rate</p>
               <p className={`text-xl font-bold ${utilizationRate >= 80 ? 'text-green-600' : utilizationRate >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
                 {utilizationRate.toFixed(0)}%
               </p>
@@ -161,7 +161,7 @@ export function TaxAdvantagedAccountsSection({
           {utilizationRate < 100 && (
             <div className="mt-4 pt-4 border-t text-sm">
               <p className="font-medium mb-2">Optimization Opportunities:</p>
-              <ul className="space-y-1 text-slate-500">
+              <ul className="space-y-1 text-slate-600">
                 {accounts.map(account => {
                   const gap = account.maxContribution - account.annualContribution;
                   if (gap > 0) {

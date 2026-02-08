@@ -1,85 +1,110 @@
 
-# Block Mobile Access for /tepilot
+## What’s happening (why some batches still fail)
+Even with retries, you can still get “empty classifications” for a batch because the `classify-transactions` backend function is currently doing **all batches in parallel**:
 
-## Overview
+- 75 transactions → 4 batches (24/24/24/3)
+- It fires **4 concurrent AI requests** to `ai.gateway.lovable.dev`
+- Under load or transient instability, one request can come back with **no tool call / empty results** (your logs show this consistently for Batch 2)
+- The retry loop currently retries the *same request shape* after a short delay, so it can repeatedly hit the same transient failure mode
 
-Add a device check that prevents mobile and small tablet users from accessing the TePilot demo. Users on screens smaller than 1024px will see a friendly message explaining that the demo requires a larger screen, with no password form displayed.
+So the system is resilient to occasional empties, but not to **repeatable empties under concurrency pressure**.
 
-## Approach
+## Goal
+Make classification robust so that:
+1. Batches don’t fail due to concurrency/rate/load artifacts.
+2. If a batch still fails after retries, we degrade gracefully by retrying with smaller payloads and/or a more reliable model.
+3. We reduce “Miscellaneous & Unclassified” fallbacks to near-zero for normal inputs.
 
-The `use-mobile.tsx` hook already defines the breakpoints needed:
-- Mobile: < 768px
-- Tablet: 768px - 1024px  
-- Desktop: >= 1024px
+---
 
-Since "large screen tablets are fine," I'll use 1024px as the threshold. Screens below this width will see a blocking message instead of the password form.
+## Implementation plan (backend only)
 
-## Implementation
+### 1) Limit concurrency for batch classification (biggest win)
+**Change:** Replace `Promise.all(batches.map(...))` with a small concurrency pool (e.g., 2 at a time, or even 1 for maximum reliability).
 
-### 1. Update TePilot.tsx
+**Why:** This prevents simultaneous AI calls from competing and causing silent/empty tool call responses. In practice, concurrency=2 usually keeps throughput good while greatly improving reliability.
 
-**Add import:**
-```tsx
-import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
-```
+**Details:**
+- Implement a simple `runWithConcurrency(items, limit, worker)` helper in `supabase/functions/classify-transactions/index.ts`.
+- Emit SSE status updates as each batch starts/completes (you already do).
+- Keep the same BATCH_SIZE (24) initially.
 
-**Add hooks at component top:**
-```tsx
-const isMobile = useIsMobile();
-const isTablet = useIsTablet();
-const isSmallScreen = isMobile || isTablet; // < 1024px
-```
+### 2) Add exponential backoff + jitter for retries
+**Change:** Instead of fixed 1s delay, use exponential backoff with jitter:
+- attempt 1: ~1s
+- attempt 2: ~2–3s
+- attempt 3: ~4–6s (if you decide to increase retries)
 
-**Add early return before password form (inside `!isAuthenticated` block):**
-```tsx
-if (isSmallScreen) {
-  return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <Card className="max-w-md w-full border-slate-200">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <Monitor className="w-8 h-8 text-primary" />
-          </div>
-          <CardTitle className="text-slate-900">Desktop Required</CardTitle>
-          <CardDescription className="text-slate-600">
-            The TePilot demo requires a larger screen for the best experience.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <p className="text-sm text-slate-500">
-            Please access this page from a desktop computer or large tablet (landscape mode) 
-            to explore the full transaction enrichment and analytics capabilities.
-          </p>
-          <Button onClick={() => navigate("/")} variant="outline" className="w-full">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Home
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-```
+**Why:** If the gateway/model is temporarily degraded, fixed short delays often re-hit the same issue window.
 
-**Add Monitor icon to imports:**
-```tsx
-import { ..., Monitor } from "lucide-react";
-```
+**Details:**
+- Keep `MAX_RETRIES = 2` or bump to `3` (I’d recommend `3` once concurrency is limited).
+- Replace `RETRY_DELAY_MS` with a function `getDelayMs(attempt)`.
 
-## User Experience
+### 3) Fallback strategy when a batch still fails: split and retry smaller
+**Change:** If a batch returns empty after all retries:
+- Split that batch into 2 halves (or into size 8/8/8 chunks)
+- Classify sub-batches sequentially (or with concurrency=1)
+- Merge results
 
-| Screen Size | Behavior |
-|-------------|----------|
-| Mobile (< 768px) | Shows "Desktop Required" message with home button |
-| Small Tablet (768-1023px) | Shows "Desktop Required" message with home button |
-| Large Tablet/Desktop (>= 1024px) | Shows normal password form |
+**Why:** Smaller payloads often avoid edge-case model/tool-call failures and reduce response complexity.
 
-## Files to Modify
+**Details:**
+- Add `classifyBatchWithFallback(batch, ...)`:
+  - try normal `classifyBatch`
+  - if empty → split and classify parts
+  - if still empty → final fallback classification as today
 
-| File | Change |
-|------|--------|
-| `src/pages/TePilot.tsx` | Add mobile/tablet detection hooks and blocking message |
+### 4) Optional “retry with stronger model” on the final attempt
+**Change:** Keep the fast model for first attempt(s), but if we’re on the last retry (or after the first failure), switch to a more reliable model.
 
-## Result
+**Why:** Some models are faster but occasionally flake on forced tool calls. A stronger model used only for retries is a good cost/performance trade.
 
-Users on phones and small tablets see a centered card explaining that a larger screen is required, with a button to return home. The password form is never shown on these devices.
+**Concrete option:**
+- Attempt 0–1: `google/gemini-2.5-flash-lite`
+- Final attempt (or fallback sub-batches): `google/gemini-3-flash-preview` or `openai/gpt-5-mini`
+
+**Notes:**
+- We’ll keep your tool schema and forced `tool_choice`.
+- We’ll log which model succeeded to help diagnosis.
+
+### 5) Improve observability for “empty tool calls”
+**Change:** When empty tool calls happen, log:
+- batch number
+- attempt number
+- response status
+- (safely) whether `choices[0].message` exists
+- and the first ~200 chars of raw response text if JSON parse fails
+
+**Why:** Right now we know it’s empty, but not if it’s a gateway partial response, JSON shape mismatch, or a model hiccup.
+
+---
+
+## Files affected
+- `supabase/functions/classify-transactions/index.ts`
+  - Replace parallel `Promise.all` with concurrency-limited runner
+  - Improve retry backoff
+  - Add split-and-retry fallback
+  - (Optional) model escalation on final attempt
+  - Add stronger logs around empty tool_calls
+
+No frontend changes required for this fix.
+
+---
+
+## Testing plan (end-to-end)
+1. In `/tepilot`, run enrichment multiple times on the same dataset (75 txns) and confirm:
+   - No batch logs show “All attempts failed”
+   - Success rate rises significantly (target: >95%)
+2. Try a larger dataset (e.g., 200–400 txns) to confirm stability:
+   - Ensure SSE stays responsive
+   - Ensure total runtime is acceptable
+3. Force a “worst-case” scenario:
+   - Temporarily set concurrency higher (dev check) to confirm failures correlate with concurrency (then keep it low)
+
+---
+
+## Rollout / risk
+- Low risk: changes are contained to the classification backend function.
+- Primary tradeoff: slightly slower classification (because fewer parallel calls), but materially more reliable results and fewer “Miscellaneous & Unclassified” fallbacks.
+

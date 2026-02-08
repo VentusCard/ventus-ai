@@ -108,16 +108,16 @@ export function RetirementPlanningSection({
                   <span className={`text-3xl font-bold ${getReadinessColor(retirementAnalysis.readinessScore)}`}>
                     {retirementAnalysis.readinessScore}%
                   </span>
-                  <span className="text-xs text-slate-500">Readiness</span>
+                  <span className="text-xs text-slate-600">Readiness</span>
                 </div>
               </div>
               <div className="flex-1 space-y-2">
                 <div>
-                  <p className="text-sm text-slate-500">Years to Retirement</p>
+                  <p className="text-sm text-slate-700">Years to Retirement</p>
                   <p className="text-2xl font-bold">{yearsToRetirement}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Target Retirement</p>
+                  <p className="text-sm text-slate-700">Target Retirement</p>
                   <p className="font-semibold">Age {profile.retirementAge}</p>
                 </div>
               </div>
@@ -131,21 +131,21 @@ export function RetirementPlanningSection({
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Desired Income:</span>
+                  <span className="text-slate-700">Desired Income:</span>
                   <span className="font-medium">{formatCurrency(profile.desiredRetirementIncome)}/yr</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Social Security:</span>
+                  <span className="text-slate-700">Social Security:</span>
                   <span className="font-medium">{formatCurrency(profile.socialSecurityEstimate)}/yr</span>
                 </div>
                 {profile.pensionIncome > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Pension:</span>
+                    <span className="text-slate-700">Pension:</span>
                     <span className="font-medium">{formatCurrency(profile.pensionIncome)}/yr</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Projected Portfolio Income:</span>
+                  <span className="text-slate-700">Projected Portfolio Income:</span>
                   <span className="font-medium">{formatCurrency(retirementAnalysis.projectedPortfolioIncome)}/yr</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between font-semibold">
@@ -178,7 +178,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.currentAge}
                   onChange={(e) => onProfileChange({ ...profile, currentAge: parseInt(e.target.value) || 45 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
               <div>
@@ -187,7 +187,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.retirementAge}
                   onChange={(e) => onProfileChange({ ...profile, retirementAge: parseInt(e.target.value) || 65 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -199,7 +199,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.lifeExpectancy}
                   onChange={(e) => onProfileChange({ ...profile, lifeExpectancy: parseInt(e.target.value) || 90 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
               <div>
@@ -208,7 +208,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.desiredRetirementIncome}
                   onChange={(e) => onProfileChange({ ...profile, desiredRetirementIncome: parseFloat(e.target.value) || 0 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -220,7 +220,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.socialSecurityEstimate}
                   onChange={(e) => onProfileChange({ ...profile, socialSecurityEstimate: parseFloat(e.target.value) || 0 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
               <div>
@@ -229,7 +229,7 @@ export function RetirementPlanningSection({
                   type="number"
                   value={profile.pensionIncome}
                   onChange={(e) => onProfileChange({ ...profile, pensionIncome: parseFloat(e.target.value) || 0 })}
-                  className="mt-1"
+                  className="mt-1 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -240,9 +240,9 @@ export function RetirementPlanningSection({
                 type="number"
                 value={profile.currentRetirementSavings}
                 onChange={(e) => onProfileChange({ ...profile, currentRetirementSavings: parseFloat(e.target.value) || 0 })}
-                className="mt-1"
+                className="mt-1 bg-white text-slate-900"
               />
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-600 mt-1">
                 Required at retirement (4% rule): {formatCurrency(retirementAnalysis.requiredPortfolio)}
               </p>
             </div>

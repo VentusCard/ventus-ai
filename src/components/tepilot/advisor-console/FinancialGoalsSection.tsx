@@ -145,7 +145,7 @@ export function FinancialGoalsSection({
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-700">
               Target: {targetYear} ({yearsRemaining > 0 ? `${yearsRemaining} years` : "This year"})
             </p>
           </div>
@@ -182,7 +182,7 @@ export function FinancialGoalsSection({
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-slate-500">
+          <div className="flex justify-between text-xs text-slate-600">
             <span>{progress.toFixed(0)}% funded</span>
             <span>
               {goal.monthlyContribution > 0 && (
@@ -223,6 +223,7 @@ export function FinancialGoalsSection({
                       value={newGoal.name}
                       onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
                       placeholder="e.g., Retirement, College Fund"
+                      className="bg-white text-slate-900"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -266,6 +267,7 @@ export function FinancialGoalsSection({
                         type="number"
                         value={newGoal.targetAmount}
                         onChange={(e) => setNewGoal({ ...newGoal, targetAmount: parseFloat(e.target.value) || 0 })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                     <div>
@@ -274,6 +276,7 @@ export function FinancialGoalsSection({
                         type="number"
                         value={newGoal.currentAmount}
                         onChange={(e) => setNewGoal({ ...newGoal, currentAmount: parseFloat(e.target.value) || 0 })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                   </div>
@@ -284,6 +287,7 @@ export function FinancialGoalsSection({
                         type="date"
                         value={newGoal.targetDate}
                         onChange={(e) => setNewGoal({ ...newGoal, targetDate: e.target.value })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                     <div>
@@ -292,6 +296,7 @@ export function FinancialGoalsSection({
                         type="number"
                         value={newGoal.monthlyContribution}
                         onChange={(e) => setNewGoal({ ...newGoal, monthlyContribution: parseFloat(e.target.value) || 0 })}
+                        className="bg-white text-slate-900"
                       />
                     </div>
                   </div>
@@ -306,7 +311,7 @@ export function FinancialGoalsSection({
       </CardHeader>
       <CardContent>
         {goals.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
+          <div className="text-center py-8 text-slate-600">
             <Target className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No financial goals defined yet</p>
             <p className="text-sm">Add long-term goals like retirement, legacy planning, or education</p>

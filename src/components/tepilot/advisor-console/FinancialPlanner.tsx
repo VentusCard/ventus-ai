@@ -37,6 +37,8 @@ import { TaxAdvantagedAccountsSection } from "./TaxAdvantagedAccountsSection";
 import { RMDCalculator } from "./RMDCalculator";
 import { MonteCarloSimulator } from "./MonteCarloSimulator";
 import { formatCurrency } from "@/lib/formatHelper";
+import { getSegmentColorClasses } from "@/lib/segmentColors";
+import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -370,14 +372,8 @@ export function FinancialPlanner({
   return (
     <div id="financial-plan-content" className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/tepilot/advisor-console")}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Console
-          </Button>
-        </div>
-        <h1 className="text-2xl font-bold">Long-Term Financial Planning</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold text-slate-900">Long-Term Financial Planning</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleExportPDF}>
             <FileDown className="w-4 h-4 mr-2" />
@@ -399,30 +395,30 @@ export function FinancialPlanner({
               <CardTitle className="text-lg">Client Overview</CardTitle>
             </div>
             {clientProfile && (
-              <Badge variant="secondary">{clientProfile.segment}</Badge>
+              <Badge className={cn(getSegmentColorClasses(clientProfile.segment))}>{clientProfile.segment}</Badge>
             )}
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Client Name</p>
+              <p className="text-sm text-slate-700">Client Name</p>
               <p className="font-semibold">{clientProfile?.name || "—"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Age</p>
+              <p className="text-sm text-slate-700">Age</p>
               <p className="font-semibold">{retirementProfile.currentAge}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Current Net Worth</p>
+              <p className="text-sm text-slate-700">Current Net Worth</p>
               <p className="font-semibold text-primary">{formatCurrency(currentNetWorth)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Years to Retirement</p>
+              <p className="text-sm text-slate-700">Years to Retirement</p>
               <p className="font-semibold">{retirementProfile.retirementAge - retirementProfile.currentAge}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Risk Profile</p>
+              <p className="text-sm text-slate-700">Risk Profile</p>
               <p className="font-semibold">{clientProfile?.compliance?.riskProfile || "Moderate"}</p>
             </div>
           </div>
@@ -548,7 +544,7 @@ export function FinancialPlanner({
         </CardHeader>
         <CardContent>
           {actionItems.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-slate-600">
               <CalendarClock className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>Click "Generate Timeline" to create decade-based action items</p>
               <p className="text-sm">Based on your retirement profile and long-term goals</p>
@@ -597,8 +593,8 @@ export function FinancialPlanner({
                     Savings Rate: {savingsRate.toFixed(0)}%
                   </Badge>
                 </div>
-                <span className="text-sm text-muted-foreground group-open:hidden">Click to expand</span>
-                <span className="text-sm text-muted-foreground hidden group-open:inline">Click to collapse</span>
+                <span className="text-sm text-slate-600 group-open:hidden">Click to expand</span>
+                <span className="text-sm text-slate-600 hidden group-open:inline">Click to collapse</span>
               </div>
             </CardHeader>
           </Card>
