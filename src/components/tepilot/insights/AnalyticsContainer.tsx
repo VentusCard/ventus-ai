@@ -3,9 +3,13 @@ import { BankwideView } from "./BankwideView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { BarChart3, Target } from "lucide-react";
 
-export function AnalyticsContainer() {
+interface AnalyticsContainerProps {
+  defaultTab?: 'dashboard' | 'targeting';
+}
+
+export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
   return (
-    <Tabs defaultValue="dashboard" className="w-full">
+    <Tabs defaultValue={defaultTab} className="w-full">
       <TabsList className="mb-6 bg-slate-100 p-1">
         <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-white">
           <BarChart3 className="w-4 h-4" />
