@@ -19,6 +19,7 @@ const SUB_BATCH_SIZE = 8;
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
@@ -49,7 +50,7 @@ function getDelayMs(attempt: number): number {
 async function runWithConcurrency<T, R>(
   items: T[],
   limit: number,
-  worker: (item: T, index: number) => Promise<R>
+  worker: (item: T, index: number) => Promise<R>,
 ): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let currentIndex = 0;
@@ -304,7 +305,7 @@ async function callClassificationAPI(
   batch: any[],
   model: string,
   batchNum: number,
-  attempt: number
+  attempt: number,
 ): Promise<{ classifications: any[]; rawResponse?: string }> {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -355,19 +356,21 @@ async function classifyBatch(
   batch: any[],
   batchIndex: number,
   totalBatches: number,
-  sendEvent: (event: string, data: any) => void
+  sendEvent: (event: string, data: any) => void,
 ): Promise<any[]> {
   const batchNum = batchIndex + 1;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const startTime = Date.now();
-    
+
     // Use fallback model on final attempt
     const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : FAST_MODEL;
 
     if (attempt > 0) {
       const delay = getDelayMs(attempt - 1);
-      console.log(`[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`);
+      console.log(
+        `[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`,
+      );
       await new Promise((r) => setTimeout(r, delay));
     }
 
@@ -385,7 +388,9 @@ async function classifyBatch(
       }
 
       const elapsed = Date.now() - startTime;
-      console.log(`[BATCH ${batchNum}] ✓ ${classifications.length}/${batch.length} in ${elapsed}ms (model: ${model}, retries: ${attempt})`);
+      console.log(
+        `[BATCH ${batchNum}] ✓ ${classifications.length}/${batch.length} in ${elapsed}ms (model: ${model}, retries: ${attempt})`,
+      );
 
       sendEvent("batch_complete", {
         batchIndex,
@@ -412,13 +417,13 @@ async function classifyWithSubBatchFallback(
   batch: any[],
   batchIndex: number,
   totalBatches: number,
-  sendEvent: (event: string, data: any) => void
+  sendEvent: (event: string, data: any) => void,
 ): Promise<any[]> {
   const batchNum = batchIndex + 1;
 
   // First try normal classification
   const results = await classifyBatch(batch, batchIndex, totalBatches, sendEvent);
-  
+
   if (results.length > 0) {
     return results;
   }
@@ -426,19 +431,19 @@ async function classifyWithSubBatchFallback(
   // If failed and batch is large enough, split into sub-batches
   if (batch.length > SUB_BATCH_SIZE) {
     console.log(`[BATCH ${batchNum}] Splitting into sub-batches of ${SUB_BATCH_SIZE}`);
-    
+
     const subBatches: any[][] = [];
     for (let i = 0; i < batch.length; i += SUB_BATCH_SIZE) {
       subBatches.push(batch.slice(i, i + SUB_BATCH_SIZE));
     }
 
     const allSubResults: any[] = [];
-    
+
     // Process sub-batches sequentially for maximum reliability
     for (let subIdx = 0; subIdx < subBatches.length; subIdx++) {
       const subBatch = subBatches[subIdx];
       const subBatchNum = `${batchNum}.${subIdx + 1}`;
-      
+
       sendEvent("status", {
         message: `Classifying sub-batch ${subBatchNum} (${subBatch.length} items)...`,
         progress: Math.round((batchIndex / totalBatches) * 100),
@@ -455,7 +460,7 @@ async function classifyWithSubBatchFallback(
             subBatch,
             FALLBACK_MODEL,
             parseInt(subBatchNum),
-            attempt
+            attempt,
           );
 
           if (classifications.length > 0) {
@@ -563,13 +568,13 @@ Deno.serve(async (req) => {
             batches.push(transactionSummary.slice(i, i + BATCH_SIZE));
           }
 
-          console.log(`[CLASSIFY] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`);
+          console.log(
+            `[CLASSIFY] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`,
+          );
 
           // Process batches with limited concurrency
-          const batchResults = await runWithConcurrency(
-            batches,
-            CONCURRENCY_LIMIT,
-            (batch, idx) => classifyWithSubBatchFallback(batch, idx, batches.length, sendEvent)
+          const batchResults = await runWithConcurrency(batches, CONCURRENCY_LIMIT, (batch, idx) =>
+            classifyWithSubBatchFallback(batch, idx, batches.length, sendEvent),
           );
 
           const allClassifications = batchResults.flat();
@@ -578,7 +583,7 @@ Deno.serve(async (req) => {
           const successRate = Math.round((allClassifications.length / transactionSummary.length) * 100);
 
           console.log(
-            `[CLASSIFY] ✓ Completed: ${allClassifications.length}/${transactionSummary.length} (${successRate}%) in ${totalTime}ms`
+            `[CLASSIFY] ✓ Completed: ${allClassifications.length}/${transactionSummary.length} (${successRate}%) in ${totalTime}ms`,
           );
 
           // Merge results with original transactions
