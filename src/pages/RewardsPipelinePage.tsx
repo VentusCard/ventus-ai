@@ -5,7 +5,7 @@ import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/Availa
 
 export default function RewardsPipelinePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="tepilot-theme min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-[1600px]">
         {/* Back Button */}
         <div className="mb-6">

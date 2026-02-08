@@ -115,7 +115,7 @@ export function ActionWorkspacePanel({
                       <li 
                         key={idx} 
                         className={`text-xs ${
-                          !isAssessed ? 'text-slate-400 italic' : 'text-slate-700'
+                          !isAssessed ? 'text-slate-400 italic' : 'text-slate-900'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-0.5">
@@ -177,7 +177,7 @@ export function ActionWorkspacePanel({
           </div>
 
           {/* Content Area - Scrollable */}
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 mb-3">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 mb-3 advisor-console-panel">
             {/* Empty State - only for action items */}
             {nextStepsData.actionItems.length === 0 && !isAddingItem && <Card className="border-dashed p-6 text-center">
                 <MessageSquare className="w-10 h-10 mx-auto text-slate-400 mb-3" />
@@ -240,7 +240,7 @@ export function ActionWorkspacePanel({
                           onCheckedChange={() => onToggleActionItem(item.id)}
                           className="mt-0.5"
                         />
-                        <span className="text-xs text-slate-700 flex-1">{item.text}</span>
+                        <span className="text-xs text-slate-900 flex-1">{item.text}</span>
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                           {item.source}
                         </Badge>
@@ -283,7 +283,7 @@ export function ActionWorkspacePanel({
           </div>
 
           {/* Action Buttons */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-shrink-0">
             {savedProjection && <Button size="sm" variant="default" className="w-full text-xs" onClick={onExportTimelinePDF}>
                 <FileDown className="w-3 h-3 mr-1" />
                 Export {savedProjection.projectName} PDF

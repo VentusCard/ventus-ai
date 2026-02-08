@@ -311,17 +311,17 @@ export function NetWorthProjectionChart({
         
         <div className="flex gap-6">
           <div className="text-center">
-            <p className="text-slate-500 text-xs">Starting</p>
+            <p className="text-slate-600 text-xs">Starting</p>
             <p className="font-semibold">{formatCurrency(projectionData[0]?.expected || 0)}</p>
           </div>
           <div className="text-center">
-            <p className="text-slate-500 text-xs">At Retirement</p>
+            <p className="text-slate-600 text-xs">At Retirement</p>
             <p className="font-semibold text-primary">
               {formatCurrency(projectionData.find(d => d.age === retirementAge)?.expected || projectionData[projectionData.length - 1]?.expected || 0)}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-slate-500 text-xs">End of Projection</p>
+            <p className="text-slate-600 text-xs">End of Projection</p>
             <p className="font-semibold">
               {formatCurrency(projectionData[projectionData.length - 1]?.expected || 0)}
             </p>

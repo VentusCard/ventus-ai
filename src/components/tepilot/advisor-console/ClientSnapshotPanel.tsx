@@ -5,10 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw } from "lucide-react";
 import { AdvisorContext } from "@/lib/advisorContextBuilder";
+import { cn } from "@/lib/utils";
 import { AIInsights, LifeEvent } from "@/types/lifestyle-signals";
 import { formatCurrency } from "@/lib/formatHelper";
 import { ClientProfileData } from "@/types/clientProfile";
+import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { LifeEventDetailsDialog } from "./LifeEventDetailsDialog";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
+
 interface ClientSnapshotPanelProps {
   onAskVentus?: (context: string) => void;
   onPlanEvent?: (event: LifeEvent) => void;
@@ -17,6 +21,7 @@ interface ClientSnapshotPanelProps {
   isLoadingInsights?: boolean;
   clientData?: ClientProfileData | null;
   onGenerateProfile?: () => void;
+  dashboardEvents?: DetectedLifeEvent[] | null;
 }
 
 const pillarIconMap: Record<string, any> = {
@@ -74,7 +79,8 @@ export function ClientSnapshotPanel({
   aiInsights,
   isLoadingInsights = false,
   clientData,
-  onGenerateProfile
+  onGenerateProfile,
+  dashboardEvents
 }: ClientSnapshotPanelProps) {
   const [selectedEvent, setSelectedEvent] = useState<LifeEvent | null>(null);
   // Use clientData if provided, otherwise use placeholder
@@ -88,15 +94,27 @@ export function ClientSnapshotPanel({
     icon: pillarIconMap[pillar.pillar] || Activity
   })) || [];
 
-  // Get life events from AI insights
-  const lifeEvents = aiInsights?.detected_events || [];
+  // Prioritize dashboard events if available, otherwise use AI insights
+  const lifeEvents: LifeEvent[] = dashboardEvents?.length 
+    ? dashboardEvents.map(e => ({
+        event_name: e.eventName,
+        confidence: e.confidence,
+        evidence: e.keyEvidence.map(k => ({ 
+          merchant: "", 
+          amount: 0, 
+          date: "", 
+          relevance: k 
+        })),
+        talking_points: []
+      }))
+    : (aiInsights?.detected_events || []);
 
   // Calculate overview stats
   const hasRealData = advisorContext && advisorContext.overview.totalTransactions > 0;
 
   return (
     <div className="h-full flex flex-col bg-slate-50">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 advisor-console-panel">
         {/* Client Header Card - Always Visible */}
         <Card className="bg-white">
           <div className="p-4">
@@ -116,7 +134,7 @@ export function ClientSnapshotPanel({
                     New Client
                   </Button>
                 </div>
-                <Badge variant="outline" className="mt-1">
+                <Badge className={cn('mt-1', getSegmentColorClasses(displayData.segment))}>
                   {displayData.segment}
                 </Badge>
               </div>
@@ -124,31 +142,31 @@ export function ClientSnapshotPanel({
             
             <div className="grid grid-cols-2 gap-3 text-xs mb-3">
               <div>
-                <div className="text-slate-500">AUM</div>
-                <div className="font-semibold text-slate-700">
+                <div className="text-slate-600">AUM</div>
+                <div className="font-semibold text-slate-900">
                   {displayData.aum}
                 </div>
               </div>
               <div>
-                <div className="text-slate-500">Tenure</div>
-                <div className="font-semibold text-slate-700">
+                <div className="text-slate-600">Tenure</div>
+                <div className="font-semibold text-slate-900">
                   {displayData.tenure}
                 </div>
               </div>
             </div>
 
             <div className="text-xs space-y-1 pt-3 border-t">
-              <div className="text-slate-500">Contact</div>
-              <div className="text-slate-700">{displayData.contact.email}</div>
-              <div className="text-slate-700">{displayData.contact.phone}</div>
-              <div className="text-slate-700">{displayData.contact.address}</div>
+              <div className="text-slate-600">Contact</div>
+              <div className="text-slate-900">{displayData.contact.email}</div>
+              <div className="text-slate-900">{displayData.contact.phone}</div>
+              <div className="text-slate-900">{displayData.contact.address}</div>
             </div>
 
             <div className="text-xs space-y-1 pt-3 border-t mt-3">
-              <div className="text-slate-500">Demographics</div>
-              <div className="text-slate-700">Age: {displayData.demographics.age}</div>
-              <div className="text-slate-700">{displayData.demographics.occupation}</div>
-              <div className="text-slate-700">{displayData.demographics.familyStatus}</div>
+              <div className="text-slate-600">Demographics</div>
+              <div className="text-slate-900">Age: {displayData.demographics.age}</div>
+              <div className="text-slate-900">{displayData.demographics.occupation}</div>
+              <div className="text-slate-900">{displayData.demographics.familyStatus}</div>
             </div>
           </div>
         </Card>
@@ -160,8 +178,8 @@ export function ClientSnapshotPanel({
             <AccordionItem value="overview" className="bg-white rounded-lg border">
               <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold">Transaction Overview</span>
+                  <TrendingUp className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-semibold text-blue-900">Transaction Overview</span>
                   <Badge variant="secondary" className="ml-auto text-xs">{advisorContext.overview.totalTransactions} txns</Badge>
                 </div>
               </AccordionTrigger>
@@ -169,15 +187,15 @@ export function ClientSnapshotPanel({
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center justify-between py-2 border-b">
                     <span className="text-slate-600">Total Spend</span>
-                    <span className="font-semibold text-slate-700">{formatCurrency(advisorContext.overview.totalSpend)}</span>
+                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.totalSpend)}</span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b">
                     <span className="text-slate-600">Avg. Transaction</span>
-                    <span className="font-semibold text-slate-700">{formatCurrency(advisorContext.overview.avgTransactionAmount)}</span>
+                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.avgTransactionAmount)}</span>
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <span className="text-slate-600">Date Range</span>
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {advisorContext.overview.dateRange.start} - {advisorContext.overview.dateRange.end}
                     </span>
                   </div>
@@ -190,8 +208,8 @@ export function ClientSnapshotPanel({
           <AccordionItem value="events" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <Sparkles className={`w-4 h-4 text-primary ${isLoadingInsights ? 'animate-pulse' : ''}`} />
-                <span className="text-sm font-semibold">Detected Life Events</span>
+                <Sparkles className={`w-4 h-4 text-blue-600 ${isLoadingInsights ? 'animate-pulse' : ''}`} />
+                <span className="text-sm font-semibold text-blue-900">Detected Life Events</span>
                 {isLoadingInsights ? (
                   <Badge variant="secondary" className="ml-auto text-xs animate-pulse bg-primary/10 text-primary">
                     Analyzing...
@@ -227,9 +245,15 @@ export function ClientSnapshotPanel({
                     style={{ animationDelay: `${idx * 100}ms` }}
                     onClick={() => setSelectedEvent(event)}
                   >
-                    <div className="font-semibold text-slate-700 flex items-center gap-2">
+                    <div className="font-semibold text-slate-900 flex items-center gap-2">
                       {event.event_name}
-                      <Badge variant="outline" className="text-xs">{event.confidence}%</Badge>
+                      <Badge variant="outline" className={`text-xs ${
+                        event.confidence >= 80 
+                          ? 'bg-green-100 text-green-700 border-green-200' 
+                          : event.confidence >= 60 
+                            ? 'bg-yellow-100 text-yellow-700 border-yellow-200' 
+                            : 'bg-orange-100 text-orange-700 border-orange-200'
+                      }`}>{event.confidence}%</Badge>
                     </div>
                     <div className="text-slate-500 mt-1">{event.evidence.length} supporting transactions</div>
                   </div>
@@ -261,8 +285,8 @@ export function ClientSnapshotPanel({
           <AccordionItem value="holdings" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <Landmark className="w-4 h-4" />
-                <span className="text-sm font-semibold">Holdings Overview</span>
+                <Landmark className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">Holdings Overview</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-3">
@@ -273,7 +297,7 @@ export function ClientSnapshotPanel({
                     Deposits
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.deposit}
                     </span>
                     {displayData.holdingsChange?.deposit && (
@@ -296,7 +320,7 @@ export function ClientSnapshotPanel({
                     Credit
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.credit}
                     </span>
                     {displayData.holdingsChange?.credit && (
@@ -319,7 +343,7 @@ export function ClientSnapshotPanel({
                     Mortgage
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.mortgage}
                     </span>
                     {displayData.holdingsChange?.mortgage && (
@@ -338,7 +362,7 @@ export function ClientSnapshotPanel({
                     Investments
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-900">
                       {displayData.holdings.investments}
                     </span>
                     {displayData.holdingsChange?.investments && (
@@ -363,8 +387,8 @@ export function ClientSnapshotPanel({
           <AccordionItem value="lifestyle" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                <span className="text-sm font-semibold">Top Spending Categories</span>
+                <Activity className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">Top Spending Categories</span>
                 {lifestyleSignals.length > 0 && (
                   <Badge variant="secondary" className="ml-auto text-xs">{lifestyleSignals.length}</Badge>
                 )}
@@ -401,8 +425,8 @@ export function ClientSnapshotPanel({
           <AccordionItem value="compliance" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                <span className="text-sm font-semibold">Compliance & Risk</span>
+                <AlertCircle className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">Compliance & Risk</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-3">
@@ -431,8 +455,8 @@ export function ClientSnapshotPanel({
           <AccordionItem value="milestones" className="bg-white rounded-lg border">
             <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-sm font-semibold">Relationship Milestones</span>
+                <TrendingUp className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">Relationship Milestones</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-3">

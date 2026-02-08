@@ -319,3 +319,212 @@ export function generateRandomProfile(): ClientProfileData {
     milestones: generateMilestones(tenure, segment),
   };
 }
+
+// ============ Dashboard Client Generation ============
+
+import { DashboardClient, DetectedLifeEvent } from "@/types/dashboardClient";
+
+const lifeEventTemplates: Record<DetectedLifeEvent['eventType'], {
+  names: string[];
+  evidenceOptions: string[][];
+  timingOptions: string[];
+}> = {
+  retirement: {
+    names: ['Early Retirement Planning', 'RMD Planning', 'Pension Rollover', 'Social Security Optimization'],
+    evidenceOptions: [
+      ['RMD due in 8 months', '401k balance review requested'],
+      ['Pension inquiry detected', 'SSA office visit scheduled'],
+      ['Early withdrawal discussions', 'Healthcare cost planning'],
+      ['Retirement community research', 'Downsizing conversations'],
+    ],
+    timingOptions: ['Q2 2026', '6-12 months', 'Q3 2026', '1-2 years'],
+  },
+  education: {
+    names: ['College Funding', '529 Plan Setup', 'Private School Planning', 'Graduate School Funding'],
+    evidenceOptions: [
+      ['College tour bookings detected', 'SAT prep purchases'],
+      ['529 contribution increase', 'Financial aid research'],
+      ['Private school applications', 'Tuition payment patterns'],
+      ['Graduate program inquiries', 'Student loan research'],
+    ],
+    timingOptions: ['Fall 2026', '12-18 months', 'Q3 2026', '2-3 years'],
+  },
+  home_purchase: {
+    names: ['First Home Purchase', 'Home Upgrade', 'Investment Property', 'Vacation Home'],
+    evidenceOptions: [
+      ['Mortgage pre-approval inquiry', 'Real estate agent meetings'],
+      ['Home inspection bookings', 'Property listing saves'],
+      ['Down payment accumulation', 'Home insurance quotes'],
+      ['Realtor consultations', 'Moving company research'],
+    ],
+    timingOptions: ['Q1 2026', '3-6 months', 'Q2 2026', '6-9 months'],
+  },
+  wealth_transfer: {
+    names: ['Estate Planning', 'Trust Setup', 'Gift Strategy', 'Inheritance Planning'],
+    evidenceOptions: [
+      ['Estate attorney visits', 'Trust document reviews'],
+      ['Large gift transfers', 'Family financial discussions'],
+      ['Will update inquiries', 'Beneficiary changes'],
+      ['Generation-skipping trust interest', 'Charitable giving increase'],
+    ],
+    timingOptions: ['Q2 2026', '6-12 months', 'Ongoing', '1-2 years'],
+  },
+  business_liquidity: {
+    names: ['Business Sale', 'Exit Strategy', 'IPO Preparation', 'Merger Consideration'],
+    evidenceOptions: [
+      ['M&A advisory meetings', 'Business valuation requests'],
+      ['Investment banker consultations', 'Due diligence preparation'],
+      ['Equity restructuring', 'Succession planning'],
+      ['Private equity interest', 'Strategic buyer outreach'],
+    ],
+    timingOptions: ['Q3 2026', '12-18 months', 'Q4 2026', '1-2 years'],
+  },
+  family_formation: {
+    names: ['New Baby Planning', 'Adoption Process', 'Family Expansion', 'Childcare Setup'],
+    evidenceOptions: [
+      ['Childcare expense research', 'Life insurance inquiry'],
+      ['Baby product purchases', 'Hospital pre-registration'],
+      ['Adoption agency payments', 'Home study preparation'],
+      ['Fertility treatment costs', 'Parental leave planning'],
+    ],
+    timingOptions: ['Q1 2026', '3-6 months', 'Q2 2026', '6-9 months'],
+  },
+  elder_care: {
+    names: ['Parent Care Planning', 'Long-term Care', 'Healthcare Transition', 'Assisted Living'],
+    evidenceOptions: [
+      ['Long-term care insurance research', 'Healthcare facility visits'],
+      ['Medical expense increase', 'Family care discussions'],
+      ['In-home care setup', 'Medicare supplement research'],
+      ['Power of attorney setup', 'Healthcare proxy filing'],
+    ],
+    timingOptions: ['Q1 2026', '1-3 months', 'Immediate', '3-6 months'],
+  },
+};
+
+// Persona to likely life events mapping
+const personaEventProbabilities: Record<Persona, { type: DetectedLifeEvent['eventType']; weight: number }[]> = {
+  youngProfessional: [
+    { type: 'home_purchase', weight: 0.4 },
+    { type: 'family_formation', weight: 0.3 },
+    { type: 'education', weight: 0.15 },
+  ],
+  growingFamily: [
+    { type: 'education', weight: 0.4 },
+    { type: 'home_purchase', weight: 0.25 },
+    { type: 'family_formation', weight: 0.2 },
+    { type: 'elder_care', weight: 0.1 },
+  ],
+  establishedProfessional: [
+    { type: 'education', weight: 0.3 },
+    { type: 'wealth_transfer', weight: 0.25 },
+    { type: 'business_liquidity', weight: 0.2 },
+    { type: 'retirement', weight: 0.15 },
+    { type: 'elder_care', weight: 0.1 },
+  ],
+  preRetiree: [
+    { type: 'retirement', weight: 0.5 },
+    { type: 'wealth_transfer', weight: 0.25 },
+    { type: 'elder_care', weight: 0.2 },
+    { type: 'home_purchase', weight: 0.05 },
+  ],
+};
+
+function generateDetectedEvents(persona: Persona): DetectedLifeEvent[] {
+  const events: DetectedLifeEvent[] = [];
+  const probabilities = personaEventProbabilities[persona];
+  
+  // 40% of clients have events, some have multiple
+  if (Math.random() > 0.4) return events;
+  
+  // Determine number of events (1-2, weighted toward 1)
+  const numEvents = Math.random() > 0.7 ? 2 : 1;
+  const usedTypes = new Set<DetectedLifeEvent['eventType']>();
+  
+  for (let i = 0; i < numEvents; i++) {
+    // Weighted random selection
+    const totalWeight = probabilities.reduce((sum, p) => sum + p.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (const prob of probabilities) {
+      random -= prob.weight;
+      if (random <= 0 && !usedTypes.has(prob.type)) {
+        usedTypes.add(prob.type);
+        
+        const template = lifeEventTemplates[prob.type];
+        const evidenceIdx = randomInRange(0, template.evidenceOptions.length - 1);
+        
+        events.push({
+          eventType: prob.type,
+          eventName: randomFromArray(template.names),
+          confidence: randomInRange(65, 95),
+          estimatedTiming: randomFromArray(template.timingOptions),
+          keyEvidence: template.evidenceOptions[evidenceIdx],
+          urgencyScore: randomInRange(1, 5),
+        });
+        break;
+      }
+    }
+  }
+  
+  return events;
+}
+
+function getEngagementStatus(lastContactDate: Date): DashboardClient['engagementStatus'] {
+  const daysSinceContact = Math.floor((Date.now() - lastContactDate.getTime()) / (1000 * 60 * 60 * 24));
+  if (daysSinceContact <= 14) return 'active';
+  if (daysSinceContact <= 30) return 'due';
+  return 'overdue';
+}
+
+export function generateDashboardClients(count: number = 60): DashboardClient[] {
+  const clients: DashboardClient[] = [];
+  const usedNames = new Set<string>();
+  
+  for (let i = 0; i < count; i++) {
+    let profile: ClientProfileData;
+    
+    // Ensure unique names
+    do {
+      profile = generateRandomProfile();
+    } while (usedNames.has(profile.name));
+    usedNames.add(profile.name);
+    
+    // Determine persona based on age for event generation
+    const age = parseInt(profile.demographics.age);
+    let persona: Persona;
+    if (age < 35) persona = 'youngProfessional';
+    else if (age < 45) persona = 'growingFamily';
+    else if (age < 55) persona = 'establishedProfessional';
+    else persona = 'preRetiree';
+    
+    // Generate last contact date (0-60 days ago)
+    const lastContactDate = new Date();
+    lastContactDate.setDate(lastContactDate.getDate() - randomInRange(0, 60));
+    
+    // Maybe generate next meeting
+    let nextScheduledMeeting: Date | undefined;
+    if (Math.random() > 0.6) {
+      nextScheduledMeeting = new Date();
+      nextScheduledMeeting.setDate(nextScheduledMeeting.getDate() + randomInRange(1, 30));
+    }
+    
+    clients.push({
+      id: `client-${i}-${Date.now()}`,
+      profile,
+      detectedEvents: generateDetectedEvents(persona),
+      lastContactDate,
+      nextScheduledMeeting,
+      engagementStatus: getEngagementStatus(lastContactDate),
+    });
+  }
+  
+  // Sort by number of events (most first), then by urgency
+  return clients.sort((a, b) => {
+    if (b.detectedEvents.length !== a.detectedEvents.length) {
+      return b.detectedEvents.length - a.detectedEvents.length;
+    }
+    const maxUrgencyA = Math.max(...a.detectedEvents.map(e => e.urgencyScore), 0);
+    const maxUrgencyB = Math.max(...b.detectedEvents.map(e => e.urgencyScore), 0);
+    return maxUrgencyB - maxUrgencyA;
+  });
+}

@@ -51,7 +51,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             </div>
           )}
           {transactions.length === 0 && currentPhase === "classification" && (
-            <div className="text-center py-12 text-slate-500">
+            <div className="text-center py-12 text-slate-600">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
               <p>Waiting for first batch of results...</p>
               <p className="text-sm mt-2">This should take ~3 seconds</p>
@@ -63,16 +63,16 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
               <Table>
                 <TableHeader className="sticky top-0 bg-white">
                   <TableRow>
-                    <TableHead>Merchant</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="text-slate-700">Merchant</TableHead>
+                    <TableHead className="text-slate-700">Amount</TableHead>
+                    <TableHead className="text-slate-700">Date</TableHead>
                     <TableHead>
                       <ArrowRight className="w-4 h-4 mx-auto" />
                     </TableHead>
-                    <TableHead>Pillar</TableHead>
-                    <TableHead>Subcategory</TableHead>
-                    <TableHead>Confidence</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-slate-700">Pillar</TableHead>
+                    <TableHead className="text-slate-700">Subcategory</TableHead>
+                    <TableHead className="text-slate-700">Confidence</TableHead>
+                    <TableHead className="text-right text-slate-700">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -80,16 +80,16 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     <TableRow key={transaction.transaction_id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{transaction.normalized_merchant}</div>
+                          <div className="font-medium text-slate-900">{transaction.normalized_merchant}</div>
                           {transaction.merchant_name !== transaction.normalized_merchant && (
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-slate-600">
                               {transaction.merchant_name}
                             </div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono">${transaction.amount.toFixed(2)}</TableCell>
-                      <TableCell className="text-sm">{transaction.date}</TableCell>
+                      <TableCell className="font-mono text-slate-900">${transaction.amount.toFixed(2)}</TableCell>
+                      <TableCell className="text-sm text-slate-700">{transaction.date}</TableCell>
                       <TableCell>
                         <ArrowRight className="w-4 h-4 text-primary mx-auto" />
                       </TableCell>
@@ -111,7 +111,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                       <Plane className="w-3 h-3" />
                                       Travel
                                     </Badge>
-                                    <span className="text-slate-500">:</span>
+                                    <span className="text-slate-600">:</span>
                                     <Badge
                                       className="border"
                                       style={{
@@ -137,7 +137,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                       <p>🗓️ Period: {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
                                     )}
                                     {transaction.travel_context.reclassification_reason && (
-                                      <p className="text-slate-500 italic pt-1 border-t border-slate-200 mt-1">
+                                      <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
                                         {transaction.travel_context.reclassification_reason}
                                       </p>
                                     )}
@@ -158,14 +158,14 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             </Badge>
                           )}
                           {!transaction.travel_context && currentPhase === "travel" && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 font-medium">
                               <Loader2 className="h-3 w-3 animate-spin mr-1" />
                               Analyzing...
                             </Badge>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">{transaction.subcategory}</TableCell>
+                      <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
@@ -181,14 +181,14 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             size="sm"
                             onClick={() => setSelectedTransaction(transaction)}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-4 h-4 text-slate-700" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setCorrectionTransaction(transaction)}
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4 text-slate-700" />
                           </Button>
                         </div>
                       </TableCell>

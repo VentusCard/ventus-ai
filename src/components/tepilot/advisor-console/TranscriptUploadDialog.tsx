@@ -106,7 +106,7 @@ Please provide structured analysis with opportunities, psychological insights, a
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
@@ -141,17 +141,18 @@ Please provide structured analysis with opportunities, psychological insights, a
         <div className="space-y-4">
           {/* Meeting Info */}
           <div>
-            <Label>Meeting Date (Optional)</Label>
+            <Label className="text-slate-700">Meeting Date (Optional)</Label>
             <Input
               type="date"
               value={meetingDate}
               onChange={(e) => setMeetingDate(e.target.value)}
+              className="bg-white border-slate-300 text-slate-900"
             />
           </div>
           
           {/* Transcript Input */}
           <div>
-            <Label>Transcript Text</Label>
+            <Label className="text-slate-700">Transcript Text</Label>
             <Textarea
               value={transcriptText}
               onChange={(e) => setTranscriptText(e.target.value)}
@@ -161,7 +162,7 @@ Example:
 Advisor: How have you been feeling about your retirement plans?
 Client: I'm a bit anxious about whether I've saved enough..."
               rows={12}
-              className="font-mono text-sm"
+              className="font-mono text-sm bg-white border-slate-300 text-slate-900"
             />
             <p className="text-xs text-slate-500 mt-1">
               {transcriptText.split(/\s+/).length} words
