@@ -28,6 +28,7 @@ import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
 import { TravelTimeline } from "@/components/tepilot/insights/TravelTimeline";
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
+import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
 
 import { RelationshipManagementCard } from "@/components/tepilot/RelationshipManagementCard";
@@ -994,7 +995,7 @@ const TePilot = () => {
                     Back to Insight Tools Selection
                   </Button>
                 </div>
-                <BankwideView />
+                <AnalyticsContainer />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6">
