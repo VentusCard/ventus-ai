@@ -8,6 +8,7 @@ import { LifeEventTargeting } from "./LifeEventTargeting";
 import { LifestyleTargeting } from "./LifestyleTargeting";
 import { ProductTargeting } from "./ProductTargeting";
 import { AudiencePreview } from "./AudiencePreview";
+import { SegmentExportControls } from "./SegmentExportControls";
 import { estimateAudienceSize } from "@/lib/campaignData";
 import type { 
   AudienceSegment, 
@@ -163,7 +164,14 @@ export function SegmentBuilder({ onCreateCampaign }: SegmentBuilderProps) {
               productCriteria={targetingMode === "product" ? productCriteria : undefined}
             />
             
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-end gap-3">
+              <SegmentExportControls
+                targetingMode={targetingMode}
+                estimatedSize={estimatedSize}
+                lifeEventCriteria={targetingMode === "life_event" ? lifeEventCriteria : undefined}
+                lifestyleCriteria={targetingMode === "lifestyle" ? lifestyleCriteria : undefined}
+                productCriteria={targetingMode === "product" ? productCriteria : undefined}
+              />
               <Button onClick={handleCreateCampaign}>
                 Create Campaign with This Segment
               </Button>
