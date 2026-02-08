@@ -15,12 +15,12 @@ import {
   type ExportSize 
 } from "@/lib/segmentExportUtils";
 import type { 
-  AudienceSegment, 
+  SavedSegment, 
   TargetingMode,
   LifeEventCriteria,
   LifestyleCriteria,
   ProductCriteria
-} from "@/types/campaign";
+} from "@/types/segment";
 
 interface SegmentExportControlsProps {
   targetingMode: TargetingMode;
@@ -79,7 +79,7 @@ export function SegmentExportControls({
   const handleExport = () => {
     setIsExporting(true);
     
-    const segment: Partial<AudienceSegment> = {
+    const segment: Partial<SavedSegment> = {
       targetingMode,
       estimatedSize,
       lifeEventCriteria,

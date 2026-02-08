@@ -4,9 +4,8 @@ import type {
   LifeEventCriteria, 
   LifestyleCriteria, 
   ProductCriteria,
-  AudienceSegment,
-  LIFE_EVENTS
-} from "@/types/campaign";
+  SavedSegment
+} from "@/types/segment";
 
 export interface SegmentContact {
   email: string;
@@ -131,7 +130,7 @@ function generateSegmentName(
 
 // Generate mock contacts based on segment criteria
 export function generateSegmentContacts(
-  segment: Partial<AudienceSegment>,
+  segment: Partial<SavedSegment>,
   count: number = 1000
 ): SegmentContact[] {
   const contacts: SegmentContact[] = [];
@@ -276,7 +275,7 @@ export function exportAsSendGridCSV(contacts: SegmentContact[], filename: string
 // Export as JSON
 export function exportAsJSON(
   contacts: SegmentContact[], 
-  segment: Partial<AudienceSegment>,
+  segment: Partial<SavedSegment>,
   filename: string
 ): void {
   const jsonData = {
@@ -309,7 +308,7 @@ function downloadFile(content: string, filename: string, mimeType: string): void
 
 // Main export function that handles all formats
 export function exportSegment(
-  segment: Partial<AudienceSegment>,
+  segment: Partial<SavedSegment>,
   format: ExportFormat,
   size: ExportSize = 1000
 ): void {

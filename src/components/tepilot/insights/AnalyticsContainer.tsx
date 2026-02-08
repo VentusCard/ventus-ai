@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BankwideView } from "./BankwideView";
-import { CampaignPlannerView } from "../campaigns/CampaignPlannerView";
+import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { BarChart3, Target } from "lucide-react";
 
 export function AnalyticsContainer() {
@@ -11,9 +11,9 @@ export function AnalyticsContainer() {
           <BarChart3 className="w-4 h-4" />
           Analytics Dashboard
         </TabsTrigger>
-        <TabsTrigger value="planner" className="flex items-center gap-2 data-[state=active]:bg-white">
+        <TabsTrigger value="targeting" className="flex items-center gap-2 data-[state=active]:bg-white">
           <Target className="w-4 h-4" />
-          Campaign Planner
+          Segment Targeting
         </TabsTrigger>
       </TabsList>
 
@@ -21,8 +21,8 @@ export function AnalyticsContainer() {
         <BankwideView />
       </TabsContent>
 
-      <TabsContent value="planner" className="mt-0">
-        <CampaignPlannerView />
+      <TabsContent value="targeting" className="mt-0">
+        <SegmentTargetingView />
       </TabsContent>
     </Tabs>
   );
