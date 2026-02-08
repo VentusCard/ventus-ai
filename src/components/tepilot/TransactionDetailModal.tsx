@@ -22,7 +22,7 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-white">
+      <DialogContent className="max-w-2xl tepilot-popup">
         <DialogHeader>
           <DialogTitle className="text-slate-900">Transaction Details</DialogTitle>
           <DialogDescription className="text-slate-500">

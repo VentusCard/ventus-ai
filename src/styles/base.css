@@ -132,6 +132,36 @@
   color-scheme: light;
 }
 
+/* TePilot Popup Light Theme
+   Forces all popups (dialogs, sheets, popovers) in TePilot to be light-themed */
+.tepilot-popup,
+.tepilot-theme [data-radix-popper-content-wrapper],
+.tepilot-theme [role="dialog"] {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  color-scheme: light;
+}
+
+/* Direct styling for portal-rendered dialogs */
+.tepilot-popup {
+  background-color: white !important;
+  color: hsl(222 47% 11%) !important;
+}
+
+.tepilot-popup * {
+  border-color: hsl(214 32% 91%);
+}
+
 @layer base {
   * {
     @apply border-border;

@@ -40,7 +40,7 @@ export function CorrectionModal({ transaction, isOpen, onClose, onSave }: Correc
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl bg-white">
+      <DialogContent className="max-w-xl tepilot-popup">
         <DialogHeader>
           <DialogTitle className="text-slate-900">Correct Classification</DialogTitle>
           <DialogDescription className="text-slate-500">
