@@ -1,135 +1,213 @@
 
-# Refocus Campaign Planner to Targeting-Centric Flow
+
+# Dynamic Segment Builder Enhancement
 
 ## Overview
 
-Adjust the Campaign Planner to focus on its core purpose: helping targeting teams build behavioral segments and export them for use with external marketing providers (Mailchimp, SendGrid, Twilio, etc.). The current implementation includes campaign management features (templates, active campaigns table, campaign creation dialog) that are outside the scope of segment targeting.
+Transform the Segment Builder into a fully dynamic targeting tool where users can control additional filters (age ranges, regions, income bands) and see the audience preview and export output respond in real-time to these selections.
 
-## Current State Issues
+## Current Limitations
 
-The current implementation mixes two concerns:
-1. **Segment Building & Export** (the core goal) - building audiences based on life events, lifestyle, and product holdings, then exporting to external providers
-2. **Campaign Management** (out of scope) - internal campaign creation, messaging, scheduling, budget, and tracking active campaigns
-
-The campaign templates, active campaigns table, and campaign detail dialog assume an internal campaign management system that doesn't align with the goal of exporting segments to external providers.
+| Component | Current State | Issue |
+|-----------|---------------|-------|
+| SegmentBuilder | No demographic filters | Can't refine by age/region |
+| LifeEventTargeting | Confidence slider only | Missing timing window selector |
+| LifestyleTargeting | Threshold dropdown only | Missing minimum spend input |
+| ProductTargeting | Has/lacks checkboxes only | No spending pattern filter |
+| AudiencePreview | Hardcoded mock breakdowns | Doesn't respond to filter selections |
+| Export Output | Uses segment criteria for age weighting | Doesn't use explicit demographic filters |
 
 ## Proposed Changes
 
-### 1. Rename Section to "Segment Targeting"
-- Change "Campaign Planner" to "Segment Targeting" to better reflect its purpose
-- Update intro text to focus on building segments for external marketing providers
+### 1. Add Global Demographic Filters to Segment Builder
 
-### 2. Replace Campaign Metrics with Segment Metrics
-- Instead of "Active Campaigns, Total Reach, Revenue Generated, Activation Rate"
-- Show "Saved Segments, Total Contacts Available, Recent Exports, Provider Integrations"
+Add a collapsible "Refine Audience" section below the targeting tabs with:
 
-### 3. Refocus Templates as "Segment Templates"
-- Rebrand from "Campaign Templates" to "Segment Templates"
-- Remove campaign-specific details (messaging, offers, scheduling)
-- Focus on audience targeting criteria and estimated size
-- Template action becomes "Use This Targeting" which populates the Segment Builder
+| Filter | Type | Options |
+|--------|------|---------|
+| Age Ranges | Multi-select checkboxes | 18-24, 25-34, 35-44, 45-54, 55-64, 65+ |
+| Regions | Multi-select checkboxes | Northeast, Southeast, Midwest, Southwest, West, Northwest |
+| Income Band | Slider or dropdown | Under $50K, $50-100K, $100-150K, $150K+ |
+| Account Tenure | Dropdown | New (< 1yr), Established (1-5yr), Loyal (5yr+) |
 
-### 4. Replace Active Campaigns Table with Saved Segments Table
-- Instead of tracking campaigns, track saved segment definitions
-- Show: Segment Name, Targeting Mode, Criteria Summary, Est. Size, Last Exported, Export Actions
-- Allow quick re-export of previously built segments
+### 2. Enhance Each Targeting Mode
 
-### 5. Simplify Template Card to Segment Focus
-- Remove revenue impact and conversion rate metrics (those are campaign metrics)
-- Show estimated audience size and targeting criteria
-- "Use Template" becomes primary action to populate builder
+**Life Event Tab:**
+- Add timing window selector: "0-3 months", "3-6 months", "6-12 months", "12-24 months"
+- Show detected signal count per event type
 
-### 6. Remove Campaign Detail Dialog
-- Remove the dialog that creates internal campaigns
-- The "Create Campaign" button in SegmentBuilder becomes "Save Segment"
-- Primary action remains export via SegmentExportControls
+**Lifestyle Tab:**
+- Add minimum monthly spend input (optional numeric field)
+- Add recency filter: "Active in last 30/60/90 days"
 
-### 7. Update Segment Builder Actions
-- Rename "Create Campaign with This Segment" to "Save Segment"
-- Keep export controls as the primary action for external provider integration
+**Product Tab:**
+- Add spending pattern filter per product: "Low", "Medium", "High" usage
+- Add account age filter for product holdings
 
-## File Changes
+### 3. Dynamic Audience Preview
 
-### Files to Modify
+Update AudiencePreview to:
+- Use selected demographic filters to calculate breakdowns
+- Show only selected age ranges/regions (not all)
+- Dynamically adjust estimated size based on filters
+- Display filter summary badges
+
+### 4. Dynamic Export Output
+
+Update segmentExportUtils to:
+- Respect demographic filter selections when generating contacts
+- Only include contacts matching selected age ranges
+- Only include contacts in selected regions
+- Add income_band and account_tenure fields to export
+
+## Type Updates
+
+Update `src/types/segment.ts`:
+
+```typescript
+export interface DemographicFilters {
+  ageRanges: string[];
+  regions: string[];
+  incomeBands?: string[];
+  accountTenure?: 'new' | 'established' | 'loyal' | 'all';
+}
+
+export interface LifeEventCriteria {
+  eventTypes: string[];
+  minConfidence: number;
+  timingWindow?: '0-3_months' | '3-6_months' | '6-12_months' | '12-24_months';
+}
+
+export interface LifestyleCriteria {
+  pillars: string[];
+  spendingThreshold: 'top_10' | 'top_20' | 'top_30' | 'above_average';
+  minMonthlySpend?: number;
+  recency?: '30_days' | '60_days' | '90_days';
+}
+
+export interface ProductCriteria {
+  hasProducts: string[];
+  lacksProducts: string[];
+  spendingPatterns?: Record<string, 'low' | 'medium' | 'high'>;
+  minProductAge?: number; // months
+}
+```
+
+## UI Design
+
+### Segment Builder Layout
+
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│ Segment Builder                              [2.4M estimated]    │
+├──────────────────────────────────────────────────────────────────┤
+│ ┌─────────────┬─────────────────┬──────────────────┐             │
+│ │ Life Events │ Lifestyle Pillars│ Product Holdings │            │
+│ └─────────────┴─────────────────┴──────────────────┘             │
+│                                                                  │
+│ [Current targeting tab content]                                  │
+│                                                                  │
+│ ─────────────────────────────────────────────────────────────── │
+│ ▼ Refine Audience (optional)                                    │
+│ ┌────────────────────────────────────────────────────────────┐  │
+│ │ Age Ranges          Regions              Income             │  │
+│ │ ☑ 25-34 ☑ 35-44    ☑ Northeast          [ $50K-$150K  ▼]   │  │
+│ │ ☑ 45-54 ☐ 55-64    ☑ West ☐ Midwest                        │  │
+│ │                                                             │  │
+│ │ Account Tenure: [ Established (1-5yr) ▼]                    │  │
+│ └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│ [Dynamic Audience Preview - responds to all filters]             │
+│                                                                  │
+│            [Export Segment ▼]    [Save Segment]                 │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Life Event Tab with Timing Window
+
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│ Select Life Event Types                                          │
+│ ┌─────────────────┐ ┌─────────────────┐                         │
+│ │ ☑ Retirement    │ │ ☐ Education     │                         │
+│ │   4.2% rate     │ │   3.8% rate     │                         │
+│ └─────────────────┘ └─────────────────┘                         │
+│                                                                  │
+│ Timing Window                    Confidence Threshold            │
+│ [ Within 6 months    ▼]          [====●=====] 65%               │
+│                                                                  │
+│ Tip: Narrower timing = smaller but more actionable audience     │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Dynamic Audience Preview
+
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│ Audience Preview                              [1.8M users]       │
+├──────────────────────────────────────────────────────────────────┤
+│ Active Filters: [25-34] [35-44] [45-54] [Northeast] [West]      │
+│                                                                  │
+│ Age Distribution (filtered)      Regional Distribution          │
+│ ┌───────────────────────────┐   ┌───────────────────────────┐   │
+│ │ 25-34  ████████████ 35%   │   │ Northeast ██████████ 58%  │   │
+│ │ 35-44  █████████░░░ 40%   │   │ West      ██████░░░░ 42%  │   │
+│ │ 45-54  ██████░░░░░░ 25%   │   │                           │   │
+│ └───────────────────────────┘   └───────────────────────────┘   │
+│                                                                  │
+│ Income Distribution              Account Tenure                  │
+│ $50-100K: 45%  $100-150K: 55%   Established (1-5yr): 100%       │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+## Implementation Files
 
 | File | Changes |
 |------|---------|
-| `CampaignPlannerView.tsx` | Rename to SegmentTargetingView, remove CampaignDetailDialog, update intro text |
-| `CampaignMetricsSummary.tsx` | Change to SegmentMetricsSummary with segment-focused metrics |
-| `CampaignTemplateGrid.tsx` | Rename to SegmentTemplateGrid, simplify to targeting focus |
-| `CampaignTemplateCard.tsx` | Rename to SegmentTemplateCard, remove campaign metrics |
-| `ActiveCampaignsTable.tsx` | Rename to SavedSegmentsTable, show saved segment definitions |
-| `SegmentBuilder.tsx` | Change "Create Campaign" button to "Save Segment" |
-| `AnalyticsContainer.tsx` | Update tab label from "Campaign Planner" to "Segment Targeting" |
-| `campaignData.ts` | Update templates to be segment-focused, add saved segments mock data |
+| `src/types/segment.ts` | Add DemographicFilters interface, expand criteria types |
+| `src/components/tepilot/campaigns/SegmentBuilder.tsx` | Add demographicFilters state, add Refine Audience section |
+| `src/components/tepilot/campaigns/DemographicFilters.tsx` | New component for age/region/income/tenure filters |
+| `src/components/tepilot/campaigns/LifeEventTargeting.tsx` | Add timing window selector |
+| `src/components/tepilot/campaigns/LifestyleTargeting.tsx` | Add min monthly spend input, recency filter |
+| `src/components/tepilot/campaigns/ProductTargeting.tsx` | Add spending pattern selectors per product |
+| `src/components/tepilot/campaigns/AudiencePreview.tsx` | Accept demographicFilters, show dynamic breakdowns |
+| `src/lib/segmentData.ts` | Update estimateAudienceSize to factor in demographic filters |
+| `src/lib/segmentExportUtils.ts` | Filter generated contacts by demographic selections |
 
-### Detailed Component Changes
+## Audience Size Calculation
 
-**CampaignPlannerView.tsx -> Restructured as Segment Targeting View**
-- Remove `CampaignDetailDialog` import and usage
-- Update intro text: "Build targeted audience segments based on behavioral signals... Export to your preferred marketing platform"
-- Change `handleCreateFromSegment` to `handleSaveSegment` (show toast confirmation)
-- Keep segment builder and templates grid
+The `estimateAudienceSize` function will apply multipliers for demographic filters:
 
-**CampaignMetricsSummary.tsx -> SegmentMetricsSummary**
-- Change cards to:
-  - "Saved Segments" (count of saved segment definitions)
-  - "Total Contacts" (sum of all segment sizes)
-  - "Recent Exports" (exports in last 30 days)
-  - "Targeting Modes" (life event / lifestyle / product breakdown)
+```typescript
+// Age range multiplier (each age band = ~17% of population)
+const AGE_RANGE_RATES = {
+  '18-24': 0.12, '25-34': 0.18, '35-44': 0.17,
+  '45-54': 0.17, '55-64': 0.16, '65+': 0.20
+};
 
-**CampaignTemplateGrid.tsx -> SegmentTemplateGrid**
-- Keep category filtering (life_event, lifestyle, cross_sell, seasonal)
-- Change title from "Campaign Templates" to "Segment Templates"
-- Description: "Start from pre-built targeting strategies to quickly build segments"
+// Regional multipliers
+const REGION_RATES = {
+  'Northeast': 0.17, 'Southeast': 0.24, 'Midwest': 0.21,
+  'Southwest': 0.12, 'West': 0.18, 'Northwest': 0.08
+};
 
-**CampaignTemplateCard.tsx -> SegmentTemplateCard**
-- Remove revenue impact and conversion rate
-- Show estimated audience size prominently
-- Show targeting criteria summary
-- Button: "Use This Targeting" (populates Segment Builder)
-
-**ActiveCampaignsTable.tsx -> SavedSegmentsTable**
-- Columns: Segment Name, Mode, Criteria, Est. Size, Created, Last Export
-- Actions: Export (dropdown with format options), Edit (loads into builder), Delete
-- Remove campaign status, activation rate, revenue, budget
-
-**SegmentBuilder.tsx**
-- Change button from "Create Campaign with This Segment" to "Save Segment"
-- When clicked, show toast "Segment saved" and add to saved segments list
-- Export controls remain as primary integration point
-
-## Updated Architecture
-
-```text
-AnalyticsContainer.tsx
-├── Tab: "Analytics Dashboard" → BankwideView.tsx
-└── Tab: "Segment Targeting" → SegmentTargetingView.tsx (renamed)
-    ├── SegmentMetricsSummary.tsx (updated)
-    ├── SegmentBuilder.tsx
-    │   ├── 3-mode targeting (unchanged)
-    │   ├── AudiencePreview.tsx (unchanged)
-    │   ├── SegmentExportControls.tsx (unchanged - primary action)
-    │   └── "Save Segment" button (new behavior)
-    ├── SegmentTemplateGrid.tsx (renamed, simplified)
-    │   └── SegmentTemplateCard.tsx (renamed, simplified)
-    └── SavedSegmentsTable.tsx (renamed, repurposed)
+// If user selects 2 age ranges, multiply base by sum of their rates
+// If user selects 2 regions, multiply by sum of their rates
 ```
 
-## UI Flow Summary
+## Export Output Changes
 
-1. User selects targeting mode (Life Events / Lifestyle / Product)
-2. User configures criteria (event types, pillars, products)
-3. Audience Preview shows estimated size and demographics
-4. User can:
-   - **Export** directly to CSV/JSON for Mailchimp, SendGrid, etc.
-   - **Save Segment** for later re-export
-5. Templates provide quick-start targeting configurations
-6. Saved Segments table allows managing and re-exporting past segments
+Exported contacts will:
+1. Only include contacts matching selected age ranges
+2. Only include contacts from selected regions
+3. Include new fields: `income_band`, `account_tenure`
+4. Include timing/recency metadata in JSON exports
 
 ## Benefits
 
-- Clear focus on segment building and export for external providers
-- Removes confusing internal campaign management features
-- Aligns with stated goal: "export segments to work with existing providers to send emails or text"
-- Simpler, more focused user experience
+- Full control over audience composition
+- Real-time feedback on how filters affect reach
+- Exports match exactly what was configured
+- More precise targeting for external marketing campaigns
+- Consistent data flow from builder to preview to export
+
