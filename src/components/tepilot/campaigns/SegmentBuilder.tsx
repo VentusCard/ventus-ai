@@ -3,26 +3,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Target, Sparkles } from "lucide-react";
+import { Users, Target, Sparkles, Bookmark } from "lucide-react";
 import { LifeEventTargeting } from "./LifeEventTargeting";
 import { LifestyleTargeting } from "./LifestyleTargeting";
 import { ProductTargeting } from "./ProductTargeting";
 import { AudiencePreview } from "./AudiencePreview";
 import { SegmentExportControls } from "./SegmentExportControls";
-import { estimateAudienceSize } from "@/lib/campaignData";
+import { estimateAudienceSize } from "@/lib/segmentData";
 import type { 
-  AudienceSegment, 
+  SavedSegment, 
   LifeEventCriteria, 
   LifestyleCriteria, 
   ProductCriteria,
   TargetingMode 
-} from "@/types/campaign";
+} from "@/types/segment";
 
 interface SegmentBuilderProps {
-  onCreateCampaign: (audience: Partial<AudienceSegment>) => void;
+  onSaveSegment: (segment: Partial<SavedSegment>) => void;
 }
 
-export function SegmentBuilder({ onCreateCampaign }: SegmentBuilderProps) {
+export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
   const [targetingMode, setTargetingMode] = useState<TargetingMode>("life_event");
   
   // Life event state
@@ -70,25 +70,25 @@ export function SegmentBuilder({ onCreateCampaign }: SegmentBuilderProps) {
     }
   }, [targetingMode, lifeEventCriteria, lifestyleCriteria, productCriteria]);
 
-  const handleCreateCampaign = () => {
-    const audience: Partial<AudienceSegment> = {
+  const handleSaveSegment = () => {
+    const segment: Partial<SavedSegment> = {
       targetingMode,
       estimatedSize,
     };
 
     switch (targetingMode) {
       case "life_event":
-        audience.lifeEventCriteria = lifeEventCriteria;
+        segment.lifeEventCriteria = lifeEventCriteria;
         break;
       case "lifestyle":
-        audience.lifestyleCriteria = lifestyleCriteria;
+        segment.lifestyleCriteria = lifestyleCriteria;
         break;
       case "product":
-        audience.productCriteria = productCriteria;
+        segment.productCriteria = productCriteria;
         break;
     }
 
-    onCreateCampaign(audience);
+    onSaveSegment(segment);
   };
 
   return (
@@ -172,8 +172,9 @@ export function SegmentBuilder({ onCreateCampaign }: SegmentBuilderProps) {
                 lifestyleCriteria={targetingMode === "lifestyle" ? lifestyleCriteria : undefined}
                 productCriteria={targetingMode === "product" ? productCriteria : undefined}
               />
-              <Button onClick={handleCreateCampaign}>
-                Create Campaign with This Segment
+              <Button onClick={handleSaveSegment}>
+                <Bookmark className="w-4 h-4 mr-2" />
+                Save Segment
               </Button>
             </div>
           </div>
