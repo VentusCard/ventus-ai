@@ -1,186 +1,135 @@
 
-# Segment Export for External Marketing Providers
+# Refocus Campaign Planner to Targeting-Centric Flow
 
 ## Overview
 
-Add export functionality to the Segment Builder that allows targeting teams to export their defined audience segments for use with external email and SMS providers (Mailchimp, SendGrid, Twilio, Klaviyo, etc.). This enables seamless integration with existing marketing workflows without requiring direct platform integrations.
+Adjust the Campaign Planner to focus on its core purpose: helping targeting teams build behavioral segments and export them for use with external marketing providers (Mailchimp, SendGrid, Twilio, etc.). The current implementation includes campaign management features (templates, active campaigns table, campaign creation dialog) that are outside the scope of segment targeting.
 
-## Current State
+## Current State Issues
 
-- The Segment Builder creates segments based on 3 targeting modes: Life Events, Lifestyle Pillars, and Product Holdings
-- Segments calculate an estimated audience size but don't provide exportable customer data
-- The "Create Campaign with This Segment" button opens an internal campaign creation dialog
-- There is an existing `ExportControls` component (for transaction data) that can be used as a pattern
+The current implementation mixes two concerns:
+1. **Segment Building & Export** (the core goal) - building audiences based on life events, lifestyle, and product holdings, then exporting to external providers
+2. **Campaign Management** (out of scope) - internal campaign creation, messaging, scheduling, budget, and tracking active campaigns
 
-## Proposed Solution
+The campaign templates, active campaigns table, and campaign detail dialog assume an internal campaign management system that doesn't align with the goal of exporting segments to external providers.
 
-Add export capabilities to the Segment Builder that generates mock customer contact data matching the segment criteria and exports it in formats compatible with major marketing platforms.
+## Proposed Changes
 
-### Export Formats
+### 1. Rename Section to "Segment Targeting"
+- Change "Campaign Planner" to "Segment Targeting" to better reflect its purpose
+- Update intro text to focus on building segments for external marketing providers
 
-| Format | Use Case | Providers |
-|--------|----------|-----------|
-| CSV (Standard) | Universal import | Mailchimp, SendGrid, HubSpot, Salesforce |
-| CSV (Mailchimp) | Mailchimp-specific columns | Mailchimp |
-| CSV (SendGrid) | SendGrid Marketing | SendGrid |
-| JSON | API integrations | Twilio Segment, Custom systems |
+### 2. Replace Campaign Metrics with Segment Metrics
+- Instead of "Active Campaigns, Total Reach, Revenue Generated, Activation Rate"
+- Show "Saved Segments, Total Contacts Available, Recent Exports, Provider Integrations"
 
-### Export Data Fields
+### 3. Refocus Templates as "Segment Templates"
+- Rebrand from "Campaign Templates" to "Segment Templates"
+- Remove campaign-specific details (messaging, offers, scheduling)
+- Focus on audience targeting criteria and estimated size
+- Template action becomes "Use This Targeting" which populates the Segment Builder
 
-Each exported record will include:
+### 4. Replace Active Campaigns Table with Saved Segments Table
+- Instead of tracking campaigns, track saved segment definitions
+- Show: Segment Name, Targeting Mode, Criteria Summary, Est. Size, Last Exported, Export Actions
+- Allow quick re-export of previously built segments
 
-| Field | Description |
-|-------|-------------|
-| `email` | Customer email address |
-| `phone` | Phone number (E.164 format for SMS) |
-| `first_name` | First name for personalization |
-| `last_name` | Last name |
-| `segment_name` | Name of the exported segment |
-| `targeting_type` | life_event, lifestyle, or product |
-| `targeting_criteria` | Specific criteria (e.g., "Retirement Planning") |
-| `confidence_score` | Match confidence (for life events) |
-| `top_pillar` | Highest spending category |
-| `estimated_savings` | Calculated savings for messaging |
-| `current_products` | Current product holdings |
-| `region` | Geographic region |
-| `age_range` | Age bracket |
+### 5. Simplify Template Card to Segment Focus
+- Remove revenue impact and conversion rate metrics (those are campaign metrics)
+- Show estimated audience size and targeting criteria
+- "Use Template" becomes primary action to populate builder
 
-### UI Changes
+### 6. Remove Campaign Detail Dialog
+- Remove the dialog that creates internal campaigns
+- The "Create Campaign" button in SegmentBuilder becomes "Save Segment"
+- Primary action remains export via SegmentExportControls
 
-1. **Segment Builder**: Add "Export Segment" dropdown button next to "Create Campaign with This Segment"
-2. **Export Options**: Dropdown menu with format choices (CSV Standard, CSV Mailchimp, CSV SendGrid, JSON)
-3. **Export Dialog**: Optional dialog for configuring export options (sample size, field selection)
+### 7. Update Segment Builder Actions
+- Rename "Create Campaign with This Segment" to "Save Segment"
+- Keep export controls as the primary action for external provider integration
 
-## Architecture
-
-```text
-SegmentBuilder.tsx
-├── AudiencePreview.tsx
-└── SegmentExportControls.tsx (new)
-    ├── Export format dropdown
-    ├── Sample size selector (1K, 5K, 10K, Full)
-    └── Field selection checkboxes
-
-lib/segmentExportUtils.ts (new)
-├── generateSegmentContacts() - Creates mock contact data
-├── exportAsCSV() - Standard CSV export
-├── exportAsMailchimpCSV() - Mailchimp-formatted CSV
-├── exportAsSendGridCSV() - SendGrid-formatted CSV
-└── exportAsJSON() - JSON export for API integrations
-```
-
-## Implementation
-
-### New Files
-
-| File | Purpose |
-|------|---------|
-| `src/components/tepilot/campaigns/SegmentExportControls.tsx` | Export dropdown and controls |
-| `src/lib/segmentExportUtils.ts` | Export generation and formatting functions |
+## File Changes
 
 ### Files to Modify
 
-| File | Change |
-|------|--------|
-| `src/components/tepilot/campaigns/SegmentBuilder.tsx` | Add SegmentExportControls next to create button |
-| `src/components/tepilot/campaigns/AudiencePreview.tsx` | Pass segment data to export controls |
+| File | Changes |
+|------|---------|
+| `CampaignPlannerView.tsx` | Rename to SegmentTargetingView, remove CampaignDetailDialog, update intro text |
+| `CampaignMetricsSummary.tsx` | Change to SegmentMetricsSummary with segment-focused metrics |
+| `CampaignTemplateGrid.tsx` | Rename to SegmentTemplateGrid, simplify to targeting focus |
+| `CampaignTemplateCard.tsx` | Rename to SegmentTemplateCard, remove campaign metrics |
+| `ActiveCampaignsTable.tsx` | Rename to SavedSegmentsTable, show saved segment definitions |
+| `SegmentBuilder.tsx` | Change "Create Campaign" button to "Save Segment" |
+| `AnalyticsContainer.tsx` | Update tab label from "Campaign Planner" to "Segment Targeting" |
+| `campaignData.ts` | Update templates to be segment-focused, add saved segments mock data |
 
-## Technical Details
+### Detailed Component Changes
 
-### Mock Contact Generation
+**CampaignPlannerView.tsx -> Restructured as Segment Targeting View**
+- Remove `CampaignDetailDialog` import and usage
+- Update intro text: "Build targeted audience segments based on behavioral signals... Export to your preferred marketing platform"
+- Change `handleCreateFromSegment` to `handleSaveSegment` (show toast confirmation)
+- Keep segment builder and templates grid
 
-The system will generate realistic mock contact data based on segment criteria:
+**CampaignMetricsSummary.tsx -> SegmentMetricsSummary**
+- Change cards to:
+  - "Saved Segments" (count of saved segment definitions)
+  - "Total Contacts" (sum of all segment sizes)
+  - "Recent Exports" (exports in last 30 days)
+  - "Targeting Modes" (life event / lifestyle / product breakdown)
 
-```typescript
-interface SegmentContact {
-  email: string;
-  phone: string;
-  first_name: string;
-  last_name: string;
-  segment_name: string;
-  targeting_type: TargetingMode;
-  targeting_criteria: string;
-  confidence_score?: number;
-  top_pillar?: string;
-  estimated_savings?: number;
-  current_products?: string;
-  region: string;
-  age_range: string;
-}
+**CampaignTemplateGrid.tsx -> SegmentTemplateGrid**
+- Keep category filtering (life_event, lifestyle, cross_sell, seasonal)
+- Change title from "Campaign Templates" to "Segment Templates"
+- Description: "Start from pre-built targeting strategies to quickly build segments"
 
-function generateSegmentContacts(
-  segment: Partial<AudienceSegment>,
-  count: number = 1000
-): SegmentContact[] {
-  // Generate mock contacts matching segment demographics
-  // Use age/region distributions from AudiencePreview
-}
-```
+**CampaignTemplateCard.tsx -> SegmentTemplateCard**
+- Remove revenue impact and conversion rate
+- Show estimated audience size prominently
+- Show targeting criteria summary
+- Button: "Use This Targeting" (populates Segment Builder)
 
-### Export Format Examples
+**ActiveCampaignsTable.tsx -> SavedSegmentsTable**
+- Columns: Segment Name, Mode, Criteria, Est. Size, Created, Last Export
+- Actions: Export (dropdown with format options), Edit (loads into builder), Delete
+- Remove campaign status, activation rate, revenue, budget
 
-**Standard CSV:**
-```csv
-email,phone,first_name,last_name,segment_name,targeting_type,targeting_criteria,region,age_range
-john.smith@email.com,+14155551234,John,Smith,Retirement Planning Segment,life_event,Retirement Planning,West,55-64
-```
+**SegmentBuilder.tsx**
+- Change button from "Create Campaign with This Segment" to "Save Segment"
+- When clicked, show toast "Segment saved" and add to saved segments list
+- Export controls remain as primary integration point
 
-**Mailchimp CSV:**
-```csv
-Email Address,Phone Number,First Name,Last Name,SEGMENT,TARGETING_TYPE,MERGE_FIELD_1
-john.smith@email.com,+14155551234,John,Smith,Retirement Planning Segment,life_event,Retirement Planning
-```
-
-**JSON:**
-```json
-{
-  "segment_name": "Retirement Planning Segment",
-  "exported_at": "2026-02-08T12:00:00Z",
-  "total_contacts": 1000,
-  "targeting": {
-    "mode": "life_event",
-    "criteria": { "eventTypes": ["retirement"], "minConfidence": 0.65 }
-  },
-  "contacts": [
-    { "email": "john.smith@email.com", "phone": "+14155551234", ... }
-  ]
-}
-```
-
-### Export Size Options
-
-| Option | Description |
-|--------|-------------|
-| Sample (1K) | Quick export for testing |
-| Medium (5K) | A/B testing sample |
-| Large (10K) | Pilot campaign |
-| Custom | User-defined count (up to 100K) |
-
-Note: Full segment exports would require actual customer data - mock data is provided for demonstration purposes.
-
-## UI Design
-
-The export controls will appear as a dropdown button group:
+## Updated Architecture
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ Audience Preview                                             │
-│ ...existing preview content...                               │
-│                                                             │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │                                                         │ │
-│ │  [Export Segment ▼]    [Create Campaign with This Segment]│
-│ │    ├─ CSV (Standard)                                    │ │
-│ │    ├─ CSV (Mailchimp)                                   │ │
-│ │    ├─ CSV (SendGrid)                                    │ │
-│ │    └─ JSON                                              │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+AnalyticsContainer.tsx
+├── Tab: "Analytics Dashboard" → BankwideView.tsx
+└── Tab: "Segment Targeting" → SegmentTargetingView.tsx (renamed)
+    ├── SegmentMetricsSummary.tsx (updated)
+    ├── SegmentBuilder.tsx
+    │   ├── 3-mode targeting (unchanged)
+    │   ├── AudiencePreview.tsx (unchanged)
+    │   ├── SegmentExportControls.tsx (unchanged - primary action)
+    │   └── "Save Segment" button (new behavior)
+    ├── SegmentTemplateGrid.tsx (renamed, simplified)
+    │   └── SegmentTemplateCard.tsx (renamed, simplified)
+    └── SavedSegmentsTable.tsx (renamed, repurposed)
 ```
+
+## UI Flow Summary
+
+1. User selects targeting mode (Life Events / Lifestyle / Product)
+2. User configures criteria (event types, pillars, products)
+3. Audience Preview shows estimated size and demographics
+4. User can:
+   - **Export** directly to CSV/JSON for Mailchimp, SendGrid, etc.
+   - **Save Segment** for later re-export
+5. Templates provide quick-start targeting configurations
+6. Saved Segments table allows managing and re-exporting past segments
 
 ## Benefits
 
-- **No Integration Required**: Works with any email/SMS provider that accepts CSV/JSON imports
-- **Flexible Formats**: Pre-formatted exports for popular platforms reduce manual mapping
-- **Personalization Ready**: Includes merge fields for dynamic content (top_pillar, savings_estimate)
-- **Consistent with Existing Patterns**: Follows the same export approach as the transaction ExportControls component
+- Clear focus on segment building and export for external providers
+- Removes confusing internal campaign management features
+- Aligns with stated goal: "export segments to work with existing providers to send emails or text"
+- Simpler, more focused user experience
