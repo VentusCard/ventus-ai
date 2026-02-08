@@ -77,6 +77,7 @@ const TePilot = () => {
   const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
+  const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
     // Check URL search params first, then navigation state
     const viewParam = searchParams.get('view');
@@ -920,7 +921,19 @@ const TePilot = () => {
                     "Multi-dimension filtering by card product, region, and demographics",
                     "Pillar distribution visualization of aggregate spending allocation",
                     "Regional customer acquisition insights with category-specific marketing recommendations"
-                  ]} buttonText="View Bank-wide Dashboard" buttonVariant="ai" onClick={() => setInsightType('bankwide')} />
+                  ]} 
+                  secondaryButtonText="View Analytics Dashboard"
+                  secondaryButtonVariant="outline"
+                  onSecondaryClick={() => {
+                    setAnalyticsDefaultTab('dashboard');
+                    setInsightType('bankwide');
+                  }}
+                  buttonText="Open Segment Builder" 
+                  buttonVariant="ai" 
+                  onClick={() => {
+                    setAnalyticsDefaultTab('targeting');
+                    setInsightType('bankwide');
+                  }} />
 
                   {/* Rewards Team Card */}
                   <PersonaCard icon={TrendingUp} title="Consumer Rewards" valueProposition="Unlock millions in untapped revenue potential" description="Identify where customers are spending outside your ecosystem and generate data-driven strategies to capture more wallet share through targeted engagement." keyFeatures={[
@@ -995,7 +1008,7 @@ const TePilot = () => {
                     Back to Insight Tools Selection
                   </Button>
                 </div>
-                <AnalyticsContainer />
+                <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6">
