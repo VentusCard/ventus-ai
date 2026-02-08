@@ -26,7 +26,7 @@ export function SubcategoryTransactionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] bg-white">
+      <DialogContent className="max-w-3xl max-h-[80vh] tepilot-popup">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div
