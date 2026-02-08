@@ -8,6 +8,7 @@ import { LifeEventTargeting } from "./LifeEventTargeting";
 import { LifestyleTargeting } from "./LifestyleTargeting";
 import { ProductTargeting } from "./ProductTargeting";
 import { AudiencePreview } from "./AudiencePreview";
+import { DemographicFilters } from "./DemographicFilters";
 import { SegmentExportControls } from "./SegmentExportControls";
 import { estimateAudienceSize } from "@/lib/segmentData";
 import type { 
@@ -15,6 +16,7 @@ import type {
   LifeEventCriteria, 
   LifestyleCriteria, 
   ProductCriteria,
+  DemographicFilters as DemographicFiltersType,
   TargetingMode 
 } from "@/types/segment";
 
@@ -29,33 +31,84 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
     eventTypes: [],
     minConfidence: 0.6,
+    timingWindow: '6-12_months',
   });
 
   // Lifestyle state
   const [lifestyleCriteria, setLifestyleCriteria] = useState<LifestyleCriteria>({
     pillars: [],
     spendingThreshold: "top_20",
+    recency: '90_days',
   });
 
   // Product state
   const [productCriteria, setProductCriteria] = useState<ProductCriteria>({
     hasProducts: [],
     lacksProducts: [],
+    spendingPatterns: {},
   });
 
-  // Calculate audience size based on current mode
+  // Demographic filters (global across all modes)
+  const [demographicFilters, setDemographicFilters] = useState<DemographicFiltersType>({
+    ageRanges: [],
+    regions: [],
+    incomeBands: [],
+    accountTenure: 'all',
+  });
+
+  // Calculate audience size based on current mode and filters
   const estimatedSize = useMemo(() => {
+    let baseSize = 0;
+    
     switch (targetingMode) {
       case "life_event":
-        return estimateAudienceSize(lifeEventCriteria, undefined, undefined);
+        baseSize = estimateAudienceSize(lifeEventCriteria, undefined, undefined);
+        break;
       case "lifestyle":
-        return estimateAudienceSize(undefined, lifestyleCriteria, undefined);
+        baseSize = estimateAudienceSize(undefined, lifestyleCriteria, undefined);
+        break;
       case "product":
-        return estimateAudienceSize(undefined, undefined, productCriteria);
+        baseSize = estimateAudienceSize(undefined, undefined, productCriteria);
+        break;
       default:
-        return 0;
+        baseSize = 0;
     }
-  }, [targetingMode, lifeEventCriteria, lifestyleCriteria, productCriteria]);
+    
+    // Apply demographic filter multipliers
+    let multiplier = 1.0;
+    
+    // Age ranges: each age band is roughly equal portion
+    if (demographicFilters.ageRanges.length > 0 && demographicFilters.ageRanges.length < 6) {
+      const AGE_RATES: Record<string, number> = {
+        '18-24': 0.12, '25-34': 0.18, '35-44': 0.17,
+        '45-54': 0.17, '55-64': 0.16, '65+': 0.20
+      };
+      const ageMultiplier = demographicFilters.ageRanges.reduce((sum, age) => sum + (AGE_RATES[age] || 0.16), 0);
+      multiplier *= ageMultiplier;
+    }
+    
+    // Regions
+    if (demographicFilters.regions.length > 0 && demographicFilters.regions.length < 6) {
+      const REGION_RATES: Record<string, number> = {
+        'Northeast': 0.17, 'Southeast': 0.24, 'Midwest': 0.21,
+        'Southwest': 0.12, 'West': 0.18, 'Northwest': 0.08
+      };
+      const regionMultiplier = demographicFilters.regions.reduce((sum, r) => sum + (REGION_RATES[r] || 0.15), 0);
+      multiplier *= regionMultiplier;
+    }
+    
+    // Income bands
+    if (demographicFilters.incomeBands.length > 0 && demographicFilters.incomeBands.length < 4) {
+      multiplier *= (demographicFilters.incomeBands.length * 0.25);
+    }
+    
+    // Account tenure
+    if (demographicFilters.accountTenure !== 'all') {
+      multiplier *= 0.35; // Roughly 1/3 in each tenure bucket
+    }
+    
+    return Math.floor(baseSize * multiplier);
+  }, [targetingMode, lifeEventCriteria, lifestyleCriteria, productCriteria, demographicFilters]);
 
   const hasSelections = useMemo(() => {
     switch (targetingMode) {
@@ -74,6 +127,7 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
     const segment: Partial<SavedSegment> = {
       targetingMode,
       estimatedSize,
+      demographicFilters,
     };
 
     switch (targetingMode) {
@@ -153,6 +207,14 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
           </TabsContent>
         </Tabs>
 
+        {/* Demographic Filters Section */}
+        <div className="mt-6">
+          <DemographicFilters 
+            filters={demographicFilters}
+            onChange={setDemographicFilters}
+          />
+        </div>
+
         {/* Audience Preview */}
         {hasSelections && (
           <div className="mt-6 pt-6 border-t border-slate-200">
@@ -162,6 +224,7 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
               lifeEventCriteria={targetingMode === "life_event" ? lifeEventCriteria : undefined}
               lifestyleCriteria={targetingMode === "lifestyle" ? lifestyleCriteria : undefined}
               productCriteria={targetingMode === "product" ? productCriteria : undefined}
+              demographicFilters={demographicFilters}
             />
             
             <div className="mt-4 flex justify-end gap-3">

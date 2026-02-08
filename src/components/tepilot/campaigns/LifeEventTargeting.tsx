@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Sunset, 
   GraduationCap, 
@@ -9,9 +10,10 @@ import {
   Home, 
   Heart, 
   Briefcase, 
-  Gift 
+  Gift,
+  Clock
 } from "lucide-react";
-import { LIFE_EVENTS, type LifeEventCriteria } from "@/types/campaign";
+import { LIFE_EVENTS, TIMING_WINDOWS, type LifeEventCriteria, type TimingWindow } from "@/types/segment";
 
 interface LifeEventTargetingProps {
   criteria: LifeEventCriteria;
@@ -38,6 +40,10 @@ export function LifeEventTargeting({ criteria, onChange }: LifeEventTargetingPro
 
   const updateConfidence = (value: number[]) => {
     onChange({ ...criteria, minConfidence: value[0] });
+  };
+
+  const updateTimingWindow = (value: string) => {
+    onChange({ ...criteria, timingWindow: value as TimingWindow });
   };
 
   return (
@@ -86,27 +92,58 @@ export function LifeEventTargeting({ criteria, onChange }: LifeEventTargetingPro
         </div>
       </div>
 
-      {/* Confidence Threshold */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <Label className="text-sm font-medium text-slate-700">
-            Minimum Confidence Threshold
-          </Label>
-          <Badge variant="outline" className="font-mono">
-            {(criteria.minConfidence * 100).toFixed(0)}%
-          </Badge>
+      {/* Timing Window & Confidence Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Timing Window */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="w-4 h-4 text-slate-500" />
+            <Label className="text-sm font-medium text-slate-700">
+              Timing Window
+            </Label>
+          </div>
+          <Select 
+            value={criteria.timingWindow || '6-12_months'} 
+            onValueChange={updateTimingWindow}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select timing window" />
+            </SelectTrigger>
+            <SelectContent>
+              {TIMING_WINDOWS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-slate-400 mt-1">
+            Narrower windows = smaller, more actionable audiences
+          </p>
         </div>
-        <Slider
-          value={[criteria.minConfidence]}
-          onValueChange={updateConfidence}
-          min={0.4}
-          max={0.95}
-          step={0.05}
-          className="w-full"
-        />
-        <div className="flex justify-between mt-1 text-xs text-slate-400">
-          <span>40% (More reach)</span>
-          <span>95% (Higher precision)</span>
+
+        {/* Confidence Threshold */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <Label className="text-sm font-medium text-slate-700">
+              Confidence Threshold
+            </Label>
+            <Badge variant="outline" className="font-mono">
+              {(criteria.minConfidence * 100).toFixed(0)}%
+            </Badge>
+          </div>
+          <Slider
+            value={[criteria.minConfidence]}
+            onValueChange={updateConfidence}
+            min={0.4}
+            max={0.95}
+            step={0.05}
+            className="w-full"
+          />
+          <div className="flex justify-between mt-1 text-xs text-slate-400">
+            <span>40% (More reach)</span>
+            <span>95% (Higher precision)</span>
+          </div>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import type {
   LifeEventCriteria,
   LifestyleCriteria,
   ProductCriteria,
+  DemographicFilters,
 } from '@/types/segment';
 import { CARD_PRODUCTS } from './mockBankwideData';
 
@@ -79,7 +80,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
       lifeEventCriteria: {
         eventTypes: ['family'],
         minConfidence: 0.7,
-        timingWindow: '0-12 months',
+        timingWindow: '6-12_months',
       },
     },
     estimatedSize: 4_125_000,
@@ -96,11 +97,13 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
       lifeEventCriteria: {
         eventTypes: ['retirement'],
         minConfidence: 0.65,
-        timingWindow: '0-24 months',
+        timingWindow: '12-24_months',
       },
       demographicFilters: {
         ageRanges: ['55-64'],
         regions: [],
+        incomeBands: [],
+        accountTenure: 'all',
       },
     },
     estimatedSize: 3_150_000,

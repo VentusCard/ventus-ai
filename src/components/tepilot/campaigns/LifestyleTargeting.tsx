@@ -1,9 +1,11 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LIFESTYLE_PILLARS, PILLAR_COLORS } from "@/lib/sampleData";
-import type { LifestyleCriteria } from "@/types/campaign";
+import { RECENCY_OPTIONS, type LifestyleCriteria, type RecencyWindow } from "@/types/segment";
+import { DollarSign, Clock } from "lucide-react";
 
 interface LifestyleTargetingProps {
   criteria: LifestyleCriteria;
@@ -29,29 +31,79 @@ export function LifestyleTargeting({ criteria, onChange }: LifestyleTargetingPro
     onChange({ ...criteria, spendingThreshold: value as LifestyleCriteria['spendingThreshold'] });
   };
 
+  const updateMinSpend = (value: string) => {
+    const numValue = value === '' ? undefined : parseInt(value, 10);
+    onChange({ ...criteria, minMonthlySpend: numValue });
+  };
+
+  const updateRecency = (value: string) => {
+    onChange({ ...criteria, recency: value as RecencyWindow });
+  };
+
   return (
     <div className="space-y-6">
-      {/* Threshold Selection */}
-      <div>
-        <Label className="text-sm font-medium text-slate-700 mb-3 block">
-          Spending Threshold
-        </Label>
-        <Select value={criteria.spendingThreshold} onValueChange={updateThreshold}>
-          <SelectTrigger className="w-full md:w-72">
-            <SelectValue placeholder="Select threshold" />
-          </SelectTrigger>
-          <SelectContent>
-            {THRESHOLD_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{option.label}</span>
-                  <span className="text-slate-400">—</span>
-                  <span className="text-slate-500 text-sm">{option.description}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Threshold & Recency Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Spending Threshold */}
+        <div>
+          <Label className="text-sm font-medium text-slate-700 mb-2 block">
+            Spending Threshold
+          </Label>
+          <Select value={criteria.spendingThreshold} onValueChange={updateThreshold}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select threshold" />
+            </SelectTrigger>
+            <SelectContent>
+              {THRESHOLD_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{option.label}</span>
+                    <span className="text-slate-400 text-xs">— {option.description}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Min Monthly Spend */}
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <DollarSign className="w-4 h-4 text-slate-500" />
+            <Label className="text-sm font-medium text-slate-700">
+              Min Monthly Spend
+            </Label>
+          </div>
+          <Input
+            type="number"
+            placeholder="Optional (e.g., 500)"
+            value={criteria.minMonthlySpend || ''}
+            onChange={(e) => updateMinSpend(e.target.value)}
+            className="w-full"
+          />
+        </div>
+
+        {/* Activity Recency */}
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="w-4 h-4 text-slate-500" />
+            <Label className="text-sm font-medium text-slate-700">
+              Activity Recency
+            </Label>
+          </div>
+          <Select value={criteria.recency || '90_days'} onValueChange={updateRecency}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select recency" />
+            </SelectTrigger>
+            <SelectContent>
+              {RECENCY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Pillar Selection */}
