@@ -1,110 +1,186 @@
 
-# Light-Themed Popups for TePilot
+# Segment Export for External Marketing Providers
 
 ## Overview
 
-Add a CSS rule that ensures all popup windows (dialogs, modals, sheets, popovers) within TePilot are always light-themed, regardless of the global dark theme. This provides consistency with the existing white-themed TePilot interface.
+Add export functionality to the Segment Builder that allows targeting teams to export their defined audience segments for use with external email and SMS providers (Mailchimp, SendGrid, Twilio, Klaviyo, etc.). This enables seamless integration with existing marketing workflows without requiring direct platform integrations.
 
 ## Current State
 
-- TePilot pages use the `.tepilot-theme` class which overrides CSS variables for a light theme
-- Some dialogs manually add `bg-white text-slate-900` inline, but it's inconsistent
-- The global app uses a dark theme by default
+- The Segment Builder creates segments based on 3 targeting modes: Life Events, Lifestyle Pillars, and Product Holdings
+- Segments calculate an estimated audience size but don't provide exportable customer data
+- The "Create Campaign with This Segment" button opens an internal campaign creation dialog
+- There is an existing `ExportControls` component (for transaction data) that can be used as a pattern
 
 ## Proposed Solution
 
-Add scoped CSS rules in `src/styles/base.css` that target Radix portal elements (which render dialogs outside the DOM tree) and force light-theme styling for TePilot-related popups.
+Add export capabilities to the Segment Builder that generates mock customer contact data matching the segment criteria and exports it in formats compatible with major marketing platforms.
 
-## Technical Approach
+### Export Formats
 
-Since Radix UI portals render outside the parent DOM tree, we need to use a global CSS approach with a `data-tepilot` attribute on the dialog components, or add CSS that applies when the `tepilot-theme` class is present on the body or a parent element.
+| Format | Use Case | Providers |
+|--------|----------|-----------|
+| CSV (Standard) | Universal import | Mailchimp, SendGrid, HubSpot, Salesforce |
+| CSV (Mailchimp) | Mailchimp-specific columns | Mailchimp |
+| CSV (SendGrid) | SendGrid Marketing | SendGrid |
+| JSON | API integrations | Twilio Segment, Custom systems |
 
-The cleanest approach is to add CSS rules in `base.css` that:
-1. Define a `.tepilot-popup` class for dialog content
-2. Create CSS rules that override the dark theme variables for these popups
+### Export Data Fields
+
+Each exported record will include:
+
+| Field | Description |
+|-------|-------------|
+| `email` | Customer email address |
+| `phone` | Phone number (E.164 format for SMS) |
+| `first_name` | First name for personalization |
+| `last_name` | Last name |
+| `segment_name` | Name of the exported segment |
+| `targeting_type` | life_event, lifestyle, or product |
+| `targeting_criteria` | Specific criteria (e.g., "Retirement Planning") |
+| `confidence_score` | Match confidence (for life events) |
+| `top_pillar` | Highest spending category |
+| `estimated_savings` | Calculated savings for messaging |
+| `current_products` | Current product holdings |
+| `region` | Geographic region |
+| `age_range` | Age bracket |
+
+### UI Changes
+
+1. **Segment Builder**: Add "Export Segment" dropdown button next to "Create Campaign with This Segment"
+2. **Export Options**: Dropdown menu with format choices (CSV Standard, CSV Mailchimp, CSV SendGrid, JSON)
+3. **Export Dialog**: Optional dialog for configuring export options (sample size, field selection)
+
+## Architecture
+
+```text
+SegmentBuilder.tsx
+├── AudiencePreview.tsx
+└── SegmentExportControls.tsx (new)
+    ├── Export format dropdown
+    ├── Sample size selector (1K, 5K, 10K, Full)
+    └── Field selection checkboxes
+
+lib/segmentExportUtils.ts (new)
+├── generateSegmentContacts() - Creates mock contact data
+├── exportAsCSV() - Standard CSV export
+├── exportAsMailchimpCSV() - Mailchimp-formatted CSV
+├── exportAsSendGridCSV() - SendGrid-formatted CSV
+└── exportAsJSON() - JSON export for API integrations
+```
 
 ## Implementation
 
-### File: `src/styles/base.css`
-
-Add after the existing `.tepilot-theme` rules (around line 133):
-
-```css
-/* TePilot Popup Light Theme
-   Forces all popups (dialogs, sheets, popovers) in TePilot to be light-themed */
-.tepilot-popup,
-.tepilot-theme [data-radix-popper-content-wrapper],
-.tepilot-theme [role="dialog"] {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  color-scheme: light;
-}
-
-/* Direct styling for portal-rendered dialogs */
-.tepilot-popup {
-  background-color: white !important;
-  color: hsl(222 47% 11%) !important;
-}
-
-.tepilot-popup * {
-  border-color: hsl(214 32% 91%);
-}
-```
-
-### Update Dialog Components in TePilot
-
-Add the `tepilot-popup` class to all DialogContent instances in TePilot components:
-
-| File | Change |
-|------|--------|
-| `src/components/tepilot/RecommendationsModal.tsx` | Add `tepilot-popup` class to DialogContent |
-| `src/components/tepilot/CorrectionModal.tsx` | Add `tepilot-popup` class |
-| `src/components/tepilot/TransactionDetailModal.tsx` | Add `tepilot-popup` class |
-| `src/components/tepilot/insights/SubcategoryTransactionsModal.tsx` | Add `tepilot-popup` class |
-| `src/components/tepilot/campaigns/CampaignDetailDialog.tsx` | Add `tepilot-popup` class |
-| `src/components/tepilot/rewards-pipeline/MerchantPipelineTable.tsx` | Add `tepilot-popup` class |
-| `src/components/tepilot/rewards-pipeline/PartnershipActionButtons.tsx` | Add `tepilot-popup` class |
-| `src/components/tepilot/advisor-console/*.tsx` (multiple dialogs) | Already have `bg-white text-slate-900` - can add class for consistency |
-
-### Example Update
-
-```tsx
-// Before
-<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-
-// After
-<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto tepilot-popup">
-```
-
-For dialogs that already have `bg-white text-slate-900`, the `tepilot-popup` class provides additional coverage for nested elements and border colors.
-
-## Files to Modify
+### New Files
 
 | File | Purpose |
 |------|---------|
-| `src/styles/base.css` | Add tepilot-popup CSS rules |
-| `src/components/tepilot/RecommendationsModal.tsx` | Add tepilot-popup class |
-| `src/components/tepilot/CorrectionModal.tsx` | Add tepilot-popup class |
-| `src/components/tepilot/TransactionDetailModal.tsx` | Add tepilot-popup class |
-| `src/components/tepilot/insights/SubcategoryTransactionsModal.tsx` | Add tepilot-popup class |
-| `src/components/tepilot/campaigns/CampaignDetailDialog.tsx` | Add tepilot-popup class |
-| `src/components/tepilot/rewards-pipeline/MerchantPipelineTable.tsx` | Add tepilot-popup class |
-| `src/components/tepilot/rewards-pipeline/PartnershipActionButtons.tsx` | Add tepilot-popup class |
-| Various advisor-console dialog files | Standardize with tepilot-popup class |
+| `src/components/tepilot/campaigns/SegmentExportControls.tsx` | Export dropdown and controls |
+| `src/lib/segmentExportUtils.ts` | Export generation and formatting functions |
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `src/components/tepilot/campaigns/SegmentBuilder.tsx` | Add SegmentExportControls next to create button |
+| `src/components/tepilot/campaigns/AudiencePreview.tsx` | Pass segment data to export controls |
+
+## Technical Details
+
+### Mock Contact Generation
+
+The system will generate realistic mock contact data based on segment criteria:
+
+```typescript
+interface SegmentContact {
+  email: string;
+  phone: string;
+  first_name: string;
+  last_name: string;
+  segment_name: string;
+  targeting_type: TargetingMode;
+  targeting_criteria: string;
+  confidence_score?: number;
+  top_pillar?: string;
+  estimated_savings?: number;
+  current_products?: string;
+  region: string;
+  age_range: string;
+}
+
+function generateSegmentContacts(
+  segment: Partial<AudienceSegment>,
+  count: number = 1000
+): SegmentContact[] {
+  // Generate mock contacts matching segment demographics
+  // Use age/region distributions from AudiencePreview
+}
+```
+
+### Export Format Examples
+
+**Standard CSV:**
+```csv
+email,phone,first_name,last_name,segment_name,targeting_type,targeting_criteria,region,age_range
+john.smith@email.com,+14155551234,John,Smith,Retirement Planning Segment,life_event,Retirement Planning,West,55-64
+```
+
+**Mailchimp CSV:**
+```csv
+Email Address,Phone Number,First Name,Last Name,SEGMENT,TARGETING_TYPE,MERGE_FIELD_1
+john.smith@email.com,+14155551234,John,Smith,Retirement Planning Segment,life_event,Retirement Planning
+```
+
+**JSON:**
+```json
+{
+  "segment_name": "Retirement Planning Segment",
+  "exported_at": "2026-02-08T12:00:00Z",
+  "total_contacts": 1000,
+  "targeting": {
+    "mode": "life_event",
+    "criteria": { "eventTypes": ["retirement"], "minConfidence": 0.65 }
+  },
+  "contacts": [
+    { "email": "john.smith@email.com", "phone": "+14155551234", ... }
+  ]
+}
+```
+
+### Export Size Options
+
+| Option | Description |
+|--------|-------------|
+| Sample (1K) | Quick export for testing |
+| Medium (5K) | A/B testing sample |
+| Large (10K) | Pilot campaign |
+| Custom | User-defined count (up to 100K) |
+
+Note: Full segment exports would require actual customer data - mock data is provided for demonstration purposes.
+
+## UI Design
+
+The export controls will appear as a dropdown button group:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ Audience Preview                                             │
+│ ...existing preview content...                               │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │                                                         │ │
+│ │  [Export Segment ▼]    [Create Campaign with This Segment]│
+│ │    ├─ CSV (Standard)                                    │ │
+│ │    ├─ CSV (Mailchimp)                                   │ │
+│ │    ├─ CSV (SendGrid)                                    │ │
+│ │    └─ JSON                                              │ │
+│ └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## Benefits
 
-- Single CSS class provides consistent light theming for all popups
-- Easy to maintain - new dialogs just need to add one class
-- Overrides work even though dialogs render in portals outside the tepilot-theme container
-- Existing inline styles (`bg-white text-slate-900`) can be kept or removed - the CSS class handles it
+- **No Integration Required**: Works with any email/SMS provider that accepts CSV/JSON imports
+- **Flexible Formats**: Pre-formatted exports for popular platforms reduce manual mapping
+- **Personalization Ready**: Includes merge fields for dynamic content (top_pillar, savings_estimate)
+- **Consistent with Existing Patterns**: Follows the same export approach as the transaction ExportControls component
