@@ -4,6 +4,7 @@ import type {
   LifeEventCriteria, 
   LifestyleCriteria, 
   ProductCriteria,
+  DemographicFilters,
   SavedSegment
 } from "@/types/segment";
 
@@ -21,6 +22,8 @@ export interface SegmentContact {
   current_products?: string;
   region: string;
   age_range: string;
+  income_band?: string;
+  account_tenure?: string;
 }
 
 export type ExportFormat = "csv_standard" | "csv_mailchimp" | "csv_sendgrid" | "json";
@@ -49,7 +52,9 @@ const EMAIL_DOMAINS = [
 
 const REGIONS = ["Northeast", "Southeast", "Midwest", "Southwest", "West", "Northwest"];
 
-const AGE_RANGES = ["25-34", "35-44", "45-54", "55-64", "65+"];
+const AGE_RANGES = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
+
+const INCOME_BANDS = ["under_50k", "50k_100k", "100k_150k", "over_150k"];
 
 const LIFESTYLE_PILLARS = [
   "Travel & Experiences", "Dining & Culinary", "Health & Wellness",
@@ -148,34 +153,55 @@ export function generateSegmentContacts(
     segment.productCriteria
   );
 
+  // Use demographic filters if present, otherwise use defaults
+  const filters = segment.demographicFilters;
+  const selectedAges = filters?.ageRanges?.length ? filters.ageRanges : AGE_RANGES;
+  const selectedRegions = filters?.regions?.length ? filters.regions : REGIONS;
+  const selectedIncome = filters?.incomeBands?.length ? filters.incomeBands : INCOME_BANDS;
+  const accountTenure = filters?.accountTenure || 'all';
+
   // Determine age distribution based on targeting
-  const getAgeWeights = (): number[] => {
+  const getAgeWeights = (): Record<string, number> => {
+    const baseWeights: Record<string, number> = {
+      '18-24': 0.12, '25-34': 0.18, '35-44': 0.17,
+      '45-54': 0.17, '55-64': 0.16, '65+': 0.20
+    };
+    
     if (mode === "life_event") {
       const events = segment.lifeEventCriteria?.eventTypes || [];
       if (events.includes("retirement") || events.includes("wealth_transfer")) {
-        return [0.05, 0.15, 0.25, 0.35, 0.20]; // Skew older
+        return { '18-24': 0.02, '25-34': 0.05, '35-44': 0.12, '45-54': 0.28, '55-64': 0.35, '65+': 0.18 };
       }
       if (events.includes("family") || events.includes("home")) {
-        return [0.25, 0.35, 0.25, 0.10, 0.05]; // Skew younger
+        return { '18-24': 0.15, '25-34': 0.38, '35-44': 0.28, '45-54': 0.12, '55-64': 0.05, '65+': 0.02 };
       }
     }
-    return [0.15, 0.25, 0.25, 0.20, 0.15]; // Balanced
+    return baseWeights;
   };
 
-  const ageWeights = getAgeWeights();
+  const allAgeWeights = getAgeWeights();
+  
+  // Filter to selected ages only
+  const filteredAgeWeights = selectedAges.map(age => allAgeWeights[age] || 0.15);
+  const totalWeight = filteredAgeWeights.reduce((sum, w) => sum + w, 0);
+  const normalizedWeights = filteredAgeWeights.map(w => w / totalWeight);
+
+  const tenureOptions = accountTenure === 'all' 
+    ? ['New (< 1yr)', 'Established (1-5yr)', 'Loyal (5+ yr)']
+    : [{ new: 'New (< 1yr)', established: 'Established (1-5yr)', loyal: 'Loyal (5+ yr)' }[accountTenure] || 'Established (1-5yr)'];
 
   for (let i = 0; i < count; i++) {
     const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
     const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
     
-    // Weighted age selection
+    // Weighted age selection from selected ages only
     const ageRand = Math.random();
     let cumulative = 0;
-    let ageRange = AGE_RANGES[0];
-    for (let j = 0; j < ageWeights.length; j++) {
-      cumulative += ageWeights[j];
+    let ageRange = selectedAges[0];
+    for (let j = 0; j < normalizedWeights.length; j++) {
+      cumulative += normalizedWeights[j];
       if (ageRand <= cumulative) {
-        ageRange = AGE_RANGES[j];
+        ageRange = selectedAges[j];
         break;
       }
     }
@@ -188,8 +214,12 @@ export function generateSegmentContacts(
       segment_name: segmentName,
       targeting_type: mode,
       targeting_criteria: targetingCriteria,
-      region: REGIONS[Math.floor(Math.random() * REGIONS.length)],
+      region: selectedRegions[Math.floor(Math.random() * selectedRegions.length)],
       age_range: ageRange,
+      income_band: selectedIncome[Math.floor(Math.random() * selectedIncome.length)],
+      account_tenure: Array.isArray(tenureOptions) 
+        ? tenureOptions[Math.floor(Math.random() * tenureOptions.length)]
+        : tenureOptions,
     };
 
     // Add mode-specific fields
