@@ -908,8 +908,8 @@ const TePilot = () => {
 
                 {/* Persona Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Bank Leadership Card */}
-                  <PersonaCard icon={Building2} title="Bank Leadership" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
+                  {/* Analytics Card */}
+                  <PersonaCard icon={Building2} title="Analytics" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
                     "Portfolio-wide behavioral analysis across 70M+ accounts",
                     "12-Pillar interactive spending category explorer with drill-down",
                     "Card product performance matrix comparing spend and frequency",
