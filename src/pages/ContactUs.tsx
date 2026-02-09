@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, CheckCircle, ChevronDown } from "lucide-react";
+import { Mail, CheckCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TechnologyBackground from "@/components/technology/TechnologyBackground";
 import { useIsMobile } from "@/hooks/use-mobile";
 const ContactUs = () => {
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
@@ -48,24 +49,36 @@ ${name}
     setShowSuccessOverlay(false);
   };
   return <div className="min-h-screen bg-background relative overflow-hidden">
+      <TechnologyBackground />
       <Navbar />
       
-      {/* Hero Section */}
-      
-
       {/* Contact Form */}
-      <div className="px-4 md:px-8 pt-24 md:pt-28 pb-12 md:pb-16">
+      <div className="px-4 md:px-8 pt-24 md:pt-28 pb-12 md:pb-16 relative z-10">
         <div className={`mx-auto relative ${isMobile ? 'max-w-full' : 'max-w-2xl'}`}>
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+          <Card 
+            className="bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/10 transition-all duration-300 animate-fade-float"
+            style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
+          >
             <CardHeader className="text-center p-4 md:p-6">
-              <CardTitle className="text-xl md:text-2xl font-bold text-foreground">Send us a Message</CardTitle>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              <CardTitle 
+                className="text-xl md:text-2xl font-bold text-foreground animate-fade-float"
+                style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
+              >
+                Send us a Message
+              </CardTitle>
+              <p 
+                className="text-sm md:text-base text-muted-foreground leading-relaxed animate-fade-float"
+                style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
+              >
                 Fill out the form below to contact us at info@ventusai.com and we'll get back to you within one business day!
               </p>
             </CardHeader>
             <CardContent className="p-4 md:p-6">
               <form className="space-y-4 md:space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-float"
+                  style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
+                >
                   <div>
                     <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Full Name</label>
                     <Input name="name" placeholder="Enter your full name" className="h-12 text-base bg-secondary border-border" required />
@@ -76,17 +89,26 @@ ${name}
                   </div>
                 </div>
 
-                <div>
+                <div 
+                  className="animate-fade-float"
+                  style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
+                >
                   <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Subject</label>
                   <Input name="subject" placeholder="How can we help?" className="h-12 text-base bg-secondary border-border" required />
                 </div>
 
-                <div>
+                <div 
+                  className="animate-fade-float"
+                  style={{ animationDelay: '0.6s', animationFillMode: 'backwards' }}
+                >
                   <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Message</label>
                   <Textarea name="message" placeholder="Please share your questions or feedback..." className="min-h-32 resize-none text-base bg-secondary border-border" required />
                 </div>
 
-                <div className="flex justify-center pt-2">
+                <div 
+                  className="flex justify-center pt-2 animate-fade-float"
+                  style={{ animationDelay: '0.7s', animationFillMode: 'backwards' }}
+                >
                   <Button type="button" onClick={handleMailTo} className="h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 px-6 md:px-8 text-sm md:text-base min-w-[200px]">
                     <Mail className="mr-2 h-4 w-4" />
                     Open Email Client
@@ -99,7 +121,7 @@ ${name}
           {/* Success Overlay */}
           {showSuccessOverlay && <div className={`${isMobile ? 'fixed inset-0 z-50' : 'absolute inset-0 z-10'} bg-background/95 backdrop-blur-sm ${isMobile ? '' : 'rounded-xl border-0 shadow-xl'} flex items-center justify-center p-4`}>
               <div className="text-center p-6 md:p-8 max-w-md w-full">
-                <CheckCircle className="w-12 h-12 md:w-16 md:h-16 text-green-400 mx-auto mb-4" />
+                <CheckCircle className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto mb-4" />
                 <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">Email Client Opened</h3>
                 <p className="text-sm md:text-base text-muted-foreground mb-6 leading-relaxed">
                   Your default email client should open with the pre-filled message. It may not open if you do not have a default email client set up, you can always reach out to us directly at info@ventusai.com.
