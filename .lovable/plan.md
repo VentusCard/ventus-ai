@@ -1,113 +1,183 @@
 
-# Add Second Button to Analytics & Targeting Card
+
+# Add Smart Animations to Technology Page
 
 ## Overview
 
-Add a secondary button to the Analytics & Targeting PersonaCard that navigates directly to the Segment Targeting view, similar to how the Wealth Management card has two buttons for different views.
+Transform the `/technology` page with sophisticated animations that match the premium feel of the Hero component, including staggered entrance animations, animated background, hover micro-interactions, and subtle parallax effects.
 
 ## Current State
 
-- Analytics & Targeting card has one button: "View Bank-wide Dashboard"
-- Clicking it sets `insightType` to 'bankwide' and renders `AnalyticsContainer`
-- AnalyticsContainer has internal tabs: "Analytics Dashboard" and "Segment Targeting"
-- Users must click a second tab after entering the view to access Segment Targeting
+The Technology page is static with basic hover transitions on the capability cards. It lacks:
+- Entrance animations for content
+- Animated background elements
+- Icon animations
+- Scroll-triggered effects
 
-## Proposed Solution
+## Proposed Animations
 
-### Button Configuration
+### 1. Animated Background (Gradient Orbs)
 
-| Button | Position | Action |
-|--------|----------|--------|
-| View Analytics Dashboard | Top (secondary) | Opens AnalyticsContainer with "dashboard" tab active |
-| Open Segment Builder | Bottom (primary) | Opens AnalyticsContainer with "targeting" tab active |
+Add a subtle version of the GradientOrbs background used on the homepage to create visual continuity and depth.
 
-### Changes Required
+| Element | Animation | Purpose |
+|---------|-----------|---------|
+| Gradient orbs | Slow breathing/morphing | Creates ambient movement without distraction |
+| Subtle grid pattern | Static with fade | Adds tech/data aesthetic |
+| Vignette overlay | Static | Focuses attention on center content |
 
-**1. Update AnalyticsContainer to accept an initial tab prop:**
-```typescript
-interface AnalyticsContainerProps {
-  defaultTab?: 'dashboard' | 'targeting';
-}
+### 2. Header Entrance Animations
 
-export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
-  return (
-    <Tabs defaultValue={defaultTab} className="w-full">
-      ...
-    </Tabs>
-  );
-}
-```
+Staggered fade-up animations for the page title and subtitle:
 
-**2. Add state to TePilot to track which analytics tab to show:**
-```typescript
-const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
-```
+| Element | Animation | Delay |
+|---------|-----------|-------|
+| "What We Do" heading | fade-float + scale-up | 0.1s |
+| Subtitle paragraph | fade-float | 0.3s |
 
-**3. Update the Analytics & Targeting PersonaCard with two buttons:**
-```typescript
-<PersonaCard
-  icon={Building2}
-  title="Analytics & Targeting"
-  valueProposition="Make data-driven decisions across your entire portfolio"
-  description="..."
-  keyFeatures={[...]}
-  secondaryButtonText="View Analytics Dashboard"
-  secondaryButtonVariant="outline"
-  onSecondaryClick={() => {
-    setAnalyticsDefaultTab('dashboard');
-    setInsightType('bankwide');
-  }}
-  buttonText="Open Segment Builder"
-  buttonVariant="ai"
-  onClick={() => {
-    setAnalyticsDefaultTab('targeting');
-    setInsightType('bankwide');
-  }}
-/>
-```
+### 3. Capability Card Animations
 
-**4. Pass the default tab to AnalyticsContainer:**
-```typescript
-{insightType === 'bankwide' && (
-  <div className="space-y-6">
-    ...
-    <AnalyticsContainer defaultTab={analyticsDefaultTab} />
-  </div>
-)}
-```
+Staggered entrance with enhanced hover states:
 
-## Files to Modify
+| Element | Animation | Details |
+|---------|-----------|---------|
+| Card entrance | fade-float + slide-up | Staggered by index (0.1s increments) |
+| Icon container | pulse-glow on hover | Subtle glow effect |
+| Icon | scale + rotate on hover | Micro-interaction |
+| Arrow | slide-right on hover | Already exists, enhance timing |
+| Card border | gradient shimmer on hover | Premium feel |
 
-| File | Changes |
-|------|---------|
-| `src/components/tepilot/insights/AnalyticsContainer.tsx` | Add `defaultTab` prop to control initial tab |
-| `src/pages/TePilot.tsx` | Add `analyticsDefaultTab` state, add secondary button props to Analytics card, pass prop to AnalyticsContainer |
+### 4. Icon-Specific Animations
 
-## UI Preview
+Each icon gets a unique micro-animation on card hover:
+
+| Icon | Animation |
+|------|-----------|
+| Brain | Subtle pulse/throb |
+| Gift | Gentle bounce |
+| Users | Slight wave/shift |
+| Briefcase | Tilt effect |
+
+### 5. Scroll-Reveal for Cards
+
+Cards animate in as they enter viewport (optional enhancement using CSS intersection observer pattern or simple delay-based approach).
+
+## Implementation Approach
+
+### New Component: TechnologyBackground.tsx
+
+A simplified version of GradientOrbs optimized for the Technology page:
+- Darker, more subtle gradients
+- Slower animations
+- Lighter performance footprint
+
+### Updates to Technology.tsx
 
 ```text
-┌────────────────────────────────────────────┐
-│ 🏢 Analytics & Targeting                   │
-│                                            │
-│ Make data-driven decisions across...       │
-│                                            │
-│ ✓ Portfolio-wide behavioral analysis...    │
-│ ✓ 12-Pillar interactive spending...        │
-│ ✓ Card product performance matrix...       │
-│ ...                                        │
-│                                            │
-│ ┌────────────────────────────────────────┐ │
-│ │      View Analytics Dashboard      →   │ │  ← Secondary (outline style with primary bg)
-│ └────────────────────────────────────────┘ │
-│ ┌────────────────────────────────────────┐ │
-│ │        Open Segment Builder        →   │ │  ← Primary (ai variant)
-│ └────────────────────────────────────────┘ │
-└────────────────────────────────────────────┘
+Structure:
+┌────────────────────────────────────────────────────────────────┐
+│ [TechnologyBackground - animated gradient orbs, grid overlay] │
+│                                                                │
+│   ┌──────────────────────────────────────────────────────┐    │
+│   │  "What We Do"     animate-fade-float delay-100ms     │    │
+│   │   Subtitle        animate-fade-float delay-300ms     │    │
+│   └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│   ┌────────────────┐  ┌────────────────┐                      │
+│   │  Card 1        │  │  Card 2        │  delay: 0.2s, 0.3s   │
+│   │  Icon: pulse   │  │  Icon: bounce  │                      │
+│   │  hover: glow   │  │  hover: glow   │                      │
+│   └────────────────┘  └────────────────┘                      │
+│   ┌────────────────┐  ┌────────────────┐                      │
+│   │  Card 3        │  │  Card 4        │  delay: 0.4s, 0.5s   │
+│   │  Icon: wave    │  │  Icon: tilt    │                      │
+│   └────────────────┘  └────────────────┘                      │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
 ```
+
+## Tailwind Config Additions
+
+Add these new keyframes and animations:
+
+```typescript
+keyframes: {
+  'icon-pulse': {
+    '0%, 100%': { transform: 'scale(1)' },
+    '50%': { transform: 'scale(1.1)' }
+  },
+  'icon-bounce': {
+    '0%, 100%': { transform: 'translateY(0)' },
+    '50%': { transform: 'translateY(-4px)' }
+  },
+  'icon-tilt': {
+    '0%, 100%': { transform: 'rotate(0deg)' },
+    '50%': { transform: 'rotate(8deg)' }
+  },
+  'card-glow': {
+    '0%, 100%': { boxShadow: '0 0 0 rgba(59, 130, 246, 0)' },
+    '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)' }
+  }
+}
+```
+
+## Files to Create/Modify
+
+| File | Action | Changes |
+|------|--------|---------|
+| `src/components/technology/TechnologyBackground.tsx` | Create | Animated gradient background component |
+| `src/pages/Technology.tsx` | Modify | Add background, entrance animations, enhanced card hover states |
+| `tailwind.config.ts` | Modify | Add icon animation keyframes |
+
+## Card Animation Details
+
+Each card will have:
+
+1. **Entrance Animation**:
+   ```tsx
+   className="animate-fade-float"
+   style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'backwards' }}
+   ```
+
+2. **Hover State**:
+   ```tsx
+   className="group ... hover:shadow-xl hover:scale-[1.02] hover:border-primary/30"
+   ```
+
+3. **Icon Animation on Hover**:
+   ```tsx
+   <capability.icon className="... group-hover:scale-110 group-hover:text-primary transition-all" />
+   ```
+
+4. **Glow Effect on Icon Container**:
+   ```tsx
+   <div className="... group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:bg-primary/20">
+   ```
+
+## Visual Preview
+
+```text
+Before:                          After:
+┌─────────────────┐              ┌─────────────────┐
+│ Static card     │              │ ✨ Animated BG  │
+│ Basic hover     │     →        │ 🎯 Staggered in │
+│ No depth        │              │ 💫 Hover glow   │
+│ Simple icons    │              │ 🔄 Icon animate │
+└─────────────────┘              └─────────────────┘
+```
+
+## Performance Considerations
+
+- Use `will-change` sparingly for animated elements
+- Background uses `mix-blend-mode` and `filter: blur()` efficiently
+- Animations use GPU-accelerated properties (transform, opacity)
+- `prefers-reduced-motion` media query respected
 
 ## Benefits
 
-- Users can go directly to either Analytics Dashboard or Segment Targeting
-- Matches the two-button pattern used by the Wealth Management card
-- No extra clicks required to reach the Segment Builder
-- Both views remain accessible via tabs once inside the AnalyticsContainer
+- Creates visual continuity with the Hero section
+- Premium, polished feel matches "smart AI" branding
+- Micro-interactions provide satisfying feedback
+- Staggered animations guide user attention
+- Maintains fast performance with CSS-only approach
+
