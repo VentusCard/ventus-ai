@@ -19,7 +19,6 @@ const buttonVariants = cva(
         premium: "bg-primary text-white hover:bg-primary/85",
         whiteText: "bg-primary text-white hover:bg-primary/85",
         ai: "bg-primary text-white hover:bg-primary/85",
-        inverse: "!bg-white !text-black hover:!bg-white/90 !border-transparent shadow-sm",
       },
       size: {
         default: "h-12 px-8 py-3",

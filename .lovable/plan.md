@@ -1,82 +1,183 @@
 
-## What’s happening (deep dive)
 
-From the codebase, there is only **one** `Footer` component and it’s used across all the marketing pages (`/`, `/technology`, `/about`, `/contact`, etc.). The `inverse` variant also exists in the shared `Button` component.
+# Add Smart Animations to Technology Page
 
-So if you still see a **blue** button (the default variant) on some pages, it strongly suggests one of these two issues:
+## Overview
 
-1) **Invalid HTML nesting is causing inconsistent rendering**
-- Current footer markup is:
-  - `<Link>` renders an `<a>`
-  - Inside it, `<Button>` renders a `<button>`
-- That produces `<a><button>…</button></a>` which is invalid HTML.
-- Browsers can “repair” invalid markup differently depending on surrounding DOM/layout, which can lead to unpredictable styling/behavior across pages (especially when other layout wrappers, z-index layers, or background components are present).
+Transform the `/technology` page with sophisticated animations that match the premium feel of the Hero component, including staggered entrance animations, animated background, hover micro-interactions, and subtle parallax effects.
 
-2) **Some CSS is overriding the intended “inverse” look in certain contexts**
-- Even if `variant="inverse"` is applied, a more specific rule (or an `!important` rule) can override `bg-white text-black`.
-- We didn’t find an obvious global `button { background: ... !important }` rule, but we do have other `!important` rules in the codebase (notably in `components.css` for certain components). If any page wrapper introduces a stronger selector, your inverse styles can lose.
+## Current State
 
-Given your symptom (“white text and a blue button”), the most likely outcome is: **the browser is not applying the inverse variant consistently due to the invalid `<a><button/></a>` nesting**, and it falls back to the default button styling.
+The Technology page is static with basic hover transitions on the capability cards. It lacks:
+- Entrance animations for content
+- Animated background elements
+- Icon animations
+- Scroll-triggered effects
 
----
+## Proposed Animations
 
-## Fix approach (robust, consistent across all pages)
+### 1. Animated Background (Gradient Orbs)
 
-### A) Fix the DOM structure: make the `Button` render as the `<a>` element
-Update the footer button markup to use `asChild`:
+Add a subtle version of the GradientOrbs background used on the homepage to create visual continuity and depth.
 
-- Before:
-  - `<Link><Button variant="inverse">Contact Us</Button></Link>`
-- After:
-  - `<Button asChild variant="inverse"><Link to="/contact">Contact Us</Link></Button>`
+| Element | Animation | Purpose |
+|---------|-----------|---------|
+| Gradient orbs | Slow breathing/morphing | Creates ambient movement without distraction |
+| Subtle grid pattern | Static with fade | Adds tech/data aesthetic |
+| Vignette overlay | Static | Focuses attention on center content |
 
-This generates valid HTML:
-- `<a class="...button classes...">Contact Us</a>`
+### 2. Header Entrance Animations
 
-This is the standard shadcn/Radix pattern and removes cross-page inconsistency risks.
+Staggered fade-up animations for the page title and subtitle:
 
-### B) Make the inverse variant “un-overrideable”
-To protect against any page-level CSS specificity, update the `inverse` variant string to include Tailwind important modifiers:
+| Element | Animation | Delay |
+|---------|-----------|-------|
+| "What We Do" heading | fade-float + scale-up | 0.1s |
+| Subtitle paragraph | fade-float | 0.3s |
 
-- `inverse: "!bg-white !text-black hover:!bg-white/90 !border-transparent"`
+### 3. Capability Card Animations
 
-Optionally add:
-- `shadow` for contrast against black footers
-- `focus-visible:ring-offset-black` so focus ring looks correct on dark backgrounds
+Staggered entrance with enhanced hover states:
 
-This ensures the inverse button stays white even if some other styles attempt to override it.
+| Element | Animation | Details |
+|---------|-----------|---------|
+| Card entrance | fade-float + slide-up | Staggered by index (0.1s increments) |
+| Icon container | pulse-glow on hover | Subtle glow effect |
+| Icon | scale + rotate on hover | Micro-interaction |
+| Arrow | slide-right on hover | Already exists, enhance timing |
+| Card border | gradient shimmer on hover | Premium feel |
 
-### C) Verify in all relevant page contexts
-After implementing, verify on:
-- `/` (Index)
-- `/technology` (your current route)
-- `/contact`
-- one of the “capability” pages (e.g. `/enrichment`)
-And also verify on mobile viewport (because mobile.css contains global-ish button rules that could affect feel/layout).
+### 4. Icon-Specific Animations
 
----
+Each icon gets a unique micro-animation on card hover:
 
-## Concrete file-level changes
+| Icon | Animation |
+|------|-----------|
+| Brain | Subtle pulse/throb |
+| Gift | Gentle bounce |
+| Users | Slight wave/shift |
+| Briefcase | Tilt effect |
 
-### 1) `src/components/Footer.tsx`
-- Replace the `<Link><Button/></Link>` nesting with `Button asChild` + `Link` inside.
+### 5. Scroll-Reveal for Cards
 
-### 2) `src/components/ui/button.tsx`
-- Strengthen the `inverse` variant with `!` modifiers.
-- (Optional) add a slight shadow for legibility on dark footers.
+Cards animate in as they enter viewport (optional enhancement using CSS intersection observer pattern or simple delay-based approach).
 
----
+## Implementation Approach
 
-## Acceptance criteria (what you should see)
-- On **every** page, the footer “Contact Us” control renders as:
-  - a **solid white** button with **black** text
-  - consistent hover state (slightly dimmer white)
-- No page shows the blue default button in the footer anymore.
+### New Component: TechnologyBackground.tsx
 
----
+A simplified version of GradientOrbs optimized for the Technology page:
+- Darker, more subtle gradients
+- Slower animations
+- Lighter performance footprint
 
-## Potential follow-up (only if still broken after A+B)
-If you still see blue on any page after fixing nesting + adding `!`:
-- We’ll inspect computed styles on that page and search for the exact CSS selector overriding it, then either:
-  - remove/limit that selector’s scope, or
-  - add a dedicated footer-only class (e.g., `.footer-cta`) with `!important` rules in one place.
+### Updates to Technology.tsx
+
+```text
+Structure:
+┌────────────────────────────────────────────────────────────────┐
+│ [TechnologyBackground - animated gradient orbs, grid overlay] │
+│                                                                │
+│   ┌──────────────────────────────────────────────────────┐    │
+│   │  "What We Do"     animate-fade-float delay-100ms     │    │
+│   │   Subtitle        animate-fade-float delay-300ms     │    │
+│   └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│   ┌────────────────┐  ┌────────────────┐                      │
+│   │  Card 1        │  │  Card 2        │  delay: 0.2s, 0.3s   │
+│   │  Icon: pulse   │  │  Icon: bounce  │                      │
+│   │  hover: glow   │  │  hover: glow   │                      │
+│   └────────────────┘  └────────────────┘                      │
+│   ┌────────────────┐  ┌────────────────┐                      │
+│   │  Card 3        │  │  Card 4        │  delay: 0.4s, 0.5s   │
+│   │  Icon: wave    │  │  Icon: tilt    │                      │
+│   └────────────────┘  └────────────────┘                      │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+## Tailwind Config Additions
+
+Add these new keyframes and animations:
+
+```typescript
+keyframes: {
+  'icon-pulse': {
+    '0%, 100%': { transform: 'scale(1)' },
+    '50%': { transform: 'scale(1.1)' }
+  },
+  'icon-bounce': {
+    '0%, 100%': { transform: 'translateY(0)' },
+    '50%': { transform: 'translateY(-4px)' }
+  },
+  'icon-tilt': {
+    '0%, 100%': { transform: 'rotate(0deg)' },
+    '50%': { transform: 'rotate(8deg)' }
+  },
+  'card-glow': {
+    '0%, 100%': { boxShadow: '0 0 0 rgba(59, 130, 246, 0)' },
+    '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)' }
+  }
+}
+```
+
+## Files to Create/Modify
+
+| File | Action | Changes |
+|------|--------|---------|
+| `src/components/technology/TechnologyBackground.tsx` | Create | Animated gradient background component |
+| `src/pages/Technology.tsx` | Modify | Add background, entrance animations, enhanced card hover states |
+| `tailwind.config.ts` | Modify | Add icon animation keyframes |
+
+## Card Animation Details
+
+Each card will have:
+
+1. **Entrance Animation**:
+   ```tsx
+   className="animate-fade-float"
+   style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'backwards' }}
+   ```
+
+2. **Hover State**:
+   ```tsx
+   className="group ... hover:shadow-xl hover:scale-[1.02] hover:border-primary/30"
+   ```
+
+3. **Icon Animation on Hover**:
+   ```tsx
+   <capability.icon className="... group-hover:scale-110 group-hover:text-primary transition-all" />
+   ```
+
+4. **Glow Effect on Icon Container**:
+   ```tsx
+   <div className="... group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:bg-primary/20">
+   ```
+
+## Visual Preview
+
+```text
+Before:                          After:
+┌─────────────────┐              ┌─────────────────┐
+│ Static card     │              │ ✨ Animated BG  │
+│ Basic hover     │     →        │ 🎯 Staggered in │
+│ No depth        │              │ 💫 Hover glow   │
+│ Simple icons    │              │ 🔄 Icon animate │
+└─────────────────┘              └─────────────────┘
+```
+
+## Performance Considerations
+
+- Use `will-change` sparingly for animated elements
+- Background uses `mix-blend-mode` and `filter: blur()` efficiently
+- Animations use GPU-accelerated properties (transform, opacity)
+- `prefers-reduced-motion` media query respected
+
+## Benefits
+
+- Creates visual continuity with the Hero section
+- Premium, polished feel matches "smart AI" branding
+- Micro-interactions provide satisfying feedback
+- Staggered animations guide user attention
+- Maintains fast performance with CSS-only approach
+
