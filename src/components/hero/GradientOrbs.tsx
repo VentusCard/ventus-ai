@@ -44,68 +44,43 @@ const GradientOrbs = ({ parallaxX = 0, parallaxY = 0 }: GradientOrbsProps) => {
         }}
       />
 
-      {/* Layer 2: Floating Radial Gradient Spots - reduced opacity */}
+      {/* Layer 2: Floating Radial Gradient Spots - very subtle */}
       <div
-        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] animate-mesh-breathe opacity-35 transition-transform duration-700 ease-out"
+        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] opacity-15 transition-transform duration-1000 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 40% 40%, hsl(217, 91%, 60%) 0%, transparent 60%)',
-          filter: 'blur(80px)',
+          background: 'radial-gradient(ellipse at 40% 40%, hsl(217, 70%, 50%) 0%, transparent 70%)',
+          filter: 'blur(120px)',
           mixBlendMode: 'screen',
-          transform: `translate(${-parallaxX * 1}px, ${-parallaxY * 1}px)`,
-          willChange: 'transform, opacity',
+          transform: `translate(${-parallaxX * 0.5}px, ${-parallaxY * 0.5}px)`,
+          willChange: 'transform',
         }}
       />
       
       <div
-        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] animate-mesh-breathe opacity-30 transition-transform duration-700 ease-out"
+        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] opacity-12 transition-transform duration-1000 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 60% 60%, hsl(271, 81%, 56%) 0%, transparent 55%)',
-          filter: 'blur(90px)',
+          background: 'radial-gradient(ellipse at 60% 60%, hsl(271, 60%, 45%) 0%, transparent 70%)',
+          filter: 'blur(130px)',
           mixBlendMode: 'screen',
-          animationDelay: '5s',
-          transform: `translate(${parallaxX * 0.8}px, ${parallaxY * 0.8}px)`,
-          willChange: 'transform, opacity',
+          transform: `translate(${parallaxX * 0.4}px, ${parallaxY * 0.4}px)`,
+          willChange: 'transform',
         }}
       />
       
       <div
-        className="absolute top-1/3 right-1/4 w-[500px] h-[500px] animate-mesh-breathe opacity-25 transition-transform duration-700 ease-out"
+        className="absolute top-1/3 right-1/4 w-[500px] h-[500px] opacity-10 transition-transform duration-1000 ease-out"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, transparent 50%)',
-          filter: 'blur(70px)',
-          mixBlendMode: 'screen',
-          animationDelay: '2.5s',
-          transform: `translate(${parallaxX * 1.2}px, ${parallaxY * 1.2}px)`,
-          willChange: 'transform, opacity',
-        }}
-      />
-
-      {/* Layer 3: Soft gradient clouds - reduced opacity */}
-      <div
-        className="absolute top-0 left-1/4 w-[900px] h-[400px] animate-float-slow opacity-15 transition-transform duration-1000 ease-out"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 50%, hsl(217, 91%, 60%) 0%, hsl(271, 81%, 56%) 40%, transparent 70%)',
+          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 70%, 35%) 0%, transparent 70%)',
           filter: 'blur(100px)',
           mixBlendMode: 'screen',
-          transform: `translate(${parallaxX * 1}px, ${parallaxY * 1}px)`,
-          willChange: 'transform',
-        }}
-      />
-      
-      <div
-        className="absolute bottom-1/4 right-1/3 w-[700px] h-[350px] animate-float-slow opacity-12 transition-transform duration-1000 ease-out"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 50%, hsl(187, 96%, 42%) 0%, hsl(217, 91%, 60%) 45%, transparent 70%)',
-          filter: 'blur(90px)',
-          mixBlendMode: 'screen',
-          animationDelay: '4s',
-          transform: `translate(${-parallaxX * 1.2}px, ${-parallaxY * 1.2}px)`,
+          transform: `translate(${parallaxX * 0.6}px, ${parallaxY * 0.6}px)`,
           willChange: 'transform',
         }}
       />
 
+      {/* Layer 3: Soft gradient clouds - removed for cleaner look */}
 
-      {/* Layer 5: Subtle hue-shifting overlay - reduced */}
+      {/* Layer 5: Subtle hue-shifting overlay - minimal */}
       <div
         className="absolute inset-0 animate-hue-dance opacity-[0.08] mix-blend-overlay"
         style={{
