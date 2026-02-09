@@ -21,7 +21,7 @@ const Footer = () => {
               Have questions? We're here to help.
             </p>
             <Link to="/contact">
-              <Button size="sm" className="!bg-white !text-black hover:!bg-white/90 border-0">
+              <Button size="sm" variant="inverse">
                 Contact Us
               </Button>
             </Link>
