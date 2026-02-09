@@ -10,7 +10,7 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold tracking-wide mb-4 text-foreground">VENTUS AI</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Intelligent Financial Technology. AI-Powered Insights for Modern Banking.
+              Deeper insights. Smarter engagement. Better outcomes.
             </p>
           </div>
 
