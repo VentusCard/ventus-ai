@@ -62,11 +62,10 @@ const Technology = () => {
               What We Do
             </h1>
             <p 
-              className="text-xl text-foreground/70 max-w-2xl mx-auto animate-fade-float"
+              className="text-xl text-foreground/70 max-w-3xl mx-auto animate-fade-float"
               style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
             >
-              Turn transaction data into actionable consumer intelligence 
-              with our four core capabilities.
+              Turn transaction data into actionable consumer intelligence with our four core capabilities.
             </p>
           </div>
           
