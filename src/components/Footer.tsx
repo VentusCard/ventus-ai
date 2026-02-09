@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <h3 className="text-xl font-bold tracking-wide mb-4 text-white">VENTUS AI</h3>
-            <p className="text-white/70 text-sm leading-relaxed">
+            <p className="text-white/80 text-sm leading-relaxed">
               Intelligent Financial Technology. AI-Powered Insights for Modern Banking.
             </p>
           </div>
@@ -17,11 +17,11 @@ const Footer = () => {
           {/* Get in Touch */}
           <div className="md:text-right">
             <h4 className="text-lg font-semibold mb-4 text-white">Get in Touch</h4>
-            <p className="text-white/70 text-sm mb-4">
+            <p className="text-white/80 text-sm mb-4">
               Have questions? We're here to help.
             </p>
             <Link to="/contact">
-              <Button size="sm" className="bg-white text-black hover:bg-white/90">
+              <Button size="sm" className="!bg-white !text-black hover:!bg-white/90 border-0">
                 Contact Us
               </Button>
             </Link>
@@ -29,7 +29,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p className="text-white/60 text-sm">
+          <p className="text-white/70 text-sm">
             © 2026 Ventus Financial Technologies Inc. All rights reserved.
           </p>
         </div>
