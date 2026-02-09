@@ -4,49 +4,47 @@ interface DataNetworkSVGProps {
 }
 
 const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) => {
-  // Primary layer nodes
+  // Primary layer nodes - fewer nodes for subtlety
   const primaryNodes = [
-    { cx: 80, cy: 120, r: 5, delay: "0s" },
-    { cx: 180, cy: 80, r: 4, delay: "0.2s" },
-    { cx: 280, cy: 140, r: 6, delay: "0.4s" },
-    { cx: 150, cy: 200, r: 4, delay: "0.3s" },
-    { cx: 350, cy: 100, r: 5, delay: "0.5s" },
-    { cx: 420, cy: 180, r: 4, delay: "0.6s" },
-    { cx: 320, cy: 240, r: 5, delay: "0.7s" },
-    { cx: 480, cy: 120, r: 4, delay: "0.4s" },
-    { cx: 520, cy: 200, r: 6, delay: "0.8s" },
-    { cx: 600, cy: 140, r: 5, delay: "0.5s" },
-    { cx: 650, cy: 80, r: 4, delay: "0.6s" },
-    { cx: 50, cy: 220, r: 4, delay: "0.7s" },
+    { cx: 80, cy: 120, r: 4, delay: "0s" },
+    { cx: 180, cy: 80, r: 3, delay: "0.2s" },
+    { cx: 280, cy: 140, r: 5, delay: "0.4s" },
+    { cx: 150, cy: 200, r: 3, delay: "0.3s" },
+    { cx: 350, cy: 100, r: 4, delay: "0.5s" },
+    { cx: 420, cy: 180, r: 3, delay: "0.6s" },
+    { cx: 320, cy: 240, r: 4, delay: "0.7s" },
+    { cx: 480, cy: 120, r: 3, delay: "0.4s" },
+    { cx: 520, cy: 200, r: 5, delay: "0.8s" },
+    { cx: 600, cy: 140, r: 4, delay: "0.5s" },
+    { cx: 650, cy: 80, r: 3, delay: "0.6s" },
+    { cx: 50, cy: 220, r: 3, delay: "0.7s" },
   ];
 
   // Secondary layer nodes (smaller, more subtle)
   const secondaryNodes = [
-    { cx: 120, cy: 160, r: 2, delay: "1s" },
-    { cx: 220, cy: 120, r: 2, delay: "1.2s" },
-    { cx: 380, cy: 160, r: 2, delay: "1.4s" },
-    { cx: 450, cy: 240, r: 2, delay: "1.3s" },
-    { cx: 560, cy: 100, r: 2, delay: "1.5s" },
-    { cx: 30, cy: 180, r: 2, delay: "1.1s" },
-    { cx: 680, cy: 180, r: 2, delay: "1.6s" },
+    { cx: 120, cy: 160, r: 1.5, delay: "1s" },
+    { cx: 220, cy: 120, r: 1.5, delay: "1.2s" },
+    { cx: 380, cy: 160, r: 1.5, delay: "1.4s" },
+    { cx: 450, cy: 240, r: 1.5, delay: "1.3s" },
+    { cx: 560, cy: 100, r: 1.5, delay: "1.5s" },
   ];
 
-  // Primary connections - straight lines with looping draw animation
+  // Primary connections - straight lines with slower looping animation
   const primaryConnections = [
-    { x1: 80, y1: 120, x2: 180, y2: 80, dur: "5s", delay: "0s" },
-    { x1: 180, y1: 80, x2: 280, y2: 140, dur: "5.5s", delay: "0.3s" },
-    { x1: 180, y1: 80, x2: 150, y2: 200, dur: "6s", delay: "0.6s" },
-    { x1: 280, y1: 140, x2: 350, y2: 100, dur: "5.2s", delay: "0.5s" },
-    { x1: 280, y1: 140, x2: 320, y2: 240, dur: "6.5s", delay: "0.8s" },
-    { x1: 350, y1: 100, x2: 420, y2: 180, dur: "5s", delay: "1s" },
-    { x1: 350, y1: 100, x2: 480, y2: 120, dur: "5.8s", delay: "0.2s" },
-    { x1: 420, y1: 180, x2: 520, y2: 200, dur: "5.3s", delay: "1.1s" },
-    { x1: 480, y1: 120, x2: 600, y2: 140, dur: "6s", delay: "0.4s" },
-    { x1: 520, y1: 200, x2: 600, y2: 140, dur: "5.5s", delay: "1.2s" },
-    { x1: 600, y1: 140, x2: 650, y2: 80, dur: "5.2s", delay: "0.6s" },
-    { x1: 50, y1: 220, x2: 80, y2: 120, dur: "6.2s", delay: "0.5s" },
-    { x1: 50, y1: 220, x2: 150, y2: 200, dur: "5.6s", delay: "0.8s" },
-    { x1: 320, y1: 240, x2: 420, y2: 180, dur: "5s", delay: "1s" },
+    { x1: 80, y1: 120, x2: 180, y2: 80, dur: "8s", delay: "0s" },
+    { x1: 180, y1: 80, x2: 280, y2: 140, dur: "9s", delay: "0.3s" },
+    { x1: 180, y1: 80, x2: 150, y2: 200, dur: "10s", delay: "0.6s" },
+    { x1: 280, y1: 140, x2: 350, y2: 100, dur: "8.5s", delay: "0.5s" },
+    { x1: 280, y1: 140, x2: 320, y2: 240, dur: "11s", delay: "0.8s" },
+    { x1: 350, y1: 100, x2: 420, y2: 180, dur: "8s", delay: "1s" },
+    { x1: 350, y1: 100, x2: 480, y2: 120, dur: "9.5s", delay: "0.2s" },
+    { x1: 420, y1: 180, x2: 520, y2: 200, dur: "8.5s", delay: "1.1s" },
+    { x1: 480, y1: 120, x2: 600, y2: 140, dur: "10s", delay: "0.4s" },
+    { x1: 520, y1: 200, x2: 600, y2: 140, dur: "9s", delay: "1.2s" },
+    { x1: 600, y1: 140, x2: 650, y2: 80, dur: "8.5s", delay: "0.6s" },
+    { x1: 50, y1: 220, x2: 80, y2: 120, dur: "10.5s", delay: "0.5s" },
+    { x1: 50, y1: 220, x2: 150, y2: 200, dur: "9s", delay: "0.8s" },
+    { x1: 320, y1: 240, x2: 420, y2: 180, dur: "8s", delay: "1s" },
   ];
 
   // Secondary connections (fainter)
@@ -57,45 +55,40 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
     { x1: 380, y1: 160, x2: 350, y2: 100 },
     { x1: 380, y1: 160, x2: 420, y2: 180 },
     { x1: 450, y1: 240, x2: 520, y2: 200 },
-    { x1: 560, y1: 100, x2: 600, y2: 140 },
-    { x1: 560, y1: 100, x2: 480, y2: 120 },
   ];
 
-  // Data pulse paths (subset of connections for animated pulses)
+  // Data pulse paths - fewer and slower
   const pulsePaths = [
-    { x1: 80, y1: 120, x2: 180, y2: 80, duration: "3.5s", delay: "0s" },
-    { x1: 180, y1: 80, x2: 280, y2: 140, duration: "4s", delay: "0.8s" },
-    { x1: 280, y1: 140, x2: 350, y2: 100, duration: "3.5s", delay: "1.6s" },
-    { x1: 350, y1: 100, x2: 480, y2: 120, duration: "3.8s", delay: "2.4s" },
-    { x1: 480, y1: 120, x2: 600, y2: 140, duration: "3.5s", delay: "3.2s" },
-    { x1: 150, y1: 200, x2: 320, y2: 240, duration: "4.5s", delay: "1.2s" },
-    { x1: 420, y1: 180, x2: 520, y2: 200, duration: "4s", delay: "2s" },
+    { x1: 80, y1: 120, x2: 180, y2: 80, duration: "6s", delay: "0s" },
+    { x1: 180, y1: 80, x2: 280, y2: 140, duration: "7s", delay: "1.5s" },
+    { x1: 280, y1: 140, x2: 350, y2: 100, duration: "6s", delay: "3s" },
+    { x1: 350, y1: 100, x2: 480, y2: 120, duration: "6.5s", delay: "4.5s" },
+    { x1: 420, y1: 180, x2: 520, y2: 200, duration: "7s", delay: "2s" },
   ];
 
   return (
     <svg
-      className="absolute inset-0 w-full h-full opacity-80 transition-transform duration-100 ease-out"
+      className="absolute inset-0 w-full h-full opacity-50 transition-transform duration-200 ease-out"
       viewBox="0 0 700 320"
       preserveAspectRatio="xMidYMid slice"
       style={{
-        transform: `translate(${parallaxX * 1.5}px, ${parallaxY * 1.5}px)`,
+        transform: `translate(${parallaxX * 1}px, ${parallaxY * 1}px)`,
       }}
     >
       <defs>
-        {/* Enhanced glow filter for nodes */}
+        {/* Softer glow filter for nodes */}
         <filter id="node-glow" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
           <feMerge>
-            <feMergeNode in="coloredBlur" />
             <feMergeNode in="coloredBlur" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
 
-        {/* Intense glow for active nodes */}
+        {/* Softer intense glow for active nodes */}
         <filter id="node-glow-intense" x="-150%" y="-150%" width="400%" height="400%">
-          <feGaussianBlur stdDeviation="6" result="blur1" />
-          <feGaussianBlur stdDeviation="2" result="blur2" />
+          <feGaussianBlur stdDeviation="4" result="blur1" />
+          <feGaussianBlur stdDeviation="1.5" result="blur2" />
           <feMerge>
             <feMergeNode in="blur1" />
             <feMergeNode in="blur2" />
@@ -103,49 +96,49 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
           </feMerge>
         </filter>
 
-        {/* Gradient for primary connection lines */}
+        {/* Gradient for primary connection lines - reduced opacity */}
         <linearGradient id="line-gradient-primary" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.7" />
-          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="1.0" />
-          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.7" />
+          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
+          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.5" />
         </linearGradient>
 
         {/* Gradient for secondary connection lines */}
         <linearGradient id="line-gradient-secondary" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4" />
+          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
+          <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.25" />
         </linearGradient>
 
         {/* Gradient for data pulses */}
         <linearGradient id="pulse-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#60a5fa" stopOpacity="0" />
-          <stop offset="50%" stopColor="#c4b5fd" stopOpacity="1" />
+          <stop offset="50%" stopColor="#c4b5fd" stopOpacity="0.8" />
           <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
         </linearGradient>
 
-        {/* Node gradients */}
+        {/* Node gradients - reduced intensity */}
         <radialGradient id="node-gradient-blue" cx="30%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#93c5fd" stopOpacity="1" />
-          <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.6" />
+          <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.4" />
         </radialGradient>
 
         <radialGradient id="node-gradient-violet" cx="30%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#c4b5fd" stopOpacity="1" />
-          <stop offset="50%" stopColor="#a78bfa" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.6" />
+          <stop offset="0%" stopColor="#c4b5fd" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#a78bfa" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.4" />
         </radialGradient>
 
         <radialGradient id="node-gradient-cyan" cx="30%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#67e8f9" stopOpacity="1" />
-          <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.6" />
+          <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.4" />
         </radialGradient>
       </defs>
 
       {/* Background grid pattern (very subtle) */}
-      <g className="opacity-20">
+      <g className="opacity-10">
         {Array.from({ length: 15 }).map((_, i) => (
           <line
             key={`grid-h-${i}`}
@@ -154,7 +147,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             x2="700"
             y2={i * 25}
             stroke="#64748b"
-            strokeWidth="0.5"
+            strokeWidth="0.3"
           />
         ))}
         {Array.from({ length: 30 }).map((_, i) => (
@@ -165,13 +158,13 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             x2={i * 25}
             y2="320"
             stroke="#64748b"
-            strokeWidth="0.5"
+            strokeWidth="0.3"
           />
         ))}
       </g>
 
       {/* Secondary connections (drawn first, appear behind) */}
-      <g className="opacity-70">
+      <g className="opacity-50">
         {secondaryConnections.map((line, i) => (
           <line
             key={`sec-line-${i}`}
@@ -180,7 +173,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             x2={line.x2}
             y2={line.y2}
             stroke="url(#line-gradient-secondary)"
-            strokeWidth="0.5"
+            strokeWidth="0.4"
             className="animate-draw-line"
             style={{
               animationDelay: `${1 + i * 0.15}s`,
@@ -191,7 +184,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
         ))}
       </g>
 
-      {/* Primary connections - straight lines with looping draw animation */}
+      {/* Primary connections - straight lines with slower looping draw animation */}
       {primaryConnections.map((line, i) => {
         const length = Math.sqrt(Math.pow(line.x2 - line.x1, 2) + Math.pow(line.y2 - line.y1, 2));
         return (
@@ -202,7 +195,7 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             x2={line.x2}
             y2={line.y2}
             stroke="url(#line-gradient-primary)"
-            strokeWidth="1.2"
+            strokeWidth="0.8"
             strokeLinecap="round"
             style={{
               strokeDasharray: length,
@@ -223,10 +216,10 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
         );
       })}
 
-      {/* Data pulses traveling along paths */}
+      {/* Data pulses traveling along paths - fewer and slower */}
       {pulsePaths.map((path, i) => (
         <g key={`pulse-${i}`}>
-          <circle r="3" fill="url(#pulse-gradient)" filter="url(#node-glow)">
+          <circle r="2.5" fill="url(#pulse-gradient)" filter="url(#node-glow)">
             <animateMotion
               dur={path.duration}
               repeatCount="indefinite"
@@ -236,14 +229,14 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             </animateMotion>
             <animate
               attributeName="opacity"
-              values="0;1;1;0"
+              values="0;0.8;0.8;0"
               dur={path.duration}
               repeatCount="indefinite"
               begin={path.delay}
             />
             <animate
               attributeName="r"
-              values="2;3;2"
+              values="1.5;2.5;1.5"
               dur={path.duration}
               repeatCount="indefinite"
               begin={path.delay}
@@ -266,51 +259,40 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
             cy={node.cy}
             r={node.r}
             fill="#94a3b8"
-            opacity="0.7"
+            opacity="0.5"
             className="animate-pulse-glow"
             style={{ animationDelay: node.delay }}
           />
         </g>
       ))}
 
-      {/* Primary nodes with enhanced effects */}
+      {/* Primary nodes with softer effects */}
       {primaryNodes.map((node, i) => {
         const gradients = ["node-gradient-blue", "node-gradient-violet", "node-gradient-cyan"];
         const gradient = gradients[i % 3];
         return (
-          <g key={`node-${i}`} className="animate-float-slow" style={{ animationDelay: node.delay, animationDuration: `${8 + (i % 4)}s` }}>
-            {/* Outer ripple ring */}
-            <circle
-              cx={node.cx}
-              cy={node.cy}
-              r={node.r * 3}
-              fill="none"
-              stroke="#60a5fa"
-              strokeWidth="0.5"
-              className="animate-ripple"
-              style={{ animationDelay: `${parseFloat(node.delay) + 1}s` }}
-              opacity="0"
-            />
+          <g key={`node-${i}`} className="animate-float-slow" style={{ animationDelay: node.delay, animationDuration: `${10 + (i % 4)}s` }}>
+            {/* Outer ripple ring - removed for subtlety */}
             {/* Middle glow ring */}
             <circle
               cx={node.cx}
               cy={node.cy}
-              r={node.r * 2}
+              r={node.r * 1.8}
               fill="none"
               stroke="#60a5fa"
-              strokeWidth="1"
+              strokeWidth="0.5"
               className="animate-pulse-glow"
               style={{ animationDelay: node.delay }}
-              opacity="0.6"
+              opacity="0.4"
             />
             {/* Inner glow */}
             <circle
               cx={node.cx}
               cy={node.cy}
-              r={node.r * 1.5}
+              r={node.r * 1.3}
               fill={`url(#${gradient})`}
               filter="url(#node-glow)"
-              opacity="0.8"
+              opacity="0.6"
             />
             {/* Core node */}
             <circle
@@ -321,25 +303,26 @@ const DataNetworkSVG = ({ parallaxX = 0, parallaxY = 0 }: DataNetworkSVGProps) =
               filter="url(#node-glow-intense)"
               className="animate-pulse-glow"
               style={{ animationDelay: node.delay }}
+              opacity="0.9"
             />
           </g>
         );
       })}
 
-      {/* Floating particles */}
-      {Array.from({ length: 20 }).map((_, i) => (
+      {/* Floating particles - fewer and more subtle */}
+      {Array.from({ length: 12 }).map((_, i) => (
         <circle
           key={`particle-${i}`}
-          cx={50 + (i * 33) % 600}
+          cx={50 + (i * 55) % 600}
           cy={30 + (i * 47) % 260}
-          r={0.5 + (i % 3) * 0.3}
+          r={0.4 + (i % 3) * 0.2}
           fill="#94a3b8"
           className="animate-particle-drift"
           style={{
-            animationDelay: `${i * 0.5}s`,
-            animationDuration: `${22 + (i % 10)}s`,
+            animationDelay: `${i * 0.8}s`,
+            animationDuration: `${28 + (i % 10)}s`,
           }}
-          opacity={0.4 + (i % 5) * 0.12}
+          opacity={0.3 + (i % 5) * 0.08}
         />
       ))}
     </svg>

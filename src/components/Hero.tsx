@@ -5,7 +5,7 @@ import GradientOrbs from "@/components/hero/GradientOrbs";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
 
 const Hero = () => {
-  const parallax = useMouseParallax(0.5);
+  const parallax = useMouseParallax(0.3); // Reduced parallax intensity
 
   return (
     <div id="hero" className="relative bg-black text-white flex items-center justify-center overflow-hidden min-h-screen pt-20">
