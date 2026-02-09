@@ -1,183 +1,72 @@
 
+# Fix Dim Footer Text and Button
 
-# Add Smart Animations to Technology Page
+## Issue Analysis
 
-## Overview
+Looking at the screenshot, the footer has visibility problems:
 
-Transform the `/technology` page with sophisticated animations that match the premium feel of the Hero component, including staggered entrance animations, animated background, hover micro-interactions, and subtle parallax effects.
+1. **"Get in Touch" heading** - appears dim/faded
+2. **Description text** - very hard to read against the dark background  
+3. **"Contact Us" button** - shows as an outlined button (border only, no fill) instead of a solid white button
+4. **Copyright text** - too faded
 
-## Current State
+The button issue appears to be a CSS specificity problem where the custom `className` isn't properly overriding the Button component's default variant styles.
 
-The Technology page is static with basic hover transitions on the capability cards. It lacks:
-- Entrance animations for content
-- Animated background elements
-- Icon animations
-- Scroll-triggered effects
+## Solution
 
-## Proposed Animations
+### Footer.tsx Updates
 
-### 1. Animated Background (Gradient Orbs)
+| Element | Current | Fix |
+|---------|---------|-----|
+| "Get in Touch" heading | `text-white` | Keep, but ensure no opacity reduction |
+| Description text | `text-white/70` | Increase to `text-white/80` for better contrast |
+| Button | Custom className being overridden | Use `!important` via Tailwind's `!` prefix or inline styles |
+| Copyright | `text-white/60` | Increase to `text-white/70` |
 
-Add a subtle version of the GradientOrbs background used on the homepage to create visual continuity and depth.
+### Button Fix Options
 
-| Element | Animation | Purpose |
-|---------|-----------|---------|
-| Gradient orbs | Slow breathing/morphing | Creates ambient movement without distraction |
-| Subtle grid pattern | Static with fade | Adds tech/data aesthetic |
-| Vignette overlay | Static | Focuses attention on center content |
+The Button component uses `cn()` which should merge classes, but the default variant (`bg-primary`) may have higher specificity. Solutions:
 
-### 2. Header Entrance Animations
+1. **Force override with `!` prefix**: `!bg-white !text-black`
+2. **Use inline style**: More reliable for critical overrides
+3. **Add a new button variant**: Create an `inverse` variant for dark backgrounds
 
-Staggered fade-up animations for the page title and subtitle:
+I recommend option 1 (Tailwind's `!` important prefix) as the cleanest solution.
 
-| Element | Animation | Delay |
-|---------|-----------|-------|
-| "What We Do" heading | fade-float + scale-up | 0.1s |
-| Subtitle paragraph | fade-float | 0.3s |
+## Technical Changes
 
-### 3. Capability Card Animations
+```tsx
+// Footer.tsx - Updated button with forced overrides
+<Button 
+  size="sm" 
+  className="!bg-white !text-black hover:!bg-white/90 border-0"
+>
+  Contact Us
+</Button>
 
-Staggered entrance with enhanced hover states:
-
-| Element | Animation | Details |
-|---------|-----------|---------|
-| Card entrance | fade-float + slide-up | Staggered by index (0.1s increments) |
-| Icon container | pulse-glow on hover | Subtle glow effect |
-| Icon | scale + rotate on hover | Micro-interaction |
-| Arrow | slide-right on hover | Already exists, enhance timing |
-| Card border | gradient shimmer on hover | Premium feel |
-
-### 4. Icon-Specific Animations
-
-Each icon gets a unique micro-animation on card hover:
-
-| Icon | Animation |
-|------|-----------|
-| Brain | Subtle pulse/throb |
-| Gift | Gentle bounce |
-| Users | Slight wave/shift |
-| Briefcase | Tilt effect |
-
-### 5. Scroll-Reveal for Cards
-
-Cards animate in as they enter viewport (optional enhancement using CSS intersection observer pattern or simple delay-based approach).
-
-## Implementation Approach
-
-### New Component: TechnologyBackground.tsx
-
-A simplified version of GradientOrbs optimized for the Technology page:
-- Darker, more subtle gradients
-- Slower animations
-- Lighter performance footprint
-
-### Updates to Technology.tsx
-
-```text
-Structure:
-┌────────────────────────────────────────────────────────────────┐
-│ [TechnologyBackground - animated gradient orbs, grid overlay] │
-│                                                                │
-│   ┌──────────────────────────────────────────────────────┐    │
-│   │  "What We Do"     animate-fade-float delay-100ms     │    │
-│   │   Subtitle        animate-fade-float delay-300ms     │    │
-│   └──────────────────────────────────────────────────────┘    │
-│                                                                │
-│   ┌────────────────┐  ┌────────────────┐                      │
-│   │  Card 1        │  │  Card 2        │  delay: 0.2s, 0.3s   │
-│   │  Icon: pulse   │  │  Icon: bounce  │                      │
-│   │  hover: glow   │  │  hover: glow   │                      │
-│   └────────────────┘  └────────────────┘                      │
-│   ┌────────────────┐  ┌────────────────┐                      │
-│   │  Card 3        │  │  Card 4        │  delay: 0.4s, 0.5s   │
-│   │  Icon: wave    │  │  Icon: tilt    │                      │
-│   └────────────────┘  └────────────────┘                      │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
+// Increased text contrast
+<p className="text-white/80 text-sm mb-4">  // Was white/70
+<p className="text-white/70 text-sm">       // Copyright, was white/60
 ```
 
-## Tailwind Config Additions
+## Files to Modify
 
-Add these new keyframes and animations:
+| File | Changes |
+|------|---------|
+| `src/components/Footer.tsx` | Force button styles with `!` prefix, increase text opacity values |
 
-```typescript
-keyframes: {
-  'icon-pulse': {
-    '0%, 100%': { transform: 'scale(1)' },
-    '50%': { transform: 'scale(1.1)' }
-  },
-  'icon-bounce': {
-    '0%, 100%': { transform: 'translateY(0)' },
-    '50%': { transform: 'translateY(-4px)' }
-  },
-  'icon-tilt': {
-    '0%, 100%': { transform: 'rotate(0deg)' },
-    '50%': { transform: 'rotate(8deg)' }
-  },
-  'card-glow': {
-    '0%, 100%': { boxShadow: '0 0 0 rgba(59, 130, 246, 0)' },
-    '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)' }
-  }
-}
-```
-
-## Files to Create/Modify
-
-| File | Action | Changes |
-|------|--------|---------|
-| `src/components/technology/TechnologyBackground.tsx` | Create | Animated gradient background component |
-| `src/pages/Technology.tsx` | Modify | Add background, entrance animations, enhanced card hover states |
-| `tailwind.config.ts` | Modify | Add icon animation keyframes |
-
-## Card Animation Details
-
-Each card will have:
-
-1. **Entrance Animation**:
-   ```tsx
-   className="animate-fade-float"
-   style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'backwards' }}
-   ```
-
-2. **Hover State**:
-   ```tsx
-   className="group ... hover:shadow-xl hover:scale-[1.02] hover:border-primary/30"
-   ```
-
-3. **Icon Animation on Hover**:
-   ```tsx
-   <capability.icon className="... group-hover:scale-110 group-hover:text-primary transition-all" />
-   ```
-
-4. **Glow Effect on Icon Container**:
-   ```tsx
-   <div className="... group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:bg-primary/20">
-   ```
-
-## Visual Preview
+## Visual Result
 
 ```text
 Before:                          After:
-┌─────────────────┐              ┌─────────────────┐
-│ Static card     │              │ ✨ Animated BG  │
-│ Basic hover     │     →        │ 🎯 Staggered in │
-│ No depth        │              │ 💫 Hover glow   │
-│ Simple icons    │              │ 🔄 Icon animate │
-└─────────────────┘              └─────────────────┘
+┌─────────────────────────┐      ┌─────────────────────────┐
+│ VENTUS AI (ok)          │      │ VENTUS AI (bright)      │
+│ Description (dim)       │      │ Description (clear)     │
+│                         │      │                         │
+│ Get in Touch (dim)      │      │ Get in Touch (bright)   │
+│ Questions? (very dim)   │      │ Questions? (readable)   │
+│ [━━━━━━━━] outline btn  │      │ [████████] solid white  │
+│                         │      │                         │
+│ © 2026... (faded)       │      │ © 2026... (visible)     │
+└─────────────────────────┘      └─────────────────────────┘
 ```
-
-## Performance Considerations
-
-- Use `will-change` sparingly for animated elements
-- Background uses `mix-blend-mode` and `filter: blur()` efficiently
-- Animations use GPU-accelerated properties (transform, opacity)
-- `prefers-reduced-motion` media query respected
-
-## Benefits
-
-- Creates visual continuity with the Hero section
-- Premium, polished feel matches "smart AI" branding
-- Micro-interactions provide satisfying feedback
-- Staggered animations guide user attention
-- Maintains fast performance with CSS-only approach
-
