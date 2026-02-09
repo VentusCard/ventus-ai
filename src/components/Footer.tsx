@@ -20,11 +20,9 @@ const Footer = () => {
             <p className="text-white/80 text-sm mb-4">
               Have questions? We're here to help.
             </p>
-            <Link to="/contact">
-              <Button size="sm" variant="inverse">
-                Contact Us
-              </Button>
-            </Link>
+            <Button asChild size="sm" variant="inverse">
+              <Link to="/contact">Contact Us</Link>
+            </Button>
           </div>
         </div>
 
