@@ -236,7 +236,7 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
 
       {/* Merchant Detail Dialog */}
       <Dialog open={!!selectedMerchant} onOpenChange={() => setSelectedMerchant(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto tepilot-popup">
           {selectedMerchant && (
             <>
               <DialogHeader>

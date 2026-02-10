@@ -48,7 +48,7 @@ export function RecommendationsModal({ isOpen, onClose, recommendations, summary
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto tepilot-popup">
         <DialogHeader>
           <DialogTitle>Example Banking Partner Recommendations</DialogTitle>
           <DialogDescription>

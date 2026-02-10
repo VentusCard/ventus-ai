@@ -28,6 +28,7 @@ import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
 import { TravelTimeline } from "@/components/tepilot/insights/TravelTimeline";
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
+import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
 
 import { RelationshipManagementCard } from "@/components/tepilot/RelationshipManagementCard";
@@ -76,6 +77,7 @@ const TePilot = () => {
   const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
+  const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
     // Check URL search params first, then navigation state
     const viewParam = searchParams.get('view');
@@ -908,8 +910,8 @@ const TePilot = () => {
 
                 {/* Persona Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Bank Leadership Card */}
-                  <PersonaCard icon={Building2} title="Bank Leadership" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
+                  {/* Analytics Card */}
+                  <PersonaCard icon={Building2} title="Analytics & Targeting" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
                     "Portfolio-wide behavioral analysis across 70M+ accounts",
                     "12-Pillar interactive spending category explorer with drill-down",
                     "Card product performance matrix comparing spend and frequency",
@@ -919,7 +921,19 @@ const TePilot = () => {
                     "Multi-dimension filtering by card product, region, and demographics",
                     "Pillar distribution visualization of aggregate spending allocation",
                     "Regional customer acquisition insights with category-specific marketing recommendations"
-                  ]} buttonText="View Bank-wide Dashboard" buttonVariant="ai" onClick={() => setInsightType('bankwide')} />
+                  ]} 
+                  secondaryButtonText="View Analytics Dashboard"
+                  secondaryButtonVariant="outline"
+                  onSecondaryClick={() => {
+                    setAnalyticsDefaultTab('dashboard');
+                    setInsightType('bankwide');
+                  }}
+                  buttonText="Open Segment Builder" 
+                  buttonVariant="ai" 
+                  onClick={() => {
+                    setAnalyticsDefaultTab('targeting');
+                    setInsightType('bankwide');
+                  }} />
 
                   {/* Rewards Team Card */}
                   <PersonaCard icon={TrendingUp} title="Consumer Rewards" valueProposition="Unlock millions in untapped revenue potential" description="Identify where customers are spending outside your ecosystem and generate data-driven strategies to capture more wallet share through targeted engagement." keyFeatures={[
@@ -994,7 +1008,7 @@ const TePilot = () => {
                     Back to Insight Tools Selection
                   </Button>
                 </div>
-                <BankwideView />
+                <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6">

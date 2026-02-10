@@ -1,110 +1,183 @@
 
-## What’s happening (why some batches still fail)
-Even with retries, you can still get “empty classifications” for a batch because the `classify-transactions` backend function is currently doing **all batches in parallel**:
 
-- 75 transactions → 4 batches (24/24/24/3)
-- It fires **4 concurrent AI requests** to `ai.gateway.lovable.dev`
-- Under load or transient instability, one request can come back with **no tool call / empty results** (your logs show this consistently for Batch 2)
-- The retry loop currently retries the *same request shape* after a short delay, so it can repeatedly hit the same transient failure mode
+# Add Smart Animations to Technology Page
 
-So the system is resilient to occasional empties, but not to **repeatable empties under concurrency pressure**.
+## Overview
 
-## Goal
-Make classification robust so that:
-1. Batches don’t fail due to concurrency/rate/load artifacts.
-2. If a batch still fails after retries, we degrade gracefully by retrying with smaller payloads and/or a more reliable model.
-3. We reduce “Miscellaneous & Unclassified” fallbacks to near-zero for normal inputs.
+Transform the `/technology` page with sophisticated animations that match the premium feel of the Hero component, including staggered entrance animations, animated background, hover micro-interactions, and subtle parallax effects.
 
----
+## Current State
 
-## Implementation plan (backend only)
+The Technology page is static with basic hover transitions on the capability cards. It lacks:
+- Entrance animations for content
+- Animated background elements
+- Icon animations
+- Scroll-triggered effects
 
-### 1) Limit concurrency for batch classification (biggest win)
-**Change:** Replace `Promise.all(batches.map(...))` with a small concurrency pool (e.g., 2 at a time, or even 1 for maximum reliability).
+## Proposed Animations
 
-**Why:** This prevents simultaneous AI calls from competing and causing silent/empty tool call responses. In practice, concurrency=2 usually keeps throughput good while greatly improving reliability.
+### 1. Animated Background (Gradient Orbs)
 
-**Details:**
-- Implement a simple `runWithConcurrency(items, limit, worker)` helper in `supabase/functions/classify-transactions/index.ts`.
-- Emit SSE status updates as each batch starts/completes (you already do).
-- Keep the same BATCH_SIZE (24) initially.
+Add a subtle version of the GradientOrbs background used on the homepage to create visual continuity and depth.
 
-### 2) Add exponential backoff + jitter for retries
-**Change:** Instead of fixed 1s delay, use exponential backoff with jitter:
-- attempt 1: ~1s
-- attempt 2: ~2–3s
-- attempt 3: ~4–6s (if you decide to increase retries)
+| Element | Animation | Purpose |
+|---------|-----------|---------|
+| Gradient orbs | Slow breathing/morphing | Creates ambient movement without distraction |
+| Subtle grid pattern | Static with fade | Adds tech/data aesthetic |
+| Vignette overlay | Static | Focuses attention on center content |
 
-**Why:** If the gateway/model is temporarily degraded, fixed short delays often re-hit the same issue window.
+### 2. Header Entrance Animations
 
-**Details:**
-- Keep `MAX_RETRIES = 2` or bump to `3` (I’d recommend `3` once concurrency is limited).
-- Replace `RETRY_DELAY_MS` with a function `getDelayMs(attempt)`.
+Staggered fade-up animations for the page title and subtitle:
 
-### 3) Fallback strategy when a batch still fails: split and retry smaller
-**Change:** If a batch returns empty after all retries:
-- Split that batch into 2 halves (or into size 8/8/8 chunks)
-- Classify sub-batches sequentially (or with concurrency=1)
-- Merge results
+| Element | Animation | Delay |
+|---------|-----------|-------|
+| "What We Do" heading | fade-float + scale-up | 0.1s |
+| Subtitle paragraph | fade-float | 0.3s |
 
-**Why:** Smaller payloads often avoid edge-case model/tool-call failures and reduce response complexity.
+### 3. Capability Card Animations
 
-**Details:**
-- Add `classifyBatchWithFallback(batch, ...)`:
-  - try normal `classifyBatch`
-  - if empty → split and classify parts
-  - if still empty → final fallback classification as today
+Staggered entrance with enhanced hover states:
 
-### 4) Optional “retry with stronger model” on the final attempt
-**Change:** Keep the fast model for first attempt(s), but if we’re on the last retry (or after the first failure), switch to a more reliable model.
+| Element | Animation | Details |
+|---------|-----------|---------|
+| Card entrance | fade-float + slide-up | Staggered by index (0.1s increments) |
+| Icon container | pulse-glow on hover | Subtle glow effect |
+| Icon | scale + rotate on hover | Micro-interaction |
+| Arrow | slide-right on hover | Already exists, enhance timing |
+| Card border | gradient shimmer on hover | Premium feel |
 
-**Why:** Some models are faster but occasionally flake on forced tool calls. A stronger model used only for retries is a good cost/performance trade.
+### 4. Icon-Specific Animations
 
-**Concrete option:**
-- Attempt 0–1: `google/gemini-2.5-flash-lite`
-- Final attempt (or fallback sub-batches): `google/gemini-3-flash-preview` or `openai/gpt-5-mini`
+Each icon gets a unique micro-animation on card hover:
 
-**Notes:**
-- We’ll keep your tool schema and forced `tool_choice`.
-- We’ll log which model succeeded to help diagnosis.
+| Icon | Animation |
+|------|-----------|
+| Brain | Subtle pulse/throb |
+| Gift | Gentle bounce |
+| Users | Slight wave/shift |
+| Briefcase | Tilt effect |
 
-### 5) Improve observability for “empty tool calls”
-**Change:** When empty tool calls happen, log:
-- batch number
-- attempt number
-- response status
-- (safely) whether `choices[0].message` exists
-- and the first ~200 chars of raw response text if JSON parse fails
+### 5. Scroll-Reveal for Cards
 
-**Why:** Right now we know it’s empty, but not if it’s a gateway partial response, JSON shape mismatch, or a model hiccup.
+Cards animate in as they enter viewport (optional enhancement using CSS intersection observer pattern or simple delay-based approach).
 
----
+## Implementation Approach
 
-## Files affected
-- `supabase/functions/classify-transactions/index.ts`
-  - Replace parallel `Promise.all` with concurrency-limited runner
-  - Improve retry backoff
-  - Add split-and-retry fallback
-  - (Optional) model escalation on final attempt
-  - Add stronger logs around empty tool_calls
+### New Component: TechnologyBackground.tsx
 
-No frontend changes required for this fix.
+A simplified version of GradientOrbs optimized for the Technology page:
+- Darker, more subtle gradients
+- Slower animations
+- Lighter performance footprint
 
----
+### Updates to Technology.tsx
 
-## Testing plan (end-to-end)
-1. In `/tepilot`, run enrichment multiple times on the same dataset (75 txns) and confirm:
-   - No batch logs show “All attempts failed”
-   - Success rate rises significantly (target: >95%)
-2. Try a larger dataset (e.g., 200–400 txns) to confirm stability:
-   - Ensure SSE stays responsive
-   - Ensure total runtime is acceptable
-3. Force a “worst-case” scenario:
-   - Temporarily set concurrency higher (dev check) to confirm failures correlate with concurrency (then keep it low)
+```text
+Structure:
+┌────────────────────────────────────────────────────────────────┐
+│ [TechnologyBackground - animated gradient orbs, grid overlay] │
+│                                                                │
+│   ┌──────────────────────────────────────────────────────┐    │
+│   │  "What We Do"     animate-fade-float delay-100ms     │    │
+│   │   Subtitle        animate-fade-float delay-300ms     │    │
+│   └──────────────────────────────────────────────────────┘    │
+│                                                                │
+│   ┌────────────────┐  ┌────────────────┐                      │
+│   │  Card 1        │  │  Card 2        │  delay: 0.2s, 0.3s   │
+│   │  Icon: pulse   │  │  Icon: bounce  │                      │
+│   │  hover: glow   │  │  hover: glow   │                      │
+│   └────────────────┘  └────────────────┘                      │
+│   ┌────────────────┐  ┌────────────────┐                      │
+│   │  Card 3        │  │  Card 4        │  delay: 0.4s, 0.5s   │
+│   │  Icon: wave    │  │  Icon: tilt    │                      │
+│   └────────────────┘  └────────────────┘                      │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
 
----
+## Tailwind Config Additions
 
-## Rollout / risk
-- Low risk: changes are contained to the classification backend function.
-- Primary tradeoff: slightly slower classification (because fewer parallel calls), but materially more reliable results and fewer “Miscellaneous & Unclassified” fallbacks.
+Add these new keyframes and animations:
+
+```typescript
+keyframes: {
+  'icon-pulse': {
+    '0%, 100%': { transform: 'scale(1)' },
+    '50%': { transform: 'scale(1.1)' }
+  },
+  'icon-bounce': {
+    '0%, 100%': { transform: 'translateY(0)' },
+    '50%': { transform: 'translateY(-4px)' }
+  },
+  'icon-tilt': {
+    '0%, 100%': { transform: 'rotate(0deg)' },
+    '50%': { transform: 'rotate(8deg)' }
+  },
+  'card-glow': {
+    '0%, 100%': { boxShadow: '0 0 0 rgba(59, 130, 246, 0)' },
+    '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)' }
+  }
+}
+```
+
+## Files to Create/Modify
+
+| File | Action | Changes |
+|------|--------|---------|
+| `src/components/technology/TechnologyBackground.tsx` | Create | Animated gradient background component |
+| `src/pages/Technology.tsx` | Modify | Add background, entrance animations, enhanced card hover states |
+| `tailwind.config.ts` | Modify | Add icon animation keyframes |
+
+## Card Animation Details
+
+Each card will have:
+
+1. **Entrance Animation**:
+   ```tsx
+   className="animate-fade-float"
+   style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'backwards' }}
+   ```
+
+2. **Hover State**:
+   ```tsx
+   className="group ... hover:shadow-xl hover:scale-[1.02] hover:border-primary/30"
+   ```
+
+3. **Icon Animation on Hover**:
+   ```tsx
+   <capability.icon className="... group-hover:scale-110 group-hover:text-primary transition-all" />
+   ```
+
+4. **Glow Effect on Icon Container**:
+   ```tsx
+   <div className="... group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:bg-primary/20">
+   ```
+
+## Visual Preview
+
+```text
+Before:                          After:
+┌─────────────────┐              ┌─────────────────┐
+│ Static card     │              │ ✨ Animated BG  │
+│ Basic hover     │     →        │ 🎯 Staggered in │
+│ No depth        │              │ 💫 Hover glow   │
+│ Simple icons    │              │ 🔄 Icon animate │
+└─────────────────┘              └─────────────────┘
+```
+
+## Performance Considerations
+
+- Use `will-change` sparingly for animated elements
+- Background uses `mix-blend-mode` and `filter: blur()` efficiently
+- Animations use GPU-accelerated properties (transform, opacity)
+- `prefers-reduced-motion` media query respected
+
+## Benefits
+
+- Creates visual continuity with the Hero section
+- Premium, polished feel matches "smart AI" branding
+- Micro-interactions provide satisfying feedback
+- Staggered animations guide user attention
+- Maintains fast performance with CSS-only approach
 
