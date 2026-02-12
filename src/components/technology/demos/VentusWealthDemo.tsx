@@ -21,8 +21,17 @@ interface DemoEvent {
   color: string;
 }
 
+interface DemoTx {
+  merchant: string;
+  amount: string;
+  date: string;
+  card: string;
+  cardType: 'checking' | 'platinum' | 'cashback' | 'travel' | 'business' | 'web';
+  relevance: string;
+}
+
 interface DemoDetail {
-  transactions: Array<{ merchant: string; amount: string; date: string; card: string; relevance: string }>;
+  transactions: DemoTx[];
   insight: string;
   steps: string[];
 }
@@ -56,113 +65,153 @@ const EVENTS: DemoEvent[] = [
 const DETAILS: Record<string, DemoDetail> = {
   'c1-retirement': {
     transactions: [
-      { merchant: 'Fidelity Investments', amount: '$6,500', date: 'Jan 15', card: 'Platinum ...4532', relevance: '401k contribution increase' },
-      { merchant: 'AARP Membership', amount: '$16', date: 'Dec 28', card: 'Cashback ...7891', relevance: 'Retirement association enrollment' },
-      { merchant: 'Viking Cruises', amount: '$8,500', date: 'Jan 20', card: 'Travel Elite ...2234', relevance: 'Retirement travel planning' },
-      { merchant: 'Estate Planning Attorney', amount: '$2,500', date: 'Jan 18', card: 'Checking ...5678', relevance: 'Estate planning consultation' },
+      { merchant: 'Fidelity Investments', amount: '$6,500', date: 'Jan 15', card: 'Platinum ...4532', cardType: 'platinum', relevance: '401k contribution increase' },
+      { merchant: 'AARP Membership', amount: '$16', date: 'Dec 28', card: 'Cashback ...7891', cardType: 'cashback', relevance: 'Retirement association enrollment' },
+      { merchant: 'Viking Cruises', amount: '$8,500', date: 'Jan 20', card: 'Travel Elite ...2234', cardType: 'travel', relevance: 'Retirement travel planning' },
+      { merchant: 'Estate Planning Attorney', amount: '$2,500', date: 'Jan 18', card: 'Checking ...5678', cardType: 'checking', relevance: 'Estate planning consultation' },
+      { merchant: 'Social Security Admin', amount: '$0', date: 'Jan 22', card: 'Web Activity', cardType: 'web', relevance: 'Benefits estimator research' },
+      { merchant: 'Vanguard Target Date Fund', amount: '$12,000', date: 'Jan 25', card: 'Checking ...5678', cardType: 'checking', relevance: 'Target date fund rebalance' },
+      { merchant: 'Medicare.gov', amount: '$0', date: 'Jan 28', card: 'Web Activity', cardType: 'web', relevance: 'Medicare eligibility research' },
     ],
     insight: "Client is in early exploration of retirement—increased 401k, AARP enrollment, and cruise booking reveal aspirations for an active, travel-rich next chapter. Critical window for Roth conversions and income strategies.",
     steps: ['Open conversation about retirement vision and ideal lifestyle', 'Introduce retirement income modeling with 401k trajectory', 'Discuss Roth conversion strategy during remaining working years', 'Review healthcare bridge options before Medicare eligibility'],
   },
   'c2-home_purchase': {
     transactions: [
-      { merchant: 'Earnest Money Deposit', amount: '$15,000', date: 'Jan 20', card: 'Checking ...5678', relevance: 'Home purchase deposit' },
-      { merchant: 'Home Depot', amount: '$2,340', date: 'Feb 1', card: 'Cashback ...7891', relevance: 'Home improvement supplies' },
-      { merchant: 'U-Haul', amount: '$890', date: 'Feb 5', card: 'Cashback ...7891', relevance: 'Moving rental booking' },
-      { merchant: 'Wire - Closing Costs', amount: '$8,500', date: 'Jan 28', card: 'Checking ...5678', relevance: 'Title and closing fees' },
+      { merchant: 'Earnest Money Deposit', amount: '$15,000', date: 'Jan 20', card: 'Checking ...5678', cardType: 'checking', relevance: 'Home purchase deposit' },
+      { merchant: 'Home Depot', amount: '$2,340', date: 'Feb 1', card: 'Cashback ...7891', cardType: 'cashback', relevance: 'Home improvement supplies' },
+      { merchant: 'U-Haul', amount: '$890', date: 'Feb 5', card: 'Cashback ...7891', cardType: 'cashback', relevance: 'Moving rental booking' },
+      { merchant: 'Wire - Closing Costs', amount: '$8,500', date: 'Jan 28', card: 'Checking ...5678', cardType: 'checking', relevance: 'Title and closing fees' },
+      { merchant: "Lowe's Hardware", amount: '$1,180', date: 'Feb 8', card: 'Cashback ...7891', cardType: 'cashback', relevance: 'Renovation materials' },
+      { merchant: 'Title Insurance Co.', amount: '$1,950', date: 'Jan 30', card: 'Checking ...5678', cardType: 'checking', relevance: 'Title insurance premium' },
+      { merchant: 'Home Inspection Services', amount: '$575', date: 'Jan 16', card: 'Checking ...5678', cardType: 'checking', relevance: 'Pre-purchase inspection' },
     ],
     insight: "Client is in active home acquisition mode. Earnest money and closing costs confirm imminent transaction. Home improvement and moving activity show firm timeline.",
     steps: ['Analyze liquid assets for down payment without disrupting investments', 'Compare mortgage scenarios: 15 vs. 30-year, ARM vs. fixed', 'Model post-purchase cash flow including PITI and maintenance', 'Review homeowners insurance and umbrella liability coverage'],
   },
   'c5-business_liquidity': {
     transactions: [
-      { merchant: 'BizBuySell Valuation', amount: '$4,500', date: 'Jan 10', card: 'Business ...3344', relevance: 'Business valuation service' },
-      { merchant: 'M&A Legal Partners', amount: '$12,000', date: 'Jan 15', card: 'Business ...3344', relevance: 'M&A attorney retainer' },
-      { merchant: 'Goldman Sachs Advisory', amount: '$25,000', date: 'Jan 22', card: 'Business ...3344', relevance: 'Investment banking advisory' },
+      { merchant: 'BizBuySell Valuation', amount: '$4,500', date: 'Jan 10', card: 'Business ...3344', cardType: 'business', relevance: 'Business valuation service' },
+      { merchant: 'M&A Legal Partners', amount: '$12,000', date: 'Jan 15', card: 'Business ...3344', cardType: 'business', relevance: 'M&A attorney retainer' },
+      { merchant: 'Goldman Sachs Advisory', amount: '$25,000', date: 'Jan 22', card: 'Business ...3344', cardType: 'business', relevance: 'Investment banking advisory' },
+      { merchant: 'Ernst & Young Tax Advisory', amount: '$8,500', date: 'Jan 18', card: 'Business ...3344', cardType: 'business', relevance: 'Tax structuring consultation' },
+      { merchant: 'Business Insurance Review', amount: '$1,200', date: 'Jan 25', card: 'Business ...3344', cardType: 'business', relevance: 'Insurance policy audit' },
+      { merchant: 'KPMG Due Diligence', amount: '$15,000', date: 'Feb 2', card: 'Business ...3344', cardType: 'business', relevance: 'Financial due diligence prep' },
     ],
     insight: "Client is exploring exit options for their business. Valuation, legal, and advisory fees suggest serious consideration of a liquidity event within 6-12 months.",
     steps: ['Discuss timeline and expectations for business sale', 'Model after-tax proceeds and reinvestment scenarios', 'Review capital gains strategies including opportunity zones', 'Introduce wealth management transition plan'],
   },
   'c8-home_purchase': {
     transactions: [
-      { merchant: 'Real Estate Attorney', amount: '$3,200', date: 'Jan 12', card: 'Platinum ...9922', relevance: 'Real estate legal review' },
-      { merchant: 'Mortgage Pre-Approval', amount: '$450', date: 'Jan 18', card: 'Checking ...1155', relevance: 'Mortgage application fee' },
-      { merchant: 'Zillow Premium', amount: '$29', date: 'Jan 5', card: 'Cashback ...6677', relevance: 'Property search subscription' },
+      { merchant: 'Real Estate Attorney', amount: '$3,200', date: 'Jan 12', card: 'Platinum ...9922', cardType: 'platinum', relevance: 'Real estate legal review' },
+      { merchant: 'Mortgage Pre-Approval', amount: '$450', date: 'Jan 18', card: 'Checking ...1155', cardType: 'checking', relevance: 'Mortgage application fee' },
+      { merchant: 'Zillow Premium', amount: '$29', date: 'Jan 5', card: 'Cashback ...6677', cardType: 'cashback', relevance: 'Property search subscription' },
+      { merchant: 'Home Appraisal Services', amount: '$650', date: 'Jan 22', card: 'Checking ...1155', cardType: 'checking', relevance: 'Property appraisal' },
+      { merchant: 'Redfin Pro Subscription', amount: '$15', date: 'Jan 3', card: 'Cashback ...6677', cardType: 'cashback', relevance: 'Property market analysis' },
     ],
     insight: "Client is in early-stage home search with legal and financing groundwork already underway. Pre-approval activity confirms intent to purchase within the quarter.",
     steps: ['Review investment portfolio for down payment liquidity', 'Compare mortgage options given existing asset base', 'Discuss property tax implications on overall financial plan', 'Coordinate timing with other financial goals'],
   },
   'c6-retirement': {
     transactions: [
-      { merchant: 'Schwab Rollover IRA', amount: '$45,000', date: 'Jan 8', card: 'Checking ...2211', relevance: 'IRA rollover from previous employer' },
-      { merchant: 'Retirement Income Calculator', amount: '$0', date: 'Dec 20', card: 'Web Activity', relevance: 'Online retirement planning tool usage' },
-      { merchant: 'AAA Travel Agency', amount: '$3,200', date: 'Jan 25', card: 'Travel ...5566', relevance: 'Extended travel booking' },
+      { merchant: 'Schwab Rollover IRA', amount: '$45,000', date: 'Jan 8', card: 'Checking ...2211', cardType: 'checking', relevance: 'IRA rollover from previous employer' },
+      { merchant: 'Retirement Income Calculator', amount: '$0', date: 'Dec 20', card: 'Web Activity', cardType: 'web', relevance: 'Online retirement planning tool usage' },
+      { merchant: 'AAA Travel Agency', amount: '$3,200', date: 'Jan 25', card: 'Travel ...5566', cardType: 'travel', relevance: 'Extended travel booking' },
+      { merchant: 'Fidelity Roth Conversion', amount: '$22,000', date: 'Jan 12', card: 'Checking ...2211', cardType: 'checking', relevance: 'Roth IRA conversion' },
+      { merchant: 'Social Security Office', amount: '$0', date: 'Jan 15', card: 'Web Activity', cardType: 'web', relevance: 'Claiming strategy research' },
+      { merchant: 'LongTermCare.gov', amount: '$0', date: 'Jan 20', card: 'Web Activity', cardType: 'web', relevance: 'Long-term care insurance research' },
     ],
     insight: "Client is consolidating retirement accounts and actively modeling income scenarios. Travel bookings suggest visualizing post-work lifestyle. Ideal moment to discuss withdrawal strategies and Social Security timing.",
     steps: ['Review consolidated retirement account allocation', 'Model Social Security claiming strategies (62 vs. 67 vs. 70)', 'Discuss systematic withdrawal plan vs. annuity options', 'Plan healthcare coverage bridge to Medicare'],
   },
   'c1-education': {
     transactions: [
-      { merchant: 'College Board', amount: '$98', date: 'Jan 12', card: 'Platinum ...4532', relevance: 'SAT registration fees' },
-      { merchant: 'Princeton Review', amount: '$1,299', date: 'Dec 15', card: 'Platinum ...4532', relevance: 'Test prep course enrollment' },
-      { merchant: 'Southwest Airlines', amount: '$450', date: 'Jan 18', card: 'Travel Elite ...2234', relevance: 'Campus visit travel' },
-      { merchant: 'Ivy Coach Admissions', amount: '$3,500', date: 'Jan 5', card: 'Cashback ...7891', relevance: 'College admissions consulting' },
+      { merchant: 'College Board', amount: '$98', date: 'Jan 12', card: 'Platinum ...4532', cardType: 'platinum', relevance: 'SAT registration fees' },
+      { merchant: 'Princeton Review', amount: '$1,299', date: 'Dec 15', card: 'Platinum ...4532', cardType: 'platinum', relevance: 'Test prep course enrollment' },
+      { merchant: 'Southwest Airlines', amount: '$450', date: 'Jan 18', card: 'Travel Elite ...2234', cardType: 'travel', relevance: 'Campus visit travel' },
+      { merchant: 'Ivy Coach Admissions', amount: '$3,500', date: 'Jan 5', card: 'Cashback ...7891', cardType: 'cashback', relevance: 'College admissions consulting' },
+      { merchant: 'Kaplan Test Prep', amount: '$899', date: 'Jan 8', card: 'Platinum ...4532', cardType: 'platinum', relevance: 'Additional test prep course' },
+      { merchant: 'FAFSA Application', amount: '$0', date: 'Jan 20', card: 'Web Activity', cardType: 'web', relevance: 'Financial aid application' },
     ],
     insight: "Parent is deep in the college planning research phase. SAT prep, admissions consulting, and campus visits show serious commitment. Ideal window for 529 optimization and financial aid positioning.",
     steps: ['Initiate 529 plan discussion—researching but no funding yet', 'Calculate projected costs for likely target schools', 'Review financial aid implications and FAFSA timing', 'Model parent vs. student loan scenarios'],
   },
   'c3-wealth_transfer': {
     transactions: [
-      { merchant: 'Estate Attorney - Marks LLP', amount: '$5,500', date: 'Jan 5', card: 'Platinum ...8844', relevance: 'Estate planning engagement' },
-      { merchant: 'Trust Documentation Services', amount: '$2,200', date: 'Jan 12', card: 'Checking ...3399', relevance: 'Trust establishment fees' },
-      { merchant: 'IRS Gift Tax Research', amount: '$0', date: 'Dec 28', card: 'Web Activity', relevance: 'Gift tax exclusion research' },
+      { merchant: 'Estate Attorney - Marks LLP', amount: '$5,500', date: 'Jan 5', card: 'Platinum ...8844', cardType: 'platinum', relevance: 'Estate planning engagement' },
+      { merchant: 'Trust Documentation Services', amount: '$2,200', date: 'Jan 12', card: 'Checking ...3399', cardType: 'checking', relevance: 'Trust establishment fees' },
+      { merchant: 'IRS Gift Tax Research', amount: '$0', date: 'Dec 28', card: 'Web Activity', cardType: 'web', relevance: 'Gift tax exclusion research' },
+      { merchant: 'Charitable Remainder Trust Co.', amount: '$3,800', date: 'Jan 15', card: 'Checking ...3399', cardType: 'checking', relevance: 'CRT setup consultation' },
+      { merchant: 'Family Wealth Advisors', amount: '$4,200', date: 'Jan 20', card: 'Platinum ...8844', cardType: 'platinum', relevance: 'Multi-generational planning' },
     ],
     insight: "Client is actively establishing trust structures and researching gift tax strategies. The combination of estate attorney engagement and trust documentation indicates serious wealth transfer planning.",
     steps: ['Review current estate plan and identify gaps', 'Model annual gift exclusion strategies for family members', 'Discuss generation-skipping trust options', 'Coordinate with client estate attorney on trust funding'],
   },
   'c8-elder_care': {
     transactions: [
-      { merchant: 'Medical Guardian', amount: '$350', date: 'Jan 10', card: 'Cashback ...6677', relevance: 'Medical alert system' },
-      { merchant: 'Home Depot - Mobility', amount: '$890', date: 'Jan 15', card: 'Cashback ...6677', relevance: 'Accessibility modifications' },
-      { merchant: 'Aging Life Care Assoc.', amount: '$450', date: 'Jan 18', card: 'Platinum ...9922', relevance: 'Geriatric care manager' },
+      { merchant: 'Medical Guardian', amount: '$350', date: 'Jan 10', card: 'Cashback ...6677', cardType: 'cashback', relevance: 'Medical alert system' },
+      { merchant: 'Home Depot - Mobility', amount: '$890', date: 'Jan 15', card: 'Cashback ...6677', cardType: 'cashback', relevance: 'Accessibility modifications' },
+      { merchant: 'Aging Life Care Assoc.', amount: '$450', date: 'Jan 18', card: 'Platinum ...9922', cardType: 'platinum', relevance: 'Geriatric care manager' },
+      { merchant: 'Walgreens Pharmacy', amount: '$285', date: 'Jan 20', card: 'Cashback ...6677', cardType: 'cashback', relevance: 'Prescription medication supplies' },
+      { merchant: 'Visiting Angels Home Care', amount: '$2,400', date: 'Jan 25', card: 'Checking ...1155', cardType: 'checking', relevance: 'In-home care service' },
     ],
     insight: "Client is stepping into a caregiver role. Medical alert system, accessibility modifications, and geriatric care manager indicate transitioning an aging family member to daily support.",
     steps: ['Assess long-term care insurance options', 'Review assets for Medicaid look-back period implications', 'Confirm power of attorney and healthcare proxy documents', 'Model assisted living vs. in-home care cost trajectories'],
   },
   'c4-family_formation': {
     transactions: [
-      { merchant: 'Amazon Baby Registry', amount: '$1,850', date: 'Jan 15', card: 'Cashback ...4455', relevance: 'Baby registry purchases' },
-      { merchant: 'Buy Buy Baby', amount: '$1,250', date: 'Jan 22', card: 'Cashback ...4455', relevance: 'Nursery essentials' },
-      { merchant: 'Memorial Hospital', amount: '$2,500', date: 'Jan 30', card: 'Checking ...7788', relevance: 'Hospital pre-registration deposit' },
+      { merchant: 'Amazon Baby Registry', amount: '$1,850', date: 'Jan 15', card: 'Cashback ...4455', cardType: 'cashback', relevance: 'Baby registry purchases' },
+      { merchant: 'Buy Buy Baby', amount: '$1,250', date: 'Jan 22', card: 'Cashback ...4455', cardType: 'cashback', relevance: 'Nursery essentials' },
+      { merchant: 'Memorial Hospital', amount: '$2,500', date: 'Jan 30', card: 'Checking ...7788', cardType: 'checking', relevance: 'Hospital pre-registration deposit' },
+      { merchant: 'Pottery Barn Kids', amount: '$980', date: 'Jan 25', card: 'Platinum ...4455', cardType: 'platinum', relevance: 'Nursery furniture' },
+      { merchant: 'State Farm Life Insurance', amount: '$0', date: 'Jan 18', card: 'Web Activity', cardType: 'web', relevance: 'Life insurance quote research' },
+      { merchant: 'Bright Horizons Childcare', amount: '$250', date: 'Feb 1', card: 'Checking ...7788', cardType: 'checking', relevance: 'Childcare waitlist deposit' },
     ],
     insight: "Growing family preparing for a new arrival. Baby registry, nursery purchases, and hospital pre-registration confirm timeline clarity. No education savings or updated estate documents yet—proactive opportunity.",
     steps: ['Introduce 529 plan options for education savings', 'Benchmark life insurance: 10-12x income replacement', 'Update wills to include guardianship designations', 'Model childcare costs into financial plan'],
   },
   'c7-education': {
     transactions: [
-      { merchant: 'Niche.com Premium', amount: '$49', date: 'Jan 8', card: 'Cashback ...3322', relevance: 'College research subscription' },
-      { merchant: 'Campus Tour Booking', amount: '$180', date: 'Jan 20', card: 'Cashback ...3322', relevance: 'University campus visits' },
-      { merchant: 'College Savings Calculator', amount: '$0', date: 'Dec 15', card: 'Web Activity', relevance: 'Education cost modeling' },
+      { merchant: 'Niche.com Premium', amount: '$49', date: 'Jan 8', card: 'Cashback ...3322', cardType: 'cashback', relevance: 'College research subscription' },
+      { merchant: 'Campus Tour Booking', amount: '$180', date: 'Jan 20', card: 'Cashback ...3322', cardType: 'cashback', relevance: 'University campus visits' },
+      { merchant: 'College Savings Calculator', amount: '$0', date: 'Dec 15', card: 'Web Activity', cardType: 'web', relevance: 'Education cost modeling' },
+      { merchant: 'Cappex Scholarship Search', amount: '$0', date: 'Jan 10', card: 'Web Activity', cardType: 'web', relevance: 'Scholarship database research' },
+      { merchant: 'Barnes & Noble - SAT Prep', amount: '$85', date: 'Jan 15', card: 'Cashback ...3322', cardType: 'cashback', relevance: 'Test prep materials' },
     ],
     insight: "Parent beginning early college research phase. Subscription services and campus tours show proactive planning. Early 529 contributions can significantly reduce future education funding burden.",
     steps: ['Open 529 plan and model monthly contribution targets', 'Compare in-state vs. out-of-state cost projections', 'Discuss merit scholarship strategies', 'Review education tax credits and deductions'],
   },
   'c3-elder_care': {
     transactions: [
-      { merchant: 'AARP Medicare Supplement', amount: '$280', date: 'Jan 20', card: 'Checking ...3399', relevance: 'Medicare supplement premium' },
-      { merchant: 'Sunrise Senior Living', amount: '$12,000', date: 'Jan 25', card: 'Checking ...3399', relevance: 'Assisted living deposit' },
+      { merchant: 'AARP Medicare Supplement', amount: '$280', date: 'Jan 20', card: 'Checking ...3399', cardType: 'checking', relevance: 'Medicare supplement premium' },
+      { merchant: 'Sunrise Senior Living', amount: '$12,000', date: 'Jan 25', card: 'Checking ...3399', cardType: 'checking', relevance: 'Assisted living deposit' },
+      { merchant: 'Elder Law Attorney', amount: '$3,500', date: 'Jan 28', card: 'Platinum ...8844', cardType: 'platinum', relevance: 'Elder care legal planning' },
+      { merchant: 'CVS Pharmacy - Supplies', amount: '$340', date: 'Feb 1', card: 'Cashback ...3322', cardType: 'cashback', relevance: 'Medical supplies' },
+      { merchant: 'Comfort Keepers', amount: '$1,800', date: 'Feb 3', card: 'Checking ...3399', cardType: 'checking', relevance: 'Transitional home care' },
     ],
     insight: "Client making significant financial commitments to elder care—assisted living deposit and Medicare supplement indicate imminent transition for a family member.",
     steps: ['Review elder care costs against current income and assets', 'Explore long-term care insurance retroactive options', 'Confirm healthcare proxy and legal documents', 'Model impact on client overall financial plan'],
   },
   'c5-wealth_transfer': {
     transactions: [
-      { merchant: 'Dynasty Trust Advisors', amount: '$8,000', date: 'Feb 1', card: 'Business ...3344', relevance: 'Dynasty trust consultation' },
-      { merchant: 'Charitable Giving Advisor', amount: '$1,500', date: 'Jan 28', card: 'Platinum ...5566', relevance: 'Philanthropic planning' },
+      { merchant: 'Dynasty Trust Advisors', amount: '$8,000', date: 'Feb 1', card: 'Business ...3344', cardType: 'business', relevance: 'Dynasty trust consultation' },
+      { merchant: 'Charitable Giving Advisor', amount: '$1,500', date: 'Jan 28', card: 'Platinum ...5566', cardType: 'platinum', relevance: 'Philanthropic planning' },
+      { merchant: 'Fidelity Donor-Advised Fund', amount: '$50,000', date: 'Feb 5', card: 'Checking ...7788', cardType: 'checking', relevance: 'DAF initial contribution' },
+      { merchant: 'Tax Foundation Research', amount: '$0', date: 'Jan 25', card: 'Web Activity', cardType: 'web', relevance: 'Estate tax law research' },
+      { merchant: 'Family Office Network', amount: '$2,500', date: 'Feb 8', card: 'Business ...3344', cardType: 'business', relevance: 'Family office setup consultation' },
     ],
     insight: "Client exploring advanced wealth transfer vehicles including dynasty trusts and charitable giving strategies, likely in anticipation of business liquidity event proceeds.",
     steps: ['Coordinate wealth transfer planning with business exit timeline', 'Model dynasty trust vs. GRAT structures', 'Discuss donor-advised fund for charitable giving efficiency', 'Review estate tax exposure under current regulations'],
   },
+};
+
+const CARD_TYPE_STYLES: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+  checking:  { bg: 'rgba(59,130,246,.20)',  text: '#93c5fd', border: 'rgba(59,130,246,.35)',  dot: '#3b82f6' },
+  platinum:  { bg: 'rgba(168,85,247,.20)',  text: '#c084fc', border: 'rgba(168,85,247,.35)',  dot: '#a855f7' },
+  cashback:  { bg: 'rgba(34,197,94,.20)',   text: '#86efac', border: 'rgba(34,197,94,.35)',   dot: '#22c55e' },
+  travel:    { bg: 'rgba(245,158,11,.20)',  text: '#fcd34d', border: 'rgba(245,158,11,.35)',  dot: '#f59e0b' },
+  business:  { bg: 'rgba(100,116,139,.20)', text: '#cbd5e1', border: 'rgba(100,116,139,.35)', dot: '#64748b' },
+  web:       { bg: 'rgba(6,182,212,.20)',   text: '#67e8f9', border: 'rgba(6,182,212,.35)',   dot: '#06b6d4' },
 };
 
 const SEGMENT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
@@ -181,13 +230,14 @@ export default function VentusWealthDemo() {
   const [detailVisible, setDetailVisible] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [phase, setPhase] = useState<'building' | 'autoprepare' | 'complete'>('building');
+  const [insightWordCount, setInsightWordCount] = useState(0);
+  const [stepsShown, setStepsShown] = useState(0);
   const tokenRef = useRef(0);
   const mountedRef = useRef(true);
+  const insightIntervalRef = useRef<number | null>(null);
+  const stepsIntervalRef = useRef<number | null>(null);
 
   const getClient = useCallback((id: string) => CLIENTS.find(c => c.id === id)!, []);
-
-  const urgentCount = EVENTS.filter(e => e.urgency === 'Urgent').length;
-  const thisQuarterCount = EVENTS.filter(e => e.timing.includes('Q1') || e.timing.includes('Q2')).length;
 
   // Animated metrics
   const displayedClients = Math.min(new Set(EVENTS.slice(0, visibleRows).map(e => e.clientId)).size, CLIENTS.length);
@@ -195,17 +245,55 @@ export default function VentusWealthDemo() {
   const displayedUrgent = EVENTS.slice(0, visibleRows).filter(e => e.urgency === 'Urgent').length;
   const displayedQuarter = EVENTS.slice(0, visibleRows).filter(e => e.timing.includes('Q1') || e.timing.includes('Q2')).length;
 
+  const clearAnimIntervals = useCallback(() => {
+    if (insightIntervalRef.current) { clearInterval(insightIntervalRef.current); insightIntervalRef.current = null; }
+    if (stepsIntervalRef.current) { clearInterval(stepsIntervalRef.current); stepsIntervalRef.current = null; }
+  }, []);
+
+  const startInsightAnimation = useCallback((detail: DemoDetail) => {
+    clearAnimIntervals();
+    setInsightWordCount(0);
+    setStepsShown(0);
+    const words = detail.insight.split(' ');
+    let wordIdx = 0;
+    insightIntervalRef.current = window.setInterval(() => {
+      wordIdx++;
+      setInsightWordCount(wordIdx);
+      if (wordIdx >= words.length) {
+        if (insightIntervalRef.current) clearInterval(insightIntervalRef.current);
+        insightIntervalRef.current = null;
+        // Start revealing steps
+        let stepIdx = 0;
+        stepsIntervalRef.current = window.setInterval(() => {
+          stepIdx++;
+          setStepsShown(stepIdx);
+          if (stepIdx >= detail.steps.length) {
+            if (stepsIntervalRef.current) clearInterval(stepsIntervalRef.current);
+            stepsIntervalRef.current = null;
+          }
+        }, 300);
+      }
+    }, 40);
+  }, [clearAnimIntervals]);
+
   const handlePrepare = useCallback((event: DemoEvent) => {
     const client = CLIENTS.find(c => c.id === event.clientId)!;
+    const detail = DETAILS[`${event.clientId}-${event.eventType}`];
     setSelectedEvent({ event, client });
     setDetailVisible(true);
     setIsPaused(true);
-  }, []);
+    if (detail) startInsightAnimation(detail);
+  }, [startInsightAnimation]);
 
   const handleCloseDetail = useCallback(() => {
     setDetailVisible(false);
-    setTimeout(() => setSelectedEvent(null), 300);
-  }, []);
+    clearAnimIntervals();
+    setTimeout(() => {
+      setSelectedEvent(null);
+      setInsightWordCount(0);
+      setStepsShown(0);
+    }, 300);
+  }, [clearAnimIntervals]);
 
   // Cycle order: mix of urgent/soon/upcoming for variety
   const CYCLE_ORDER = [0, 2, 5, 8, 3, 6, 10, 1, 7, 4, 9, 11];
@@ -216,6 +304,9 @@ export default function VentusWealthDemo() {
     setPhase('building');
     setSelectedEvent(null);
     setDetailVisible(false);
+    setInsightWordCount(0);
+    setStepsShown(0);
+    clearAnimIntervals();
 
     for (let i = 1; i <= EVENTS.length; i++) {
       if (myToken !== tokenRef.current || !mountedRef.current) return;
@@ -234,19 +325,24 @@ export default function VentusWealthDemo() {
       const eventIdx = CYCLE_ORDER[cycleIdx % CYCLE_ORDER.length];
       const event = EVENTS[eventIdx];
       const client = CLIENTS.find(c => c.id === event.clientId)!;
+      const detail = DETAILS[`${event.clientId}-${event.eventType}`];
 
       setSelectedEvent({ event, client });
       setDetailVisible(true);
+      if (detail) startInsightAnimation(detail);
 
-      await wait(5000);
+      await wait(8000);
       if (myToken !== tokenRef.current || !mountedRef.current) return;
 
       setDetailVisible(false);
+      clearAnimIntervals();
       await wait(400);
       if (myToken !== tokenRef.current || !mountedRef.current) return;
       setSelectedEvent(null);
+      setInsightWordCount(0);
+      setStepsShown(0);
 
-      await wait(1200);
+      await wait(2500);
       if (myToken !== tokenRef.current || !mountedRef.current) return;
 
       cycleIdx++;
@@ -259,17 +355,20 @@ export default function VentusWealthDemo() {
     mountedRef.current = true;
     const myToken = ++tokenRef.current;
     runAnimation(myToken);
-    return () => { mountedRef.current = false; tokenRef.current++; };
+    return () => { mountedRef.current = false; tokenRef.current++; clearAnimIntervals(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleReset = () => {
     tokenRef.current++;
+    clearAnimIntervals();
     setVisibleRows(0);
     setSelectedEvent(null);
     setDetailVisible(false);
     setIsPaused(false);
     setPhase('building');
+    setInsightWordCount(0);
+    setStepsShown(0);
     mountedRef.current = true;
     const myToken = ++tokenRef.current;
     runAnimation(myToken);
@@ -287,6 +386,11 @@ export default function VentusWealthDemo() {
   const detail = selectedEvent
     ? DETAILS[`${selectedEvent.event.clientId}-${selectedEvent.event.eventType}`]
     : null;
+
+  // Typewriter: get visible portion of insight
+  const insightWords = detail ? detail.insight.split(' ') : [];
+  const visibleInsight = insightWords.slice(0, insightWordCount).join(' ');
+  const insightComplete = insightWordCount >= insightWords.length;
 
   return (
     <>
@@ -461,9 +565,12 @@ export default function VentusWealthDemo() {
         .vwm-detail-tx-amount { font-size: 12px; font-weight: 720; color: rgba(255,255,255,.90); font-variant-numeric: tabular-nums; }
         .vwm-detail-tx-bottom { display: flex; gap: 8px; align-items: center; margin-top: 3px; }
         .vwm-detail-tx-card {
-          font-size: 9px; padding: 2px 6px; border-radius: 999px;
-          background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.25);
-          color: rgba(196,181,253,.9);
+          font-size: 10px; padding: 3px 8px; border-radius: 999px;
+          font-weight: 700; border: 1px solid;
+          display: inline-flex; align-items: center; gap: 4px;
+        }
+        .vwm-detail-tx-card-dot {
+          width: 5px; height: 5px; border-radius: 50%; display: inline-block;
         }
         .vwm-detail-tx-date { font-size: 10px; color: rgba(255,255,255,.40); }
         .vwm-detail-tx-relevance { font-size: 10px; color: rgba(255,255,255,.45); font-style: italic; margin-left: auto; }
@@ -474,11 +581,22 @@ export default function VentusWealthDemo() {
           background: rgba(255,255,255,.04);
         }
         .vwm-insight-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.50); margin-bottom: 6px; }
-        .vwm-insight-text { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.55; }
+        .vwm-insight-text { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.55; min-height: 3em; }
+        .vwm-insight-cursor {
+          display: inline-block; width: 2px; height: 14px; background: rgba(255,255,255,.60);
+          margin-left: 2px; vertical-align: text-bottom;
+          animation: vwm-blink .6s step-end infinite;
+        }
+        @keyframes vwm-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         .vwm-steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
         .vwm-step-item {
           display: flex; align-items: flex-start; gap: 8px;
           font-size: 12px; color: rgba(255,255,255,.70); line-height: 1.4;
+          opacity: 0; transform: translateY(8px);
+          transition: opacity .35s ease, transform .35s ease;
+        }
+        .vwm-step-item.revealed {
+          opacity: 1; transform: translateY(0);
         }
         .vwm-step-num-circle {
           flex: 0 0 20px; height: 20px; border-radius: 50%;
@@ -614,33 +732,45 @@ export default function VentusWealthDemo() {
                 {/* Left: Transactions */}
                 <div>
                   <div className="vwm-detail-section-title">📋 Supporting Transactions ({detail.transactions.length})</div>
-                  {detail.transactions.map((tx, i) => (
-                    <div key={i} className="vwm-detail-tx">
-                      <div className="vwm-detail-tx-top">
-                        <span className="vwm-detail-tx-merchant">{tx.merchant}</span>
-                        <span className="vwm-detail-tx-amount">{tx.amount}</span>
+                  {detail.transactions.map((tx, i) => {
+                    const cardStyle = CARD_TYPE_STYLES[tx.cardType] || CARD_TYPE_STYLES.checking;
+                    return (
+                      <div key={i} className="vwm-detail-tx">
+                        <div className="vwm-detail-tx-top">
+                          <span className="vwm-detail-tx-merchant">{tx.merchant}</span>
+                          <span className="vwm-detail-tx-amount">{tx.amount}</span>
+                        </div>
+                        <div className="vwm-detail-tx-bottom">
+                          <span
+                            className="vwm-detail-tx-card"
+                            style={{ background: cardStyle.bg, color: cardStyle.text, borderColor: cardStyle.border }}
+                          >
+                            <span className="vwm-detail-tx-card-dot" style={{ background: cardStyle.dot }} />
+                            {tx.card}
+                          </span>
+                          <span className="vwm-detail-tx-date">{tx.date}</span>
+                          <span className="vwm-detail-tx-relevance">{tx.relevance}</span>
+                        </div>
                       </div>
-                      <div className="vwm-detail-tx-bottom">
-                        <span className="vwm-detail-tx-card">{tx.card}</span>
-                        <span className="vwm-detail-tx-date">{tx.date}</span>
-                        <span className="vwm-detail-tx-relevance">{tx.relevance}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 {/* Right: Insight + Steps */}
                 <div className="vwm-detail-right">
                   <div>
                     <div className="vwm-detail-section-title">✨ Ventus AI Insight</div>
                     <div className="vwm-insight-box">
-                      <div className="vwm-insight-text">{detail.insight}</div>
+                      <div className="vwm-insight-text">
+                        {visibleInsight}
+                        {!insightComplete && <span className="vwm-insight-cursor" />}
+                      </div>
                     </div>
                   </div>
                   <div>
                     <div className="vwm-detail-section-title">📋 Recommended Next Steps</div>
                     <ol className="vwm-steps-list">
                       {detail.steps.map((step, i) => (
-                        <li key={i} className="vwm-step-item">
+                        <li key={i} className={`vwm-step-item ${i < stepsShown ? 'revealed' : ''}`}>
                           <span className="vwm-step-num-circle">{i + 1}</span>
                           {step}
                         </li>
