@@ -1,31 +1,21 @@
 
 
-# Add Smart Rewards Interactive Demo to the SmartRewards Page
+# Make Smart Rewards Page Content Wider
 
-## What's Happening
-You've provided a full interactive animation component (`VentusSmartRewards.jsx`) that demonstrates the Smart Rewards personalization engine. This will replace the current placeholder demo on the `/smartrewards` page with a live, interactive animation -- similar to how the Enrichment page has its own `VentusTransactionEnrichment` component.
+## What's Changing
+The SmartRewards page currently uses `max-w-6xl` (72rem / 1152px) for all content sections. We'll widen this to `max-w-7xl` (80rem / 1280px) to give the content more breathing room, matching a wider layout.
 
 ## Changes
 
-### 1. Add the new component
-Copy the uploaded `VentusSmartRewards.jsx` into the project as `src/components/technology/demos/VentusSmartRewards.tsx` (renamed to `.tsx` to match project conventions). The component is a self-contained React component with inline styles, animation logic, and all static data built in.
+### File: `src/pages/SmartRewards.tsx`
+Replace all instances of `max-w-6xl` with `max-w-7xl` across every section:
+- Hero section
+- Overview section
+- See It In Action section
+- Key Features section
+- Use Cases section
+- Benefits section
+- CTA section
 
-### 2. Add proportional scaling for mobile/tablet
-The component has its own responsive media queries (collapsing grids at 980px and 760px), but to match the approach used on the Enrichment page, a `.vsr-scale-wrapper` will be added around `.vsr-root` with the same `transform: scale()` strategy:
-- Tablet (max-width 1024px): scale 0.7, margin-bottom -30%
-- Mobile (max-width 767px): scale 0.5, margin-bottom -50%
-
-### 3. Update SmartRewards page
-Replace the current `AnimatedDemo` placeholder with the new `VentusSmartRewards` component, embedded the same way the Enrichment page embeds its demo -- inside a "See It In Action" section with a bordered container.
-
-### Files Changed
-- **New**: `src/components/technology/demos/VentusSmartRewards.tsx` -- the uploaded component with scaling wrapper added
-- **Modified**: `src/pages/SmartRewards.tsx` -- swap `AnimatedDemo` for `VentusSmartRewards`, remove the `rewardsDemoHtml` import
-
-### Technical Details
-- The component uses `useRef` and direct DOM manipulation (innerHTML) for high-performance animations without React re-renders
-- It auto-starts an animation loop through 5 lifestyle indicators (Golf, Snow Sports, Domestic Travel, Pets, Dining), running one full cycle then stopping
-- Users can click any lifestyle pill to interrupt and view that category's data
-- Pause/Resume/Reset controls are built in
-- All CSS is scoped via `.vsr-` prefixed class names to avoid conflicts
+This is a single find-and-replace change affecting 7 occurrences in the file.
 
