@@ -1,8 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TechnologyBackground from "@/components/technology/TechnologyBackground";
-import AnimatedDemo from "@/components/technology/AnimatedDemo";
-import { wealthDemoHtml } from "@/components/technology/demos/wealth-demo";
+import VentusWealthDemo from "@/components/technology/demos/VentusWealthDemo";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -76,10 +75,10 @@ const Wealth = () => {
     <div className="min-h-screen bg-background relative">
       <TechnologyBackground />
       <Navbar />
-      <main className="pt-20 pb-16 relative z-10">
+      <main className="pt-20 pb-10 relative z-10">
         {/* Hero Section */}
-        <section className="py-16 md:py-24">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <section className="py-6 md:py-10">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <Link 
               to="/technology" 
               className="inline-flex items-center gap-2 text-foreground/60 hover:text-foreground mb-8 transition-colors animate-fade-float"
@@ -112,8 +111,8 @@ const Wealth = () => {
         </section>
 
         {/* Overview Section */}
-        <section className="py-12">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <section className="py-4">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div 
               className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
               style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
@@ -132,11 +131,26 @@ const Wealth = () => {
         </section>
 
         {/* See It In Action */}
-        <AnimatedDemo htmlContent={wealthDemoHtml} animationDelay="0.45s" />
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <h2
+              className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
+              style={{ animationDelay: '0.45s', animationFillMode: 'backwards' }}
+            >
+              See It In Action
+            </h2>
+            <div
+              className="rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden animate-fade-float"
+              style={{ animationDelay: '0.55s', animationFillMode: 'backwards' }}
+            >
+              <VentusWealthDemo />
+            </div>
+          </div>
+        </section>
 
         {/* Key Features Section */}
         <section className="py-12">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <h2 
               className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
               style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
@@ -171,7 +185,7 @@ const Wealth = () => {
 
         {/* Use Cases Section */}
         <section className="py-12">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <h2 
               className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
               style={{ animationDelay: '0.9s', animationFillMode: 'backwards' }}
@@ -206,7 +220,7 @@ const Wealth = () => {
 
         {/* Benefits Section */}
         <section className="py-12">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div 
               className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
               style={{ animationDelay: '1.3s', animationFillMode: 'backwards' }}
@@ -227,7 +241,7 @@ const Wealth = () => {
         {/* CTA Section */}
         <section className="py-16">
           <div 
-            className="max-w-6xl mx-auto px-4 md:px-8 text-center animate-fade-float"
+            className="max-w-7xl mx-auto px-4 md:px-8 text-center animate-fade-float"
             style={{ animationDelay: '1.4s', animationFillMode: 'backwards' }}
           >
             <h2 className="text-2xl font-semibold text-foreground mb-4">
