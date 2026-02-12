@@ -1,98 +1,103 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
-// ─── Static Data ──────────────────────────────────────────────────────────────
+// ─── Static Data: 8 Clients, 12 Events ──────────────────────────────────────
 
-const EVENT_ORDER = ['retirement', 'education', 'home_purchase', 'family_formation', 'elder_care'] as const;
+interface DemoClient {
+  id: string;
+  name: string;
+  segment: 'Private' | 'Premium' | 'Preferred';
+  aum: string;
+}
 
-const EVENT_CONFIG: Record<string, { label: string; icon: string; color: string; urgency: string; timing: string }> = {
-  retirement: { label: 'Retirement Planning', icon: '🌅', color: '#f59e0b', urgency: 'Urgent', timing: 'Q1 2026' },
-  education: { label: 'Education Funding', icon: '🎓', color: '#3b82f6', urgency: 'Soon', timing: 'Q3 2026' },
-  home_purchase: { label: 'Home Purchase', icon: '🏠', color: '#22c55e', urgency: 'Urgent', timing: 'Q1 2026' },
-  family_formation: { label: 'Family Formation', icon: '👶', color: '#ec4899', urgency: 'Upcoming', timing: 'Q2 2026' },
-  elder_care: { label: 'Elder Care', icon: '❤️', color: '#ef4444', urgency: 'Soon', timing: 'Q1 2026' },
+interface DemoEvent {
+  clientId: string;
+  eventType: string;
+  eventName: string;
+  confidence: number;
+  urgency: 'Urgent' | 'Soon' | 'Upcoming';
+  timing: string;
+  evidence: string;
+  icon: string;
+  color: string;
+}
+
+interface DemoDetail {
+  transactions: Array<{ merchant: string; amount: string; date: string; card: string; relevance: string }>;
+  insight: string;
+  steps: string[];
+}
+
+const CLIENTS: DemoClient[] = [
+  { id: 'c1', name: 'Margaret Chen', segment: 'Private', aum: '$4.2M' },
+  { id: 'c2', name: 'David Park', segment: 'Premium', aum: '$1.8M' },
+  { id: 'c3', name: 'Sarah Mitchell', segment: 'Private', aum: '$6.1M' },
+  { id: 'c4', name: 'James Rodriguez', segment: 'Preferred', aum: '$890K' },
+  { id: 'c5', name: 'Linda Nakamura', segment: 'Private', aum: '$3.5M' },
+  { id: 'c6', name: 'Robert Thompson', segment: 'Premium', aum: '$2.1M' },
+  { id: 'c7', name: 'Emily Watson', segment: 'Preferred', aum: '$720K' },
+  { id: 'c8', name: 'Michael Foster', segment: 'Private', aum: '$5.8M' },
+];
+
+const EVENTS: DemoEvent[] = [
+  { clientId: 'c1', eventType: 'retirement', eventName: 'Retirement Planning', confidence: 91, urgency: 'Urgent', timing: 'Q1 2026', evidence: 'Fidelity 401k increase + AARP enrollment + Viking Cruises booking', icon: '🌅', color: '#f59e0b' },
+  { clientId: 'c2', eventType: 'home_purchase', eventName: 'Home Purchase', confidence: 87, urgency: 'Urgent', timing: 'Q1 2026', evidence: 'Earnest money deposit + Home Depot + U-Haul booking', icon: '🏠', color: '#22c55e' },
+  { clientId: 'c5', eventType: 'business_liquidity', eventName: 'Business Liquidity', confidence: 84, urgency: 'Urgent', timing: 'Q2 2026', evidence: 'Business valuation service + M&A attorney + Goldman Sachs advisory', icon: '💼', color: '#64748b' },
+  { clientId: 'c8', eventType: 'home_purchase', eventName: 'Home Purchase', confidence: 81, urgency: 'Urgent', timing: 'Q1 2026', evidence: 'Real estate attorney + mortgage pre-approval + Zillow Premium', icon: '🏠', color: '#22c55e' },
+  { clientId: 'c6', eventType: 'retirement', eventName: 'Retirement Planning', confidence: 88, urgency: 'Soon', timing: 'Q3 2026', evidence: 'Retirement income calculator + Schwab rollover + travel agency', icon: '🌅', color: '#f59e0b' },
+  { clientId: 'c1', eventType: 'education', eventName: 'Education Funding', confidence: 82, urgency: 'Soon', timing: 'Q3 2026', evidence: 'College Board SAT + Princeton Review + campus visit flights', icon: '🎓', color: '#3b82f6' },
+  { clientId: 'c3', eventType: 'wealth_transfer', eventName: 'Wealth Transfer', confidence: 79, urgency: 'Soon', timing: 'Q2 2026', evidence: 'Estate attorney consultation + trust documentation + gift tax research', icon: '🎁', color: '#a855f7' },
+  { clientId: 'c8', eventType: 'elder_care', eventName: 'Elder Care', confidence: 72, urgency: 'Soon', timing: 'Q2 2026', evidence: 'Medical Guardian + accessibility mods + geriatric care manager', icon: '❤️', color: '#ef4444' },
+  { clientId: 'c4', eventType: 'family_formation', eventName: 'Family Formation', confidence: 76, urgency: 'Upcoming', timing: 'Q3 2026', evidence: 'Baby registry + Buy Buy Baby + hospital pre-registration', icon: '👶', color: '#ec4899' },
+  { clientId: 'c7', eventType: 'education', eventName: 'Education Funding', confidence: 75, urgency: 'Upcoming', timing: 'Q4 2026', evidence: 'College savings research + Niche.com + campus tour bookings', icon: '🎓', color: '#3b82f6' },
+  { clientId: 'c3', eventType: 'elder_care', eventName: 'Elder Care', confidence: 68, urgency: 'Upcoming', timing: 'Q4 2026', evidence: 'AARP Medicare supplement + Sunrise Senior Living inquiry', icon: '❤️', color: '#ef4444' },
+  { clientId: 'c5', eventType: 'wealth_transfer', eventName: 'Wealth Transfer', confidence: 65, urgency: 'Upcoming', timing: 'Q1 2027', evidence: 'Dynasty trust research + charitable giving advisor', icon: '🎁', color: '#a855f7' },
+];
+
+const DETAILS: Record<string, DemoDetail> = {
+  'c1-retirement': {
+    transactions: [
+      { merchant: 'Fidelity Investments', amount: '$6,500', date: 'Jan 15', card: 'Platinum ...4532', relevance: '401k contribution increase' },
+      { merchant: 'AARP Membership', amount: '$16', date: 'Dec 28', card: 'Cashback ...7891', relevance: 'Retirement association enrollment' },
+      { merchant: 'Viking Cruises', amount: '$8,500', date: 'Jan 20', card: 'Travel Elite ...2234', relevance: 'Retirement travel planning' },
+      { merchant: 'Estate Planning Attorney', amount: '$2,500', date: 'Jan 18', card: 'Checking ...5678', relevance: 'Estate planning consultation' },
+    ],
+    insight: "Client is in early exploration of retirement—increased 401k, AARP enrollment, and cruise booking reveal aspirations for an active, travel-rich next chapter. Critical window for Roth conversions and income strategies.",
+    steps: ['Open conversation about retirement vision and ideal lifestyle', 'Introduce retirement income modeling with 401k trajectory', 'Discuss Roth conversion strategy during remaining working years', 'Review healthcare bridge options before Medicare eligibility'],
+  },
+  'c2-home_purchase': {
+    transactions: [
+      { merchant: 'Earnest Money Deposit', amount: '$15,000', date: 'Jan 20', card: 'Checking ...5678', relevance: 'Home purchase deposit' },
+      { merchant: 'Home Depot', amount: '$2,340', date: 'Feb 1', card: 'Cashback ...7891', relevance: 'Home improvement supplies' },
+      { merchant: 'U-Haul', amount: '$890', date: 'Feb 5', card: 'Cashback ...7891', relevance: 'Moving rental booking' },
+      { merchant: 'Wire - Closing Costs', amount: '$8,500', date: 'Jan 28', card: 'Checking ...5678', relevance: 'Title and closing fees' },
+    ],
+    insight: "Client is in active home acquisition mode. Earnest money and closing costs confirm imminent transaction. Home improvement and moving activity show firm timeline.",
+    steps: ['Analyze liquid assets for down payment without disrupting investments', 'Compare mortgage scenarios: 15 vs. 30-year, ARM vs. fixed', 'Model post-purchase cash flow including PITI and maintenance', 'Review homeowners insurance and umbrella liability coverage'],
+  },
+  'c5-business_liquidity': {
+    transactions: [
+      { merchant: 'BizBuySell Valuation', amount: '$4,500', date: 'Jan 10', card: 'Business ...3344', relevance: 'Business valuation service' },
+      { merchant: 'M&A Legal Partners', amount: '$12,000', date: 'Jan 15', card: 'Business ...3344', relevance: 'M&A attorney retainer' },
+      { merchant: 'Goldman Sachs Advisory', amount: '$25,000', date: 'Jan 22', card: 'Business ...3344', relevance: 'Investment banking advisory' },
+    ],
+    insight: "Client is exploring exit options for their business. Valuation, legal, and advisory fees suggest serious consideration of a liquidity event within 6-12 months.",
+    steps: ['Discuss timeline and expectations for business sale', 'Model after-tax proceeds and reinvestment scenarios', 'Review capital gains strategies including opportunity zones', 'Introduce wealth management transition plan'],
+  },
+  'c8-home_purchase': {
+    transactions: [
+      { merchant: 'Real Estate Attorney', amount: '$3,200', date: 'Jan 12', card: 'Platinum ...9922', relevance: 'Real estate legal review' },
+      { merchant: 'Mortgage Pre-Approval', amount: '$450', date: 'Jan 18', card: 'Checking ...1155', relevance: 'Mortgage application fee' },
+      { merchant: 'Zillow Premium', amount: '$29', date: 'Jan 5', card: 'Cashback ...6677', relevance: 'Property search subscription' },
+    ],
+    insight: "Client is in early-stage home search with legal and financing groundwork already underway. Pre-approval activity confirms intent to purchase within the quarter.",
+    steps: ['Review investment portfolio for down payment liquidity', 'Compare mortgage options given existing asset base', 'Discuss property tax implications on overall financial plan', 'Coordinate timing with other financial goals'],
+  },
 };
 
-const TRANSACTIONS: Record<string, Array<{ merchant: string; amount: string; date: string; card: string; relevance: string }>> = {
-  retirement: [
-    { merchant: 'Fidelity Investments', amount: '$6,500', date: 'Jan 15', card: 'Platinum ...4532', relevance: '401k contribution increase' },
-    { merchant: 'AARP Membership', amount: '$16', date: 'Dec 28', card: 'Cashback ...7891', relevance: 'Retirement association enrollment' },
-    { merchant: 'Viking Cruises', amount: '$8,500', date: 'Jan 20', card: 'Travel Elite ...2234', relevance: 'Retirement travel planning' },
-    { merchant: 'Estate Planning Attorney', amount: '$2,500', date: 'Jan 18', card: 'Checking ...5678', relevance: 'Estate planning consultation' },
-    { merchant: 'Kiplinger Retirement Guide', amount: '$29', date: 'Jan 8', card: 'Platinum ...4532', relevance: 'Retirement planning research' },
-  ],
-  education: [
-    { merchant: 'College Board', amount: '$98', date: 'Jan 12', card: 'Platinum ...4532', relevance: 'SAT registration fees' },
-    { merchant: 'Princeton Review', amount: '$1,299', date: 'Dec 15', card: 'Platinum ...4532', relevance: 'Test prep course enrollment' },
-    { merchant: 'Southwest Airlines', amount: '$450', date: 'Jan 18', card: 'Travel Elite ...2234', relevance: 'Campus visit travel' },
-    { merchant: 'Ivy Coach Admissions', amount: '$3,500', date: 'Jan 5', card: 'Cashback ...7891', relevance: 'College admissions consulting' },
-    { merchant: 'Niche.com Premium', amount: '$49', date: 'Dec 20', card: 'Platinum ...4532', relevance: 'College research subscription' },
-  ],
-  home_purchase: [
-    { merchant: 'Home Depot', amount: '$2,340', date: 'Feb 1', card: 'Cashback ...7891', relevance: 'Home improvement supplies' },
-    { merchant: "Lowe's", amount: '$567', date: 'Feb 3', card: 'Cashback ...7891', relevance: 'Renovation materials' },
-    { merchant: 'U-Haul', amount: '$890', date: 'Feb 5', card: 'Cashback ...7891', relevance: 'Moving rental booking' },
-    { merchant: 'Earnest Money Deposit', amount: '$15,000', date: 'Jan 20', card: 'Checking ...5678', relevance: 'Home purchase deposit' },
-    { merchant: 'Wire - Closing Costs', amount: '$8,500', date: 'Jan 28', card: 'Checking ...5678', relevance: 'Title and closing fees' },
-  ],
-  family_formation: [
-    { merchant: 'Amazon Baby Registry', amount: '$1,850', date: 'Jan 15', card: 'Cashback ...7891', relevance: 'Baby registry purchases' },
-    { merchant: 'Buy Buy Baby', amount: '$1,250', date: 'Jan 22', card: 'Cashback ...7891', relevance: 'Nursery essentials' },
-    { merchant: 'Motherhood Maternity', amount: '$340', date: 'Jan 10', card: 'Platinum ...4532', relevance: 'Maternity clothing' },
-    { merchant: 'Graco Baby', amount: '$450', date: 'Jan 28', card: 'Cashback ...7891', relevance: 'Car seat and stroller' },
-    { merchant: 'Memorial Hospital', amount: '$2,500', date: 'Jan 30', card: 'Checking ...5678', relevance: 'Hospital pre-registration deposit' },
-  ],
-  elder_care: [
-    { merchant: 'Medical Guardian', amount: '$350', date: 'Jan 10', card: 'Cashback ...7891', relevance: 'Medical alert system' },
-    { merchant: 'Home Depot - Mobility', amount: '$890', date: 'Jan 15', card: 'Cashback ...7891', relevance: 'Accessibility modifications' },
-    { merchant: 'Aging Life Care Assoc.', amount: '$450', date: 'Jan 18', card: 'Platinum ...4532', relevance: 'Geriatric care manager' },
-    { merchant: 'AARP Medicare Supplement', amount: '$280', date: 'Jan 20', card: 'Checking ...5678', relevance: 'Medicare supplement premium' },
-    { merchant: 'Sunrise Senior Living', amount: '$12,000', date: 'Jan 25', card: 'Checking ...5678', relevance: 'Assisted living deposit' },
-  ],
-};
-
-const CONFIDENCE: Record<string, number> = {
-  retirement: 91, education: 82, home_purchase: 87, family_formation: 76, elder_care: 68,
-};
-
-const INSIGHTS: Record<string, string> = {
-  retirement: "Client is in early exploration of retirement—increased 401k, AARP enrollment, and cruise booking reveal aspirations for an active, travel-rich next chapter. Estate planning consultation shows they're thinking about legacy. Critical window for Roth conversions and income strategies.",
-  education: "Parent is deep in the college planning research phase. SAT prep, admissions consulting, and campus visits show serious commitment. This is the ideal window for 529 optimization and financial aid positioning before uninformed funding decisions.",
-  home_purchase: "Client is in active home acquisition mode. Earnest money and closing costs confirm imminent transaction. Home improvement and moving activity show firm timeline. Expect questions about mortgage optimization and investment rebalancing.",
-  family_formation: "Growing family preparing for a new arrival. Baby registry, nursery purchases, and hospital pre-registration confirm timeline clarity. They haven't yet established education savings or updated estate documents—proactive opportunity.",
-  elder_care: "Client is stepping into a caregiver role. Medical alert system, accessibility mods, and assisted living deposit indicate transitioning an aging family member to daily support. Approach with empathy while addressing long-term care costs.",
-};
-
-const ACTION_ITEMS: Record<string, string[]> = {
-  retirement: [
-    'Open conversation about retirement vision and ideal lifestyle',
-    'Introduce retirement income modeling with 401k trajectory',
-    'Discuss Roth conversion strategy during remaining working years',
-    'Review healthcare bridge options before Medicare eligibility',
-  ],
-  education: [
-    'Initiate 529 plan discussion—researching but no funding yet',
-    'Calculate projected costs for likely target schools',
-    'Review financial aid implications and FAFSA timing',
-    'Model parent vs. student loan scenarios for trade-off clarity',
-  ],
-  home_purchase: [
-    'Analyze liquid assets for down payment without disrupting investments',
-    'Compare mortgage scenarios: 15 vs. 30-year, ARM vs. fixed',
-    'Model post-purchase cash flow including PITI and maintenance',
-    'Review homeowners insurance and umbrella liability coverage',
-  ],
-  family_formation: [
-    'Introduce 529 plan options for education savings',
-    'Benchmark life insurance: 10-12x income replacement',
-    'Update wills to include guardianship designations',
-    'Model childcare costs into financial plan',
-  ],
-  elder_care: [
-    'Assess long-term care insurance options',
-    'Review assets for Medicaid look-back period implications',
-    'Confirm power of attorney and healthcare proxy documents',
-    'Model assisted living vs. in-home care cost trajectories',
-  ],
+const SEGMENT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  Private: { bg: 'rgba(168,85,247,.15)', text: '#c084fc', border: 'rgba(168,85,247,.30)' },
+  Premium: { bg: 'rgba(245,158,11,.15)', text: '#fbbf24', border: 'rgba(245,158,11,.30)' },
+  Preferred: { bg: 'rgba(59,130,246,.15)', text: '#93c5fd', border: 'rgba(59,130,246,.30)' },
 };
 
 function wait(ms: number) { return new Promise(res => setTimeout(res, ms)); }
@@ -100,274 +105,136 @@ function wait(ms: number) { return new Promise(res => setTimeout(res, ms)); }
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function VentusWealthDemo() {
-  const runningRef = useRef(true);
-  const flowTokenRef = useRef(0);
-  const stepIdxRef = useRef(0);
-  const cyclesRef = useRef(0);
-  const detectedEventsRef = useRef<string[]>([]);
+  const [visibleRows, setVisibleRows] = useState(0);
+  const [selectedEvent, setSelectedEvent] = useState<{ event: DemoEvent; client: DemoClient } | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [phase, setPhase] = useState<'building' | 'autoprepare' | 'complete'>('building');
+  const tokenRef = useRef(0);
+  const mountedRef = useRef(true);
 
-  // DOM refs
-  const rootRef = useRef<HTMLDivElement>(null);
-  const txListRef = useRef<HTMLDivElement>(null);
-  const eventsListRef = useRef<HTMLDivElement>(null);
-  const actionsListRef = useRef<HTMLDivElement>(null);
-  const flowStepRef = useRef<HTMLSpanElement>(null);
-  const toggleBtnRef = useRef<HTMLButtonElement>(null);
-  const metricsRef = useRef<HTMLDivElement>(null);
-  const loadTxRef = useRef<HTMLDivElement>(null);
-  const loadDetectRef = useRef<HTMLDivElement>(null);
-  const loadActionsRef = useRef<HTMLDivElement>(null);
+  const getClient = useCallback((id: string) => CLIENTS.find(c => c.id === id)!, []);
 
-  const showLoad = useCallback((which: string, on: boolean) => {
-    const ref = which === 'tx' ? loadTxRef : which === 'detect' ? loadDetectRef : loadActionsRef;
-    if (ref.current) ref.current.style.display = on ? 'flex' : 'none';
+  const urgentCount = EVENTS.filter(e => e.urgency === 'Urgent').length;
+  const thisQuarterCount = EVENTS.filter(e => e.timing.includes('Q1') || e.timing.includes('Q2')).length;
+
+  // Animated metrics
+  const displayedClients = Math.min(new Set(EVENTS.slice(0, visibleRows).map(e => e.clientId)).size, CLIENTS.length);
+  const displayedEvents = visibleRows;
+  const displayedUrgent = EVENTS.slice(0, visibleRows).filter(e => e.urgency === 'Urgent').length;
+  const displayedQuarter = EVENTS.slice(0, visibleRows).filter(e => e.timing.includes('Q1') || e.timing.includes('Q2')).length;
+
+  const handlePrepare = useCallback((event: DemoEvent) => {
+    const client = CLIENTS.find(c => c.id === event.clientId)!;
+    setSelectedEvent({ event, client });
+    setDetailVisible(true);
+    setIsPaused(true);
   }, []);
 
-  const renderTransactions = useCallback((eventKey: string, count: number) => {
-    if (!txListRef.current) return;
-    const txs = TRANSACTIONS[eventKey] || [];
-    const visible = txs.slice(0, count);
-    txListRef.current.innerHTML = visible.map(tx => `
-      <div class="vwm-tx vwm-fadeIn">
-        <div class="vwm-tx-top">
-          <div class="vwm-tx-merchant">${tx.merchant}</div>
-          <div class="vwm-tx-amount">${tx.amount}</div>
-        </div>
-        <div class="vwm-tx-bottom">
-          <span class="vwm-tx-card">${tx.card}</span>
-          <span class="vwm-tx-date">${tx.date}</span>
-        </div>
-        <div class="vwm-tx-relevance">${tx.relevance}</div>
-      </div>
-    `).join('');
-    txListRef.current.scrollTop = txListRef.current.scrollHeight;
+  const handleCloseDetail = useCallback(() => {
+    setDetailVisible(false);
+    setTimeout(() => setSelectedEvent(null), 300);
   }, []);
 
-  const renderEventCard = useCallback((eventKey: string) => {
-    const cfg = EVENT_CONFIG[eventKey];
-    const conf = CONFIDENCE[eventKey];
-    const urgencyColor = cfg.urgency === 'Urgent' ? '#ef4444' : cfg.urgency === 'Soon' ? '#f59e0b' : '#3b82f6';
-    return `
-      <div class="vwm-event-card vwm-fadeIn" style="border-left: 3px solid ${cfg.color}">
-        <div class="vwm-event-header">
-          <span class="vwm-event-icon">${cfg.icon}</span>
-          <span class="vwm-event-label">${cfg.label}</span>
-        </div>
-        <div class="vwm-event-meta">
-          <span class="vwm-conf-badge" style="background: ${cfg.color}20; color: ${cfg.color}; border-color: ${cfg.color}40">${conf}%</span>
-          <span class="vwm-urgency-badge" style="background: ${urgencyColor}20; color: ${urgencyColor}; border-color: ${urgencyColor}40">${cfg.urgency}</span>
-          <span class="vwm-timing-badge">${cfg.timing}</span>
-        </div>
-      </div>
-    `;
-  }, []);
-
-  const renderDetectedEvents = useCallback(() => {
-    if (!eventsListRef.current) return;
-    eventsListRef.current.innerHTML = detectedEventsRef.current.map(k => renderEventCard(k)).join('');
-    eventsListRef.current.scrollTop = eventsListRef.current.scrollHeight;
-  }, [renderEventCard]);
-
-  const renderActionItems = useCallback((eventKey: string) => {
-    if (!actionsListRef.current) return;
-    const cfg = EVENT_CONFIG[eventKey];
-    const items = ACTION_ITEMS[eventKey] || [];
-    const insight = INSIGHTS[eventKey] || '';
-    const existingHTML = actionsListRef.current.innerHTML;
-    const newHTML = `
-      <div class="vwm-action-group vwm-fadeIn">
-        <div class="vwm-action-group-header" style="color: ${cfg.color}">
-          <span>${cfg.icon}</span> ${cfg.label}
-        </div>
-        <ol class="vwm-action-steps">
-          ${items.map((item, i) => `<li class="vwm-action-step"><span class="vwm-step-num" style="background: ${cfg.color}20; color: ${cfg.color}">${i + 1}</span>${item}</li>`).join('')}
-        </ol>
-        <div class="vwm-insight-box">
-          <div class="vwm-insight-label">✨ Ventus AI Insight</div>
-          <div class="vwm-insight-text">${insight}</div>
-        </div>
-      </div>
-    `;
-    actionsListRef.current.innerHTML = existingHTML + newHTML;
-    actionsListRef.current.scrollTop = actionsListRef.current.scrollHeight;
-  }, []);
-
-  const updateMetrics = useCallback(() => {
-    if (!metricsRef.current) return;
-    const count = detectedEventsRef.current.length;
-    const urgent = detectedEventsRef.current.filter(k => EVENT_CONFIG[k]?.urgency === 'Urgent').length;
-    const thisQ = detectedEventsRef.current.filter(k => EVENT_CONFIG[k]?.timing?.includes('Q1')).length;
-    metricsRef.current.innerHTML = `
-      <span class="vwm-metric"><span class="vwm-metric-num">${count}</span> Events Detected</span>
-      <span class="vwm-metric vwm-metric-urgent"><span class="vwm-metric-num">${urgent}</span> Urgent</span>
-      <span class="vwm-metric vwm-metric-quarter"><span class="vwm-metric-num">${thisQ}</span> This Quarter</span>
-    `;
-  }, []);
-
-  const updatePillUI = useCallback((eventKey: string) => {
-    if (!rootRef.current) return;
-    rootRef.current.querySelectorAll('.vwm-pill').forEach((btn: Element) => {
-      const el = btn as HTMLElement;
-      const isActive = el.dataset.event === eventKey;
-      el.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      if (isActive) el.classList.add('scanning'); else el.classList.remove('scanning');
-    });
-  }, []);
-
-  // ── Flow ──────────────────────────────────────────────────────────────────
-
-  const runOneEvent = useCallback(async (eventKey: string, stepNum: number, total: number, token: number) => {
-    if (token !== flowTokenRef.current) return;
-    const cfg = EVENT_CONFIG[eventKey];
-
-    updatePillUI(eventKey);
-    if (flowStepRef.current) flowStepRef.current.textContent = `Step ${stepNum}/${total} · Scanning: ${cfg.label}`;
-
-    // Show transactions one by one
-    showLoad('tx', true);
-    await wait(1200);
-    if (token !== flowTokenRef.current) return;
-    showLoad('tx', false);
-
-    const txs = TRANSACTIONS[eventKey] || [];
-    for (let i = 1; i <= txs.length; i++) {
-      if (token !== flowTokenRef.current) return;
-      renderTransactions(eventKey, i);
-      await wait(600);
-    }
-    if (token !== flowTokenRef.current) return;
-
-    // Detect event
-    if (flowStepRef.current) flowStepRef.current.textContent = `Step ${stepNum}/${total} · Detecting: ${cfg.label}`;
-    showLoad('detect', true);
-    await wait(1500);
-    if (token !== flowTokenRef.current) return;
-    showLoad('detect', false);
-
-    detectedEventsRef.current = [...detectedEventsRef.current, eventKey];
-    renderDetectedEvents();
-    updateMetrics();
-    await wait(800);
-    if (token !== flowTokenRef.current) return;
-
-    // Show action items
-    showLoad('actions', true);
-    await wait(1200);
-    if (token !== flowTokenRef.current) return;
-    showLoad('actions', false);
-    renderActionItems(eventKey);
-    await wait(1800);
-    if (token !== flowTokenRef.current) return;
-
-    // Clear scanning state
-    if (rootRef.current) {
-      rootRef.current.querySelectorAll('.vwm-pill').forEach((btn: Element) => {
-        (btn as HTMLElement).classList.remove('scanning');
-      });
-    }
-  }, [updatePillUI, showLoad, renderTransactions, renderDetectedEvents, updateMetrics, renderActionItems]);
-
-  const autoLoop = useCallback(async () => {
-    const total = EVENT_ORDER.length;
-    while (runningRef.current && cyclesRef.current < 1) {
-      const myToken = flowTokenRef.current;
-      const eventKey = EVENT_ORDER[stepIdxRef.current % total];
-      const stepNum = (stepIdxRef.current % total) + 1;
-      await runOneEvent(eventKey, stepNum, total, myToken);
-      if (myToken !== flowTokenRef.current) continue;
-      stepIdxRef.current++;
-      if (stepIdxRef.current >= total) {
-        cyclesRef.current++;
-        if (cyclesRef.current >= 1) {
-          runningRef.current = false;
-          if (toggleBtnRef.current) toggleBtnRef.current.textContent = 'Restart';
-          if (flowStepRef.current) flowStepRef.current.textContent = 'All life events processed · Complete';
-          break;
-        }
-      }
-      await wait(1200);
-    }
-  }, [runOneEvent]);
-
-  const resetState = useCallback(() => {
-    detectedEventsRef.current = [];
-    if (txListRef.current) txListRef.current.innerHTML = '';
-    if (eventsListRef.current) eventsListRef.current.innerHTML = '';
-    if (actionsListRef.current) actionsListRef.current.innerHTML = '';
-    if (metricsRef.current) metricsRef.current.innerHTML = '';
-  }, []);
-
-  const start = useCallback(() => {
-    runningRef.current = true;
-    cyclesRef.current = 0;
-    stepIdxRef.current = 0;
-    resetState();
-    if (toggleBtnRef.current) toggleBtnRef.current.textContent = 'Pause';
-    flowTokenRef.current++;
-    autoLoop();
-  }, [autoLoop, resetState]);
-
-  const pause = useCallback(() => {
-    runningRef.current = false;
-    if (toggleBtnRef.current) toggleBtnRef.current.textContent = 'Resume';
-    flowTokenRef.current++;
-    showLoad('tx', false);
-    showLoad('detect', false);
-    showLoad('actions', false);
-    if (rootRef.current) {
-      rootRef.current.querySelectorAll('.vwm-pill').forEach((btn: Element) => {
-        (btn as HTMLElement).classList.remove('scanning');
-      });
-    }
-    if (flowStepRef.current) flowStepRef.current.textContent = 'Paused';
-  }, [showLoad]);
-
-  const handlePillClick = useCallback(async (eventKey: string) => {
-    pause();
-    const cfg = EVENT_CONFIG[eventKey];
-    const clickToken = flowTokenRef.current;
-
-    updatePillUI(eventKey);
-    if (flowStepRef.current) flowStepRef.current.textContent = cfg.label;
-
-    // Show all transactions for this event
-    renderTransactions(eventKey, (TRANSACTIONS[eventKey] || []).length);
-
-    // Detect event if not already
-    if (!detectedEventsRef.current.includes(eventKey)) {
-      showLoad('detect', true);
-      await wait(1200);
-      if (clickToken !== flowTokenRef.current) return;
-      showLoad('detect', false);
-      detectedEventsRef.current = [...detectedEventsRef.current, eventKey];
-      renderDetectedEvents();
-      updateMetrics();
-    }
-
-    // Show actions
-    // Clear and show just this event's actions
-    if (actionsListRef.current) actionsListRef.current.innerHTML = '';
-    showLoad('actions', true);
-    await wait(1000);
-    if (clickToken !== flowTokenRef.current) return;
-    showLoad('actions', false);
-    renderActionItems(eventKey);
-
-    if (rootRef.current) {
-      rootRef.current.querySelectorAll('.vwm-pill').forEach((btn: Element) => {
-        (btn as HTMLElement).classList.remove('scanning');
-      });
-    }
-  }, [pause, updatePillUI, renderTransactions, showLoad, renderDetectedEvents, updateMetrics, renderActionItems]);
-
-  // ── Init ──────────────────────────────────────────────────────────────────
-
+  // Animation loop
   useEffect(() => {
-    start();
-    return () => { flowTokenRef.current++; runningRef.current = false; };
-  }, [start]);
+    mountedRef.current = true;
+    const myToken = ++tokenRef.current;
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+    const run = async () => {
+      // Phase 1: Build rows one by one
+      setVisibleRows(0);
+      setPhase('building');
+      setSelectedEvent(null);
+      setDetailVisible(false);
+      setIsPaused(false);
+
+      for (let i = 1; i <= EVENTS.length; i++) {
+        if (myToken !== tokenRef.current || !mountedRef.current) return;
+        // Wait while paused
+        while (isPaused && myToken === tokenRef.current && mountedRef.current) {
+          await wait(200);
+        }
+        if (myToken !== tokenRef.current || !mountedRef.current) return;
+        setVisibleRows(i);
+        await wait(400);
+      }
+
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+      await wait(1500);
+
+      // Phase 2: Auto-click "Prepare" on first urgent row
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+      setPhase('autoprepare');
+      const firstUrgent = EVENTS[0]; // Margaret Chen - Retirement
+      handlePrepare(firstUrgent);
+
+      await wait(6000);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+
+      // Close detail
+      handleCloseDetail();
+      await wait(2000);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+
+      setPhase('complete');
+      await wait(3000);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+
+      // Loop
+      run();
+    };
+
+    run();
+    return () => { mountedRef.current = false; tokenRef.current++; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleReset = () => {
+    tokenRef.current++;
+    setVisibleRows(0);
+    setSelectedEvent(null);
+    setDetailVisible(false);
+    setIsPaused(false);
+    setPhase('building');
+
+    // Restart
+    const myToken = ++tokenRef.current;
+    const run = async () => {
+      for (let i = 1; i <= EVENTS.length; i++) {
+        if (myToken !== tokenRef.current) return;
+        setVisibleRows(i);
+        await wait(400);
+      }
+      if (myToken !== tokenRef.current) return;
+      await wait(1500);
+      setPhase('autoprepare');
+      handlePrepare(EVENTS[0]);
+      await wait(6000);
+      if (myToken !== tokenRef.current) return;
+      handleCloseDetail();
+      await wait(2000);
+      if (myToken !== tokenRef.current) return;
+      setPhase('complete');
+      await wait(3000);
+      if (myToken !== tokenRef.current) return;
+      run();
+    };
+    run();
+  };
+
+  const urgencyBadge = (urgency: string) => {
+    const colors: Record<string, { bg: string; text: string; border: string }> = {
+      Urgent: { bg: 'rgba(239,68,68,.12)', text: '#f87171', border: 'rgba(239,68,68,.30)' },
+      Soon: { bg: 'rgba(245,158,11,.12)', text: '#fbbf24', border: 'rgba(245,158,11,.30)' },
+      Upcoming: { bg: 'rgba(59,130,246,.12)', text: '#93c5fd', border: 'rgba(59,130,246,.30)' },
+    };
+    return colors[urgency] || colors.Upcoming;
+  };
+
+  const detail = selectedEvent
+    ? DETAILS[`${selectedEvent.event.clientId}-${selectedEvent.event.eventType}`]
+    : null;
 
   return (
     <>
@@ -377,8 +244,8 @@ export default function VentusWealthDemo() {
           color: #ffffff;
           max-width: 1600px;
           margin: 0 auto;
-          padding: 22px;
-          background: transparent;
+          padding: 0;
+          background: rgba(255,255,255,.03);
           border: 1px solid rgba(255,255,255,.15);
           border-radius: 22px;
           overflow: hidden;
@@ -388,228 +255,194 @@ export default function VentusWealthDemo() {
         }
         .vwm-root *, .vwm-root *::before, .vwm-root *::after { box-sizing: border-box; }
 
-        .vwm-top { padding: 6px 6px 10px; }
-        .vwm-title { font-weight: 760; letter-spacing: -.02em; line-height: 1.05; font-size: 20px; color: #fff; }
-        .vwm-sub { color: rgba(255,255,255,.55); font-size: 13px; line-height: 1.35; margin-top: 6px; }
-
-        .vwm-client-bar {
-          display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-          padding: 12px; margin: 0 6px 8px;
+        .vwm-dashboard-header {
+          padding: 16px 20px 12px;
           background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.15); border-radius: 18px;
+          border-bottom: 1px solid rgba(255,255,255,.12);
         }
-        .vwm-client-name { font-weight: 760; font-size: 14px; color: #fff; }
-        .vwm-client-chip {
-          display: inline-flex; align-items: center; gap: 6px;
-          padding: 6px 10px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
-          font-size: 12px; color: rgba(255,255,255,.80);
+        .vwm-dash-title {
+          font-weight: 760; letter-spacing: -.02em; font-size: 16px; color: #fff;
         }
-        .vwm-client-chip .k { color: rgba(255,255,255,.50); font-weight: 650; }
-        .vwm-client-chip strong { font-weight: 720; color: #fff; }
-        .vwm-segment-badge {
-          padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
-          background: rgba(168,85,247,.2); color: #c084fc; border: 1px solid rgba(168,85,247,.3);
+        .vwm-dash-title .vwm-powered {
+          font-size: 12px; font-weight: 500; color: rgba(255,255,255,.45); margin-left: 8px;
         }
-
-        /* Pills row */
-        .vwm-pills-row {
-          display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-          padding: 12px; margin: 0 6px 8px;
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.15); border-radius: 18px;
+        .vwm-dash-subtitle {
+          font-size: 12px; color: rgba(255,255,255,.45); margin-top: 4px;
         }
-        .vwm-pills-label { font-size: 12px; color: rgba(255,255,255,.50); font-weight: 650; letter-spacing: .02em; margin-right: 4px; }
-        .vwm-pill {
-          position: relative;
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 8px 12px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.07);
-          cursor: pointer; transition: all .22s ease;
-          font-size: 12px; color: rgba(255,255,255,.88); outline: none;
-        }
-        .vwm-pill:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.30); background: rgba(255,255,255,.12); }
-        .vwm-pill[aria-selected="true"] { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.36); }
-        .vwm-pill.scanning { border-color: rgba(120,180,255,.50); background: rgba(120,180,255,.12); }
-        .vwm-pill.scanning::after {
-          content: ""; position: absolute; inset: -2px; border-radius: 999px;
-          border: 1px solid rgba(120,180,255,.50);
-          animation: vwm-scanGlow 1.4s ease-in-out infinite; pointer-events: none;
-        }
-        @keyframes vwm-scanGlow {
-          0%  { opacity: .25; transform: scale(0.985); }
-          50% { opacity: .85; transform: scale(1.01); }
-          100%{ opacity: .25; transform: scale(0.985); }
-        }
-        .vwm-pill-dot {
-          width: 10px; height: 10px; border-radius: 50%;
-        }
-
-        /* Controls */
-        .vwm-controls {
-          display: flex; gap: 10px; align-items: center; justify-content: space-between;
-          padding: 10px 12px; margin: 0 6px 8px;
-          border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); border-radius: 18px;
-        }
-        .vwm-ctrl-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: rgba(255,255,255,.72); font-size: 12px; }
-        .vwm-ctrl-btns { display: flex; gap: 8px; }
-        .vwm-btn {
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 9px 10px; border-radius: 14px;
-          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
-          color: rgba(255,255,255,.88); font-weight: 740; font-size: 12px;
-          cursor: pointer; transition: all .22s ease;
-        }
-        .vwm-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.15); }
-        .vwm-btn.primary { background: rgba(255,255,255,.90); color: #0b1a3a; border-color: rgba(255,255,255,.10); }
-        .vwm-btn.primary:hover { background: #fff; }
-        .vwm-btn:active { transform: translateY(1px); }
 
         /* Metrics bar */
-        .vwm-metrics-bar {
-          display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-          padding: 10px 12px; margin: 0 6px 8px;
-          background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.12); border-radius: 18px;
-          min-height: 42px;
+        .vwm-metrics {
+          display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+          padding: 10px 20px;
+          border-bottom: 1px solid rgba(255,255,255,.08);
         }
-        .vwm-metric {
+        .vwm-metric-pill {
           display: inline-flex; align-items: center; gap: 6px;
-          padding: 6px 10px; border-radius: 999px;
-          background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15);
-          font-size: 12px; color: rgba(255,255,255,.70);
+          padding: 6px 12px; border-radius: 10px;
+          font-size: 12px; font-weight: 600;
         }
-        .vwm-metric-num { font-weight: 760; color: #fff; font-variant-numeric: tabular-nums; }
-        .vwm-metric-urgent { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.25); color: #fca5a5; }
-        .vwm-metric-urgent .vwm-metric-num { color: #ef4444; }
-        .vwm-metric-quarter { background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.25); color: #fcd34d; }
-        .vwm-metric-quarter .vwm-metric-num { color: #f59e0b; }
+        .vwm-metric-pill.clients { background: rgba(255,255,255,.06); color: rgba(255,255,255,.70); }
+        .vwm-metric-pill.urgent { background: rgba(239,68,68,.10); color: #fca5a5; }
+        .vwm-metric-pill.quarter { background: rgba(245,158,11,.10); color: #fcd34d; }
+        .vwm-metric-pill.total { background: rgba(59,130,246,.10); color: #93c5fd; }
+        .vwm-metric-pill .num { font-weight: 800; font-variant-numeric: tabular-nums; }
 
-        /* 3-column grid */
-        .vwm-grid {
-          display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
-          padding: 0 6px 6px;
+        /* Controls row */
+        .vwm-controls-row {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 8px 20px;
+          border-bottom: 1px solid rgba(255,255,255,.08);
         }
-        @media (max-width: 980px) { .vwm-grid { grid-template-columns: 1fr; } }
+        .vwm-phase-label {
+          font-size: 11px; color: rgba(255,255,255,.50); font-weight: 600;
+        }
+        .vwm-ctrl-btns { display: flex; gap: 8px; }
+        .vwm-ctrl-btn {
+          padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
+          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
+          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+        }
+        .vwm-ctrl-btn:hover { background: rgba(255,255,255,.15); }
+        .vwm-ctrl-btn.primary { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
+        .vwm-ctrl-btn.primary:hover { background: #fff; }
 
-        .vwm-panel {
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.15);
-          border-radius: 18px; overflow: hidden;
-          display: flex; flex-direction: column;
-          min-height: 420px; max-height: 600px;
-          position: relative;
+        /* Alert rows list */
+        .vwm-alert-list {
+          max-height: 520px; overflow-y: auto; padding: 8px 12px;
         }
-        .vwm-hd {
-          display: flex; align-items: center; justify-content: space-between; gap: 10px;
-          padding: 12px;
+        .vwm-alert-list::-webkit-scrollbar { width: 8px; }
+        .vwm-alert-list::-webkit-scrollbar-track { background: transparent; }
+        .vwm-alert-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
+
+        /* Individual alert row */
+        .vwm-alert-row {
+          display: flex; align-items: center; gap: 12px;
+          padding: 10px 12px; margin-bottom: 4px;
+          border: 1px solid rgba(255,255,255,.10);
+          border-radius: 14px;
           background: rgba(255,255,255,.04);
-          border-bottom: 1px solid rgba(255,255,255,.12);
-          flex-shrink: 0;
+          transition: all .2s;
+          animation: vwm-rowIn .35s ease both;
         }
-        .vwm-hd-title { font-weight: 760; letter-spacing: -.02em; font-size: 13px; color: #fff; }
-        .vwm-hd-tag {
-          font-size: 11px; padding: 5px 8px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
-          color: rgba(255,255,255,.65); white-space: nowrap;
-        }
-        .vwm-bd {
-          padding: 10px; display: flex; flex-direction: column; gap: 8px;
-          flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
-        }
-        .vwm-bd::-webkit-scrollbar { width: 10px; }
-        .vwm-bd::-webkit-scrollbar-track { background: transparent; }
-        .vwm-bd::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
+        .vwm-alert-row:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); }
+        @keyframes vwm-rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Transaction items */
-        .vwm-tx {
-          border: 1px solid rgba(255,255,255,.12); border-radius: 12px;
-          background: rgba(255,255,255,.05); padding: 10px;
-          display: flex; flex-direction: column; gap: 4px;
+        .vwm-row-icon {
+          flex: 0 0 36px; height: 36px; border-radius: 10px;
+          display: grid; place-items: center; font-size: 18px;
         }
-        .vwm-tx-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .vwm-tx-merchant { font-weight: 720; font-size: 12px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .vwm-tx-amount { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.9); font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .vwm-tx-bottom { display: flex; gap: 8px; align-items: center; }
-        .vwm-tx-card {
-          font-size: 10px; padding: 3px 7px; border-radius: 999px;
+        .vwm-row-info { flex: 1; min-width: 0; }
+        .vwm-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .vwm-row-name { font-weight: 720; font-size: 13px; color: #fff; white-space: nowrap; }
+        .vwm-row-aum { font-size: 11px; color: rgba(255,255,255,.55); font-weight: 600; }
+        .vwm-seg-badge {
+          font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+          border: 1px solid;
+        }
+        .vwm-row-middle { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+        .vwm-event-name { font-size: 12px; font-weight: 660; color: rgba(255,255,255,.85); }
+        .vwm-urg-badge {
+          font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+          border: 1px solid; text-transform: uppercase; letter-spacing: .03em;
+        }
+        .vwm-conf-pill {
+          font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+          border: 1px solid;
+        }
+        .vwm-timing-text { font-size: 10px; color: rgba(255,255,255,.40); }
+        .vwm-row-evidence {
+          font-size: 10px; color: rgba(255,255,255,.40); margin-top: 2px;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .vwm-row-actions { flex: 0 0 auto; display: flex; gap: 6px; }
+        .vwm-row-btn {
+          padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
+          border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06);
+          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+          white-space: nowrap;
+        }
+        .vwm-row-btn:hover { background: rgba(255,255,255,.14); }
+        .vwm-row-btn.prepare { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
+        .vwm-row-btn.prepare:hover { background: #fff; }
+
+        /* Detail overlay */
+        .vwm-detail-overlay {
+          position: absolute; inset: 0; z-index: 10;
+          background: rgba(8,12,24,.95);
+          backdrop-filter: blur(8px);
+          display: flex; flex-direction: column;
+          transition: opacity .3s, transform .3s;
+        }
+        .vwm-detail-overlay.entering { opacity: 1; transform: translateY(0); }
+        .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
+        .vwm-detail-header {
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+        .vwm-detail-header-left { display: flex; align-items: center; gap: 12px; }
+        .vwm-detail-icon { font-size: 24px; }
+        .vwm-detail-title { font-weight: 760; font-size: 16px; color: #fff; }
+        .vwm-detail-client-name { font-size: 13px; color: rgba(255,255,255,.55); }
+        .vwm-back-btn {
+          padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 700;
+          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
+          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+        }
+        .vwm-back-btn:hover { background: rgba(255,255,255,.15); }
+        .vwm-detail-body {
+          flex: 1; overflow-y: auto; padding: 16px 20px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        @media (max-width: 700px) { .vwm-detail-body { grid-template-columns: 1fr; } }
+        .vwm-detail-section-title {
+          font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+          color: rgba(255,255,255,.45); margin-bottom: 8px;
+        }
+        .vwm-detail-tx {
+          padding: 8px 10px; border-radius: 10px;
+          border: 1px solid rgba(255,255,255,.10);
+          background: rgba(255,255,255,.04);
+          margin-bottom: 6px;
+        }
+        .vwm-detail-tx-top { display: flex; justify-content: space-between; align-items: center; }
+        .vwm-detail-tx-merchant { font-size: 12px; font-weight: 680; color: #fff; }
+        .vwm-detail-tx-amount { font-size: 12px; font-weight: 720; color: rgba(255,255,255,.90); font-variant-numeric: tabular-nums; }
+        .vwm-detail-tx-bottom { display: flex; gap: 8px; align-items: center; margin-top: 3px; }
+        .vwm-detail-tx-card {
+          font-size: 9px; padding: 2px 6px; border-radius: 999px;
           background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.25);
-          color: rgba(196,181,253,.9); white-space: nowrap;
+          color: rgba(196,181,253,.9);
         }
-        .vwm-tx-date { font-size: 10px; color: rgba(255,255,255,.45); }
-        .vwm-tx-relevance { font-size: 10px; color: rgba(255,255,255,.50); font-style: italic; }
-
-        /* Event cards */
-        .vwm-event-card {
-          border: 1px solid rgba(255,255,255,.15); border-radius: 14px;
-          background: rgba(255,255,255,.06); padding: 12px;
-          display: flex; flex-direction: column; gap: 8px;
+        .vwm-detail-tx-date { font-size: 10px; color: rgba(255,255,255,.40); }
+        .vwm-detail-tx-relevance { font-size: 10px; color: rgba(255,255,255,.45); font-style: italic; margin-left: auto; }
+        .vwm-detail-right { display: flex; flex-direction: column; gap: 16px; }
+        .vwm-insight-box {
+          padding: 12px; border-radius: 12px;
+          border: 1px solid rgba(255,255,255,.10);
+          background: rgba(255,255,255,.04);
         }
-        .vwm-event-header { display: flex; align-items: center; gap: 8px; }
-        .vwm-event-icon { font-size: 18px; }
-        .vwm-event-label { font-weight: 760; font-size: 13px; color: #fff; }
-        .vwm-event-meta { display: flex; flex-wrap: wrap; gap: 6px; }
-        .vwm-conf-badge, .vwm-urgency-badge, .vwm-timing-badge {
-          font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 999px; border: 1px solid;
-        }
-        .vwm-timing-badge {
-          background: rgba(255,255,255,.06); color: rgba(255,255,255,.65);
-          border-color: rgba(255,255,255,.15);
-        }
-
-        /* Action items */
-        .vwm-action-group {
-          border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
-          background: rgba(255,255,255,.04); padding: 12px;
-          display: flex; flex-direction: column; gap: 8px;
-        }
-        .vwm-action-group-header { font-weight: 760; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-        .vwm-action-steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
-        .vwm-action-step {
+        .vwm-insight-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.50); margin-bottom: 6px; }
+        .vwm-insight-text { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.55; }
+        .vwm-steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+        .vwm-step-item {
           display: flex; align-items: flex-start; gap: 8px;
-          font-size: 11.5px; color: rgba(255,255,255,.75); line-height: 1.4;
+          font-size: 12px; color: rgba(255,255,255,.70); line-height: 1.4;
         }
-        .vwm-step-num {
-          flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+        .vwm-step-num-circle {
+          flex: 0 0 20px; height: 20px; border-radius: 50%;
           display: grid; place-items: center;
           font-size: 10px; font-weight: 700;
+          background: rgba(255,255,255,.08); color: rgba(255,255,255,.60);
         }
-        .vwm-insight-box {
-          border-top: 1px solid rgba(255,255,255,.10); padding-top: 8px;
-          display: flex; flex-direction: column; gap: 4px;
-        }
-        .vwm-insight-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.50); text-transform: uppercase; letter-spacing: .04em; }
-        .vwm-insight-text { font-size: 11px; color: rgba(255,255,255,.60); line-height: 1.45; }
 
-        /* Loading overlay */
-        .vwm-load-overlay {
-          position: absolute; inset: 46px 10px 10px 10px;
-          border-radius: 16px;
-          border: 1px dashed rgba(255,255,255,.18);
-          background: rgba(0,0,0,.30);
-          display: none; align-items: center; justify-content: center;
-          padding: 12px; pointer-events: none; z-index: 2;
+        /* Empty state */
+        .vwm-empty {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          padding: 60px 20px; color: rgba(255,255,255,.30);
         }
-        .vwm-loader-box {
-          display: flex; gap: 12px; align-items: center;
-          padding: 12px; background: rgba(255,255,255,.10);
-          border: 1px solid rgba(255,255,255,.20);
-          border-radius: 16px; max-width: 92%;
-        }
-        .vwm-spinner {
-          width: 24px; height: 24px; border-radius: 999px;
-          border: 2px solid rgba(255,255,255,.20);
-          border-top-color: rgba(255,255,255,.80);
-          animation: vwm-spin 1s linear infinite; flex: 0 0 auto;
-        }
-        @keyframes vwm-spin { to { transform: rotate(360deg); } }
-        .vwm-loader-txt { display: flex; flex-direction: column; gap: 2px; }
-        .vwm-loader-txt b { font-size: 12px; color: #fff; }
-        .vwm-loader-txt span { font-size: 11px; color: rgba(255,255,255,.55); }
-
-        .vwm-foot { padding: 8px 6px 2px; color: rgba(255,255,255,.40); font-size: 11px; }
-        .vwm-fadeIn { animation: vwm-fadeIn .35s ease both; }
-        @keyframes vwm-fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .vwm-empty-icon { font-size: 36px; margin-bottom: 12px; }
+        .vwm-empty-text { font-size: 14px; font-weight: 600; }
+        .vwm-empty-sub { font-size: 12px; margin-top: 4px; }
 
         .vwm-scale-wrapper { transform-origin: top center; }
         @media (max-width: 1024px) { .vwm-scale-wrapper { transform: scale(0.7); margin-bottom: -30%; } }
@@ -617,112 +450,156 @@ export default function VentusWealthDemo() {
       `}</style>
 
       <div className="vwm-scale-wrapper">
-      <div className="vwm-root" ref={rootRef}>
-        <div className="vwm-top">
-          <div className="vwm-title">Ventus AI Life Event Detection Simulator</div>
-          <div className="vwm-sub">Transaction Patterns → Behavioral Signals → Life Event Detection → Advisor Action Items</div>
-        </div>
+        <div className="vwm-root">
+          {/* Header */}
+          <div className="vwm-dashboard-header">
+            <div className="vwm-dash-title">
+              Wealth Management Client Life Event Intelligence
+              <span className="vwm-powered">Powered by Ventus AI</span>
+            </div>
+            <div className="vwm-dash-subtitle">
+              {displayedClients} clients with upcoming life events need attention
+            </div>
+          </div>
 
-        {/* Client profile */}
-        <div className="vwm-client-bar">
-          <span className="vwm-client-name">Margaret Chen</span>
-          <span className="vwm-segment-badge">Private</span>
-          {[['AUM','$4.2M'],['Tenure','12 yrs'],['Risk','Moderate'],['Accounts','7']].map(([k,v]) => (
-            <span key={k} className="vwm-client-chip"><span className="k">{k}</span><strong>{v}</strong></span>
-          ))}
-        </div>
+          {/* Metrics */}
+          <div className="vwm-metrics">
+            <span className="vwm-metric-pill clients">
+              👥 <span className="num">{displayedClients}</span> Clients
+            </span>
+            <span className="vwm-metric-pill urgent">
+              ⚠️ <span className="num">{displayedUrgent}</span> Urgent
+            </span>
+            <span className="vwm-metric-pill quarter">
+              🕐 <span className="num">{displayedQuarter}</span> This Quarter
+            </span>
+            <span className="vwm-metric-pill total">
+              📅 <span className="num">{displayedEvents}</span> Total Events
+            </span>
+          </div>
 
-        {/* Life event pills */}
-        <div className="vwm-pills-row">
-          <span className="vwm-pills-label">Life Events</span>
-          {EVENT_ORDER.map(id => {
-            const cfg = EVENT_CONFIG[id];
-            return (
-              <button key={id} className="vwm-pill" data-event={id} aria-selected="false" onClick={() => handlePillClick(id)}>
-                <span className="vwm-pill-dot" style={{ background: cfg.color }} />
-                <span>{cfg.label}</span>
+          {/* Controls */}
+          <div className="vwm-controls-row">
+            <span className="vwm-phase-label">
+              {phase === 'building' && visibleRows < EVENTS.length && `Detecting events... ${visibleRows}/${EVENTS.length}`}
+              {phase === 'building' && visibleRows >= EVENTS.length && 'All events detected'}
+              {phase === 'autoprepare' && 'Viewing preparation details'}
+              {phase === 'complete' && 'Analysis complete · Restarting...'}
+            </span>
+            <div className="vwm-ctrl-btns">
+              <button className="vwm-ctrl-btn primary" onClick={() => setIsPaused(p => !p)}>
+                {isPaused ? 'Resume' : 'Pause'}
               </button>
-            );
-          })}
-        </div>
-
-        {/* Controls */}
-        <div className="vwm-controls">
-          <div className="vwm-ctrl-left">
-            <span ref={flowStepRef}>Step 1/5 · Scanning: Retirement Planning</span>
-            <span style={{color:'rgba(255,255,255,.45)',fontSize:'11px'}}>Click a life event to jump to its detection</span>
-          </div>
-          <div className="vwm-ctrl-btns">
-            <button className="vwm-btn primary" ref={toggleBtnRef} onClick={() => {
-              if (runningRef.current) { pause(); }
-              else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; if (toggleBtnRef.current) toggleBtnRef.current.textContent = 'Pause'; flowTokenRef.current++; autoLoop(); } }
-            }}>Pause</button>
-            <button className="vwm-btn" onClick={() => {
-              flowTokenRef.current++;
-              runningRef.current = false;
-              resetState();
-              stepIdxRef.current = 0;
-              cyclesRef.current = 0;
-              if (toggleBtnRef.current) toggleBtnRef.current.textContent = 'Start';
-              if (flowStepRef.current) flowStepRef.current.textContent = 'Ready to begin';
-              if (rootRef.current) rootRef.current.querySelectorAll('.vwm-pill').forEach((b: Element) => { (b as HTMLElement).classList.remove('scanning'); (b as HTMLElement).setAttribute('aria-selected', 'false'); });
-            }}>Reset</button>
-          </div>
-        </div>
-
-        {/* Metrics */}
-        <div className="vwm-metrics-bar" ref={metricsRef} />
-
-        {/* 3-column grid */}
-        <div className="vwm-grid">
-          {/* Left: Transaction Signal Feed */}
-          <div className="vwm-panel">
-            <div className="vwm-hd">
-              <div className="vwm-hd-title">Transaction Signal Feed</div>
-              <div className="vwm-hd-tag">behavioral signals</div>
+              <button className="vwm-ctrl-btn" onClick={handleReset}>Reset</button>
             </div>
-            <div className="vwm-bd" ref={txListRef} />
-            <div className="vwm-load-overlay" ref={loadTxRef}>
-              <div className="vwm-loader-box">
-                <div className="vwm-spinner" />
-                <div className="vwm-loader-txt"><b>Scanning transactions</b><span>Identifying behavioral patterns</span></div>
+          </div>
+
+          {/* Alert rows */}
+          <div className="vwm-alert-list">
+            {visibleRows === 0 && (
+              <div className="vwm-empty">
+                <div className="vwm-empty-icon">🔍</div>
+                <div className="vwm-empty-text">Scanning client portfolios...</div>
+                <div className="vwm-empty-sub">Detecting life event signals from transaction patterns</div>
+              </div>
+            )}
+            {EVENTS.slice(0, visibleRows).map((event, idx) => {
+              const client = getClient(event.clientId);
+              const seg = SEGMENT_STYLES[client.segment];
+              const urg = urgencyBadge(event.urgency);
+              return (
+                <div key={`${event.clientId}-${event.eventType}-${idx}`} className="vwm-alert-row" style={{ animationDelay: `${idx * 0.05}s` }}>
+                  <div className="vwm-row-icon" style={{ background: `${event.color}18` }}>
+                    {event.icon}
+                  </div>
+                  <div className="vwm-row-info">
+                    <div className="vwm-row-top">
+                      <span className="vwm-row-name">{client.name}</span>
+                      <span className="vwm-row-aum">{client.aum}</span>
+                      <span className="vwm-seg-badge" style={{ background: seg.bg, color: seg.text, borderColor: seg.border }}>
+                        {client.segment}
+                      </span>
+                    </div>
+                    <div className="vwm-row-middle">
+                      <span className="vwm-event-name" style={{ color: event.color }}>{event.eventName}</span>
+                      <span className="vwm-urg-badge" style={{ background: urg.bg, color: urg.text, borderColor: urg.border }}>
+                        {event.urgency}
+                      </span>
+                      <span className="vwm-conf-pill" style={{ background: `${event.color}15`, color: event.color, borderColor: `${event.color}30` }}>
+                        {event.confidence}%
+                      </span>
+                      <span className="vwm-timing-text">{event.timing}</span>
+                    </div>
+                    <div className="vwm-row-evidence">{event.evidence}</div>
+                  </div>
+                  <div className="vwm-row-actions">
+                    {DETAILS[`${event.clientId}-${event.eventType}`] && (
+                      <button className="vwm-row-btn prepare" onClick={() => handlePrepare(event)}>Prepare</button>
+                    )}
+                    <button className="vwm-row-btn">View</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Detail overlay */}
+          {selectedEvent && detail && (
+            <div className={`vwm-detail-overlay ${detailVisible ? 'entering' : 'exiting'}`}>
+              <div className="vwm-detail-header">
+                <div className="vwm-detail-header-left">
+                  <span className="vwm-detail-icon">{selectedEvent.event.icon}</span>
+                  <div>
+                    <div className="vwm-detail-title">{selectedEvent.event.eventName}</div>
+                    <div className="vwm-detail-client-name">
+                      {selectedEvent.client.name} · {selectedEvent.client.segment} · {selectedEvent.client.aum} · {selectedEvent.event.confidence}% confidence
+                    </div>
+                  </div>
+                </div>
+                <button className="vwm-back-btn" onClick={handleCloseDetail}>← Back to Dashboard</button>
+              </div>
+              <div className="vwm-detail-body">
+                {/* Left: Transactions */}
+                <div>
+                  <div className="vwm-detail-section-title">📋 Supporting Transactions ({detail.transactions.length})</div>
+                  {detail.transactions.map((tx, i) => (
+                    <div key={i} className="vwm-detail-tx">
+                      <div className="vwm-detail-tx-top">
+                        <span className="vwm-detail-tx-merchant">{tx.merchant}</span>
+                        <span className="vwm-detail-tx-amount">{tx.amount}</span>
+                      </div>
+                      <div className="vwm-detail-tx-bottom">
+                        <span className="vwm-detail-tx-card">{tx.card}</span>
+                        <span className="vwm-detail-tx-date">{tx.date}</span>
+                        <span className="vwm-detail-tx-relevance">{tx.relevance}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Right: Insight + Steps */}
+                <div className="vwm-detail-right">
+                  <div>
+                    <div className="vwm-detail-section-title">✨ Ventus AI Insight</div>
+                    <div className="vwm-insight-box">
+                      <div className="vwm-insight-text">{detail.insight}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="vwm-detail-section-title">📋 Recommended Next Steps</div>
+                    <ol className="vwm-steps-list">
+                      {detail.steps.map((step, i) => (
+                        <li key={i} className="vwm-step-item">
+                          <span className="vwm-step-num-circle">{i + 1}</span>
+                          {step}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Center: Detected Life Events */}
-          <div className="vwm-panel">
-            <div className="vwm-hd">
-              <div className="vwm-hd-title">Detected Life Events</div>
-              <div className="vwm-hd-tag">confidence scoring</div>
-            </div>
-            <div className="vwm-bd" ref={eventsListRef} />
-            <div className="vwm-load-overlay" ref={loadDetectRef}>
-              <div className="vwm-loader-box">
-                <div className="vwm-spinner" />
-                <div className="vwm-loader-txt"><b>Detecting life event</b><span>Correlating transaction clusters</span></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Advisor Action Items */}
-          <div className="vwm-panel">
-            <div className="vwm-hd">
-              <div className="vwm-hd-title">Advisor Action Items</div>
-              <div className="vwm-hd-tag">meeting prep</div>
-            </div>
-            <div className="vwm-bd" ref={actionsListRef} />
-            <div className="vwm-load-overlay" ref={loadActionsRef}>
-              <div className="vwm-loader-box">
-                <div className="vwm-spinner" />
-                <div className="vwm-loader-txt"><b>Generating recommendations</b><span>Building advisor action plan</span></div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
-
-        <div className="vwm-foot">Note: Example data shown for illustration. Actual detection uses proprietary behavioral models.</div>
-      </div>
       </div>
     </>
   );
