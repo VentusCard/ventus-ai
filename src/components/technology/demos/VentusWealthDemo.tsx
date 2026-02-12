@@ -532,66 +532,66 @@ export default function VentusWealthDemo() {
         .vwm-detail-overlay.entering { opacity: 1; transform: translateY(0); }
         .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
         .vwm-detail-header {
-          display: flex; align-items: center; justify-content: space-between; gap: 12px;
-          padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.12);
+          display: flex; align-items: center; justify-content: space-between; gap: 16px;
+          padding: 20px 28px; border-bottom: 1px solid rgba(255,255,255,.12);
         }
-        .vwm-detail-header-left { display: flex; align-items: center; gap: 12px; }
-        .vwm-detail-icon { font-size: 24px; }
-        .vwm-detail-title { font-weight: 760; font-size: 16px; color: #fff; }
-        .vwm-detail-client-name { font-size: 13px; color: rgba(255,255,255,.55); }
+        .vwm-detail-header-left { display: flex; align-items: center; gap: 14px; }
+        .vwm-detail-icon { font-size: 30px; }
+        .vwm-detail-title { font-weight: 760; font-size: 20px; color: #fff; }
+        .vwm-detail-client-name { font-size: 15px; color: rgba(255,255,255,.55); margin-top: 2px; }
         .vwm-back-btn {
-          padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 700;
+          padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700;
           border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
           color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
         }
         .vwm-back-btn:hover { background: rgba(255,255,255,.15); }
         .vwm-detail-body {
-          flex: 1; overflow-y: auto; padding: 16px 20px;
-          display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+          flex: 1; overflow-y: auto; padding: 24px 28px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
         }
         @media (max-width: 700px) { .vwm-detail-body { grid-template-columns: 1fr; } }
         .vwm-detail-section-title {
-          font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-          color: rgba(255,255,255,.45); margin-bottom: 8px;
+          font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+          color: rgba(255,255,255,.50); margin-bottom: 12px;
         }
         .vwm-detail-tx {
-          padding: 8px 10px; border-radius: 10px;
+          padding: 10px 14px; border-radius: 12px;
           border: 1px solid rgba(255,255,255,.10);
           background: rgba(255,255,255,.04);
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
         .vwm-detail-tx-top { display: flex; justify-content: space-between; align-items: center; }
-        .vwm-detail-tx-merchant { font-size: 12px; font-weight: 680; color: #fff; }
-        .vwm-detail-tx-amount { font-size: 12px; font-weight: 720; color: rgba(255,255,255,.90); font-variant-numeric: tabular-nums; }
-        .vwm-detail-tx-bottom { display: flex; gap: 8px; align-items: center; margin-top: 3px; }
+        .vwm-detail-tx-merchant { font-size: 14px; font-weight: 680; color: #fff; }
+        .vwm-detail-tx-amount { font-size: 14px; font-weight: 720; color: rgba(255,255,255,.90); font-variant-numeric: tabular-nums; }
+        .vwm-detail-tx-bottom { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
         .vwm-detail-tx-card {
-          font-size: 10px; padding: 3px 8px; border-radius: 999px;
+          font-size: 11px; padding: 4px 10px; border-radius: 999px;
           font-weight: 700; border: 1px solid;
-          display: inline-flex; align-items: center; gap: 4px;
+          display: inline-flex; align-items: center; gap: 5px;
         }
         .vwm-detail-tx-card-dot {
-          width: 5px; height: 5px; border-radius: 50%; display: inline-block;
+          width: 6px; height: 6px; border-radius: 50%; display: inline-block;
         }
-        .vwm-detail-tx-date { font-size: 10px; color: rgba(255,255,255,.40); }
-        .vwm-detail-tx-relevance { font-size: 10px; color: rgba(255,255,255,.45); font-style: italic; margin-left: auto; }
-        .vwm-detail-right { display: flex; flex-direction: column; gap: 16px; }
+        .vwm-detail-tx-date { font-size: 12px; color: rgba(255,255,255,.40); }
+        .vwm-detail-tx-relevance { font-size: 12px; color: rgba(255,255,255,.45); font-style: italic; margin-left: auto; }
+        .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; }
         .vwm-insight-box {
-          padding: 12px; border-radius: 12px;
+          padding: 16px; border-radius: 14px;
           border: 1px solid rgba(255,255,255,.10);
           background: rgba(255,255,255,.04);
         }
-        .vwm-insight-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.50); margin-bottom: 6px; }
-        .vwm-insight-text { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.55; min-height: 3em; }
+        .vwm-insight-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.50); margin-bottom: 8px; }
+        .vwm-insight-text { font-size: 14px; color: rgba(255,255,255,.70); line-height: 1.6; min-height: 3em; }
         .vwm-insight-cursor {
-          display: inline-block; width: 2px; height: 14px; background: rgba(255,255,255,.60);
+          display: inline-block; width: 2px; height: 16px; background: rgba(255,255,255,.60);
           margin-left: 2px; vertical-align: text-bottom;
           animation: vwm-blink .6s step-end infinite;
         }
         @keyframes vwm-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        .vwm-steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+        .vwm-steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
         .vwm-step-item {
-          display: flex; align-items: flex-start; gap: 8px;
-          font-size: 12px; color: rgba(255,255,255,.70); line-height: 1.4;
+          display: flex; align-items: flex-start; gap: 10px;
+          font-size: 14px; color: rgba(255,255,255,.70); line-height: 1.5;
           opacity: 0; transform: translateY(8px);
           transition: opacity .35s ease, transform .35s ease;
         }
@@ -599,11 +599,26 @@ export default function VentusWealthDemo() {
           opacity: 1; transform: translateY(0);
         }
         .vwm-step-num-circle {
-          flex: 0 0 20px; height: 20px; border-radius: 50%;
+          flex: 0 0 24px; height: 24px; border-radius: 50%;
           display: grid; place-items: center;
-          font-size: 10px; font-weight: 700;
+          font-size: 12px; font-weight: 700;
           background: rgba(255,255,255,.08); color: rgba(255,255,255,.60);
         }
+        .vwm-detail-footer {
+          display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+          padding: 14px 28px;
+          border-top: 1px solid rgba(255,255,255,.10);
+          background: rgba(255,255,255,.03);
+        }
+        .vwm-footer-btn {
+          padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
+          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+          display: inline-flex; align-items: center; gap: 6px;
+        }
+        .vwm-footer-btn:hover { background: rgba(255,255,255,.15); }
+        .vwm-footer-btn.primary { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
+        .vwm-footer-btn.primary:hover { background: #fff; }
 
         /* Empty state */
         .vwm-empty {
@@ -778,6 +793,10 @@ export default function VentusWealthDemo() {
                     </ol>
                   </div>
                 </div>
+              </div>
+              <div className="vwm-detail-footer">
+                <button className="vwm-footer-btn">✉️ Email Me</button>
+                <button className="vwm-footer-btn primary">⚡ Automate Prep</button>
               </div>
             </div>
           )}
