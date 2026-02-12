@@ -92,6 +92,77 @@ const DETAILS: Record<string, DemoDetail> = {
     insight: "Client is in early-stage home search with legal and financing groundwork already underway. Pre-approval activity confirms intent to purchase within the quarter.",
     steps: ['Review investment portfolio for down payment liquidity', 'Compare mortgage options given existing asset base', 'Discuss property tax implications on overall financial plan', 'Coordinate timing with other financial goals'],
   },
+  'c6-retirement': {
+    transactions: [
+      { merchant: 'Schwab Rollover IRA', amount: '$45,000', date: 'Jan 8', card: 'Checking ...2211', relevance: 'IRA rollover from previous employer' },
+      { merchant: 'Retirement Income Calculator', amount: '$0', date: 'Dec 20', card: 'Web Activity', relevance: 'Online retirement planning tool usage' },
+      { merchant: 'AAA Travel Agency', amount: '$3,200', date: 'Jan 25', card: 'Travel ...5566', relevance: 'Extended travel booking' },
+    ],
+    insight: "Client is consolidating retirement accounts and actively modeling income scenarios. Travel bookings suggest visualizing post-work lifestyle. Ideal moment to discuss withdrawal strategies and Social Security timing.",
+    steps: ['Review consolidated retirement account allocation', 'Model Social Security claiming strategies (62 vs. 67 vs. 70)', 'Discuss systematic withdrawal plan vs. annuity options', 'Plan healthcare coverage bridge to Medicare'],
+  },
+  'c1-education': {
+    transactions: [
+      { merchant: 'College Board', amount: '$98', date: 'Jan 12', card: 'Platinum ...4532', relevance: 'SAT registration fees' },
+      { merchant: 'Princeton Review', amount: '$1,299', date: 'Dec 15', card: 'Platinum ...4532', relevance: 'Test prep course enrollment' },
+      { merchant: 'Southwest Airlines', amount: '$450', date: 'Jan 18', card: 'Travel Elite ...2234', relevance: 'Campus visit travel' },
+      { merchant: 'Ivy Coach Admissions', amount: '$3,500', date: 'Jan 5', card: 'Cashback ...7891', relevance: 'College admissions consulting' },
+    ],
+    insight: "Parent is deep in the college planning research phase. SAT prep, admissions consulting, and campus visits show serious commitment. Ideal window for 529 optimization and financial aid positioning.",
+    steps: ['Initiate 529 plan discussion—researching but no funding yet', 'Calculate projected costs for likely target schools', 'Review financial aid implications and FAFSA timing', 'Model parent vs. student loan scenarios'],
+  },
+  'c3-wealth_transfer': {
+    transactions: [
+      { merchant: 'Estate Attorney - Marks LLP', amount: '$5,500', date: 'Jan 5', card: 'Platinum ...8844', relevance: 'Estate planning engagement' },
+      { merchant: 'Trust Documentation Services', amount: '$2,200', date: 'Jan 12', card: 'Checking ...3399', relevance: 'Trust establishment fees' },
+      { merchant: 'IRS Gift Tax Research', amount: '$0', date: 'Dec 28', card: 'Web Activity', relevance: 'Gift tax exclusion research' },
+    ],
+    insight: "Client is actively establishing trust structures and researching gift tax strategies. The combination of estate attorney engagement and trust documentation indicates serious wealth transfer planning.",
+    steps: ['Review current estate plan and identify gaps', 'Model annual gift exclusion strategies for family members', 'Discuss generation-skipping trust options', 'Coordinate with client estate attorney on trust funding'],
+  },
+  'c8-elder_care': {
+    transactions: [
+      { merchant: 'Medical Guardian', amount: '$350', date: 'Jan 10', card: 'Cashback ...6677', relevance: 'Medical alert system' },
+      { merchant: 'Home Depot - Mobility', amount: '$890', date: 'Jan 15', card: 'Cashback ...6677', relevance: 'Accessibility modifications' },
+      { merchant: 'Aging Life Care Assoc.', amount: '$450', date: 'Jan 18', card: 'Platinum ...9922', relevance: 'Geriatric care manager' },
+    ],
+    insight: "Client is stepping into a caregiver role. Medical alert system, accessibility modifications, and geriatric care manager indicate transitioning an aging family member to daily support.",
+    steps: ['Assess long-term care insurance options', 'Review assets for Medicaid look-back period implications', 'Confirm power of attorney and healthcare proxy documents', 'Model assisted living vs. in-home care cost trajectories'],
+  },
+  'c4-family_formation': {
+    transactions: [
+      { merchant: 'Amazon Baby Registry', amount: '$1,850', date: 'Jan 15', card: 'Cashback ...4455', relevance: 'Baby registry purchases' },
+      { merchant: 'Buy Buy Baby', amount: '$1,250', date: 'Jan 22', card: 'Cashback ...4455', relevance: 'Nursery essentials' },
+      { merchant: 'Memorial Hospital', amount: '$2,500', date: 'Jan 30', card: 'Checking ...7788', relevance: 'Hospital pre-registration deposit' },
+    ],
+    insight: "Growing family preparing for a new arrival. Baby registry, nursery purchases, and hospital pre-registration confirm timeline clarity. No education savings or updated estate documents yet—proactive opportunity.",
+    steps: ['Introduce 529 plan options for education savings', 'Benchmark life insurance: 10-12x income replacement', 'Update wills to include guardianship designations', 'Model childcare costs into financial plan'],
+  },
+  'c7-education': {
+    transactions: [
+      { merchant: 'Niche.com Premium', amount: '$49', date: 'Jan 8', card: 'Cashback ...3322', relevance: 'College research subscription' },
+      { merchant: 'Campus Tour Booking', amount: '$180', date: 'Jan 20', card: 'Cashback ...3322', relevance: 'University campus visits' },
+      { merchant: 'College Savings Calculator', amount: '$0', date: 'Dec 15', card: 'Web Activity', relevance: 'Education cost modeling' },
+    ],
+    insight: "Parent beginning early college research phase. Subscription services and campus tours show proactive planning. Early 529 contributions can significantly reduce future education funding burden.",
+    steps: ['Open 529 plan and model monthly contribution targets', 'Compare in-state vs. out-of-state cost projections', 'Discuss merit scholarship strategies', 'Review education tax credits and deductions'],
+  },
+  'c3-elder_care': {
+    transactions: [
+      { merchant: 'AARP Medicare Supplement', amount: '$280', date: 'Jan 20', card: 'Checking ...3399', relevance: 'Medicare supplement premium' },
+      { merchant: 'Sunrise Senior Living', amount: '$12,000', date: 'Jan 25', card: 'Checking ...3399', relevance: 'Assisted living deposit' },
+    ],
+    insight: "Client making significant financial commitments to elder care—assisted living deposit and Medicare supplement indicate imminent transition for a family member.",
+    steps: ['Review elder care costs against current income and assets', 'Explore long-term care insurance retroactive options', 'Confirm healthcare proxy and legal documents', 'Model impact on client overall financial plan'],
+  },
+  'c5-wealth_transfer': {
+    transactions: [
+      { merchant: 'Dynasty Trust Advisors', amount: '$8,000', date: 'Feb 1', card: 'Business ...3344', relevance: 'Dynasty trust consultation' },
+      { merchant: 'Charitable Giving Advisor', amount: '$1,500', date: 'Jan 28', card: 'Platinum ...5566', relevance: 'Philanthropic planning' },
+    ],
+    insight: "Client exploring advanced wealth transfer vehicles including dynasty trusts and charitable giving strategies, likely in anticipation of business liquidity event proceeds.",
+    steps: ['Coordinate wealth transfer planning with business exit timeline', 'Model dynasty trust vs. GRAT structures', 'Discuss donor-advised fund for charitable giving efficiency', 'Review estate tax exposure under current regulations'],
+  },
 };
 
 const SEGMENT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
@@ -136,56 +207,58 @@ export default function VentusWealthDemo() {
     setTimeout(() => setSelectedEvent(null), 300);
   }, []);
 
-  // Animation loop
+  // Cycle order: mix of urgent/soon/upcoming for variety
+  const CYCLE_ORDER = [0, 2, 5, 8, 3, 6, 10, 1, 7, 4, 9, 11];
+
+  const runAnimation = useCallback(async (myToken: number) => {
+    // Phase 1: Build all 12 rows
+    setVisibleRows(0);
+    setPhase('building');
+    setSelectedEvent(null);
+    setDetailVisible(false);
+
+    for (let i = 1; i <= EVENTS.length; i++) {
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+      setVisibleRows(i);
+      await wait(350);
+    }
+
+    if (myToken !== tokenRef.current || !mountedRef.current) return;
+    await wait(1200);
+
+    // Phase 2: Cycle through clicking into different events endlessly
+    setPhase('autoprepare');
+    let cycleIdx = 0;
+
+    while (myToken === tokenRef.current && mountedRef.current) {
+      const eventIdx = CYCLE_ORDER[cycleIdx % CYCLE_ORDER.length];
+      const event = EVENTS[eventIdx];
+      const client = CLIENTS.find(c => c.id === event.clientId)!;
+
+      setSelectedEvent({ event, client });
+      setDetailVisible(true);
+
+      await wait(5000);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+
+      setDetailVisible(false);
+      await wait(400);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+      setSelectedEvent(null);
+
+      await wait(1200);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+
+      cycleIdx++;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Start animation on mount
   useEffect(() => {
     mountedRef.current = true;
     const myToken = ++tokenRef.current;
-
-    const run = async () => {
-      // Phase 1: Build rows one by one
-      setVisibleRows(0);
-      setPhase('building');
-      setSelectedEvent(null);
-      setDetailVisible(false);
-      setIsPaused(false);
-
-      for (let i = 1; i <= EVENTS.length; i++) {
-        if (myToken !== tokenRef.current || !mountedRef.current) return;
-        // Wait while paused
-        while (isPaused && myToken === tokenRef.current && mountedRef.current) {
-          await wait(200);
-        }
-        if (myToken !== tokenRef.current || !mountedRef.current) return;
-        setVisibleRows(i);
-        await wait(400);
-      }
-
-      if (myToken !== tokenRef.current || !mountedRef.current) return;
-      await wait(1500);
-
-      // Phase 2: Auto-click "Prepare" on first urgent row
-      if (myToken !== tokenRef.current || !mountedRef.current) return;
-      setPhase('autoprepare');
-      const firstUrgent = EVENTS[0]; // Margaret Chen - Retirement
-      handlePrepare(firstUrgent);
-
-      await wait(6000);
-      if (myToken !== tokenRef.current || !mountedRef.current) return;
-
-      // Close detail
-      handleCloseDetail();
-      await wait(2000);
-      if (myToken !== tokenRef.current || !mountedRef.current) return;
-
-      setPhase('complete');
-      await wait(3000);
-      if (myToken !== tokenRef.current || !mountedRef.current) return;
-
-      // Loop
-      run();
-    };
-
-    run();
+    runAnimation(myToken);
     return () => { mountedRef.current = false; tokenRef.current++; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -197,30 +270,9 @@ export default function VentusWealthDemo() {
     setDetailVisible(false);
     setIsPaused(false);
     setPhase('building');
-
-    // Restart
+    mountedRef.current = true;
     const myToken = ++tokenRef.current;
-    const run = async () => {
-      for (let i = 1; i <= EVENTS.length; i++) {
-        if (myToken !== tokenRef.current) return;
-        setVisibleRows(i);
-        await wait(400);
-      }
-      if (myToken !== tokenRef.current) return;
-      await wait(1500);
-      setPhase('autoprepare');
-      handlePrepare(EVENTS[0]);
-      await wait(6000);
-      if (myToken !== tokenRef.current) return;
-      handleCloseDetail();
-      await wait(2000);
-      if (myToken !== tokenRef.current) return;
-      setPhase('complete');
-      await wait(3000);
-      if (myToken !== tokenRef.current) return;
-      run();
-    };
-    run();
+    runAnimation(myToken);
   };
 
   const urgencyBadge = (urgency: string) => {
