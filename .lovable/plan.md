@@ -1,43 +1,31 @@
 
 
-# Proportional Scaling for the Animation on Tablet/Phone
+# Add Smart Rewards Interactive Demo to the SmartRewards Page
 
-## Approach
-Instead of hiding columns or changing the layout, wrap the entire animation in a container that uses CSS `transform: scale()` to shrink it proportionally on smaller screens. This keeps the exact same desktop layout (6-column grid, all fields visible) but scales the whole thing down to fit the viewport width.
+## What's Happening
+You've provided a full interactive animation component (`VentusSmartRewards.jsx`) that demonstrates the Smart Rewards personalization engine. This will replace the current placeholder demo on the `/smartrewards` page with a live, interactive animation -- similar to how the Enrichment page has its own `VentusTransactionEnrichment` component.
 
-## How It Works
-Add a wrapper `div` around the `.vte-root` element with responsive CSS that applies a scale transform at tablet and mobile breakpoints. The `transform-origin` is set to `top center` so it shrinks from the top. A negative bottom margin compensates for the empty space left by scaling.
+## Changes
 
-## Breakpoints
-- **Desktop (above 1024px)**: No scaling, renders at full size
-- **Tablet (768px - 1024px)**: Scale to ~70% (`transform: scale(0.7)`)
-- **Mobile (below 768px)**: Scale to ~50% (`transform: scale(0.5)`)
+### 1. Add the new component
+Copy the uploaded `VentusSmartRewards.jsx` into the project as `src/components/technology/demos/VentusSmartRewards.tsx` (renamed to `.tsx` to match project conventions). The component is a self-contained React component with inline styles, animation logic, and all static data built in.
 
-## CSS Addition
-```css
-.vte-scale-wrapper {
-  transform-origin: top center;
-}
-@media (max-width: 1024px) {
-  .vte-scale-wrapper {
-    transform: scale(0.7);
-    margin-bottom: -30%;
-  }
-}
-@media (max-width: 767px) {
-  .vte-scale-wrapper {
-    transform: scale(0.5);
-    margin-bottom: -50%;
-  }
-}
-```
+### 2. Add proportional scaling for mobile/tablet
+The component has its own responsive media queries (collapsing grids at 980px and 760px), but to match the approach used on the Enrichment page, a `.vsr-scale-wrapper` will be added around `.vsr-root` with the same `transform: scale()` strategy:
+- Tablet (max-width 1024px): scale 0.7, margin-bottom -30%
+- Mobile (max-width 767px): scale 0.5, margin-bottom -50%
 
-## What Changes
-The existing `@media (max-width: 980px)` block that switches to a stacked card layout will be removed entirely, since the animation now stays in its desktop grid form and just scales down.
+### 3. Update SmartRewards page
+Replace the current `AnimatedDemo` placeholder with the new `VentusSmartRewards` component, embedded the same way the Enrichment page embeds its demo -- inside a "See It In Action" section with a bordered container.
 
-## File Changed
-- **Modified**: `src/components/technology/demos/VentusTransactionEnrichment.tsx`
-  - Add a wrapper div with class `vte-scale-wrapper` around the `.vte-root` div
-  - Add the scale CSS rules above to the existing `<style>` block
-  - Remove the `@media (max-width: 980px)` responsive block that restructures the layout
+### Files Changed
+- **New**: `src/components/technology/demos/VentusSmartRewards.tsx` -- the uploaded component with scaling wrapper added
+- **Modified**: `src/pages/SmartRewards.tsx` -- swap `AnimatedDemo` for `VentusSmartRewards`, remove the `rewardsDemoHtml` import
+
+### Technical Details
+- The component uses `useRef` and direct DOM manipulation (innerHTML) for high-performance animations without React re-renders
+- It auto-starts an animation loop through 5 lifestyle indicators (Golf, Snow Sports, Domestic Travel, Pets, Dining), running one full cycle then stopping
+- Users can click any lifestyle pill to interrupt and view that category's data
+- Pause/Resume/Reset controls are built in
+- All CSS is scoped via `.vsr-` prefixed class names to avoid conflicts
 
