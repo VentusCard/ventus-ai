@@ -1,8 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TechnologyBackground from "@/components/technology/TechnologyBackground";
-import AnimatedDemo from "@/components/technology/AnimatedDemo";
-import { enrichmentDemoHtml } from "@/components/technology/demos/enrichment-demo";
+import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -132,7 +131,22 @@ const Enrichment = () => {
         </section>
 
         {/* See It In Action */}
-        <AnimatedDemo htmlContent={enrichmentDemoHtml} animationDelay="0.45s" />
+        <section className="py-12">
+          <div className="max-w-6xl mx-auto px-4 md:px-8">
+            <h2
+              className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
+              style={{ animationDelay: '0.45s', animationFillMode: 'backwards' }}
+            >
+              See It In Action
+            </h2>
+            <div
+              className="rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden animate-fade-float"
+              style={{ animationDelay: '0.55s', animationFillMode: 'backwards' }}
+            >
+              <VentusTransactionEnrichment />
+            </div>
+          </div>
+        </section>
 
         {/* Key Features Section */}
         <section className="py-12">
