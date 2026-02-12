@@ -113,6 +113,10 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       transition: opacity 0.5s ease;
     }
     .persona-wrap.visible{ opacity: 1; }
+    .persona-wrap.updating{
+      opacity: 0.3;
+      transition: opacity 0.15s ease;
+    }
 
     .persona-panel{
       border: 1px solid var(--hlBd);
@@ -246,17 +250,34 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
             {raw:'SQ *BLUE BOTTLE COFFE SAN FRANCISCO', amt:'$6.75', mcc:'5814', merchant:'Blue Bottle Coffee', cat:'Food & Dining', sub:'Coffee & Tea'},
             {raw:'NETFLIX.COM 866-579-7172 CA', amt:'$15.49', mcc:'4899', merchant:'Netflix', cat:'Entertainment', sub:'Streaming'}
           ],
-          persona: {
-            title:'Urban Professional',
-            desc:'Health-conscious, tech-savvy consumer with premium brand affinity and subscription-based lifestyle.',
-            chips:[
-              {icon:'🥑', label:'Organic Shopper', count:'12×'},
-              {icon:'📱', label:'Digital-First', count:'8×'},
-              {icon:'☕', label:'Coffee Enthusiast', count:'15×'},
-              {icon:'🎬', label:'Entertainment Sub', count:'3×'},
-              {icon:'🏙️', label:'Urban Lifestyle', count:''}
-            ]
-          }
+          stages: [
+            {title:'Health-Conscious Shopper', desc:'Organic grocery preference detected.', chips:[
+              {icon:'\\u{1F951}', label:'Organic Shopper', count:'12\\u00D7'}
+            ]},
+            {title:'Digital-First Consumer', desc:'Online ordering and delivery patterns emerging.', chips:[
+              {icon:'\\u{1F951}', label:'Organic Shopper', count:'12\\u00D7'},
+              {icon:'\\u{1F4F1}', label:'Digital-First', count:'8\\u00D7'}
+            ]},
+            {title:'Tech-Savvy Shopper', desc:'Active online marketplace user with diverse purchase categories.', chips:[
+              {icon:'\\u{1F951}', label:'Organic Shopper', count:'12\\u00D7'},
+              {icon:'\\u{1F4F1}', label:'Digital-First', count:'8\\u00D7'},
+              {icon:'\\u{1F6D2}', label:'Online Marketplace', count:'5\\u00D7'}
+            ]},
+            {title:'Urban Professional', desc:'Premium brand affinity with specialty coffee habit.', chips:[
+              {icon:'\\u{1F951}', label:'Organic Shopper', count:'12\\u00D7'},
+              {icon:'\\u{1F4F1}', label:'Digital-First', count:'8\\u00D7'},
+              {icon:'\\u{1F6D2}', label:'Online Marketplace', count:'5\\u00D7'},
+              {icon:'\\u2615', label:'Coffee Enthusiast', count:'15\\u00D7'}
+            ]},
+            {title:'Urban Professional', desc:'Health-conscious, tech-savvy consumer with premium brand affinity and subscription-based lifestyle.', chips:[
+              {icon:'\\u{1F951}', label:'Organic Shopper', count:'12\\u00D7'},
+              {icon:'\\u{1F4F1}', label:'Digital-First', count:'8\\u00D7'},
+              {icon:'\\u{1F6D2}', label:'Online Marketplace', count:'5\\u00D7'},
+              {icon:'\\u2615', label:'Coffee Enthusiast', count:'15\\u00D7'},
+              {icon:'\\u{1F3AC}', label:'Entertainment Sub', count:'3\\u00D7'},
+              {icon:'\\u{1F3D9}\\uFE0F', label:'Urban Lifestyle', count:''}
+            ]}
+          ]
         },
         {
           rows: [
@@ -266,17 +287,33 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
             {raw:'TSA PRECHECK ENROLLMENT DC', amt:'$78.00', mcc:'9399', merchant:'Global Entry / TSA', cat:'Government', sub:'Travel Services'},
             {raw:'UBER *TRIP HELP.UBER.COM', amt:'$42.15', mcc:'4121', merchant:'Uber', cat:'Transportation', sub:'Rideshare'}
           ],
-          persona: {
-            title:'Frequent Traveler',
-            desc:'High-mobility professional with loyalty program engagement and premium travel preferences.',
-            chips:[
-              {icon:'✈️', label:'Air Travel', count:'24×'},
-              {icon:'🏨', label:'Hotel Loyalty', count:'18×'},
-              {icon:'🚗', label:'Car Rental', count:'9×'},
-              {icon:'🌎', label:'Int\\'l Spend', count:'6×'},
-              {icon:'💼', label:'Business Travel', count:''}
-            ]
-          }
+          stages: [
+            {title:'Air Traveler', desc:'Airline booking activity detected.', chips:[
+              {icon:'\\u2708\\uFE0F', label:'Air Travel', count:'24\\u00D7'}
+            ]},
+            {title:'Travel Professional', desc:'Hotel loyalty program engagement identified.', chips:[
+              {icon:'\\u2708\\uFE0F', label:'Air Travel', count:'24\\u00D7'},
+              {icon:'\\u{1F3E8}', label:'Hotel Loyalty', count:'18\\u00D7'}
+            ]},
+            {title:'High-Mobility Professional', desc:'Consistent rental car usage across airports.', chips:[
+              {icon:'\\u2708\\uFE0F', label:'Air Travel', count:'24\\u00D7'},
+              {icon:'\\u{1F3E8}', label:'Hotel Loyalty', count:'18\\u00D7'},
+              {icon:'\\u{1F697}', label:'Car Rental', count:'9\\u00D7'}
+            ]},
+            {title:'Frequent Traveler', desc:'Premium travel services and expedited screening.', chips:[
+              {icon:'\\u2708\\uFE0F', label:'Air Travel', count:'24\\u00D7'},
+              {icon:'\\u{1F3E8}', label:'Hotel Loyalty', count:'18\\u00D7'},
+              {icon:'\\u{1F697}', label:'Car Rental', count:'9\\u00D7'},
+              {icon:'\\u{1F30E}', label:"Int'l Spend", count:'6\\u00D7'}
+            ]},
+            {title:'Frequent Traveler', desc:'High-mobility professional with loyalty program engagement and premium travel preferences.', chips:[
+              {icon:'\\u2708\\uFE0F', label:'Air Travel', count:'24\\u00D7'},
+              {icon:'\\u{1F3E8}', label:'Hotel Loyalty', count:'18\\u00D7'},
+              {icon:'\\u{1F697}', label:'Car Rental', count:'9\\u00D7'},
+              {icon:'\\u{1F30E}', label:"Int'l Spend", count:'6\\u00D7'},
+              {icon:'\\u{1F4BC}', label:'Business Travel', count:''}
+            ]}
+          ]
         },
         {
           rows: [
@@ -286,17 +323,33 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
             {raw:'COSTCO WHSE #482 FRISCO TX', amt:'$312.47', mcc:'5300', merchant:'Costco', cat:'Shopping', sub:'Wholesale Club'},
             {raw:'KUMON MATH & READING CTR', amt:'$160.00', mcc:'8299', merchant:'Kumon', cat:'Education', sub:'Tutoring'}
           ],
-          persona: {
-            title:'Young Family',
-            desc:'Household-focused spender prioritizing children\\'s education, healthcare, and family entertainment.',
-            chips:[
-              {icon:'🛒', label:'Bulk Shopper', count:'16×'},
-              {icon:'👶', label:'Family Care', count:'11×'},
-              {icon:'📚', label:'Education', count:'8×'},
-              {icon:'🏥', label:'Healthcare', count:'5×'},
-              {icon:'🏡', label:'Suburban Life', count:''}
-            ]
-          }
+          stages: [
+            {title:'Household Shopper', desc:'Department store spending pattern detected.', chips:[
+              {icon:'\\u{1F6D2}', label:'Bulk Shopper', count:'16\\u00D7'}
+            ]},
+            {title:'Family-Focused Spender', desc:'Pediatric healthcare expenses identified.', chips:[
+              {icon:'\\u{1F6D2}', label:'Bulk Shopper', count:'16\\u00D7'},
+              {icon:'\\u{1F476}', label:'Family Care', count:'11\\u00D7'}
+            ]},
+            {title:'Family Entertainment', desc:'Family-oriented streaming and entertainment subscriptions.', chips:[
+              {icon:'\\u{1F6D2}', label:'Bulk Shopper', count:'16\\u00D7'},
+              {icon:'\\u{1F476}', label:'Family Care', count:'11\\u00D7'},
+              {icon:'\\u{1F4DA}', label:'Education', count:'8\\u00D7'}
+            ]},
+            {title:'Young Family', desc:'Wholesale bulk purchasing for household needs.', chips:[
+              {icon:'\\u{1F6D2}', label:'Bulk Shopper', count:'16\\u00D7'},
+              {icon:'\\u{1F476}', label:'Family Care', count:'11\\u00D7'},
+              {icon:'\\u{1F4DA}', label:'Education', count:'8\\u00D7'},
+              {icon:'\\u{1F3E5}', label:'Healthcare', count:'5\\u00D7'}
+            ]},
+            {title:'Young Family', desc:"Household-focused spender prioritizing children's education, healthcare, and family entertainment.", chips:[
+              {icon:'\\u{1F6D2}', label:'Bulk Shopper', count:'16\\u00D7'},
+              {icon:'\\u{1F476}', label:'Family Care', count:'11\\u00D7'},
+              {icon:'\\u{1F4DA}', label:'Education', count:'8\\u00D7'},
+              {icon:'\\u{1F3E5}', label:'Healthcare', count:'5\\u00D7'},
+              {icon:'\\u{1F3E1}', label:'Suburban Life', count:''}
+            ]}
+          ]
         }
       ];
 
@@ -327,7 +380,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
             +(c.count ? ' <span class="count">'+c.count+'</span>' : '')+'</span>';
         }).join('');
         return '<div class="persona-panel">'
-          +'<p class="persona-summary"><span class="key">'+p.title+'</span> · '+p.desc+'</p>'
+          +'<p class="persona-summary"><span class="key">'+p.title+'</span> \\u00B7 '+p.desc+'</p>'
           +'<div class="signal-top"><span class="signal-label">Signals</span>'
           +'<div class="chips">'+chipsHtml+'</div></div></div>';
       }
@@ -341,12 +394,14 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
 
         // Render rows hidden
         tbody.innerHTML = ds.rows.map(buildRowHtml).join('');
-        personaWrap.innerHTML = buildPersonaHtml(ds.persona);
+        personaWrap.innerHTML = '';
         personaWrap.classList.remove('visible');
+        personaWrap.classList.remove('updating');
 
         var rows = tbody.querySelectorAll('.data-row');
         var ROW_GAP = 800;
         var DERIVED_OFFSET = 300;
+        var PERSONA_OFFSET = 200;
 
         rows.forEach(function(row, i){
           // Reveal row
@@ -359,26 +414,37 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
           timers.push(setTimeout(function(){
             derivedCells.forEach(function(d){ d.classList.add('revealed'); });
           }, i * ROW_GAP + DERIVED_OFFSET));
+
+          // Update persona after derived columns are revealed
+          timers.push(setTimeout(function(){
+            if (i === 0) {
+              // First row: just set content and fade in
+              personaWrap.innerHTML = buildPersonaHtml(ds.stages[i]);
+              personaWrap.classList.add('visible');
+            } else {
+              // Subsequent rows: crossfade
+              personaWrap.classList.add('updating');
+              timers.push(setTimeout(function(){
+                personaWrap.innerHTML = buildPersonaHtml(ds.stages[i]);
+                personaWrap.classList.remove('updating');
+              }, 200));
+            }
+          }, i * ROW_GAP + DERIVED_OFFSET + PERSONA_OFFSET));
         });
 
-        var allRowsDone = (rows.length - 1) * ROW_GAP + DERIVED_OFFSET + 400;
-
-        // Show persona
-        timers.push(setTimeout(function(){
-          personaWrap.classList.add('visible');
-        }, allRowsDone + 500));
+        var allRowsDone = (rows.length - 1) * ROW_GAP + DERIVED_OFFSET + PERSONA_OFFSET + 400;
 
         // Fade out everything
         timers.push(setTimeout(function(){
           root.classList.add('vte-fade-out');
           personaWrap.classList.remove('visible');
-        }, allRowsDone + 2500));
+        }, allRowsDone + 2000));
 
         // Next cycle
-        timers.push(setTimeout(runCycle, allRowsDone + 3200));
+        timers.push(setTimeout(runCycle, allRowsDone + 2700));
       }
 
       runCycle();
     })();
-  </script>
+  <\/script>
 </div>`;
