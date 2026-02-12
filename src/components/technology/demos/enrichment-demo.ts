@@ -75,23 +75,24 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     }
     .vte-row .vte-cell:last-child{ border-right:none; }
 
-    .vte-cell.derived{
-      opacity: 0;
-      animation: vte-fadeIn 0.6s ease-in-out 0.75s forwards;
-    }
-
-    @keyframes vte-fadeIn{
-      from{ opacity: 0; transform: translateY(4px); }
-      to{ opacity: 1; transform: translateY(0); }
-    }
-
     .vte-row.data-row{
-      animation: vte-slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      opacity: 0;
+      transform: translateY(-12px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .vte-row.data-row.visible{
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    @keyframes vte-slideIn{
-      from{ opacity: 0; transform: translateY(-12px); }
-      to{ opacity: 1; transform: translateY(0); }
+    .vte-cell.derived span{
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+    }
+    .vte-cell.derived.revealed span{
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .raw{ white-space: normal; word-break: break-word; line-height: 1.25; }
@@ -106,7 +107,13 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       font-weight: 620; letter-spacing: -0.005em; line-height: 1.4;
     }
 
-    .persona-wrap{ padding: 16px 18px 18px; }
+    .persona-wrap{
+      padding: 16px 18px 18px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .persona-wrap.visible{ opacity: 1; }
+
     .persona-panel{
       border: 1px solid var(--hlBd);
       background: var(--hlBg);
@@ -166,12 +173,12 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     .chip strong{ font-weight: 880; letter-spacing: -0.01em; }
     .chip .count{ font-weight: 820; color: rgba(255,255,255,.70); }
 
-    .chip.is-off{
-      opacity: .42;
-      background: rgba(255,255,255,.02);
-      border-color: rgba(255,255,255,.12);
+    /* fade-out state for the whole demo */
+    .vte-fade-out .vte-row.data-row,
+    .vte-fade-out .persona-wrap{
+      opacity: 0 !important;
+      transition: opacity 0.4s ease !important;
     }
-    .chip.is-off .count{ display:none; }
 
     @media (max-width: 980px){
       .vte-row{ grid-template-columns: 1fr; }
@@ -208,51 +215,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
         <div class="vte-cell">Category</div>
         <div class="vte-cell">Sub-Category</div>
       </div>
-
-      <div class="vte-row data-row" style="animation-delay:0.1s">
-        <div class="vte-cell raw" data-label="Raw Transaction">WHOLEFDS MKT #10847 AUSTIN TX</div>
-        <div class="vte-cell one" data-label="Amount">$127.43</div>
-        <div class="vte-cell one" data-label="MCC">5411</div>
-        <div class="vte-cell one derived" data-label="Merchant"><span class="derived-text">Whole Foods Market</span></div>
-        <div class="vte-cell one derived" data-label="Category"><span class="derived-text">Groceries</span></div>
-        <div class="vte-cell one derived" data-label="Sub-Category"><span class="derived-text">Organic & Specialty</span></div>
-      </div>
-
-      <div class="vte-row data-row" style="animation-delay:0.25s">
-        <div class="vte-cell raw" data-label="Raw Transaction">UBER *EATS PENDING SF CA</div>
-        <div class="vte-cell one" data-label="Amount">$34.50</div>
-        <div class="vte-cell one" data-label="MCC">5812</div>
-        <div class="vte-cell one derived" data-label="Merchant"><span class="derived-text">Uber Eats</span></div>
-        <div class="vte-cell one derived" data-label="Category"><span class="derived-text">Food & Dining</span></div>
-        <div class="vte-cell one derived" data-label="Sub-Category"><span class="derived-text">Delivery</span></div>
-      </div>
-
-      <div class="vte-row data-row" style="animation-delay:0.4s">
-        <div class="vte-cell raw" data-label="Raw Transaction">AMZN MKTP US*2K7RQ1FW0</div>
-        <div class="vte-cell one" data-label="Amount">$89.99</div>
-        <div class="vte-cell one" data-label="MCC">5942</div>
-        <div class="vte-cell one derived" data-label="Merchant"><span class="derived-text">Amazon</span></div>
-        <div class="vte-cell one derived" data-label="Category"><span class="derived-text">Shopping</span></div>
-        <div class="vte-cell one derived" data-label="Sub-Category"><span class="derived-text">Online Marketplace</span></div>
-      </div>
-
-      <div class="vte-row data-row" style="animation-delay:0.55s">
-        <div class="vte-cell raw" data-label="Raw Transaction">SQ *BLUE BOTTLE COFFE SAN FRANCISCO</div>
-        <div class="vte-cell one" data-label="Amount">$6.75</div>
-        <div class="vte-cell one" data-label="MCC">5814</div>
-        <div class="vte-cell one derived" data-label="Merchant"><span class="derived-text">Blue Bottle Coffee</span></div>
-        <div class="vte-cell one derived" data-label="Category"><span class="derived-text">Food & Dining</span></div>
-        <div class="vte-cell one derived" data-label="Sub-Category"><span class="derived-text">Coffee & Tea</span></div>
-      </div>
-
-      <div class="vte-row data-row" style="animation-delay:0.7s">
-        <div class="vte-cell raw" data-label="Raw Transaction">NETFLIX.COM 866-579-7172 CA</div>
-        <div class="vte-cell one" data-label="Amount">$15.49</div>
-        <div class="vte-cell one" data-label="MCC">4899</div>
-        <div class="vte-cell one derived" data-label="Merchant"><span class="derived-text">Netflix</span></div>
-        <div class="vte-cell one derived" data-label="Category"><span class="derived-text">Entertainment</span></div>
-        <div class="vte-cell one derived" data-label="Sub-Category"><span class="derived-text">Streaming</span></div>
-      </div>
+      <div id="vte-tbody"></div>
     </div>
   </div>
 
@@ -262,25 +225,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     <div class="vte-head">
       <h3 class="vte-title">Customer Persona</h3>
     </div>
-
-    <div class="persona-wrap">
-      <div class="persona-panel">
-        <p class="persona-summary">
-          <span class="key">Urban Professional</span> · Health-conscious, tech-savvy consumer with premium brand affinity and subscription-based lifestyle.
-        </p>
-
-        <div class="signal-top">
-          <span class="signal-label">Signals</span>
-          <div class="chips">
-            <span class="chip"><strong>🥑 Organic Shopper</strong> <span class="count">12×</span></span>
-            <span class="chip"><strong>📱 Digital-First</strong> <span class="count">8×</span></span>
-            <span class="chip"><strong>☕ Coffee Enthusiast</strong> <span class="count">15×</span></span>
-            <span class="chip"><strong>🎬 Entertainment Sub</strong> <span class="count">3×</span></span>
-            <span class="chip"><strong>🏙️ Urban Lifestyle</strong></span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="persona-wrap" id="vte-persona"></div>
   </div>
 
   <div class="vte-disclaimer">
@@ -291,24 +236,149 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     (function(){
       var root = document.getElementById('ventus-te-enterprise');
       if (!root) return;
-      var delays = ['0.1s','0.25s','0.4s','0.55s','0.7s'];
-      function replay(){
-        var rows = root.querySelectorAll('.data-row');
-        var derived = root.querySelectorAll('.vte-cell.derived');
-        rows.forEach(function(r){ r.style.animation='none'; r.style.opacity='0'; });
-        derived.forEach(function(d){ d.style.animation='none'; d.style.opacity='0'; });
-        void root.offsetHeight;
-        rows.forEach(function(r,i){
-          r.style.animation='';
-          r.style.opacity='';
-          r.style.animationDelay=delays[i]||'0s';
-        });
-        derived.forEach(function(d){
-          d.style.animation='';
-          d.style.opacity='';
-        });
+
+      var datasets = [
+        {
+          rows: [
+            {raw:'WHOLEFDS MKT #10847 AUSTIN TX', amt:'$127.43', mcc:'5411', merchant:'Whole Foods Market', cat:'Groceries', sub:'Organic & Specialty'},
+            {raw:'UBER *EATS PENDING SF CA', amt:'$34.50', mcc:'5812', merchant:'Uber Eats', cat:'Food & Dining', sub:'Delivery'},
+            {raw:'AMZN MKTP US*2K7RQ1FW0', amt:'$89.99', mcc:'5942', merchant:'Amazon', cat:'Shopping', sub:'Online Marketplace'},
+            {raw:'SQ *BLUE BOTTLE COFFE SAN FRANCISCO', amt:'$6.75', mcc:'5814', merchant:'Blue Bottle Coffee', cat:'Food & Dining', sub:'Coffee & Tea'},
+            {raw:'NETFLIX.COM 866-579-7172 CA', amt:'$15.49', mcc:'4899', merchant:'Netflix', cat:'Entertainment', sub:'Streaming'}
+          ],
+          persona: {
+            title:'Urban Professional',
+            desc:'Health-conscious, tech-savvy consumer with premium brand affinity and subscription-based lifestyle.',
+            chips:[
+              {icon:'🥑', label:'Organic Shopper', count:'12×'},
+              {icon:'📱', label:'Digital-First', count:'8×'},
+              {icon:'☕', label:'Coffee Enthusiast', count:'15×'},
+              {icon:'🎬', label:'Entertainment Sub', count:'3×'},
+              {icon:'🏙️', label:'Urban Lifestyle', count:''}
+            ]
+          }
+        },
+        {
+          rows: [
+            {raw:'DELTA AIR 006-2847193847', amt:'$487.00', mcc:'3058', merchant:'Delta Air Lines', cat:'Travel', sub:'Airlines'},
+            {raw:'MARRIOTT HTEL CHI ORD IL', amt:'$219.50', mcc:'3501', merchant:'Marriott Hotels', cat:'Travel', sub:'Lodging'},
+            {raw:'HERTZ RENT-A-CAR LAX', amt:'$94.33', mcc:'7512', merchant:'Hertz', cat:'Travel', sub:'Car Rental'},
+            {raw:'TSA PRECHECK ENROLLMENT DC', amt:'$78.00', mcc:'9399', merchant:'Global Entry / TSA', cat:'Government', sub:'Travel Services'},
+            {raw:'UBER *TRIP HELP.UBER.COM', amt:'$42.15', mcc:'4121', merchant:'Uber', cat:'Transportation', sub:'Rideshare'}
+          ],
+          persona: {
+            title:'Frequent Traveler',
+            desc:'High-mobility professional with loyalty program engagement and premium travel preferences.',
+            chips:[
+              {icon:'✈️', label:'Air Travel', count:'24×'},
+              {icon:'🏨', label:'Hotel Loyalty', count:'18×'},
+              {icon:'🚗', label:'Car Rental', count:'9×'},
+              {icon:'🌎', label:'Int\\'l Spend', count:'6×'},
+              {icon:'💼', label:'Business Travel', count:''}
+            ]
+          }
+        },
+        {
+          rows: [
+            {raw:'TARGET T-1847 PLANO TX', amt:'$156.23', mcc:'5311', merchant:'Target', cat:'Shopping', sub:'Department Store'},
+            {raw:'PEDIATRIC ASSOC COPAY', amt:'$35.00', mcc:'8011', merchant:'Pediatrics Co-Pay', cat:'Healthcare', sub:'Medical Services'},
+            {raw:'DISNEY PLUS 888-905-7888', amt:'$13.99', mcc:'4899', merchant:'Disney+', cat:'Entertainment', sub:'Streaming'},
+            {raw:'COSTCO WHSE #482 FRISCO TX', amt:'$312.47', mcc:'5300', merchant:'Costco', cat:'Shopping', sub:'Wholesale Club'},
+            {raw:'KUMON MATH & READING CTR', amt:'$160.00', mcc:'8299', merchant:'Kumon', cat:'Education', sub:'Tutoring'}
+          ],
+          persona: {
+            title:'Young Family',
+            desc:'Household-focused spender prioritizing children\\'s education, healthcare, and family entertainment.',
+            chips:[
+              {icon:'🛒', label:'Bulk Shopper', count:'16×'},
+              {icon:'👶', label:'Family Care', count:'11×'},
+              {icon:'📚', label:'Education', count:'8×'},
+              {icon:'🏥', label:'Healthcare', count:'5×'},
+              {icon:'🏡', label:'Suburban Life', count:''}
+            ]
+          }
+        }
+      ];
+
+      var tbody = root.querySelector('#vte-tbody');
+      var personaWrap = root.querySelector('#vte-persona');
+      var currentSet = 0;
+      var timers = [];
+
+      function clearTimers(){
+        timers.forEach(function(t){ clearTimeout(t); });
+        timers = [];
       }
-      setInterval(replay, 6000);
+
+      function buildRowHtml(r){
+        return '<div class="vte-row data-row">'
+          +'<div class="vte-cell raw" data-label="Raw Transaction">'+r.raw+'</div>'
+          +'<div class="vte-cell one" data-label="Amount">'+r.amt+'</div>'
+          +'<div class="vte-cell one" data-label="MCC">'+r.mcc+'</div>'
+          +'<div class="vte-cell one derived" data-label="Merchant"><span class="derived-text">'+r.merchant+'</span></div>'
+          +'<div class="vte-cell one derived" data-label="Category"><span class="derived-text">'+r.cat+'</span></div>'
+          +'<div class="vte-cell one derived" data-label="Sub-Category"><span class="derived-text">'+r.sub+'</span></div>'
+          +'</div>';
+      }
+
+      function buildPersonaHtml(p){
+        var chipsHtml = p.chips.map(function(c){
+          return '<span class="chip"><strong>'+c.icon+' '+c.label+'</strong>'
+            +(c.count ? ' <span class="count">'+c.count+'</span>' : '')+'</span>';
+        }).join('');
+        return '<div class="persona-panel">'
+          +'<p class="persona-summary"><span class="key">'+p.title+'</span> · '+p.desc+'</p>'
+          +'<div class="signal-top"><span class="signal-label">Signals</span>'
+          +'<div class="chips">'+chipsHtml+'</div></div></div>';
+      }
+
+      function runCycle(){
+        clearTimers();
+        root.classList.remove('vte-fade-out');
+
+        var ds = datasets[currentSet % datasets.length];
+        currentSet++;
+
+        // Render rows hidden
+        tbody.innerHTML = ds.rows.map(buildRowHtml).join('');
+        personaWrap.innerHTML = buildPersonaHtml(ds.persona);
+        personaWrap.classList.remove('visible');
+
+        var rows = tbody.querySelectorAll('.data-row');
+        var ROW_GAP = 800;
+        var DERIVED_OFFSET = 300;
+
+        rows.forEach(function(row, i){
+          // Reveal row
+          timers.push(setTimeout(function(){
+            row.classList.add('visible');
+          }, i * ROW_GAP));
+
+          // Reveal derived cells
+          var derivedCells = row.querySelectorAll('.derived');
+          timers.push(setTimeout(function(){
+            derivedCells.forEach(function(d){ d.classList.add('revealed'); });
+          }, i * ROW_GAP + DERIVED_OFFSET));
+        });
+
+        var allRowsDone = (rows.length - 1) * ROW_GAP + DERIVED_OFFSET + 400;
+
+        // Show persona
+        timers.push(setTimeout(function(){
+          personaWrap.classList.add('visible');
+        }, allRowsDone + 500));
+
+        // Fade out everything
+        timers.push(setTimeout(function(){
+          root.classList.add('vte-fade-out');
+          personaWrap.classList.remove('visible');
+        }, allRowsDone + 2500));
+
+        // Next cycle
+        timers.push(setTimeout(runCycle, allRowsDone + 3200));
+      }
+
+      runCycle();
     })();
   </script>
 </div>`;
