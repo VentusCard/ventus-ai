@@ -1,6 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TechnologyBackground from "@/components/technology/TechnologyBackground";
+import AnimatedDemo from "@/components/technology/AnimatedDemo";
+import { enrichmentDemoHtml } from "@/components/technology/demos/enrichment-demo";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -128,6 +130,9 @@ const Enrichment = () => {
             </div>
           </div>
         </section>
+
+        {/* See It In Action */}
+        <AnimatedDemo htmlContent={enrichmentDemoHtml} animationDelay="0.45s" />
 
         {/* Key Features Section */}
         <section className="py-12">
