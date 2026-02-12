@@ -1,76 +1,56 @@
 
 
-# Add Animated Demo Sections to Capability Pages
+# Adjust Enrichment Demo: Transparent Background, White Theme, Looping Animation
 
-## Overview
-Add a dedicated "See It In Action" section to each of the 4 capability pages under /technology, embedding your custom HTML/CSS animation scripts as interactive demos. You have all 4 animations ready to paste in.
+## What Changes
 
-## Approach
+### 1. Transparent + White Theme (in `enrichment-demo.ts`)
+Update all CSS custom properties and hardcoded colors to work on a dark/transparent background:
+- `--ink` changes from dark navy to `#ffffff` (white)
+- `--muted` changes to `rgba(255,255,255,.62)`
+- `--hair` (borders) changes to `rgba(255,255,255,.20)`
+- `--wash` changes to `rgba(255,255,255,.05)`
+- `.vte-card` background changes from `rgba(255,255,255,.92)` to `transparent`
+- `.vte-head` gradient uses white-based tones
+- `.derived-text` color becomes `rgba(255,255,255,.80)`
+- Signal chips use white-based borders/backgrounds: `--sigBg: rgba(255,255,255,.08)`, `--sigBd: rgba(255,255,255,.20)`, `--sigInk: rgba(255,255,255,.90)`
+- Persona panel: `--hlBg: rgba(255,255,255,.04)`, `--hlBd: rgba(255,255,255,.16)`
+- Disclaimer text becomes `rgba(255,255,255,.42)`
+- Mobile `data-label` color updated to white-muted
 
-### 1. Create a Reusable AnimatedDemo Component
-Build a wrapper component at `src/components/technology/AnimatedDemo.tsx` that:
-- Accepts raw HTML content as a prop
-- Renders it safely using `dangerouslySetInnerHTML`
-- Wraps it in a styled container that matches the existing page aesthetic (glassmorphic card with border, backdrop blur)
-- Includes the "See It In Action" heading with the staggered `animate-fade-float` entrance animation consistent with other sections
-- Scopes the injected CSS to avoid conflicts with the rest of the site
+### 2. Looping Animation (in `enrichment-demo.ts`)
+Add a `<script>` block inside the HTML string that restarts the animation on a loop:
+- Every ~6 seconds, remove all `data-row` animation classes and derived cell classes
+- After a brief reflow, re-add them to replay the staggered row slide-in and derived column fade-in
+- This creates a seamless infinite loop effect where transactions appear to be continuously enriched
+- The script is self-contained within the `#ventus-te-enterprise` scope
 
-### 2. Create Per-Page Animation Data Files
-Create 4 files under `src/components/technology/demos/`:
-- `enrichment-demo.ts` -- your Transaction Enrichment HTML (the one you shared)
-- `rewards-demo.ts` -- Smart Rewards animation HTML
-- `engagement-demo.ts` -- Engagement animation HTML
-- `wealth-demo.ts` -- Wealth Management animation HTML
-
-Each file exports a string constant with the full HTML + scoped CSS for that demo. You will paste your animation HTML into each file.
-
-### 3. Integrate Into Each Page
-Add the AnimatedDemo component into each of the 4 pages as a new section placed between the "Overview" and "Key Features" sections:
-- `src/pages/Enrichment.tsx`
-- `src/pages/SmartRewards.tsx`
-- `src/pages/Engagement.tsx`
-- `src/pages/Wealth.tsx`
-
-Each page imports its corresponding demo HTML and passes it to the AnimatedDemo wrapper.
-
-### 4. CSS Scoping Strategy
-The demo HTML uses its own scoped ID selectors (e.g., `#ventus-te-enterprise`), which already provides natural CSS isolation. The wrapper component will:
-- Add `isolation: isolate` to prevent stacking context leaks
-- Ensure the demo fonts don't override the site-wide Inter/DM Mono
-- Apply the existing page animation delay pattern for the entrance
-
----
+### 3. No changes to `AnimatedDemo.tsx`
+The wrapper component stays as-is -- all changes are within the demo HTML/CSS string.
 
 ## Technical Details
 
-### AnimatedDemo Component Structure
+### Color Mapping Summary
+| Element | Before | After |
+|---|---|---|
+| Main text (`--ink`) | `#0b1a3a` | `#ffffff` |
+| Muted text | `rgba(11,26,58,.62)` | `rgba(255,255,255,.62)` |
+| Borders | `rgba(11,26,58,.10)` | `rgba(255,255,255,.20)` |
+| Card background | `rgba(255,255,255,.92)` | `transparent` |
+| Derived text | `rgba(11,26,58,.72)` | `rgba(255,255,255,.80)` |
+| Chips | green-tinted | `rgba(255,255,255,.08)` bg, `.20` border |
+
+### Looping Script Logic
 ```text
-+--------------------------------------------------+
-| Section: "See It In Action"  (animate-fade-float) |
-|                                                    |
-|  +----------------------------------------------+ |
-|  | Glassmorphic Card Container                   | |
-|  | (border-white/20, bg-white/5, backdrop-blur)  | |
-|  |                                               | |
-|  |   [dangerouslySetInnerHTML = demo HTML]        | |
-|  |                                               | |
-|  +----------------------------------------------+ |
-+--------------------------------------------------+
+setInterval (every ~6s):
+  1. Reset all .data-row elements: remove animation, set opacity 0
+  2. Reset all .derived cells: set opacity 0
+  3. After 50ms reflow: re-apply animation classes
+  4. Rows stagger in (0.1s, 0.25s, 0.4s, 0.55s, 0.7s)
+  5. Derived columns fade in after 0.75s delay
+  6. Visible for ~4s before next reset
 ```
 
-### File Changes Summary
-- **New**: `src/components/technology/AnimatedDemo.tsx` -- reusable wrapper
-- **New**: `src/components/technology/demos/enrichment-demo.ts` -- your HTML pasted here
-- **New**: `src/components/technology/demos/rewards-demo.ts` -- placeholder for your HTML
-- **New**: `src/components/technology/demos/engagement-demo.ts` -- placeholder for your HTML
-- **New**: `src/components/technology/demos/wealth-demo.ts` -- placeholder for your HTML
-- **Modified**: `src/pages/Enrichment.tsx` -- add AnimatedDemo section
-- **Modified**: `src/pages/SmartRewards.tsx` -- add AnimatedDemo section
-- **Modified**: `src/pages/Engagement.tsx` -- add AnimatedDemo section
-- **Modified**: `src/pages/Wealth.tsx` -- add AnimatedDemo section
+### Files Changed
+- **Modified**: `src/components/technology/demos/enrichment-demo.ts` -- theme + loop script
 
-### Implementation Steps
-1. Create the AnimatedDemo wrapper component
-2. Create the 4 demo data files (I will paste the Enrichment HTML you shared; the other 3 will be empty templates for you to paste your HTML into)
-3. Import and add the demo section to each page between Overview and Key Features
-4. Verify styling consistency and animation behavior
