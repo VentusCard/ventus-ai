@@ -37,7 +37,7 @@ const AnimatedDemo = ({ htmlContent, animationDelay = '0.45s' }: AnimatedDemoPro
 
   return (
     <section className="py-12">
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         <h2
           className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
           style={{ animationDelay, animationFillMode: 'backwards' }}
