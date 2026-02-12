@@ -1,6 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TechnologyBackground from "@/components/technology/TechnologyBackground";
+import AnimatedDemo from "@/components/technology/AnimatedDemo";
+import { engagementDemoHtml } from "@/components/technology/demos/engagement-demo";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -127,6 +129,9 @@ const Engagement = () => {
             </div>
           </div>
         </section>
+
+        {/* See It In Action */}
+        <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" />
 
         {/* Key Features Section */}
         <section className="py-12">

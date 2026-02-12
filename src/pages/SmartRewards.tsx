@@ -1,6 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TechnologyBackground from "@/components/technology/TechnologyBackground";
+import AnimatedDemo from "@/components/technology/AnimatedDemo";
+import { rewardsDemoHtml } from "@/components/technology/demos/rewards-demo";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -128,6 +130,9 @@ const SmartRewards = () => {
             </div>
           </div>
         </section>
+
+        {/* See It In Action */}
+        <AnimatedDemo htmlContent={rewardsDemoHtml} animationDelay="0.45s" />
 
         {/* Key Features Section */}
         <section className="py-12">
