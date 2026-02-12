@@ -1,84 +1,73 @@
 
+# Redesign Wealth Demo as Multi-Client Alert Dashboard
 
-# Build Life Event Detection Demo for Wealth Management Page
+## What's Changing
+Replace the current 3-panel "deep dive into one client" demo with a visual replica of the **Life Events Alert Dashboard** -- showing multiple clients with detected life events in a scrollable list, with the ability to click into one to see supporting details.
 
-## What's Being Built
-An interactive animated demo for the `/wealth` page's "See It In Action" section, modeled after the actual Life Events Alert Dashboard in TEPilot. The demo will simulate the Ventus AI life event detection pipeline: transactions scroll in, behavioral signals are identified, life events are detected with confidence scores, and advisor action items populate -- all in an auto-looping animation.
+## Demo Concept
 
-## Demo Layout: 3-Panel Life Event Detection Simulator
+The demo will look like a miniature version of the real `LifeEventsAlertDashboard`:
 
-The animation uses a 3-column layout that mirrors the real Advisor Console workflow:
+**Top Section**: Header with title "Wealth Management Client Life Event Intelligence -- Powered by Ventus AI" and a metrics bar (e.g., "8 Clients | 3 Urgent | 4 This Quarter | 12 Total Events").
 
-**Left Panel -- Transaction Signal Feed**
-Transactions scroll in one by one with fade-in animations. As transactions accumulate, the system highlights clusters that form life event signals (e.g., College Board + Princeton Review + campus travel = "Education Funding"). Each transaction shows merchant, amount, date, and card type badge.
-
-**Center Panel -- Detected Life Events**
-As transaction clusters are identified, life event cards appear with:
-- Event type icon and label (color-coded: amber for Retirement, blue for Education, green for Home Purchase, etc.)
-- Confidence percentage badge
-- Urgency indicator (Urgent / Soon / Upcoming)
+**Main Section**: A scrollable list of client alert rows. Each row shows:
+- Life event icon (color-coded)
+- Client name + AUM + segment badge (Private/Preferred/Premium)
+- Event name + urgency badge (Urgent/Soon/Upcoming)
+- Key evidence snippet
+- Confidence percentage
 - Estimated timing
-- Key evidence summary (one-line from the transactions)
+- "Prepare" and "View" buttons
 
-**Right Panel -- Advisor Action Items**
-When a life event is detected, corresponding advisor recommendations slide in:
-- Numbered action steps specific to each event type
-- A "Ventus AI Insight" summary paragraph describing behavioral context
-- Meeting prep assembles progressively as more events are detected
+**Detail Panel**: When "Prepare" is clicked on a row, a detail overlay slides in showing:
+- Supporting transactions for that event
+- Ventus AI Insights paragraph
+- Recommended next steps
 
-### Client Profile Header
-A client card sits above the 3 panels showing: "Margaret Chen" | Private Wealth | AUM: $4.2M | Tenure: 12 years -- with segment badge styling matching the real dashboard.
-
-### Animation Flow (auto-looping, cycles through 5 life events)
-1. Client profile header fades in
-2. **Retirement Planning** (91% confidence): Fidelity 401k increase, AARP enrollment, Viking Cruises booking scroll into left panel. Center panel shows detected event with amber Sunset icon. Right panel shows "Schedule retirement review," "Discuss Roth conversion strategy"
-3. Brief pause, then **Education Funding** (82%): College Board fees, Princeton Review, campus visit travel appear. Blue GraduationCap event card. Action items: "Initiate 529 plan discussion," "Calculate projected costs"
-4. **Home Purchase** (87%): Home Depot, Earnest Money Deposit, U-Haul appear. Green Home event card. Actions: "Analyze liquid assets for down payment," "Compare mortgage scenarios"
-5. **Family Formation** (76%): Baby registry, Buy Buy Baby, hospital pre-registration. Pink Baby event card. Actions: "Introduce 529 plan options," "Benchmark life insurance needs"
-6. **Elder Care** (68%): Medical Guardian, accessibility modifications, Sunrise Senior Living. Red Heart event card. Actions: "Assess long-term care insurance," "Review Medicaid look-back"
-7. Summary metrics bar animates: "5 Events Detected | 2 Urgent | 3 This Quarter"
-8. Brief pause, then resets and loops
+### Animation Flow (auto-looping)
+1. Dashboard fades in with empty state
+2. Client rows appear one by one with staggered fade-in (12 total rows across 8 clients)
+3. Metrics bar counts up as rows appear
+4. After all rows visible, brief pause
+5. Auto-clicks "Prepare" on the top urgent row, showing the detail overlay with transactions and insights
+6. After a few seconds, closes the overlay
+7. Brief pause, then resets and loops
 
 ### Interactive Controls
-- **Life event pills** at the top (like lifestyle indicators in Smart Rewards) -- clicking one jumps to that event's detection sequence
-- Pause / Resume / Reset buttons
-- Step counter: "Step 2/5 -- Detecting: Education Funding"
+- Users can click "Prepare" on any row to see that client's event details
+- Pause/Resume/Reset controls
+- Step indicator
 
-## Technical Approach
+## Static Data (8 mock clients, 12 events total)
 
-### Architecture
-Same pattern as `VentusSmartRewards.tsx`: React component using `useRef` + direct DOM manipulation via `innerHTML` for high-performance animations. All CSS scoped with `.vwm-` prefix. Self-contained with all static data built in.
-
-### Static Data (pulled directly from real TEPilot data)
-- Transaction data from `PrepareEventDialog.tsx`'s `transactionsByEventType` (5 events x 5-6 transactions each)
-- Recommended steps from `recommendedStepsByEventType`
-- AI insights from `mockInsightsByEventType`
-- Life event config (icons, colors, labels) from `LIFE_EVENT_CONFIG`
-- Client profile: Margaret Chen, Private, $4.2M AUM
-
-### Responsive Scaling
-`.vwm-scale-wrapper` with `transform: scale()`:
-- Tablet (max-width 1024px): scale 0.7, margin-bottom -30%
-- Mobile (max-width 767px): scale 0.5, margin-bottom -50%
+Clients with events (using data from `PrepareEventDialog`):
+1. Margaret Chen | Private | $4.2M -- Retirement Planning (91%, Urgent) + Education Funding (82%, Soon)
+2. David Park | Premium | $1.8M -- Home Purchase (87%, Urgent)
+3. Sarah Mitchell | Private | $6.1M -- Wealth Transfer (79%, Soon) + Elder Care (68%, Upcoming)
+4. James Rodriguez | Preferred | $890K -- Family Formation (76%, Upcoming)
+5. Linda Nakamura | Private | $3.5M -- Business Liquidity (84%, Urgent)
+6. Robert Thompson | Premium | $2.1M -- Retirement Planning (88%, Soon)
+7. Emily Watson | Preferred | $720K -- Education Funding (75%, Upcoming)
+8. Michael Foster | Private | $5.8M -- Elder Care (72%, Soon) + Home Purchase (81%, Urgent)
 
 ## Changes
 
-### 1. New File: `src/components/technology/demos/VentusWealthDemo.tsx`
-Self-contained React component (~800-1000 lines) with:
-- Static data arrays for all 5 life event types (transactions, events, actions, insights)
-- Animation engine cycling through events with `setInterval`
-- 3-column grid layout with scrolling transaction feed, event detection cards, and action items
-- Dark theme with colored accents matching each event type
-- Interactive pills and playback controls
+### 1. Rewrite: `src/components/technology/demos/VentusWealthDemo.tsx`
+Complete rewrite of the component to render a dashboard-style UI instead of the current 3-panel transaction flow. Same architecture (useRef + DOM manipulation + setInterval), but the rendered HTML will be a list of client alert cards matching the `LifeEventAlertCard` design, plus a slide-in detail panel matching `PrepareEventDialog`.
 
-### 2. Modified File: `src/pages/Wealth.tsx`
-- Remove `AnimatedDemo` and `wealthDemoHtml` imports
-- Import and embed `VentusWealthDemo` component in "See It In Action" section
-- Widen all containers from `max-w-6xl` to `max-w-7xl`
-- Compress Hero padding from `py-16 md:py-24` to `py-6 md:py-10`
-- Compress Overview padding from `py-12` to `py-4`
-- Reduce main bottom padding from `pb-16` to `pb-10`
+Key visual elements:
+- `.vwm-header` with title and metrics bar (matching the real dashboard's bg-slate-100, bg-red-50, bg-amber-50, bg-blue-50 metric pills)
+- `.vwm-alert-row` for each client-event pair (horizontal card with icon, client info, event details, confidence, actions)
+- `.vwm-detail-overlay` for the "Prepare" view (transactions list, insights, recommended steps)
+- Responsive scaling wrapper (same approach: scale 0.7 at 1024px, scale 0.5 at 767px)
 
-### 3. Deletable: `src/components/technology/demos/wealth-demo.ts`
-The placeholder file becomes unused and can be removed.
+### 2. No changes to `src/pages/Wealth.tsx`
+The page already imports and renders `VentusWealthDemo` correctly with the right layout and spacing.
 
+## Technical Details
+- All data is hardcoded in the component (transactions, insights, action items reused from existing demo data)
+- CSS scoped with `.vwm-` prefix, injected via style block
+- Animation uses async/await with cancellation tokens (same pattern as current implementation)
+- Detail panel opens with a slide-in animation, closes with slide-out
+- Clicking any "Prepare" button pauses the auto-loop and shows that client's detail; clicking "Back" resumes
+- Dark background with light cards for contrast within the demo container
