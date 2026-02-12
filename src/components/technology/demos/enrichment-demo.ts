@@ -1,16 +1,16 @@
 export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
   <style>
     #ventus-te-enterprise{
-      --ink:#0b1a3a;
-      --muted:rgba(11,26,58,.62);
-      --hair:rgba(11,26,58,.10);
-      --wash:rgba(11,26,58,.03);
+      --ink:#ffffff;
+      --muted:rgba(255,255,255,.62);
+      --hair:rgba(255,255,255,.20);
+      --wash:rgba(255,255,255,.05);
       --radius:18px;
-      --sigBg: rgba(20,120,80,.08);
-      --sigBd: rgba(20,120,80,.18);
-      --sigInk: rgba(11,26,58,.90);
-      --hlBg: rgba(11,26,58,.022);
-      --hlBd: rgba(11,26,58,.14);
+      --sigBg: rgba(255,255,255,.08);
+      --sigBd: rgba(255,255,255,.20);
+      --sigInk: rgba(255,255,255,.90);
+      --hlBg: rgba(255,255,255,.04);
+      --hlBd: rgba(255,255,255,.16);
     }
 
     #ventus-te-enterprise, #ventus-te-enterprise *{ box-sizing:border-box; }
@@ -27,13 +27,13 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       border:1px solid var(--hair);
       border-radius: var(--radius);
       overflow:hidden;
-      background: rgba(255,255,255,.92);
+      background: transparent;
     }
 
     .vte-head{
       padding: 16px 18px;
       border-bottom: 1px solid var(--hair);
-      background: linear-gradient(180deg, rgba(11,26,58,.028), rgba(11,26,58,0));
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
       display:flex;
       justify-content: space-between;
       align-items: baseline;
@@ -86,7 +86,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     }
 
     .vte-row.data-row{
-      animation: vte-slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: vte-slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     @keyframes vte-slideIn{
@@ -94,23 +94,15 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       to{ opacity: 1; transform: translateY(0); }
     }
 
-    .vte-row.removing{
-      animation: vte-slideOut 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
-    }
-
-    @keyframes vte-slideOut{
-      to{ opacity: 0; transform: translateY(-20px); margin-bottom: -50px; }
-    }
-
     .raw{ white-space: normal; word-break: break-word; line-height: 1.25; }
     .one{ white-space: nowrap; line-height: 1.2; }
-    .derived-text{ color: rgba(11,26,58,.72); font-weight: 650; }
+    .derived-text{ color: rgba(255,255,255,.80); font-weight: 650; }
 
     .vte-spacer{ height: 12px; }
 
     .vte-disclaimer{ margin-top: 16px; text-align: center; }
     .vte-disclaimer p{
-      margin: 0; font-size: 11px; color: rgba(11,26,58,.42);
+      margin: 0; font-size: 11px; color: rgba(255,255,255,.42);
       font-weight: 620; letter-spacing: -0.005em; line-height: 1.4;
     }
 
@@ -142,12 +134,12 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       gap: 10px;
       flex-wrap: wrap;
       padding-top: 10px;
-      border-top: 1px solid rgba(11,26,58,.10);
+      border-top: 1px solid rgba(255,255,255,.12);
     }
     .signal-label{
       font-size: 12px;
       font-weight: 820;
-      color: rgba(11,26,58,.82);
+      color: rgba(255,255,255,.82);
       letter-spacing: -0.01em;
     }
 
@@ -172,34 +164,14 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       white-space: nowrap;
     }
     .chip strong{ font-weight: 880; letter-spacing: -0.01em; }
-    .chip .count{ font-weight: 820; color: rgba(11,26,58,.70); }
+    .chip .count{ font-weight: 820; color: rgba(255,255,255,.70); }
 
     .chip.is-off{
       opacity: .42;
-      background: rgba(11,26,58,.02);
-      border-color: rgba(11,26,58,.12);
+      background: rgba(255,255,255,.02);
+      border-color: rgba(255,255,255,.12);
     }
     .chip.is-off .count{ display:none; }
-
-    .category-group{
-      border-bottom: 1px solid rgba(11,26,58,.08);
-      padding: 12px 0;
-      display: grid;
-      grid-template-columns: 200px 95px 1fr;
-      gap: 24px;
-      align-items: center;
-    }
-    .category-group:first-child{ padding-top: 0; }
-    .category-group:last-child{ border-bottom: none; padding-bottom: 0; }
-    .category-name{
-      font-size: 11px; font-weight: 820; color: rgba(11,26,58,.52);
-      letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
-    }
-    .category-spending{
-      font-size: 13px; font-weight: 650; color: var(--ink);
-      letter-spacing: -0.01em; text-align: right; white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-    }
 
     @media (max-width: 980px){
       .vte-row{ grid-template-columns: 1fr; }
@@ -314,4 +286,29 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
   <div class="vte-disclaimer">
     <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
   </div>
+
+  <script>
+    (function(){
+      var root = document.getElementById('ventus-te-enterprise');
+      if (!root) return;
+      var delays = ['0.1s','0.25s','0.4s','0.55s','0.7s'];
+      function replay(){
+        var rows = root.querySelectorAll('.data-row');
+        var derived = root.querySelectorAll('.vte-cell.derived');
+        rows.forEach(function(r){ r.style.animation='none'; r.style.opacity='0'; });
+        derived.forEach(function(d){ d.style.animation='none'; d.style.opacity='0'; });
+        void root.offsetHeight;
+        rows.forEach(function(r,i){
+          r.style.animation='';
+          r.style.opacity='';
+          r.style.animationDelay=delays[i]||'0s';
+        });
+        derived.forEach(function(d){
+          d.style.animation='';
+          d.style.opacity='';
+        });
+      }
+      setInterval(replay, 6000);
+    })();
+  </script>
 </div>`;
