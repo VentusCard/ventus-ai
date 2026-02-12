@@ -77,7 +77,7 @@ const Enrichment = () => {
       <Navbar />
       <main className="pt-20 pb-16 relative z-10">
         {/* Hero Section */}
-        <section className="py-16 md:py-24">
+        <section className="py-10 md:py-16">
           <div className="max-w-6xl mx-auto px-4 md:px-8">
             <Link 
               to="/technology" 
@@ -111,7 +111,7 @@ const Enrichment = () => {
         </section>
 
         {/* Overview Section */}
-        <section className="py-12">
+        <section className="py-8">
           <div className="max-w-6xl mx-auto px-4 md:px-8">
             <div 
               className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
