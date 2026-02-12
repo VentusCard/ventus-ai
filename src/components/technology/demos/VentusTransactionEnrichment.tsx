@@ -433,31 +433,24 @@ export default function VentusTransactionEnrichment() {
         }
         .vte-chip.is-off .vte-chip-count { display: none; }
 
-        @media (max-width: 980px) {
-          .vte-row { grid-template-columns: 1fr; }
-          .vte-row.head { display: none; }
-          .vte-cell {
-            border-right: none;
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            gap: 10px;
-            align-items: start;
-            min-height: auto;
+        .vte-scale-wrapper {
+          transform-origin: top center;
+        }
+        @media (max-width: 1024px) {
+          .vte-scale-wrapper {
+            transform: scale(0.7);
+            margin-bottom: -30%;
           }
-          .vte-cell::before {
-            content: attr(data-label);
-            color: var(--muted);
-            font-weight: 650;
-            font-size: 12px;
-          }
-          .vte-persona-summary { font-size: 17px; }
-          .vte-category-group {
-            grid-template-columns: 1fr;
-            gap: 8px;
+        }
+        @media (max-width: 767px) {
+          .vte-scale-wrapper {
+            transform: scale(0.5);
+            margin-bottom: -50%;
           }
         }
       `}</style>
 
+      <div className="vte-scale-wrapper">
       <div className="vte-root">
         {/* Transaction table */}
         <div className="vte-card">
@@ -497,6 +490,7 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-disclaimer">
           <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
         </div>
+      </div>
       </div>
     </>
   );
