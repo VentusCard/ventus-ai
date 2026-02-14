@@ -1,43 +1,41 @@
 
 
-# Add Prominent Click Effect to "Prepare" Button During Animation
+# Standardize All Four Technology Pages for Consistency
 
 ## Problem
-When the demo auto-cycles through different client events, there's no visual indication of *which* row's "Prepare" button was clicked. Viewers can't follow the action.
+The **Enrichment** page uses different container widths and vertical spacing compared to the other three pages (Smart Rewards, Engagement, Wealth), creating an inconsistent feel when navigating between them.
 
-## Solution
-Add three visual cues when a row is auto-selected:
+## What's Different
 
-### 1. Active Row Highlight
-- Track which event index is currently being "prepared" via a new `activeRowIdx` state
-- The active row gets a glowing border, brighter background, and a subtle pulse animation
-- CSS class `.vwm-alert-row.active` with a colored left border accent matching the event color
+| Section | Enrichment (current) | SmartRewards / Engagement / Wealth |
+|---|---|---|
+| All containers | `max-w-6xl` (1152px) | `max-w-7xl` (1280px) |
+| Demo section padding | `py-6` | `py-12` |
+| Features section padding | `py-6` | `py-12` |
+| Use Cases section padding | `py-6` | `py-12` |
+| Benefits section padding | `py-6` | `py-12` |
+| CTA section padding | `py-10` | `py-16` |
 
-### 2. Prepare Button Ripple/Pulse Effect
-- When auto-clicked, the "Prepare" button on the active row gets a `.clicking` class
-- This triggers a scale-bounce animation (scale up to 1.15, back to 1.0) plus a bright glow ring
-- A brief color flash (white to primary blue and back) draws the eye
+SmartRewards, Engagement, and Wealth are already perfectly consistent with each other. Only Enrichment needs updating.
 
-### 3. Auto-Scroll to Active Row
-- When the animation selects a row that may be off-screen, scroll it into view using `scrollIntoView({ behavior: 'smooth', block: 'nearest' })`
+## Changes
 
-## Technical Details
+### File: `src/pages/Enrichment.tsx`
 
-### File: `src/components/technology/demos/VentusWealthDemo.tsx`
+Update all section containers to match the standard used by the other three pages:
 
-**New state:**
-- `activeRowIdx: number | null` -- index of the row currently being auto-prepared
+1. **Hero section (line 81)**: `max-w-6xl` to `max-w-7xl`
+2. **Overview section (line 115)**: `max-w-6xl` to `max-w-7xl`
+3. **Demo section (line 134)**: `py-6` to `py-12`
+4. **Demo container (line 135)**: `max-w-6xl` to `max-w-7xl`
+5. **Features section (line 152)**: `py-6` to `py-12`
+6. **Features container (line 153)**: `max-w-6xl` to `max-w-7xl`
+7. **Use Cases section (line 187)**: `py-6` to `py-12`
+8. **Use Cases container (line 188)**: `max-w-6xl` to `max-w-7xl`
+9. **Benefits section (line 222)**: `py-6` to `py-12`
+10. **Benefits container (line 223)**: `max-w-6xl` to `max-w-7xl`
+11. **CTA section (line 242)**: `py-10` to `py-16`
+12. **CTA container (line 244)**: `max-w-6xl` to `max-w-7xl`
 
-**Animation loop changes:**
-- Before opening the detail overlay, set `activeRowIdx` to the event index
-- After a 600ms delay (to let the highlight + button animation play), then open the detail overlay
-- On close, clear `activeRowIdx` back to null
-
-**New CSS:**
-- `.vwm-alert-row.active` -- brighter background (`rgba(255,255,255,.12)`), glowing border (`box-shadow: 0 0 20px rgba(59,130,246,.25)`), left border accent
-- `.vwm-row-btn.prepare.clicking` -- keyframe `vwm-btnPulse` that scales 1 to 1.15 to 1, with a glow ring (`box-shadow: 0 0 16px rgba(255,255,255,.5)`)
-- `@keyframes vwm-btnPulse` -- 0%: scale(1), 40%: scale(1.15) + bright glow, 100%: scale(1)
-
-**Scroll behavior:**
-- Use a ref-based approach: give each alert row a `data-event-idx` attribute, and when `activeRowIdx` changes, query the container for that row and call `scrollIntoView`
+No changes needed for SmartRewards, Engagement, or Wealth -- they are already consistent.
 
