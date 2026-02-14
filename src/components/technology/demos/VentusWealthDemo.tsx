@@ -232,10 +232,12 @@ export default function VentusWealthDemo() {
   const [phase, setPhase] = useState<'building' | 'autoprepare' | 'complete'>('building');
   const [insightWordCount, setInsightWordCount] = useState(0);
   const [stepsShown, setStepsShown] = useState(0);
+  const [activeRowIdx, setActiveRowIdx] = useState<number | null>(null);
   const tokenRef = useRef(0);
   const mountedRef = useRef(true);
   const insightIntervalRef = useRef<number | null>(null);
   const stepsIntervalRef = useRef<number | null>(null);
+  const alertListRef = useRef<HTMLDivElement | null>(null);
 
   const getClient = useCallback((id: string) => CLIENTS.find(c => c.id === id)!, []);
 
@@ -327,6 +329,18 @@ export default function VentusWealthDemo() {
       const client = CLIENTS.find(c => c.id === event.clientId)!;
       const detail = DETAILS[`${event.clientId}-${event.eventType}`];
 
+      // Highlight row and pulse button first
+      setActiveRowIdx(eventIdx);
+      // Auto-scroll to active row
+      if (alertListRef.current) {
+        const row = alertListRef.current.querySelector(`[data-event-idx="${eventIdx}"]`);
+        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      await wait(800);
+      if (myToken !== tokenRef.current || !mountedRef.current) return;
+
+      // Now open detail overlay
       setSelectedEvent({ event, client });
       setDetailVisible(true);
       if (detail) startInsightAnimation(detail);
@@ -336,6 +350,7 @@ export default function VentusWealthDemo() {
 
       setDetailVisible(false);
       clearAnimIntervals();
+      setActiveRowIdx(null);
       await wait(400);
       if (myToken !== tokenRef.current || !mountedRef.current) return;
       setSelectedEvent(null);
@@ -367,6 +382,7 @@ export default function VentusWealthDemo() {
     setDetailVisible(false);
     setIsPaused(false);
     setPhase('building');
+    setActiveRowIdx(null);
     setInsightWordCount(0);
     setStepsShown(0);
     mountedRef.current = true;
@@ -520,6 +536,25 @@ export default function VentusWealthDemo() {
         .vwm-row-btn:hover { background: rgba(255,255,255,.14); }
         .vwm-row-btn.prepare { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
         .vwm-row-btn.prepare:hover { background: #fff; }
+
+        /* Active row highlight */
+        .vwm-alert-row.active {
+          background: rgba(255,255,255,.12);
+          border-color: rgba(59,130,246,.40);
+          box-shadow: 0 0 24px rgba(59,130,246,.25), inset 0 0 0 1px rgba(59,130,246,.15);
+          border-left: 3px solid var(--vwm-active-color, #3b82f6);
+        }
+
+        /* Button pulse when row is active */
+        .vwm-alert-row.active .vwm-row-btn.prepare {
+          animation: vwm-btnPulse .7s ease-out;
+          box-shadow: 0 0 16px rgba(255,255,255,.4);
+        }
+        @keyframes vwm-btnPulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
+          35% { transform: scale(1.18); box-shadow: 0 0 20px rgba(255,255,255,.5); background: #fff; }
+          100% { transform: scale(1); box-shadow: 0 0 16px rgba(255,255,255,.4); }
+        }
 
         /* Detail overlay */
         .vwm-detail-overlay {
@@ -680,7 +715,7 @@ export default function VentusWealthDemo() {
           </div>
 
           {/* Alert rows */}
-          <div className="vwm-alert-list">
+          <div className="vwm-alert-list" ref={alertListRef}>
             {visibleRows === 0 && (
               <div className="vwm-empty">
                 <div className="vwm-empty-icon">🔍</div>
@@ -693,7 +728,7 @@ export default function VentusWealthDemo() {
               const seg = SEGMENT_STYLES[client.segment];
               const urg = urgencyBadge(event.urgency);
               return (
-                <div key={`${event.clientId}-${event.eventType}-${idx}`} className="vwm-alert-row" style={{ animationDelay: `${idx * 0.05}s` }}>
+                <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': event.color } as React.CSSProperties : {}) }}>
                   <div className="vwm-row-icon" style={{ background: `${event.color}18` }}>
                     {event.icon}
                   </div>
