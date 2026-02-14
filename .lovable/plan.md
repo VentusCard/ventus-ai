@@ -1,65 +1,43 @@
 
 
-# Enhance Wealth Demo: Slower Transitions, Animated Details, More Transactions, Distinct Source Labels
+# Add Prominent Click Effect to "Prepare" Button During Animation
 
-## What's Changing
+## Problem
+When the demo auto-cycles through different client events, there's no visual indication of *which* row's "Prepare" button was clicked. Viewers can't follow the action.
 
-Four improvements to the existing `VentusWealthDemo.tsx`:
+## Solution
+Add three visual cues when a row is auto-selected:
 
-### 1. Slower Animation Cycling
-- Increase the time each detail overlay is shown from **5 seconds to 8 seconds**
-- Increase the gap between closing one detail and opening the next from **1.2s to 2.5s**
-- This gives viewers more time to absorb each client's event details
+### 1. Active Row Highlight
+- Track which event index is currently being "prepared" via a new `activeRowIdx` state
+- The active row gets a glowing border, brighter background, and a subtle pulse animation
+- CSS class `.vwm-alert-row.active` with a colored left border accent matching the event color
 
-### 2. Animated "Ventus AI Insight" and "Recommended Next Steps"
-- When the detail overlay opens, the Insight text will **type in word-by-word** (typewriter effect) instead of appearing instantly
-- Each Recommended Step will **fade-slide in sequentially** with staggered delays (step 1 at 0.5s, step 2 at 0.8s, step 3 at 1.1s, step 4 at 1.4s)
-- New CSS keyframes: `vwm-typeIn` for the insight box and `vwm-stepSlide` for each step item
-- React state will track `insightRevealed` (number of words shown) and `stepsRevealed` (number of steps shown), driven by intervals that start when the detail overlay opens
+### 2. Prepare Button Ripple/Pulse Effect
+- When auto-clicked, the "Prepare" button on the active row gets a `.clicking` class
+- This triggers a scale-bounce animation (scale up to 1.15, back to 1.0) plus a bright glow ring
+- A brief color flash (white to primary blue and back) draws the eye
 
-### 3. More Supporting Transactions
-- Expand every event's transaction list from 2-4 items to **5-7 items** each
-- Add realistic additional transactions per event type:
-  - **Retirement Planning (c1)**: Add "Social Security Admin" website visit, "Vanguard Target Date Fund" rebalance, "Medicare.gov" research
-  - **Home Purchase (c2)**: Add "Lowe's", "Title Insurance Co.", "Home Inspection Services"
-  - **Business Liquidity (c5)**: Add "Ernst & Young Tax Advisory", "Business Insurance Review"
-  - **Education (c1)**: Add "Kaplan Test Prep", "FAFSA Application"
-  - And similar expansions for all 12 events
-
-### 4. More Prominent Transaction Source Labels
-- Currently all card badges use the same purple style (`.vwm-detail-tx-card`)
-- Replace with **color-coded source labels** based on account type:
-  - **Checking**: Blue background (`rgba(59,130,246,.20)`, text `#93c5fd`, border blue)
-  - **Platinum**: Purple background (`rgba(168,85,247,.20)`, text `#c084fc`, border purple)
-  - **Cashback**: Green background (`rgba(34,197,94,.20)`, text `#86efac`, border green)
-  - **Travel Elite**: Amber background (`rgba(245,158,11,.20)`, text `#fcd34d`, border amber)
-  - **Business**: Slate background (`rgba(100,116,139,.20)`, text `#cbd5e1`, border slate)
-  - **Web Activity**: Cyan background (`rgba(6,182,212,.20)`, text `#67e8f9`, border cyan)
-- Labels will also be slightly larger (font-size 10px, padding 3px 8px) with bolder weight for better visibility
-- A small dot indicator before the label text matching the color for extra visual pop
+### 3. Auto-Scroll to Active Row
+- When the animation selects a row that may be off-screen, scroll it into view using `scrollIntoView({ behavior: 'smooth', block: 'nearest' })`
 
 ## Technical Details
 
 ### File: `src/components/technology/demos/VentusWealthDemo.tsx`
 
-**New state variables:**
-- `insightWordCount: number` -- how many words of the insight to show (incremented by interval)
-- `stepsShown: number` -- how many steps to reveal (incremented by interval)
+**New state:**
+- `activeRowIdx: number | null` -- index of the row currently being auto-prepared
 
-**New animation logic in detail open:**
-- When `detailVisible` becomes true, start an interval that increments `insightWordCount` every 40ms (fast but visible typewriter), and after insight is done, start incrementing `stepsShown` every 300ms
-- Reset both to 0 when detail closes
+**Animation loop changes:**
+- Before opening the detail overlay, set `activeRowIdx` to the event index
+- After a 600ms delay (to let the highlight + button animation play), then open the detail overlay
+- On close, clear `activeRowIdx` back to null
 
-**New CSS classes:**
-- `.vwm-detail-tx-card.checking`, `.platinum`, `.cashback`, `.travel`, `.business`, `.web` -- each with distinct background/text/border colors
-- `.vwm-step-item.revealed` -- fade-slide-in animation
-- `.vwm-insight-cursor` -- blinking cursor during typewriter effect
+**New CSS:**
+- `.vwm-alert-row.active` -- brighter background (`rgba(255,255,255,.12)`), glowing border (`box-shadow: 0 0 20px rgba(59,130,246,.25)`), left border accent
+- `.vwm-row-btn.prepare.clicking` -- keyframe `vwm-btnPulse` that scales 1 to 1.15 to 1, with a glow ring (`box-shadow: 0 0 16px rgba(255,255,255,.5)`)
+- `@keyframes vwm-btnPulse` -- 0%: scale(1), 40%: scale(1.15) + bright glow, 100%: scale(1)
 
-**Data changes:**
-- Expand all 12 `DETAILS` entries with 2-3 additional transactions each
-- Add a `cardType` field derived from the `card` string to determine color coding
-
-**Timing changes:**
-- `await wait(5000)` in cycle loop becomes `await wait(8000)`
-- `await wait(1200)` gap between events becomes `await wait(2500)`
+**Scroll behavior:**
+- Use a ref-based approach: give each alert row a `data-event-idx` attribute, and when `activeRowIdx` changes, query the container for that row and call `scrollIntoView`
 
