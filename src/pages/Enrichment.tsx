@@ -78,7 +78,7 @@ const Enrichment = () => {
       <main className="pt-20 pb-10 relative z-10">
         {/* Hero Section */}
         <section className="py-6 md:py-10">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
             <Link 
               to="/technology" 
               className="inline-flex items-center gap-2 text-foreground/60 hover:text-foreground mb-8 transition-colors animate-fade-float"
@@ -112,7 +112,7 @@ const Enrichment = () => {
 
         {/* Overview Section */}
         <section className="py-4">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div 
               className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
               style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
@@ -131,8 +131,8 @@ const Enrichment = () => {
         </section>
 
         {/* See It In Action */}
-        <section className="py-6">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <h2
               className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
               style={{ animationDelay: '0.45s', animationFillMode: 'backwards' }}
@@ -149,8 +149,8 @@ const Enrichment = () => {
         </section>
 
         {/* Key Features Section */}
-        <section className="py-6">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <h2 
               className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
               style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
@@ -184,8 +184,8 @@ const Enrichment = () => {
         </section>
 
         {/* Use Cases Section */}
-        <section className="py-6">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <h2 
               className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
               style={{ animationDelay: '0.9s', animationFillMode: 'backwards' }}
@@ -219,8 +219,8 @@ const Enrichment = () => {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-6">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div 
               className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
               style={{ animationDelay: '1.3s', animationFillMode: 'backwards' }}
@@ -239,9 +239,9 @@ const Enrichment = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-10">
+        <section className="py-16">
           <div 
-            className="max-w-6xl mx-auto px-4 md:px-8 text-center animate-fade-float"
+            className="max-w-7xl mx-auto px-4 md:px-8 text-center animate-fade-float"
             style={{ animationDelay: '1.4s', animationFillMode: 'backwards' }}
           >
             <h2 className="text-2xl font-semibold text-foreground mb-4">
