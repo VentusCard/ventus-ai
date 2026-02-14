@@ -1,183 +1,41 @@
 
 
-# Add Smart Animations to Technology Page
+# Standardize All Four Technology Pages for Consistency
 
-## Overview
+## Problem
+The **Enrichment** page uses different container widths and vertical spacing compared to the other three pages (Smart Rewards, Engagement, Wealth), creating an inconsistent feel when navigating between them.
 
-Transform the `/technology` page with sophisticated animations that match the premium feel of the Hero component, including staggered entrance animations, animated background, hover micro-interactions, and subtle parallax effects.
+## What's Different
 
-## Current State
+| Section | Enrichment (current) | SmartRewards / Engagement / Wealth |
+|---|---|---|
+| All containers | `max-w-6xl` (1152px) | `max-w-7xl` (1280px) |
+| Demo section padding | `py-6` | `py-12` |
+| Features section padding | `py-6` | `py-12` |
+| Use Cases section padding | `py-6` | `py-12` |
+| Benefits section padding | `py-6` | `py-12` |
+| CTA section padding | `py-10` | `py-16` |
 
-The Technology page is static with basic hover transitions on the capability cards. It lacks:
-- Entrance animations for content
-- Animated background elements
-- Icon animations
-- Scroll-triggered effects
+SmartRewards, Engagement, and Wealth are already perfectly consistent with each other. Only Enrichment needs updating.
 
-## Proposed Animations
+## Changes
 
-### 1. Animated Background (Gradient Orbs)
+### File: `src/pages/Enrichment.tsx`
 
-Add a subtle version of the GradientOrbs background used on the homepage to create visual continuity and depth.
+Update all section containers to match the standard used by the other three pages:
 
-| Element | Animation | Purpose |
-|---------|-----------|---------|
-| Gradient orbs | Slow breathing/morphing | Creates ambient movement without distraction |
-| Subtle grid pattern | Static with fade | Adds tech/data aesthetic |
-| Vignette overlay | Static | Focuses attention on center content |
+1. **Hero section (line 81)**: `max-w-6xl` to `max-w-7xl`
+2. **Overview section (line 115)**: `max-w-6xl` to `max-w-7xl`
+3. **Demo section (line 134)**: `py-6` to `py-12`
+4. **Demo container (line 135)**: `max-w-6xl` to `max-w-7xl`
+5. **Features section (line 152)**: `py-6` to `py-12`
+6. **Features container (line 153)**: `max-w-6xl` to `max-w-7xl`
+7. **Use Cases section (line 187)**: `py-6` to `py-12`
+8. **Use Cases container (line 188)**: `max-w-6xl` to `max-w-7xl`
+9. **Benefits section (line 222)**: `py-6` to `py-12`
+10. **Benefits container (line 223)**: `max-w-6xl` to `max-w-7xl`
+11. **CTA section (line 242)**: `py-10` to `py-16`
+12. **CTA container (line 244)**: `max-w-6xl` to `max-w-7xl`
 
-### 2. Header Entrance Animations
-
-Staggered fade-up animations for the page title and subtitle:
-
-| Element | Animation | Delay |
-|---------|-----------|-------|
-| "What We Do" heading | fade-float + scale-up | 0.1s |
-| Subtitle paragraph | fade-float | 0.3s |
-
-### 3. Capability Card Animations
-
-Staggered entrance with enhanced hover states:
-
-| Element | Animation | Details |
-|---------|-----------|---------|
-| Card entrance | fade-float + slide-up | Staggered by index (0.1s increments) |
-| Icon container | pulse-glow on hover | Subtle glow effect |
-| Icon | scale + rotate on hover | Micro-interaction |
-| Arrow | slide-right on hover | Already exists, enhance timing |
-| Card border | gradient shimmer on hover | Premium feel |
-
-### 4. Icon-Specific Animations
-
-Each icon gets a unique micro-animation on card hover:
-
-| Icon | Animation |
-|------|-----------|
-| Brain | Subtle pulse/throb |
-| Gift | Gentle bounce |
-| Users | Slight wave/shift |
-| Briefcase | Tilt effect |
-
-### 5. Scroll-Reveal for Cards
-
-Cards animate in as they enter viewport (optional enhancement using CSS intersection observer pattern or simple delay-based approach).
-
-## Implementation Approach
-
-### New Component: TechnologyBackground.tsx
-
-A simplified version of GradientOrbs optimized for the Technology page:
-- Darker, more subtle gradients
-- Slower animations
-- Lighter performance footprint
-
-### Updates to Technology.tsx
-
-```text
-Structure:
-┌────────────────────────────────────────────────────────────────┐
-│ [TechnologyBackground - animated gradient orbs, grid overlay] │
-│                                                                │
-│   ┌──────────────────────────────────────────────────────┐    │
-│   │  "What We Do"     animate-fade-float delay-100ms     │    │
-│   │   Subtitle        animate-fade-float delay-300ms     │    │
-│   └──────────────────────────────────────────────────────┘    │
-│                                                                │
-│   ┌────────────────┐  ┌────────────────┐                      │
-│   │  Card 1        │  │  Card 2        │  delay: 0.2s, 0.3s   │
-│   │  Icon: pulse   │  │  Icon: bounce  │                      │
-│   │  hover: glow   │  │  hover: glow   │                      │
-│   └────────────────┘  └────────────────┘                      │
-│   ┌────────────────┐  ┌────────────────┐                      │
-│   │  Card 3        │  │  Card 4        │  delay: 0.4s, 0.5s   │
-│   │  Icon: wave    │  │  Icon: tilt    │                      │
-│   └────────────────┘  └────────────────┘                      │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
-```
-
-## Tailwind Config Additions
-
-Add these new keyframes and animations:
-
-```typescript
-keyframes: {
-  'icon-pulse': {
-    '0%, 100%': { transform: 'scale(1)' },
-    '50%': { transform: 'scale(1.1)' }
-  },
-  'icon-bounce': {
-    '0%, 100%': { transform: 'translateY(0)' },
-    '50%': { transform: 'translateY(-4px)' }
-  },
-  'icon-tilt': {
-    '0%, 100%': { transform: 'rotate(0deg)' },
-    '50%': { transform: 'rotate(8deg)' }
-  },
-  'card-glow': {
-    '0%, 100%': { boxShadow: '0 0 0 rgba(59, 130, 246, 0)' },
-    '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)' }
-  }
-}
-```
-
-## Files to Create/Modify
-
-| File | Action | Changes |
-|------|--------|---------|
-| `src/components/technology/TechnologyBackground.tsx` | Create | Animated gradient background component |
-| `src/pages/Technology.tsx` | Modify | Add background, entrance animations, enhanced card hover states |
-| `tailwind.config.ts` | Modify | Add icon animation keyframes |
-
-## Card Animation Details
-
-Each card will have:
-
-1. **Entrance Animation**:
-   ```tsx
-   className="animate-fade-float"
-   style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'backwards' }}
-   ```
-
-2. **Hover State**:
-   ```tsx
-   className="group ... hover:shadow-xl hover:scale-[1.02] hover:border-primary/30"
-   ```
-
-3. **Icon Animation on Hover**:
-   ```tsx
-   <capability.icon className="... group-hover:scale-110 group-hover:text-primary transition-all" />
-   ```
-
-4. **Glow Effect on Icon Container**:
-   ```tsx
-   <div className="... group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] group-hover:bg-primary/20">
-   ```
-
-## Visual Preview
-
-```text
-Before:                          After:
-┌─────────────────┐              ┌─────────────────┐
-│ Static card     │              │ ✨ Animated BG  │
-│ Basic hover     │     →        │ 🎯 Staggered in │
-│ No depth        │              │ 💫 Hover glow   │
-│ Simple icons    │              │ 🔄 Icon animate │
-└─────────────────┘              └─────────────────┘
-```
-
-## Performance Considerations
-
-- Use `will-change` sparingly for animated elements
-- Background uses `mix-blend-mode` and `filter: blur()` efficiently
-- Animations use GPU-accelerated properties (transform, opacity)
-- `prefers-reduced-motion` media query respected
-
-## Benefits
-
-- Creates visual continuity with the Hero section
-- Premium, polished feel matches "smart AI" branding
-- Micro-interactions provide satisfying feedback
-- Staggered animations guide user attention
-- Maintains fast performance with CSS-only approach
+No changes needed for SmartRewards, Engagement, or Wealth -- they are already consistent.
 
