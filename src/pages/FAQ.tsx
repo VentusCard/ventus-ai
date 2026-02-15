@@ -40,7 +40,7 @@ const FAQ = () => {
     <div className="min-h-screen bg-background relative">
       <TechnologyBackground />
       <Navbar />
-      <main className="pt-20 pb-16 relative z-10">
+      <main className="pt-32 pb-16 relative z-10">
         <div className="max-w-3xl mx-auto px-4 md:px-8">
           <div className="text-center mb-12">
             <h1 
