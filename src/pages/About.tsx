@@ -8,7 +8,7 @@ const About = () => {
     <div className="min-h-screen bg-background relative">
       <TechnologyBackground />
       <Navbar />
-      <main className="pt-20 pb-16 relative z-10">
+      <main className="pt-32 pb-16 relative z-10">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           <h1 
             className="text-4xl md:text-5xl font-bold text-foreground mb-8 animate-fade-float"
