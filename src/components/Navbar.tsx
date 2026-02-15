@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-md">
       <div className="flex h-14 md:h-16 items-center justify-between px-4 md:px-8 max-w-7xl mx-auto">
         {/* Logo/Brand */}
         <div className="flex items-center flex-1 md:flex-initial">
@@ -30,7 +30,7 @@ const Navbar = () => {
         </div>
         
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-12">
           <Link 
             to="/about"
             className="text-white/90 hover:text-white font-medium text-sm transition-all duration-300 px-3 group"
