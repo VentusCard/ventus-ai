@@ -578,7 +578,7 @@ const TePilot = () => {
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Why Semantic AI is Different</span>
                     <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
-                      AI delivers accuracy legacy methods can't match
+                      Detecting cross-category patterns legacy methods miss
                     </span>
                   </div>
                 </AccordionTrigger>
@@ -587,44 +587,107 @@ const TePilot = () => {
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-slate-50">
-                          <TableHead className="font-semibold text-slate-900">Approach</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Example Transaction</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Categorization</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Result</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Raw Transaction</TableHead>
+                          <TableHead className="font-semibold text-slate-900">MCC</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Legacy Label</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Category</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Pattern</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
-                          <TableCell className="font-medium text-slate-900">MCC-Based</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
+                          <TableCell className="font-mono text-sm text-slate-700">REI Co-op #142</TableCell>
+                          <TableCell className="text-sm text-slate-600">5941</TableCell>
                           <TableCell>
                             <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
-                              Events
+                              Retail
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-600 text-sm">Too generic</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium text-slate-900">Text-Based</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
                           <TableCell>
-                            <Badge variant="destructive" className="bg-red-500/10 text-red-700 border-red-500/20">
-                              Furniture
+                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
+                              Sporting Goods
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-600 text-sm">Completely wrong</TableCell>
-                        </TableRow>
-                        <TableRow className="bg-green-500/5">
-                          <TableCell className="font-medium text-slate-900">Ventus AI (Semantic)</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
-                              Entertainment & Culture
+                              Outdoor Enthusiast
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-green-700 font-medium text-sm flex items-center gap-1">
-                            <CheckCircle className="h-4 w-4" />
-                            Accurate and insightful
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">Backcountry.com</TableCell>
+                          <TableCell className="text-sm text-slate-600">5999</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                              Miscellaneous
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
+                              Outdoor Gear
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">AllTrails Pro</TableCell>
+                          <TableCell className="text-sm text-slate-600">7372</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                              Digital Services
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
+                              Recreation App
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">Patagonia Denver</TableCell>
+                          <TableCell className="text-sm text-slate-600">5651</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                              Apparel
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
+                              Outdoor Apparel
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">RMNP Entry Fee</TableCell>
+                          <TableCell className="text-sm text-slate-600">7999</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                              Government/Fees
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
+                              National Park
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       </TableBody>
