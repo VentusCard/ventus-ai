@@ -5,6 +5,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
   /^https:\/\/.*\.lovable\.app$/,
   /^https:\/\/.*\.lovable\.dev$/,
+  /^https:\/\/.*\.lovableproject\.com$/,
   /^https:\/\/.*\.amplifyapp\.com$/,
   /^https:\/\/.*\.ventusai\.com$/,
 ];
