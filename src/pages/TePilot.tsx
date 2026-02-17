@@ -1042,6 +1042,7 @@ const TePilot = () => {
                 
                 {/* Reward Personalization Experience - Test deals with individual customers */}
                 <CollapsibleCard
+                  defaultExpanded={true}
                   title="Reward Personalization Experience"
                   description="Preview how bank-defined deals translate into personalized customer messaging"
                   icon={<Sparkles className="h-5 w-5 text-violet-500" />}
