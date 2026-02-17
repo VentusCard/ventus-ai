@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface CityDeal {
   id: string;
@@ -10,25 +11,57 @@ export interface CityDeal {
   merchantExample?: string;
 }
 
-/**
- * Hook for fetching city-based deals
- * Provides deals based on location and category
- */
-export const useCityDeals = (_city?: string, _category?: string) => {
-  const [deals] = useState<CityDeal[]>([]);
-  const [loading] = useState(false);
-  const [error] = useState<Error | null>(null);
+export const useCityDeals = (city?: string, category?: string) => {
+  const [deals, setDeals] = useState<CityDeal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  const refetch = async () => {
-    // Placeholder - would normally fetch from API
-  };
+  const fetchDeals = useCallback(async () => {
+    if (!city) {
+      setDeals([]);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("local-experiences", {
+        body: { city, category: category || "dining" },
+      });
+
+      if (fnError) throw fnError;
+
+      const rawDeals = data?.deals || [];
+      const mapped: CityDeal[] = rawDeals.map((d: any, i: number) => ({
+        id: `${city}-${category}-${i}`,
+        name: d.merchantExample || "Local venue",
+        description: d.type || "Local deal",
+        category: category || "dining",
+        type: d.type,
+        merchantExample: d.merchantExample,
+      }));
+
+      setDeals(mapped);
+    } catch (err) {
+      console.error("[useCityDeals] Error:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      setDeals([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [city, category]);
+
+  useEffect(() => {
+    fetchDeals();
+  }, [fetchDeals]);
 
   return {
     deals,
     loading,
     isLoading: loading,
     error,
-    refetch,
+    refetch: fetchDeals,
   };
 };
 
