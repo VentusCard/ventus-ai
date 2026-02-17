@@ -493,7 +493,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
     clearSearch,
     matchingDealIds,
     searchReasoning,
-  } = useSemanticDealSearch(dealsForSearch);
+  } = useSemanticDealSearch();
 
   // Filter deals based on semantic search results
   const filteredDealsByCategory = useMemo(() => {

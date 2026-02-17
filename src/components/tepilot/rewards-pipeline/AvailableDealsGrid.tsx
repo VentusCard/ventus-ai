@@ -22,7 +22,7 @@ export function AvailableDealsGrid() {
 
   const categories = getDealCategories();
 
-  // Get all deals for semantic search context
+  // Get all deals for filtering semantic results
   const allDeals = useMemo(() => getAvailableDeals({ category: "All", search: "", sortBy }), [sortBy]);
 
   const {
@@ -32,7 +32,7 @@ export function AvailableDealsGrid() {
     clearSearch,
     matchingDealIds,
     searchReasoning,
-  } = useSemanticDealSearch(allDeals);
+  } = useSemanticDealSearch();
 
   const isSemanticActive = searchQuery.length >= 2 && matchingDealIds.length > 0;
 

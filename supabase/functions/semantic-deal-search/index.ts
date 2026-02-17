@@ -5,19 +5,233 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-interface Deal {
-  id: string;
-  merchantName: string;
-  category: string;
-  subcategory: string;
-  dealTitle: string;
-  rewardValue: string;
-}
-
-interface SearchRequest {
-  query: string;
-  deals: Deal[];
-}
+// Compact deal catalog embedded server-side — client only sends query
+const DEAL_CATALOG: Record<string, { id: string; merchant: string; sub: string }[]> = {
+  'Food & Dining': [
+    { id: 'deal-1', merchant: 'Starbucks', sub: 'Coffee & Cafes' },
+    { id: 'deal-2', merchant: 'Chipotle', sub: 'Fast Casual' },
+    { id: 'deal-3', merchant: 'DoorDash', sub: 'Delivery' },
+    { id: 'deal-4', merchant: 'Uber Eats', sub: 'Delivery' },
+    { id: 'deal-5', merchant: "McDonald's", sub: 'Fast Food' },
+    { id: 'deal-6', merchant: 'Panera Bread', sub: 'Fast Casual' },
+    { id: 'deal-7', merchant: 'Chick-fil-A', sub: 'Fast Food' },
+    { id: 'deal-8', merchant: "Dunkin'", sub: 'Coffee & Cafes' },
+    { id: 'deal-9', merchant: 'Subway', sub: 'Fast Food' },
+    { id: 'deal-10', merchant: 'Grubhub', sub: 'Delivery' },
+    { id: 'deal-11', merchant: 'Olive Garden', sub: 'Casual Dining' },
+    { id: 'deal-12', merchant: 'Applebees', sub: 'Casual Dining' },
+    { id: 'deal-13', merchant: 'Buffalo Wild Wings', sub: 'Sports Bar' },
+    { id: 'deal-14', merchant: 'Taco Bell', sub: 'Fast Food' },
+    { id: 'deal-15', merchant: "Wendy's", sub: 'Fast Food' },
+    { id: 'deal-16', merchant: 'Dominos', sub: 'Pizza' },
+    { id: 'deal-17', merchant: 'Pizza Hut', sub: 'Pizza' },
+    { id: 'deal-18', merchant: 'Sweetgreen', sub: 'Healthy Fast Casual' },
+    { id: 'deal-19', merchant: 'Shake Shack', sub: 'Fast Casual' },
+    { id: 'deal-20', merchant: 'Noodles & Company', sub: 'Fast Casual' },
+    { id: 'deal-21', merchant: 'Five Guys', sub: 'Fast Casual' },
+    { id: 'deal-22', merchant: 'Instacart', sub: 'Grocery Delivery' },
+    { id: 'deal-23', merchant: 'Whole Foods', sub: 'Grocery' },
+    { id: 'deal-24', merchant: 'Trader Joes', sub: 'Grocery' },
+    { id: 'deal-25', merchant: 'HelloFresh', sub: 'Meal Kits' },
+  ],
+  'Travel & Exploration': [
+    { id: 'deal-26', merchant: 'Delta Airlines', sub: 'Airlines' },
+    { id: 'deal-27', merchant: 'United Airlines', sub: 'Airlines' },
+    { id: 'deal-28', merchant: 'American Airlines', sub: 'Airlines' },
+    { id: 'deal-29', merchant: 'Southwest Airlines', sub: 'Airlines' },
+    { id: 'deal-30', merchant: 'Marriott', sub: 'Hotels' },
+    { id: 'deal-31', merchant: 'Hilton', sub: 'Hotels' },
+    { id: 'deal-32', merchant: 'Hyatt', sub: 'Hotels' },
+    { id: 'deal-33', merchant: 'Airbnb', sub: 'Vacation Rentals' },
+    { id: 'deal-34', merchant: 'VRBO', sub: 'Vacation Rentals' },
+    { id: 'deal-35', merchant: 'Hertz', sub: 'Car Rental' },
+    { id: 'deal-36', merchant: 'Enterprise', sub: 'Car Rental' },
+    { id: 'deal-37', merchant: 'Expedia', sub: 'Travel Booking' },
+    { id: 'deal-38', merchant: 'Booking.com', sub: 'Travel Booking' },
+    { id: 'deal-39', merchant: 'Kayak', sub: 'Travel Booking' },
+    { id: 'deal-40', merchant: 'Uber', sub: 'Rideshare' },
+    { id: 'deal-41', merchant: 'Lyft', sub: 'Rideshare' },
+    { id: 'deal-42', merchant: 'Carnival Cruise', sub: 'Cruises' },
+    { id: 'deal-43', merchant: 'Royal Caribbean', sub: 'Cruises' },
+    { id: 'deal-44', merchant: 'TSA PreCheck', sub: 'Travel Services' },
+    { id: 'deal-45', merchant: 'Global Entry', sub: 'Travel Services' },
+  ],
+  'Style & Beauty': [
+    { id: 'deal-46', merchant: 'Sephora', sub: 'Beauty' },
+    { id: 'deal-47', merchant: 'ULTA', sub: 'Beauty' },
+    { id: 'deal-48', merchant: 'Nordstrom', sub: 'Department Store' },
+    { id: 'deal-49', merchant: 'Nike', sub: 'Athletic Wear' },
+    { id: 'deal-50', merchant: 'Lululemon', sub: 'Athletic Wear' },
+    { id: 'deal-51', merchant: 'H&M', sub: 'Fast Fashion' },
+    { id: 'deal-52', merchant: 'Zara', sub: 'Fast Fashion' },
+    { id: 'deal-53', merchant: 'Foot Locker', sub: 'Footwear' },
+    { id: 'deal-54', merchant: 'Adidas', sub: 'Athletic Wear' },
+    { id: 'deal-55', merchant: 'Gap', sub: 'Casual Wear' },
+    { id: 'deal-56', merchant: 'Old Navy', sub: 'Family Fashion' },
+    { id: 'deal-57', merchant: 'Macys', sub: 'Department Store' },
+    { id: 'deal-58', merchant: 'Bloomingdales', sub: 'Department Store' },
+    { id: 'deal-59', merchant: 'Anthropologie', sub: 'Lifestyle' },
+    { id: 'deal-60', merchant: 'Urban Outfitters', sub: 'Lifestyle' },
+    { id: 'deal-61', merchant: 'Glossier', sub: 'Beauty' },
+    { id: 'deal-62', merchant: 'Warby Parker', sub: 'Eyewear' },
+    { id: 'deal-63', merchant: 'Ray-Ban', sub: 'Eyewear' },
+  ],
+  'Home & Living': [
+    { id: 'deal-64', merchant: 'Home Depot', sub: 'Home Improvement' },
+    { id: 'deal-65', merchant: 'Lowes', sub: 'Home Improvement' },
+    { id: 'deal-66', merchant: 'Wayfair', sub: 'Furniture' },
+    { id: 'deal-67', merchant: 'IKEA', sub: 'Furniture' },
+    { id: 'deal-68', merchant: 'Bed Bath & Beyond', sub: 'Home Goods' },
+    { id: 'deal-69', merchant: 'Williams-Sonoma', sub: 'Kitchen' },
+    { id: 'deal-70', merchant: 'Crate & Barrel', sub: 'Furniture' },
+    { id: 'deal-71', merchant: 'West Elm', sub: 'Furniture' },
+    { id: 'deal-72', merchant: 'Pottery Barn', sub: 'Furniture' },
+    { id: 'deal-73', merchant: 'Restoration Hardware', sub: 'Luxury Home' },
+    { id: 'deal-74', merchant: 'Overstock', sub: 'Home Goods' },
+    { id: 'deal-75', merchant: 'Ace Hardware', sub: 'Hardware' },
+    { id: 'deal-76', merchant: 'Sherwin-Williams', sub: 'Paint' },
+    { id: 'deal-77', merchant: 'Casper', sub: 'Mattress' },
+    { id: 'deal-78', merchant: 'Purple', sub: 'Mattress' },
+    { id: 'deal-79', merchant: 'Dyson', sub: 'Home Appliances' },
+  ],
+  'Entertainment & Culture': [
+    { id: 'deal-80', merchant: 'Spotify', sub: 'Music Streaming' },
+    { id: 'deal-81', merchant: 'Netflix', sub: 'Video Streaming' },
+    { id: 'deal-82', merchant: 'Disney+', sub: 'Video Streaming' },
+    { id: 'deal-83', merchant: 'Hulu', sub: 'Video Streaming' },
+    { id: 'deal-84', merchant: 'HBO Max', sub: 'Video Streaming' },
+    { id: 'deal-85', merchant: 'AMC Theatres', sub: 'Movie Theaters' },
+    { id: 'deal-86', merchant: 'Regal Cinemas', sub: 'Movie Theaters' },
+    { id: 'deal-87', merchant: 'Ticketmaster', sub: 'Events' },
+    { id: 'deal-88', merchant: 'StubHub', sub: 'Events' },
+    { id: 'deal-89', merchant: 'Audible', sub: 'Audiobooks' },
+    { id: 'deal-90', merchant: 'Apple Music', sub: 'Music Streaming' },
+    { id: 'deal-91', merchant: 'YouTube Premium', sub: 'Video Streaming' },
+    { id: 'deal-92', merchant: 'Barnes & Noble', sub: 'Books' },
+    { id: 'deal-93', merchant: 'GameStop', sub: 'Gaming' },
+    { id: 'deal-94', merchant: 'PlayStation Store', sub: 'Gaming' },
+    { id: 'deal-95', merchant: 'Xbox Store', sub: 'Gaming' },
+  ],
+  'Health & Wellness': [
+    { id: 'deal-96', merchant: 'Equinox', sub: 'Gym' },
+    { id: 'deal-97', merchant: 'Planet Fitness', sub: 'Gym' },
+    { id: 'deal-98', merchant: 'CVS', sub: 'Pharmacy' },
+    { id: 'deal-99', merchant: 'Walgreens', sub: 'Pharmacy' },
+    { id: 'deal-100', merchant: 'Peloton', sub: 'Fitness Equipment' },
+    { id: 'deal-101', merchant: 'GNC', sub: 'Supplements' },
+    { id: 'deal-102', merchant: 'Vitamin Shoppe', sub: 'Supplements' },
+    { id: 'deal-103', merchant: 'Orangetheory', sub: 'Fitness Classes' },
+    { id: 'deal-104', merchant: 'SoulCycle', sub: 'Fitness Classes' },
+    { id: 'deal-105', merchant: 'Calm', sub: 'Mental Wellness' },
+    { id: 'deal-106', merchant: 'Headspace', sub: 'Mental Wellness' },
+    { id: 'deal-107', merchant: 'Massage Envy', sub: 'Spa' },
+    { id: 'deal-108', merchant: 'Rite Aid', sub: 'Pharmacy' },
+    { id: 'deal-109', merchant: '1-800 Contacts', sub: 'Vision' },
+    { id: 'deal-110', merchant: 'Noom', sub: 'Weight Loss' },
+    { id: 'deal-111', merchant: 'ClassPass', sub: 'Fitness Classes' },
+    { id: 'deal-112', merchant: 'Fitbit', sub: 'Wearables' },
+    { id: 'deal-113', merchant: 'Whoop', sub: 'Wearables' },
+  ],
+  'Sports & Active Living': [
+    { id: 'deal-114', merchant: "Dick's Sporting Goods", sub: 'Sporting Goods' },
+    { id: 'deal-115', merchant: 'REI', sub: 'Outdoor Gear' },
+    { id: 'deal-116', merchant: 'Golf Galaxy', sub: 'Golf' },
+    { id: 'deal-117', merchant: 'Callaway Golf', sub: 'Golf' },
+    { id: 'deal-118', merchant: 'TaylorMade', sub: 'Golf' },
+    { id: 'deal-119', merchant: 'Academy Sports', sub: 'Sporting Goods' },
+    { id: 'deal-120', merchant: 'Fanatics', sub: 'Sports Apparel' },
+    { id: 'deal-121', merchant: 'NFL Shop', sub: 'Sports Apparel' },
+    { id: 'deal-122', merchant: 'NBA Store', sub: 'Sports Apparel' },
+    { id: 'deal-123', merchant: 'MLB Shop', sub: 'Sports Apparel' },
+    { id: 'deal-124', merchant: 'Patagonia', sub: 'Outdoor Apparel' },
+    { id: 'deal-125', merchant: 'The North Face', sub: 'Outdoor Apparel' },
+    { id: 'deal-126', merchant: 'Columbia Sportswear', sub: 'Outdoor Apparel' },
+    { id: 'deal-127', merchant: 'Under Armour', sub: 'Athletic Wear' },
+    { id: 'deal-128', merchant: 'Yeti', sub: 'Outdoor Gear' },
+    { id: 'deal-129', merchant: 'Backcountry', sub: 'Outdoor Gear' },
+    { id: 'deal-130', merchant: 'Scheels', sub: 'Sporting Goods' },
+    { id: 'deal-131', merchant: 'Bass Pro Shops', sub: 'Outdoor Gear' },
+  ],
+  'Technology & Digital Life': [
+    { id: 'deal-132', merchant: 'Apple', sub: 'Electronics' },
+    { id: 'deal-133', merchant: 'Best Buy', sub: 'Electronics' },
+    { id: 'deal-134', merchant: 'Amazon', sub: 'E-commerce' },
+    { id: 'deal-135', merchant: 'Samsung', sub: 'Electronics' },
+    { id: 'deal-136', merchant: 'Microsoft', sub: 'Software' },
+    { id: 'deal-137', merchant: 'Dell', sub: 'Computers' },
+    { id: 'deal-138', merchant: 'HP', sub: 'Computers' },
+    { id: 'deal-139', merchant: 'Bose', sub: 'Audio' },
+    { id: 'deal-140', merchant: 'Sonos', sub: 'Audio' },
+    { id: 'deal-141', merchant: 'Sony', sub: 'Electronics' },
+    { id: 'deal-142', merchant: 'Logitech', sub: 'Accessories' },
+    { id: 'deal-143', merchant: 'B&H Photo', sub: 'Photography' },
+    { id: 'deal-144', merchant: 'Newegg', sub: 'Computer Parts' },
+    { id: 'deal-145', merchant: 'Adobe', sub: 'Software' },
+    { id: 'deal-146', merchant: 'Dropbox', sub: 'Cloud Storage' },
+    { id: 'deal-147', merchant: 'AT&T', sub: 'Telecom' },
+    { id: 'deal-148', merchant: 'Verizon', sub: 'Telecom' },
+    { id: 'deal-149', merchant: 'T-Mobile', sub: 'Telecom' },
+  ],
+  'Family & Community': [
+    { id: 'deal-150', merchant: 'Target', sub: 'Department Store' },
+    { id: 'deal-151', merchant: 'Walmart', sub: 'Department Store' },
+    { id: 'deal-152', merchant: 'Costco', sub: 'Warehouse' },
+    { id: 'deal-153', merchant: "Sam's Club", sub: 'Warehouse' },
+    { id: 'deal-154', merchant: 'BuyBuy Baby', sub: 'Baby' },
+    { id: 'deal-155', merchant: "Carter's", sub: 'Kids Clothing' },
+    { id: 'deal-156', merchant: 'Gap Kids', sub: 'Kids Clothing' },
+    { id: 'deal-157', merchant: 'The Childrens Place', sub: 'Kids Clothing' },
+    { id: 'deal-158', merchant: 'LEGO', sub: 'Toys' },
+    { id: 'deal-159', merchant: 'Disney Store', sub: 'Entertainment' },
+    { id: 'deal-160', merchant: 'Build-A-Bear', sub: 'Toys' },
+    { id: 'deal-161', merchant: 'Pottery Barn Kids', sub: 'Kids Home' },
+    { id: 'deal-162', merchant: 'American Girl', sub: 'Toys' },
+    { id: 'deal-163', merchant: 'Party City', sub: 'Party Supplies' },
+    { id: 'deal-164', merchant: 'Hallmark', sub: 'Cards & Gifts' },
+    { id: 'deal-165', merchant: '1-800-Flowers', sub: 'Flowers' },
+  ],
+  'Pets': [
+    { id: 'deal-166', merchant: 'Chewy', sub: 'Pet Supplies' },
+    { id: 'deal-167', merchant: 'PetSmart', sub: 'Pet Supplies' },
+    { id: 'deal-168', merchant: 'Petco', sub: 'Pet Supplies' },
+    { id: 'deal-169', merchant: 'BarkBox', sub: 'Pet Subscription' },
+    { id: 'deal-170', merchant: 'Rover', sub: 'Pet Services' },
+    { id: 'deal-171', merchant: 'Wag', sub: 'Pet Services' },
+    { id: 'deal-172', merchant: 'Wisdom Panel', sub: 'Pet Health' },
+    { id: 'deal-173', merchant: 'Embark', sub: 'Pet Health' },
+    { id: 'deal-174', merchant: 'Furbo', sub: 'Pet Tech' },
+    { id: 'deal-175', merchant: 'Fi Collar', sub: 'Pet Tech' },
+    { id: 'deal-176', merchant: 'Nom Nom', sub: 'Pet Food' },
+    { id: 'deal-177', merchant: "The Farmer's Dog", sub: 'Pet Food' },
+    { id: 'deal-178', merchant: 'Petplan', sub: 'Pet Insurance' },
+    { id: 'deal-179', merchant: 'Healthy Paws', sub: 'Pet Insurance' },
+    { id: 'deal-180', merchant: 'Wild One', sub: 'Pet Accessories' },
+  ],
+  'Financial & Aspirational': [
+    { id: 'deal-181', merchant: 'TurboTax', sub: 'Tax Services' },
+    { id: 'deal-182', merchant: 'H&R Block', sub: 'Tax Services' },
+    { id: 'deal-183', merchant: 'Credit Karma', sub: 'Credit Services' },
+    { id: 'deal-184', merchant: 'Personal Capital', sub: 'Wealth Management' },
+    { id: 'deal-185', merchant: 'Mint', sub: 'Budgeting' },
+    { id: 'deal-186', merchant: 'Acorns', sub: 'Investing' },
+    { id: 'deal-187', merchant: 'Robinhood', sub: 'Investing' },
+    { id: 'deal-188', merchant: 'Wealthfront', sub: 'Investing' },
+    { id: 'deal-189', merchant: 'LegalZoom', sub: 'Legal Services' },
+    { id: 'deal-190', merchant: 'LifeLock', sub: 'Identity Protection' },
+  ],
+  'Automotive': [
+    { id: 'deal-191', merchant: 'Shell', sub: 'Gas Stations' },
+    { id: 'deal-192', merchant: 'Exxon Mobil', sub: 'Gas Stations' },
+    { id: 'deal-193', merchant: 'BP', sub: 'Gas Stations' },
+    { id: 'deal-194', merchant: 'Chevron', sub: 'Gas Stations' },
+    { id: 'deal-195', merchant: 'AutoZone', sub: 'Auto Parts' },
+    { id: 'deal-196', merchant: "O'Reilly Auto Parts", sub: 'Auto Parts' },
+    { id: 'deal-197', merchant: 'Advance Auto Parts', sub: 'Auto Parts' },
+    { id: 'deal-198', merchant: 'Jiffy Lube', sub: 'Auto Service' },
+    { id: 'deal-199', merchant: 'Firestone', sub: 'Tires' },
+    { id: 'deal-200', merchant: 'Discount Tire', sub: 'Tires' },
+  ],
+};
 
 interface SearchResult {
   matchingDealIds: string[];
@@ -30,7 +244,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, deals } = await req.json() as SearchRequest;
+    const { query } = await req.json() as { query: string };
 
     if (!query || query.length < 2) {
       return new Response(JSON.stringify({ matchingDealIds: [], reasoning: 'Query too short' }), {
@@ -43,44 +257,15 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const dealSummary = deals.reduce((acc, deal) => {
-      if (!acc[deal.category]) {
-        acc[deal.category] = [];
-      }
-      acc[deal.category].push({
-        id: deal.id,
-        merchant: deal.merchantName,
-        subcategory: deal.subcategory,
-        title: deal.dealTitle,
-      });
-      return acc;
-    }, {} as Record<string, Array<{ id: string; merchant: string; subcategory: string; title: string }>>);
+    const catalogPrompt = Object.entries(DEAL_CATALOG).map(([cat, deals]) =>
+      `${cat}:\n${deals.map(d => `  - ${d.id} | ${d.merchant} (${d.sub})`).join('\n')}`
+    ).join('\n\n');
 
-    const systemPrompt = `You are a semantic search assistant for a deal matching system. Given a user's search query, identify which deals from the library are semantically relevant.
+    const systemPrompt = `You are a semantic deal search assistant. Given a query, return matching deal IDs.
+Think about intent: "coffee" → cafes, "gym" → fitness, "vacation" → travel, "pizza" → pizza places, "phone" → tech stores.
+Match by: merchant name, category, or what the merchant sells. Quality over quantity.`;
 
-Think about what the user is looking for:
-- "t-shirt" → apparel stores like Nike, Gap, H&M, Nordstrom, Adidas, Old Navy, etc.
-- "coffee" → coffee shops like Starbucks, Dunkin', Panera, etc.
-- "gym" or "workout" → fitness stores like Nike, Lululemon, Dick's Sporting Goods, Peloton, etc.
-- "vacation" → travel services like airlines, hotels, Airbnb, car rentals, etc.
-- "pizza" → pizza places like Domino's, Pizza Hut, or delivery services
-- "phone" or "tech" → technology stores like Apple, Best Buy, Samsung, etc.
-
-Consider:
-1. Direct matches (merchant name contains search term)
-2. Category matches (search term relates to the product category)
-3. Semantic matches (search term implies products the merchant sells)
-
-Return ONLY deal IDs that are genuinely relevant. Quality over quantity.`;
-
-    const userPrompt = `Search Query: "${query}"
-
-Available Deals by Category:
-${Object.entries(dealSummary).map(([category, categoryDeals]) => 
-  `${category}:\n${categoryDeals.map(d => `  - ID: ${d.id} | ${d.merchant} (${d.subcategory}) - ${d.title}`).join('\n')}`
-).join('\n\n')}
-
-Identify deals that match the search query "${query}". Consider what products/services the user is looking for and which merchants would offer them.`;
+    const userPrompt = `Query: "${query}"\n\nDeals:\n${catalogPrompt}\n\nReturn matching deal IDs for "${query}".`;
 
     console.log(`Semantic search for query: "${query}"`);
 
@@ -91,7 +276,7 @@ Identify deals that match the search query "${query}". Consider what products/se
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -101,18 +286,18 @@ Identify deals that match the search query "${query}". Consider what products/se
             type: 'function',
             function: {
               name: 'return_matching_deals',
-              description: 'Return the list of deal IDs that match the search query semantically',
+              description: 'Return matching deal IDs',
               parameters: {
                 type: 'object',
                 properties: {
                   matchingDealIds: {
                     type: 'array',
                     items: { type: 'string' },
-                    description: 'Array of deal IDs that match the search query'
+                    description: 'Array of matching deal IDs'
                   },
                   reasoning: {
                     type: 'string',
-                    description: 'Brief explanation of why these deals match'
+                    description: 'Brief explanation'
                   }
                 },
                 required: ['matchingDealIds', 'reasoning'],
@@ -144,12 +329,11 @@ Identify deals that match the search query "${query}". Consider what products/se
     }
 
     const data = await response.json();
-    console.log('AI response:', JSON.stringify(data, null, 2));
 
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
       const result: SearchResult = JSON.parse(toolCall.function.arguments);
-      console.log(`Found ${result.matchingDealIds.length} matching deals for "${query}": ${result.reasoning}`);
+      console.log(`Found ${result.matchingDealIds.length} matches for "${query}": ${result.reasoning}`);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

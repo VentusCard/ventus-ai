@@ -1,24 +1,16 @@
 import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Deal {
-  id: string;
-  merchantName: string;
-  category?: string;
-  subcategory?: string;
-  dealTitle?: string;
-  rewardValue?: string;
-}
-
-export const useSemanticDealSearch = (deals?: Deal[]) => {
+export const useSemanticDealSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [matchingDealIds, setMatchingDealIds] = useState<string[]>([]);
   const [searchReasoning, setSearchReasoning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const performSearch = useCallback(async (query: string, currentDeals: Deal[]) => {
+  const performSearch = useCallback(async (query: string) => {
     if (!query.trim() || query.length < 2) {
       setMatchingDealIds([]);
       setSearchReasoning(null);
@@ -26,25 +18,36 @@ export const useSemanticDealSearch = (deals?: Deal[]) => {
       return;
     }
 
+    // Cancel any in-flight request
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setIsSearching(true);
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("semantic-deal-search", {
-        body: {
-          query,
-          deals: currentDeals.map(d => ({
-            id: d.id,
-            merchantName: d.merchantName,
-            category: d.category ?? "",
-            subcategory: d.subcategory ?? "",
-            dealTitle: d.dealTitle ?? "",
-            rewardValue: d.rewardValue ?? "",
-          })),
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/semantic-deal-search`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ query }),
+          signal: controller.signal,
+        }
+      );
 
-      if (fnError) throw fnError;
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Search failed (${response.status})`);
+      }
+
+      const data = await response.json();
 
       if (data?.error) {
         setError(data.error);
@@ -54,22 +57,16 @@ export const useSemanticDealSearch = (deals?: Deal[]) => {
         setMatchingDealIds(data?.matchingDealIds ?? []);
         setSearchReasoning(data?.reasoning ?? null);
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e.name === "AbortError") return; // Cancelled — ignore
       console.error("Semantic search error:", e);
       setError(e instanceof Error ? e.message : "Search failed");
-      // Fallback to local keyword search
-      const lowerQuery = query.toLowerCase();
-      const matches = currentDeals
-        .filter(d =>
-          d.merchantName?.toLowerCase().includes(lowerQuery) ||
-          d.category?.toLowerCase().includes(lowerQuery) ||
-          d.dealTitle?.toLowerCase().includes(lowerQuery)
-        )
-        .map(d => d.id);
-      setMatchingDealIds(matches);
-      setSearchReasoning(matches.length > 0 ? `Keyword fallback: ${matches.length} matches` : null);
+      setMatchingDealIds([]);
+      setSearchReasoning(null);
     } finally {
-      setIsSearching(false);
+      if (!controller.signal.aborted) {
+        setIsSearching(false);
+      }
     }
   }, []);
 
@@ -79,6 +76,7 @@ export const useSemanticDealSearch = (deals?: Deal[]) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (!query.trim()) {
+      if (abortRef.current) abortRef.current.abort();
       setMatchingDealIds([]);
       setSearchReasoning(null);
       setIsSearching(false);
@@ -87,9 +85,9 @@ export const useSemanticDealSearch = (deals?: Deal[]) => {
 
     setIsSearching(true);
     debounceRef.current = setTimeout(() => {
-      if (deals) performSearch(query, deals);
-    }, 500);
-  }, [deals, performSearch]);
+      performSearch(query);
+    }, 700);
+  }, [performSearch]);
 
   const clearSearch = useCallback(() => {
     setSearchQuery("");
@@ -97,6 +95,7 @@ export const useSemanticDealSearch = (deals?: Deal[]) => {
     setSearchReasoning(null);
     setError(null);
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortRef.current) abortRef.current.abort();
   }, []);
 
   return {
