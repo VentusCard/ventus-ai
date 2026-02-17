@@ -1,36 +1,42 @@
 
 
-# Shorten Action Items in the Next Steps Panel
+# Update "Why Semantic AI is Different" -- Single Table with Ventus AI Cross-Category Columns
 
-## Problem
-The action items that appear in the "Next Steps" panel are too verbose, making the sidebar feel dense and hard to scan. This affects items from two sources:
-- AI-generated items (from chat responses via the `advisor-chat` backend function)
-- Hardcoded items (from the Financial Planner's "Generate Timeline" feature)
+## What Changes
 
-## Changes
+Replace the current 3-row comparison table (MCC vs Text vs Ventus for one transaction) with a single table showing **multiple diverse transactions**, where each row has:
+- Raw transaction string
+- MCC code
+- Legacy label (generic, isolated)
+- **Ventus AI Category** (accurate individual label)
+- **Ventus AI Pattern** (the cross-category lifestyle signal detected across rows)
 
-### 1. Update AI Prompt (`supabase/functions/advisor-chat/index.ts`)
-Add an explicit length constraint to the action item formatting rules:
-- Each checkbox item must be **10 words or fewer**
-- Lead with a verb (e.g., "Review", "Schedule", "Discuss")
-- Update the example in the prompt to show shorter items:
-  - Before: `"- [ ] Discuss premium travel rewards card upgrade"`
-  - After: `"- [ ] Discuss premium travel card upgrade"`
-  - Before: `"- [ ] Review current credit card benefits vs spending patterns"`
-  - After: `"- [ ] Review card benefits vs spending"`
+This highlights Ventus AI's dual value: accurate per-transaction labeling AND cross-category pattern detection.
 
-### 2. Shorten Hardcoded Financial Planner Items (`src/components/tepilot/advisor-console/FinancialPlanner.tsx`)
-Trim the `action` strings in `generateActionItems()`:
-- `"Max out tax-advantaged accounts - $X remaining capacity"` --> `"Max tax-advantaged accounts ($X remaining)"`
-- `"PRIORITY: Increase 401(k) contributions to capture full employer match"` --> `"Maximize 401(k) employer match"`
-- `"Build emergency fund to 6 months expenses, establish Roth conversion strategy"` --> `"Build 6-month emergency fund; plan Roth conversions"`
-- `"Review glide path, consider catch-up contributions (age 50+), optimize Social Security timing"` --> `"Review glide path; catch-up contributions"`
-- And similar for remaining items
+## New Table Design
 
-### 3. Add Truncation Safety Net (`src/components/tepilot/advisor-console/VentusChatPanel.tsx`)
-In `extractActionItemsFromMessage`, truncate any extracted item over 60 characters to 60 chars + "..." as a safety net for overly long AI responses.
+| Raw Transaction | MCC | Legacy Label | Ventus AI Category | Ventus AI Pattern |
+|----------------|-----|-------------|-------------------|-------------------|
+| REI Co-op #142 | 5941 | Retail | Sporting Goods | Outdoor Enthusiast |
+| Backcountry.com | 5999 | Miscellaneous | Outdoor Gear | Outdoor Enthusiast |
+| AllTrails Pro | 7372 | Digital Services | Recreation App | Outdoor Enthusiast |
+| Patagonia Denver | 5651 | Apparel | Outdoor Apparel | Outdoor Enthusiast |
+| RMNP Entry Fee | 7999 | Government/Fees | National Park | Outdoor Enthusiast |
 
-## Files
-- **Modify**: `supabase/functions/advisor-chat/index.ts` -- tighten action item word limit in prompt
-- **Modify**: `src/components/tepilot/advisor-console/FinancialPlanner.tsx` -- shorten hardcoded action strings
-- **Modify**: `src/components/tepilot/advisor-console/VentusChatPanel.tsx` -- add truncation safety net
+- The "Legacy Label" column uses muted/yellow badges showing generic, disconnected labels
+- The "Ventus AI Category" column uses blue/teal badges showing accurate granular labels
+- The "Ventus AI Pattern" column uses green badges -- all showing the same unified pattern, visually reinforcing that Ventus connects them
+
+## Subtitle Update
+
+Change from "AI delivers accuracy legacy methods can't match" to "Detecting cross-category patterns legacy methods miss"
+
+## Technical Details
+
+### File: `src/pages/TePilot.tsx` (lines 575-634)
+- Replace the content inside the `AccordionItem value="item-2"` block
+- Update the subtitle text on line 581
+- Replace the table structure (lines 586-631) with the new 5-column, 5-row table
+- Use existing `Table`, `TableHeader`, `TableRow`, `TableHead`, `TableBody`, `TableCell`, `Badge` components (all already imported)
+- No new dependencies needed
+
