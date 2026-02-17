@@ -1,51 +1,32 @@
 
 
-# Create `local-experiences` Edge Function and Wire Up `useCityDeals` Hook
+# Fix: Ensure Client Context Fully Overwrites When Switching from Dashboard
 
-## Overview
-The "Local Experiences" section in `DealActivationPreview` is fully built on the frontend (category tabs, loading states, deal rendering) but the `useCityDeals` hook is a placeholder that always returns empty deals. Two things are needed:
+## Problem
+When an advisor selects a client from the Life Events Dashboard (or clicks "Prepare with Ventus"), the system writes the new client's profile and events to `sessionStorage`. However, `AdvisorConsole` only reads `sessionStorage` once on mount (guarded by `isInitialized`). Since the component stays mounted when toggling between dashboard and client views, selecting a second client has no effect -- the first client's data remains displayed.
 
-1. Create the `local-experiences` edge function (from the code you shared)
-2. Wire up `useCityDeals` to actually call it
+## Root Cause
+- `AdvisorConsolePage` keeps both `LifeEventsAlertDashboard` and `AdvisorConsole` rendered, toggling visibility via `viewMode`
+- `AdvisorConsole` reads sessionStorage in a `useEffect` gated by `isInitialized` (line 92). Once true, it never re-reads
+- The parent writes new client data to sessionStorage but the child never picks it up
 
-## Changes
+## Solution
+Pass the selected client's profile and dashboard events directly as props from `AdvisorConsolePage` to `AdvisorConsole`, bypassing the stale sessionStorage read. Additionally, reset `isInitialized` when the selected client changes so the component picks up the new data.
 
-### 1. Create `supabase/functions/local-experiences/index.ts`
-Based on the code you shared, with one adjustment:
-- Add the full CORS `Access-Control-Allow-Headers` to include `x-supabase-client-platform` and related headers (project standard)
+### Changes
 
-Everything else stays as-is: `google/gemini-2.5-flash` model, category-based prompts, graceful fallbacks on parse errors or API failures.
+**1. `src/pages/AdvisorConsolePage.tsx`**
+- Pass `selectedClientProfile` and `selectedDashboardEvents` as new props to `AdvisorConsole`
+- Derive these from `selectedClientId` + `dashboardClients` lookup
 
-### 2. Add to `supabase/config.toml`
-```
-[functions.local-experiences]
-verify_jwt = false
-```
+**2. `src/components/tepilot/advisor-console/AdvisorConsole.tsx`**
+- Add `selectedClientProfile?: ClientProfileData` and `selectedDashboardEvents?: DetectedLifeEvent[]` to the props interface
+- When these props change (new client selected), directly apply them: set `clientProfile`, `dashboardEvents`, generate new psychological insights, clear stale action items, and persist to sessionStorage
+- This replaces the indirect "write to sessionStorage, hope the child re-reads" pattern with direct React prop flow
 
-### 3. Rewrite `src/hooks/useCityDeals.ts`
-Replace the placeholder with a real implementation that:
-- Calls `supabase.functions.invoke("local-experiences", { body: { city, category } })`
-- Triggers on city or category change (via `useEffect`)
-- Maps the response `deals` array into `CityDeal[]` objects (adding `id`, `name`, `description`, `category` from the `type` and `merchantExample` fields)
-- Sets `loading` state properly
-- Skips the call if city is null/empty
-
-### No changes needed in `DealActivationPreview.tsx`
-The component already:
-- Passes `locationCity` and `localCategory` to `useCityDeals()`
-- Renders `locationDeals` with loading/empty states
-- Has category tab switching that updates `localCategory`
-
-## Request/Response Contract
-
-```text
-POST /local-experiences
-
-Request:  { city: string, category: string }
-Response: { deals: [{ type: string, merchantExample: string }] }
-```
+### Why Not Just Reset `isInitialized`?
+Resetting `isInitialized` alone would re-trigger the mount effect, but it would also re-read potentially stale sessionStorage from other sources. Direct prop passing is the idiomatic React approach and guarantees the correct client data is used.
 
 ## Files
-- **Create**: `supabase/functions/local-experiences/index.ts`
-- **Modify**: `supabase/config.toml` (add function entry)
-- **Modify**: `src/hooks/useCityDeals.ts` (replace placeholder with real API call)
+- **Modify**: `src/pages/AdvisorConsolePage.tsx` -- pass client profile and events as props
+- **Modify**: `src/components/tepilot/advisor-console/AdvisorConsole.tsx` -- accept and react to new client props
