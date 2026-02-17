@@ -23,6 +23,8 @@ interface AdvisorConsoleProps {
   onBackToDashboard?: () => void;
   initialPendingMessage?: string | null;
   onPendingMessageConsumed?: () => void;
+  selectedClientProfile?: ClientProfileData;
+  selectedDashboardEvents?: DetectedLifeEvent[];
 }
 
 export function AdvisorConsole({ 
@@ -32,7 +34,9 @@ export function AdvisorConsole({
   advisorContext,
   onBackToDashboard,
   initialPendingMessage,
-  onPendingMessageConsumed
+  onPendingMessageConsumed,
+  selectedClientProfile,
+  selectedDashboardEvents
 }: AdvisorConsoleProps) {
   const { toast } = useToast();
   const [selectedLifestyleChip, setSelectedLifestyleChip] = useState<string | null>(null);
@@ -52,6 +56,30 @@ export function AdvisorConsole({
   const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
   const [pendingTimelineEvent, setPendingTimelineEvent] = useState<LifeEvent | null>(null);
   const [openTimelineTrigger, setOpenTimelineTrigger] = useState(false);
+
+  // When parent passes a new client via props, overwrite all client state
+  useEffect(() => {
+    if (!selectedClientProfile) return;
+    
+    const newPsych = generateRandomPsychologicalInsights();
+    
+    setClientProfile(selectedClientProfile);
+    setDashboardEvents(selectedDashboardEvents || null);
+    setNextStepsData({
+      actionItems: [],
+      psychologicalInsights: newPsych,
+      lastUpdated: new Date()
+    });
+    
+    // Persist to sessionStorage for sub-pages
+    sessionStorage.setItem("tepilot_client_profile", JSON.stringify(selectedClientProfile));
+    sessionStorage.setItem("tepilot_psychological_insights", JSON.stringify(newPsych));
+    if (selectedDashboardEvents) {
+      sessionStorage.setItem("tepilot_detected_events", JSON.stringify(selectedDashboardEvents));
+    }
+    
+    setIsInitialized(true);
+  }, [selectedClientProfile, selectedDashboardEvents]);
 
   // Handle initial pending message from parent (e.g., Prepare with Ventus)
   useEffect(() => {
