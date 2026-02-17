@@ -649,7 +649,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
           } : null
         };
         
-        const { data, error } = await supabase.functions.invoke("generate-partner-recommendations", {
+        const { data, error } = await supabase.functions.invoke("deal-personalization", {
           body: { deals: slimDeals, profile: slimProfile, ctx: slimContext, txCount: enrichedTransactions.length },
         });
         
