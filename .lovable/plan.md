@@ -1,32 +1,36 @@
 
 
-# Fix: Ensure Client Context Fully Overwrites When Switching from Dashboard
+# Shorten Action Items in the Next Steps Panel
 
 ## Problem
-When an advisor selects a client from the Life Events Dashboard (or clicks "Prepare with Ventus"), the system writes the new client's profile and events to `sessionStorage`. However, `AdvisorConsole` only reads `sessionStorage` once on mount (guarded by `isInitialized`). Since the component stays mounted when toggling between dashboard and client views, selecting a second client has no effect -- the first client's data remains displayed.
+The action items that appear in the "Next Steps" panel are too verbose, making the sidebar feel dense and hard to scan. This affects items from two sources:
+- AI-generated items (from chat responses via the `advisor-chat` backend function)
+- Hardcoded items (from the Financial Planner's "Generate Timeline" feature)
 
-## Root Cause
-- `AdvisorConsolePage` keeps both `LifeEventsAlertDashboard` and `AdvisorConsole` rendered, toggling visibility via `viewMode`
-- `AdvisorConsole` reads sessionStorage in a `useEffect` gated by `isInitialized` (line 92). Once true, it never re-reads
-- The parent writes new client data to sessionStorage but the child never picks it up
+## Changes
 
-## Solution
-Pass the selected client's profile and dashboard events directly as props from `AdvisorConsolePage` to `AdvisorConsole`, bypassing the stale sessionStorage read. Additionally, reset `isInitialized` when the selected client changes so the component picks up the new data.
+### 1. Update AI Prompt (`supabase/functions/advisor-chat/index.ts`)
+Add an explicit length constraint to the action item formatting rules:
+- Each checkbox item must be **10 words or fewer**
+- Lead with a verb (e.g., "Review", "Schedule", "Discuss")
+- Update the example in the prompt to show shorter items:
+  - Before: `"- [ ] Discuss premium travel rewards card upgrade"`
+  - After: `"- [ ] Discuss premium travel card upgrade"`
+  - Before: `"- [ ] Review current credit card benefits vs spending patterns"`
+  - After: `"- [ ] Review card benefits vs spending"`
 
-### Changes
+### 2. Shorten Hardcoded Financial Planner Items (`src/components/tepilot/advisor-console/FinancialPlanner.tsx`)
+Trim the `action` strings in `generateActionItems()`:
+- `"Max out tax-advantaged accounts - $X remaining capacity"` --> `"Max tax-advantaged accounts ($X remaining)"`
+- `"PRIORITY: Increase 401(k) contributions to capture full employer match"` --> `"Maximize 401(k) employer match"`
+- `"Build emergency fund to 6 months expenses, establish Roth conversion strategy"` --> `"Build 6-month emergency fund; plan Roth conversions"`
+- `"Review glide path, consider catch-up contributions (age 50+), optimize Social Security timing"` --> `"Review glide path; catch-up contributions"`
+- And similar for remaining items
 
-**1. `src/pages/AdvisorConsolePage.tsx`**
-- Pass `selectedClientProfile` and `selectedDashboardEvents` as new props to `AdvisorConsole`
-- Derive these from `selectedClientId` + `dashboardClients` lookup
-
-**2. `src/components/tepilot/advisor-console/AdvisorConsole.tsx`**
-- Add `selectedClientProfile?: ClientProfileData` and `selectedDashboardEvents?: DetectedLifeEvent[]` to the props interface
-- When these props change (new client selected), directly apply them: set `clientProfile`, `dashboardEvents`, generate new psychological insights, clear stale action items, and persist to sessionStorage
-- This replaces the indirect "write to sessionStorage, hope the child re-reads" pattern with direct React prop flow
-
-### Why Not Just Reset `isInitialized`?
-Resetting `isInitialized` alone would re-trigger the mount effect, but it would also re-read potentially stale sessionStorage from other sources. Direct prop passing is the idiomatic React approach and guarantees the correct client data is used.
+### 3. Add Truncation Safety Net (`src/components/tepilot/advisor-console/VentusChatPanel.tsx`)
+In `extractActionItemsFromMessage`, truncate any extracted item over 60 characters to 60 chars + "..." as a safety net for overly long AI responses.
 
 ## Files
-- **Modify**: `src/pages/AdvisorConsolePage.tsx` -- pass client profile and events as props
-- **Modify**: `src/components/tepilot/advisor-console/AdvisorConsole.tsx` -- accept and react to new client props
+- **Modify**: `supabase/functions/advisor-chat/index.ts` -- tighten action item word limit in prompt
+- **Modify**: `src/components/tepilot/advisor-console/FinancialPlanner.tsx` -- shorten hardcoded action strings
+- **Modify**: `src/components/tepilot/advisor-console/VentusChatPanel.tsx` -- add truncation safety net
