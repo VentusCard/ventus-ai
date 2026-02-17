@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -9,27 +8,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, ChevronLeft, ChevronRight, Package, Users, TrendingUp } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Package, Users, TrendingUp, Sparkles, Loader2, X } from "lucide-react";
 import { AvailableDealCard } from "./AvailableDealCard";
 import { getAvailableDeals, getDealCategories, DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
+import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 
 const DEALS_PER_PAGE = 40;
 
 export function AvailableDealsGrid() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<'popularity' | 'activations' | 'newest'>("popularity");
   const [currentPage, setCurrentPage] = useState(1);
 
   const categories = getDealCategories();
 
+  // Get all deals for semantic search context
+  const allDeals = useMemo(() => getAvailableDeals({ category: "All", search: "", sortBy }), [sortBy]);
+
+  const {
+    searchQuery,
+    isSearching,
+    handleSearchChange: onSemanticSearch,
+    clearSearch,
+    matchingDealIds,
+    searchReasoning,
+  } = useSemanticDealSearch(allDeals);
+
+  const isSemanticActive = searchQuery.length >= 2 && matchingDealIds.length > 0;
+
   const filteredDeals = useMemo(() => {
+    if (isSemanticActive) {
+      // Use semantic results, then apply category filter
+      const idSet = new Set(matchingDealIds);
+      let deals = allDeals.filter(d => idSet.has(d.id));
+      if (selectedCategory !== "All") {
+        deals = deals.filter(d => d.category === selectedCategory);
+      }
+      return deals;
+    }
     return getAvailableDeals({
       category: selectedCategory,
       search: searchQuery,
       sortBy,
     });
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [isSemanticActive, matchingDealIds, allDeals, selectedCategory, searchQuery, sortBy]);
 
   const totalPages = Math.ceil(filteredDeals.length / DEALS_PER_PAGE);
   const paginatedDeals = useMemo(() => {
@@ -50,8 +72,8 @@ export function AvailableDealsGrid() {
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+  const handleSearchInput = (value: string) => {
+    onSemanticSearch(value);
     setCurrentPage(1);
   };
 
@@ -90,11 +112,22 @@ export function AvailableDealsGrid() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Search deals, merchants..."
+            placeholder="AI-powered search — try 'coffee', 'gym gear', 'vacation'..."
             value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-10"
+            onChange={(e) => handleSearchInput(e.target.value)}
+            className="pl-10 pr-10"
           />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 animate-spin" />
+          )}
+          {searchQuery && !isSearching && (
+            <button
+              onClick={() => { clearSearch(); setCurrentPage(1); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
         <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
           <SelectTrigger className="w-full sm:w-48">
@@ -107,6 +140,14 @@ export function AvailableDealsGrid() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Semantic Search Reasoning */}
+      {isSemanticActive && searchReasoning && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-sm text-purple-700">
+          <Sparkles className="w-4 h-4 shrink-0" />
+          <span>{searchReasoning}</span>
+        </div>
+      )}
 
       {/* Category Filter Pills */}
       <div className="flex flex-wrap gap-2">
@@ -168,7 +209,6 @@ export function AvailableDealsGrid() {
           
           <div className="flex items-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-              // Show first, last, current, and adjacent pages
               if (
                 page === 1 ||
                 page === totalPages ||
