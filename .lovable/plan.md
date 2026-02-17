@@ -1,61 +1,51 @@
 
 
-# Create `deal-personalization` Edge Function
+# Create `local-experiences` Edge Function and Wire Up `useCityDeals` Hook
 
 ## Overview
-The `DealActivationPreview` component already has the full frontend flow built (state, payload construction, response handling, UI rendering). It just needs the backend edge function to exist. Two changes are needed:
+The "Local Experiences" section in `DealActivationPreview` is fully built on the frontend (category tabs, loading states, deal rendering) but the `useCityDeals` hook is a placeholder that always returns empty deals. Two things are needed:
 
-1. Create the edge function with the name `deal-personalization`
-2. Update the one line in `DealActivationPreview.tsx` that calls `generate-partner-recommendations` to call `deal-personalization` instead
-
-## What Already Works (No Changes Needed)
-- Payload construction: slim deals `{id, m, c, r}`, slim profile (top 3 pillars), slim context (demographics + persona traits)
-- Response parsing: maps `recs[].id/msg/cta` into `personalizedDeals` state
-- UI rendering: AI-personalized messages shown with violet styling and sparkle icons
-- Auto-trigger: runs automatically when enriched transactions are available
-- Fallback: template-based personalization if AI fails
+1. Create the `local-experiences` edge function (from the code you shared)
+2. Wire up `useCityDeals` to actually call it
 
 ## Changes
 
-### 1. Create `supabase/functions/deal-personalization/index.ts`
-Based on the code you shared, with these project-standard adjustments:
-- Use the standardized CORS headers (including `x-supabase-client-platform` etc.)
-- Use the ALLOWED_ORIGINS pattern from other edge functions (regex-based origin matching)
-- Model: `google/gemini-3-flash-preview` (creative personalization benefits from the stronger model)
-- Dynamic system prompt with privacy guardrails (no specific amounts, no cross-merchant references)
-- JSON cleanup to handle markdown-wrapped responses
-- Proper error handling for 429/402 status codes
+### 1. Create `supabase/functions/local-experiences/index.ts`
+Based on the code you shared, with one adjustment:
+- Add the full CORS `Access-Control-Allow-Headers` to include `x-supabase-client-platform` and related headers (project standard)
 
-### 2. Update `supabase/config.toml`
-Add:
+Everything else stays as-is: `google/gemini-2.5-flash` model, category-based prompts, graceful fallbacks on parse errors or API failures.
+
+### 2. Add to `supabase/config.toml`
 ```
-[functions.deal-personalization]
+[functions.local-experiences]
 verify_jwt = false
 ```
 
-### 3. Update `src/components/tepilot/insights/DealActivationPreview.tsx`
-Line 652: Change `"generate-partner-recommendations"` to `"deal-personalization"`
+### 3. Rewrite `src/hooks/useCityDeals.ts`
+Replace the placeholder with a real implementation that:
+- Calls `supabase.functions.invoke("local-experiences", { body: { city, category } })`
+- Triggers on city or category change (via `useEffect`)
+- Maps the response `deals` array into `CityDeal[]` objects (adding `id`, `name`, `description`, `category` from the `type` and `merchantExample` fields)
+- Sets `loading` state properly
+- Skips the call if city is null/empty
+
+### No changes needed in `DealActivationPreview.tsx`
+The component already:
+- Passes `locationCity` and `localCategory` to `useCityDeals()`
+- Renders `locationDeals` with loading/empty states
+- Has category tab switching that updates `localCategory`
 
 ## Request/Response Contract
 
 ```text
-POST /deal-personalization
+POST /local-experiences
 
-Request:
-{
-  deals:   [{ id, m, c, r }],        // merchant name, category, reward
-  profile: { pillars: [{n, s}], signals: [] },
-  ctx:     { demo: {occ, fam, inc}, persona: {traits, interests} },
-  txCount: number
-}
-
-Response:
-{
-  recs: [{ id: string, msg: string, cta: string }]
-}
+Request:  { city: string, category: string }
+Response: { deals: [{ type: string, merchantExample: string }] }
 ```
 
 ## Files
-- **Create**: `supabase/functions/deal-personalization/index.ts`
+- **Create**: `supabase/functions/local-experiences/index.ts`
 - **Modify**: `supabase/config.toml` (add function entry)
-- **Modify**: `src/components/tepilot/insights/DealActivationPreview.tsx` (line 652 -- rename function invocation)
+- **Modify**: `src/hooks/useCityDeals.ts` (replace placeholder with real API call)
