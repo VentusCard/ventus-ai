@@ -56,8 +56,12 @@ function extractActionItemsFromMessage(content: string): string[] {
     const checkboxMatch = trimmed.match(/^[-*]\s*\[\s*\]\s+(.+)/);
     
     if (checkboxMatch) {
-      const cleanedItem = checkboxMatch[1].replace(/\*\*/g, '').trim();
+      let cleanedItem = checkboxMatch[1].replace(/\*\*/g, '').trim();
       if (cleanedItem.length > 3 && cleanedItem.length < 200) {
+        // Truncate overly long items as a safety net
+        if (cleanedItem.length > 60) {
+          cleanedItem = cleanedItem.slice(0, 60) + '...';
+        }
         console.log('[extractActionItems] Found checkbox item:', cleanedItem.slice(0, 50));
         items.push(cleanedItem);
       }

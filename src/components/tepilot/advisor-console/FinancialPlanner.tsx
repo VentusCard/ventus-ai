@@ -232,7 +232,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-0`,
         timing: `${currentYear}`,
-        action: `Max out tax-advantaged accounts - ${formatCurrency(totalTaxAdvMax - totalTaxAdvContrib)} remaining capacity`,
+        action: `Max tax-advantaged accounts (${formatCurrency(totalTaxAdvMax - totalTaxAdvContrib)} remaining)`,
         completed: false
       });
     }
@@ -243,7 +243,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-1`,
         timing: `${currentYear}`,
-        action: "PRIORITY: Increase 401(k) contributions to capture full employer match",
+        action: "Maximize 401(k) employer match",
         completed: false
       });
     }
@@ -253,7 +253,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-2`,
         timing: `${currentYear}`,
-        action: `Increase savings rate from ${savingsRate.toFixed(0)}% to at least 15%`,
+        action: `Raise savings rate to 15%+ (now ${savingsRate.toFixed(0)}%)`,
         completed: false
       });
     }
@@ -262,7 +262,7 @@ export function FinancialPlanner({
     items.push({
       id: `action-${Date.now()}-3`,
       timing: `${currentYear}-${currentYear + 5}`,
-      action: "Build emergency fund to 6 months expenses, establish Roth conversion strategy",
+      action: "Build 6-month emergency fund; plan Roth conversions",
       completed: false
     });
 
@@ -272,7 +272,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-4`,
         timing: `${currentYear + 1}`,
-        action: `Rebalance portfolio: adjust stocks from ${currentAllocation.stocks}% toward target ${targetAllocation.stocks}%`,
+        action: `Rebalance stocks: ${currentAllocation.stocks}% → ${targetAllocation.stocks}%`,
         completed: false
       });
     }
@@ -282,7 +282,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-5`,
         timing: `${currentYear + 5}-${currentYear + 10}`,
-        action: "Review glide path, consider catch-up contributions (age 50+), optimize Social Security timing",
+        action: "Review glide path; catch-up contributions",
         completed: false
       });
     }
@@ -292,7 +292,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-6`,
         timing: `${retirementProfile.retirementAge - 5}-${retirementProfile.retirementAge}`,
-        action: "Finalize retirement income plan, healthcare coverage (Medicare/ACA), reduce portfolio volatility",
+        action: "Finalize retirement income; plan healthcare coverage",
         completed: false
       });
     }
@@ -301,7 +301,7 @@ export function FinancialPlanner({
     items.push({
       id: `action-${Date.now()}-7`,
       timing: `${retirementProfile.retirementAge}+`,
-      action: "Implement RMD strategy, review estate plan and beneficiaries, consider legacy goals",
+      action: "Implement RMD strategy; review estate plan",
       completed: false
     });
 
@@ -311,7 +311,7 @@ export function FinancialPlanner({
       items.push({
         id: `action-${Date.now()}-psych`,
         timing: "Ongoing",
-        action: "Consider more conservative allocation given risk profile - prioritize capital preservation",
+        action: "Shift to conservative allocation for risk profile",
         completed: false
       });
     }
