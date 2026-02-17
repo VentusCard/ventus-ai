@@ -605,7 +605,7 @@ const TePilot = () => {
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities
+                              Sports & Activities - Sporting Goods
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -624,7 +624,7 @@ const TePilot = () => {
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities
+                              Sports & Activities - Outdoor Gear
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -643,7 +643,7 @@ const TePilot = () => {
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities
+                              Sports & Activities - Software
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -662,7 +662,7 @@ const TePilot = () => {
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities
+                              Sports & Activities - Apparel
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -681,7 +681,7 @@ const TePilot = () => {
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities
+                              Sports & Activities - Fees
                             </Badge>
                           </TableCell>
                           <TableCell>
