@@ -1,25 +1,20 @@
 
 
-# Rename Ventus AI Columns and Update Values
+# Update Sub-Labels for AllTrails and RMNP
 
 ## Changes
 
-### Column Headers (lines 593-594)
-- "Ventus AI Category" --> "Ventus AI Lifestyle Pillar"
-- "Ventus AI Pattern" --> "Ventus AI Persona"
+Update two badge text values in the "Ventus AI Lifestyle Pillar" column:
 
-### Cell Values
-Update the "Ventus AI Lifestyle Pillar" column -- all five rows get the same pillar value since they all map to the same lifestyle category:
-- Sporting Goods --> **Sports & Activities**
-- Outdoor Gear --> **Sports & Activities**
-- Recreation App --> **Sports & Activities**
-- Outdoor Apparel --> **Sports & Activities**
-- National Park --> **Sports & Activities**
+| Transaction | Current | New |
+|---|---|---|
+| AllTrails Pro | Sports & Activities - Recreation | Sports & Activities - Software |
+| RMNP Entry Fee | Sports & Activities - Parks | Sports & Activities - Fees |
 
-The "Ventus AI Persona" column stays as **Outdoor Enthusiast** for all rows (unchanged).
+All other rows stay the same.
 
-This makes the story even clearer: Legacy systems scatter these into 5 unrelated buckets, while Ventus AI maps them all to one Lifestyle Pillar ("Sports & Activities") and one Persona ("Outdoor Enthusiast").
-
-## File
-- **Modify**: `src/pages/TePilot.tsx` (lines 593-691)
+## Technical Details
+- **File**: `src/pages/TePilot.tsx`
+- Update badge text at line ~645 ("Recreation" to "Software")
+- Update badge text at line ~683 ("Parks" to "Fees")
 
