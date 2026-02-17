@@ -1,42 +1,25 @@
 
 
-# Update "Why Semantic AI is Different" -- Single Table with Ventus AI Cross-Category Columns
+# Rename Ventus AI Columns and Update Values
 
-## What Changes
+## Changes
 
-Replace the current 3-row comparison table (MCC vs Text vs Ventus for one transaction) with a single table showing **multiple diverse transactions**, where each row has:
-- Raw transaction string
-- MCC code
-- Legacy label (generic, isolated)
-- **Ventus AI Category** (accurate individual label)
-- **Ventus AI Pattern** (the cross-category lifestyle signal detected across rows)
+### Column Headers (lines 593-594)
+- "Ventus AI Category" --> "Ventus AI Lifestyle Pillar"
+- "Ventus AI Pattern" --> "Ventus AI Persona"
 
-This highlights Ventus AI's dual value: accurate per-transaction labeling AND cross-category pattern detection.
+### Cell Values
+Update the "Ventus AI Lifestyle Pillar" column -- all five rows get the same pillar value since they all map to the same lifestyle category:
+- Sporting Goods --> **Sports & Activities**
+- Outdoor Gear --> **Sports & Activities**
+- Recreation App --> **Sports & Activities**
+- Outdoor Apparel --> **Sports & Activities**
+- National Park --> **Sports & Activities**
 
-## New Table Design
+The "Ventus AI Persona" column stays as **Outdoor Enthusiast** for all rows (unchanged).
 
-| Raw Transaction | MCC | Legacy Label | Ventus AI Category | Ventus AI Pattern |
-|----------------|-----|-------------|-------------------|-------------------|
-| REI Co-op #142 | 5941 | Retail | Sporting Goods | Outdoor Enthusiast |
-| Backcountry.com | 5999 | Miscellaneous | Outdoor Gear | Outdoor Enthusiast |
-| AllTrails Pro | 7372 | Digital Services | Recreation App | Outdoor Enthusiast |
-| Patagonia Denver | 5651 | Apparel | Outdoor Apparel | Outdoor Enthusiast |
-| RMNP Entry Fee | 7999 | Government/Fees | National Park | Outdoor Enthusiast |
+This makes the story even clearer: Legacy systems scatter these into 5 unrelated buckets, while Ventus AI maps them all to one Lifestyle Pillar ("Sports & Activities") and one Persona ("Outdoor Enthusiast").
 
-- The "Legacy Label" column uses muted/yellow badges showing generic, disconnected labels
-- The "Ventus AI Category" column uses blue/teal badges showing accurate granular labels
-- The "Ventus AI Pattern" column uses green badges -- all showing the same unified pattern, visually reinforcing that Ventus connects them
-
-## Subtitle Update
-
-Change from "AI delivers accuracy legacy methods can't match" to "Detecting cross-category patterns legacy methods miss"
-
-## Technical Details
-
-### File: `src/pages/TePilot.tsx` (lines 575-634)
-- Replace the content inside the `AccordionItem value="item-2"` block
-- Update the subtitle text on line 581
-- Replace the table structure (lines 586-631) with the new 5-column, 5-row table
-- Use existing `Table`, `TableHeader`, `TableRow`, `TableHead`, `TableBody`, `TableCell`, `Badge` components (all already imported)
-- No new dependencies needed
+## File
+- **Modify**: `src/pages/TePilot.tsx` (lines 593-691)
 
