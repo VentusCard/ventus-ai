@@ -599,7 +599,7 @@ const TePilot = () => {
                           <TableCell className="font-mono text-sm text-slate-700">REI Co-op #142</TableCell>
                           <TableCell className="text-sm text-slate-600">5941</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                            <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-amber-500/20">
                               Retail
                             </Badge>
                           </TableCell>
@@ -618,7 +618,7 @@ const TePilot = () => {
                           <TableCell className="font-mono text-sm text-slate-700">Backcountry.com</TableCell>
                           <TableCell className="text-sm text-slate-600">5999</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                            <Badge variant="secondary" className="bg-slate-500/10 text-slate-600 border-slate-500/20">
                               Miscellaneous
                             </Badge>
                           </TableCell>
@@ -637,7 +637,7 @@ const TePilot = () => {
                           <TableCell className="font-mono text-sm text-slate-700">AllTrails Pro</TableCell>
                           <TableCell className="text-sm text-slate-600">7372</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                            <Badge variant="secondary" className="bg-violet-500/10 text-violet-700 border-violet-500/20">
                               Digital Services
                             </Badge>
                           </TableCell>
@@ -656,7 +656,7 @@ const TePilot = () => {
                           <TableCell className="font-mono text-sm text-slate-700">Patagonia Denver</TableCell>
                           <TableCell className="text-sm text-slate-600">5651</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                            <Badge variant="secondary" className="bg-pink-500/10 text-pink-700 border-pink-500/20">
                               Apparel
                             </Badge>
                           </TableCell>
@@ -675,7 +675,7 @@ const TePilot = () => {
                           <TableCell className="font-mono text-sm text-slate-700">RMNP Entry Fee</TableCell>
                           <TableCell className="text-sm text-slate-600">7999</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
+                            <Badge variant="secondary" className="bg-orange-500/10 text-orange-700 border-orange-500/20">
                               Government/Fees
                             </Badge>
                           </TableCell>
