@@ -590,7 +590,7 @@ const TePilot = () => {
                           <TableHead className="font-semibold text-slate-900">Raw Transaction</TableHead>
                           <TableHead className="font-semibold text-slate-900">MCC</TableHead>
                           <TableHead className="font-semibold text-slate-900">Legacy Label</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Ventus AI Lifestyle Pillar</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Semantic Labels</TableHead>
                           <TableHead className="font-semibold text-slate-900">Ventus AI Persona</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -604,9 +604,10 @@ const TePilot = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities - Sporting Goods
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sporting Goods</Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
@@ -623,9 +624,10 @@ const TePilot = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities - Outdoor Gear
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Outdoor Gear</Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
@@ -642,9 +644,10 @@ const TePilot = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities - Software
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Software</Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
@@ -661,9 +664,10 @@ const TePilot = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities - Apparel
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Apparel</Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
@@ -680,9 +684,10 @@ const TePilot = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">
-                              Sports & Activities - Fees
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Fees</Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
