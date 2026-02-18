@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-md">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-background/90 md:bg-transparent backdrop-blur-md">
       <div className="flex h-14 md:h-16 items-center justify-between px-4 md:px-8 max-w-7xl mx-auto">
         {/* Logo/Brand */}
         <div className="flex items-center flex-1 md:flex-initial">
@@ -83,7 +83,7 @@ const Navbar = () => {
       </div>
       
       {/* Mobile Menu Overlay */}
-      <div className={`md:hidden absolute top-full left-0 right-0 bg-background/98 backdrop-blur-lg border-b border-border/50 transition-all duration-300 ease-in-out ${
+      <div className={`md:hidden absolute top-full left-0 right-0 bg-background border-b border-border/50 transition-all duration-300 ease-in-out ${
         isMobileMenuOpen 
           ? 'opacity-100 visible translate-y-0' 
           : 'opacity-0 invisible -translate-y-2'

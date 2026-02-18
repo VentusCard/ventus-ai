@@ -578,7 +578,7 @@ const TePilot = () => {
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Why Semantic AI is Different</span>
                     <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
-                      AI delivers accuracy legacy methods can't match
+                      Detecting cross-category patterns legacy methods miss
                     </span>
                   </div>
                 </AccordionTrigger>
@@ -587,44 +587,112 @@ const TePilot = () => {
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-slate-50">
-                          <TableHead className="font-semibold text-slate-900">Approach</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Example Transaction</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Categorization</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Result</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Raw Transaction</TableHead>
+                          <TableHead className="font-semibold text-slate-900">MCC</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Legacy Label</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Semantic Labels</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Persona</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
-                          <TableCell className="font-medium text-slate-900">MCC-Based</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
+                          <TableCell className="font-mono text-sm text-slate-700">REI Co-op #142</TableCell>
+                          <TableCell className="text-sm text-slate-600">5941</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
-                              Events
+                            <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-amber-500/20">
+                              Retail
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-600 text-sm">Too generic</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium text-slate-900">Text-Based</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
                           <TableCell>
-                            <Badge variant="destructive" className="bg-red-500/10 text-red-700 border-red-500/20">
-                              Furniture
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sporting Goods</Badge>
+                            </div>
                           </TableCell>
-                          <TableCell className="text-slate-600 text-sm">Completely wrong</TableCell>
-                        </TableRow>
-                        <TableRow className="bg-green-500/5">
-                          <TableCell className="font-medium text-slate-900">Ventus AI (Semantic)</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
-                              Entertainment & Culture
+                              Outdoor Enthusiast
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-green-700 font-medium text-sm flex items-center gap-1">
-                            <CheckCircle className="h-4 w-4" />
-                            Accurate and insightful
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">Backcountry.com</TableCell>
+                          <TableCell className="text-sm text-slate-600">5999</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-slate-500/10 text-slate-600 border-slate-500/20">
+                              Miscellaneous
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Outdoor Gear</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">AllTrails Pro</TableCell>
+                          <TableCell className="text-sm text-slate-600">7372</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-violet-500/10 text-violet-700 border-violet-500/20">
+                              Digital Services
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Software</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">Patagonia Denver</TableCell>
+                          <TableCell className="text-sm text-slate-600">5651</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-pink-500/10 text-pink-700 border-pink-500/20">
+                              Apparel
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Apparel</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">RMNP Entry Fee</TableCell>
+                          <TableCell className="text-sm text-slate-600">7999</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-orange-500/10 text-orange-700 border-orange-500/20">
+                              Government/Fees
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Fees</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -1042,6 +1110,7 @@ const TePilot = () => {
                 
                 {/* Reward Personalization Experience - Test deals with individual customers */}
                 <CollapsibleCard
+                  defaultExpanded={true}
                   title="Reward Personalization Experience"
                   description="Preview how bank-defined deals translate into personalized customer messaging"
                   icon={<Sparkles className="h-5 w-5 text-violet-500" />}

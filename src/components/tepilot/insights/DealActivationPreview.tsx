@@ -493,7 +493,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
     clearSearch,
     matchingDealIds,
     searchReasoning,
-  } = useSemanticDealSearch(dealsForSearch);
+  } = useSemanticDealSearch();
 
   // Filter deals based on semantic search results
   const filteredDealsByCategory = useMemo(() => {
@@ -649,7 +649,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
           } : null
         };
         
-        const { data, error } = await supabase.functions.invoke("generate-partner-recommendations", {
+        const { data, error } = await supabase.functions.invoke("deal-personalization", {
           body: { deals: slimDeals, profile: slimProfile, ctx: slimContext, txCount: enrichedTransactions.length },
         });
         
