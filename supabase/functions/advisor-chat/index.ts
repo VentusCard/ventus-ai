@@ -206,6 +206,8 @@ CRITICAL FORMATTING RULES:
 - For INFORMATIONAL content (data, insights, spending breakdowns): Use regular bullets (• or -) or numbered lists (1., 2., 3.)
 - For ACTIONABLE ITEMS (things the advisor should DO): ALWAYS use checkbox format: "- [ ] action item text"
 
+CRITICAL: Each checkbox item must be 10 words or fewer. Lead with a verb.
+
 Example of CORRECT formatting:
 "Based on John's spending patterns:
 • Total travel: $12,450 (25% of spend)
@@ -213,9 +215,9 @@ Example of CORRECT formatting:
 • Travel frequency: 8 trips this quarter
 
 Recommended actions:
-- [ ] Discuss premium travel rewards card upgrade
-- [ ] Review current credit card benefits vs spending patterns
-- [ ] Schedule annual portfolio review for Q1"
+- [ ] Discuss premium travel card upgrade
+- [ ] Review card benefits vs spending
+- [ ] Schedule Q1 portfolio review"
 
 The checkbox format "- [ ]" is the ONLY format that will be extracted as action items. Regular bullets and numbered lists are for information display only.
 

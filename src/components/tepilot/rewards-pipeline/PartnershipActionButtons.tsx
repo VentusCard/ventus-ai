@@ -83,7 +83,7 @@ Consumer Rewards Team`;
 
       {/* Draft Pitch Modal */}
       <Dialog open={showPitchModal} onOpenChange={setShowPitchModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto tepilot-popup">
           <DialogHeader>
             <DialogTitle>Draft Pitch Email - {pitch.merchantName}</DialogTitle>
           </DialogHeader>
@@ -104,7 +104,7 @@ Consumer Rewards Team`;
 
       {/* Log Contact Modal */}
       <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
-        <DialogContent>
+        <DialogContent className="tepilot-popup">
           <DialogHeader>
             <DialogTitle>Log Contact - {pitch.merchantName}</DialogTitle>
           </DialogHeader>

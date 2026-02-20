@@ -28,6 +28,12 @@ const AdvisorConsolePage = () => {
   // Generate dashboard clients once on mount
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
+  // Derive selected client data for direct prop passing
+  const selectedClient = useMemo(() => {
+    if (!selectedClientId) return null;
+    return dashboardClients.find(c => c.id === selectedClientId) || null;
+  }, [selectedClientId, dashboardClients]);
+
   const handleBackToTePilot = () => {
     // Clear all advisor console related sessionStorage
     sessionStorage.removeItem("tepilot_advisor_context");
@@ -267,6 +273,8 @@ const AdvisorConsolePage = () => {
             onBackToDashboard={handleBackToDashboard}
             initialPendingMessage={pendingVentusMessage}
             onPendingMessageConsumed={() => setPendingVentusMessage(null)}
+            selectedClientProfile={selectedClient?.profile}
+            selectedDashboardEvents={selectedClient?.detectedEvents}
           />
         )}
       </div>

@@ -28,6 +28,7 @@ import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
 import { TravelTimeline } from "@/components/tepilot/insights/TravelTimeline";
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
+import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
 
 import { RelationshipManagementCard } from "@/components/tepilot/RelationshipManagementCard";
@@ -76,6 +77,7 @@ const TePilot = () => {
   const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
+  const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
     // Check URL search params first, then navigation state
     const viewParam = searchParams.get('view');
@@ -576,7 +578,7 @@ const TePilot = () => {
                   <div className="flex flex-col items-start gap-1 text-left">
                     <span>Why Semantic AI is Different</span>
                     <span className="text-sm font-normal text-slate-600 group-data-[state=closed]:block group-data-[state=open]:hidden">
-                      AI delivers accuracy legacy methods can't match
+                      Detecting cross-category patterns legacy methods miss
                     </span>
                   </div>
                 </AccordionTrigger>
@@ -585,44 +587,112 @@ const TePilot = () => {
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-slate-50">
-                          <TableHead className="font-semibold text-slate-900">Approach</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Example Transaction</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Categorization</TableHead>
-                          <TableHead className="font-semibold text-slate-900">Result</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Raw Transaction</TableHead>
+                          <TableHead className="font-semibold text-slate-900">MCC</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Legacy Label</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Semantic Labels</TableHead>
+                          <TableHead className="font-semibold text-slate-900">Ventus AI Persona</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
-                          <TableCell className="font-medium text-slate-900">MCC-Based</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
+                          <TableCell className="font-mono text-sm text-slate-700">REI Co-op #142</TableCell>
+                          <TableCell className="text-sm text-slate-600">5941</TableCell>
                           <TableCell>
-                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
-                              Events
+                            <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-amber-500/20">
+                              Retail
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-slate-600 text-sm">Too generic</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium text-slate-900">Text-Based</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
                           <TableCell>
-                            <Badge variant="destructive" className="bg-red-500/10 text-red-700 border-red-500/20">
-                              Furniture
-                            </Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sporting Goods</Badge>
+                            </div>
                           </TableCell>
-                          <TableCell className="text-slate-600 text-sm">Completely wrong</TableCell>
-                        </TableRow>
-                        <TableRow className="bg-green-500/5">
-                          <TableCell className="font-medium text-slate-900">Ventus AI (Semantic)</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700">Ticketmaster* Sabrina Carpenter</TableCell>
                           <TableCell>
                             <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
-                              Entertainment & Culture
+                              Outdoor Enthusiast
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-green-700 font-medium text-sm flex items-center gap-1">
-                            <CheckCircle className="h-4 w-4" />
-                            Accurate and insightful
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">Backcountry.com</TableCell>
+                          <TableCell className="text-sm text-slate-600">5999</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-slate-500/10 text-slate-600 border-slate-500/20">
+                              Miscellaneous
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Outdoor Gear</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">AllTrails Pro</TableCell>
+                          <TableCell className="text-sm text-slate-600">7372</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-violet-500/10 text-violet-700 border-violet-500/20">
+                              Digital Services
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Software</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">Patagonia Denver</TableCell>
+                          <TableCell className="text-sm text-slate-600">5651</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-pink-500/10 text-pink-700 border-pink-500/20">
+                              Apparel
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Apparel</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-slate-700">RMNP Entry Fee</TableCell>
+                          <TableCell className="text-sm text-slate-600">7999</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="bg-orange-500/10 text-orange-700 border-orange-500/20">
+                              Government/Fees
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Sports & Activities</Badge>
+                              <Badge className="bg-sky-500/10 text-sky-700 border-sky-500/20">Fees</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-green-500/10 text-green-700 border-green-500/20">
+                              Outdoor Enthusiast
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -908,8 +978,8 @@ const TePilot = () => {
 
                 {/* Persona Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Bank Leadership Card */}
-                  <PersonaCard icon={Building2} title="Bank Leadership" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
+                  {/* Analytics Card */}
+                  <PersonaCard icon={Building2} title="Analytics & Targeting" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
                     "Portfolio-wide behavioral analysis across 70M+ accounts",
                     "12-Pillar interactive spending category explorer with drill-down",
                     "Card product performance matrix comparing spend and frequency",
@@ -919,7 +989,19 @@ const TePilot = () => {
                     "Multi-dimension filtering by card product, region, and demographics",
                     "Pillar distribution visualization of aggregate spending allocation",
                     "Regional customer acquisition insights with category-specific marketing recommendations"
-                  ]} buttonText="View Bank-wide Dashboard" buttonVariant="ai" onClick={() => setInsightType('bankwide')} />
+                  ]} 
+                  secondaryButtonText="View Analytics Dashboard"
+                  secondaryButtonVariant="outline"
+                  onSecondaryClick={() => {
+                    setAnalyticsDefaultTab('dashboard');
+                    setInsightType('bankwide');
+                  }}
+                  buttonText="Open Segment Builder" 
+                  buttonVariant="ai" 
+                  onClick={() => {
+                    setAnalyticsDefaultTab('targeting');
+                    setInsightType('bankwide');
+                  }} />
 
                   {/* Rewards Team Card */}
                   <PersonaCard icon={TrendingUp} title="Consumer Rewards" valueProposition="Unlock millions in untapped revenue potential" description="Identify where customers are spending outside your ecosystem and generate data-driven strategies to capture more wallet share through targeted engagement." keyFeatures={[
@@ -994,7 +1076,7 @@ const TePilot = () => {
                     Back to Insight Tools Selection
                   </Button>
                 </div>
-                <BankwideView />
+                <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6">
@@ -1028,6 +1110,7 @@ const TePilot = () => {
                 
                 {/* Reward Personalization Experience - Test deals with individual customers */}
                 <CollapsibleCard
+                  defaultExpanded={true}
                   title="Reward Personalization Experience"
                   description="Preview how bank-defined deals translate into personalized customer messaging"
                   icon={<Sparkles className="h-5 w-5 text-violet-500" />}

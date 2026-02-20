@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,8 +56,12 @@ function extractActionItemsFromMessage(content: string): string[] {
     const checkboxMatch = trimmed.match(/^[-*]\s*\[\s*\]\s+(.+)/);
     
     if (checkboxMatch) {
-      const cleanedItem = checkboxMatch[1].replace(/\*\*/g, '').trim();
+      let cleanedItem = checkboxMatch[1].replace(/\*\*/g, '').trim();
       if (cleanedItem.length > 3 && cleanedItem.length < 200) {
+        // Truncate overly long items as a safety net
+        if (cleanedItem.length > 60) {
+          cleanedItem = cleanedItem.slice(0, 60) + '...';
+        }
         console.log('[extractActionItems] Found checkbox item:', cleanedItem.slice(0, 50));
         items.push(cleanedItem);
       }
@@ -365,9 +370,9 @@ export function VentusChatPanel({
                   </span>
                 </div>
                 
-                <p className="text-sm text-slate-900 whitespace-pre-wrap">
-                  {message.content}
-                </p>
+                <div className="text-sm text-slate-900 prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-headings:my-2">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
 
                 {/* Action Buttons for AI messages */}
                 {message.role === 'assistant' && <div className="flex gap-2 mt-3">

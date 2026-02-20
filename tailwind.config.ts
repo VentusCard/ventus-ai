@@ -21,8 +21,8 @@ export default {
 		extend: {
 		// Font Families - DM Sans as primary
 		fontFamily: {
-				sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
-				display: ['"Inter"', 'system-ui', 'sans-serif'],
+			sans: ['"Manrope"', 'system-ui', '-apple-system', 'sans-serif'],
+				display: ['"Manrope"', 'system-ui', 'sans-serif'],
 				mono: ['"DM Mono"', 'SF Mono', 'Monaco', 'monospace'],
 			},
 
@@ -258,6 +258,24 @@ export default {
 			'premium-glow': {
 				'0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)' },
 				'50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.25)' }
+			},
+			// Icon micro-animations for Technology page
+			'icon-pulse': {
+				'0%, 100%': { transform: 'scale(1)' },
+				'50%': { transform: 'scale(1.15)' }
+			},
+			'icon-bounce': {
+				'0%, 100%': { transform: 'translateY(0)' },
+				'50%': { transform: 'translateY(-4px)' }
+			},
+			'icon-tilt': {
+				'0%, 100%': { transform: 'rotate(0deg)' },
+				'50%': { transform: 'rotate(8deg)' }
+			},
+			'icon-wave': {
+				'0%, 100%': { transform: 'translateX(0)' },
+				'25%': { transform: 'translateX(-2px)' },
+				'75%': { transform: 'translateX(2px)' }
 			}
 		},
 
@@ -300,7 +318,12 @@ export default {
 		'aurora-wave': 'aurora-wave 8s ease-in-out infinite',
 		'spotlight-wander': 'spotlight-wander 25s ease-in-out infinite',
 		'mesh-breathe': 'mesh-breathe 10s ease-in-out infinite',
-		'hue-dance': 'hue-dance 30s ease-in-out infinite'
+		'hue-dance': 'hue-dance 30s ease-in-out infinite',
+		// Icon micro-animations
+		'icon-pulse': 'icon-pulse 0.6s ease-in-out',
+		'icon-bounce': 'icon-bounce 0.5s ease-in-out',
+		'icon-tilt': 'icon-tilt 0.4s ease-in-out',
+		'icon-wave': 'icon-wave 0.5s ease-in-out'
 		}
 	}
 },
