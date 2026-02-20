@@ -87,15 +87,12 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const callClassifyTransactions = useCallback(async (transactions: Transaction[]): Promise<EnrichedTransaction[]> => {
-    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const url = `https://dy3pwpbu34.execute-api.us-east-2.amazonaws.com/classify-transactions`;
 
     const response = await fetchWithResilience(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${anonKey}`,
-        'apikey': anonKey
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ transactions })
     });
