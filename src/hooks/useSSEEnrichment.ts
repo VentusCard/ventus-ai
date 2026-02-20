@@ -112,58 +112,80 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       throw new Error('Empty response from server. Please retry.');
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+    // Check Content-Type to determine if this is a plain JSON or SSE stream response
+    const contentType = response.headers.get('content-type') || '';
+    const isSSE = contentType.includes('text/event-stream');
+
     let classifiedTransactions: EnrichedTransaction[] = [];
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    if (!isSSE) {
+      // Plain JSON response: Lambda returns { enriched_transactions: [...], stats: {...} }
+      const json = await response.json();
+      if (json.enriched_transactions && Array.isArray(json.enriched_transactions)) {
+        classifiedTransactions = json.enriched_transactions;
+        setEnrichedTransactions(classifiedTransactions);
+        setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
+        toast.success(`${classifiedTransactions.length} transactions classified!`);
+        console.log('[Classification Done] (JSON)', classifiedTransactions.length, 'transactions', json.stats || '');
+      } else if (json.error) {
+        throw new Error(json.error);
+      } else {
+        throw new Error('Unexpected JSON response format from classify-transactions.');
+      }
+    } else {
+      // SSE stream response (legacy path)
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n\n');
-      buffer = lines.pop() || '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      for (const line of lines) {
-        if (!line.trim()) continue;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || '';
 
-        const eventMatch = line.match(/^event: (.+)$/m);
-        const dataMatch = line.match(/^data: (.+)$/m);
+        for (const line of lines) {
+          if (!line.trim()) continue;
 
-        if (!eventMatch || !dataMatch) continue;
+          const eventMatch = line.match(/^event: (.+)$/m);
+          const dataMatch = line.match(/^data: (.+)$/m);
 
-        const event = eventMatch[1];
-        
-        // Safe JSON parsing
-        const data = safeJsonParse(dataMatch[1]);
-        if (!data) {
-          console.warn('[Classification] Malformed SSE event, skipping:', line.substring(0, 100));
-          continue;
-        }
+          if (!eventMatch || !dataMatch) continue;
 
-        switch (event) {
-          case 'status':
-            setStatusMessage(data.message);
-            console.log('[Classification Status]', data.message);
-            break;
+          const event = eventMatch[1];
 
-          case 'batch_complete':
-            const { batchNum, totalBatches, count } = data;
-            setStatusMessage(`Classifying batch ${batchNum}/${totalBatches}... (${count} transactions)`);
-            console.log('[Classification Batch]', `${batchNum}/${totalBatches}`, count, 'transactions');
-            break;
+          // Safe JSON parsing
+          const data = safeJsonParse(dataMatch[1]);
+          if (!data) {
+            console.warn('[Classification] Malformed SSE event, skipping:', line.substring(0, 100));
+            continue;
+          }
 
-          case 'done':
-            classifiedTransactions = data.enriched_transactions;
-            setEnrichedTransactions(classifiedTransactions);
-            setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-            toast.success(`${classifiedTransactions.length} transactions classified!`);
-            console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
-            break;
+          switch (event) {
+            case 'status':
+              setStatusMessage(data.message);
+              console.log('[Classification Status]', data.message);
+              break;
 
-          case 'error':
-            throw new Error(data.message);
+            case 'batch_complete':
+              const { batchNum, totalBatches, count } = data;
+              setStatusMessage(`Classifying batch ${batchNum}/${totalBatches}... (${count} transactions)`);
+              console.log('[Classification Batch]', `${batchNum}/${totalBatches}`, count, 'transactions');
+              break;
+
+            case 'done':
+              classifiedTransactions = data.enriched_transactions;
+              setEnrichedTransactions(classifiedTransactions);
+              setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
+              toast.success(`${classifiedTransactions.length} transactions classified!`);
+              console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
+              break;
+
+            case 'error':
+              throw new Error(data.message);
+          }
         }
       }
     }
