@@ -1,20 +1,31 @@
 
+## Change classify-transactions Fetch URL
 
-# Refine Competitor Differentiation — End on Full Platform Value
+### What Changes
 
-## Problem
-The current competitor answer narrows to Wealth CoPilot at the end, which undersells the breadth of what Ventus enables across retail banking, marketing, and wealth management.
+**File:** `src/hooks/useSSEEnrichment.ts`
 
-## Revised Answer
+**Location:** Lines 89–102, inside `callClassifyTransactions`
 
-**Who do you consider your competitors and what makes you better/different from them?**
+**Current code (lines 90–92):**
+```ts
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const url = `${supabaseUrl}/functions/v1/classify-transactions`;
+```
 
-"Competitors: MX, Plaid, Personetics, Envestnet Yodlee.
+**Replacement:**
+```ts
+const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const url = `https://dy3pwpbu34.execute-api.us-east-2.amazonaws.com/classify-transactions`;
+```
 
-What makes us different: These platforms clean and categorize transactions. Ventus understands them. MX tells a bank 'this customer shops at REI' — that's data hygiene. Ventus tells the bank 'from a set of related transactions, this customer is an Outdoor Enthusiast approaching retirement who would respond to a travel rewards card and needs a Roth conversion conversation.' We operate at the persona and intent layer, not the merchant-label layer. Our platform detects life events from behavioral signals before the customer takes action, powers segment-level campaign targeting across the entire portfolio, and gives wealth advisors a CoPilot that turns transaction patterns into proactive client conversations — capabilities no competitor offers today."
+The `supabaseUrl` variable is only used to build the classify-transactions URL, so it is removed. The `anonKey` variable and all headers (`Authorization`, `apikey`), the request body, the retry logic, and the SSE stream parsing are all left exactly as-is.
 
-## What Changed
-- Removed the Wealth CoPilot as the closing statement
-- Replaced it with a three-part capability summary: life event detection, portfolio-wide campaign targeting, and the Wealth CoPilot — presented as equal pillars
-- Ends on the full platform moat ("capabilities no competitor offers today") rather than a single feature
+### Scope
 
+This is the only location in the entire codebase that references the classify-transactions endpoint. The travel-detection endpoint (`callEnrichTransactions`, line ~160) is a separate call and is not touched.
+
+### Risk
+
+Low. It is a one-line URL swap with no logic change. The AWS API Gateway endpoint must accept the same POST body (`{ transactions }`) and return the same SSE event stream format (`status`, `batch_complete`, `done`, `error`) for the rest of the pipeline to work correctly.
