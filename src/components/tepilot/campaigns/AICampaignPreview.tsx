@@ -73,102 +73,103 @@ export function AICampaignPreview({
 
   return (
     <Card className="bg-card border-border sticky top-4">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <CardTitle className="text-base">AI Campaign Brief</CardTitle>
+          <Sparkles className="w-4 h-4 text-primary" />
+          <CardTitle className="text-sm">AI Campaign Brief</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2.5 px-4 pb-4">
         {!currentBrief && !isGenerating ? (
-          <div className="text-center py-8">
-            <Sparkles className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground mb-4">
-              Select targeting criteria, then generate an AI-powered campaign brief
+          <div className="text-center py-5">
+            <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground mb-3">
+              Select targeting criteria, then generate a brief
             </p>
             <Button
               onClick={onGenerate}
               disabled={!hasSelections}
-              className="gap-2"
+              size="sm"
+              className="gap-1.5"
             >
-              <Sparkles className="w-4 h-4" />
-              Generate Campaign Brief
+              <Sparkles className="w-3.5 h-3.5" />
+              Generate Brief
             </Button>
           </div>
         ) : isGenerating ? (
-          <div className="text-center py-8">
-            <Loader2 className="w-8 h-8 text-primary mx-auto mb-3 animate-spin" />
-            <p className="text-sm text-muted-foreground">Generating campaign brief...</p>
+          <div className="text-center py-5">
+            <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
+            <p className="text-xs text-muted-foreground">Generating brief...</p>
           </div>
         ) : currentBrief ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {/* Campaign name */}
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Campaign Name</label>
+              <label className="text-[11px] font-medium text-muted-foreground">Campaign Name</label>
               <Input
                 value={currentBrief.campaign_name}
                 onChange={(e) => handleFieldChange('campaign_name', e.target.value)}
-                className="mt-1 bg-secondary/50 border-border text-sm"
+                className="mt-0.5 bg-secondary/50 border-border text-xs h-8"
               />
             </div>
 
             {/* Brief fields */}
             {BRIEF_FIELDS.map(field => (
               <div key={field.key}>
-                <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+                <label className="text-[11px] font-medium text-muted-foreground">{field.label}</label>
                 {field.multiline ? (
                   <Textarea
                     value={String(currentBrief[field.key])}
                     onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                    className="mt-1 bg-secondary/50 border-border text-sm min-h-[60px]"
+                    className="mt-0.5 bg-secondary/50 border-border text-xs min-h-[44px]"
                     rows={2}
                   />
                 ) : (
                   <Input
                     value={String(currentBrief[field.key])}
                     onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                    className="mt-1 bg-secondary/50 border-border text-sm"
+                    className="mt-0.5 bg-secondary/50 border-border text-xs h-8"
                   />
                 )}
               </div>
             ))}
 
             {/* Actions */}
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={onGenerate} className="gap-1.5">
-                <RefreshCw className="w-3.5 h-3.5" />
+            <div className="flex gap-1.5 pt-1">
+              <Button variant="outline" size="sm" onClick={onGenerate} className="gap-1 h-7 text-xs px-2">
+                <RefreshCw className="w-3 h-3" />
                 Regenerate
               </Button>
-              <Button variant="outline" size="sm" onClick={handleCopyAll} className="gap-1.5">
-                <Copy className="w-3.5 h-3.5" />
+              <Button variant="outline" size="sm" onClick={handleCopyAll} className="gap-1 h-7 text-xs px-2">
+                <Copy className="w-3 h-3" />
                 Copy All
               </Button>
             </div>
 
             {/* Audience */}
             {hasSelections && (
-              <div className="flex items-center gap-2 p-2 rounded-md bg-primary/5 border border-primary/15">
-                <Users className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">{formatted} audience</span>
+              <div className="flex items-center gap-1.5 p-1.5 rounded-md bg-primary/5 border border-primary/15">
+                <Users className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-foreground">{formatted} audience</span>
               </div>
             )}
 
             {/* Save / Export / CRM */}
-            <div className="flex gap-2 pt-1">
-              <Button size="sm" onClick={onSave} className="gap-1.5">
-                <Bookmark className="w-3.5 h-3.5" />
+            <div className="flex gap-1.5 pt-0.5">
+              <Button size="sm" onClick={onSave} className="gap-1 h-7 text-xs px-2">
+                <Bookmark className="w-3 h-3" />
                 Save
               </Button>
-              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.info("CSV export coming soon")}>
-                <Download className="w-3.5 h-3.5" />
+              <Button variant="outline" size="sm" className="gap-1 h-7 text-xs px-2" onClick={() => toast.info("CSV export coming soon")}>
+                <Download className="w-3 h-3" />
                 Export
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5">
-                    <Send className="w-3.5 h-3.5" />
+                  <Button variant="outline" size="sm" className="gap-1 h-7 text-xs px-2">
+                    <Send className="w-3 h-3" />
                     CRM
-                    <ChevronDown className="w-3 h-3" />
+                    <ChevronDown className="w-2.5 h-2.5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
