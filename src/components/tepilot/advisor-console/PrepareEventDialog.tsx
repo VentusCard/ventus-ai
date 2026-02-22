@@ -135,7 +135,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-4">
           <div className="py-3 space-y-4">
             {/* Evidence Transactions Section */}
             <div>
@@ -194,7 +194,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="border-t pt-3 flex items-center gap-2">
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
@@ -215,11 +215,8 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
   );
 }
 
-// Mock data generator for event transactions
-export function generateEventPreparationData(
-  client: EventPreparationData['client'],
-  event: DetectedLifeEvent
-): EventPreparationData {
+// Shared transaction data by event type
+export function getEventTransactions(eventType: DetectedLifeEvent['eventType']): CardTransaction[] {
   const transactionsByEventType: Record<DetectedLifeEvent['eventType'], CardTransaction[]> = {
     retirement: [
       { cardType: 'Platinum Rewards', cardLast4: '4532', merchant: 'Fidelity Investments', amount: 6500, date: 'Jan 15, 2026', relevance: '401k contribution increase' },
@@ -274,6 +271,14 @@ export function generateEventPreparationData(
       { cardType: 'Primary Checking', cardLast4: '5678', merchant: 'ACH - Home Instead Services', amount: 3200, date: 'Jan 28, 2026', relevance: 'In-home caregiver weekly payment' },
     ],
   };
+  return transactionsByEventType[eventType] || [];
+}
+
+// Mock data generator for event transactions
+export function generateEventPreparationData(
+  client: EventPreparationData['client'],
+  event: DetectedLifeEvent
+): EventPreparationData {
 
   const recommendedStepsByEventType: Record<DetectedLifeEvent['eventType'], string[]> = {
     retirement: [
@@ -330,7 +335,7 @@ export function generateEventPreparationData(
   return {
     client,
     event,
-    transactions: transactionsByEventType[event.eventType] || [],
+    transactions: getEventTransactions(event.eventType),
     recommendedSteps: recommendedStepsByEventType[event.eventType] || [],
   };
 }

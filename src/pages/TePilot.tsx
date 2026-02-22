@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Brain, Zap, CheckCircle, ArrowRight, ArrowLeft, Upload, BarChart3, Scan, RefreshCw, TrendingUp, Sparkles, Gift, Users, MapPin, Briefcase, PieChart, Shield, Building2, Award, TrendingDown, Loader2, ShoppingBag, CalendarClock, CalendarHeart, MessageSquare, ChevronDown, Monitor } from "lucide-react";
 import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
@@ -43,6 +44,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSSEEnrichment } from "@/hooks/useSSEEnrichment";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { PILLAR_COLORS } from "@/lib/sampleData";
+import { aggregateByPillar } from "@/lib/aggregations";
+import { initializeBudgets } from "@/lib/budgetUtils";
 import { SubcategoryTransactionsModal } from "@/components/tepilot/insights/SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailModal";
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
@@ -77,6 +80,9 @@ const TePilot = () => {
   const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
+  const [budgetMode, setBudgetMode] = useState(false);
+  const [budgets, setBudgets] = useState<Record<string, number>>({});
+  const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({});
   const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
     // Check URL search params first, then navigation state
@@ -359,6 +365,14 @@ const TePilot = () => {
 
   // Extract location context for geo-based deals - always computed at top level
   const locationContext = useMemo(() => extractLocationContext(displayTransactions), [displayTransactions]);
+
+  // Initialize budgets when enriched transactions become available
+  useEffect(() => {
+    if (displayTransactions.length > 0 && Object.keys(budgets).length === 0) {
+      const pillars = aggregateByPillar(displayTransactions);
+      setBudgets(initializeBudgets(pillars));
+    }
+  }, [displayTransactions]);
   const fetchLifestyleSignals = async () => {
     if (enrichedTransactions.length === 0) {
       toast.error('No enriched transactions available. Please enrich transactions first.');
@@ -924,14 +938,19 @@ const TePilot = () => {
                     {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
                   </p>
                 </div>
-                
+                {analyticsView === "single" && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-slate-700">Budgeting</span>
+                    <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
+                  </div>
+                )}
               </div>
             </Card>
 
             {analyticsView === "single" ? <>
-                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
+                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
                 
-                <PillarExplorer transactions={displayTransactions} />
+                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
                 
                 <TravelTimeline transactions={displayTransactions} />
                 
@@ -1068,27 +1087,25 @@ const TePilot = () => {
               </>}
 
             {/* Bank-wide Dashboard View */}
-            {insightType === 'bankwide' && <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Bank-wide Analytics</h2>
-                  <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => setInsightType(null)}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Insight Tools Selection
+            {insightType === 'bankwide' && <div className="space-y-6 pt-6">
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-9 w-9" onClick={() => setInsightType(null)}>
+                    <ArrowLeft className="w-5 h-5" />
                   </Button>
+                  <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
                 </div>
                 <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
 
-            {insightType === 'revenue' && <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Intelligent Reward Personalization</h2>
-                  <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => {
+            {insightType === 'revenue' && <div className="space-y-6 pt-6">
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-9 w-9" onClick={() => {
                 setActiveTab("insights");
                 setInsightType(null);
               }}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Insight Tools Selection
+                    <ArrowLeft className="w-5 h-5" />
                   </Button>
+                  <h2 className="text-3xl font-extrabold text-slate-900">Intelligent Reward Personalization</h2>
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}

@@ -207,13 +207,12 @@ const AdvisorConsolePage = () => {
         <div className="flex items-center justify-between max-w-full">
           <div className="flex items-center gap-4">
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={handleBackToTePilot}
-              className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+              className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 h-9 w-9 shrink-0"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to TePilot
+              <ArrowLeft className="h-5 w-5" />
             </Button>
             
             {/* View Toggle */}

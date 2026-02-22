@@ -1,17 +1,23 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
-import { useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { useState, useCallback } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
+import { hashString, getBudgetStatus } from "@/lib/budgetUtils";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
+  budgetMode?: boolean;
+  budgets: Record<string, number>;
+  setBudgets: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  subcategoryBudgets: Record<string, number>;
+  setSubcategoryBudgets: React.Dispatch<React.SetStateAction<Record<string, number>>>;
 }
 
-export function PillarExplorer({ transactions }: PillarExplorerProps) {
+export function PillarExplorer({ transactions, budgetMode = false, budgets, setBudgets, subcategoryBudgets, setSubcategoryBudgets }: PillarExplorerProps) {
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<{
     subcategory: string;
@@ -22,6 +28,16 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
 
+  const getSubcategoryBudget = useCallback((pillar: string, subcategory: string, spend: number) => {
+    const key = `${pillar}::${subcategory}`;
+    if (subcategoryBudgets[key] !== undefined) return subcategoryBudgets[key];
+    const seed = hashString(key);
+    const multiplier = 0.7 + ((seed % 80) / 100);
+    const budget = Math.round(spend * multiplier);
+    setSubcategoryBudgets(prev => ({ ...prev, [key]: budget }));
+    return budget;
+  }, [subcategoryBudgets, setSubcategoryBudgets]);
+
   return (
     <div className="space-y-6">
       {/* Pillar Cards Grid */}
@@ -30,11 +46,13 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
           const color = PILLAR_COLORS[pillar.pillar] || "#64748b";
           const percentage = (pillar.totalSpend / totalSpend) * 100;
           const isSelected = selectedPillar === pillar.pillar;
+          const budget = budgets[pillar.pillar] || 0;
+          const budgetInfo = getBudgetStatus(pillar.totalSpend, budget);
           
           return (
             <Card
               key={pillar.pillar}
-              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 ${
+              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative ${
                 isSelected ? 'ring-2 shadow-xl' : ''
               }`}
               style={{
@@ -43,6 +61,16 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
               }}
               onClick={() => setSelectedPillar(isSelected ? null : pillar.pillar)}
             >
+              {/* Budget Badge */}
+              {budgetMode && (
+                <div
+                  className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-7 h-7 rounded-full border-2 bg-white shadow-md"
+                  style={{ borderColor: budgetInfo.color }}
+                  title={`${budgetInfo.label} — Budget: $${budget}`}
+                >
+                  <budgetInfo.icon className="w-3.5 h-3.5" style={{ color: budgetInfo.color }} />
+                </div>
+              )}
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div 
@@ -52,6 +80,11 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                   <div>
                     <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
                     <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
+                    {budgetMode && (
+                      <p className="text-xs mt-0.5" style={{ color: budgetInfo.color }}>
+                        Budget: ${budget}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center justify-between text-xs text-slate-600">
                     <span>{pillar.transactionCount} trans.</span>
@@ -89,6 +122,21 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
               style={{ backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b" }}
             />
             <h3 className="text-xl font-semibold text-slate-900">{selectedPillar} - Detailed Breakdown</h3>
+            {budgetMode && (
+              <div className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+                <span>Budget: $</span>
+                <Input
+                  type="number"
+                  className="w-24 h-8 text-sm"
+                  value={budgets[selectedPillar] ?? 0}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 0;
+                    setBudgets(prev => ({ ...prev, [selectedPillar]: val }));
+                  }}
+                />
+              </div>
+            )}
           </div>
           
           <CardContent className="pt-6">
@@ -105,6 +153,9 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {subcategories.slice(0, 6).map((subcat) => {
                         const percentage = (subcat.totalSpend / pillarTotal) * 100;
+                        const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
+                        const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
+                        const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
                         
                         return (
                           <div
@@ -120,17 +171,36 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                           >
                             <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
                             <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                            {budgetMode && subcatBudgetInfo && (
+                              <div className="flex items-center gap-2 mb-1">
+                                <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
+                                <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
+                                <Input
+                                  type="number"
+                                  className="w-20 h-6 text-xs px-1"
+                                  value={subcategoryBudgets[budgetKey] ?? subcatBudget}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
+                                  }}
+                                />
+                              </div>
+                            )}
                             <div className="flex items-center justify-between text-xs text-slate-600">
                               <span>{subcat.transactionCount} transactions</span>
                               <span>{percentage.toFixed(1)}% of pillar</span>
                             </div>
-                            {/* Progress bar */}
                             <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all"
                                 style={{
-                                  width: `${percentage}%`,
-                                  backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b"
+                                  width: budgetMode && subcatBudget > 0
+                                    ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
+                                    : `${percentage}%`,
+                                  backgroundColor: budgetMode && subcatBudgetInfo
+                                    ? subcatBudgetInfo.color
+                                    : (PILLAR_COLORS[selectedPillar] || "#64748b")
                                 }}
                               />
                             </div>
