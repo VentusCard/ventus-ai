@@ -135,7 +135,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4 min-h-0">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-4">
           <div className="py-3 space-y-4">
             {/* Evidence Transactions Section */}
             <div>
@@ -194,7 +194,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="border-t pt-3 flex items-center gap-2">
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
