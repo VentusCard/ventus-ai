@@ -2,16 +2,34 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
-import { useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { useState, useMemo } from "react";
+import { TrendingUp, CheckCircle, AlertTriangle } from "lucide-react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
+  budgetMode?: boolean;
 }
 
-export function PillarExplorer({ transactions }: PillarExplorerProps) {
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function getBudgetStatus(spend: number, budget: number) {
+  const ratio = spend / budget;
+  if (ratio > 1) return { status: "over" as const, color: "#ef4444", icon: TrendingUp, label: "Over Budget" };
+  if (ratio >= 0.7) return { status: "near" as const, color: "#f59e0b", icon: AlertTriangle, label: "Near Limit" };
+  return { status: "under" as const, color: "#22c55e", icon: CheckCircle, label: "Under Budget" };
+}
+
+export function PillarExplorer({ transactions, budgetMode = false }: PillarExplorerProps) {
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<{
     subcategory: string;
@@ -22,6 +40,16 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
 
+  const budgets = useMemo(() => {
+    const map: Record<string, number> = {};
+    pillars.forEach((p) => {
+      const seed = hashString(p.pillar);
+      const multiplier = 0.7 + ((seed % 80) / 100); // 0.7 to 1.5
+      map[p.pillar] = Math.round(p.totalSpend * multiplier);
+    });
+    return map;
+  }, [pillars]);
+
   return (
     <div className="space-y-6">
       {/* Pillar Cards Grid */}
@@ -30,11 +58,13 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
           const color = PILLAR_COLORS[pillar.pillar] || "#64748b";
           const percentage = (pillar.totalSpend / totalSpend) * 100;
           const isSelected = selectedPillar === pillar.pillar;
+          const budget = budgets[pillar.pillar] || 0;
+          const budgetInfo = getBudgetStatus(pillar.totalSpend, budget);
           
           return (
             <Card
               key={pillar.pillar}
-              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 ${
+              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative ${
                 isSelected ? 'ring-2 shadow-xl' : ''
               }`}
               style={{
@@ -43,6 +73,16 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
               }}
               onClick={() => setSelectedPillar(isSelected ? null : pillar.pillar)}
             >
+              {/* Budget Badge */}
+              {budgetMode && (
+                <div
+                  className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-7 h-7 rounded-full border-2 bg-white shadow-md"
+                  style={{ borderColor: budgetInfo.color }}
+                  title={`${budgetInfo.label} — Budget: $${budget}`}
+                >
+                  <budgetInfo.icon className="w-3.5 h-3.5" style={{ color: budgetInfo.color }} />
+                </div>
+              )}
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div 
@@ -52,6 +92,11 @@ export function PillarExplorer({ transactions }: PillarExplorerProps) {
                   <div>
                     <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
                     <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
+                    {budgetMode && (
+                      <p className="text-xs mt-0.5" style={{ color: budgetInfo.color }}>
+                        Budget: ${budget}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center justify-between text-xs text-slate-600">
                     <span>{pillar.transactionCount} trans.</span>
