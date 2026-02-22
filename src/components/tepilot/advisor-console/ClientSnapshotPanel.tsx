@@ -12,6 +12,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { LifeEventDetailsDialog } from "./LifeEventDetailsDialog";
 import { DetectedLifeEvent } from "@/types/dashboardClient";
+import { getEventTransactions } from "./PrepareEventDialog";
 
 interface ClientSnapshotPanelProps {
   onAskVentus?: (context: string) => void;
@@ -96,17 +97,23 @@ export function ClientSnapshotPanel({
 
   // Prioritize dashboard events if available, otherwise use AI insights
   const lifeEvents: LifeEvent[] = dashboardEvents?.length 
-    ? dashboardEvents.map(e => ({
-        event_name: e.eventName,
-        confidence: e.confidence,
-        evidence: e.keyEvidence.map(k => ({ 
-          merchant: "", 
-          amount: 0, 
-          date: "", 
-          relevance: k 
-        })),
-        talking_points: []
-      }))
+    ? dashboardEvents.map(e => {
+        // Use rich transaction data from the event preparation mock data
+        const richTransactions = getEventTransactions(e.eventType);
+        return {
+          event_name: e.eventName,
+          confidence: e.confidence,
+          evidence: richTransactions.length > 0
+            ? richTransactions.map(t => ({ 
+                merchant: t.merchant, 
+                amount: t.amount, 
+                date: t.date, 
+                relevance: t.relevance 
+              }))
+            : e.keyEvidence.map(k => ({ merchant: "", amount: 0, date: "", relevance: k })),
+          talking_points: []
+        };
+      })
     : (aiInsights?.detected_events || []);
 
   // Calculate overview stats
