@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Sparkles, Heart, Users as UsersIcon, Bookmark, Download, Target,
-  ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, LayoutTemplate,
+  ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, LayoutTemplate, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { DimensionChipCloud } from "./DimensionChipCloud";
@@ -108,9 +108,47 @@ export function CampaignStudio() {
     setUpsellStrategies(prev => toggleItem(prev, id));
   }, [toggleItem]);
 
-  // ─── Apply Preset Template ───
-  const handleApplyTemplate = useCallback((template: SegmentTemplate) => {
-    // Clear all dimensions first
+  // ─── Loading state for AI-powered presets ───
+  const [loadingTemplateId, setLoadingTemplateId] = useState<string | null>(null);
+
+  // ─── Apply Preset Template (AI-powered) ───
+  const handleApplyTemplate = useCallback(async (template: SegmentTemplate) => {
+    // Build a natural language prompt from the template metadata
+    const intent = `Campaign for: ${template.name}. Category: ${template.category.replace(/_/g, ' ')}. Description: ${template.description}. ${template.suggestedGoal ? `Goal: ${template.suggestedGoal.replace(/_/g, ' ')}.` : ''}`;
+
+    setLoadingTemplateId(template.id);
+    const toastId = toast.loading(`Interpreting "${template.name}"…`);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('parse-campaign-intent', {
+        body: { intent },
+      });
+
+      if (error || data?.error) {
+        console.error('Template intent parse error:', error || data?.error);
+        toast.dismiss(toastId);
+        // Fallback: use whatever hardcoded data exists
+        applyTemplateFallback(template);
+        return;
+      }
+
+      const result = data as ParsedIntent;
+      handleIntentParsed(result);
+      toast.dismiss(toastId);
+      toast.success(`Applied "${template.name}" preset`, {
+        description: result.summary || `${(template.estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`,
+      });
+    } catch (err) {
+      console.error('Template intent parse error:', err);
+      toast.dismiss(toastId);
+      applyTemplateFallback(template);
+    } finally {
+      setLoadingTemplateId(null);
+    }
+  }, []);
+
+  // ─── Fallback: apply hardcoded template data if AI fails ───
+  const applyTemplateFallback = useCallback((template: SegmentTemplate) => {
     setSelectedPillars([]);
     setLifeEventCriteria({ eventTypes: [], minConfidence: 0.6, timingWindow: '6-12_months' });
     setSelectedProducts({});
@@ -119,7 +157,6 @@ export function CampaignStudio() {
     setCampaignGoal('');
 
     const audience = template.suggestedAudience;
-
     if (audience.lifeEventCriteria) {
       setLifeEventCriteria(audience.lifeEventCriteria as LifeEventCriteria);
     }
@@ -132,24 +169,51 @@ export function CampaignStudio() {
       audience.productCriteria.lacksProducts?.forEach(p => { products[p] = 'lacks'; });
       setSelectedProducts(products);
     }
-    if (audience.demographicFilters) {
-      setDemographicFilters(audience.demographicFilters as DemographicFiltersType);
-    }
     if (template.suggestedGoal) {
       setCampaignGoal(template.suggestedGoal);
     }
-    if (template.category === 'cross_sell') {
-      setCrossSellStrategies(['basic_to_premium']);
-    }
 
     pendingGenerateRef.current = true;
-    toast.success(`Applied "${template.name}" preset`, {
-      description: `${(template.estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`,
+    toast.warning(`Applied "${template.name}" (offline mode)`, {
+      description: 'AI interpretation unavailable, using preset defaults',
     });
   }, []);
 
-  // ─── Edit Saved Segment ───
-  const handleEditSegment = useCallback((segment: SavedSegment) => {
+  // ─── Edit Saved Segment (AI-powered) ───
+  const handleEditSegment = useCallback(async (segment: SavedSegment) => {
+    const intent = `Campaign for: ${segment.name}. Targeting mode: ${segment.targetingMode.replace(/_/g, ' ')}. Segment with ${(segment.estimatedSize / 1_000_000).toFixed(1)}M contacts.`;
+
+    setLoadingTemplateId(segment.id);
+    const toastId = toast.loading(`Interpreting "${segment.name}"…`);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('parse-campaign-intent', {
+        body: { intent },
+      });
+
+      if (error || data?.error) {
+        console.error('Segment intent parse error:', error || data?.error);
+        toast.dismiss(toastId);
+        // Fallback: use hardcoded segment data
+        applySegmentFallback(segment);
+        return;
+      }
+
+      const result = data as ParsedIntent;
+      handleIntentParsed(result);
+      toast.dismiss(toastId);
+      toast.success(`Loaded "${segment.name}"`, { description: result.summary || 'Criteria loaded into studio' });
+    } catch (err) {
+      console.error('Segment intent parse error:', err);
+      toast.dismiss(toastId);
+      applySegmentFallback(segment);
+    } finally {
+      setLoadingTemplateId(null);
+    }
+  }, []);
+
+  // ─── Fallback for saved segments ───
+  const applySegmentFallback = useCallback((segment: SavedSegment) => {
     setSelectedPillars([]);
     setLifeEventCriteria({ eventTypes: [], minConfidence: 0.6, timingWindow: '6-12_months' });
     setSelectedProducts({});
@@ -171,7 +235,7 @@ export function CampaignStudio() {
     }
 
     pendingGenerateRef.current = true;
-    toast.info(`Loaded "${segment.name}"`, { description: "Criteria loaded into studio" });
+    toast.info(`Loaded "${segment.name}" (offline mode)`, { description: 'Criteria loaded into studio' });
   }, []);
 
   // ─── Audience Estimation ───
@@ -392,16 +456,20 @@ export function CampaignStudio() {
                       {filteredTemplates.map(template => (
                         <div
                           key={template.id}
-                          className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer"
+                          className={`flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer ${loadingTemplateId === template.id ? 'opacity-70 pointer-events-none' : ''}`}
                           onClick={() => handleApplyTemplate(template)}
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{template.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{template.description}</p>
                           </div>
-                          <span className="text-xs text-muted-foreground ml-3 shrink-0">
-                            {(template.estimatedSize / 1_000_000).toFixed(1)}M
-                          </span>
+                          {loadingTemplateId === template.id ? (
+                            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin ml-3 shrink-0" />
+                          ) : (
+                            <span className="text-xs text-muted-foreground ml-3 shrink-0">
+                              {(template.estimatedSize / 1_000_000).toFixed(1)}M
+                            </span>
+                          )}
                         </div>
                       ))}
                     </div>

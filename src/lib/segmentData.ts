@@ -4,7 +4,6 @@ import type {
   LifeEventCriteria,
   LifestyleCriteria,
   ProductCriteria,
-  DemographicFilters,
 } from '@/types/segment';
 import { CARD_PRODUCTS } from './mockBankwideData';
 
@@ -75,22 +74,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers showing baby-related spending signals indicating new or expecting parents',
     category: 'life_event',
     iconHint: 'Baby',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['family'],
-        minConfidence: 0.7,
-        timingWindow: '6-12_months',
-      },
-      lifestyleCriteria: {
-        pillars: ['Family & Kids'],
-        spendingThreshold: 'above_average',
-      },
-      productCriteria: {
-        hasProducts: ['Checking', 'Savings'],
-        lacksProducts: ['529 Plan', 'Life Insurance'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 4_125_000,
     priority: 'high',
     suggestedGoal: 'life_event',
@@ -101,28 +85,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers aged 55-64 showing retirement planning signals and increased travel',
     category: 'life_event',
     iconHint: 'Plane',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['retirement'],
-        minConfidence: 0.65,
-        timingWindow: '12-24_months',
-      },
-      lifestyleCriteria: {
-        pillars: ['Financial & Aspirational'],
-        spendingThreshold: 'above_average',
-      },
-      productCriteria: {
-        hasProducts: ['Checking'],
-        lacksProducts: ['Traditional IRA', 'Managed Portfolio'],
-      },
-      demographicFilters: {
-        ageRanges: ['55-64'],
-        regions: [],
-        incomeBands: [],
-        accountTenure: 'all',
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 3_150_000,
     priority: 'high',
     suggestedGoal: 'life_event',
@@ -133,21 +96,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers showing home purchase signals from furniture, moving, and home improvement spend',
     category: 'life_event',
     iconHint: 'Home',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['home'],
-        minConfidence: 0.6,
-      },
-      lifestyleCriteria: {
-        pillars: ['Home & Garden'],
-        spendingThreshold: 'above_average',
-      },
-      productCriteria: {
-        hasProducts: [],
-        lacksProducts: ['Home Mortgage', 'Home Insurance'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 2_400_000,
     priority: 'medium',
     suggestedGoal: 'life_event',
@@ -160,17 +109,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Top 20% spenders in travel, airlines, and hotels categories',
     category: 'lifestyle',
     iconHint: 'Plane',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Travel & Exploration'],
-        spendingThreshold: 'top_20',
-      },
-      productCriteria: {
-        hasProducts: [],
-        lacksProducts: ['Travel', 'Airline'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 15_000_000,
     priority: 'high',
     suggestedGoal: 'cross_sell',
@@ -181,13 +120,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers with high gym, sports, and health-related spending',
     category: 'lifestyle',
     iconHint: 'Dumbbell',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Health & Wellness', 'Sports & Active Living'],
-        spendingThreshold: 'top_30',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 8_500_000,
     priority: 'medium',
     suggestedGoal: 'brand_awareness',
@@ -198,13 +131,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Top restaurant and food delivery spenders',
     category: 'lifestyle',
     iconHint: 'UtensilsCrossed',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Food & Dining'],
-        spendingThreshold: 'top_20',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 12_000_000,
     priority: 'high',
     suggestedGoal: 'brand_awareness',
@@ -215,13 +142,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers with consistent pet store, vet, and pet service spending',
     category: 'lifestyle',
     iconHint: 'PawPrint',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Pets'],
-        spendingThreshold: 'above_average',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 18_750_000,
     priority: 'medium',
     suggestedGoal: 'seasonal',
@@ -234,18 +155,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Cashback cardholders who frequently spend on travel but lack a travel card',
     category: 'cross_sell',
     iconHint: 'ArrowUpRight',
-    suggestedAudience: {
-      targetingMode: 'product',
-      lifestyleCriteria: {
-        pillars: ['Travel & Exploration'],
-        spendingThreshold: 'top_20',
-      },
-      productCriteria: {
-        hasProducts: ['Cashback'],
-        lacksProducts: ['Travel', 'Premium Travel'],
-        spendingPatterns: { 'Travel & Exploration': 'high' },
-      },
-    },
+    suggestedAudience: { targetingMode: 'product' },
     estimatedSize: 6_400_000,
     priority: 'high',
     suggestedGoal: 'cross_sell',
@@ -256,17 +166,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Travel card holders with high hotel spend who could benefit from Hotel Card',
     category: 'cross_sell',
     iconHint: 'Building2',
-    suggestedAudience: {
-      targetingMode: 'product',
-      lifestyleCriteria: {
-        pillars: ['Travel & Exploration'],
-        spendingThreshold: 'above_average',
-      },
-      productCriteria: {
-        hasProducts: ['Travel'],
-        lacksProducts: ['Hotel'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'product' },
     estimatedSize: 4_200_000,
     priority: 'medium',
     suggestedGoal: 'cross_sell',
@@ -277,17 +177,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'High-spend basic cardholders who qualify for premium tier upgrade',
     category: 'cross_sell',
     iconHint: 'Crown',
-    suggestedAudience: {
-      targetingMode: 'product',
-      lifestyleCriteria: {
-        pillars: ['Financial & Aspirational'],
-        spendingThreshold: 'top_20',
-      },
-      productCriteria: {
-        hasProducts: ['Cashback', 'Custom Cashback'],
-        lacksProducts: ['Premium Travel'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'product' },
     estimatedSize: 3_200_000,
     priority: 'medium',
     suggestedGoal: 'upsell',
@@ -300,17 +190,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Travel spenders likely to book holiday trips',
     category: 'seasonal',
     iconHint: 'Snowflake',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Travel & Exploration'],
-        spendingThreshold: 'above_average',
-      },
-      productCriteria: {
-        hasProducts: [],
-        lacksProducts: ['Travel Insurance'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 22_500_000,
     priority: 'high',
     seasonalWindow: 'Nov 1 - Dec 31',
@@ -322,21 +202,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Parents with education and family signals for back-to-school season',
     category: 'seasonal',
     iconHint: 'GraduationCap',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['education', 'family'],
-        minConfidence: 0.5,
-      },
-      lifestyleCriteria: {
-        pillars: ['Family & Kids', 'Education & Learning'],
-        spendingThreshold: 'above_average',
-      },
-      productCriteria: {
-        hasProducts: [],
-        lacksProducts: ['529 Plan'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 6_975_000,
     priority: 'medium',
     seasonalWindow: 'Jul 15 - Sep 15',
@@ -348,17 +214,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'High earners and financially active customers during tax season',
     category: 'seasonal',
     iconHint: 'Calculator',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Financial & Aspirational'],
-        spendingThreshold: 'top_30',
-      },
-      productCriteria: {
-        hasProducts: [],
-        lacksProducts: ['Traditional IRA', 'Roth IRA'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 9_000_000,
     priority: 'low',
     seasonalWindow: 'Jan 15 - Apr 15',
