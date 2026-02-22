@@ -82,9 +82,18 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         minConfidence: 0.7,
         timingWindow: '6-12_months',
       },
+      lifestyleCriteria: {
+        pillars: ['Family & Kids'],
+        spendingThreshold: 'above_average',
+      },
+      productCriteria: {
+        hasProducts: ['Checking', 'Savings'],
+        lacksProducts: ['529 Plan', 'Life Insurance'],
+      },
     },
     estimatedSize: 4_125_000,
     priority: 'high',
+    suggestedGoal: 'life_event',
   },
   {
     id: 'pre-retiree-segment',
@@ -99,6 +108,14 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         minConfidence: 0.65,
         timingWindow: '12-24_months',
       },
+      lifestyleCriteria: {
+        pillars: ['Financial & Aspirational'],
+        spendingThreshold: 'above_average',
+      },
+      productCriteria: {
+        hasProducts: ['Checking'],
+        lacksProducts: ['Traditional IRA', 'Managed Portfolio'],
+      },
       demographicFilters: {
         ageRanges: ['55-64'],
         regions: [],
@@ -108,6 +125,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     },
     estimatedSize: 3_150_000,
     priority: 'high',
+    suggestedGoal: 'life_event',
   },
   {
     id: 'home-buyers-segment',
@@ -121,9 +139,18 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         eventTypes: ['home'],
         minConfidence: 0.6,
       },
+      lifestyleCriteria: {
+        pillars: ['Home & Garden'],
+        spendingThreshold: 'above_average',
+      },
+      productCriteria: {
+        hasProducts: [],
+        lacksProducts: ['Home Mortgage', 'Home Insurance'],
+      },
     },
     estimatedSize: 2_400_000,
     priority: 'medium',
+    suggestedGoal: 'life_event',
   },
 
   // Lifestyle Cohort Templates
@@ -139,9 +166,14 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         pillars: ['Travel & Exploration'],
         spendingThreshold: 'top_20',
       },
+      productCriteria: {
+        hasProducts: [],
+        lacksProducts: ['Travel', 'Airline'],
+      },
     },
     estimatedSize: 15_000_000,
     priority: 'high',
+    suggestedGoal: 'cross_sell',
   },
   {
     id: 'fitness-wellness-segment',
@@ -158,6 +190,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     },
     estimatedSize: 8_500_000,
     priority: 'medium',
+    suggestedGoal: 'brand_awareness',
   },
   {
     id: 'foodies-segment',
@@ -174,6 +207,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     },
     estimatedSize: 12_000_000,
     priority: 'high',
+    suggestedGoal: 'brand_awareness',
   },
   {
     id: 'pet-parents-segment',
@@ -190,6 +224,7 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     },
     estimatedSize: 18_750_000,
     priority: 'medium',
+    suggestedGoal: 'seasonal',
   },
 
   // Cross-Sell / Product Templates
@@ -201,14 +236,19 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     iconHint: 'ArrowUpRight',
     suggestedAudience: {
       targetingMode: 'product',
+      lifestyleCriteria: {
+        pillars: ['Travel & Exploration'],
+        spendingThreshold: 'top_20',
+      },
       productCriteria: {
-        hasProducts: ['Cashback Card'],
-        lacksProducts: ['Travel Card', 'Premium Travel Card'],
+        hasProducts: ['Cashback'],
+        lacksProducts: ['Travel', 'Premium Travel'],
         spendingPatterns: { 'Travel & Exploration': 'high' },
       },
     },
     estimatedSize: 6_400_000,
     priority: 'high',
+    suggestedGoal: 'cross_sell',
   },
   {
     id: 'travel-card-no-hotel-segment',
@@ -218,13 +258,18 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     iconHint: 'Building2',
     suggestedAudience: {
       targetingMode: 'product',
+      lifestyleCriteria: {
+        pillars: ['Travel & Exploration'],
+        spendingThreshold: 'above_average',
+      },
       productCriteria: {
-        hasProducts: ['Travel Card'],
-        lacksProducts: ['Hotel Card'],
+        hasProducts: ['Travel'],
+        lacksProducts: ['Hotel'],
       },
     },
     estimatedSize: 4_200_000,
     priority: 'medium',
+    suggestedGoal: 'cross_sell',
   },
   {
     id: 'premium-upgrade-eligible-segment',
@@ -234,13 +279,18 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     iconHint: 'Crown',
     suggestedAudience: {
       targetingMode: 'product',
+      lifestyleCriteria: {
+        pillars: ['Financial & Aspirational'],
+        spendingThreshold: 'top_20',
+      },
       productCriteria: {
-        hasProducts: ['Cashback Card', 'Custom Cashback Card'],
-        lacksProducts: ['Premium Travel Card'],
+        hasProducts: ['Cashback', 'Custom Cashback'],
+        lacksProducts: ['Premium Travel'],
       },
     },
     estimatedSize: 3_200_000,
     priority: 'medium',
+    suggestedGoal: 'upsell',
   },
 
   // Seasonal Templates
@@ -256,10 +306,15 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         pillars: ['Travel & Exploration'],
         spendingThreshold: 'above_average',
       },
+      productCriteria: {
+        hasProducts: [],
+        lacksProducts: ['Travel Insurance'],
+      },
     },
     estimatedSize: 22_500_000,
     priority: 'high',
     seasonalWindow: 'Nov 1 - Dec 31',
+    suggestedGoal: 'seasonal',
   },
   {
     id: 'back-to-school-parents-segment',
@@ -273,10 +328,19 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         eventTypes: ['education', 'family'],
         minConfidence: 0.5,
       },
+      lifestyleCriteria: {
+        pillars: ['Family & Kids', 'Education & Learning'],
+        spendingThreshold: 'above_average',
+      },
+      productCriteria: {
+        hasProducts: [],
+        lacksProducts: ['529 Plan'],
+      },
     },
     estimatedSize: 6_975_000,
     priority: 'medium',
     seasonalWindow: 'Jul 15 - Sep 15',
+    suggestedGoal: 'seasonal',
   },
   {
     id: 'tax-season-financial-segment',
@@ -290,10 +354,15 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
         pillars: ['Financial & Aspirational'],
         spendingThreshold: 'top_30',
       },
+      productCriteria: {
+        hasProducts: [],
+        lacksProducts: ['Traditional IRA', 'Roth IRA'],
+      },
     },
     estimatedSize: 9_000_000,
     priority: 'low',
     seasonalWindow: 'Jan 15 - Apr 15',
+    suggestedGoal: 'seasonal',
   },
 ];
 
@@ -304,8 +373,8 @@ export const SAVED_SEGMENTS: SavedSegment[] = [
     name: 'Travel-Heavy Cashback Users',
     targetingMode: 'product',
     productCriteria: {
-      hasProducts: ['Cashback Card'],
-      lacksProducts: ['Travel Card'],
+      hasProducts: ['Cashback'],
+      lacksProducts: ['Travel'],
     },
     estimatedSize: 8_200_000,
     createdAt: '2026-01-10',
@@ -343,8 +412,8 @@ export const SAVED_SEGMENTS: SavedSegment[] = [
     name: 'High-Spend Basic Cardholders',
     targetingMode: 'product',
     productCriteria: {
-      hasProducts: ['Cashback Card'],
-      lacksProducts: ['Premium Travel Card'],
+      hasProducts: ['Cashback'],
+      lacksProducts: ['Premium Travel'],
     },
     estimatedSize: 3_200_000,
     createdAt: '2025-12-15',
