@@ -1088,7 +1088,7 @@ const TePilot = () => {
 
             {/* Bank-wide Dashboard View */}
             {insightType === 'bankwide' && <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="mb-6 space-y-3">
                   <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => setInsightType(null)}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Insight Tools Selection
@@ -1099,7 +1099,7 @@ const TePilot = () => {
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="mb-6 space-y-3">
                   <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => {
                 setActiveTab("insights");
                 setInsightType(null);
