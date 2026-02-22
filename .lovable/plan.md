@@ -1,47 +1,48 @@
 
 
-# Add Budgeting Toggle to Customer Lifestyle Dashboard
+# Add Editable Budgets in Expanded Pillar View
 
 ## Overview
-Add a "Budgeting" toggle switch to the "Customer Lifestyle Dashboard" card header. When enabled, each pillar card gets a small round pop-up badge indicating budget status: under budget (green), near limit (amber/yellow), or over budget (red).
+When budgeting mode is on and a pillar is expanded, allow the user to edit the overall pillar budget and individual subcategory budgets via inline input fields. Budget status badges will update live as values change.
 
 ## What Changes
 
-### 1. Toggle in the Dashboard Header
-- Add a `Switch` toggle labeled "Budgeting" next to the "Customer Lifestyle Dashboard" title in `src/pages/TePilot.tsx`
-- Pass the toggle state down to `PillarExplorer` as a new `budgetMode` prop
+### 1. Editable Budget State
+- Convert `budgets` from a `useMemo`-derived value to a `useState` with lazy initialization (seeded random values as before)
+- Add a separate `subcategoryBudgets` state: `Record<string, number>` keyed by `"pillar::subcategory"`
+- Initialize subcategory budgets on-demand when a pillar is expanded (random multiplier of subcategory spend, similar to pillar budgets)
 
-### 2. Budget Data Generation
-- Inside `PillarExplorer`, generate random budget limits per pillar (seeded from pillar name so they stay stable across re-renders)
-- Compare each pillar's `totalSpend` against its budget to determine status:
-  - **Under budget** (spend < 70% of budget) -- green badge with a checkmark icon
-  - **Near limit** (spend between 70%-100% of budget) -- amber badge with an alert-triangle icon
-  - **Over budget** (spend > 100% of budget) -- red badge with an arrow-up icon
+### 2. Pillar Budget Editing (Expanded Header)
+- When `budgetMode` is on and a pillar is expanded, show an editable input field next to the pillar title in the expanded card header
+- Display: "Budget: $[input]" with a small number input
+- On change, update the `budgets` state for that pillar
+- The pillar card badge color/icon updates reactively
 
-### 3. Badge Overlay on Pillar Cards
-- When `budgetMode` is on, show a small circular badge in the top-right corner of each pillar card
-- Badge has the appropriate color and icon
-- Optionally show the budget amount below the spend amount (e.g. "Budget: $500")
-- No other UX changes -- cards still click to expand, everything else stays the same
+### 3. Subcategory Budget Editing (Expanded Subcategory Cards)
+- When `budgetMode` is on, each subcategory card in the expanded view gets:
+  - A "Budget: $[input]" row below the spend amount
+  - A small colored status indicator (same green/amber/red logic)
+  - The progress bar repurposed to show spend vs budget instead of percentage of pillar
 
-## Files Modified
-
-| File | Change |
-|---|---|
-| `src/pages/TePilot.tsx` | Add `budgetMode` state, add `Switch` toggle in the dashboard header card (~line 917-929), pass prop to `PillarExplorer` |
-| `src/components/tepilot/insights/PillarExplorer.tsx` | Accept `budgetMode` prop, generate random budgets per pillar, render colored badge with icon on each card when toggled on, show budget line under spend amount |
+### 4. No Changes Outside PillarExplorer
+- All edits are local state within `PillarExplorer` -- no props or parent changes needed
 
 ## Technical Details
 
-**Budget generation** (in PillarExplorer):
-- Use `useMemo` to generate stable budgets from pillar names (simple hash-based seed)
-- Budget = totalSpend * random multiplier between 0.7 and 1.5 (so some are over, some under, some near)
+**File**: `src/components/tepilot/insights/PillarExplorer.tsx`
 
-**Badge styling**:
-- Positioned `absolute` top-right of each card (card gets `relative`)
-- ~28px round circle with white background and colored border + icon
-- Green: `CheckCircle` icon, Amber: `AlertTriangle` icon, Red: `TrendingUp` icon
+**State changes**:
+- Replace `useMemo` budgets with `useState` initialized via a function that runs the same hash-based random logic
+- Add `const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({})` 
+- Helper to get/initialize a subcategory budget: checks state, if missing generates from hash and sets it
 
-**Header toggle** (in TePilot.tsx):
-- Uses existing `Switch` component from `@/components/ui/switch`
-- Small label "Budgeting" next to the switch
+**Expanded header** (line ~131-137):
+- Add inline `<Input type="number" />` showing pillar budget when `budgetMode` is true
+- `onChange` updates `setBudgets(prev => ({...prev, [pillar]: newValue}))`
+
+**Subcategory cards** (line ~154-183):
+- When `budgetMode`, add budget input + status badge below spend
+- Reuse `getBudgetStatus()` for subcategory spend vs subcategory budget
+- Progress bar width becomes `Math.min(100, (spend/budget)*100)%` with color from status
+
+**New import**: `Input` from `@/components/ui/input`
