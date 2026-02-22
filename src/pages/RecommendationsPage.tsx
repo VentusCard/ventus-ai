@@ -53,10 +53,10 @@ const RecommendationsPage = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate("/tepilot")}
+            onClick={() => navigate("/tepilot", { state: { activeTab: "insights" } })}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to TePilot
+            Back to Insight Tools Selection
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Revenue Recommendations</h1>

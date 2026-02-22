@@ -213,7 +213,7 @@ const AdvisorConsolePage = () => {
               className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to TePilot
+              Back to Insight Tools Selection
             </Button>
             
             {/* View Toggle */}
