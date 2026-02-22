@@ -87,12 +87,16 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const callClassifyTransactions = useCallback(async (transactions: Transaction[]): Promise<EnrichedTransaction[]> => {
-    const url = `https://dy3pwpbu34.execute-api.us-east-2.amazonaws.com/classify-transactions`;
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const url = `${supabaseUrl}/functions/v1/classify-transactions`;
 
     const response = await fetchWithResilience(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${anonKey}`,
+        'apikey': anonKey
       },
       body: JSON.stringify({ transactions })
     });
@@ -112,80 +116,58 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       throw new Error('Empty response from server. Please retry.');
     }
 
-    // Check Content-Type to determine if this is a plain JSON or SSE stream response
-    const contentType = response.headers.get('content-type') || '';
-    const isSSE = contentType.includes('text/event-stream');
-
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
     let classifiedTransactions: EnrichedTransaction[] = [];
 
-    if (!isSSE) {
-      // Plain JSON response: Lambda returns { enriched_transactions: [...], stats: {...} }
-      const json = await response.json();
-      if (json.enriched_transactions && Array.isArray(json.enriched_transactions)) {
-        classifiedTransactions = json.enriched_transactions;
-        setEnrichedTransactions(classifiedTransactions);
-        setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-        toast.success(`${classifiedTransactions.length} transactions classified!`);
-        console.log('[Classification Done] (JSON)', classifiedTransactions.length, 'transactions', json.stats || '');
-      } else if (json.error) {
-        throw new Error(json.error);
-      } else {
-        throw new Error('Unexpected JSON response format from classify-transactions.');
-      }
-    } else {
-      // SSE stream response (legacy path)
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop() || '';
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n\n');
-        buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.trim()) continue;
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
+        const eventMatch = line.match(/^event: (.+)$/m);
+        const dataMatch = line.match(/^data: (.+)$/m);
 
-          const eventMatch = line.match(/^event: (.+)$/m);
-          const dataMatch = line.match(/^data: (.+)$/m);
+        if (!eventMatch || !dataMatch) continue;
 
-          if (!eventMatch || !dataMatch) continue;
+        const event = eventMatch[1];
+        
+        // Safe JSON parsing
+        const data = safeJsonParse(dataMatch[1]);
+        if (!data) {
+          console.warn('[Classification] Malformed SSE event, skipping:', line.substring(0, 100));
+          continue;
+        }
 
-          const event = eventMatch[1];
+        switch (event) {
+          case 'status':
+            setStatusMessage(data.message);
+            console.log('[Classification Status]', data.message);
+            break;
 
-          // Safe JSON parsing
-          const data = safeJsonParse(dataMatch[1]);
-          if (!data) {
-            console.warn('[Classification] Malformed SSE event, skipping:', line.substring(0, 100));
-            continue;
-          }
+          case 'batch_complete':
+            const { batchNum, totalBatches, count } = data;
+            setStatusMessage(`Classifying batch ${batchNum}/${totalBatches}... (${count} transactions)`);
+            console.log('[Classification Batch]', `${batchNum}/${totalBatches}`, count, 'transactions');
+            break;
 
-          switch (event) {
-            case 'status':
-              setStatusMessage(data.message);
-              console.log('[Classification Status]', data.message);
-              break;
+          case 'done':
+            classifiedTransactions = data.enriched_transactions;
+            setEnrichedTransactions(classifiedTransactions);
+            setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
+            toast.success(`${classifiedTransactions.length} transactions classified!`);
+            console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
+            break;
 
-            case 'batch_complete':
-              const { batchNum, totalBatches, count } = data;
-              setStatusMessage(`Classifying batch ${batchNum}/${totalBatches}... (${count} transactions)`);
-              console.log('[Classification Batch]', `${batchNum}/${totalBatches}`, count, 'transactions');
-              break;
-
-            case 'done':
-              classifiedTransactions = data.enriched_transactions;
-              setEnrichedTransactions(classifiedTransactions);
-              setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-              toast.success(`${classifiedTransactions.length} transactions classified!`);
-              console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
-              break;
-
-            case 'error':
-              throw new Error(data.message);
-          }
+          case 'error':
+            throw new Error(data.message);
         }
       }
     }
