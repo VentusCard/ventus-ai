@@ -41,6 +41,8 @@ export function OverviewMetrics({ originalTransactions, enrichedTransactions, bu
   // Pillar aggregates for editor
   const pillarAggregates = aggregateByPillar(enrichedTransactions);
 
+  const budgetUsedPercent = totalBudget > 0 ? ((totalSpend / totalBudget) * 100) : 0;
+
   const metrics = [
     {
       title: budgetMode ? "Total Spend vs Budget" : "Total Spend",
@@ -48,12 +50,13 @@ export function OverviewMetrics({ originalTransactions, enrichedTransactions, bu
         ? `$${totalSpend.toFixed(0)} / $${totalBudget}` 
         : `$${totalSpend.toFixed(2)}`,
       subtitle: budgetMode && overallBudgetStatus
-        ? overallBudgetStatus.label
+        ? `${overallBudgetStatus.label} · ${budgetUsedPercent.toFixed(1)}% used`
         : `${enrichedTransactions.length} transactions`,
       icon: TrendingUp,
       color: budgetMode && overallBudgetStatus ? "" : "text-primary",
       bgColor: budgetMode && overallBudgetStatus ? "" : "bg-primary/10",
       budgetStatusColor: budgetMode && overallBudgetStatus ? overallBudgetStatus.color : undefined,
+      budgetStatusIcon: budgetMode && overallBudgetStatus ? overallBudgetStatus.icon : undefined,
       clickable: budgetMode,
     },
     {
@@ -88,11 +91,20 @@ export function OverviewMetrics({ originalTransactions, enrichedTransactions, bu
         {metrics.map((metric, idx) => (
           <Card 
             key={idx} 
-            className={`hover-scale bg-white border-slate-200 ${metric.clickable ? 'cursor-pointer' : 'cursor-pointer'}`}
+            className={`hover-scale bg-white border-slate-200 relative ${metric.clickable ? 'cursor-pointer' : 'cursor-pointer'}`}
             onClick={() => {
               if (metric.clickable) setShowBudgetEditor(prev => !prev);
             }}
           >
+            {/* Budget status badge */}
+            {metric.budgetStatusIcon && (
+              <div
+                className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-7 h-7 rounded-full border-2 bg-white shadow-md"
+                style={{ borderColor: metric.budgetStatusColor }}
+              >
+                <metric.budgetStatusIcon className="w-3.5 h-3.5" style={{ color: metric.budgetStatusColor }} />
+              </div>
+            )}
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
