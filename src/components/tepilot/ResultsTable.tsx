@@ -152,7 +152,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                 color: PILLAR_COLORS[transaction.pillar],
                                 borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
                               }}
-                              className="border"
+                              className="border whitespace-nowrap"
                             >
                               {transaction.pillar}
                             </Badge>
