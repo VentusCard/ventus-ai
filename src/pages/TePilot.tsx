@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSSEEnrichment } from "@/hooks/useSSEEnrichment";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { PILLAR_COLORS } from "@/lib/sampleData";
+import { aggregateByPillar } from "@/lib/aggregations";
+import { initializeBudgets } from "@/lib/budgetUtils";
 import { SubcategoryTransactionsModal } from "@/components/tepilot/insights/SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailModal";
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
@@ -79,6 +81,8 @@ const TePilot = () => {
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
   const [budgetMode, setBudgetMode] = useState(false);
+  const [budgets, setBudgets] = useState<Record<string, number>>({});
+  const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({});
   const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
     // Check URL search params first, then navigation state
@@ -361,6 +365,14 @@ const TePilot = () => {
 
   // Extract location context for geo-based deals - always computed at top level
   const locationContext = useMemo(() => extractLocationContext(displayTransactions), [displayTransactions]);
+
+  // Initialize budgets when enriched transactions become available
+  useEffect(() => {
+    if (displayTransactions.length > 0 && Object.keys(budgets).length === 0) {
+      const pillars = aggregateByPillar(displayTransactions);
+      setBudgets(initializeBudgets(pillars));
+    }
+  }, [displayTransactions]);
   const fetchLifestyleSignals = async () => {
     if (enrichedTransactions.length === 0) {
       toast.error('No enriched transactions available. Please enrich transactions first.');
@@ -936,9 +948,9 @@ const TePilot = () => {
             </Card>
 
             {analyticsView === "single" ? <>
-                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
+                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
                 
-                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} />
+                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
                 
                 <TravelTimeline transactions={displayTransactions} />
                 
