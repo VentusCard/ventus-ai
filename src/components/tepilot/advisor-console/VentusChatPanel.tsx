@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Send, Save, ListTodo, CheckCircle, Clock, Sparkles, Loader2 } from "lucide-react";
-import { sampleChatMessages, ChatMessage, Task, NextStepsActionItem, PsychologicalInsight } from "./sampleData";
+import { sampleChatMessages, ChatMessage, Task, NextStepsActionItem, PsychologicalInsight, MeetingNotesResult, SENTIMENT_PSYCHOLOGY_MAP, LIFE_EVENT_KEYWORDS, NextMeetingInfo } from "./sampleData";
 import { useToast } from "@/hooks/use-toast";
 import { AIInsights, LifeEvent, SavedFinancialProjection } from "@/types/lifestyle-signals";
 import { EnrichedTransaction } from "@/types/transaction";
@@ -41,6 +41,8 @@ interface VentusChatPanelProps {
   externalTimelineEvent?: LifeEvent | null;
   externalTimelineOpen?: boolean;
   onExternalTimelineHandled?: () => void;
+  // Meeting notes integration
+  onMeetingNotesResult?: (result: MeetingNotesResult) => void;
 }
 // Helper function to extract action items from AI response
 // ONLY matches checkbox format: - [ ] text or * [ ] text
@@ -92,7 +94,8 @@ export function VentusChatPanel({
   onPendingMessageConsumed,
   externalTimelineEvent,
   externalTimelineOpen,
-  onExternalTimelineHandled
+  onExternalTimelineHandled,
+  onMeetingNotesResult
 }: VentusChatPanelProps) {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
@@ -215,9 +218,19 @@ export function VentusChatPanel({
       case "Meeting Prep":
         prompt = "Give me 5 actionable meeting prep tasks for my upcoming client meeting. These should be specific things I need to do or discuss.";
         break;
-      case "Product Recommendations":
+      case "Product Recommendations": {
+        // Check sessionStorage for products discussed in meeting notes
+        const storedProducts = sessionStorage.getItem("tepilot_products_discussed");
+        if (storedProducts) {
+          const products = JSON.parse(storedProducts) as string[];
+          if (products.length > 0) {
+            prompt = `Client recently discussed these products: ${products.join(", ")}. Based on this context and their spending patterns, what products should I recommend?`;
+            break;
+          }
+        }
         prompt = "Based on spending patterns, what products should I recommend to this client?";
         break;
+      }
       case "Life Events Summary":
         prompt = "Summarize the detected life events and their implications.";
         break;
@@ -471,15 +484,52 @@ export function VentusChatPanel({
       <MeetingNotesDialog
         open={meetingNotesOpen}
         onOpenChange={setMeetingNotesOpen}
-        onSubmitNotes={(items) => {
-          if (onExtractNextSteps && items.length > 0) {
-            onExtractNextSteps(items, []);
-            toast({
-              title: `Meeting notes saved`,
-              description: `${items.length} action item(s) added to Next Steps`,
-              duration: 3000,
-            });
+        onSubmitNotes={(result: MeetingNotesResult) => {
+          // 1. Add action items to Next Steps
+          if (onExtractNextSteps && result.actionItems.length > 0) {
+            // 4. Map sentiment to psychology insight
+            const psychInsights: PsychologicalInsight[] = [];
+            if (result.sentiment && SENTIMENT_PSYCHOLOGY_MAP[result.sentiment]) {
+              const mapping = SENTIMENT_PSYCHOLOGY_MAP[result.sentiment];
+              psychInsights.push({
+                aspect: "Emotional State",
+                assessment: mapping.assessment,
+                sliderValue: mapping.sliderValue,
+                evidence: `Client sentiment during ${result.meetingType || "meeting"}: ${result.sentiment}`,
+                confidence: 85,
+                actionTip: mapping.actionTip,
+              });
+            }
+            onExtractNextSteps(result.actionItems, psychInsights);
           }
+
+          // 5. Inject chat summary into Ventus AI
+          if (result.chatSummary) {
+            setInputValue(result.chatSummary);
+            // Auto-send after a brief delay so user sees it
+            setTimeout(() => {
+              sendMessage(result.chatSummary);
+              setInputValue("");
+            }, 300);
+          }
+
+          // 2. Detect life events and auto-open timeline
+          const allText = `${result.meetingType} ${result.chatSummary}`.toLowerCase();
+          const hasLifeEvent = LIFE_EVENT_KEYWORDS.some(kw => allText.includes(kw));
+          if (hasLifeEvent) {
+            const bestEvent = visibleEvents.filter(e => e.financial_projection).sort((a, b) => b.confidence - a.confidence)[0];
+            setSelectedTimelineEvent(bestEvent || null);
+            setTimeout(() => setFinancialTimelineOpen(true), 1500);
+          }
+
+          // 3. Pass full result up for products & next meeting
+          onMeetingNotesResult?.(result);
+
+          toast({
+            title: `Meeting notes saved`,
+            description: `${result.actionItems.length} action item(s) added to Next Steps`,
+            duration: 3000,
+          });
         }}
       />
     </div>;

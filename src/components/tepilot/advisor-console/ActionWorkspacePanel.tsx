@@ -6,8 +6,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Calendar, Users, Phone, Mail, Brain, ListChecks, MessageSquare, FileDown, Plus, X, ChevronDown } from "lucide-react";
-import { sampleMeeting, sampleEngagementData, NextStepsData } from "./sampleData";
+import { sampleMeeting, sampleEngagementData, NextStepsData, NextMeetingInfo } from "./sampleData";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
+import { format } from "date-fns";
+
 interface ActionWorkspacePanelProps {
   nextStepsData: NextStepsData;
   onToggleActionItem: (itemId: string) => void;
@@ -15,6 +17,7 @@ interface ActionWorkspacePanelProps {
   onAddActionItem: (text: string) => void;
   savedProjection?: SavedFinancialProjection | null;
   onExportTimelinePDF?: () => void;
+  nextMeeting?: NextMeetingInfo | null;
 }
 export function ActionWorkspacePanel({
   nextStepsData,
@@ -22,7 +25,8 @@ export function ActionWorkspacePanel({
   onDeleteActionItem,
   onAddActionItem,
   savedProjection,
-  onExportTimelinePDF
+  onExportTimelinePDF,
+  nextMeeting
 }: ActionWorkspacePanelProps) {
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemText, setNewItemText] = useState("");
@@ -74,12 +78,20 @@ export function ActionWorkspacePanel({
                 <Calendar className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 text-sm">{sampleMeeting.date}</p>
-                <p className="text-xs text-slate-600">{sampleMeeting.time} • {sampleMeeting.duration} min</p>
-                <div className="flex items-center gap-1 mt-1 flex-wrap">
-                  <Users className="w-3 h-3 text-slate-400" />
-                  {sampleMeeting.participants.slice(0, 2).map((p, idx) => <span key={idx} className="text-xs text-slate-600">{p}{idx < 1 ? ',' : ''}</span>)}
-                </div>
+                <p className="font-semibold text-slate-900 text-sm">
+                  {nextMeeting ? format(nextMeeting.date, "MMMM d, yyyy") : sampleMeeting.date}
+                </p>
+                <p className="text-xs text-slate-600">
+                  {nextMeeting
+                    ? nextMeeting.topic || "Follow-up meeting"
+                    : `${sampleMeeting.time} • ${sampleMeeting.duration} min`}
+                </p>
+                {!nextMeeting && (
+                  <div className="flex items-center gap-1 mt-1 flex-wrap">
+                    <Users className="w-3 h-3 text-slate-400" />
+                    {sampleMeeting.participants.slice(0, 2).map((p, idx) => <span key={idx} className="text-xs text-slate-600">{p}{idx < 1 ? ',' : ''}</span>)}
+                  </div>
+                )}
               </div>
             </div>
           </Card>
