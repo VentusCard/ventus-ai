@@ -1,58 +1,107 @@
 
 
-# Add "Note Taking" Chip to Wealth Management Co-Pilot
+# Connect Meeting Notes with WM Co-Pilot Functions
 
 ## Overview
-Add a "Note Taking" chip to the primary chips row in the Ventus AI Chat panel. Clicking it opens a dialog with structured sections relevant to an advisor-client meeting. On submit, the notes are parsed into action items and added to the Next Steps panel.
+Enhance the Meeting Notes dialog so that on submit, it intelligently connects with other co-pilot features -- auto-triggering relevant chips, pre-filling Ventus AI chat context, scheduling life event planning, and feeding data into the Client Snapshot panel.
 
-## Note Taking Dialog Sections
+## Connections to Build
 
-| Section | Field Type | Purpose |
-|---|---|---|
-| Meeting Context | Dropdown (Quarterly Review, Annual Review, Ad-hoc, New Client Onboarding, Life Event Follow-up) | Categorize the meeting |
-| Attendees | Text input | Who was present |
-| Client Sentiment | 5-point radio (Very Positive, Positive, Neutral, Concerned, Anxious) | Quick mood gauge |
-| Key Discussion Points | Multi-line textarea | Free-form meeting notes |
-| Client Requests | Multi-line textarea | Specific asks from the client |
-| Decisions Made | Multi-line textarea | Agreed-upon outcomes |
-| Products Discussed | Checkbox group (Checking, Savings, Mortgage, Investment Portfolio, Insurance, 529 Plan, IRA, Credit Card) | Track cross-sell/upsell topics |
-| Follow-up Actions | Repeatable text inputs (add/remove rows) | Specific tasks with owner assignment |
-| Next Meeting | Date picker + text input for topic | Schedule follow-up |
+### 1. Auto-Send Meeting Summary to Ventus AI Chat
+After notes are saved, construct a summary prompt and inject it into the chat so the AI can analyze the meeting and suggest additional actions.
 
-## Behavior on Submit
-1. Each "Follow-up Action" row becomes a Next Steps action item with source `'notes'`
-2. If "Client Requests" has content, parse each line into an action item prefixed with "Client request:"
-3. If "Decisions Made" has content, parse each line into an action item prefixed with "Decision:"
-4. Toast confirmation: "Meeting notes saved - X action items added"
-5. Dialog closes
+**How it works:**
+- On submit, build a text summary from all filled fields (sentiment, discussion points, products discussed, etc.)
+- Use the existing `pendingMessage` mechanism (call a new prop like `onSendToChat`) to inject the summary as a chat message
+- The AI then responds with analysis, additional recommendations, and follow-up suggestions
+- Any checkbox-formatted action items in the AI response automatically flow into Next Steps (existing behavior)
 
-## Files to Create/Modify
+### 2. Auto-Open Life Event Planner When Life Event Detected
+If the meeting type is "Life Event Follow-up" or discussion points mention life events (retirement, baby, home purchase, etc.), automatically open the Financial Timeline Tool after notes are saved.
+
+**How it works:**
+- Check `meetingType === "Life Event Follow-up"` or scan discussion points for keywords
+- If detected, trigger `onPlanEvent` (existing cross-panel callback) or set `financialTimelineOpen = true`
+- Pass context from the notes (e.g. "Client discussed upcoming retirement") to pre-seed the timeline
+
+### 3. Feed Products Discussed into Product Recommendations
+When products are checked in the notes, use them as context for the "Product Recommendations" chip.
+
+**How it works:**
+- Store the products discussed in a shared state (via a new prop callback `onProductsDiscussed`)
+- When "Product Recommendations" chip is clicked afterward, append these products to the AI prompt: "Client recently discussed: Mortgage, 529 Plan. Based on this and their profile..."
+- This makes the AI recommendation contextually aware of the meeting
+
+### 4. Update Client Psychology from Sentiment
+Map the sentiment selection to the Client Psychology panel's emotional state slider.
+
+**How it works:**
+- On submit, if sentiment is filled, call `onExtractNextSteps` with a `PsychologicalInsight` for "Emotional State" mapped from the sentiment value
+- Very Positive/Positive -> high slider, Neutral -> mid, Concerned/Anxious -> low
+- This updates the right panel's psychology section automatically
+
+### 5. Schedule Next Meeting as Calendar Action Item with Priority
+If a next meeting date is set, create a higher-visibility action item that includes the date and topic, and also surface it in the Action Workspace's meeting section.
+
+**How it works:**
+- Already partially implemented (creates an action item)
+- Enhance: pass the next meeting date/topic to the `ActionWorkspacePanel` via a new prop so it can update the "Upcoming Meeting" card at the top of the right panel
+- The meeting card currently shows hardcoded sample data -- replace with real data from notes
+
+## Files to Modify
 
 | File | Change |
 |---|---|
-| `src/components/tepilot/advisor-console/MeetingNotesDialog.tsx` | **New file** - Dialog component with all sections, form state, and submit logic |
-| `src/components/tepilot/advisor-console/VentusChatPanel.tsx` | Add "Note Taking" to `primaryChips`, add dialog state, handle chip click to open dialog, pass `onExtractNextSteps` to dialog |
-| `src/components/tepilot/advisor-console/sampleData.ts` | Add `'notes'` to the `NextStepsActionItem.source` union type |
+| `src/components/tepilot/advisor-console/MeetingNotesDialog.tsx` | Expand `onSubmitNotes` to return full meeting data (not just action items). Add sentiment-to-psychology mapping. Build chat summary string. |
+| `src/components/tepilot/advisor-console/VentusChatPanel.tsx` | After notes submit: inject summary into chat via pending message, conditionally open Life Event Planner, store products discussed for future prompts. |
+| `src/components/tepilot/advisor-console/AdvisorConsole.tsx` | Add state for meeting context (products discussed, next meeting info). Pass next meeting data to ActionWorkspacePanel. Wire up new callbacks. |
+| `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx` | Accept optional `nextMeeting` prop to override the hardcoded meeting card with real data from notes. |
+| `src/components/tepilot/advisor-console/sampleData.ts` | Add `MeetingNotesResult` type that includes action items, sentiment, products, next meeting date, and summary text. |
 
 ## Technical Details
 
-### VentusChatPanel changes
-- Add `"Note Taking"` to the `primaryChips` array (line 205)
-- Add `meetingNotesOpen` state
-- In `handleChipClick`, add a case for `"Note Taking"` that sets `meetingNotesOpen = true` and returns (same pattern as "Tax Planning")
-- Render `<MeetingNotesDialog>` with `open={meetingNotesOpen}` and pass `onExtractNextSteps` as the submit handler
+### New Type: `MeetingNotesResult`
+```typescript
+interface MeetingNotesResult {
+  actionItems: NextStepsActionItem[];
+  sentiment?: string;
+  productsDiscussed: string[];
+  meetingType: string;
+  nextMeetingDate?: Date;
+  nextMeetingTopic?: string;
+  chatSummary: string; // pre-built prompt for Ventus AI
+}
+```
 
-### MeetingNotesDialog component
-- Uses existing `Dialog`, `Input`, `Textarea`, `Select`, `Checkbox`, `Button`, `RadioGroup` UI components
-- Local form state for all fields
-- `handleSubmit` function that:
-  - Collects follow-up action rows into `NextStepsActionItem[]` with source `'notes'`
-  - Splits "Client Requests" and "Decisions Made" by newlines into additional action items
-  - Calls `onSubmitNotes(actionItems)` prop
-  - Resets form and closes dialog
+### Chat Summary Construction
+```text
+"Meeting notes summary - Type: Quarterly Review. 
+Sentiment: Positive. 
+Discussion: [key points]. 
+Products discussed: Mortgage, 529 Plan. 
+Client requests: [requests]. 
+Decisions: [decisions]. 
+Please analyze this meeting and suggest any additional action items or opportunities I may have missed."
+```
 
-### sampleData.ts type update
-- Change `source: 'chat' | 'transcript' | 'manual' | 'timeline'` to include `| 'notes'`
+### Sentiment to Psychology Mapping
+| Sentiment | Slider Value | Assessment |
+|---|---|---|
+| Very Positive | 5 | "Highly engaged and optimistic" |
+| Positive | 4 | "Comfortable and receptive" |
+| Neutral | 3 | "Balanced, no strong signals" |
+| Concerned | 2 | "Showing worry, needs reassurance" |
+| Anxious | 1 | "Elevated anxiety, handle with care" |
 
-### Action item source badge
-- The existing `ActionWorkspacePanel` already renders a source badge per item, so items with source `'notes'` will automatically show a "notes" badge
+### Life Event Detection Keywords
+Scan `discussionPoints` + `meetingType` for: retirement, baby, child, wedding, marriage, home purchase, house, college, inheritance, divorce, job change, relocation
+
+### Flow Diagram
+1. Advisor fills out meeting notes and clicks Save
+2. Action items are added to Next Steps (existing)
+3. Sentiment updates Client Psychology panel
+4. Products discussed are stored for future recommendation context
+5. Chat summary is injected into Ventus AI for analysis
+6. If life event detected, Financial Timeline Tool opens with context
+7. Next meeting date updates the Upcoming Meeting card in Action Workspace
+
