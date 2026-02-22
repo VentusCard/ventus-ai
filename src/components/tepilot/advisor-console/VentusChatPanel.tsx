@@ -18,6 +18,7 @@ import { FinancialTimelineTool } from "./FinancialTimelineTool";
 import { ClientPsychologyDialog } from "./ClientPsychologyDialog";
 import { TaxPlanningDialog } from "./TaxPlanningDialog";
 import { ClientProfileData } from "@/types/clientProfile";
+import { MeetingNotesDialog } from "./MeetingNotesDialog";
 
 interface VentusChatPanelProps {
   selectedLifestyleChip?: string | null;
@@ -99,6 +100,7 @@ export function VentusChatPanel({
   const [psychologyDialogOpen, setPsychologyDialogOpen] = useState(false);
   const [financialTimelineOpen, setFinancialTimelineOpen] = useState(false);
   const [taxPlanningDialogOpen, setTaxPlanningDialogOpen] = useState(false);
+  const [meetingNotesOpen, setMeetingNotesOpen] = useState(false);
   const [selectedTimelineEvent, setSelectedTimelineEvent] = useState<LifeEvent | null>(null);
   const [activeChipSource, setActiveChipSource] = useState<string | null>(null);
   const {
@@ -202,7 +204,7 @@ export function VentusChatPanel({
   const todayTasks = tasks.filter(t => t.category === 'today');
   const incompleteTasks = todayTasks.filter(t => !t.completed);
   const completedTasks = todayTasks.filter(t => t.completed);
-  const primaryChips = ["Financial Planning", "Life Event Planner", "Tax Planning", "Product Recommendations"];
+  const primaryChips = ["Financial Planning", "Life Event Planner", "Tax Planning", "Note Taking", "Product Recommendations"];
   const secondaryChips = ["Meeting Prep", "Spending Trends", "Financial Standing", "Lifestyle Profile", "Client Psychology"];
   const handleChipClick = (chip: string) => {
     // Track which chip was clicked for refresh logic
@@ -243,6 +245,9 @@ export function VentusChatPanel({
         return;
       case "Tax Planning":
         setTaxPlanningDialogOpen(true);
+        return;
+      case "Note Taking":
+        setMeetingNotesOpen(true);
         return;
       case "Client Psychology":
         setPsychologyDialogOpen(true);
@@ -460,6 +465,21 @@ export function VentusChatPanel({
         onAskAI={(prompt) => {
           setInputValue(prompt);
           setTaxPlanningDialogOpen(false);
+        }}
+      />
+
+      <MeetingNotesDialog
+        open={meetingNotesOpen}
+        onOpenChange={setMeetingNotesOpen}
+        onSubmitNotes={(items) => {
+          if (onExtractNextSteps && items.length > 0) {
+            onExtractNextSteps(items, []);
+            toast({
+              title: `Meeting notes saved`,
+              description: `${items.length} action item(s) added to Next Steps`,
+              duration: 3000,
+            });
+          }
         }}
       />
     </div>;
