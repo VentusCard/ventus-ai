@@ -58,7 +58,7 @@ export function LifeEventDetailsDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-4">
           <div className="space-y-4">
             {/* Evidence Section */}
             {event.evidence && event.evidence.length > 0 && (
@@ -70,21 +70,36 @@ export function LifeEventDetailsDialog({
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-2">
                   <div className="space-y-2">
-                    {event.evidence.map((item, idx) => (
-                      <Card key={idx} className="p-3 bg-white border-slate-200 shadow-sm">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-slate-700">{item.merchant}</span>
-                          <span className="font-semibold text-slate-900">{formatCurrency(item.amount)}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {item.date}
-                          </span>
-                          <span className="italic">{item.relevance}</span>
-                        </div>
-                      </Card>
-                    ))}
+                    {event.evidence.map((item, idx) => {
+                      const hasMerchant = item.merchant && item.merchant.trim().length > 0;
+                      const hasAmount = item.amount > 0;
+                      const hasDate = item.date && item.date.trim().length > 0;
+                      const displayLabel = hasMerchant ? item.merchant : item.relevance;
+
+                      return (
+                        <Card key={idx} className="p-3 bg-white border-slate-200 shadow-sm">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium text-slate-700">{displayLabel}</span>
+                            {hasAmount && (
+                              <span className="font-semibold text-slate-900">{formatCurrency(item.amount)}</span>
+                            )}
+                          </div>
+                          {(hasDate || (hasMerchant && item.relevance)) && (
+                            <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
+                              {hasDate && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {item.date}
+                                </span>
+                              )}
+                              {hasMerchant && item.relevance && (
+                                <span className="italic">{item.relevance}</span>
+                              )}
+                            </div>
+                          )}
+                        </Card>
+                      );
+                    })}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -108,7 +123,7 @@ export function LifeEventDetailsDialog({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="mt-4 flex gap-2">
           {event.financial_projection && (
