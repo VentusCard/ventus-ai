@@ -1,175 +1,99 @@
 
 
-# AI-Powered Campaign Studio -- Full Redesign
+# Make Campaign Studio the Main Content with Integrated Presets and Saved Segments
 
 ## Overview
-Replace the current tab-based Segment Builder with a unified, multi-dimensional Campaign Studio. Instead of choosing one targeting mode at a time (Life Events OR Lifestyle OR Product), users can select criteria across ALL dimensions simultaneously. An AI assistant generates campaign creative (subject lines, copy, CTAs, imagery descriptions) in real-time based on selected chips.
+Consolidate the entire Segment Targeting view so that the Campaign Studio is the only top-level content. The separate `SegmentMetricsSummary`, `SegmentTemplateGrid`, and `SavedSegmentsTable` sections will be absorbed into the Campaign Studio itself -- metrics become a compact header row, templates become a collapsible "Presets" section in the left column, and saved segments become a collapsible section in the left column as well.
 
 ## What Changes
 
-### Current State
-- `SegmentBuilder.tsx` uses exclusive `Tabs` -- only one targeting mode at a time
-- Product catalog is limited to 8 credit card types from `CARD_PRODUCTS`
-- No AI assistance for campaign creative
-- No cross-sell/upsell strategy chips
-- No metro-level geo targeting
-
-### New Experience
-A two-column layout: left side has collapsible chip-cloud sections for every dimension (all visible, all combinable), right side has a sticky AI-generated campaign brief panel. Users toggle chips freely, click "Generate Campaign Brief", and the AI returns subject lines, copy, CTAs, and imagery direction.
-
-## Layout
-
+### Current Layout (4 separate sections stacked vertically)
 ```text
-+-----------------------------------------------+---------------------------+
-|  LEFT COLUMN (60%)                             |  RIGHT COLUMN (40%)       |
-|  Scrollable dimension selectors                |  Sticky AI Preview        |
-|                                                |                           |
-|  [v] Lifestyle Pillars (12 chips)              |  Campaign Name: ____      |
-|  [v] Life Events (7 chips + sliders)           |                           |
-|  [v] Banking Products                          |  Subject Line: "..."      |
-|      Credit Cards (10)                         |  Email Body: "..."        |
-|      Deposit Accounts (8)                      |  Push Copy: "..."         |
-|      Loans (8)                                 |  SMS: "..."               |
-|      Investment Products (7)                   |  In-App Banner: "..."     |
-|      Insurance (5)                             |  CTA: "..."               |
-|      Digital Services (6)                      |  Imagery: "..."           |
-|  [v] Geography (regions + metros)              |                           |
-|  [v] Demographics (age, income, tenure)        |  [Regenerate] [Copy All]  |
-|  [v] Cross-Sell Strategy (6 chips)             |                           |
-|  [v] Upsell Strategy (5 chips)                 |  Audience: 12.4M          |
-|  [v] Campaign Goal (single-select)             |  [Save] [Export] [CRM]    |
-+-----------------------------------------------+---------------------------+
+[Intro Banner]
+[Metrics Summary - 4 cards]
+[Campaign Studio - two-column card]
+[Segment Template Grid - filterable card grid]
+[Saved Segments Table - table card]
 ```
 
-## Complete Banking Product Catalog
+### New Layout (Campaign Studio is everything)
+```text
+[Campaign Studio]
+  Header: Title + inline metrics (4 small stat badges)
+  Two-column layout:
+    LEFT COLUMN:
+      [Preset Templates] (collapsible, compact cards with "Apply" button)
+      [Saved Segments] (collapsible, compact list with Edit/Export actions)
+      --- separator ---
+      [Lifestyle Pillars]
+      [Life Events]
+      [Banking Products]
+      [Geography]
+      [Demographics]
+      [Strategies]
+      [Campaign Goal]
+      [Audience Estimate Bar]
+    RIGHT COLUMN:
+      [AI Campaign Brief Preview] (sticky, unchanged)
+```
 
-**Credit Cards** (10): Cashback, Custom Cashback, Travel, Airline, Hotel, Premium Travel, Student, Secured, Business, Co-Branded Retail
+## Detailed Changes
 
-**Deposit Accounts** (8): Checking, Savings, High-Yield Savings, Money Market, CD, Business Checking, Business Savings, Youth/Teen
+### 1. `SegmentTargetingView.tsx` -- Simplify to just render CampaignStudio
+- Remove imports of `SegmentMetricsSummary`, `SegmentTemplateGrid`, `SavedSegmentsTable`
+- Remove the intro banner (move it into the CampaignStudio header)
+- Remove template/segment handler functions
+- The view becomes a thin wrapper that just renders `<CampaignStudio />`
 
-**Loans** (8): Personal, Auto, Home Mortgage, HELOC, Student Loan Refi, Small Business, Line of Credit, Debt Consolidation
+### 2. `CampaignStudio.tsx` -- Absorb all content
+- **Header**: Replace the current simple header with a richer one that includes the intro text plus 4 inline metric badges (Saved Segments count, Total Contacts, Total Exports, Active Modes) pulled from `getSegmentMetricsSummary()`
+- **Left Column -- Add Presets section at top**: A new collapsible `DimensionChipCloud`-style section titled "Preset Templates" that renders `SEGMENT_TEMPLATES` as compact mini-cards. Each card shows icon + name + estimated size + "Apply" button. Clicking "Apply" populates the relevant dimension state (pillars, life events, products, demographics) from the template's `suggestedAudience`. Category filter tabs (All, Life Events, Lifestyle, Cross-Sell, Seasonal) shown as small chips inside the collapsible.
+- **Left Column -- Add Saved Segments section**: A collapsible section titled "Saved Segments" with a compact list of `SAVED_SEGMENTS`. Each row shows name, mode badge, estimated size, and a small dropdown for Edit/Export/Delete actions. Clicking "Edit" loads the segment criteria into the studio state.
+- **Separator**: A subtle `Separator` divider between the presets/saved sections and the dimension selectors
 
-**Investment Products** (7): Brokerage, Traditional IRA, Roth IRA, 529 Plan, Robo-Advisor, Managed Portfolio, Trust Account
-
-**Insurance** (5): Life, Home, Auto, Travel, Identity Theft Protection
-
-**Digital Services** (6): Mobile Banking Active, Digital Wallet, Zelle/P2P Active, Direct Deposit Active, Bill Pay Active, Overdraft Protection
-
-Each product has a "Must Have" / "Must NOT Have" toggle for cross-sell logic.
-
-## Cross-Sell Strategy Chips
-- "Has basic, lacks premium" (upgrade path)
-- "Has cards, lacks deposit" (deepen relationship)
-- "Has deposit, lacks cards" (activation play)
-- "Has personal, lacks business" (business banking)
-- "Single product holder" (expansion)
-- "Dormant account reactivation"
-
-## Upsell Strategy Chips
-- "Tier upgrade eligible"
-- "Balance growth potential"
-- "Fee waiver candidates"
-- "Loyalty tier advancement"
-- "Annual fee justification"
-
-## Campaign Goal (single-select)
-Acquisition, Cross-Sell, Upsell, Retention, Reactivation, Seasonal Promotion, Life Event Response, Brand Awareness
-
-## AI Campaign Brief Generation
-When users click "Generate Campaign Brief", an edge function takes all selected dimensions as structured JSON and returns:
-- Campaign Name (auto-generated, editable)
-- Email Subject Line
-- Email Body (2-3 sentence marketing copy)
-- Push Notification (short, with emoji)
-- SMS (160 chars)
-- In-App Banner copy
-- CTA Text + suggested CTA link
-- Imagery Direction (description for creative team)
-- Offer Suggestion (type, value, validity)
-
-Uses streaming via `google/gemini-3-flash-preview` with tool calling to return structured output. Each field is individually editable after generation. "Regenerate" button gets a new variation.
-
-## Files to Create
-
-| File | Purpose |
-|---|---|
-| `src/types/campaign-studio.ts` | Types for all dimensions, product catalog items, campaign brief, cross-sell/upsell strategies |
-| `src/lib/campaignStudioData.ts` | Full product catalog constants (44 products), strategy chips, metro areas, audience estimation logic |
-| `src/components/tepilot/campaigns/CampaignStudio.tsx` | Main two-column layout, manages all dimension state, audience estimation, save/export actions |
-| `src/components/tepilot/campaigns/DimensionChipCloud.tsx` | Reusable collapsible chip-cloud selector (title, multi-select chips, count badge, optional sliders) |
-| `src/components/tepilot/campaigns/ProductDimensionGroup.tsx` | Product chips organized by category with has/lacks toggles per product |
-| `src/components/tepilot/campaigns/GeoDimensionSelector.tsx` | Region chips + top 20 metro area chips + Urban/Suburban/Rural toggle |
-| `src/components/tepilot/campaigns/StrategyChips.tsx` | Cross-sell and upsell strategy chip selectors |
-| `src/components/tepilot/campaigns/CampaignGoalSelector.tsx` | Single-select campaign goal chips |
-| `src/components/tepilot/campaigns/AICampaignPreview.tsx` | Right panel: streaming AI brief with editable fields, regenerate, copy all |
-| `src/components/tepilot/campaigns/AudienceEstimateBar.tsx` | Live audience counter at bottom of left panel with population and geo/age breakdown |
-| `supabase/functions/generate-campaign-brief/index.ts` | Edge function calling Lovable AI to generate structured campaign brief via tool calling |
+### 3. No changes to the right column (AICampaignPreview)
+The AI preview panel remains exactly as-is.
 
 ## Files to Modify
 
 | File | Change |
 |---|---|
-| `src/components/tepilot/campaigns/SegmentTargetingView.tsx` | Replace `SegmentBuilder` import with `CampaignStudio`, keep `SegmentTemplateGrid` and `SavedSegmentsTable` below |
-| `supabase/config.toml` | Add `[functions.generate-campaign-brief]` with `verify_jwt = false` |
-
-## Files to Remove
-
-| File | Reason |
-|---|---|
-| `src/components/tepilot/campaigns/SegmentBuilder.tsx` | Replaced entirely by `CampaignStudio` |
+| `src/components/tepilot/campaigns/SegmentTargetingView.tsx` | Strip down to only render `<CampaignStudio />`, remove all other imports and handlers |
+| `src/components/tepilot/campaigns/CampaignStudio.tsx` | Add inline metrics header, integrate preset templates section with category filtering and "Apply" logic, integrate saved segments list with edit/export/delete actions, add separator between presets and dimension selectors |
 
 ## Technical Details
 
-### Edge Function: `generate-campaign-brief`
-- Uses `google/gemini-3-flash-preview` via Lovable AI gateway
-- Streaming SSE response for token-by-token rendering
-- Tool calling with `generate_brief` function for structured output containing: `campaign_name`, `subject_line`, `email_body`, `push_copy`, `sms_copy`, `in_app_copy`, `cta_text`, `cta_link`, `imagery_direction`, `offer_type`, `offer_value`, `offer_validity_days`
-- Handles 429/402 errors with user-facing toasts
-- System prompt includes banking/financial marketing context
+### Preset "Apply" Logic
+When a user clicks "Apply" on a template card, the handler reads `template.suggestedAudience` and sets the corresponding state:
+- `targetingMode === 'life_event'`: sets `lifeEventCriteria` from `template.suggestedAudience.lifeEventCriteria`, sets `demographicFilters` if present
+- `targetingMode === 'lifestyle'`: sets `selectedPillars` from `lifestyleCriteria.pillars`
+- `targetingMode === 'product'`: sets `selectedProducts` from `productCriteria.hasProducts` (as "has") and `productCriteria.lacksProducts` (as "lacks")
+- Clears other dimensions to avoid confusing cross-state
+- Shows toast confirming which preset was applied
 
-### Audience Estimation
-Extends `estimateAudienceSize` to handle all new dimensions simultaneously:
-- Base: 75M users
-- Products: realistic penetration rates per product category
-- Life events: existing detection rates
-- Lifestyle: existing threshold multipliers
-- Geography: region + metro sub-rates
-- Strategies: intersection multipliers (cross-sell/upsell narrow the audience)
-- Demographics: existing age/income/tenure multipliers
-- All dimensions combine multiplicatively (intersection logic)
+### Saved Segment "Edit" Logic
+Reads the segment's `targetingMode` and criteria fields, maps them to studio state the same way as presets, then shows a toast.
 
-### Reusable `DimensionChipCloud` Component
-Props: `title`, `icon`, `chips[]`, `selectedChips`, `onToggle`, `defaultOpen?`, `badge?`
-- Wraps `Collapsible` from existing UI library
-- Each chip is a rounded pill with checkbox dot, colored border when selected
-- Section header shows count badge when chips are selected
-- Consistent design across all dimension sections
+### Inline Metrics
+Four small `Badge` components in the header row showing:
+- `4 Saved` (bookmark icon)
+- `21.2M Contacts` (users icon)
+- `10 Exports` (download icon)
+- `3 Modes Active` (target icon)
 
-### State Management
-All dimension state lives in `CampaignStudio.tsx` as individual `useState` hooks:
-- `selectedPillars: string[]`
-- `lifeEventCriteria: LifeEventCriteria` (reuses existing type)
-- `selectedProducts: Record<string, 'has' | 'lacks'>` (product name to mode)
-- `selectedRegions: string[]`, `selectedMetros: string[]`, `areaType: string`
-- `demographicFilters: DemographicFilters` (reuses existing type)
-- `crossSellStrategies: string[]`
-- `upsellStrategies: string[]`
-- `campaignGoal: string`
-- `generatedBrief: CampaignBrief | null`
+These are computed from `getSegmentMetricsSummary()` and rendered inline next to the title, replacing the separate 4-card grid.
 
-### Existing Components Preserved
-- `LifeEventTargeting`, `LifestyleTargeting`, `ProductTargeting` -- kept as files but no longer used by the new studio (the studio reimplements their chip patterns inline via `DimensionChipCloud`)
-- `DemographicFilters` -- reused as-is inside the studio
-- `AudiencePreview` -- reused for the audience breakdown display
-- `SegmentExportControls` -- reused for the export popover
-- `SegmentTemplateGrid` and `SavedSegmentsTable` -- remain below the studio in the view
+### Preset Template Mini-Cards
+Rendered inside a `Collapsible` section. Each card is a compact horizontal row (not the full `SegmentTemplateCard`):
+```text
+[Icon] New Parents  |  4.1M  |  [Apply]
+```
+With category filter chips (All | Life Events | Lifestyle | Cross-Sell | Seasonal) above the list, styled as small pills similar to the existing dimension chips.
 
-### CRM Transfer Button
-A `DropdownMenu` in the right panel with options:
-- Salesforce -- toast "Coming soon"
-- HubSpot -- toast "Coming soon"  
-- Marketo -- toast "Coming soon"
-- Custom API -- toast "Coming soon"
-
-Placeholder for future integration.
+### Saved Segments Compact List
+Rendered inside a `Collapsible` section. Each row:
+```text
+[Icon] Travel-Heavy Cashback Users  |  [Product]  |  8.2M  |  [...menu]
+```
+The dropdown menu reuses the same export/edit/delete actions from the current `SavedSegmentsTable`.
 
