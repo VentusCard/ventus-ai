@@ -3,7 +3,7 @@ import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { useState, useMemo } from "react";
-import { TrendingUp, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowUpCircle, CheckCircle, AlertTriangle } from "lucide-react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
 
@@ -24,7 +24,7 @@ function hashString(str: string): number {
 
 function getBudgetStatus(spend: number, budget: number) {
   const ratio = spend / budget;
-  if (ratio > 1) return { status: "over" as const, color: "#ef4444", icon: TrendingUp, label: "Over Budget" };
+  if (ratio > 1) return { status: "over" as const, color: "#ef4444", icon: ArrowUpCircle, label: "Over Budget" };
   if (ratio >= 0.7) return { status: "near" as const, color: "#f59e0b", icon: AlertTriangle, label: "Near Limit" };
   return { status: "under" as const, color: "#22c55e", icon: CheckCircle, label: "Under Budget" };
 }
