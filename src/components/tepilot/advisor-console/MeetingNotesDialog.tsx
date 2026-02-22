@@ -161,7 +161,7 @@ export function MeetingNotesDialog({ open, onOpenChange, onSubmitNotes }: Meetin
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 gap-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0 gap-0 tepilot-popup bg-white text-slate-900">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>Meeting Notes</DialogTitle>
         </DialogHeader>
