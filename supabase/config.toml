@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.generate-campaign-brief]
 verify_jwt = false
+
+[functions.parse-campaign-intent]
+verify_jwt = false
