@@ -136,6 +136,7 @@ export function CampaignStudio() {
       setDemographicFilters(audience.demographicFilters as DemographicFiltersType);
     }
 
+    pendingGenerateRef.current = true;
     toast.success(`Applied "${template.name}" preset`, {
       description: `${(template.estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`,
     });
@@ -163,7 +164,8 @@ export function CampaignStudio() {
       setDemographicFilters(segment.demographicFilters);
     }
 
-    toast.info(`Editing "${segment.name}"`, { description: "Criteria loaded into studio" });
+    pendingGenerateRef.current = true;
+    toast.info(`Loaded "${segment.name}"`, { description: "Criteria loaded into studio" });
   }, []);
 
   // ─── Audience Estimation ───
@@ -384,25 +386,16 @@ export function CampaignStudio() {
                       {filteredTemplates.map(template => (
                         <div
                           key={template.id}
-                          className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors"
+                          className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer"
+                          onClick={() => handleApplyTemplate(template)}
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{template.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{template.description}</p>
                           </div>
-                          <div className="flex items-center gap-2 ml-3 shrink-0">
-                            <span className="text-xs text-muted-foreground">
-                              {(template.estimatedSize / 1_000_000).toFixed(1)}M
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2.5 text-xs text-primary hover:text-primary"
-                              onClick={() => handleApplyTemplate(template)}
-                            >
-                              Apply
-                            </Button>
-                          </div>
+                          <span className="text-xs text-muted-foreground ml-3 shrink-0">
+                            {(template.estimatedSize / 1_000_000).toFixed(1)}M
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -436,7 +429,8 @@ export function CampaignStudio() {
                     {SAVED_SEGMENTS.map(segment => (
                       <div
                         key={segment.id}
-                        className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30"
+                        className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer"
+                        onClick={() => handleEditSegment(segment)}
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{segment.name}</p>
@@ -444,32 +438,9 @@ export function CampaignStudio() {
                             {modeLabel(segment.targetingMode)}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-2 ml-3 shrink-0">
-                          <span className="text-xs text-muted-foreground">
-                            {(segment.estimatedSize / 1_000_000).toFixed(1)}M
-                          </span>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEditSegment(segment)}>
-                                <Pencil className="w-3.5 h-3.5 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast.success(`Exported "${segment.name}"`)}>
-                                <Download className="w-3.5 h-3.5 mr-2" /> Export
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => toast.success(`Deleted "${segment.name}"`)}
-                              >
-                                <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                        <span className="text-xs text-muted-foreground ml-3 shrink-0">
+                          {(segment.estimatedSize / 1_000_000).toFixed(1)}M
+                        </span>
                       </div>
                     ))}
                   </div>
