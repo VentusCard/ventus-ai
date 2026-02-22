@@ -57,6 +57,7 @@ export interface SegmentTemplate {
   estimatedSize: number;
   priority: 'high' | 'medium' | 'low';
   seasonalWindow?: string;
+  suggestedGoal?: string;
 }
 
 // Constants for filter options

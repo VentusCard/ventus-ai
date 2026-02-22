@@ -135,6 +135,12 @@ export function CampaignStudio() {
     if (audience.demographicFilters) {
       setDemographicFilters(audience.demographicFilters as DemographicFiltersType);
     }
+    if (template.suggestedGoal) {
+      setCampaignGoal(template.suggestedGoal);
+    }
+    if (template.category === 'cross_sell') {
+      setCrossSellStrategies(['basic_to_premium']);
+    }
 
     pendingGenerateRef.current = true;
     toast.success(`Applied "${template.name}" preset`, {
