@@ -3,34 +3,21 @@ import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
-import { useState, useMemo, useCallback } from "react";
-import { ArrowUpCircle, CheckCircle, AlertTriangle } from "lucide-react";
+import { useState, useCallback } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
+import { hashString, getBudgetStatus } from "@/lib/budgetUtils";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
   budgetMode?: boolean;
+  budgets: Record<string, number>;
+  setBudgets: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  subcategoryBudgets: Record<string, number>;
+  setSubcategoryBudgets: React.Dispatch<React.SetStateAction<Record<string, number>>>;
 }
 
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function getBudgetStatus(spend: number, budget: number) {
-  const ratio = spend / budget;
-  if (ratio > 1) return { status: "over" as const, color: "#ef4444", icon: ArrowUpCircle, label: "Over Budget" };
-  if (ratio >= 0.7) return { status: "near" as const, color: "#f59e0b", icon: AlertTriangle, label: "Near Limit" };
-  return { status: "under" as const, color: "#22c55e", icon: CheckCircle, label: "Under Budget" };
-}
-
-export function PillarExplorer({ transactions, budgetMode = false }: PillarExplorerProps) {
+export function PillarExplorer({ transactions, budgetMode = false, budgets, setBudgets, subcategoryBudgets, setSubcategoryBudgets }: PillarExplorerProps) {
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<{
     subcategory: string;
@@ -41,18 +28,6 @@ export function PillarExplorer({ transactions, budgetMode = false }: PillarExplo
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
 
-  const [budgets, setBudgets] = useState<Record<string, number>>(() => {
-    const map: Record<string, number> = {};
-    pillars.forEach((p) => {
-      const seed = hashString(p.pillar);
-      const multiplier = 0.7 + ((seed % 80) / 100);
-      map[p.pillar] = Math.round(p.totalSpend * multiplier);
-    });
-    return map;
-  });
-
-  const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({});
-
   const getSubcategoryBudget = useCallback((pillar: string, subcategory: string, spend: number) => {
     const key = `${pillar}::${subcategory}`;
     if (subcategoryBudgets[key] !== undefined) return subcategoryBudgets[key];
@@ -61,7 +36,7 @@ export function PillarExplorer({ transactions, budgetMode = false }: PillarExplo
     const budget = Math.round(spend * multiplier);
     setSubcategoryBudgets(prev => ({ ...prev, [key]: budget }));
     return budget;
-  }, [subcategoryBudgets]);
+  }, [subcategoryBudgets, setSubcategoryBudgets]);
 
   return (
     <div className="space-y-6">
@@ -178,61 +153,59 @@ export function PillarExplorer({ transactions, budgetMode = false }: PillarExplo
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {subcategories.slice(0, 6).map((subcat) => {
                         const percentage = (subcat.totalSpend / pillarTotal) * 100;
+                        const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
+                        const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
+                        const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
                         
-                        return (() => {
-                            const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
-                            const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
-                            const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
-                            return (
-                              <div
-                                key={subcat.subcategory}
-                                className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedSubcategory({
-                                    subcategory: subcat.subcategory,
-                                    pillar: selectedPillar
-                                  });
-                                }}
-                              >
-                                <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
-                                <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
-                                {budgetMode && subcatBudgetInfo && (
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
-                                    <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
-                                    <Input
-                                      type="number"
-                                      className="w-20 h-6 text-xs px-1"
-                                      value={subcategoryBudgets[budgetKey] ?? subcatBudget}
-                                      onClick={(e) => e.stopPropagation()}
-                                      onChange={(e) => {
-                                        const val = parseInt(e.target.value) || 0;
-                                        setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
-                                      }}
-                                    />
-                                  </div>
-                                )}
-                                <div className="flex items-center justify-between text-xs text-slate-600">
-                                  <span>{subcat.transactionCount} transactions</span>
-                                  <span>{percentage.toFixed(1)}% of pillar</span>
-                                </div>
-                                <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full transition-all"
-                                    style={{
-                                      width: budgetMode && subcatBudget > 0
-                                        ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
-                                        : `${percentage}%`,
-                                      backgroundColor: budgetMode && subcatBudgetInfo
-                                        ? subcatBudgetInfo.color
-                                        : (PILLAR_COLORS[selectedPillar] || "#64748b")
-                                    }}
-                                  />
-                                </div>
+                        return (
+                          <div
+                            key={subcat.subcategory}
+                            className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedSubcategory({
+                                subcategory: subcat.subcategory,
+                                pillar: selectedPillar
+                              });
+                            }}
+                          >
+                            <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
+                            <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                            {budgetMode && subcatBudgetInfo && (
+                              <div className="flex items-center gap-2 mb-1">
+                                <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
+                                <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
+                                <Input
+                                  type="number"
+                                  className="w-20 h-6 text-xs px-1"
+                                  value={subcategoryBudgets[budgetKey] ?? subcatBudget}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
+                                  }}
+                                />
                               </div>
-                            );
-                          })();
+                            )}
+                            <div className="flex items-center justify-between text-xs text-slate-600">
+                              <span>{subcat.transactionCount} transactions</span>
+                              <span>{percentage.toFixed(1)}% of pillar</span>
+                            </div>
+                            <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all"
+                                style={{
+                                  width: budgetMode && subcatBudget > 0
+                                    ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
+                                    : `${percentage}%`,
+                                  backgroundColor: budgetMode && subcatBudgetInfo
+                                    ? subcatBudgetInfo.color
+                                    : (PILLAR_COLORS[selectedPillar] || "#64748b")
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
                       })}
                     </div>
                   </div>
