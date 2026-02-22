@@ -10,12 +10,12 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <TabsList className="mb-6 bg-transparent p-0 h-auto border-b border-slate-200 rounded-none gap-6">
-        <TabsTrigger value="dashboard" className="flex items-center gap-2 px-1 pb-3 pt-0 rounded-none bg-transparent text-slate-500 font-medium data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:font-semibold data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary -mb-px">
+      <TabsList className="mb-6 bg-slate-100 p-1">
+        <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-white">
           <BarChart3 className="w-4 h-4" />
           Analytics Dashboard
         </TabsTrigger>
-        <TabsTrigger value="targeting" className="flex items-center gap-2 px-1 pb-3 pt-0 rounded-none bg-transparent text-slate-500 font-medium data-[state=active]:bg-transparent data-[state=active]:text-slate-900 data-[state=active]:font-semibold data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary -mb-px">
+        <TabsTrigger value="targeting" className="flex items-center gap-2 data-[state=active]:bg-white">
           <Target className="w-4 h-4" />
           Segment Targeting
         </TabsTrigger>
