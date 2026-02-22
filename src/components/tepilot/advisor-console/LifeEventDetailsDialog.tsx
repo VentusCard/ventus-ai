@@ -47,7 +47,7 @@ export function LifeEventDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-2xl max-h-[85vh] flex flex-col bg-white text-slate-900">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <Sparkles className="w-5 h-5 text-primary" />
