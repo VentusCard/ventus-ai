@@ -171,8 +171,11 @@
   color-scheme: light;
 }
 
-.tepilot-popup * {
+.tepilot-popup *,
+.tepilot-popup *::before,
+.tepilot-popup *::after {
   border-color: hsl(214 32% 91%);
+  color: inherit;
 }
 
 /* Force dark text on all inputs/textareas within tepilot */
