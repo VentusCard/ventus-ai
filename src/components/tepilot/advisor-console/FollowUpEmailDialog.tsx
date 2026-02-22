@@ -144,7 +144,7 @@ export function FollowUpEmailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-2xl max-h-[85vh] flex flex-col bg-white text-slate-900">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-slate-900">
             <Mail className="w-5 h-5 text-primary" />
