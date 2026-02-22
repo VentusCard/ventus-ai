@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -298,9 +299,9 @@ export function CampaignStudio() {
       {/* Main Studio Card */}
       <Card className="bg-card border-border">
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Left Column */}
-            <div className="lg:col-span-3 space-y-1">
+        <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
+          <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
+            <div className="space-y-1 pr-4 overflow-y-auto max-h-[80vh]">
               {/* Preset Templates */}
               <Collapsible open={presetsOpen} onOpenChange={setPresetsOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted/50 transition-colors">
@@ -434,6 +435,12 @@ export function CampaignStudio() {
                 <Separator />
               </div>
 
+              {/* Campaign Goal */}
+              <CampaignGoalSelector
+                selectedGoal={campaignGoal}
+                onSelect={setCampaignGoal}
+              />
+
               {/* Lifestyle Pillars */}
               <DimensionChipCloud
                 title="Lifestyle Pillars"
@@ -488,21 +495,19 @@ export function CampaignStudio() {
                 onToggleUpsell={handleToggleUpsell}
               />
 
-              {/* Campaign Goal */}
-              <CampaignGoalSelector
-                selectedGoal={campaignGoal}
-                onSelect={setCampaignGoal}
-              />
-
               {/* Audience Estimate */}
               <AudienceEstimateBar
                 estimatedSize={estimatedSize}
                 hasSelections={hasSelections}
               />
             </div>
+          </ResizablePanel>
 
-            {/* Right Column: AI Preview */}
-            <div className="lg:col-span-2">
+          <ResizableHandle withHandle />
+
+          {/* Right Column: AI Preview */}
+          <ResizablePanel defaultSize={60} minSize={35} maxSize={70}>
+            <div className="pl-4">
               <AICampaignPreview
                 brief={generatedBrief}
                 isGenerating={isGenerating}
@@ -512,7 +517,8 @@ export function CampaignStudio() {
                 onSave={handleSave}
               />
             </div>
-          </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
         </CardContent>
       </Card>
     </div>
