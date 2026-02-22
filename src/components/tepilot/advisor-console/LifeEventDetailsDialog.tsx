@@ -61,8 +61,8 @@ export function LifeEventDetailsDialog({
         <div className="flex-1 min-h-0 overflow-y-auto pr-4">
           <div className="space-y-4">
             {/* Evidence Section */}
-            {event.evidence && event.evidence.length > 0 && (
-              <Collapsible open={evidenceOpen} onOpenChange={setEvidenceOpen}>
+            {event.evidence && event.evidence.length > 0 &&
+            <Collapsible open={evidenceOpen} onOpenChange={setEvidenceOpen}>
                 <CollapsibleTrigger className="flex items-center gap-2 w-full text-left text-sm font-semibold text-slate-700 hover:text-primary">
                   <Receipt className="w-4 h-4" />
                   Supporting Evidence ({event.evidence.length} transactions)
@@ -71,66 +71,66 @@ export function LifeEventDetailsDialog({
                 <CollapsibleContent className="mt-2">
                   <div className="space-y-2">
                     {event.evidence.map((item, idx) => {
-                      const hasMerchant = item.merchant && item.merchant.trim().length > 0;
-                      const hasAmount = item.amount > 0;
-                      const hasDate = item.date && item.date.trim().length > 0;
-                      const displayLabel = hasMerchant ? item.merchant : item.relevance;
+                    const hasMerchant = item.merchant && item.merchant.trim().length > 0;
+                    const hasAmount = item.amount > 0;
+                    const hasDate = item.date && item.date.trim().length > 0;
+                    const displayLabel = hasMerchant ? item.merchant : item.relevance;
 
-                      return (
-                        <Card key={idx} className="p-3 bg-white border-slate-200 shadow-sm">
+                    return (
+                      <Card key={idx} className="p-3 bg-white border-slate-200 shadow-sm">
                           <div className="flex items-center justify-between text-sm">
                             <span className="font-medium text-slate-700">{displayLabel}</span>
-                            {hasAmount && (
-                              <span className="font-semibold text-slate-900">{formatCurrency(item.amount)}</span>
-                            )}
+                            {hasAmount &&
+                          <span className="font-semibold text-slate-900">{formatCurrency(item.amount)}</span>
+                          }
                           </div>
-                          {(hasDate || (hasMerchant && item.relevance)) && (
-                            <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
-                              {hasDate && (
-                                <span className="flex items-center gap-1">
+                          {(hasDate || hasMerchant && item.relevance) &&
+                        <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
+                              {hasDate &&
+                          <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {item.date}
                                 </span>
-                              )}
-                              {hasMerchant && item.relevance && (
-                                <span className="italic">{item.relevance}</span>
-                              )}
+                          }
+                              {hasMerchant && item.relevance &&
+                          <span className="italic">{item.relevance}</span>
+                          }
                             </div>
-                          )}
-                        </Card>
-                      );
-                    })}
+                        }
+                        </Card>);
+
+                  })}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
-            )}
+            }
 
             {/* Talking Points */}
-            {event.talking_points && event.talking_points.length > 0 && (
-              <div>
+            {event.talking_points && event.talking_points.length > 0 &&
+            <div>
                 <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
                   <MessageSquare className="w-4 h-4" />
                   Talking Points
                 </h4>
                 <ul className="space-y-1.5">
-                  {event.talking_points.map((point, idx) => (
-                    <li key={idx} className="text-sm text-slate-600 flex items-start gap-2">
+                  {event.talking_points.map((point, idx) =>
+                <li key={idx} className="text-sm text-slate-600 flex items-start gap-2">
                       <span className="text-primary mt-1">•</span>
                       {point}
                     </li>
-                  ))}
+                )}
                 </ul>
               </div>
-            )}
+            }
           </div>
         </div>
 
         <DialogFooter className="mt-4 flex gap-2">
-          {event.financial_projection && (
-            <Button onClick={handlePlanEvent} className="bg-primary text-primary-foreground">
+          {event.financial_projection &&
+          <Button onClick={handlePlanEvent} className="bg-primary text-white">
               Plan This Event
             </Button>
-          )}
+          }
           <Button variant="outline" onClick={handleAskVentus}>
             <Sparkles className="w-4 h-4 mr-2" />
             Ask Ventus
@@ -140,6 +140,6 @@ export function LifeEventDetailsDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
