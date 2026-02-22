@@ -1089,18 +1089,17 @@ const TePilot = () => {
             {/* Bank-wide Dashboard View */}
             {insightType === 'bankwide' && <div className="space-y-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Bank-wide Analytics</h2>
                   <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => setInsightType(null)}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Insight Tools Selection
                   </Button>
+                  <h2 className="text-2xl font-bold text-slate-900">Bank-wide Analytics</h2>
                 </div>
                 <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Intelligent Reward Personalization</h2>
                   <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => {
                 setActiveTab("insights");
                 setInsightType(null);
@@ -1108,6 +1107,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Insight Tools Selection
                   </Button>
+                  <h2 className="text-2xl font-bold text-slate-900">Intelligent Reward Personalization</h2>
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}
