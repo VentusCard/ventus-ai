@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +17,10 @@ import { DimensionChipCloud } from "./DimensionChipCloud";
 import { ProductDimensionGroup } from "./ProductDimensionGroup";
 import { GeoDimensionSelector } from "./GeoDimensionSelector";
 import { StrategyChips } from "./StrategyChips";
-import { CampaignGoalSelector } from "./CampaignGoalSelector";
 import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { AICampaignPreview } from "./AICampaignPreview";
 import { DemographicFilters } from "./DemographicFilters";
+import { SemanticIntentInput, type ParsedIntent } from "./SemanticIntentInput";
 import { LIFESTYLE_PILLARS, estimateStudioAudienceSize } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import { SEGMENT_TEMPLATES, SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
@@ -251,6 +251,48 @@ export function CampaignStudio() {
     });
   };
 
+  // ─── Auto-generate trigger ───
+  const pendingGenerateRef = useRef(false);
+
+  useEffect(() => {
+    if (pendingGenerateRef.current && hasSelections && !isGenerating) {
+      pendingGenerateRef.current = false;
+      handleGenerate();
+    }
+  });
+
+  // ─── Semantic Intent Handler ───
+  const handleIntentParsed = useCallback((result: ParsedIntent) => {
+    setCampaignGoal(result.campaign_goal || '');
+    setSelectedPillars(result.lifestyle_pillars || []);
+    setLifeEventCriteria(prev => ({
+      ...prev,
+      eventTypes: result.life_events || [],
+    }));
+
+    const products: Record<string, 'has' | 'lacks'> = {};
+    (result.products_has || []).forEach(p => { products[p] = 'has'; });
+    (result.products_lacks || []).forEach(p => { products[p] = 'lacks'; });
+    setSelectedProducts(products);
+
+    setCrossSellStrategies(result.cross_sell_strategies || []);
+    setUpsellStrategies(result.upsell_strategies || []);
+
+    if (result.regions?.length > 0) {
+      setSelectedRegions(result.regions);
+    }
+
+    if (result.age_ranges?.length > 0 || result.income_bands?.length > 0) {
+      setDemographicFilters(prev => ({
+        ...prev,
+        ageRanges: result.age_ranges?.length > 0 ? result.age_ranges : prev.ageRanges,
+        incomeBands: result.income_bands?.length > 0 ? result.income_bands : prev.incomeBands,
+      }));
+    }
+
+    pendingGenerateRef.current = true;
+  }, []);
+
   // ─── Mode label helper ───
   const modeLabel = (mode: string) => {
     switch (mode) {
@@ -295,6 +337,9 @@ export function CampaignStudio() {
           </div>
         </div>
       </div>
+
+      {/* Semantic Intent Input */}
+      <SemanticIntentInput onIntentParsed={handleIntentParsed} />
 
       {/* Main Studio Card */}
       <Card className="bg-card border-border">
@@ -434,12 +479,6 @@ export function CampaignStudio() {
               <div className="px-3 py-1">
                 <Separator />
               </div>
-
-              {/* Campaign Goal */}
-              <CampaignGoalSelector
-                selectedGoal={campaignGoal}
-                onSelect={setCampaignGoal}
-              />
 
               {/* Lifestyle Pillars */}
               <DimensionChipCloud
