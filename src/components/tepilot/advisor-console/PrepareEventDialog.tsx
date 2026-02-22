@@ -135,7 +135,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 pr-4 min-h-0">
           <div className="py-3 space-y-4">
             {/* Evidence Transactions Section */}
             <div>
