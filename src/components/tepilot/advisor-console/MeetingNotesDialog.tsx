@@ -12,13 +12,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Plus, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { NextStepsActionItem } from "./sampleData";
+import { NextStepsActionItem, MeetingNotesResult, SENTIMENT_PSYCHOLOGY_MAP, LIFE_EVENT_KEYWORDS } from "./sampleData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MeetingNotesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmitNotes: (actionItems: NextStepsActionItem[]) => void;
+  onSubmitNotes: (result: MeetingNotesResult) => void;
 }
 
 const MEETING_TYPES = [
@@ -154,7 +154,31 @@ export function MeetingNotesDialog({ open, onOpenChange, onSubmitNotes }: Meetin
       });
     }
 
-    onSubmitNotes(items);
+    // Build chat summary
+    const summaryParts: string[] = [];
+    if (form.meetingType) summaryParts.push(`Type: ${form.meetingType}`);
+    if (form.sentiment) {
+      const sentimentLabel = SENTIMENT_OPTIONS.find(s => s.value === form.sentiment)?.label || form.sentiment;
+      summaryParts.push(`Sentiment: ${sentimentLabel}`);
+    }
+    if (form.discussionPoints.trim()) summaryParts.push(`Discussion: ${form.discussionPoints.trim()}`);
+    if (form.productsDiscussed.length > 0) summaryParts.push(`Products discussed: ${form.productsDiscussed.join(", ")}`);
+    if (form.clientRequests.trim()) summaryParts.push(`Client requests: ${form.clientRequests.trim()}`);
+    if (form.decisionsMade.trim()) summaryParts.push(`Decisions: ${form.decisionsMade.trim()}`);
+
+    const chatSummary = `Meeting notes summary — ${summaryParts.join(". ")}. Please analyze this meeting and suggest any additional action items or opportunities I may have missed.`;
+
+    const result: MeetingNotesResult = {
+      actionItems: items,
+      sentiment: form.sentiment || undefined,
+      productsDiscussed: form.productsDiscussed,
+      meetingType: form.meetingType,
+      nextMeetingDate: form.nextMeetingDate,
+      nextMeetingTopic: form.nextMeetingTopic,
+      chatSummary,
+    };
+
+    onSubmitNotes(result);
     setForm(initialState);
     onOpenChange(false);
   };
