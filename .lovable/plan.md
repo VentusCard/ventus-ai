@@ -1,48 +1,77 @@
 
 
-# Add Editable Budgets in Expanded Pillar View
+# Budget Comparison Mode for Total Spend Card
 
 ## Overview
-When budgeting mode is on and a pillar is expanded, allow the user to edit the overall pillar budget and individual subcategory budgets via inline input fields. Budget status badges will update live as values change.
+When budgeting mode is on, the "Total Spend" card in OverviewMetrics transforms into a budget comparison card. Clicking it opens an expandable panel where users can edit per-pillar budgets. The budget state is shared with PillarExplorer so numbers stay consistent everywhere.
 
-## What Changes
+## Key Design Decision: Lift Budget State Up
+Currently, budget data lives inside `PillarExplorer`. To share it with `OverviewMetrics`, the budget state (pillar budgets, subcategory budgets, and helper functions) needs to move up to `TePilot.tsx` and be passed down as props to both components.
 
-### 1. Editable Budget State
-- Convert `budgets` from a `useMemo`-derived value to a `useState` with lazy initialization (seeded random values as before)
-- Add a separate `subcategoryBudgets` state: `Record<string, number>` keyed by `"pillar::subcategory"`
-- Initialize subcategory budgets on-demand when a pillar is expanded (random multiplier of subcategory spend, similar to pillar budgets)
+## Changes
 
-### 2. Pillar Budget Editing (Expanded Header)
-- When `budgetMode` is on and a pillar is expanded, show an editable input field next to the pillar title in the expanded card header
-- Display: "Budget: $[input]" with a small number input
-- On change, update the `budgets` state for that pillar
-- The pillar card badge color/icon updates reactively
+### 1. `src/pages/TePilot.tsx` -- Lift budget state up
+- Move `budgets`, `setBudgets`, `subcategoryBudgets`, `setSubcategoryBudgets` state from PillarExplorer up to TePilot
+- Move `hashString` and `getBudgetStatus` helper functions to a shared location (or keep in PillarExplorer and also import in OverviewMetrics)
+- Pass budget state + setters as props to both `OverviewMetrics` and `PillarExplorer`
 
-### 3. Subcategory Budget Editing (Expanded Subcategory Cards)
-- When `budgetMode` is on, each subcategory card in the expanded view gets:
-  - A "Budget: $[input]" row below the spend amount
-  - A small colored status indicator (same green/amber/red logic)
-  - The progress bar repurposed to show spend vs budget instead of percentage of pillar
+### 2. `src/components/tepilot/insights/PillarExplorer.tsx` -- Accept budget props
+- Remove internal budget state, accept it via props instead:
+  - `budgets`, `setBudgets`, `subcategoryBudgets`, `setSubcategoryBudgets`
+- Keep `getSubcategoryBudget` helper internally (it uses the passed-in state)
+- Export `hashString` and `getBudgetStatus` so they can be reused
 
-### 4. No Changes Outside PillarExplorer
-- All edits are local state within `PillarExplorer` -- no props or parent changes needed
+### 3. `src/components/tepilot/insights/OverviewMetrics.tsx` -- Budget-aware Total Spend card
+- Accept new props: `budgetMode`, `budgets`, `setBudgets`
+- When `budgetMode` is off: no changes, card looks exactly the same
+- When `budgetMode` is on:
+  - "Total Spend" card changes title to "Total Spend vs Budget"
+  - Shows total spend vs total budget (sum of all pillar budgets)
+  - Subtitle shows status: over/under/near with colored text
+  - Card becomes clickable -- toggles an expanded panel below the metrics grid
+- Expanded panel (shown below the 4-card grid when clicked):
+  - Lists each pillar with its current spend, an editable budget input, and a colored status badge
+  - Uses the same `getBudgetStatus` logic for consistency
+  - Editing a budget here updates the shared state, which immediately reflects in PillarExplorer cards
+
+## Data Flow
+
+```text
+TePilot.tsx
+  |-- budgets state (Record<string, number>)
+  |-- subcategoryBudgets state (Record<string, number>)
+  |
+  |-- OverviewMetrics (budgetMode, budgets, setBudgets)
+  |     |-- Total Spend card shows spend vs budget
+  |     |-- Click expands per-pillar budget editor
+  |
+  |-- PillarExplorer (budgetMode, budgets, setBudgets, subcategoryBudgets, setSubcategoryBudgets)
+        |-- Pillar cards show badges + editable budgets
+        |-- Subcategory cards show badges + editable budgets
+```
+
+## Files Modified
+
+| File | Change |
+|---|---|
+| `src/pages/TePilot.tsx` | Lift budget state up, initialize from transaction data, pass as props to both components |
+| `src/components/tepilot/insights/PillarExplorer.tsx` | Export `hashString` and `getBudgetStatus`, accept budget state via props instead of internal state |
+| `src/components/tepilot/insights/OverviewMetrics.tsx` | Accept budget props, transform Total Spend card in budget mode, add expandable per-pillar budget editor panel |
 
 ## Technical Details
 
-**File**: `src/components/tepilot/insights/PillarExplorer.tsx`
+**Budget initialization** in TePilot.tsx:
+- Compute `aggregateByPillar(displayTransactions)` to get pillar list
+- Use same `hashString`-based seeding to generate initial budgets
+- Lazy `useState` initializer to keep it stable
 
-**State changes**:
-- Replace `useMemo` budgets with `useState` initialized via a function that runs the same hash-based random logic
-- Add `const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({})` 
-- Helper to get/initialize a subcategory budget: checks state, if missing generates from hash and sets it
+**OverviewMetrics expanded panel**:
+- Local `showBudgetEditor` boolean state for expand/collapse
+- Panel renders below the 4-card grid as a `Card` with a list of pillars
+- Each row: pillar name, color dot, spend amount, `Input` for budget, status badge
+- Same green/amber/red logic from `getBudgetStatus`
 
-**Expanded header** (line ~131-137):
-- Add inline `<Input type="number" />` showing pillar budget when `budgetMode` is true
-- `onChange` updates `setBudgets(prev => ({...prev, [pillar]: newValue}))`
-
-**Subcategory cards** (line ~154-183):
-- When `budgetMode`, add budget input + status badge below spend
-- Reuse `getBudgetStatus()` for subcategory spend vs subcategory budget
-- Progress bar width becomes `Math.min(100, (spend/budget)*100)%` with color from status
-
-**New import**: `Input` from `@/components/ui/input`
+**Consistency guarantee**:
+- Single source of truth for budgets in TePilot.tsx
+- Both OverviewMetrics and PillarExplorer read/write the same state
+- Editing in either location updates everywhere immediately
