@@ -6,9 +6,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Calendar, Users, Phone, Mail, Brain, ListChecks, MessageSquare, FileDown, Plus, X, ChevronDown } from "lucide-react";
-import { sampleMeeting, sampleEngagementData, NextStepsData, NextMeetingInfo } from "./sampleData";
+import { sampleMeeting, sampleEngagementData, sampleClientData, NextStepsData, NextMeetingInfo } from "./sampleData";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
 import { format } from "date-fns";
+import { FollowUpEmailDialog } from "./FollowUpEmailDialog";
 
 interface ActionWorkspacePanelProps {
   nextStepsData: NextStepsData;
@@ -31,6 +32,7 @@ export function ActionWorkspacePanel({
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemText, setNewItemText] = useState("");
   const [isPsychologyOpen, setIsPsychologyOpen] = useState(true);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const engagementColor = sampleEngagementData.status === 'high' ? 'bg-green-500' : sampleEngagementData.status === 'medium' ? 'bg-yellow-500' : 'bg-red-500';
   const engagementText = sampleEngagementData.status === 'high' ? 'Strong' : sampleEngagementData.status === 'medium' ? 'Moderate' : 'Needs Attention';
   const incompleteItems = nextStepsData.actionItems.filter(item => !item.completed);
@@ -305,7 +307,7 @@ export function ActionWorkspacePanel({
                 <Phone className="w-3 h-3 mr-1 flex-shrink-0" />
                 <span className="truncate">Call</span>
               </Button>
-              <Button size="sm" variant="outline" className="flex-1 min-w-0 text-xs">
+              <Button size="sm" variant="outline" className="flex-1 min-w-0 text-xs" onClick={() => setEmailDialogOpen(true)}>
                 <Mail className="w-3 h-3 mr-1 flex-shrink-0" />
                 <span className="truncate">Email</span>
               </Button>
@@ -315,6 +317,16 @@ export function ActionWorkspacePanel({
               </Button>
             </div>
           </div>
+
+          <FollowUpEmailDialog
+            open={emailDialogOpen}
+            onOpenChange={setEmailDialogOpen}
+            nextStepsData={nextStepsData}
+            clientName={sampleClientData.name}
+            clientEmail={sampleClientData.contact.email}
+            advisorName={sampleClientData.advisor}
+            savedProjection={savedProjection}
+          />
         </div>
       </div>
     </div>;
