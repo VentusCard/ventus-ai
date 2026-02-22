@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Brain, Zap, CheckCircle, ArrowRight, ArrowLeft, Upload, BarChart3, Scan, RefreshCw, TrendingUp, Sparkles, Gift, Users, MapPin, Briefcase, PieChart, Shield, Building2, Award, TrendingDown, Loader2, ShoppingBag, CalendarClock, CalendarHeart, MessageSquare, ChevronDown, Monitor } from "lucide-react";
 import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
@@ -77,6 +78,7 @@ const TePilot = () => {
   const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
+  const [budgetMode, setBudgetMode] = useState(false);
   const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
     // Check URL search params first, then navigation state
@@ -924,14 +926,19 @@ const TePilot = () => {
                     {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
                   </p>
                 </div>
-                
+                {analyticsView === "single" && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-slate-700">Budgeting</span>
+                    <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
+                  </div>
+                )}
               </div>
             </Card>
 
             {analyticsView === "single" ? <>
                 <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
                 
-                <PillarExplorer transactions={displayTransactions} />
+                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} />
                 
                 <TravelTimeline transactions={displayTransactions} />
                 
