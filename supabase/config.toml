@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.parse-campaign-intent]
 verify_jwt = false
+
+[functions.send-follow-up-email]
+verify_jwt = false
