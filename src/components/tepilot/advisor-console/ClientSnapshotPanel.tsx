@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw } from "lucide-react";
+import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw, DollarSign } from "lucide-react";
 import { AdvisorContext } from "@/lib/advisorContextBuilder";
 import { cn } from "@/lib/utils";
 import { AIInsights, LifeEvent } from "@/types/lifestyle-signals";
@@ -180,36 +180,64 @@ export function ClientSnapshotPanel({
 
         {/* Accordion Sections - All Collapsed by Default */}
         <Accordion type="multiple" className="space-y-2">
-          {/* Transaction Overview - Real Data */}
-          {hasRealData && (
-            <AccordionItem value="overview" className="bg-white rounded-lg border">
-              <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-900">Transaction Overview</span>
-                  <Badge variant="secondary" className="ml-auto text-xs">{advisorContext.overview.totalTransactions} txns</Badge>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-3">
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between py-2 border-b">
-                    <span className="text-slate-600">Total Spend</span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.totalSpend)}</span>
+          {/* Spending Overview - Always visible */}
+          {displayData.spendingOverview && displayData.spendingOverview.length > 0 && (() => {
+            const totalSpend = displayData.spendingOverview.reduce((s, c) => s + c.monthlySpend, 0);
+            const totalBudget = displayData.spendingOverview.reduce((s, c) => s + c.monthlyBudget, 0);
+            const overallRatio = totalBudget > 0 ? totalSpend / totalBudget : 0;
+            const overallStatus = overallRatio > 1 ? 'over' : overallRatio >= 0.85 ? 'near' : 'under';
+            const statusColors = { over: 'bg-red-100 text-red-700 border-red-200', near: 'bg-yellow-100 text-yellow-700 border-yellow-200', under: 'bg-green-100 text-green-700 border-green-200' };
+            const statusLabels = { over: 'Over Budget', near: 'Near Limit', under: 'On Track' };
+            return (
+              <AccordionItem value="spending" className="bg-white rounded-lg border">
+                <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-900">Spending Overview</span>
+                    <Badge variant="outline" className={`ml-auto text-xs ${statusColors[overallStatus]}`}>
+                      {statusLabels[overallStatus]}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b">
-                    <span className="text-slate-600">Avg. Transaction</span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.avgTransactionAmount)}</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-3">
+                  <div className="space-y-1">
+                    {/* Summary row */}
+                    <div className="flex items-center justify-between py-2 border-b mb-2">
+                      <span className="text-xs font-semibold text-slate-700">Monthly Total</span>
+                      <span className="text-xs text-slate-600">
+                        <span className="font-semibold text-slate-900">{formatCurrency(totalSpend)}</span>
+                        {' / '}
+                        {formatCurrency(totalBudget)}
+                      </span>
+                    </div>
+                    {displayData.spendingOverview.map((cat, idx) => {
+                      const ratio = cat.monthlyBudget > 0 ? cat.monthlySpend / cat.monthlyBudget : 0;
+                      const barPct = Math.min(ratio * 100, 100);
+                      const barColor = ratio > 1 ? '#ef4444' : ratio >= 0.85 ? '#f59e0b' : '#22c55e';
+                      return (
+                        <div key={idx} className="py-1.5">
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                              <span className="text-slate-700">{cat.category}</span>
+                            </div>
+                            <span className="text-slate-500">
+                              <span className="font-medium text-slate-800">{formatCurrency(cat.monthlySpend)}</span>
+                              {' / '}{formatCurrency(cat.monthlyBudget)}
+                              {ratio > 1 && <span className="text-red-500 ml-1 font-medium">+{Math.round((ratio - 1) * 100)}%</span>}
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all" style={{ width: `${barPct}%`, backgroundColor: barColor }} />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-slate-600">Date Range</span>
-                    <span className="font-semibold text-slate-900">
-                      {advisorContext.overview.dateRange.start} - {advisorContext.overview.dateRange.end}
-                    </span>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          )}
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })()}
 
           {/* Detected Life Events - Moved to second position */}
           <AccordionItem value="events" className="bg-white rounded-lg border">
