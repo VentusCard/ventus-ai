@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Paperclip, X, Copy, Send, ExternalLink } from "lucide-react";
 import { NextStepsData } from "./sampleData";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
+import { ClientProfileData } from "@/types/clientProfile";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
 import { toast } from "sonner";
 
 interface FollowUpEmailDialogProps {
@@ -18,6 +20,8 @@ interface FollowUpEmailDialogProps {
   clientEmail: string;
   advisorName: string;
   savedProjection?: SavedFinancialProjection | null;
+  clientProfile?: ClientProfileData | null;
+  lifeEvents?: DetectedLifeEvent[] | null;
 }
 
 const PRODUCT_LINK_MAP: Record<string, string> = {
@@ -33,24 +37,76 @@ const PRODUCT_LINK_MAP: Record<string, string> = {
 
 const PRODUCT_URL = "https://www.ventusai.com/technology";
 
+const LIFE_EVENT_LABELS: Record<string, string> = {
+  retirement: "retirement planning",
+  education: "education funding",
+  home_purchase: "upcoming home purchase",
+  wealth_transfer: "wealth transfer strategy",
+  business_liquidity: "business liquidity event",
+  family_formation: "growing family",
+  elder_care: "elder care planning",
+};
+
 function buildEmailBody(
   clientName: string,
   advisorName: string,
   nextStepsData: NextStepsData,
-  products: string[]
+  products: string[],
+  clientProfile?: ClientProfileData | null,
+  lifeEvents?: DetectedLifeEvent[] | null
 ): string {
+  const firstName = clientName.split(" ")[0];
   const incompleteItems = nextStepsData.actionItems.filter(i => !i.completed);
 
-  // Group by source
+  let body = `Dear ${firstName},\n\n`;
+
+  // Context-aware opening paragraph
+  const occupation = clientProfile?.demographics?.occupation;
+  const familyStatus = clientProfile?.demographics?.familyStatus;
+
+  if (occupation && familyStatus) {
+    body += `Thank you for taking the time to meet today. Given your role as a ${occupation} and your ${familyStatus.toLowerCase()} household, I wanted to follow up with a tailored summary of our discussion.\n\n`;
+  } else if (occupation) {
+    body += `Thank you for taking the time to meet today. Given your role as a ${occupation}, I wanted to follow up with a tailored summary of our discussion.\n\n`;
+  } else {
+    body += `Thank you for taking the time to meet today. I wanted to follow up with a summary of our discussion and the next steps we outlined.\n\n`;
+  }
+
+  // Life events section
+  if (lifeEvents && lifeEvents.length > 0) {
+    body += `LIFE CHANGES & PRIORITIES\n`;
+    body += `${"—".repeat(30)}\n`;
+    const eventDescriptions = lifeEvents.map(
+      e => LIFE_EVENT_LABELS[e.eventType] || e.eventName
+    );
+    if (eventDescriptions.length === 1) {
+      body += `We discussed your ${eventDescriptions[0]}. This is an important milestone, and I want to ensure your financial plan fully supports it.\n\n`;
+    } else {
+      const last = eventDescriptions.pop();
+      body += `We discussed your ${eventDescriptions.join(", ")} and ${last}. These are important milestones, and I want to ensure your financial plan supports each one.\n\n`;
+    }
+  }
+
+  // Spending insights
+  const spending = clientProfile?.spendingOverview;
+  if (spending && spending.length > 0) {
+    const overBudget = spending.filter(s => s.monthlySpend > s.monthlyBudget);
+    if (overBudget.length > 0) {
+      const top = overBudget.sort((a, b) => (b.monthlySpend / b.monthlyBudget) - (a.monthlySpend / a.monthlyBudget))[0];
+      const pctOver = Math.round(((top.monthlySpend / top.monthlyBudget) - 1) * 100);
+      body += `SPENDING INSIGHTS\n`;
+      body += `${"—".repeat(30)}\n`;
+      body += `Your ${top.category} spending is currently ${pctOver}% above your monthly budget. We may want to revisit your allocation strategy to keep things on track.\n\n`;
+    }
+  }
+
+  // Action items
   const grouped: Record<string, string[]> = {};
   for (const item of incompleteItems) {
     const src = item.source || "General";
     if (!grouped[src]) grouped[src] = [];
     grouped[src].push(item.text);
   }
-
-  let body = `Dear ${clientName},\n\n`;
-  body += `Thank you for taking the time to meet today. I wanted to follow up with a summary of our discussion and the next steps we outlined.\n\n`;
 
   if (Object.keys(grouped).length > 0) {
     body += `ACTION ITEMS & NEXT STEPS\n`;
@@ -64,6 +120,7 @@ function buildEmailBody(
     body += `\n`;
   }
 
+  // Products discussed
   if (products.length > 0) {
     body += `PRODUCTS & SOLUTIONS DISCUSSED\n`;
     body += `${"—".repeat(30)}\n`;
@@ -109,6 +166,8 @@ export function FollowUpEmailDialog({
   clientEmail,
   advisorName,
   savedProjection,
+  clientProfile,
+  lifeEvents,
 }: FollowUpEmailDialogProps) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -123,9 +182,9 @@ export function FollowUpEmailDialog({
     setProducts(prods);
 
     setSubject(`Follow-Up: Our Recent Meeting - ${clientName}`);
-    setBody(buildEmailBody(clientName, advisorName, nextStepsData, prods));
+    setBody(buildEmailBody(clientName, advisorName, nextStepsData, prods, clientProfile, lifeEvents));
     setAttachments(getAttachments(savedProjection, prods));
-  }, [open, clientName, advisorName, nextStepsData, savedProjection]);
+  }, [open, clientName, advisorName, nextStepsData, savedProjection, clientProfile, lifeEvents]);
 
   const removeAttachment = (idx: number) => {
     setAttachments(prev => prev.filter((_, i) => i !== idx));
