@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const fromName = advisorName ? `${advisorName} via Ventus AI` : 'Ventus AI';
+    const fromName = 'Wealth Management Co-Pilot via Ventus AI';
 
     const emailPayload: Record<string, unknown> = {
       from: `${fromName} <marco@ventusai.com>`,
