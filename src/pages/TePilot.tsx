@@ -503,10 +503,7 @@ const TePilot = () => {
     return <div className="tepilot-theme min-h-screen flex items-center justify-center bg-background p-4 tepilot-container">
         <Card className="w-full max-w-6xl bg-white border-slate-200">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-3xl text-slate-900">Ventus AI Transaction Enrichment & Personalization Engine</CardTitle>
-              <IntegrationDiagramButton variant="enrichment" />
-            </div>
+            <CardTitle className="text-3xl text-slate-900">Ventus AI Transaction Enrichment & Personalization Engine</CardTitle>
             <CardDescription className="text-base text-slate-600">
               Unlock deep customer insights from existing data with next-generation contextual AI
               <Accordion type="single" collapsible className="w-full mt-2">
@@ -1131,6 +1128,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
+                  <IntegrationDiagramButton variant="enrichment" />
                 </div>
                 <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
@@ -1144,6 +1142,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Intelligent Reward Personalization</h2>
+                  <IntegrationDiagramButton variant="rewards" />
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}
