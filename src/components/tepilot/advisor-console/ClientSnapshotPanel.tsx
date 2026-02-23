@@ -262,7 +262,7 @@ export function ClientSnapshotPanel({
                 <Sparkles className={`w-4 h-4 text-blue-600 ${isLoadingInsights ? 'animate-pulse' : ''}`} />
                 <span className="text-sm font-semibold text-blue-900">Detected Life Events</span>
                 {isLoadingInsights ? (
-                  <Badge variant="secondary" className="ml-auto text-xs animate-pulse bg-primary/10 text-primary">
+                  <Badge variant="secondary" className="ml-auto text-xs animate-pulse bg-blue-50 text-blue-700 border-blue-200">
                     Analyzing...
                   </Badge>
                 ) : lifeEvents.length > 0 && (
