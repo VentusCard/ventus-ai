@@ -1,77 +1,53 @@
 
-# Personalize the Follow-Up Email Draft
+# Add Client Psychology to Follow-Up Email
 
 ## Problem
-The follow-up email currently uses placeholder data ("Client Name", "Advisor Name", "client@email.com") from `sampleClientData` instead of the real randomly-generated or selected client profile. The email body is also generic and doesn't reference any client-specific context like their occupation, family status, detected life events, or spending patterns.
+The follow-up email draft ignores the client's psychological profile (decision style, risk tolerance, communication preference, emotional state). This data is already available in `nextStepsData.psychologicalInsights` but is never passed to or used by the email dialog. The email should adapt its tone, word choice, and structure based on who the client is.
+
+## How Psychology Will Adjust the Email
+
+The `PsychologicalInsight` data contains aspects like:
+- **Decision Style** (analytical vs. intuitive) -- affects how much detail/data to include
+- **Risk Tolerance** (conservative vs. aggressive) -- affects framing of recommendations
+- **Communication Preference** (formal vs. casual) -- affects overall tone, greeting, sign-off
+- **Emotional State** (anxious vs. confident) -- affects reassurance level
+
+Examples of tone adaptation:
+
+| Psychology | Email Behavior |
+|---|---|
+| Analytical decision style (4-5/5) | More data points, specific numbers, structured lists |
+| Intuitive decision style (1-2/5) | Big-picture language, fewer numbers, narrative flow |
+| Conservative risk tolerance | "Protecting what you've built", "steady growth", cautious framing |
+| Aggressive risk tolerance | "Opportunity", "growth potential", forward-leaning language |
+| Formal communication pref | "Dear Mr. Thompson", "Respectfully", structured paragraphs |
+| Casual communication pref | First name, conversational tone, shorter sentences |
+| Anxious emotional state | Extra reassurance, "we're on track", "nothing to worry about" |
 
 ## Changes
 
-### 1. Pass real client profile to ActionWorkspacePanel
-**File: `src/components/tepilot/advisor-console/AdvisorConsole.tsx`**
-- Pass `clientProfile` as a new prop to `ActionWorkspacePanel`
-
-### 2. Use real client data in ActionWorkspacePanel
+### 1. Pass psychology insights to FollowUpEmailDialog
 **File: `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx`**
-- Accept `clientProfile` prop (type `ClientProfileData | null`)
-- When rendering `FollowUpEmailDialog`, use `clientProfile.name`, `clientProfile.contact.email`, etc. instead of `sampleClientData`, falling back to `sampleClientData` if null
+- Add `psychologicalInsights={nextStepsData.psychologicalInsights}` as a prop to `FollowUpEmailDialog`
 
-### 3. Enrich the email body with client context
+### 2. Accept and use psychology in email generation
 **File: `src/components/tepilot/advisor-console/FollowUpEmailDialog.tsx`**
-- Accept optional new props: `clientProfile` (for demographics/holdings), `lifeEvents` (detected events), and `spendingOverview` (spending data)
-- Update `buildEmailBody` to smartly insert personalized sections:
-  - **Greeting**: Use first name (split from full name) -- e.g., "Dear Sarah,"
-  - **Context paragraph**: Reference their occupation and family status naturally -- e.g., "Given your role as a Senior Product Manager and your growing family..."
-  - **Life events section**: If detected events exist, add a "Life Changes We Discussed" section referencing them -- e.g., "We touched on your upcoming home purchase and the new addition to your family."
-  - **Spending insight**: If spending data is available, reference the top over-budget category -- e.g., "I also noticed your Travel spending is trending above budget this quarter, which we may want to revisit."
-  - **Holdings reference**: Reference relevant holdings naturally -- e.g., "Your investment portfolio continues to perform well, and we should discuss rebalancing options."
-- Keep the subject line personalized with actual client name
+- Add `psychologicalInsights` to the props interface (type `PsychologicalInsight[]`)
+- Import `PsychologicalInsight` from `sampleData`
+- Pass insights into `buildEmailBody`
+- Add a helper function `getToneConfig(insights)` that reads slider values and returns a tone configuration object:
+  - `greeting`: formal ("Dear Mr./Ms. Last") vs. warm ("Dear FirstName") vs. casual ("Hi FirstName")
+  - `detailLevel`: "high" (include numbers, percentages) vs. "low" (big-picture only)
+  - `riskFraming`: "conservative" (protective language) vs. "aggressive" (opportunity language)
+  - `reassurance`: boolean -- whether to add extra reassuring language
+  - `signOff`: "Respectfully" vs. "Warm regards" vs. "Best"
+- Adjust `buildEmailBody` to use the tone config:
+  - Swap greeting based on communication preference
+  - Add/remove data points in spending insight based on detail level
+  - Frame product recommendations with appropriate risk language
+  - Add reassurance sentences when emotional state indicates anxiety
+  - Use matching sign-off
 
-### 4. Pass life events and spending data through the chain
-**File: `src/components/tepilot/advisor-console/AdvisorConsole.tsx`**
-- Pass `dashboardEvents` and `clientProfile.spendingOverview` down through `ActionWorkspacePanel` to `FollowUpEmailDialog`
-
-**File: `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx`**
-- Accept and forward `dashboardEvents` and spending data to `FollowUpEmailDialog`
-
-## Files Modified
-1. `src/components/tepilot/advisor-console/AdvisorConsole.tsx` -- pass real profile + events
-2. `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx` -- accept and forward new props
-3. `src/components/tepilot/advisor-console/FollowUpEmailDialog.tsx` -- use real data, add personalized sections
-
-## What the Email Will Look Like
-
-```text
-Dear Sarah,
-
-Thank you for taking the time to meet today. Given your role as a
-Senior Product Manager and your growing family, I wanted to follow up
-with a tailored summary of our discussion.
-
-LIFE CHANGES & PRIORITIES
---------------------------
-We discussed your upcoming home purchase and the recent addition to
-your family. These are exciting milestones, and I want to ensure your
-financial plan supports each one.
-
-SPENDING INSIGHTS
---------------------------
-Your Travel spending is currently 18% above your monthly budget. We
-may want to revisit your allocation strategy to keep things on track.
-
-ACTION ITEMS & NEXT STEPS
---------------------------
-[Chat]
-  * Review 529 plan options for education savings
-  * Schedule mortgage pre-approval consultation
-
-PRODUCTS & SOLUTIONS DISCUSSED
---------------------------
-  * Mortgage Solutions - Learn more at ...
-  * 529 Education Savings - Learn more at ...
-
-Please don't hesitate to reach out if you have any questions.
-
-Best regards,
-James Mitchell
-Senior Wealth Advisor
-```
+### Files Modified
+1. `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx` -- pass psychology prop
+2. `src/components/tepilot/advisor-console/FollowUpEmailDialog.tsx` -- consume psychology, adapt tone
