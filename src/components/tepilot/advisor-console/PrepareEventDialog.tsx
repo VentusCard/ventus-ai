@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EventPreparationData, CardTransaction, LIFE_EVENT_CONFIG, DetectedLifeEvent } from "@/types/dashboardClient";
 import {
   Dialog,
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { toast } from "@/hooks/use-toast";
 import { exportEventPreparationPDF } from "@/lib/eventPreparationPdfExport";
+import { EventSummaryEmailDialog } from "./EventSummaryEmailDialog";
 
 interface PrepareEventDialogProps {
   open: boolean;
@@ -58,6 +60,7 @@ const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = 
 };
 
 export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   if (!data) return null;
 
@@ -70,10 +73,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
   );
 
   const handleEmailMe = () => {
-    toast({
-      title: "Summary sent!",
-      description: `Event preparation summary for ${client.profile.name} has been sent to your email.`,
-    });
+    setEmailDialogOpen(true);
   };
 
   const handleDownloadPDF = async () => {
@@ -211,6 +211,14 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {data && (
+        <EventSummaryEmailDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          data={data}
+        />
+      )}
     </Dialog>
   );
 }
