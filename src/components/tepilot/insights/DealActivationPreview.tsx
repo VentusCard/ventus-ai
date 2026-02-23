@@ -763,9 +763,12 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
           {/* Category Pills for quick filtering */}
           <div className="flex items-center gap-2 flex-wrap pb-2 border-b border-slate-100">
             <Button
-              variant={selectedCategory === null ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              className="h-7 text-xs"
+              className={cn(
+                "h-7 text-xs bg-white text-black border-slate-200 hover:bg-slate-50",
+                selectedCategory === null && "bg-blue-50 text-blue-700 border-blue-300 shadow-sm"
+              )}
               onClick={() => setSelectedCategory(null)}
             >
               All
