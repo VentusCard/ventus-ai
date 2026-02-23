@@ -46,12 +46,16 @@ export function AvailableDealsGrid() {
       }
       return deals;
     }
+    if (isSearching) {
+      // AI search in progress -- show all deals, don't text-filter
+      return getAvailableDeals({ category: selectedCategory, search: "", sortBy });
+    }
     return getAvailableDeals({
       category: selectedCategory,
       search: searchQuery,
       sortBy,
     });
-  }, [isSemanticActive, matchingDealIds, allDeals, selectedCategory, searchQuery, sortBy]);
+  }, [isSemanticActive, matchingDealIds, allDeals, selectedCategory, searchQuery, sortBy, isSearching]);
 
   const totalPages = Math.ceil(filteredDeals.length / DEALS_PER_PAGE);
   const paginatedDeals = useMemo(() => {
