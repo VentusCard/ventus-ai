@@ -54,7 +54,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             <div className="text-center py-12 text-slate-600">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
               <p>Waiting for first batch of results...</p>
-              <p className="text-sm mt-2">This should take ~3 seconds</p>
+              <p className="text-sm mt-2">This should take ~10 seconds</p>
             </div>
           )}
           {transactions.length > 0 && (
