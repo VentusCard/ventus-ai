@@ -1,86 +1,61 @@
 
 
-# Email Follow-Up Draft Popup
+# Spending Overview for WM CoPilot
 
-## Overview
-Replace the no-op "Email" button in the Action Workspace panel with a popup that drafts a full follow-up email to the client. The email is auto-generated from the current Next Steps action items, products discussed, and meeting context. Products and applications are hyperlinked to `www.ventusai.com/technology`, and relevant attachments are listed.
+## What Changes
 
-## Email Draft Dialog Sections
+Replace the current "Transaction Overview" accordion section in the Wealth Management CoPilot's left panel with a new "Spending Overview" section that shows the client's spending against their budget across categories.
 
-| Section | Details |
-|---|---|
-| **To** | Pre-filled with client email from `sampleClientData.contact.email` (read-only display) |
-| **Subject** | Auto-generated: "Follow-Up: [Meeting Topic or 'Our Recent Meeting'] - [Client Name]" |
-| **Greeting** | "Dear [Client Name]," |
-| **Meeting Recap** | 1-2 sentence summary referencing meeting type and sentiment if available from session storage |
-| **Action Items / Next Steps** | Bulleted list of all incomplete action items from `nextStepsData.actionItems`, grouped by source badge |
-| **Products & Applications** | Each product mentioned (from session storage `tepilot_products_discussed`) rendered as a hyperlink to `https://www.ventusai.com/technology` with descriptive text |
-| **Attachments** | Auto-suggested based on context: Financial Timeline PDF (if saved projection exists), Meeting Notes Summary, relevant product brochures |
-| **Closing** | Professional sign-off with advisor name |
-| **Edit & Send** | All sections are editable textareas. "Copy to Clipboard" and "Send" buttons in footer |
+Since the WM CoPilot doesn't currently have enriched transaction data or real spending categories (it uses randomly generated client profiles), we'll generate mock spending/budget data tied to the client profile and display it inline.
 
-## Product Hyperlink Mapping
+## Implementation Steps
 
-Each product gets a descriptive link:
+### 1. Add spending data to the client profile
 
-| Product | Link Text | URL |
-|---|---|---|
-| Checking | Premium Checking Account | https://www.ventusai.com/technology |
-| Savings | High-Yield Savings | https://www.ventusai.com/technology |
-| Mortgage | Mortgage Solutions | https://www.ventusai.com/technology |
-| Investment Portfolio | Investment Management | https://www.ventusai.com/technology |
-| Insurance | Insurance Solutions | https://www.ventusai.com/technology |
-| 529 Plan | 529 Education Savings | https://www.ventusai.com/technology |
-| IRA | IRA Retirement Accounts | https://www.ventusai.com/technology |
-| Credit Card | Rewards Credit Card | https://www.ventusai.com/technology |
+Update `src/types/clientProfile.ts` to include a `spendingOverview` field with category-level spending and budget data:
+- Categories: Housing, Transportation, Food & Dining, Healthcare, Entertainment, Shopping, Travel, Savings
+- Each category has: `label`, `monthlySpend`, `monthlyBudget`, `color`
 
-## Attachments Logic
+### 2. Generate mock spending data in the profile generator
 
-Auto-attach based on available data:
-- If `savedProjection` exists: "Financial_Timeline_[ProjectName].pdf"
-- If meeting notes were taken (session has products discussed): "Meeting_Notes_Summary.pdf"
-- If any product is discussed: "[Product]_Brochure.pdf" for each product
+Update `src/lib/randomProfileGenerator.ts` to generate realistic spending/budget data per persona type (young professional spends more on dining/entertainment, pre-retiree more on healthcare, etc.). Budget values will be set slightly above or below spend to create realistic over/under budget scenarios.
 
-Each attachment shown as a removable chip with a paperclip icon.
+### 3. Replace "Transaction Overview" with "Spending Overview" in ClientSnapshotPanel
 
-## Files to Create/Modify
+In `src/components/tepilot/advisor-console/ClientSnapshotPanel.tsx`:
+- Rename the accordion section from "Transaction Overview" to "Spending Overview"
+- Remove the dependency on `hasRealData` / `advisorContext` so it always shows (using client profile data)
+- Display each spending category with:
+  - Category name and color dot
+  - Spend amount vs budget amount
+  - A small progress bar (green if under budget, yellow if near, red if over)
+  - Status indicator using existing `getBudgetStatus` utility
+- Show a summary row at top with total spend vs total budget and overall status badge
+- Keep the accordion collapsed by default
 
-| File | Change |
-|---|---|
-| `src/components/tepilot/advisor-console/FollowUpEmailDialog.tsx` | **New file** - Dialog with pre-drafted email, editable fields, product hyperlinks, attachment chips, copy/send buttons |
-| `src/components/tepilot/advisor-console/ActionWorkspacePanel.tsx` | Wire Email button to open the dialog. Pass `nextStepsData`, `savedProjection`, and client info as props. Add state for dialog open/close |
+### 4. Remove the `hasRealData` gate
+
+The current section only shows when `advisorContext` has real transaction data. The new version will always display since it uses data from the client profile, making the panel more useful out of the box.
+
+---
 
 ## Technical Details
 
-### FollowUpEmailDialog Props
-```text
-- open: boolean
-- onOpenChange: (open: boolean) => void
-- nextStepsData: NextStepsData
-- clientName: string
-- clientEmail: string
-- advisorName: string
-- savedProjection?: SavedFinancialProjection | null
+**New type addition** (`src/types/clientProfile.ts`):
+```typescript
+spendingOverview?: Array<{
+  category: string;
+  monthlySpend: number;
+  monthlyBudget: number;
+  color: string;
+}>;
 ```
 
-### Email Body Generation
-1. Read `sessionStorage.getItem("tepilot_products_discussed")` for products
-2. Read incomplete items from `nextStepsData.actionItems`
-3. Build email body as editable rich text (stored as state string)
-4. Products rendered as `<a href="https://www.ventusai.com/technology">Product Name</a>` in a preview section
-5. User can edit any part before sending
+**Files to modify:**
+1. `src/types/clientProfile.ts` - Add `spendingOverview` field
+2. `src/lib/randomProfileGenerator.ts` - Generate spending data per persona
+3. `src/components/tepilot/advisor-console/ClientSnapshotPanel.tsx` - Replace Transaction Overview accordion with Spending Overview
 
-### ActionWorkspacePanel Changes
-- Add `emailDialogOpen` state
-- Wire the Email button's `onClick` to `setEmailDialogOpen(true)`
-- Render `<FollowUpEmailDialog>` with appropriate props
-- Pass `sampleClientData.name`, `sampleClientData.contact.email`, and `sampleClientData.advisor` as client/advisor info
-
-### Dialog Layout
-- White background with dark text (consistent with Note Taking dialog)
-- Top: To / Subject fields (pre-filled, editable)
-- Body: ScrollArea with the full email draft as a textarea
-- Below body: Product links section with clickable hyperlinks
-- Attachments bar: horizontal row of removable file chips
-- Footer: "Copy to Clipboard" (outline) and "Send Email" (primary) buttons
-
+**Reused utilities:**
+- `getBudgetStatus` from `src/lib/budgetUtils.ts` for status colors/icons
+- `formatCurrency` from `src/lib/formatHelper.ts` for consistent formatting
