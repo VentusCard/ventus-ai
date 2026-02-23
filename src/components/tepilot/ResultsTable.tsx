@@ -101,6 +101,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                 <TooltipTrigger asChild>
                                   <div className="flex items-center gap-1.5 cursor-help whitespace-nowrap">
                                     <Badge
+                                      variant="outline"
                                       className="border flex items-center gap-1 text-xs px-2 py-0.5 whitespace-nowrap"
                                       style={{
                                         backgroundColor: `${PILLAR_COLORS["Travel & Exploration"]}15`,
@@ -113,6 +114,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                                     </Badge>
                                     <span className="text-slate-600">:</span>
                                     <Badge
+                                      variant="outline"
                                       className="border whitespace-nowrap"
                                       style={{
                                         backgroundColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}20`,
@@ -147,6 +149,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             </TooltipProvider>
                           ) : (
                             <Badge
+                              variant="outline"
                               style={{
                                 backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
                                 color: PILLAR_COLORS[transaction.pillar],
