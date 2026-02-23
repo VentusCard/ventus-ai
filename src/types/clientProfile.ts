@@ -37,4 +37,10 @@ export interface ClientProfileData {
     event: string;
     date: string;
   }>;
+  spendingOverview?: Array<{
+    category: string;
+    monthlySpend: number;
+    monthlyBudget: number;
+    color: string;
+  }>;
 }
