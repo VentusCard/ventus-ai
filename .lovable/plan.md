@@ -1,35 +1,22 @@
 
 
-# Send Real Emails from Follow-Up Email Dialog
+# Update Email Sender Address
 
-## Overview
-Wire up the "Send Email" button to actually deliver the drafted email using Resend's API. The API key will be stored securely as a backend secret.
+## Change
+Update the `from` field in the `send-follow-up-email` backend function to use `marco@ventusai.com` instead of `onboarding@resend.dev`.
 
-## Steps
+## Technical Detail
+**File: `supabase/functions/send-follow-up-email/index.ts`** (line 38)
 
-### 1. Store the Resend API key
-- Save `RESEND_API_KEY` as a secure secret (never stored in code)
+Change:
+```
+from: `${fromName} <onboarding@resend.dev>`
+```
+To:
+```
+from: `${fromName} <marco@ventusai.com>`
+```
 
-### 2. Create backend function: `send-follow-up-email`
-**New file: `supabase/functions/send-follow-up-email/index.ts`**
-- POST endpoint accepting `{ to, subject, body, advisorName }`
-- Calls Resend API (`https://api.resend.com/emails`) to send plain-text email
-- Sends from `onboarding@resend.dev` (Resend's default sender -- works immediately, no domain verification needed)
-- Standard CORS headers
-- Returns success/error JSON
-
-### 3. Register the function
-**File: `supabase/config.toml`**
-- Add `[functions.send-follow-up-email]` with `verify_jwt = false`
-
-### 4. Update the Send button
-**File: `src/components/tepilot/advisor-console/FollowUpEmailDialog.tsx`**
-- Replace the mock `handleSend` with a real call to `supabase.functions.invoke('send-follow-up-email', ...)`
-- Add loading state (spinner on button while sending)
-- Show success or error toast based on response
-
-### Files Modified
-1. `supabase/functions/send-follow-up-email/index.ts` (new)
-2. `supabase/config.toml` (add function entry)
-3. `src/components/tepilot/advisor-console/FollowUpEmailDialog.tsx` (update handleSend)
+## Important Note
+For this to work, the `ventusai.com` domain must be verified in the Resend dashboard. If it is already verified and linked to the API key you provided, emails will deliver immediately. If not, Resend will reject the send request until domain verification is complete.
 
