@@ -776,11 +776,11 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
               return (
                 <Button
                   key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   className={cn(
                     "h-7 text-xs gap-1 bg-white text-black border-slate-200 hover:bg-slate-50",
-                    selectedCategory === category && "bg-white text-black border-slate-300 shadow-sm",
+                    selectedCategory === category && "bg-blue-50 text-blue-700 border-blue-300 shadow-sm",
                     isCustomerPillar && selectedCategory !== category && "border-primary/30 bg-white"
                   )}
                   onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
@@ -812,8 +812,8 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                   <div className="flex items-center gap-2">
                     <Navigation className="h-4 w-4 text-primary" />
                     <span className="font-semibold text-sm text-slate-800">Local Experiences</span>
-                    <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 border-primary/30 bg-primary/5 !text-black">
-                      <MapPin className="h-2.5 w-2.5 mr-0.5 text-black" />
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 border-blue-200" style={{ color: '#000000', backgroundColor: 'rgba(59,130,246,0.05)' }}>
+                      <MapPin className="h-2.5 w-2.5 mr-0.5" style={{ color: '#000000' }} />
                       {locationCity}
                     </Badge>
                   </div>
