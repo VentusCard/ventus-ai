@@ -13,6 +13,7 @@ import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
+import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
 
 type ViewMode = "dashboard" | "client";
 
@@ -248,9 +249,12 @@ const AdvisorConsolePage = () => {
             </div>
           </div>
           
-          <h2 className="text-sm font-medium text-slate-500">
-            Wealth Management Copilot
-          </h2>
+          <div className="flex items-center gap-1">
+            <h2 className="text-sm font-medium text-slate-500">
+              Wealth Management Copilot
+            </h2>
+            <IntegrationDiagramButton variant="wealth" />
+          </div>
         </div>
       </div>
 

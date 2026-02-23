@@ -51,6 +51,7 @@ import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailMo
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
+import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
 const CURRENT_VERSION = "V3.0";
 const TePilot = () => {
   const isMobile = useIsMobile();
@@ -502,7 +503,10 @@ const TePilot = () => {
     return <div className="tepilot-theme min-h-screen flex items-center justify-center bg-background p-4 tepilot-container">
         <Card className="w-full max-w-6xl bg-white border-slate-200">
           <CardHeader>
-            <CardTitle className="text-3xl text-slate-900">Ventus AI Transaction Enrichment & Personalization Engine</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-3xl text-slate-900">Ventus AI Transaction Enrichment & Personalization Engine</CardTitle>
+              <IntegrationDiagramButton variant="enrichment" />
+            </div>
             <CardDescription className="text-base text-slate-600">
               Unlock deep customer insights from existing data with next-generation contextual AI
               <Accordion type="single" collapsible className="w-full mt-2">
