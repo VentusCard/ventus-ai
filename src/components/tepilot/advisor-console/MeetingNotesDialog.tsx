@@ -341,11 +341,11 @@ export function MeetingNotesDialog({ open, onOpenChange, onSubmitNotes }: Meetin
 
         <DialogFooter className="px-6 py-4 border-t">
           <div className="flex gap-2 w-full justify-end">
-            <Button variant="outline" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button className="bg-white text-slate-800 border border-slate-300 hover:bg-slate-50" variant="outline" onClick={handleSubmit}>
               <Save className="w-4 h-4 mr-2" />
               Save Notes
             </Button>
+            <Button variant="outline" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>Cancel</Button>
           </div>
         </DialogFooter>
       </DialogContent>

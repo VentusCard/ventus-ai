@@ -576,7 +576,7 @@ export function TaxPlanningDialog({
             </Button>
           )}
           <Button variant="outline" size="sm" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>
-            Close
+            Cancel
           </Button>
         </div>
       </DialogContent>
