@@ -1,44 +1,35 @@
 
-# Fix Semantic Deal Search: "coffee machine" Returns No Results
 
-## Root Cause
+# Fix Semantic Deal Search Quality for "coffee machine"
 
-Two issues are causing the "0 results" problem:
+## Problem
+The AI returns poor results because the system prompt is too simplistic. For "coffee machine", it should return merchants where you can **buy** a coffee machine (Target, Walmart, Amazon, Best Buy, Williams-Sonoma, Costco) and coffee-related brands (Starbucks, Dunkin') -- not just Dyson because it's labeled "Home Appliances".
 
-**Issue 1 -- Text fallback hides results during AI processing**
+## Changes
 
-In `AvailableDealsGrid.tsx`, while the AI search is in-flight (1-5 seconds), the component falls through to a text-based search path that filters by `searchQuery`. Since no merchant name contains "coffee machine", it shows 0 results during the entire loading period. When/if the AI finally responds, results should appear -- but the user sees an empty state the whole time.
+### 1. Improve the system prompt in the edge function
+**File: `supabase/functions/semantic-deal-search/index.ts`**
 
-**Issue 2 -- Missing completion log suggests intermittent timeouts**
+Update the `systemPrompt` to explicitly instruct the model to think about:
+- Where you would **purchase** the searched item (retailers, specialty stores, e-commerce)
+- Brands **associated** with the product category (coffee machine -> coffee brands)
+- General-purpose retailers that carry the product (Target, Walmart, Costco, Amazon)
+- Be generous with matches -- include all plausible merchants rather than being overly conservative
 
-The edge function logs show the user's search started at 02:55:34 but never logged a completion ("Found X matches"). This indicates the AI gateway call may be timing out intermittently, meaning the frontend never receives results at all.
+### 2. Add explicit examples to the prompt
+Include better few-shot examples in the prompt:
+- "coffee machine" -> kitchen stores, general retailers, electronics, coffee brands
+- "running shoes" -> athletic wear, sporting goods, department stores
+- "birthday gift" -> department stores, toys, flowers, cards
 
-## Fix
+### 3. No frontend changes needed
+The previous fix to `AvailableDealsGrid.tsx` correctly handles the loading state. The issue is entirely about the AI returning only 1 poor match instead of 10-15 good ones.
 
-### 1. Fix the loading-state filter in `AvailableDealsGrid.tsx`
+## Technical Details
 
-When `isSearching` is true (AI search in progress), do NOT apply the text-based fallback filter. Instead, show all deals (or the category-filtered set) so the user sees content while waiting.
-
-```text
-Before:
-  if (isSemanticActive) { ... semantic filter ... }
-  return getAvailableDeals({ search: searchQuery, ... })   // <-- 0 results for "coffee machine"
-
-After:
-  if (isSemanticActive) { ... semantic filter ... }
-  if (isSearching) {
-    // AI search in progress -- show all deals, don't text-filter
-    return getAvailableDeals({ category, search: "", sortBy })
-  }
-  return getAvailableDeals({ search: searchQuery, ... })
+The key change is in the `systemPrompt` variable within the edge function. The current prompt:
+```
+Think about intent: "coffee" -> cafes, "gym" -> fitness...
 ```
 
-### 2. Add `isSearching` to the `filteredDeals` dependency array
-
-Ensure the `useMemo` recalculates when the searching state changes.
-
-### 3. Show a subtle "Searching..." indicator when `isSearching` is true (already exists via the spinner icon in the search input -- no new UI needed)
-
-## Files Changed
-
-- `src/components/tepilot/rewards-pipeline/AvailableDealsGrid.tsx` -- Fix the `filteredDeals` useMemo to avoid text fallback during AI search
+Will be replaced with a more detailed prompt that instructs the model to consider purchase intent, brand association, and general retailers -- with explicit examples to calibrate the model's behavior. The model (`gemini-2.5-flash-lite`) is capable of this with better prompting.
