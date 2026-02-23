@@ -779,8 +779,9 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   className={cn(
-                    "h-7 text-xs gap-1",
-                    isCustomerPillar && selectedCategory !== category && "border-primary/30 bg-primary/5"
+                    "h-7 text-xs gap-1 bg-white text-black border-slate-200 hover:bg-slate-50",
+                    selectedCategory === category && "bg-white text-black border-slate-300 shadow-sm",
+                    isCustomerPillar && selectedCategory !== category && "border-primary/30 bg-white"
                   )}
                   onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
                 >
