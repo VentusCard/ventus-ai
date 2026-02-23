@@ -1,37 +1,44 @@
 
+# Fix Semantic Deal Search: "coffee machine" Returns No Results
 
-# Add Email Popup to "Email Me Summary" in Prepare Event Dialog
+## Root Cause
 
-## What changes
-Clicking "Email Me Summary" will open the same style email dialog used by the Follow-Up Email feature -- with prefilled recipient, subject, body (summary of the event preparation data), and the event preparation PDF auto-attached.
+Two issues are causing the "0 results" problem:
 
-## Changes
+**Issue 1 -- Text fallback hides results during AI processing**
 
-### 1. Add base64 PDF export function
-**File: `src/lib/eventPreparationPdfExport.ts`**
+In `AvailableDealsGrid.tsx`, while the AI search is in-flight (1-5 seconds), the component falls through to a text-based search path that filters by `searchQuery`. Since no merchant name contains "coffee machine", it shows 0 results during the entire loading period. When/if the AI finally responds, results should appear -- but the user sees an empty state the whole time.
 
-Add a new `exportEventPreparationPDFBase64` function (alongside the existing `exportEventPreparationPDF`) that returns the PDF as a base64 string instead of triggering a download. This reuses all the same PDF-building logic but calls `doc.output("datauristring")` and strips the prefix to get raw base64.
+**Issue 2 -- Missing completion log suggests intermittent timeouts**
 
-### 2. Create `EventSummaryEmailDialog` component
-**New file: `src/components/tepilot/advisor-console/EventSummaryEmailDialog.tsx`**
+The edge function logs show the user's search started at 02:55:34 but never logged a completion ("Found X matches"). This indicates the AI gateway call may be timing out intermittently, meaning the frontend never receives results at all.
 
-A new dialog component modeled after `FollowUpEmailDialog` with:
-- **Props**: `open`, `onOpenChange`, `data: EventPreparationData`
-- **Prefilled fields**:
-  - **To**: empty (advisor enters their own email)
-  - **Subject**: `"Event Preparation: {eventName} - {clientName}"`
-  - **Body**: plain-text summary built from EventPreparationData -- client name/segment, event name/confidence, supporting transactions list, Ventus AI insights, and recommended next steps
-  - **Attachment**: auto-generated PDF (same as Download PDF) shown as a badge, with the base64 generated on dialog open
-- **Actions**: "Copy to Clipboard" and "Send Email" (calls `send-follow-up-email` edge function with the PDF attachment)
+## Fix
 
-### 3. Wire up in `PrepareEventDialog`
-**File: `src/components/tepilot/advisor-console/PrepareEventDialog.tsx`**
+### 1. Fix the loading-state filter in `AvailableDealsGrid.tsx`
 
-- Import `EventSummaryEmailDialog`
-- Add `emailDialogOpen` state
-- Change `handleEmailMe` to set `emailDialogOpen = true`
-- Render `EventSummaryEmailDialog` passing `data` and the open/close state
+When `isSearching` is true (AI search in progress), do NOT apply the text-based fallback filter. Instead, show all deals (or the category-filtered set) so the user sees content while waiting.
 
-### No backend changes needed
-The existing `send-follow-up-email` edge function already supports attachments with base64 content.
+```text
+Before:
+  if (isSemanticActive) { ... semantic filter ... }
+  return getAvailableDeals({ search: searchQuery, ... })   // <-- 0 results for "coffee machine"
 
+After:
+  if (isSemanticActive) { ... semantic filter ... }
+  if (isSearching) {
+    // AI search in progress -- show all deals, don't text-filter
+    return getAvailableDeals({ category, search: "", sortBy })
+  }
+  return getAvailableDeals({ search: searchQuery, ... })
+```
+
+### 2. Add `isSearching` to the `filteredDeals` dependency array
+
+Ensure the `useMemo` recalculates when the searching state changes.
+
+### 3. Show a subtle "Searching..." indicator when `isSearching` is true (already exists via the spinner icon in the search input -- no new UI needed)
+
+## Files Changed
+
+- `src/components/tepilot/rewards-pipeline/AvailableDealsGrid.tsx` -- Fix the `filteredDeals` useMemo to avoid text fallback during AI search
