@@ -246,6 +246,7 @@ export function FollowUpEmailDialog({
   lifeEvents,
   psychologicalInsights,
 }: FollowUpEmailDialogProps) {
+  const [recipientEmail, setRecipientEmail] = useState(clientEmail);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [products, setProducts] = useState<string[]>([]);
@@ -255,6 +256,7 @@ export function FollowUpEmailDialog({
   useEffect(() => {
     if (!open) return;
 
+    setRecipientEmail(clientEmail);
     const stored = sessionStorage.getItem("tepilot_products_discussed");
     const prods: string[] = stored ? JSON.parse(stored) : [];
     setProducts(prods);
@@ -269,7 +271,7 @@ export function FollowUpEmailDialog({
   };
 
   const handleCopy = () => {
-    const fullEmail = `To: ${clientEmail}\nSubject: ${subject}\n\n${body}`;
+    const fullEmail = `To: ${recipientEmail}\nSubject: ${subject}\n\n${body}`;
     navigator.clipboard.writeText(fullEmail);
     toast.success("Email copied to clipboard");
   };
@@ -278,7 +280,7 @@ export function FollowUpEmailDialog({
     setIsSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-follow-up-email', {
-        body: { to: clientEmail, subject, body, advisorName },
+        body: { to: recipientEmail, subject, body, advisorName },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -305,9 +307,13 @@ export function FollowUpEmailDialog({
           {/* To field */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-slate-500 w-14 flex-shrink-0">To:</span>
-            <div className="flex-1 bg-slate-50 border rounded-md px-3 py-1.5 text-sm text-slate-700">
-              {clientEmail}
-            </div>
+            <Input
+              type="email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              className="h-8 text-sm"
+              placeholder="recipient@example.com"
+            />
           </div>
 
           {/* Subject */}
