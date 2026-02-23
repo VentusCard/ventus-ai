@@ -89,7 +89,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-slate-900">${transaction.amount.toFixed(2)}</TableCell>
-                      <TableCell className="text-sm text-slate-700">{transaction.date}</TableCell>
+                      <TableCell className="text-sm text-slate-700 whitespace-nowrap">{transaction.date}</TableCell>
                       <TableCell>
                         <ArrowRight className="w-4 h-4 text-primary mx-auto" />
                       </TableCell>
