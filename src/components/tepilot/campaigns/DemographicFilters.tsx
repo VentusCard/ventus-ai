@@ -169,18 +169,6 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
             </div>
           </div>
 
-          {/* Active Filters Summary */}
-          {hasActiveFilters && (
-            <div className="p-3 bg-slate-50 rounded-lg">
-              <p className="text-xs text-slate-600">
-                <strong>Active filters:</strong>{' '}
-                {filters.ageRanges.length > 0 && `Ages: ${filters.ageRanges.join(', ')}. `}
-                {filters.regions.length > 0 && `Regions: ${filters.regions.join(', ')}. `}
-                {filters.incomeBands.length > 0 && `Income: ${filters.incomeBands.map(i => INCOME_BANDS.find(b => b.value === i)?.label).join(', ')}. `}
-                {filters.accountTenure !== 'all' && `Tenure: ${ACCOUNT_TENURE_OPTIONS.find(o => o.value === filters.accountTenure)?.label}.`}
-              </p>
-            </div>
-          )}
         </div>
       </CollapsibleContent>
     </Collapsible>
