@@ -66,13 +66,25 @@ const TePilot = () => {
       activeTab?: string;
       insightType?: 'revenue' | 'relationship' | 'bankwide';
     } | null;
-    return navState?.activeTab || "upload";
+    if (navState?.activeTab) return navState.activeTab;
+    // Restore from sessionStorage
+    const stored = sessionStorage.getItem("tepilot_active_tab");
+    if (stored) return stored;
+    return "upload";
   });
-  const [inputMode, setInputMode] = useState<"paste" | "upload">("paste");
-  const [activeSelection, setActiveSelection] = useState<"sample" | "paste" | "upload">("sample");
-  const [rawInput, setRawInput] = useState("");
+  const [inputMode, setInputMode] = useState<"paste" | "upload">(() => {
+    return (sessionStorage.getItem("tepilot_input_mode") as "paste" | "upload") || "paste";
+  });
+  const [activeSelection, setActiveSelection] = useState<"sample" | "paste" | "upload">(() => {
+    return (sessionStorage.getItem("tepilot_active_selection") as "sample" | "paste" | "upload") || "sample";
+  });
+  const [rawInput, setRawInput] = useState(() => {
+    return sessionStorage.getItem("tepilot_raw_input") || "";
+  });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [anchorZip, setAnchorZip] = useState("");
+  const [anchorZip, setAnchorZip] = useState(() => {
+    return sessionStorage.getItem("tepilot_anchor_zip") || "";
+  });
   const [parsedTransactions, setParsedTransactions] = useState<Transaction[]>([]);
   const [corrections, setCorrections] = useState<Map<string, Correction>>(new Map());
   const [recommendations, setRecommendations] = useState<any>(null);
@@ -244,6 +256,28 @@ const TePilot = () => {
       sessionStorage.setItem("tepilot_parsed_transactions", JSON.stringify(parsedTransactions));
     }
   }, [parsedTransactions]);
+
+  // Persist UI state for navigation retention
+  useEffect(() => {
+    sessionStorage.setItem("tepilot_active_tab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (rawInput) sessionStorage.setItem("tepilot_raw_input", rawInput);
+  }, [rawInput]);
+
+  useEffect(() => {
+    sessionStorage.setItem("tepilot_input_mode", inputMode);
+  }, [inputMode]);
+
+  useEffect(() => {
+    sessionStorage.setItem("tepilot_active_selection", activeSelection);
+  }, [activeSelection]);
+
+  useEffect(() => {
+    if (anchorZip) sessionStorage.setItem("tepilot_anchor_zip", anchorZip);
+  }, [anchorZip]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === "2026proto") {
