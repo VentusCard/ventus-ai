@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,7 +87,10 @@ export function AvailableDealsGrid() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Available Deals Library</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">Available Deals Library</h1>
+            <IntegrationDiagramButton variant="rewards" />
+          </div>
           <p className="text-slate-500 text-sm mt-1">
             {filteredDeals.length} merchant deals across {Object.keys(DEAL_CATEGORIES).length} categories
           </p>
