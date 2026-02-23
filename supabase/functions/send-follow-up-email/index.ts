@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { to, subject, body, advisorName } = await req.json();
+    const { to, subject, body, advisorName, attachments } = await req.json();
 
     if (!to || !subject || !body) {
       return new Response(JSON.stringify({ error: 'Missing required fields: to, subject, body' }), {
@@ -28,18 +28,24 @@ Deno.serve(async (req) => {
 
     const fromName = advisorName ? `${advisorName} via Ventus AI` : 'Ventus AI';
 
+    const emailPayload: Record<string, unknown> = {
+      from: `${fromName} <marco@ventusai.com>`,
+      to: [to],
+      subject,
+      text: body,
+    };
+
+    if (Array.isArray(attachments) && attachments.length > 0) {
+      emailPayload.attachments = attachments; // [{ filename, content (base64) }]
+    }
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: `${fromName} <marco@ventusai.com>`,
-        to: [to],
-        subject,
-        text: body,
-      }),
+      body: JSON.stringify(emailPayload),
     });
 
     const data = await res.json();
