@@ -16,7 +16,7 @@ import {
   Percent,
   Bell
 } from "lucide-react";
-import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
+
 
 const SmartRewards = () => {
   const features = [
@@ -99,7 +99,7 @@ const SmartRewards = () => {
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">
                 Intelligent Reward Personalization
               </h1>
-              <IntegrationDiagramButton variant="rewards" />
+              
             </div>
             
             <p 

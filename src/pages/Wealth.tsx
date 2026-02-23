@@ -16,7 +16,7 @@ import {
   Heart,
   TrendingUp
 } from "lucide-react";
-import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
+
 
 const Wealth = () => {
   const features = [
@@ -99,7 +99,7 @@ const Wealth = () => {
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">
                 Wealth Management CoPilot
               </h1>
-              <IntegrationDiagramButton variant="wealth" />
+              
             </div>
             
             <p 
