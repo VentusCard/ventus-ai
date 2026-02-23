@@ -184,7 +184,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
                 <ol className="space-y-1.5">
                   {recommendedSteps.map((step, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium flex items-center justify-center">
                         {idx + 1}
                       </span>
                       <span className="text-slate-600">{step}</span>
