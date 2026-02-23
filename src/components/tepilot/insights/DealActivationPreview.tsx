@@ -812,7 +812,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                   <div className="flex items-center gap-2">
                     <Navigation className="h-4 w-4 text-primary" />
                     <span className="font-semibold text-sm text-slate-800">Local Experiences</span>
-                    <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 border-primary/30 bg-primary/5 text-primary">
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 border-primary/30 bg-primary/5 text-black">
                       <MapPin className="h-2.5 w-2.5 mr-0.5" />
                       {locationCity}
                     </Badge>
