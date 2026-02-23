@@ -576,7 +576,7 @@ export function TaxPlanningDialog({
                 Ask Ventus
               </Button>
             )}
-            <Button variant="default" size="sm" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" size="sm" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>
               Close
             </Button>
           </div>
