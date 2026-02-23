@@ -10,6 +10,8 @@ import { sampleMeeting, sampleEngagementData, sampleClientData, NextStepsData, N
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
 import { format } from "date-fns";
 import { FollowUpEmailDialog } from "./FollowUpEmailDialog";
+import { ClientProfileData } from "@/types/clientProfile";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
 
 interface ActionWorkspacePanelProps {
   nextStepsData: NextStepsData;
@@ -19,6 +21,8 @@ interface ActionWorkspacePanelProps {
   savedProjection?: SavedFinancialProjection | null;
   onExportTimelinePDF?: () => void;
   nextMeeting?: NextMeetingInfo | null;
+  clientProfile?: ClientProfileData | null;
+  dashboardEvents?: DetectedLifeEvent[] | null;
 }
 export function ActionWorkspacePanel({
   nextStepsData,
@@ -27,7 +31,9 @@ export function ActionWorkspacePanel({
   onAddActionItem,
   savedProjection,
   onExportTimelinePDF,
-  nextMeeting
+  nextMeeting,
+  clientProfile,
+  dashboardEvents
 }: ActionWorkspacePanelProps) {
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemText, setNewItemText] = useState("");
@@ -322,10 +328,12 @@ export function ActionWorkspacePanel({
             open={emailDialogOpen}
             onOpenChange={setEmailDialogOpen}
             nextStepsData={nextStepsData}
-            clientName={sampleClientData.name}
-            clientEmail={sampleClientData.contact.email}
+            clientName={clientProfile?.name || sampleClientData.name}
+            clientEmail={clientProfile?.contact?.email || sampleClientData.contact.email}
             advisorName={sampleClientData.advisor}
             savedProjection={savedProjection}
+            clientProfile={clientProfile}
+            lifeEvents={dashboardEvents}
           />
         </div>
       </div>

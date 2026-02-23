@@ -428,6 +428,8 @@ export function AdvisorConsole({
             savedProjection={savedProjection}
             onExportTimelinePDF={handleExportTimelinePDF}
             nextMeeting={nextMeetingInfo}
+            clientProfile={clientProfile}
+            dashboardEvents={dashboardEvents}
           />
         </ResizablePanel>
       </ResizablePanelGroup>
