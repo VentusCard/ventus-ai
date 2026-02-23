@@ -16,6 +16,7 @@ import {
   FileText,
   Building
 } from "lucide-react";
+import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
 
 const Enrichment = () => {
   const features = [
@@ -98,6 +99,7 @@ const Enrichment = () => {
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">
                 Advanced Transaction Enrichment
               </h1>
+              <IntegrationDiagramButton variant="enrichment" />
             </div>
             
             <p 
