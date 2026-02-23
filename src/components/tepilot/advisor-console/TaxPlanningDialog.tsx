@@ -21,7 +21,8 @@ import {
   Lightbulb,
   TrendingUp,
   Building,
-  FileText
+  FileText,
+  Sparkles
 } from "lucide-react";
 import { ClientProfileData } from "@/types/clientProfile";
 import { EnrichedTransaction } from "@/types/transaction";
@@ -565,12 +566,14 @@ export function TaxPlanningDialog({
               <Button 
                 variant="outline" 
                 size="sm"
+                className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50"
                 onClick={() => {
                   onAskAI(`Based on the tax planning analysis showing ${formatCurrency(totalTax)} estimated liability in ${STATE_TAX_RATES[selectedState]?.name}, what specific tax optimization strategies would you recommend for this client?`);
                   onOpenChange(false);
                 }}
               >
-                Ask AI
+                Ask Ventus
+                <Sparkles className="w-4 h-4 ml-2" />
               </Button>
             )}
             <Button variant="default" size="sm" onClick={() => onOpenChange(false)}>
