@@ -111,7 +111,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
         <DialogHeader className="pb-3 border-b">
           <div className="flex items-center gap-2">
             <div className={cn('p-2 rounded-lg', `bg-${config?.color || 'slate'}-100`)}>
