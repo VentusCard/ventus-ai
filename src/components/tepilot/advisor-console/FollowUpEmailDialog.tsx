@@ -60,47 +60,43 @@ function buildEmailBody(
 
   let body = `Dear ${firstName},\n\n`;
 
-  // Context-aware opening paragraph
+  // Context-aware opening
   const occupation = clientProfile?.demographics?.occupation;
   const familyStatus = clientProfile?.demographics?.familyStatus;
 
   if (occupation && familyStatus) {
-    body += `Thank you for taking the time to meet today. Given your role as a ${occupation} and your ${familyStatus.toLowerCase()} household, I wanted to follow up with a tailored summary of our discussion.\n\n`;
+    body += `It was wonderful connecting with you today. With your background as a ${occupation} and the priorities that come with a ${familyStatus.toLowerCase()} household, I want to make sure we're building a plan that truly fits your life. Here's a recap of what we covered.\n\n`;
   } else if (occupation) {
-    body += `Thank you for taking the time to meet today. Given your role as a ${occupation}, I wanted to follow up with a tailored summary of our discussion.\n\n`;
+    body += `It was wonderful connecting with you today. Given the demands of your career as a ${occupation}, I appreciate you making the time — here's a recap of what we discussed.\n\n`;
   } else {
-    body += `Thank you for taking the time to meet today. I wanted to follow up with a summary of our discussion and the next steps we outlined.\n\n`;
+    body += `It was wonderful connecting with you today. I appreciate you making the time, and I wanted to send along a recap of our conversation while it's still fresh.\n\n`;
   }
 
-  // Life events section
+  // Life events — conversational tone
   if (lifeEvents && lifeEvents.length > 0) {
-    body += `LIFE CHANGES & PRIORITIES\n`;
-    body += `${"—".repeat(30)}\n`;
     const eventDescriptions = lifeEvents.map(
       e => LIFE_EVENT_LABELS[e.eventType] || e.eventName
     );
     if (eventDescriptions.length === 1) {
-      body += `We discussed your ${eventDescriptions[0]}. This is an important milestone, and I want to ensure your financial plan fully supports it.\n\n`;
+      body += `We spent some time talking about your ${eventDescriptions[0]}, and I think there are some great opportunities to get ahead of it. I'll be pulling together a few options and will share those with you shortly.\n\n`;
     } else {
       const last = eventDescriptions.pop();
-      body += `We discussed your ${eventDescriptions.join(", ")} and ${last}. These are important milestones, and I want to ensure your financial plan supports each one.\n\n`;
+      body += `We covered a lot of ground today — from your ${eventDescriptions.join(", ")} to your ${last}. These are exciting chapters ahead, and I want to make sure your financial plan is working hard for each of them.\n\n`;
     }
   }
 
-  // Spending insights
+  // Spending insights — natural language
   const spending = clientProfile?.spendingOverview;
   if (spending && spending.length > 0) {
     const overBudget = spending.filter(s => s.monthlySpend > s.monthlyBudget);
     if (overBudget.length > 0) {
       const top = overBudget.sort((a, b) => (b.monthlySpend / b.monthlyBudget) - (a.monthlySpend / a.monthlyBudget))[0];
       const pctOver = Math.round(((top.monthlySpend / top.monthlyBudget) - 1) * 100);
-      body += `SPENDING INSIGHTS\n`;
-      body += `${"—".repeat(30)}\n`;
-      body += `Your ${top.category} spending is currently ${pctOver}% above your monthly budget. We may want to revisit your allocation strategy to keep things on track.\n\n`;
+      body += `One thing I noticed while reviewing your accounts — your ${top.category.toLowerCase()} spending is running about ${pctOver}% above where we'd like it. Nothing alarming, but worth a quick conversation to see if we should adjust your allocations.\n\n`;
     }
   }
 
-  // Action items
+  // Action items — clean list
   const grouped: Record<string, string[]> = {};
   for (const item of incompleteItems) {
     const src = item.source || "General";
@@ -109,10 +105,8 @@ function buildEmailBody(
   }
 
   if (Object.keys(grouped).length > 0) {
-    body += `ACTION ITEMS & NEXT STEPS\n`;
-    body += `${"—".repeat(30)}\n`;
-    for (const [source, items] of Object.entries(grouped)) {
-      body += `\n[${source}]\n`;
+    body += `Here are the next steps we agreed on:\n\n`;
+    for (const [, items] of Object.entries(grouped)) {
       for (const text of items) {
         body += `  • ${text}\n`;
       }
@@ -122,17 +116,16 @@ function buildEmailBody(
 
   // Products discussed
   if (products.length > 0) {
-    body += `PRODUCTS & SOLUTIONS DISCUSSED\n`;
-    body += `${"—".repeat(30)}\n`;
+    body += `I've also included links to the solutions we discussed, so you can explore them at your convenience:\n\n`;
     for (const product of products) {
       const linkText = PRODUCT_LINK_MAP[product] || product;
-      body += `  • ${linkText} — Learn more at ${PRODUCT_URL}\n`;
+      body += `  • ${linkText} — ${PRODUCT_URL}\n`;
     }
     body += `\n`;
   }
 
-  body += `Please don't hesitate to reach out if you have any questions or if there's anything else I can help with.\n\n`;
-  body += `Best regards,\n${advisorName}\nSenior Wealth Advisor`;
+  body += `As always, I'm here whenever you need me. Don't hesitate to reach out with any questions — even the small ones.\n\n`;
+  body += `Warm regards,\n${advisorName}\nVentus AI Wealth Advisor`;
 
   return body;
 }
