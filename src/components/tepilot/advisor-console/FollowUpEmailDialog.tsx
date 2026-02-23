@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Paperclip, X, Copy, Send, ExternalLink } from "lucide-react";
+import { Mail, Paperclip, X, Copy, Send, ExternalLink, Loader2 } from "lucide-react";
 import { NextStepsData, PsychologicalInsight } from "./sampleData";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
 import { ClientProfileData } from "@/types/clientProfile";
 import { DetectedLifeEvent } from "@/types/dashboardClient";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface FollowUpEmailDialogProps {
@@ -249,6 +250,7 @@ export function FollowUpEmailDialog({
   const [body, setBody] = useState("");
   const [products, setProducts] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -272,9 +274,21 @@ export function FollowUpEmailDialog({
     toast.success("Email copied to clipboard");
   };
 
-  const handleSend = () => {
-    toast.success("Email sent successfully");
-    onOpenChange(false);
+  const handleSend = async () => {
+    setIsSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-follow-up-email', {
+        body: { to: clientEmail, subject, body, advisorName },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success("Email sent successfully");
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send email");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -373,9 +387,9 @@ export function FollowUpEmailDialog({
             <Copy className="w-3.5 h-3.5 mr-1.5" />
             Copy to Clipboard
           </Button>
-          <Button size="sm" onClick={handleSend}>
-            <Send className="w-3.5 h-3.5 mr-1.5" />
-            Send Email
+          <Button size="sm" onClick={handleSend} disabled={isSending}>
+            {isSending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1.5" />}
+            {isSending ? "Sending…" : "Send Email"}
           </Button>
         </DialogFooter>
       </DialogContent>
