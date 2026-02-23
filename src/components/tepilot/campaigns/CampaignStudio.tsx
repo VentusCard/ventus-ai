@@ -443,7 +443,7 @@ export function CampaignStudio() {
                           onClick={() => setTemplateCategory(cat.id)}
                           className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                             templateCategory === cat.id
-                              ? 'bg-primary/15 border-primary text-primary'
+                              ? 'bg-blue-50 border-blue-400 text-blue-700'
                               : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
                           }`}
                         >
@@ -487,7 +487,7 @@ export function CampaignStudio() {
                   </div>
                   <div className="flex items-center gap-2">
                     {SAVED_SEGMENTS.length > 0 && (
-                      <Badge variant="secondary" className="bg-primary/15 text-primary text-xs px-2">
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2">
                         {SAVED_SEGMENTS.length}
                       </Badge>
                     )}

@@ -29,7 +29,7 @@ export function ProductDimensionGroup({ selectedProducts, onToggle, onRemove }: 
         </div>
         <div className="flex items-center gap-2">
           {totalSelected > 0 && (
-            <Badge variant="secondary" className="bg-primary/15 text-primary text-xs px-2">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2">
               {totalSelected}
             </Badge>
           )}
