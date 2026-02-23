@@ -12,6 +12,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 import { DetectedLifeEvent } from "@/types/dashboardClient";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateFinancialTimelinePDFBase64 } from "@/lib/financialTimelinePdfExport";
 
 interface FollowUpEmailDialogProps {
   open: boolean;
@@ -213,25 +214,14 @@ function buildEmailBody(
   return body;
 }
 
-function getAttachments(
-  savedProjection: SavedFinancialProjection | null | undefined,
-  products: string[]
+function getAttachmentLabels(
+  savedProjection: SavedFinancialProjection | null | undefined
 ): string[] {
-  const attachments: string[] = [];
-
+  const labels: string[] = [];
   if (savedProjection) {
-    attachments.push(`Financial_Timeline_${savedProjection.projectName.replace(/\s+/g, "_")}.pdf`);
+    labels.push(`Financial_Timeline_${savedProjection.projectName.replace(/\s+/g, "_")}.pdf`);
   }
-
-  const hasProductsDiscussed = products.length > 0;
-  if (hasProductsDiscussed) {
-    attachments.push("Meeting_Notes_Summary.pdf");
-    for (const product of products) {
-      attachments.push(`${product.replace(/\s+/g, "_")}_Brochure.pdf`);
-    }
-  }
-
-  return attachments;
+  return labels;
 }
 
 export function FollowUpEmailDialog({
@@ -252,6 +242,8 @@ export function FollowUpEmailDialog({
   const [products, setProducts] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState<string | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -263,7 +255,17 @@ export function FollowUpEmailDialog({
 
     setSubject(`Follow-Up: Our Recent Meeting - ${clientName}`);
     setBody(buildEmailBody(clientName, advisorName, nextStepsData, prods, clientProfile, lifeEvents, psychologicalInsights));
-    setAttachments(getAttachments(savedProjection, prods));
+    setAttachments(getAttachmentLabels(savedProjection));
+
+    // Generate PDF base64 if projection exists
+    setPdfBase64(null);
+    if (savedProjection) {
+      setIsGeneratingPdf(true);
+      generateFinancialTimelinePDFBase64(savedProjection)
+        .then((b64) => setPdfBase64(b64))
+        .catch((err) => console.error("PDF generation failed", err))
+        .finally(() => setIsGeneratingPdf(false));
+    }
   }, [open, clientName, advisorName, nextStepsData, savedProjection, clientProfile, lifeEvents, psychologicalInsights]);
 
   const removeAttachment = (idx: number) => {
@@ -279,8 +281,22 @@ export function FollowUpEmailDialog({
   const handleSend = async () => {
     setIsSending(true);
     try {
+      const emailAttachments: { filename: string; content: string }[] = [];
+      if (pdfBase64 && savedProjection) {
+        emailAttachments.push({
+          filename: `Financial_Timeline_${savedProjection.projectName.replace(/\s+/g, "_")}.pdf`,
+          content: pdfBase64,
+        });
+      }
+
       const { data, error } = await supabase.functions.invoke('send-follow-up-email', {
-        body: { to: recipientEmail, subject, body, advisorName },
+        body: {
+          to: recipientEmail,
+          subject,
+          body,
+          advisorName,
+          attachments: emailAttachments.length > 0 ? emailAttachments : undefined,
+        },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -393,9 +409,9 @@ export function FollowUpEmailDialog({
             <Copy className="w-3.5 h-3.5 mr-1.5" />
             Copy to Clipboard
           </Button>
-          <Button size="sm" onClick={handleSend} disabled={isSending}>
-            {isSending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1.5" />}
-            {isSending ? "Sending…" : "Send Email"}
+          <Button size="sm" onClick={handleSend} disabled={isSending || isGeneratingPdf}>
+            {isSending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : isGeneratingPdf ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Send className="w-3.5 h-3.5 mr-1.5" />}
+            {isSending ? "Sending…" : isGeneratingPdf ? "Preparing PDF…" : "Send Email"}
           </Button>
         </DialogFooter>
       </DialogContent>
