@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EventPreparationData, CardTransaction, LIFE_EVENT_CONFIG, DetectedLifeEvent } from "@/types/dashboardClient";
 import {
   Dialog,
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { toast } from "@/hooks/use-toast";
 import { exportEventPreparationPDF } from "@/lib/eventPreparationPdfExport";
+import { EventSummaryEmailDialog } from "./EventSummaryEmailDialog";
 
 interface PrepareEventDialogProps {
   open: boolean;
@@ -58,6 +60,7 @@ const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = 
 };
 
 export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   if (!data) return null;
 
@@ -70,10 +73,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
   );
 
   const handleEmailMe = () => {
-    toast({
-      title: "Summary sent!",
-      description: `Event preparation summary for ${client.profile.name} has been sent to your email.`,
-    });
+    setEmailDialogOpen(true);
   };
 
   const handleDownloadPDF = async () => {
@@ -111,7 +111,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
         <DialogHeader className="pb-3 border-b">
           <div className="flex items-center gap-2">
             <div className={cn('p-2 rounded-lg', `bg-${config?.color || 'slate'}-100`)}>
@@ -184,7 +184,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
                 <ol className="space-y-1.5">
                   {recommendedSteps.map((step, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium flex items-center justify-center">
                         {idx + 1}
                       </span>
                       <span className="text-slate-600">{step}</span>
@@ -211,6 +211,14 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {data && (
+        <EventSummaryEmailDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          data={data}
+        />
+      )}
     </Dialog>
   );
 }

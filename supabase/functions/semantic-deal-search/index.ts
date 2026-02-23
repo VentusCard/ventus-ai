@@ -261,9 +261,20 @@ serve(async (req) => {
       `${cat}:\n${deals.map(d => `  - ${d.id} | ${d.merchant} (${d.sub})`).join('\n')}`
     ).join('\n\n');
 
-    const systemPrompt = `You are a semantic deal search assistant. Given a query, return matching deal IDs.
-Think about intent: "coffee" → cafes, "gym" → fitness, "vacation" → travel, "pizza" → pizza places, "phone" → tech stores.
-Match by: merchant name, category, or what the merchant sells. Quality over quantity.`;
+    const systemPrompt = `You are a semantic deal search assistant. Given a query, return ALL plausible matching deal IDs. Be generous — return 8-20 matches when possible.
+
+For each query, think about THREE dimensions:
+1. PURCHASE INTENT: Where would someone BUY this item? Include general retailers (Target, Walmart, Costco, Amazon, Best Buy), specialty stores, and e-commerce.
+2. BRAND ASSOCIATION: What brands or merchants are associated with this product category? (e.g., "coffee machine" → coffee brands like Starbucks, Dunkin')
+3. CATEGORY MATCH: Which merchants sell products in the same category?
+
+Examples:
+- "coffee machine" → Williams-Sonoma (Kitchen), Target, Walmart, Costco, Amazon, Best Buy (retailers that sell appliances), Starbucks, Dunkin' (coffee brands), Dyson (home appliances)
+- "running shoes" → Nike, Adidas, Under Armour, Lululemon (athletic), Dick's Sporting Goods, REI, Foot Locker (sporting goods), Nordstrom, Macys (department stores), Amazon, Target
+- "birthday gift" → Target, Walmart, Amazon, Nordstrom, 1-800-Flowers, Hallmark, Party City, Disney Store, LEGO, Build-A-Bear
+- "healthy food" → Whole Foods, Trader Joes, Sweetgreen, HelloFresh, Instacart, GNC, Vitamin Shoppe, Noom
+
+IMPORTANT: Do NOT be conservative. Include every merchant that could plausibly be relevant. A general retailer like Target, Walmart, Costco, or Amazon is relevant for almost any physical product search.`;
 
     const userPrompt = `Query: "${query}"\n\nDeals:\n${catalogPrompt}\n\nReturn matching deal IDs for "${query}".`;
 

@@ -178,6 +178,18 @@
   color: inherit;
 }
 
+/* Ensure white text on primary/destructive/secondary buttons is never overridden */
+.tepilot-theme button.bg-primary,
+.tepilot-theme button[class*="bg-primary"],
+.tepilot-theme [class*="bg-primary"] {
+  color: white !important;
+}
+.tepilot-popup button.bg-primary,
+.tepilot-popup button[class*="bg-primary"],
+.tepilot-popup [class*="bg-primary"] {
+  color: white !important;
+}
+
 /* Force dark text on all inputs/textareas within tepilot */
 .tepilot-theme input,
 .tepilot-theme textarea,

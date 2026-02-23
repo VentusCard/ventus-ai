@@ -879,10 +879,10 @@ export function FinancialTimelineTool({
   // Funding gap = what's still needed
   const fundingGap = totalCosts - totalFunding;
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-6xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5" />
+          <DialogTitle className="flex items-center gap-2 text-slate-900">
+            <Lightbulb className="w-5 h-5 text-slate-900" />
             Life Event Planner
           </DialogTitle>
         </DialogHeader>

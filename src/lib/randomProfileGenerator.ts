@@ -234,6 +234,52 @@ function generateMilestones(tenure: number, segment: ClientProfileData['segment'
   });
 }
 
+const spendingCategories = [
+  { category: 'Housing', color: '#6366f1' },
+  { category: 'Transportation', color: '#8b5cf6' },
+  { category: 'Food & Dining', color: '#f59e0b' },
+  { category: 'Healthcare', color: '#ef4444' },
+  { category: 'Entertainment', color: '#ec4899' },
+  { category: 'Shopping', color: '#14b8a6' },
+  { category: 'Travel', color: '#3b82f6' },
+  { category: 'Savings', color: '#22c55e' },
+];
+
+const personaSpendWeights: Record<Persona, Record<string, [number, number]>> = {
+  youngProfessional: {
+    'Housing': [1800, 2800], 'Transportation': [300, 600], 'Food & Dining': [600, 1200],
+    'Healthcare': [100, 300], 'Entertainment': [300, 700], 'Shopping': [400, 900],
+    'Travel': [200, 600], 'Savings': [500, 1500],
+  },
+  growingFamily: {
+    'Housing': [2500, 4000], 'Transportation': [500, 1000], 'Food & Dining': [800, 1500],
+    'Healthcare': [300, 800], 'Entertainment': [200, 500], 'Shopping': [500, 1200],
+    'Travel': [300, 800], 'Savings': [1000, 3000],
+  },
+  establishedProfessional: {
+    'Housing': [3000, 5000], 'Transportation': [600, 1200], 'Food & Dining': [1000, 2000],
+    'Healthcare': [400, 1000], 'Entertainment': [400, 1000], 'Shopping': [800, 2000],
+    'Travel': [500, 1500], 'Savings': [2000, 5000],
+  },
+  preRetiree: {
+    'Housing': [2000, 3500], 'Transportation': [400, 800], 'Food & Dining': [600, 1200],
+    'Healthcare': [800, 2000], 'Entertainment': [300, 700], 'Shopping': [400, 1000],
+    'Travel': [600, 1500], 'Savings': [3000, 8000],
+  },
+};
+
+function generateSpendingOverview(persona: Persona, _aum: number): ClientProfileData['spendingOverview'] {
+  const weights = personaSpendWeights[persona];
+  return spendingCategories.map(({ category, color }) => {
+    const [min, max] = weights[category];
+    const monthlySpend = randomInRange(min, max);
+    // Budget is 80-120% of spend to create realistic over/under scenarios
+    const budgetMultiplier = 0.8 + Math.random() * 0.4;
+    const monthlyBudget = Math.round(monthlySpend * budgetMultiplier / 50) * 50;
+    return { category, monthlySpend, monthlyBudget, color };
+  });
+}
+
 export function generateRandomProfile(): ClientProfileData {
   // Pick a random persona
   const personas: Persona[] = ['youngProfessional', 'growingFamily', 'establishedProfessional', 'preRetiree'];
@@ -317,6 +363,7 @@ export function generateRandomProfile(): ClientProfileData {
       riskProfile,
     },
     milestones: generateMilestones(tenure, segment),
+    spendingOverview: generateSpendingOverview(persona, aum),
   };
 }
 
