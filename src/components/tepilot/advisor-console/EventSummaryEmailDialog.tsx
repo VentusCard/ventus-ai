@@ -28,37 +28,10 @@ const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = 
 };
 
 function buildSummaryBody(data: EventPreparationData): string {
-  const { client, event, transactions, recommendedSteps } = data;
-  const config = LIFE_EVENT_CONFIG[event.eventType];
-  const eventLabel = config?.label || event.eventName;
+  const config = LIFE_EVENT_CONFIG[data.event.eventType];
+  const eventLabel = config?.label || data.event.eventName;
 
-  let body = `Event Preparation Summary\n`;
-  body += `${"=".repeat(40)}\n\n`;
-  body += `Client: ${client.profile.name} (${client.profile.segment})\n`;
-  body += `Event: ${eventLabel} — ${event.confidence}% confidence\n`;
-  body += `Estimated Timing: ${event.estimatedTiming}\n\n`;
-
-  body += `Supporting Transactions (${transactions.length} total)\n`;
-  body += `${"-".repeat(40)}\n`;
-  const sorted = [...transactions].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-  sorted.forEach((txn) => {
-    body += `  • ${txn.merchant} — $${txn.amount.toLocaleString()} (${txn.date})\n`;
-    body += `    ${txn.relevance}\n`;
-  });
-
-  body += `\nVentus AI Insights\n`;
-  body += `${"-".repeat(40)}\n`;
-  body += `${mockInsightsByEventType[event.eventType]}\n`;
-
-  body += `\nRecommended Next Steps\n`;
-  body += `${"-".repeat(40)}\n`;
-  recommendedSteps.forEach((step, idx) => {
-    body += `  ${idx + 1}. ${step}\n`;
-  });
-
-  return body;
+  return `Client: ${data.client.profile.name}\nDetected Life Event: ${eventLabel} (${data.event.confidence}% confidence)\n\nPlease see the attached PDF for the full event preparation summary.\n`;
 }
 
 export function EventSummaryEmailDialog({ open, onOpenChange, data }: EventSummaryEmailDialogProps) {
