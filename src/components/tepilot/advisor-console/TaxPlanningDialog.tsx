@@ -572,8 +572,8 @@ export function TaxPlanningDialog({
                   onOpenChange(false);
                 }}
               >
+                <Sparkles className="w-4 h-4 mr-2" />
                 Ask Ventus
-                <Sparkles className="w-4 h-4 ml-2" />
               </Button>
             )}
             <Button variant="default" size="sm" onClick={() => onOpenChange(false)}>
