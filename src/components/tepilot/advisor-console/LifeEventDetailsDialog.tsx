@@ -135,7 +135,7 @@ export function LifeEventDetailsDialog({
             <Sparkles className="w-4 h-4 mr-2" />
             Ask Ventus
           </Button>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>
             Close
           </Button>
         </DialogFooter>

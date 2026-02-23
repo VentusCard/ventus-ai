@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, Trash2 } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Save } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { NextStepsActionItem, MeetingNotesResult, SENTIMENT_PSYCHOLOGY_MAP, LIFE_EVENT_KEYWORDS } from "./sampleData";
@@ -340,8 +340,13 @@ export function MeetingNotesDialog({ open, onOpenChange, onSubmitNotes }: Meetin
         </ScrollArea>
 
         <DialogFooter className="px-6 py-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit}>Save Notes</Button>
+          <div className="flex gap-2 w-full justify-end">
+            <Button className="bg-white text-slate-800 border border-slate-300 hover:bg-slate-50" variant="outline" onClick={handleSubmit}>
+              <Save className="w-4 h-4 mr-2" />
+              Save Notes
+            </Button>
+            <Button variant="outline" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>Cancel</Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

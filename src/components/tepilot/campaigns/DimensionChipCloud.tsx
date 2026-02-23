@@ -38,7 +38,7 @@ export function DimensionChipCloud({
         </div>
         <div className="flex items-center gap-2">
           {count > 0 && (
-            <Badge variant="secondary" className="bg-primary/15 text-primary text-xs px-2">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2">
               {count}
             </Badge>
           )}
@@ -61,7 +61,7 @@ export function DimensionChipCloud({
                   inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
                   border transition-all cursor-pointer
                   ${selected
-                    ? 'bg-primary/15 border-primary text-primary'
+                    ? 'bg-blue-50 border-blue-400 text-blue-700'
                     : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
                   }
                 `}

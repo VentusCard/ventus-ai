@@ -110,11 +110,11 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
         className="border rounded-lg p-1"
         onClick={(e) => e.stopPropagation()}
       >
-        <ToggleGroupItem value="grid" className="gap-2 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+        <ToggleGroupItem value="grid" className="gap-2 px-3 data-[state=on]:bg-blue-500 data-[state=on]:text-white" style={viewMode === 'grid' ? { color: 'white' } : { color: '#334155' }}>
           <LayoutGrid className="h-4 w-4" />
           <span className="hidden sm:inline">Grid</span>
         </ToggleGroupItem>
-        <ToggleGroupItem value="chart" className="gap-2 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+        <ToggleGroupItem value="chart" className="gap-2 px-3 data-[state=on]:bg-blue-500 data-[state=on]:text-white" style={viewMode === 'chart' ? { color: 'white' } : { color: '#334155' }}>
           <BarChart3 className="h-4 w-4" />
           <span className="hidden sm:inline">Chart</span>
         </ToggleGroupItem>
