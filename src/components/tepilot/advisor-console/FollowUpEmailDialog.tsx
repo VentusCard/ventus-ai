@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Paperclip, X, Copy, Send, ExternalLink } from "lucide-react";
-import { NextStepsData } from "./sampleData";
+import { NextStepsData, PsychologicalInsight } from "./sampleData";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
 import { ClientProfileData } from "@/types/clientProfile";
 import { DetectedLifeEvent } from "@/types/dashboardClient";
@@ -22,6 +22,7 @@ interface FollowUpEmailDialogProps {
   savedProjection?: SavedFinancialProjection | null;
   clientProfile?: ClientProfileData | null;
   lifeEvents?: DetectedLifeEvent[] | null;
+  psychologicalInsights?: PsychologicalInsight[];
 }
 
 const PRODUCT_LINK_MAP: Record<string, string> = {
@@ -47,18 +48,73 @@ const LIFE_EVENT_LABELS: Record<string, string> = {
   elder_care: "elder care planning",
 };
 
+interface ToneConfig {
+  greeting: "formal" | "warm" | "casual";
+  detailLevel: "high" | "low";
+  riskFraming: "conservative" | "balanced" | "aggressive";
+  reassurance: boolean;
+  signOff: string;
+}
+
+function getToneConfig(insights: PsychologicalInsight[]): ToneConfig {
+  const config: ToneConfig = {
+    greeting: "warm",
+    detailLevel: "low",
+    riskFraming: "balanced",
+    reassurance: false,
+    signOff: "Warm regards",
+  };
+
+  for (const insight of insights) {
+    const v = insight.sliderValue ?? 3;
+    const aspect = insight.aspect.toLowerCase();
+
+    if (aspect.includes("decision")) {
+      config.detailLevel = v >= 4 ? "high" : "low";
+    } else if (aspect.includes("risk")) {
+      config.riskFraming = v >= 4 ? "aggressive" : v <= 2 ? "conservative" : "balanced";
+    } else if (aspect.includes("communication") || aspect.includes("style")) {
+      if (v >= 4) {
+        config.greeting = "formal";
+        config.signOff = "Respectfully";
+      } else if (v <= 2) {
+        config.greeting = "casual";
+        config.signOff = "Best";
+      }
+    } else if (aspect.includes("emotion") || aspect.includes("trust")) {
+      if (v <= 2) config.reassurance = true;
+    }
+  }
+
+  return config;
+}
+
 function buildEmailBody(
   clientName: string,
   advisorName: string,
   nextStepsData: NextStepsData,
   products: string[],
   clientProfile?: ClientProfileData | null,
-  lifeEvents?: DetectedLifeEvent[] | null
+  lifeEvents?: DetectedLifeEvent[] | null,
+  psychologicalInsights?: PsychologicalInsight[]
 ): string {
   const firstName = clientName.split(" ")[0];
+  const lastName = clientName.split(" ").slice(1).join(" ");
   const incompleteItems = nextStepsData.actionItems.filter(i => !i.completed);
 
-  let body = `Dear ${firstName},\n\n`;
+  const tone = getToneConfig(psychologicalInsights || []);
+
+  // Greeting
+  let greeting: string;
+  if (tone.greeting === "formal") {
+    greeting = lastName ? `Dear Mr. ${lastName}` : `Dear ${firstName}`;
+  } else if (tone.greeting === "casual") {
+    greeting = `Hi ${firstName}`;
+  } else {
+    greeting = `Dear ${firstName}`;
+  }
+
+  let body = `${greeting},\n\n`;
 
   // Context-aware opening
   const occupation = clientProfile?.demographics?.occupation;
@@ -72,27 +128,43 @@ function buildEmailBody(
     body += `It was wonderful connecting with you today. I appreciate you making the time, and I wanted to send along a recap of our conversation while it's still fresh.\n\n`;
   }
 
+  // Reassurance opener if client is anxious
+  if (tone.reassurance) {
+    body += `Before I dive in, I want you to know that everything we discussed is on track and there's nothing to worry about. We're in a strong position, and I'm here to make sure it stays that way.\n\n`;
+  }
+
   // Life events — conversational tone
   if (lifeEvents && lifeEvents.length > 0) {
     const eventDescriptions = lifeEvents.map(
       e => LIFE_EVENT_LABELS[e.eventType] || e.eventName
     );
     if (eventDescriptions.length === 1) {
-      body += `We spent some time talking about your ${eventDescriptions[0]}, and I think there are some great opportunities to get ahead of it. I'll be pulling together a few options and will share those with you shortly.\n\n`;
+      if (tone.riskFraming === "aggressive") {
+        body += `We spent some time talking about your ${eventDescriptions[0]} — there's real opportunity here to position yourself ahead of the curve. I'll be putting together a few forward-looking options and will share those with you shortly.\n\n`;
+      } else if (tone.riskFraming === "conservative") {
+        body += `We spent some time talking about your ${eventDescriptions[0]}, and I want to make sure we approach it carefully to protect what you've built. I'll be pulling together a few steady, well-tested options to share with you.\n\n`;
+      } else {
+        body += `We spent some time talking about your ${eventDescriptions[0]}, and I think there are some great opportunities to get ahead of it. I'll be pulling together a few options and will share those with you shortly.\n\n`;
+      }
     } else {
       const last = eventDescriptions.pop();
       body += `We covered a lot of ground today — from your ${eventDescriptions.join(", ")} to your ${last}. These are exciting chapters ahead, and I want to make sure your financial plan is working hard for each of them.\n\n`;
     }
   }
 
-  // Spending insights — natural language
+  // Spending insights — adapted to detail level
   const spending = clientProfile?.spendingOverview;
   if (spending && spending.length > 0) {
     const overBudget = spending.filter(s => s.monthlySpend > s.monthlyBudget);
     if (overBudget.length > 0) {
       const top = overBudget.sort((a, b) => (b.monthlySpend / b.monthlyBudget) - (a.monthlySpend / a.monthlyBudget))[0];
       const pctOver = Math.round(((top.monthlySpend / top.monthlyBudget) - 1) * 100);
-      body += `One thing I noticed while reviewing your accounts — your ${top.category.toLowerCase()} spending is running about ${pctOver}% above where we'd like it. Nothing alarming, but worth a quick conversation to see if we should adjust your allocations.\n\n`;
+
+      if (tone.detailLevel === "high") {
+        body += `Looking at the numbers, your ${top.category.toLowerCase()} spending is currently $${top.monthlySpend.toLocaleString()}/month against a $${top.monthlyBudget.toLocaleString()} budget — about ${pctOver}% above target. I'd recommend we review this together and see whether we should reallocate or adjust the budget.\n\n`;
+      } else {
+        body += `One thing I noticed while reviewing your accounts — your ${top.category.toLowerCase()} spending is running a bit above where we'd like it. Nothing alarming, but worth a quick conversation to see if we should adjust.\n\n`;
+      }
     }
   }
 
@@ -114,9 +186,15 @@ function buildEmailBody(
     body += `\n`;
   }
 
-  // Products discussed
+  // Products discussed — risk-framed
   if (products.length > 0) {
-    body += `I've also included links to the solutions we discussed, so you can explore them at your convenience:\n\n`;
+    if (tone.riskFraming === "conservative") {
+      body += `I've included links to the solutions we discussed — each one is designed to help safeguard and steadily grow your wealth:\n\n`;
+    } else if (tone.riskFraming === "aggressive") {
+      body += `Here are the growth-oriented solutions we discussed — I think each one positions you to capitalize on the opportunities ahead:\n\n`;
+    } else {
+      body += `I've also included links to the solutions we discussed, so you can explore them at your convenience:\n\n`;
+    }
     for (const product of products) {
       const linkText = PRODUCT_LINK_MAP[product] || product;
       body += `  • ${linkText} — ${PRODUCT_URL}\n`;
@@ -124,8 +202,12 @@ function buildEmailBody(
     body += `\n`;
   }
 
+  // Closing with reassurance if needed
+  if (tone.reassurance) {
+    body += `I want to reiterate — we're on solid ground, and every step we're taking is moving you in the right direction. `;
+  }
   body += `As always, I'm here whenever you need me. Don't hesitate to reach out with any questions — even the small ones.\n\n`;
-  body += `Warm regards,\n${advisorName}\nVentus AI Wealth Advisor`;
+  body += `${tone.signOff},\n${advisorName}\nVentus AI Wealth Advisor`;
 
   return body;
 }
@@ -161,6 +243,7 @@ export function FollowUpEmailDialog({
   savedProjection,
   clientProfile,
   lifeEvents,
+  psychologicalInsights,
 }: FollowUpEmailDialogProps) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -175,9 +258,9 @@ export function FollowUpEmailDialog({
     setProducts(prods);
 
     setSubject(`Follow-Up: Our Recent Meeting - ${clientName}`);
-    setBody(buildEmailBody(clientName, advisorName, nextStepsData, prods, clientProfile, lifeEvents));
+    setBody(buildEmailBody(clientName, advisorName, nextStepsData, prods, clientProfile, lifeEvents, psychologicalInsights));
     setAttachments(getAttachments(savedProjection, prods));
-  }, [open, clientName, advisorName, nextStepsData, savedProjection, clientProfile, lifeEvents]);
+  }, [open, clientName, advisorName, nextStepsData, savedProjection, clientProfile, lifeEvents, psychologicalInsights]);
 
   const removeAttachment = (idx: number) => {
     setAttachments(prev => prev.filter((_, i) => i !== idx));

@@ -334,6 +334,7 @@ export function ActionWorkspacePanel({
             savedProjection={savedProjection}
             clientProfile={clientProfile}
             lifeEvents={dashboardEvents}
+            psychologicalInsights={nextStepsData.psychologicalInsights}
           />
         </div>
       </div>
