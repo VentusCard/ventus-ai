@@ -66,7 +66,7 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
           <Filter className="w-4 h-4 text-slate-500" />
           <span className="text-sm font-medium text-slate-700">Refine Audience (Optional)</span>
           {hasActiveFilters && (
-            <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
               {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active
             </Badge>
           )}
@@ -88,7 +88,7 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
                   className={`
                     flex items-center gap-1.5 px-3 py-1.5 rounded-md border cursor-pointer transition-all text-sm
                     ${isSelected 
-                      ? 'border-primary bg-primary/5 text-primary' 
+                      ? 'border-blue-400 bg-blue-50 text-blue-700' 
                       : 'border-slate-200 hover:border-slate-300 text-slate-600'
                     }
                   `}
@@ -118,7 +118,7 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
                   className={`
                     flex items-center gap-1.5 px-3 py-1.5 rounded-md border cursor-pointer transition-all text-sm
                     ${isSelected 
-                      ? 'border-primary bg-primary/5 text-primary' 
+                      ? 'border-blue-400 bg-blue-50 text-blue-700' 
                       : 'border-slate-200 hover:border-slate-300 text-slate-600'
                     }
                   `}
@@ -150,7 +150,7 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
                     className={`
                       flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border cursor-pointer transition-all text-xs
                       ${isSelected 
-                        ? 'border-primary bg-primary/5 text-primary' 
+                        ? 'border-blue-400 bg-blue-50 text-blue-700' 
                         : 'border-slate-200 hover:border-slate-300 text-slate-600'
                       }
                     `}

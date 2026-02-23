@@ -34,7 +34,7 @@ export function GeoDimensionSelector({
         </div>
         <div className="flex items-center gap-2">
           {totalSelected > 0 && (
-            <Badge variant="secondary" className="bg-primary/15 text-primary text-xs px-2">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2">
               {totalSelected}
             </Badge>
           )}
@@ -55,11 +55,11 @@ export function GeoDimensionSelector({
                     onClick={() => onToggleRegion(region)}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                       selected
-                        ? 'bg-primary/15 border-primary text-primary'
+                        ? 'bg-blue-50 border-blue-400 text-blue-700'
                         : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
                     }`}
                   >
-                    <span className={`w-2 h-2 rounded-full ${selected ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+                    <span className={`w-2 h-2 rounded-full ${selected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
                     {region}
                   </button>
                 );
@@ -79,11 +79,11 @@ export function GeoDimensionSelector({
                     onClick={() => onToggleMetro(metro.id)}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                       selected
-                        ? 'bg-primary/15 border-primary text-primary'
+                        ? 'bg-blue-50 border-blue-400 text-blue-700'
                         : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${selected ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${selected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
                     {metro.name}
                   </button>
                 );
@@ -101,7 +101,7 @@ export function GeoDimensionSelector({
                   onClick={() => onSetAreaType(type)}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                     areaType === type
-                      ? 'bg-primary/15 border-primary text-primary'
+                      ? 'bg-blue-50 border-blue-400 text-blue-700'
                       : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
                   }`}
                 >
