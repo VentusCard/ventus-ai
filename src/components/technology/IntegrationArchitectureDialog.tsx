@@ -99,13 +99,13 @@ const BENEFITS = [
   { label: "Relationship Intelligence", color: ACCENT.wealth },
 ];
 
-const PILLAR_WIDTH = 150;
-const PILLAR_GAP = 8;
-const PAIR_GAP = 24;
-const PILLAR_TOP = 260;
-const ITEM_HEIGHT = 22;
-const PILLAR_PADDING = 42;
-const SVG_WIDTH = 980;
+const PILLAR_WIDTH = 135;
+const PILLAR_GAP = 6;
+const PAIR_GAP = 16;
+const PILLAR_TOP = 200;
+const ITEM_HEIGHT = 20;
+const PILLAR_PADDING = 40;
+const SVG_WIDTH = 900;
 
 function getPillarX(pairIndex: number, isVentus: boolean) {
   const pairStart = 20 + pairIndex * (PILLAR_WIDTH * 2 + PILLAR_GAP + PAIR_GAP);
@@ -124,17 +124,17 @@ const IntegrationArchitectureDialog = ({ open, onOpenChange, activeVariant }: Pr
     ])
   );
 
-  const benefitsRowY = PILLAR_TOP + maxPillarH + 50;
-  const benefitBlockH = 38;
-  const benefitBlockW = 185;
-  const benefitGap = 16;
+  const benefitsRowY = PILLAR_TOP + maxPillarH + 40;
+  const benefitBlockH = 34;
+  const benefitBlockW = 170;
+  const benefitGap = 12;
   const totalBenefitsW = BENEFITS.length * benefitBlockW + (BENEFITS.length - 1) * benefitGap;
   const benefitsStartX = (SVG_WIDTH - totalBenefitsW) / 2;
   const bracketPad = 14;
   const bracketY = benefitsRowY - 22;
-  const bracketH = benefitBlockH + 44 + 8;
-  const customersY = bracketY + bracketH + 30;
-  const svgHeight = customersY + 60;
+  const bracketH = benefitBlockH + 40;
+  const customersY = bracketY + bracketH + 24;
+  const svgHeight = customersY + 54;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -148,7 +148,7 @@ const IntegrationArchitectureDialog = ({ open, onOpenChange, activeVariant }: Pr
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="w-full overflow-x-auto">
-          <div className="min-w-[980px] px-6 pb-6">
+          <div className="min-w-[900px] px-6 pb-6">
             <svg
               viewBox={`0 0 ${SVG_WIDTH} ${svgHeight}`}
               width="100%"
@@ -182,12 +182,12 @@ const IntegrationArchitectureDialog = ({ open, onOpenChange, activeVariant }: Pr
               <text x={SVG_WIDTH / 2} y={44} textAnchor="middle" fill="hsl(215 10% 50%)" fontSize={10}>Core Banking System</text>
 
               {/* Connection line down */}
-              <line x1={SVG_WIDTH / 2} y1={54} x2={SVG_WIDTH / 2} y2={110} stroke="hsl(217 91% 60% / 0.4)" strokeWidth={1.5} strokeDasharray="4 3" />
+              <line x1={SVG_WIDTH / 2} y1={54} x2={SVG_WIDTH / 2} y2={95} stroke="hsl(217 91% 60% / 0.4)" strokeWidth={1.5} strokeDasharray="4 3" />
 
               {/* Ventus AI Hub */}
-              <rect x={SVG_WIDTH / 2 - 110} y={110} width={220} height={50} rx={12} fill="url(#hubGrad)" stroke="hsl(217 91% 60% / 0.6)" strokeWidth={1.5} filter="url(#blueGlow)" />
-              <text x={SVG_WIDTH / 2} y={132} textAnchor="middle" fill="hsl(217 91% 40%)" fontSize={12} fontWeight={700}>VENTUS AI</text>
-              <text x={SVG_WIDTH / 2} y={148} textAnchor="middle" fill="hsl(217 91% 50%)" fontSize={10} fontWeight={500}>Intelligence Hub</text>
+              <rect x={SVG_WIDTH / 2 - 110} y={95} width={220} height={46} rx={12} fill="url(#hubGrad)" stroke="hsl(217 91% 60% / 0.6)" strokeWidth={1.5} filter="url(#blueGlow)" />
+              <text x={SVG_WIDTH / 2} y={115} textAnchor="middle" fill="hsl(217 91% 40%)" fontSize={12} fontWeight={700}>VENTUS AI</text>
+              <text x={SVG_WIDTH / 2} y={130} textAnchor="middle" fill="hsl(217 91% 50%)" fontSize={10} fontWeight={500}>Intelligence Hub</text>
 
               {/* Connection lines from hub to pillars */}
               {PAIRS.map((pair, pi) => {
@@ -196,8 +196,8 @@ const IntegrationArchitectureDialog = ({ open, onOpenChange, activeVariant }: Pr
                 const vxX = getPillarX(pi, true) + PILLAR_WIDTH / 2;
                 return (
                   <g key={`hub-${pi}`}>
-                    <line x1={SVG_WIDTH / 2} y1={160} x2={exX} y2={PILLAR_TOP - 8} stroke="hsl(215 15% 75%)" strokeWidth={1} strokeDasharray="4 3" markerEnd="url(#arrowHead)" />
-                    <line x1={SVG_WIDTH / 2} y1={160} x2={vxX} y2={PILLAR_TOP - 8} stroke={a.stroke + "99"} strokeWidth={1} strokeDasharray="4 3" markerEnd="url(#arrowHead)" />
+                    <line x1={SVG_WIDTH / 2} y1={141} x2={exX} y2={PILLAR_TOP - 8} stroke="hsl(215 15% 75%)" strokeWidth={1} strokeDasharray="4 3" markerEnd="url(#arrowHead)" />
+                    <line x1={SVG_WIDTH / 2} y1={141} x2={vxX} y2={PILLAR_TOP - 8} stroke={a.stroke + "99"} strokeWidth={1} strokeDasharray="4 3" markerEnd="url(#arrowHead)" />
                   </g>
                 );
               })}
