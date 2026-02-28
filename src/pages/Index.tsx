@@ -5,7 +5,7 @@ import CTA from "@/components/CTA";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <main className="flex flex-col">
         <Hero />
