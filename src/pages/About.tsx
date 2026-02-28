@@ -1,38 +1,25 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import TechnologyBackground from "@/components/technology/TechnologyBackground";
 import { Building2, Handshake, Sparkles } from "lucide-react";
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-background relative">
-      <TechnologyBackground />
+    <div className="min-h-screen bg-white">
       <Navbar />
-      <main className="pt-32 pb-16 relative z-10">
+      <main className="pt-32 pb-16">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <h1 
-            className="text-4xl md:text-5xl font-bold text-foreground mb-8 animate-fade-float"
-            style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
-          >
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
             About Ventus AI
           </h1>
           
-          <div className="space-y-12 text-foreground/80">
-            {/* What is Ventus AI */}
-            <section 
-              className="group p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm 
-                hover:bg-white/10 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] 
-                transition-all duration-500 animate-fade-float"
-              style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
-            >
+          <div className="space-y-12 text-gray-600">
+            <section className="group p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg transition-all duration-500">
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 
-                  transition-all duration-500 group-hover:bg-primary/20 
-                  group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-                  <Sparkles className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110" />
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:bg-blue-100">
+                  <Sparkles className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-semibold text-foreground mb-4 transition-colors duration-300 group-hover:text-primary">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 transition-colors duration-300 group-hover:text-blue-600">
                     What is Ventus AI?
                   </h2>
                   <p className="text-lg leading-relaxed">
@@ -45,21 +32,13 @@ const About = () => {
               </div>
             </section>
             
-            {/* Our Approach */}
-            <section 
-              className="group p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm 
-                hover:bg-white/10 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] 
-                transition-all duration-500 animate-fade-float"
-              style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
-            >
+            <section className="group p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg transition-all duration-500">
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 
-                  transition-all duration-500 group-hover:bg-primary/20 
-                  group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-                  <Building2 className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110" />
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:bg-blue-100">
+                  <Building2 className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-semibold text-foreground mb-4 transition-colors duration-300 group-hover:text-primary">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 transition-colors duration-300 group-hover:text-blue-600">
                     Bank-First Collaboration
                   </h2>
                   <p className="text-lg leading-relaxed">
@@ -73,21 +52,13 @@ const About = () => {
               </div>
             </section>
             
-            {/* How We Work */}
-            <section 
-              className="group p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm 
-                hover:bg-white/10 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] 
-                transition-all duration-500 animate-fade-float"
-              style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
-            >
+            <section className="group p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg transition-all duration-500">
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 
-                  transition-all duration-500 group-hover:bg-primary/20 
-                  group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-                  <Handshake className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110" />
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:bg-blue-100">
+                  <Handshake className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-semibold text-foreground mb-4 transition-colors duration-300 group-hover:text-primary">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 transition-colors duration-300 group-hover:text-blue-600">
                     How We Work
                   </h2>
                   <p className="text-lg leading-relaxed mb-4">
@@ -95,11 +66,11 @@ const About = () => {
                   </p>
                   <ul className="space-y-3 text-lg">
                     <li className="flex items-start gap-3">
-                      <span className="text-primary font-semibold">API Integration:</span>
+                      <span className="text-blue-600 font-semibold">API Integration:</span>
                       <span>Connect our intelligence directly to your existing applications and workflows.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-primary font-semibold">In-App Experience:</span>
+                      <span className="text-blue-600 font-semibold">In-App Experience:</span>
                       <span>Deploy our consumer-facing features within your mobile or web banking platforms.</span>
                     </li>
                   </ul>
