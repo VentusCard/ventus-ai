@@ -274,6 +274,7 @@ export default function VentusTransactionEnrichment() {
           font-size: 15px;
           font-weight: 820;
           letter-spacing: -0.01em;
+          color: #0f172a !important;
         }
         .vte-table { width: 100%; }
         .vte-row {
