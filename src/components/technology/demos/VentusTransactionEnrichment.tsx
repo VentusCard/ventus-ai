@@ -231,16 +231,16 @@ export default function VentusTransactionEnrichment() {
     <>
       <style>{`
         .vte-root {
-          --ink: #ffffff;
-          --muted: rgba(255,255,255,.55);
-          --hair: rgba(255,255,255,.15);
-          --wash: rgba(255,255,255,.04);
+          --ink: #0f172a;
+          --muted: rgba(15,23,42,.55);
+          --hair: rgba(15,23,42,.12);
+          --wash: rgba(15,23,42,.04);
           --radius: 18px;
-          --sigBg: rgba(255,255,255,.06);
-          --sigBd: rgba(255,255,255,.20);
-          --sigInk: rgba(255,255,255,.92);
-          --hlBg: rgba(255,255,255,.04);
-          --hlBd: rgba(255,255,255,.15);
+          --sigBg: rgba(15,23,42,.05);
+          --sigBd: rgba(15,23,42,.18);
+          --sigInk: rgba(15,23,42,.88);
+          --hlBg: rgba(15,23,42,.03);
+          --hlBd: rgba(15,23,42,.12);
 
           font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: var(--ink);
@@ -262,7 +262,7 @@ export default function VentusTransactionEnrichment() {
         .vte-head {
           padding: 16px 18px;
           border-bottom: 1px solid var(--hair);
-          background: rgba(255,255,255,.04);
+          background: rgba(15,23,42,.03);
           display: flex;
           justify-content: space-between;
           align-items: baseline;
@@ -329,7 +329,7 @@ export default function VentusTransactionEnrichment() {
           line-height: 1.25;
         }
         .one { white-space: nowrap; line-height: 1.2; }
-        .derived-text { color: rgba(255,255,255,.70); font-weight: 650; }
+        .derived-text { color: rgba(15,23,42,.70); font-weight: 650; }
         .vte-spacer { height: 12px; }
         .vte-disclaimer {
           margin-top: 16px;
@@ -338,7 +338,7 @@ export default function VentusTransactionEnrichment() {
         .vte-disclaimer p {
           margin: 0;
           font-size: 11px;
-          color: rgba(255,255,255,.35);
+          color: rgba(15,23,42,.35);
           font-weight: 620;
           letter-spacing: -0.005em;
           line-height: 1.4;
@@ -369,16 +369,16 @@ export default function VentusTransactionEnrichment() {
           gap: 10px;
           flex-wrap: wrap;
           padding-top: 10px;
-          border-top: 1px solid rgba(255,255,255,.12);
+          border-top: 1px solid rgba(15,23,42,.10);
         }
         .vte-signal-label {
           font-size: 12px;
           font-weight: 820;
-          color: rgba(255,255,255,.65);
+          color: rgba(15,23,42,.55);
           letter-spacing: -0.01em;
         }
         .vte-category-group {
-          border-bottom: 1px solid rgba(255,255,255,.08);
+          border-bottom: 1px solid rgba(15,23,42,.08);
           padding: 12px 0;
           display: grid;
           grid-template-columns: 200px 95px 1fr;
@@ -390,7 +390,7 @@ export default function VentusTransactionEnrichment() {
         .vte-category-name {
           font-size: 11px;
           font-weight: 820;
-          color: rgba(255,255,255,.45);
+          color: rgba(15,23,42,.45);
           letter-spacing: 0.02em;
           text-transform: uppercase;
           white-space: nowrap;
@@ -425,11 +425,11 @@ export default function VentusTransactionEnrichment() {
           white-space: nowrap;
         }
         .vte-chip strong { font-weight: 880; letter-spacing: -0.01em; }
-        .vte-chip-count { font-weight: 820; color: rgba(255,255,255,.55); }
+        .vte-chip-count { font-weight: 820; color: rgba(15,23,42,.55); }
         .vte-chip.is-off {
           opacity: .30;
-          background: rgba(255,255,255,.02);
-          border-color: rgba(255,255,255,.10);
+          background: rgba(15,23,42,.02);
+          border-color: rgba(15,23,42,.08);
         }
         .vte-chip.is-off .vte-chip-count { display: none; }
 

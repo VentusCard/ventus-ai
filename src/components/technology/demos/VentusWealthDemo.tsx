@@ -413,12 +413,12 @@ export default function VentusWealthDemo() {
       <style>{`
         .vwm-root {
           font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-          color: #ffffff;
+          color: #0f172a;
           max-width: 1600px;
           margin: 0 auto;
           padding: 0;
-          background: rgba(255,255,255,.03);
-          border: 1px solid rgba(255,255,255,.15);
+          background: rgba(15,23,42,.02);
+          border: 1px solid rgba(15,23,42,.12);
           border-radius: 22px;
           overflow: hidden;
           position: relative;
@@ -429,54 +429,54 @@ export default function VentusWealthDemo() {
 
         .vwm-dashboard-header {
           padding: 16px 20px 12px;
-          background: rgba(255,255,255,.06);
-          border-bottom: 1px solid rgba(255,255,255,.12);
+          background: rgba(15,23,42,.03);
+          border-bottom: 1px solid rgba(15,23,42,.08);
         }
         .vwm-dash-title {
-          font-weight: 760; letter-spacing: -.02em; font-size: 16px; color: #fff;
+          font-weight: 760; letter-spacing: -.02em; font-size: 16px; color: #0f172a;
         }
         .vwm-dash-title .vwm-powered {
-          font-size: 12px; font-weight: 500; color: rgba(255,255,255,.45); margin-left: 8px;
+          font-size: 12px; font-weight: 500; color: rgba(15,23,42,.45); margin-left: 8px;
         }
         .vwm-dash-subtitle {
-          font-size: 12px; color: rgba(255,255,255,.45); margin-top: 4px;
+          font-size: 12px; color: rgba(15,23,42,.45); margin-top: 4px;
         }
 
         /* Metrics bar */
         .vwm-metrics {
           display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
           padding: 10px 20px;
-          border-bottom: 1px solid rgba(255,255,255,.08);
+          border-bottom: 1px solid rgba(15,23,42,.06);
         }
         .vwm-metric-pill {
           display: inline-flex; align-items: center; gap: 6px;
           padding: 6px 12px; border-radius: 10px;
           font-size: 12px; font-weight: 600;
         }
-        .vwm-metric-pill.clients { background: rgba(255,255,255,.06); color: rgba(255,255,255,.70); }
-        .vwm-metric-pill.urgent { background: rgba(239,68,68,.10); color: #fca5a5; }
-        .vwm-metric-pill.quarter { background: rgba(245,158,11,.10); color: #fcd34d; }
-        .vwm-metric-pill.total { background: rgba(59,130,246,.10); color: #93c5fd; }
+        .vwm-metric-pill.clients { background: rgba(15,23,42,.05); color: rgba(15,23,42,.65); }
+        .vwm-metric-pill.urgent { background: rgba(239,68,68,.08); color: #dc2626; }
+        .vwm-metric-pill.quarter { background: rgba(245,158,11,.08); color: #d97706; }
+        .vwm-metric-pill.total { background: rgba(59,130,246,.08); color: #2563eb; }
         .vwm-metric-pill .num { font-weight: 800; font-variant-numeric: tabular-nums; }
 
         /* Controls row */
         .vwm-controls-row {
           display: flex; align-items: center; justify-content: space-between;
           padding: 8px 20px;
-          border-bottom: 1px solid rgba(255,255,255,.08);
+          border-bottom: 1px solid rgba(15,23,42,.06);
         }
         .vwm-phase-label {
-          font-size: 11px; color: rgba(255,255,255,.50); font-weight: 600;
+          font-size: 11px; color: rgba(15,23,42,.50); font-weight: 600;
         }
         .vwm-ctrl-btns { display: flex; gap: 8px; }
         .vwm-ctrl-btn {
           padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
-          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
-          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+          border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
+          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
         }
-        .vwm-ctrl-btn:hover { background: rgba(255,255,255,.15); }
-        .vwm-ctrl-btn.primary { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
-        .vwm-ctrl-btn.primary:hover { background: #fff; }
+        .vwm-ctrl-btn:hover { background: rgba(15,23,42,.08); }
+        .vwm-ctrl-btn.primary { background: #0f172a; color: #fff; border-color: transparent; }
+        .vwm-ctrl-btn.primary:hover { background: #1e293b; }
 
         /* Alert rows list */
         .vwm-alert-list {
@@ -484,19 +484,19 @@ export default function VentusWealthDemo() {
         }
         .vwm-alert-list::-webkit-scrollbar { width: 8px; }
         .vwm-alert-list::-webkit-scrollbar-track { background: transparent; }
-        .vwm-alert-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
+        .vwm-alert-list::-webkit-scrollbar-thumb { background: rgba(15,23,42,.10); border-radius: 999px; }
 
         /* Individual alert row */
         .vwm-alert-row {
           display: flex; align-items: center; gap: 12px;
           padding: 10px 12px; margin-bottom: 4px;
-          border: 1px solid rgba(255,255,255,.10);
+          border: 1px solid rgba(15,23,42,.08);
           border-radius: 14px;
-          background: rgba(255,255,255,.04);
+          background: rgba(15,23,42,.02);
           transition: all .2s;
           animation: vwm-rowIn .35s ease both;
         }
-        .vwm-alert-row:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); }
+        .vwm-alert-row:hover { background: rgba(15,23,42,.04); border-color: rgba(15,23,42,.14); }
         @keyframes vwm-rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
         .vwm-row-icon {
@@ -505,14 +505,14 @@ export default function VentusWealthDemo() {
         }
         .vwm-row-info { flex: 1; min-width: 0; }
         .vwm-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .vwm-row-name { font-weight: 720; font-size: 13px; color: #fff; white-space: nowrap; }
-        .vwm-row-aum { font-size: 11px; color: rgba(255,255,255,.55); font-weight: 600; }
+        .vwm-row-name { font-weight: 720; font-size: 13px; color: #0f172a; white-space: nowrap; }
+        .vwm-row-aum { font-size: 11px; color: rgba(15,23,42,.50); font-weight: 600; }
         .vwm-seg-badge {
           font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
           border: 1px solid;
         }
         .vwm-row-middle { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
-        .vwm-event-name { font-size: 12px; font-weight: 660; color: rgba(255,255,255,.85); }
+        .vwm-event-name { font-size: 12px; font-weight: 660; color: rgba(15,23,42,.80); }
         .vwm-urg-badge {
           font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
           border: 1px solid; text-transform: uppercase; letter-spacing: .03em;
@@ -521,45 +521,45 @@ export default function VentusWealthDemo() {
           font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
           border: 1px solid;
         }
-        .vwm-timing-text { font-size: 10px; color: rgba(255,255,255,.40); }
+        .vwm-timing-text { font-size: 10px; color: rgba(15,23,42,.40); }
         .vwm-row-evidence {
-          font-size: 10px; color: rgba(255,255,255,.40); margin-top: 2px;
+          font-size: 10px; color: rgba(15,23,42,.40); margin-top: 2px;
           overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .vwm-row-actions { flex: 0 0 auto; display: flex; gap: 6px; }
         .vwm-row-btn {
           padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
-          border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06);
-          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
+          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
           white-space: nowrap;
         }
-        .vwm-row-btn:hover { background: rgba(255,255,255,.14); }
-        .vwm-row-btn.prepare { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
-        .vwm-row-btn.prepare:hover { background: #fff; }
+        .vwm-row-btn:hover { background: rgba(15,23,42,.08); }
+        .vwm-row-btn.prepare { background: #0f172a; color: #fff; border-color: transparent; }
+        .vwm-row-btn.prepare:hover { background: #1e293b; }
 
         /* Active row highlight */
         .vwm-alert-row.active {
-          background: rgba(255,255,255,.12);
-          border-color: rgba(59,130,246,.40);
-          box-shadow: 0 0 24px rgba(59,130,246,.25), inset 0 0 0 1px rgba(59,130,246,.15);
+          background: rgba(59,130,246,.06);
+          border-color: rgba(59,130,246,.30);
+          box-shadow: 0 0 24px rgba(59,130,246,.10), inset 0 0 0 1px rgba(59,130,246,.10);
           border-left: 3px solid var(--vwm-active-color, #3b82f6);
         }
 
         /* Button pulse when row is active */
         .vwm-alert-row.active .vwm-row-btn.prepare {
           animation: vwm-btnPulse .7s ease-out;
-          box-shadow: 0 0 16px rgba(255,255,255,.4);
+          box-shadow: 0 0 16px rgba(15,23,42,.15);
         }
         @keyframes vwm-btnPulse {
-          0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
-          35% { transform: scale(1.18); box-shadow: 0 0 20px rgba(255,255,255,.5); background: #fff; }
-          100% { transform: scale(1); box-shadow: 0 0 16px rgba(255,255,255,.4); }
+          0% { transform: scale(1); box-shadow: 0 0 0 rgba(15,23,42,0); }
+          35% { transform: scale(1.18); box-shadow: 0 0 20px rgba(15,23,42,.15); background: #1e293b; }
+          100% { transform: scale(1); box-shadow: 0 0 16px rgba(15,23,42,.1); }
         }
 
         /* Detail overlay */
         .vwm-detail-overlay {
           position: absolute; inset: 0; z-index: 10;
-          background: rgba(8,12,24,.95);
+          background: rgba(255,255,255,.97);
           backdrop-filter: blur(8px);
           display: flex; flex-direction: column;
           transition: opacity .3s, transform .3s;
@@ -568,18 +568,18 @@ export default function VentusWealthDemo() {
         .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
         .vwm-detail-header {
           display: flex; align-items: center; justify-content: space-between; gap: 16px;
-          padding: 20px 28px; border-bottom: 1px solid rgba(255,255,255,.12);
+          padding: 20px 28px; border-bottom: 1px solid rgba(15,23,42,.08);
         }
         .vwm-detail-header-left { display: flex; align-items: center; gap: 14px; }
         .vwm-detail-icon { font-size: 30px; }
-        .vwm-detail-title { font-weight: 760; font-size: 20px; color: #fff; }
-        .vwm-detail-client-name { font-size: 15px; color: rgba(255,255,255,.55); margin-top: 2px; }
+        .vwm-detail-title { font-weight: 760; font-size: 20px; color: #0f172a; }
+        .vwm-detail-client-name { font-size: 15px; color: rgba(15,23,42,.50); margin-top: 2px; }
         .vwm-back-btn {
           padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700;
-          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
-          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+          border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
+          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
         }
-        .vwm-back-btn:hover { background: rgba(255,255,255,.15); }
+        .vwm-back-btn:hover { background: rgba(15,23,42,.08); }
         .vwm-detail-body {
           flex: 1; overflow-y: auto; padding: 24px 28px;
           display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
@@ -587,17 +587,17 @@ export default function VentusWealthDemo() {
         @media (max-width: 700px) { .vwm-detail-body { grid-template-columns: 1fr; } }
         .vwm-detail-section-title {
           font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-          color: rgba(255,255,255,.50); margin-bottom: 12px;
+          color: rgba(15,23,42,.50); margin-bottom: 12px;
         }
         .vwm-detail-tx {
           padding: 10px 14px; border-radius: 12px;
-          border: 1px solid rgba(255,255,255,.10);
-          background: rgba(255,255,255,.04);
+          border: 1px solid rgba(15,23,42,.08);
+          background: rgba(15,23,42,.02);
           margin-bottom: 8px;
         }
         .vwm-detail-tx-top { display: flex; justify-content: space-between; align-items: center; }
-        .vwm-detail-tx-merchant { font-size: 14px; font-weight: 680; color: #fff; }
-        .vwm-detail-tx-amount { font-size: 14px; font-weight: 720; color: rgba(255,255,255,.90); font-variant-numeric: tabular-nums; }
+        .vwm-detail-tx-merchant { font-size: 14px; font-weight: 680; color: #0f172a; }
+        .vwm-detail-tx-amount { font-size: 14px; font-weight: 720; color: rgba(15,23,42,.85); font-variant-numeric: tabular-nums; }
         .vwm-detail-tx-bottom { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
         .vwm-detail-tx-card {
           font-size: 11px; padding: 4px 10px; border-radius: 999px;
@@ -607,18 +607,18 @@ export default function VentusWealthDemo() {
         .vwm-detail-tx-card-dot {
           width: 6px; height: 6px; border-radius: 50%; display: inline-block;
         }
-        .vwm-detail-tx-date { font-size: 12px; color: rgba(255,255,255,.40); }
-        .vwm-detail-tx-relevance { font-size: 12px; color: rgba(255,255,255,.45); font-style: italic; margin-left: auto; }
+        .vwm-detail-tx-date { font-size: 12px; color: rgba(15,23,42,.40); }
+        .vwm-detail-tx-relevance { font-size: 12px; color: rgba(15,23,42,.45); font-style: italic; margin-left: auto; }
         .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; }
         .vwm-insight-box {
           padding: 16px; border-radius: 14px;
-          border: 1px solid rgba(255,255,255,.10);
-          background: rgba(255,255,255,.04);
+          border: 1px solid rgba(15,23,42,.08);
+          background: rgba(15,23,42,.02);
         }
-        .vwm-insight-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.50); margin-bottom: 8px; }
-        .vwm-insight-text { font-size: 14px; color: rgba(255,255,255,.70); line-height: 1.6; min-height: 3em; }
+        .vwm-insight-label { font-size: 12px; font-weight: 700; color: rgba(15,23,42,.50); margin-bottom: 8px; }
+        .vwm-insight-text { font-size: 14px; color: rgba(15,23,42,.65); line-height: 1.6; min-height: 3em; }
         .vwm-insight-cursor {
-          display: inline-block; width: 2px; height: 16px; background: rgba(255,255,255,.60);
+          display: inline-block; width: 2px; height: 16px; background: rgba(15,23,42,.50);
           margin-left: 2px; vertical-align: text-bottom;
           animation: vwm-blink .6s step-end infinite;
         }
@@ -626,7 +626,7 @@ export default function VentusWealthDemo() {
         .vwm-steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
         .vwm-step-item {
           display: flex; align-items: flex-start; gap: 10px;
-          font-size: 14px; color: rgba(255,255,255,.70); line-height: 1.5;
+          font-size: 14px; color: rgba(15,23,42,.65); line-height: 1.5;
           opacity: 0; transform: translateY(8px);
           transition: opacity .35s ease, transform .35s ease;
         }
@@ -637,28 +637,28 @@ export default function VentusWealthDemo() {
           flex: 0 0 24px; height: 24px; border-radius: 50%;
           display: grid; place-items: center;
           font-size: 12px; font-weight: 700;
-          background: rgba(255,255,255,.08); color: rgba(255,255,255,.60);
+          background: rgba(15,23,42,.06); color: rgba(15,23,42,.55);
         }
         .vwm-detail-footer {
           display: flex; align-items: center; justify-content: flex-end; gap: 10px;
           padding: 14px 28px;
-          border-top: 1px solid rgba(255,255,255,.10);
-          background: rgba(255,255,255,.03);
+          border-top: 1px solid rgba(15,23,42,.08);
+          background: rgba(15,23,42,.02);
         }
         .vwm-footer-btn {
           padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
-          border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08);
-          color: rgba(255,255,255,.80); cursor: pointer; transition: all .2s;
+          border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
+          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
           display: inline-flex; align-items: center; gap: 6px;
         }
-        .vwm-footer-btn:hover { background: rgba(255,255,255,.15); }
-        .vwm-footer-btn.primary { background: rgba(255,255,255,.88); color: #0b1a3a; border-color: transparent; }
-        .vwm-footer-btn.primary:hover { background: #fff; }
+        .vwm-footer-btn:hover { background: rgba(15,23,42,.08); }
+        .vwm-footer-btn.primary { background: #0f172a; color: #fff; border-color: transparent; }
+        .vwm-footer-btn.primary:hover { background: #1e293b; }
 
         /* Empty state */
         .vwm-empty {
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 60px 20px; color: rgba(255,255,255,.30);
+          padding: 60px 20px; color: rgba(15,23,42,.30);
         }
         .vwm-empty-icon { font-size: 36px; margin-bottom: 12px; }
         .vwm-empty-text { font-size: 14px; font-weight: 600; }
