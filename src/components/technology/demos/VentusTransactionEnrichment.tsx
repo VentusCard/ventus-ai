@@ -244,8 +244,7 @@ export default function VentusTransactionEnrichment() {
 
           font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: var(--ink);
-          max-width: 1120px;
-          margin: 0 auto;
+          width: 100%;
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
