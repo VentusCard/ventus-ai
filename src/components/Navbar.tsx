@@ -10,7 +10,7 @@ const Navbar = () => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md">
       <div className="flex h-16 items-center justify-between px-4 md:px-8 max-w-7xl mx-auto">
         <Link to="/" onClick={closeMobileMenu}>
           <img src={ventusLogo} alt="Ventus AI" className="h-7 md:h-8 w-auto" />
