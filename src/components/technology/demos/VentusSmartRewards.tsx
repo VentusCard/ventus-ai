@@ -605,12 +605,12 @@ export default function VentusSmartRewards() {
       <style>{`
         .vsr-root {
           font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-          color: #ffffff;
+          color: #0f172a;
           max-width: 1600px;
           margin: 0 auto;
           padding: 22px;
           background: transparent;
-          border: 1px solid rgba(255,255,255,.15);
+          border: 1px solid rgba(15,23,42,.12);
           border-radius: 22px;
           overflow: hidden;
           position: relative;
@@ -620,44 +620,44 @@ export default function VentusSmartRewards() {
         .vsr-root *, .vsr-root *::before, .vsr-root *::after { box-sizing: border-box; }
 
         .vsr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 6px 6px 10px; }
-        .vsr-title { font-weight: 760; letter-spacing: -.02em; line-height: 1.05; font-size: 20px; color: #fff; }
-        .vsr-sub { color: rgba(255,255,255,.55); font-size: 13px; line-height: 1.35; max-width: 1200px; margin-top: 6px; }
+        .vsr-title { font-weight: 760; letter-spacing: -.02em; line-height: 1.05; font-size: 20px; color: #0f172a; }
+        .vsr-sub { color: rgba(15,23,42,.55); font-size: 13px; line-height: 1.35; max-width: 1200px; margin-top: 6px; }
 
         .vsr-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 8px 6px 6px; }
 
         .vsr-row {
           display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-          padding: 12px; background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.15); border-radius: 18px;
+          padding: 12px; background: rgba(15,23,42,.03);
+          border: 1px solid rgba(15,23,42,.10); border-radius: 18px;
         }
-        .vsr-row-label { font-size: 12px; color: rgba(255,255,255,.50); font-weight: 650; letter-spacing: .02em; margin-right: 4px; }
+        .vsr-row-label { font-size: 12px; color: rgba(15,23,42,.50); font-weight: 650; letter-spacing: .02em; margin-right: 4px; }
 
         .vsr-chip {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 8px 10px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
-          font-size: 12px; color: rgba(255,255,255,.80);
+          border: 1px solid rgba(15,23,42,.12); background: rgba(15,23,42,.04);
+          font-size: 12px; color: rgba(15,23,42,.80);
         }
-        .vsr-chip strong { font-weight: 720; color: #fff; }
-        .vsr-chip .k { color: rgba(255,255,255,.50); font-weight: 650; }
+        .vsr-chip strong { font-weight: 720; color: #0f172a; }
+        .vsr-chip .k { color: rgba(15,23,42,.50); font-weight: 650; }
 
         .vsr-pills { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .vsr-pill {
           position: relative;
           display: inline-flex; align-items: center; gap: 10px;
           padding: 10px 12px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.07);
+          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
           cursor: pointer;
           transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
-          font-size: 13px; color: rgba(255,255,255,.88);
+          font-size: 13px; color: rgba(15,23,42,.85);
           outline: none;
         }
-        .vsr-pill:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.25); border-color: rgba(255,255,255,.30); background: rgba(255,255,255,.12); }
-        .vsr-pill[aria-selected="true"] { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.36); box-shadow: 0 12px 26px rgba(0,0,0,.20); }
-        .vsr-pill.scanning { border-color: rgba(120,180,255,.50); background: rgba(120,180,255,.12); box-shadow: 0 14px 34px rgba(120,180,255,.18); }
+        .vsr-pill:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); border-color: rgba(15,23,42,.25); background: rgba(15,23,42,.07); }
+        .vsr-pill[aria-selected="true"] { background: rgba(15,23,42,.08); border-color: rgba(15,23,42,.30); box-shadow: 0 12px 26px rgba(0,0,0,.06); }
+        .vsr-pill.scanning { border-color: rgba(59,130,246,.50); background: rgba(59,130,246,.08); box-shadow: 0 14px 34px rgba(59,130,246,.12); }
         .vsr-pill.scanning::after {
           content: ""; position: absolute; inset: -2px; border-radius: 999px;
-          border: 1px solid rgba(120,180,255,.50);
+          border: 1px solid rgba(59,130,246,.50);
           animation: vsr-scanGlow 1.4s ease-in-out infinite; pointer-events: none;
         }
         @keyframes vsr-scanGlow {
@@ -668,33 +668,33 @@ export default function VentusSmartRewards() {
         .vsr-pill-icon {
           width: 26px; height: 26px; border-radius: 10px;
           display: grid; place-items: center;
-          background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+          background: rgba(15,23,42,.05); border: 1px solid rgba(15,23,42,.12);
           font-size: 14px;
         }
-        .vsr-pill[aria-selected="true"] .vsr-pill-icon { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.28); }
-        .vsr-pill.scanning .vsr-pill-icon { background: rgba(120,180,255,.15); border-color: rgba(120,180,255,.30); }
+        .vsr-pill[aria-selected="true"] .vsr-pill-icon { background: rgba(15,23,42,.08); border-color: rgba(15,23,42,.22); }
+        .vsr-pill.scanning .vsr-pill-icon { background: rgba(59,130,246,.10); border-color: rgba(59,130,246,.25); }
 
         .vsr-controls {
           display: flex; gap: 10px; align-items: center; justify-content: space-between;
           padding: 10px 12px;
-          border: 1px solid rgba(255,255,255,.15);
-          background: rgba(255,255,255,.06);
+          border: 1px solid rgba(15,23,42,.10);
+          background: rgba(15,23,42,.03);
           border-radius: 18px;
         }
-        .vsr-ctrl-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: rgba(255,255,255,.72); font-size: 12px; }
+        .vsr-ctrl-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: rgba(15,23,42,.65); font-size: 12px; }
         .vsr-ctrl-btns { display: flex; gap: 8px; align-items: center; }
         .vsr-btn {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 9px 10px; border-radius: 14px;
-          border: 1px solid rgba(255,255,255,.20);
-          background: rgba(255,255,255,.08);
-          color: rgba(255,255,255,.88);
+          border: 1px solid rgba(15,23,42,.18);
+          background: rgba(15,23,42,.05);
+          color: rgba(15,23,42,.85);
           font-weight: 740; font-size: 12px; cursor: pointer;
           transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
         }
-        .vsr-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.25); background: rgba(255,255,255,.15); }
-        .vsr-btn.primary { background: rgba(255,255,255,.90); color: #0b1a3a; border-color: rgba(255,255,255,.10); }
-        .vsr-btn.primary:hover { background: #fff; }
+        .vsr-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); background: rgba(15,23,42,.08); }
+        .vsr-btn.primary { background: #0f172a; color: #fff; border-color: rgba(15,23,42,.10); }
+        .vsr-btn.primary:hover { background: #1e293b; }
         .vsr-btn:active { transform: translateY(1px); }
 
         .vsr-analysis-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 6px; }
@@ -705,8 +705,8 @@ export default function VentusSmartRewards() {
         @media (max-width: 760px) { .vsr-pipeline-panel { grid-template-columns: 1fr; } }
 
         .vsr-panel {
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.15);
+          background: rgba(15,23,42,.03);
+          border: 1px solid rgba(15,23,42,.10);
           border-radius: 18px;
           overflow: hidden;
           display: flex; flex-direction: column;
@@ -714,8 +714,8 @@ export default function VentusSmartRewards() {
           position: relative;
         }
         .vsr-priority-section {
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.15);
+          background: rgba(15,23,42,.03);
+          border: 1px solid rgba(15,23,42,.10);
           border-radius: 18px;
           overflow: hidden;
           display: flex; flex-direction: column;
@@ -725,16 +725,16 @@ export default function VentusSmartRewards() {
         .vsr-hd {
           display: flex; align-items: center; justify-content: space-between; gap: 10px;
           padding: 12px;
-          background: rgba(255,255,255,.04);
-          border-bottom: 1px solid rgba(255,255,255,.12);
+          background: rgba(15,23,42,.03);
+          border-bottom: 1px solid rgba(15,23,42,.08);
           flex-shrink: 0;
         }
-        .vsr-hd-title { font-weight: 760; letter-spacing: -.02em; font-size: 13px; color: #fff; }
+        .vsr-hd-title { font-weight: 760; letter-spacing: -.02em; font-size: 13px; color: #0f172a; }
         .vsr-hd-left { display: flex; align-items: center; gap: 10px; }
         .vsr-tag {
           font-size: 11px; padding: 6px 8px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
-          color: rgba(255,255,255,.65); white-space: nowrap;
+          border: 1px solid rgba(15,23,42,.12); background: rgba(15,23,42,.04);
+          color: rgba(15,23,42,.60); white-space: nowrap;
         }
         .vsr-bd {
           padding: 12px; display: flex; flex-direction: column; gap: 10px;
@@ -742,72 +742,72 @@ export default function VentusSmartRewards() {
         }
         .vsr-bd::-webkit-scrollbar { width: 10px; }
         .vsr-bd::-webkit-scrollbar-track { background: transparent; }
-        .vsr-bd::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
-        .vsr-bd::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.25); background-clip: content-box; }
+        .vsr-bd::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
+        .vsr-bd::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,.20); background-clip: content-box; }
 
         /* Loading overlay */
         .vsr-load-overlay {
           position: absolute; inset: 46px 10px 10px 10px;
           border-radius: 16px;
-          border: 1px dashed rgba(255,255,255,.18);
-          background: rgba(0,0,0,.30);
+          border: 1px dashed rgba(15,23,42,.15);
+          background: rgba(255,255,255,.85);
           display: none; align-items: center; justify-content: center;
           padding: 12px; pointer-events: none;
         }
         .vsr-loader-box {
           display: flex; gap: 12px; align-items: center;
-          padding: 12px; background: rgba(255,255,255,.10);
-          border: 1px solid rgba(255,255,255,.20);
-          border-radius: 16px; box-shadow: 0 10px 22px rgba(0,0,0,.20); max-width: 92%;
+          padding: 12px; background: rgba(15,23,42,.05);
+          border: 1px solid rgba(15,23,42,.12);
+          border-radius: 16px; box-shadow: 0 10px 22px rgba(0,0,0,.06); max-width: 92%;
         }
         .vsr-spinner {
           width: 26px; height: 26px; border-radius: 999px;
-          border: 2px solid rgba(255,255,255,.20);
-          border-top-color: rgba(255,255,255,.80);
+          border: 2px solid rgba(15,23,42,.15);
+          border-top-color: rgba(15,23,42,.70);
           animation: vsr-spin 1s linear infinite; flex: 0 0 auto;
         }
         @keyframes vsr-spin { to { transform: rotate(360deg); } }
         .vsr-loader-txt { display: flex; flex-direction: column; gap: 3px; }
-        .vsr-loader-txt b { font-size: 12.5px; letter-spacing: -.01em; color: #fff; }
-        .vsr-loader-txt span { font-size: 11px; color: rgba(255,255,255,.60); line-height: 1.25; }
+        .vsr-loader-txt b { font-size: 12.5px; letter-spacing: -.01em; color: #0f172a; }
+        .vsr-loader-txt span { font-size: 11px; color: rgba(15,23,42,.55); line-height: 1.25; }
 
         /* Items */
         .vsr-item {
-          border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
-          background: rgba(255,255,255,.05); padding: 10px;
+          border: 1px solid rgba(15,23,42,.10); border-radius: 14px;
+          background: rgba(15,23,42,.03); padding: 10px;
           display: flex; justify-content: space-between; align-items: center; gap: 10px;
         }
-        .vsr-item-name { font-weight: 740; font-size: 12.5px; letter-spacing: -.01em; color: #fff; }
+        .vsr-item-name { font-weight: 740; font-size: 12.5px; letter-spacing: -.01em; color: #0f172a; }
         .vsr-amt {
           font-size: 12px; padding: 6px 8px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08);
-          color: rgba(255,255,255,.88); white-space: nowrap;
+          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.05);
+          color: rgba(15,23,42,.85); white-space: nowrap;
         }
 
         /* AI lines */
         .vsr-ai-line {
           display: flex; gap: 10px; align-items: flex-start;
-          border: 1px solid rgba(255,255,255,.18);
-          background: rgba(255,255,255,.06);
+          border: 1px solid rgba(15,23,42,.12);
+          background: rgba(15,23,42,.03);
           border-radius: 14px; padding: 10px;
         }
         .vsr-spark {
           width: 28px; height: 28px; border-radius: 10px;
           display: grid; place-items: center;
-          border: 1px solid rgba(255,255,255,.20);
-          background: rgba(255,255,255,.08); flex: 0 0 auto; font-size: 14px;
+          border: 1px solid rgba(15,23,42,.15);
+          background: rgba(15,23,42,.05); flex: 0 0 auto; font-size: 14px;
         }
         .vsr-ai-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
         .vsr-ai-title-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-        .vsr-ai-title-row b { font-size: 12.5px; letter-spacing: -.01em; color: #fff; }
-        .vsr-conf { font-size: 10px; color: rgba(255,255,255,.50); font-variant-numeric: tabular-nums; }
-        .vsr-ai-info { font-size: 11px; color: rgba(255,255,255,.62); line-height: 1.4; font-variant-numeric: tabular-nums; }
+        .vsr-ai-title-row b { font-size: 12.5px; letter-spacing: -.01em; color: #0f172a; }
+        .vsr-conf { font-size: 10px; color: rgba(15,23,42,.50); font-variant-numeric: tabular-nums; }
+        .vsr-ai-info { font-size: 11px; color: rgba(15,23,42,.55); line-height: 1.4; font-variant-numeric: tabular-nums; }
 
         /* Deal library */
         .vsr-deal-library { display: flex; flex-direction: column; gap: 7px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
         .vsr-deal-library::-webkit-scrollbar { width: 10px; }
         .vsr-deal-library::-webkit-scrollbar-track { background: transparent; }
-        .vsr-deal-library::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
+        .vsr-deal-library::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
 
         .vsr-scroll-container {
           display: flex; flex-direction: column; gap: 7px;
@@ -820,39 +820,39 @@ export default function VentusSmartRewards() {
         }
 
         .vsr-deal-card {
-          border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
+          border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.03);
           border-radius: 14px; padding: 10px;
           display: flex; flex-direction: column; gap: 6px; cursor: pointer;
           transition: all .22s ease;
         }
-        .vsr-deal-card:hover { border-color: rgba(120,180,255,.30); background: rgba(120,180,255,.08); box-shadow: 0 8px 18px rgba(0,0,0,.20); }
+        .vsr-deal-card:hover { border-color: rgba(59,130,246,.30); background: rgba(59,130,246,.05); box-shadow: 0 8px 18px rgba(0,0,0,.06); }
         .vsr-deal-final { animation: vsr-dealSettle 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
         @keyframes vsr-dealSettle {
           0%  { transform: translateY(20px) scale(0.95); opacity: 0; filter: blur(4px); }
           100%{ transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
         }
         .vsr-deal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .vsr-deal-brand { font-weight: 820; font-size: 13px; letter-spacing: -.02em; color: #fff; }
+        .vsr-deal-brand { font-weight: 820; font-size: 13px; letter-spacing: -.02em; color: #0f172a; }
         .vsr-deal-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-        .vsr-deal-tag { font-size: 10px; padding: 4px 6px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.07); color: rgba(255,255,255,.65); white-space: nowrap; }
-        .vsr-deal-desc { font-size: 11.5px; color: rgba(255,255,255,.65); line-height: 1.35; }
+        .vsr-deal-tag { font-size: 10px; padding: 4px 6px; border-radius: 999px; border: 1px solid rgba(15,23,42,.12); background: rgba(15,23,42,.04); color: rgba(15,23,42,.60); white-space: nowrap; }
+        .vsr-deal-desc { font-size: 11.5px; color: rgba(15,23,42,.60); line-height: 1.35; }
 
         /* Pipeline */
         .vsr-pipeline { display: flex; flex-direction: column; gap: 7px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
         .vsr-pipeline::-webkit-scrollbar { width: 10px; }
         .vsr-pipeline::-webkit-scrollbar-track { background: transparent; }
-        .vsr-pipeline::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
+        .vsr-pipeline::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
 
-        .vsr-section-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.50); text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px 3px; }
+        .vsr-section-label { font-size: 11px; font-weight: 700; color: rgba(15,23,42,.50); text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px 3px; }
 
         /* Accordion */
         details.vsr-accord {
-          border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.07);
+          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
           border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; max-height: 350px;
         }
-        details.vsr-accord[open] { box-shadow: 0 12px 24px rgba(0,0,0,.25); }
-        details.vsr-accord.low-priority { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); opacity: 0.65; }
-        details.vsr-accord.low-priority[open] { box-shadow: 0 8px 16px rgba(0,0,0,.20); border-color: rgba(255,255,255,.22); opacity: 1; }
+        details.vsr-accord[open] { box-shadow: 0 12px 24px rgba(0,0,0,.08); }
+        details.vsr-accord.low-priority { border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.02); opacity: 0.65; }
+        details.vsr-accord.low-priority[open] { box-shadow: 0 8px 16px rgba(0,0,0,.06); border-color: rgba(15,23,42,.15); opacity: 1; }
 
         .vsr-accord-sum {
           list-style: none; cursor: pointer;
@@ -861,31 +861,31 @@ export default function VentusSmartRewards() {
         }
         .vsr-accord-sum::-webkit-details-marker { display: none; }
         .vsr-sum-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; flex: 1; }
-        .vsr-brand-name { font-weight: 820; letter-spacing: -.02em; font-size: 13px; color: #fff; white-space: nowrap; }
-        .vsr-pill-tag { font-size: 11px; padding: 5px 7px; border-radius: 999px; border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.07); color: rgba(255,255,255,.75); white-space: nowrap; }
-        .vsr-dollar-value { font-size: 12px; padding: 5px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,.20); background: rgba(255,255,255,.08); color: rgba(255,255,255,.88); font-weight: 720; font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .vsr-sum-meta { font-size: 11px; color: rgba(255,255,255,.50); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
-        .vsr-caret { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.07); color: rgba(255,255,255,.65); flex: 0 0 auto; transition: transform .22s ease; }
+        .vsr-brand-name { font-weight: 820; letter-spacing: -.02em; font-size: 13px; color: #0f172a; white-space: nowrap; }
+        .vsr-pill-tag { font-size: 11px; padding: 5px 7px; border-radius: 999px; border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04); color: rgba(15,23,42,.65); white-space: nowrap; }
+        .vsr-dollar-value { font-size: 12px; padding: 5px 8px; border-radius: 999px; border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.05); color: rgba(15,23,42,.85); font-weight: 720; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .vsr-sum-meta { font-size: 11px; color: rgba(15,23,42,.50); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+        .vsr-caret { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 10px; border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04); color: rgba(15,23,42,.60); flex: 0 0 auto; transition: transform .22s ease; }
         details.vsr-accord[open] .vsr-caret, details.vsr-collapse[open] .vsr-caret { transform: rotate(180deg); }
 
         .vsr-accord-body { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; min-height: 0; }
         .vsr-accord-body::-webkit-scrollbar { width: 8px; }
-        .vsr-accord-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border: 2px solid transparent; border-radius: 999px; background-clip: content-box; }
+        .vsr-accord-body::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 2px solid transparent; border-radius: 999px; background-clip: content-box; }
 
-        .vsr-suppression { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(255,200,0,.08); border: 1px solid rgba(255,200,0,.22); }
+        .vsr-suppression { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.22); }
         .vsr-sup-icon { font-size: 14px; }
-        .vsr-sup-txt { font-size: 11px; color: rgba(255,255,255,.68); line-height: 1.35; }
+        .vsr-sup-txt { font-size: 11px; color: rgba(15,23,42,.65); line-height: 1.35; }
         .vsr-deal-section { display: flex; flex-direction: column; gap: 3px; }
-        .vsr-deal-label { font-size: 10px; color: rgba(255,255,255,.45); font-weight: 650; letter-spacing: .03em; text-transform: uppercase; }
-        .vsr-deal-copy { font-size: 12px; color: rgba(255,255,255,.80); line-height: 1.38; }
+        .vsr-deal-label { font-size: 10px; color: rgba(15,23,42,.45); font-weight: 650; letter-spacing: .03em; text-transform: uppercase; }
+        .vsr-deal-copy { font-size: 12px; color: rgba(15,23,42,.75); line-height: 1.38; }
 
         /* Collapse */
-        .vsr-collapse { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); border-radius: 14px; overflow: hidden; }
-        .vsr-collapse-sum { list-style: none; cursor: pointer; padding: 9px 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; user-select: none; font-size: 12px; font-weight: 700; color: rgba(255,255,255,.65); }
+        .vsr-collapse { border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.02); border-radius: 14px; overflow: hidden; }
+        .vsr-collapse-sum { list-style: none; cursor: pointer; padding: 9px 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; user-select: none; font-size: 12px; font-weight: 700; color: rgba(15,23,42,.60); }
         .vsr-collapse-sum::-webkit-details-marker { display: none; }
         .vsr-collapse-body { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 7px; }
 
-        .vsr-foot { padding: 8px 6px 2px; color: rgba(255,255,255,.40); font-size: 11px; line-height: 1.35; }
+        .vsr-foot { padding: 8px 6px 2px; color: rgba(15,23,42,.40); font-size: 11px; line-height: 1.35; }
         .vsr-mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
         .vsr-fadeIn { animation: vsr-fadeIn .35s ease both; }
         @keyframes vsr-fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -948,7 +948,7 @@ export default function VentusSmartRewards() {
           <div className="vsr-controls">
             <div className="vsr-ctrl-left">
               <span className="vsr-mono" ref={flowStepRef}>Step 1/5 · Scanning: Golf</span>
-              <span style={{color:"rgba(255,255,255,.45)",fontSize:"11px"}}>Tip: click a lifestyle indicator anytime to interrupt.</span>
+              <span style={{color:"rgba(15,23,42,.45)",fontSize:"11px"}}>Tip: click a lifestyle indicator anytime to interrupt.</span>
             </div>
             <div className="vsr-ctrl-btns">
               <button className="vsr-btn primary" ref={toggleBtnRef} onClick={() => {

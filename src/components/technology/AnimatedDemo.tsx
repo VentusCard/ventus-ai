@@ -44,7 +44,7 @@ const AnimatedDemo = ({ htmlContent, animationDelay = '0.45s' }: AnimatedDemoPro
           See It In Action
         </h2>
         <div
-          className="rounded-2xl overflow-hidden bg-[#0b1120]"
+          className="rounded-2xl overflow-hidden border border-gray-200"
           style={{
             animationDelay: `calc(${animationDelay} + 0.1s)`,
             animationFillMode: 'backwards',
