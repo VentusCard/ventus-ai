@@ -26,7 +26,7 @@ import { ResultsTable } from "@/components/tepilot/ResultsTable";
 import { ExportControls } from "@/components/tepilot/ExportControls";
 import { FilterControls } from "@/components/tepilot/FilterControls";
 import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
-import { TravelTimeline } from "@/components/tepilot/insights/TravelTimeline";
+
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
