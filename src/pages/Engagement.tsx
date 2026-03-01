@@ -1,129 +1,225 @@
-
-
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import ScrollReveal from "@/components/ScrollReveal";
 import AnimatedDemo from "@/components/technology/AnimatedDemo";
 import { engagementDemoHtml } from "@/components/technology/demos/engagement-demo";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Users, ArrowLeft, Layers, Plug, BookOpen, MessageSquare, UserPlus, ArrowUpRight, Award, Smartphone } from "lucide-react";
+import { Zap, BarChart3, Send, Clock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+const capabilities = [
+  { icon: Zap, title: "Life Event Triggers", desc: "Campaigns fire automatically when Ventus detects a life event — new baby, home purchase, vacation planning, retirement." },
+  { icon: BarChart3, title: "Micro-Segment Builder", desc: "Build audience segments from behavioral signals in real time. See exact customer counts update as you refine." },
+  { icon: Send, title: "Multi-Channel Delivery", desc: "Reach customers across email, push notification, and SMS with channel preference detection." },
+  { icon: Clock, title: "Purchase Cycle Timing", desc: "Serve offers when the customer is actively in a purchase cycle — not a week after they already bought elsewhere." },
+];
+
+const integrationSteps = [
+  { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
+  { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
+  { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
+];
+
+const channelRows = [
+  { channel: "Email", message: "Your flight deal to Cancún expires tonight" },
+  { channel: "Push", message: "2x miles on travel purchases this week" },
+  { channel: "SMS", message: "TSA PreCheck offer — save 20% today" },
+];
 
 const Engagement = () => {
-  const features = [
-    { icon: Layers, title: "Unified Experience Platform", description: "Combine rewards, perks, educational content, and personalized insights into a single cohesive customer experience." },
-    { icon: Plug, title: "Seamless Integration", description: "Connect with your existing banking platforms and channels without disrupting current workflows or customer journeys." },
-    { icon: BookOpen, title: "Personalized Education", description: "Deliver financial literacy content tailored to each customer's situation, goals, and current life stage." },
-    { icon: MessageSquare, title: "Contextual Communication", description: "Send the right message at the right time through the right channel, based on customer preferences and behavior." }
-  ];
+  const [integrationVisible, setIntegrationVisible] = useState(false);
+  const integrationRef = useRef<HTMLDivElement>(null);
 
-  const useCases = [
-    { icon: UserPlus, title: "Improved Retention", description: "Keep customers engaged with a steady stream of relevant, valuable content and offers that demonstrate your understanding." },
-    { icon: ArrowUpRight, title: "Cross-Sell Opportunities", description: "Identify and act on natural moments to introduce additional products that genuinely fit customer needs." },
-    { icon: Award, title: "Loyalty Programs", description: "Create tiered engagement programs that reward active customers while nurturing less engaged ones." },
-    { icon: Smartphone, title: "Mobile-First Engagement", description: "Deliver seamless experiences across mobile banking apps, web portals, and other digital touchpoints." }
-  ];
+  useEffect(() => {
+    const el = integrationRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIntegrationVisible(true); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  const benefits = [
-    "25% improvement in customer retention",
-    "Unified view across all touchpoints",
-    "Higher product adoption rates",
-    "Reduced customer acquisition costs"
-  ];
+  const scrollToDemo = () => {
+    document.getElementById("engagement-demo")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div>
-      <main className="pt-20 pb-10">
-        <section className="py-6 md:py-10">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <Users className="w-8 h-8 text-blue-600" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Holistic Customer Engagement</h1>
-            </div>
-            <p className="text-xl text-gray-500 max-w-3xl">
-              Enable a unified experience—combining rewards, perks, and educational content—that feels seamless and personalized, not like a patchwork of products.
-            </p>
-          </div>
-        </section>
-
-        <section className="py-4">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Overview</h2>
-              <p className="text-gray-500 leading-relaxed text-lg">
-                Today's customers expect seamless, personalized experiences across every interaction. Ventus Engagement brings together rewards, perks, educational content, and personalized insights into a unified platform that adapts to each customer's journey.
+      <main>
+        {/* SECTION 1 — HERO */}
+        <section className="pt-20 pb-16 md:py-0 md:min-h-screen flex items-center" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Customer Engagement</p>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
+                Reach the right customer.
+              </h1>
+              <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
+                At the right life moment.
               </p>
+              <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
+                Ventus powers hyper-targeted campaigns and micro-segments built from real behavioral intelligence — not demographics.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Schedule Demo
+                  </Button>
+                </Link>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
+                  onClick={scrollToDemo}
+                >
+                  See It Work ↓
+                </Button>
+              </div>
+            </div>
+            {/* Right column: Campaign preview card */}
+            <div className="hidden md:flex justify-center">
+              <div className="w-full max-w-md rounded-2xl p-6" style={{ background: "#111827", border: "1px solid #1e2d4a" }}>
+                <div className="mb-5">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Active Segment</p>
+                  <p className="text-white font-semibold text-lg">Summer Travel Planners</p>
+                  <p className="text-blue-400 text-sm font-medium mt-1">14,200 customers identified</p>
+                </div>
+                <div className="space-y-3">
+                  {channelRows.map(row => (
+                    <div key={row.channel} className="flex items-center gap-3 rounded-lg px-4 py-3" style={{ background: "#0a0f1e" }}>
+                      <span className="relative flex h-2 w-2 shrink-0">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-white text-sm font-medium">{row.channel}</p>
+                        <p className="text-gray-500 text-xs truncate">{row.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" />
-
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Key Features</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <feature.icon className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
+        {/* SECTION 2 — THE PROBLEM */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
+                Most bank campaigns target demographics.{" "}
+                <span className="text-blue-600">Ventus targets life moments.</span>
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                "Sending a travel rewards push to every customer aged 25–45 is not targeting. It is guessing.",
+                "A customer who just booked flights, rented a car, and bought luggage is planning a trip right now. Most banks miss this window entirely.",
+                "Without behavioral triggers, you are always reacting — sending offers after the moment has already passed.",
+              ].map((pain, i) => (
+                <ScrollReveal key={i} delay={i * 0.15}>
+                  <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100 h-full">
+                    <span className="absolute top-4 left-4 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                    <p className="text-gray-600 leading-relaxed pl-4 pt-2">{pain}</p>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{feature.title}</h3>
-                  <p className="text-gray-500">{feature.description}</p>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3 — SEE IT IN ACTION */}
+        <section id="engagement-demo" className="py-24 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">A personalized banking experience powered by transaction intelligence.</h2>
+              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
+                Explore how behavioral signals drive personalized customer engagement across every channel.
+              </p>
+            </ScrollReveal>
+          </div>
+          <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" />
+        </section>
+
+        {/* SECTION 4 — CAPABILITIES */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
+                How Ventus targets life moments.
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-2 gap-6">
+              {capabilities.map((cap, i) => (
+                <ScrollReveal key={cap.title} delay={i * 0.1}>
+                  <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
+                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 5 — INTEGRATION */}
+        <section className="py-24" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">Plug in. No infrastructure changes.</h2>
+            <div ref={integrationRef} className="relative grid md:grid-cols-3 gap-8">
+              <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
+                  style={{ animation: "connector-dot 3s ease-in-out infinite" }}
+                />
+              </div>
+              {integrationSteps.map((s, i) => (
+                <div
+                  key={s.step}
+                  className="relative z-10 rounded-xl p-6 transition-all duration-700"
+                  style={{
+                    background: "#111827",
+                    opacity: integrationVisible ? 1 : 0,
+                    transform: integrationVisible ? "translateY(0)" : "translateY(24px)",
+                    transitionDelay: `${i * 200}ms`,
+                  }}
+                >
+                  <p className="text-3xl font-bold text-blue-500 mb-3">{s.step}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Use Cases</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <useCase.icon className="w-5 h-5 text-blue-600 transition-all duration-300 group-hover:scale-110" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{useCase.title}</h3>
-                  <p className="text-gray-500">{useCase.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Benefits</h2>
-              <ul className="grid md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-center gap-3 text-gray-600">
-                    <div className="w-2 h-2 rounded-full bg-blue-600" />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ready to Unify Your Customer Experience?</h2>
-            <p className="text-gray-500 mb-8 max-w-2xl mx-auto">See how holistic engagement can transform customer relationships and drive long-term loyalty.</p>
-            <div className="flex flex-wrap justify-center gap-4">
+        {/* SECTION 6 — CTA */}
+        <ScrollReveal>
+          <section className="py-24 bg-white">
+            <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Your customers are in a life moment right now.
+              </h2>
+              <p className="text-lg text-gray-500 mb-8">Ventus tells you which one.</p>
               <Link to="/contact">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Schedule Demo
+                </Button>
               </Link>
-              <Link to="/#platform">
-                <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Explore All Capabilities</Button>
-              </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       </main>
     </div>
   );
