@@ -3,9 +3,10 @@ import { useRef, useEffect } from "react";
 interface AnimatedDemoProps {
   htmlContent: string;
   animationDelay?: string;
+  hideHeader?: boolean;
 }
 
-const AnimatedDemo = ({ htmlContent, animationDelay = '0.45s' }: AnimatedDemoProps) => {
+const AnimatedDemo = ({ htmlContent, animationDelay = '0.45s', hideHeader = false }: AnimatedDemoProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,11 +39,11 @@ const AnimatedDemo = ({ htmlContent, animationDelay = '0.45s' }: AnimatedDemoPro
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <h2
-          className="text-2xl font-semibold text-gray-900 mb-8"
-        >
-          See It In Action
-        </h2>
+        {!hideHeader && (
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">
+            See It In Action
+          </h2>
+        )}
         <div
           className="rounded-2xl overflow-hidden border border-gray-200"
           style={{
