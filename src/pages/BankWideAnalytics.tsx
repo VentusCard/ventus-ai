@@ -6,10 +6,10 @@ import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const capabilities = [
-  { icon: Layers, title: "Portfolio Segmentation", desc: "Automatically cluster your entire customer base into dynamic behavioral segments — updated with every transaction, not every quarter." },
+  { icon: Layers, title: "Customer Segmentation", desc: "Automatically cluster your entire customer base into dynamic behavioral segments — updated with every transaction, not every quarter." },
   { icon: Search, title: "Spend Gap Detection", desc: "See exactly where your customers are spending outside your ecosystem. Size the opportunity and build a strategy to capture it." },
   { icon: TrendingUp, title: "Trend Detection", desc: "Identify category-level spending shifts before they become obvious. Track seasonal patterns, emerging merchants, and wallet-share migration in real time." },
-  { icon: LayoutDashboard, title: "Executive Dashboards", desc: "Real-time portfolio health metrics, segment growth trends, and revenue opportunity sizing — built for leadership decisions, not just analyst exploration." },
+  { icon: LayoutDashboard, title: "Executive Dashboards", desc: "Real-time institution-wide health metrics, segment growth trends, and revenue opportunity sizing — built for leadership decisions, not just analyst exploration." },
 ];
 
 const integrationSteps = [
@@ -105,7 +105,7 @@ const BankWideAnalytics = () => {
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                "Traditional dashboards show you transaction volumes and category totals. They cannot tell you that 14% of your portfolio is quietly shifting spend to a competitor.",
+                "Traditional dashboards show you transaction volumes and category totals. They cannot tell you that 14% of your customer base is quietly shifting spend to a competitor.",
                 "Your marketing team is building campaigns on demographic data from two years ago. Ventus builds segments from what customers did last Tuesday.",
                 "A new product launch is coming. Your leadership team has no idea which customer segments are most likely to adopt it — or how large the opportunity actually is.",
               ].map((pain, i) => (
@@ -128,7 +128,7 @@ const BankWideAnalytics = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Portfolio intelligence at institutional scale.</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Institution-wide intelligence at scale.</h2>
               <p className="text-gray-500 text-lg mb-6 max-w-2xl">
                 The same enrichment engine that powers individual transaction intelligence — applied across your entire customer base.
               </p>
@@ -139,7 +139,7 @@ const BankWideAnalytics = () => {
               <div className="p-6 md:p-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-white text-lg font-bold">Portfolio Intelligence Dashboard</h3>
+                  <h3 className="text-white text-lg font-bold">Institution Intelligence Dashboard</h3>
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
@@ -275,7 +275,7 @@ const BankWideAnalytics = () => {
           <section className="py-24 bg-white">
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Your portfolio is already telling you where the opportunities are.
+                Your transaction data is already telling you where the opportunities are.
               </h2>
               <p className="text-lg text-gray-500 mb-8">Ventus helps you hear it.</p>
               <Link to="/contact">
