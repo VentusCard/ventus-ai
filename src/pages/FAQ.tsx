@@ -49,7 +49,7 @@ const FAQ = () => {
             </p>
           </div>
           
-          <Accordion type="single" collapsible defaultValue="item-0" className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
