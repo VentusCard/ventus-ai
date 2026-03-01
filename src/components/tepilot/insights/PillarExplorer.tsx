@@ -218,7 +218,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                 : transactions;
               const subcategories = getSubcategoriesForPillar(selectedPillar, isTripsView ? nonTripTransactions : transactions);
               const pillarTransactions = transactions.filter(t => t.pillar === selectedPillar);
-              const pillarTotal = subcategories.reduce((sum, s) => sum + s.totalSpend, 0);
+              const pillarTotal = pillars.find(p => p.pillar === selectedPillar)?.totalSpend || 0;
               
               return (
                 <div className="space-y-6">
