@@ -120,7 +120,7 @@ const Index = () => {
         </section>
 
         {/* FAQ */}
-        <section className="py-24 bg-white">
+        <section id="faq" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-3xl mx-auto px-6 md:px-8">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 text-center">Frequently Asked Questions</h2>
             <Accordion type="single" collapsible className="w-full">
@@ -132,7 +132,7 @@ const Index = () => {
                 { q: "How is Ventus different from MX or Plaid?", a: "MX and Plaid clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
-                  <AccordionTrigger className="text-left text-base">{faq.q}</AccordionTrigger>
+                  <AccordionTrigger className="text-left text-base text-gray-900">{faq.q}</AccordionTrigger>
                   <AccordionContent className="text-gray-500">{faq.a}</AccordionContent>
                 </AccordionItem>
               ))}
