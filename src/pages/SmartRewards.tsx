@@ -158,7 +158,7 @@ const SmartRewards = () => {
         </section>
 
         {/* SECTION 4 — CAPABILITIES */}
-        <section className="py-24" style={{ background: "#f0f6ff" }}>
+        <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
@@ -169,7 +169,7 @@ const SmartRewards = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {capabilities.map((cap, i) => (
                 <ScrollReveal key={cap.title} delay={i * 0.1}>
-                  <div className="rounded-xl p-6 bg-white shadow-sm">
+                  <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
                     <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
                     <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
