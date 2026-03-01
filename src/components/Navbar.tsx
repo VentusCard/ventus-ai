@@ -176,6 +176,7 @@ const Navbar = () => {
           <button
             onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
             className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100"
+            style={{ minHeight: 'auto', minWidth: 'auto', outline: 'none', borderRadius: 0 }}
           >
             Products
             <ChevronDown className={`h-4 w-4 transition-transform ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
@@ -193,9 +194,9 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-          <button onClick={scrollToFaq} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100 w-full text-left">FAQ</button>
+          <button onClick={scrollToFaq} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100 w-full text-left" style={{ minHeight: 'auto', minWidth: 'auto', outline: 'none', borderRadius: 0 }}>FAQ</button>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-2">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" style={{ minHeight: 'auto', outline: 'none' }}>Schedule Demo</Button>
           </Link>
         </div>
       </div>
