@@ -289,7 +289,7 @@ const PlatformTabs = () => {
                   <span className="w-3 h-3 rounded-full bg-yellow-400" />
                   <span className="w-3 h-3 rounded-full bg-green-400" />
                   <span className="ml-3 text-xs text-gray-400 font-mono">
-                    ventus.ai/dashboard
+                    ventusai.com/dashboard
                   </span>
                 </div>
                 {/* Dashboard content */}
