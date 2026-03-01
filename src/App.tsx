@@ -31,7 +31,7 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {!isTepilot && <Navbar />}
-      <div className="flex-1">
+      <div className={`flex-1 ${!isTepilot ? 'pt-16' : ''}`}>
         <Routes>
           <Route path="/" element={<Index />} />
           
