@@ -21,7 +21,7 @@ const insightTools = [
     href: "/analytics",
   },
   {
-    title: "Smart Rewards",
+    title: "Consumer Rewards",
     desc: "Match deals to customers based on life stage, spending velocity, and purchase cycles.",
     icon: Gift,
     href: "/smartrewards",
