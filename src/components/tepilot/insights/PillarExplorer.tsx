@@ -3,13 +3,13 @@ import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
 import { hashString, getBudgetStatus } from "@/lib/budgetUtils";
 import { groupTransactionsByTrip, TripSection } from "./TravelTimeline";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { LayoutGrid, Map } from "lucide-react";
+import { LayoutGrid, Map, Plane } from "lucide-react";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
