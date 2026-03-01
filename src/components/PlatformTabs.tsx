@@ -211,7 +211,7 @@ const PlatformTabs = () => {
   const tab = tabs[activeIndex];
 
   return (
-    <section className="py-24 bg-white">
+    <section id="platform" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         {/* Header */}
         <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">

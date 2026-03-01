@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import Index from "./pages/Index";
 import ContactUs from "./pages/ContactUs";
 
-import Technology from "./pages/Technology";
+
 
 import TePilot from "./pages/TePilot";
 import NotFound from "./pages/NotFound";
@@ -36,7 +36,7 @@ const AppLayout = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           
-          <Route path="/technology" element={<Technology />} />
+          
           <Route path="/enrichment" element={<Enrichment />} />
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
