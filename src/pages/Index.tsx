@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import PlatformTabs from "@/components/PlatformTabs";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -52,28 +53,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Platform Section */}
-        <section className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Platform</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-14">One tech core. Four insight tools.</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              {[
-                { title: "Transaction Enrichment", desc: "Beyond merchant name cleaning. Ventus extracts lifestyle pillars, intent signals, and behavioral patterns from every transaction.", link: "/enrichment" },
-                { title: "Smart Rewards", desc: "Stop showing everyone the same catalog. Ventus matches deals to customers based on actual behavior — life stage, spending velocity, and purchase cycle prediction.", link: "/smartrewards" },
-                { title: "Customer Engagement", desc: "Hyper-targeted campaigns and micro-segments powered by real behavioral intelligence — not demographics.", link: "/engagement" },
-                { title: "Wealth Management Copilot", desc: "AI-powered relationship intelligence for advisors. Detect life events before clients mention them and get AI-generated talking points before every meeting.", link: "/wealth" },
-              ].map((card) => (
-                <Link key={card.title} to={card.link} className="group">
-                  <div className="border border-gray-200 rounded-2xl p-8 h-full transition-all duration-300 hover:border-gray-300 hover:shadow-lg">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">{card.title}</h3>
-                    <p className="text-gray-500 leading-relaxed">{card.desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+        <PlatformTabs />
 
         {/* Differentiation Section */}
         <section className="py-24 bg-white">
