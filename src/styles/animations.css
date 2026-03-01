@@ -131,6 +131,17 @@
   }
 }
 
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
 @keyframes pipeline-dot {
   0% { top: -4px; opacity: 0; }
   15% { opacity: 1; }
