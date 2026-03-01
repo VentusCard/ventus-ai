@@ -175,18 +175,38 @@
 
     /* Reset all nav button overrides */
     nav button,
-    nav a {
+    nav a,
+    #mobile-nav-menu,
+    #mobile-nav-menu * {
       min-height: auto !important;
       min-width: auto !important;
-      font-size: inherit !important;
-      background: transparent;
     }
-    nav button:focus,
-    nav a:focus {
+    #mobile-nav-menu {
+      padding: 0 !important;
+    }
+    #mobile-nav-menu button,
+    #mobile-nav-menu a {
+      font-size: inherit !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      padding: revert !important;
+    }
+    #mobile-nav-menu button:focus,
+    #mobile-nav-menu a:focus {
       outline: none !important;
     }
-    nav button:active {
+    #mobile-nav-menu button:active {
       transform: none !important;
+    }
+    /* Allow the Schedule Demo button to keep its blue bg */
+    #mobile-nav-menu .bg-blue-600 {
+      background: #2563eb !important;
+      border-radius: 0.375rem !important;
+    }
+    #mobile-nav-menu .bg-blue-600:hover {
+      background: #1d4ed8 !important;
     }
 
     /* Select elements */
