@@ -509,11 +509,15 @@ const TePilot = () => {
               <Accordion type="single" collapsible className="w-full mt-2">
                 <AccordionItem value="release-notes" className="border-none">
                   <AccordionTrigger className="text-sm text-slate-900 py-1 hover:no-underline">
-                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-600 font-normal">— Life Event Intelligence Dashboard with early behavioral signal detection</span></span>
+                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-600 font-normal">— Lifestyle-based budgeting, travel detection & improved message personalization</span></span>
                   </AccordionTrigger>
                   <AccordionContent className="text-xs text-slate-600 space-y-2">
                     <div className="border-l-2 border-blue-600 pl-3 py-1">
-                      <p className="font-semibold">V3.0 - Current</p>
+                      <p className="font-semibold">V3.1 - Current (February 26, 2026)</p>
+                      <p>Added lifestyle-based budgeting, travel detection, and improved message personalization.</p>
+                    </div>
+                    <div className="border-l-2 border-slate-300 pl-3 py-1">
+                      <p className="font-semibold text-slate-700">V3.0 - February 2026</p>
                       <p>Life Event Intelligence Dashboard now detects early behavioral signals before clients take financial action—enabling proactive advisor engagement. Updated Ventus AI Insights and Recommended Next Steps with opportunity-focused guidance.</p>
                     </div>
                     <div className="border-l-2 border-slate-300 pl-3 py-1">
