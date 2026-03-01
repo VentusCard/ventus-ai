@@ -3,11 +3,13 @@ import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
 import { hashString, getBudgetStatus } from "@/lib/budgetUtils";
 import { groupTransactionsByTrip, TripSection } from "./TravelTimeline";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { LayoutGrid, Map } from "lucide-react";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
@@ -25,6 +27,12 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
     pillar: string;
   } | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
+  const [travelViewMode, setTravelViewMode] = useState<"categories" | "trips">("categories");
+
+  // Reset travel view mode when pillar changes
+  useEffect(() => {
+    setTravelViewMode("categories");
+  }, [selectedPillar]);
   
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
@@ -117,14 +125,49 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
       {/* Expanded Details */}
       {selectedPillar && (
         <Card className="animate-fade-in bg-white border-slate-200">
-          <div className="p-6 flex items-center gap-3 border-b border-slate-200">
+          <div className="p-6 flex items-center gap-3 border-b border-slate-200 flex-wrap">
             <div
               className="w-4 h-4 rounded"
               style={{ backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b" }}
             />
             <h3 className="text-xl font-semibold text-slate-900">{selectedPillar} - Detailed Breakdown</h3>
-            {budgetMode && (
+            
+            {/* Travel view toggle */}
+            {selectedPillar === "Travel & Exploration" && (
+              <ToggleGroup
+                type="single"
+                value={travelViewMode}
+                onValueChange={(val) => { if (val) setTravelViewMode(val as "categories" | "trips"); }}
+                className="ml-auto"
+              >
+                <ToggleGroupItem value="categories" aria-label="Categories view" className="gap-1.5 text-xs px-3">
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  Categories
+                </ToggleGroupItem>
+                <ToggleGroupItem value="trips" aria-label="Trips view" className="gap-1.5 text-xs px-3">
+                  <Map className="w-3.5 h-3.5" />
+                  Trips ({groupTransactionsByTrip(transactions).length})
+                </ToggleGroupItem>
+              </ToggleGroup>
+            )}
+
+            {budgetMode && selectedPillar !== "Travel & Exploration" && (
               <div className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+                <span>Budget: $</span>
+                <Input
+                  type="number"
+                  className="w-24 h-8 text-sm"
+                  value={budgets[selectedPillar] ?? 0}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 0;
+                    setBudgets(prev => ({ ...prev, [selectedPillar]: val }));
+                  }}
+                />
+              </div>
+            )}
+            {budgetMode && selectedPillar === "Travel & Exploration" && (
+              <div className="flex items-center gap-2 text-sm text-slate-600">
                 <span>Budget: $</span>
                 <Input
                   type="number"
@@ -148,73 +191,77 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
               
               return (
                 <div className="space-y-6">
-                  {/* Subcategories */}
-                  <div>
-                    <h4 className="text-sm font-medium mb-4 text-slate-900">Subcategories</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {subcategories.slice(0, 6).map((subcat) => {
-                        const percentage = (subcat.totalSpend / pillarTotal) * 100;
-                        const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
-                        const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
-                        const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
-                        
-                        return (
-                          <div
-                            key={subcat.subcategory}
-                            className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedSubcategory({
-                                subcategory: subcat.subcategory,
-                                pillar: selectedPillar
-                              });
-                            }}
-                          >
-                            <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
-                            <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
-                            {budgetMode && subcatBudgetInfo && (
-                              <div className="flex items-center gap-2 mb-1">
-                                <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
-                                <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
-                                <Input
-                                  type="number"
-                                  className="w-20 h-6 text-xs px-1"
-                                  value={subcategoryBudgets[budgetKey] ?? subcatBudget}
-                                  onClick={(e) => e.stopPropagation()}
-                                  onChange={(e) => {
-                                    const val = parseInt(e.target.value) || 0;
-                                    setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
+                  {/* Categories view (default, or always for non-travel pillars) */}
+                  {(selectedPillar !== "Travel & Exploration" || travelViewMode === "categories") && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-4 text-slate-900">Subcategories</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {subcategories.slice(0, 6).map((subcat) => {
+                          const percentage = (subcat.totalSpend / pillarTotal) * 100;
+                          const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
+                          const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
+                          const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
+                          
+                          return (
+                            <div
+                              key={subcat.subcategory}
+                              className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSubcategory({
+                                  subcategory: subcat.subcategory,
+                                  pillar: selectedPillar
+                                });
+                              }}
+                            >
+                              <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
+                              <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                              {budgetMode && subcatBudgetInfo && (
+                                <div className="flex items-center gap-2 mb-1">
+                                  <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
+                                  <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
+                                  <Input
+                                    type="number"
+                                    className="w-20 h-6 text-xs px-1"
+                                    value={subcategoryBudgets[budgetKey] ?? subcatBudget}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => {
+                                      const val = parseInt(e.target.value) || 0;
+                                      setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              <div className="flex items-center justify-between text-xs text-slate-600">
+                                <span>{subcat.transactionCount} transactions</span>
+                                <span>{percentage.toFixed(1)}% of pillar</span>
+                              </div>
+                              <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all"
+                                  style={{
+                                    width: budgetMode && subcatBudget > 0
+                                      ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
+                                      : `${percentage}%`,
+                                    backgroundColor: budgetMode && subcatBudgetInfo
+                                      ? subcatBudgetInfo.color
+                                      : (PILLAR_COLORS[selectedPillar] || "#64748b")
                                   }}
                                 />
                               </div>
-                            )}
-                            <div className="flex items-center justify-between text-xs text-slate-600">
-                              <span>{subcat.transactionCount} transactions</span>
-                              <span>{percentage.toFixed(1)}% of pillar</span>
                             </div>
-                            <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full transition-all"
-                                style={{
-                                  width: budgetMode && subcatBudget > 0
-                                    ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
-                                    : `${percentage}%`,
-                                  backgroundColor: budgetMode && subcatBudgetInfo
-                                    ? subcatBudgetInfo.color
-                                    : (PILLAR_COLORS[selectedPillar] || "#64748b")
-                                }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Detected Trips (Travel & Exploration only) */}
-                  {selectedPillar === "Travel & Exploration" && (() => {
+                  )}
+
+                  {/* Trips view (Travel & Exploration only) */}
+                  {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && (() => {
                     const trips = groupTransactionsByTrip(transactions);
-                    if (trips.length === 0) return null;
+                    if (trips.length === 0) return (
+                      <p className="text-sm text-slate-500 italic">No trips detected in transaction data.</p>
+                    );
                     return (
                       <div>
                         <h4 className="text-sm font-medium mb-4 text-slate-900">
