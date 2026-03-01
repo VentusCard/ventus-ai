@@ -1,35 +1,72 @@
 
 
-## Add Trip Summary Text to Travel & Exploration Pillar Card
+# Homepage Redesign — Single Long-Scroll Page
 
-### What Changes
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-Inside the Travel & Exploration pillar card (the grid card, not the expanded detail view), add a line below the transaction count that shows the number of detected trips and their destination names.
+---
 
-**Example display:**
+## Sections to Build
 
-```text
-Travel & Exploration
-$2,450
-42 trans. · 18.2%
-3 Trips: Miami, Tokyo, London     <-- new line
-[sparkline]
-```
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-If there are many destinations, truncate to the first 2-3 with an ellipsis (e.g., "3 Trips: Miami, Tokyo, +1 more").
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-### Technical Changes
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-**File: `src/components/tepilot/insights/PillarExplorer.tsx`**
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-1. **Compute trips once** before the `.map()` loop using `groupTransactionsByTrip(transactions)` (already imported)
-2. **Inside the card render for "Travel & Exploration" only**, add a small text line after the existing stats (`trans.` / `%` row) showing:
-   - Trip count
-   - Comma-separated destination names (truncated to ~3 max, with "+N more" if needed)
-3. Style it with a small font (`text-xs`), using the pillar color for subtle emphasis
-4. No layout changes -- this is just an extra line of text within the existing card structure
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-### No other files affected
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-The `groupTransactionsByTrip` function is already imported. This is a small, contained change to one file.
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
+
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
+
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
