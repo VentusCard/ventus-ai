@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useCallback } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,8 @@ import {
 import ventusLogo from "@/assets/ventus-logo.png";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -18,6 +20,20 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
     setIsMobileProductsOpen(false);
   };
+
+  const scrollToFaq = useCallback(() => {
+    closeMobileMenu();
+    const doScroll = () => {
+      const el = document.getElementById("faq");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    };
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(doScroll, 100);
+    } else {
+      doScroll();
+    }
+  }, [location.pathname, navigate]);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md">
@@ -44,7 +60,7 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <a href="/#faq" className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">FAQ</a>
+          <button onClick={scrollToFaq} className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">FAQ</button>
           <Link to="/contact">
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
@@ -73,7 +89,7 @@ const Navbar = () => {
             <Link to="/smartrewards" onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-base py-2 px-6">Smart Rewards</Link>
             <Link to="/wealth" onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-base py-2 px-6">Wealth Management Copilot</Link>
           </div>
-          <a href="/#faq" onClick={closeMobileMenu} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100">FAQ</a>
+          <button onClick={scrollToFaq} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100 w-full text-left">FAQ</button>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-2">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
