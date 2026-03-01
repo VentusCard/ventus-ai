@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Eye, Edit, Loader2, Plane, MapPin } from "lucide-react";
-import { PILLAR_COLORS } from "@/lib/sampleData";
+import { PILLAR_COLORS, getSourceColor } from "@/lib/sampleData";
 import { TransactionDetailModal } from "./TransactionDetailModal";
 import { CorrectionModal } from "./CorrectionModal";
 import {
@@ -175,7 +175,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                       {transactions.some(t => t.source) && (
                         <TableCell>
                           {transaction.source ? (
-                            <Badge variant="outline" className="text-xs font-medium text-slate-600 border-slate-300 whitespace-nowrap">
+                            <Badge variant="outline" className={`text-xs font-medium whitespace-nowrap ${getSourceColor(transaction.source)}`}>
                               {transaction.source}
                             </Badge>
                           ) : (

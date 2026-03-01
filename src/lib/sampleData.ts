@@ -457,6 +457,17 @@ txn_h077,CHICAGO HOME INSPECTIONS,Home inspection service,7389,450.00,2025-10-08
 txn_h078,CHICAGO TITLE COMPANY,Title search and escrow,6411,1200.00,2025-10-12,60601,Checking
 `;
 
+export const SOURCE_COLORS: Record<string, string> = {
+  "Cashback Card": "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+  "Travel Card": "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  "Premium Card": "bg-purple-500/10 text-purple-700 border-purple-500/20",
+  "Checking": "bg-slate-500/10 text-slate-700 border-slate-500/20",
+  "HSA": "bg-amber-500/10 text-amber-700 border-amber-500/20",
+};
+
+export const getSourceColor = (source: string) =>
+  SOURCE_COLORS[source] ?? "bg-slate-100 text-slate-600 border-slate-300";
+
 export const PILLAR_COLORS: Record<string, string> = {
   "Sports & Active Living": "#3b82f6",
   "Health & Wellness": "#10b981",

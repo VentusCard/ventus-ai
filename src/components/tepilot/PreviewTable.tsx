@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Calendar, Hash, MapPin } from "lucide-react";
+import { getSourceColor } from "@/lib/sampleData";
 
 interface PreviewTableProps {
   transactions: Transaction[];
@@ -98,7 +99,7 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                     {transactions.some(t => t.source) && (
                       <TableCell>
                         {transaction.source ? (
-                          <Badge variant="outline" className="text-xs font-medium text-slate-600 border-slate-300 whitespace-nowrap">
+                          <Badge variant="outline" className={`text-xs font-medium whitespace-nowrap ${getSourceColor(transaction.source)}`}>
                             {transaction.source}
                           </Badge>
                         ) : (
