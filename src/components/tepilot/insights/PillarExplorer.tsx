@@ -33,6 +33,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
   // Reset travel view mode when pillar changes
   useEffect(() => {
     setTravelViewMode("categories");
+    setSelectedTripIdx(null);
   }, [selectedPillar]);
   
   const trips = groupTransactionsByTrip(transactions);
