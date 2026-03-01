@@ -81,10 +81,10 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                   <budgetInfo.icon className="w-3.5 h-3.5" style={{ color: budgetInfo.color }} />
                 </div>
               )}
-              <CardContent className="p-4 h-full">
-                <div className="flex flex-col h-full gap-3">
+              <CardContent className="p-3 h-full">
+                <div className="flex flex-col h-full gap-1.5">
                   <div 
-                    className="w-full h-1 rounded-full"
+                    className="w-full h-0.5 rounded-full"
                     style={{ backgroundColor: color }}
                   />
                   <div>
