@@ -52,7 +52,7 @@ import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnal
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
 import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
-const CURRENT_VERSION = "V3.0";
+const CURRENT_VERSION = "V3.1";
 const TePilot = () => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
