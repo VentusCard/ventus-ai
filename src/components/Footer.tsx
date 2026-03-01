@@ -12,7 +12,7 @@ const Footer = () => {
               Deeper insights. Smarter engagement. Better outcomes.
             </p>
             <nav className="flex flex-col gap-2">
-              <Link to="/enrichment" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
+              <Link to="/technology" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
               <Link to="/#faq" onClick={(e) => { e.preventDefault(); const el = document.getElementById('faq'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else window.location.href = '/#faq'; }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">FAQ</Link>
               <Link to="/contact" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Schedule Demo</Link>
             </nav>
