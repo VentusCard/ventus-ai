@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,12 +40,28 @@ const insightTools = [
 
 const allProducts = [coreProduct, ...insightTools];
 
+/** Pages where the hero has a dark background and the navbar should start transparent */
+const DARK_HERO_PAGES = ["/enrichment"];
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
+  const isTransparent = isDarkHero && !scrolled && !isMobileMenuOpen;
+
+  useEffect(() => {
+    if (!isDarkHero) { setScrolled(false); return; }
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isDarkHero, location.pathname]);
+
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
@@ -66,13 +82,21 @@ const Navbar = () => {
     }
   }, [location.pathname, navigate]);
 
+  const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
+  const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
+
   return (
-    <div className="absolute top-0 left-0 right-0 z-50 bg-white">
+    <div className={`absolute top-0 left-0 right-0 z-50 transition-colors duration-300 ${isTransparent ? "bg-transparent" : "bg-white"}`}>
       <div className="flex h-16 items-center justify-between px-4 md:px-8 max-w-7xl mx-auto">
         {/* Left: Logo + Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
+            <img
+              src={ventusLogo}
+              alt="Ventus AI"
+              className="h-6 w-auto transition-all duration-300"
+              style={isTransparent ? { filter: "brightness(0) invert(1)" } : undefined}
+            />
           </Link>
 
           {/* Products dropdown */}
@@ -81,7 +105,7 @@ const Navbar = () => {
             onMouseEnter={() => setIsProductsOpen(true)}
             onMouseLeave={() => setIsProductsOpen(false)}
           >
-            <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">
+            <button className={`flex items-center gap-1 ${textColor} text-sm font-medium transition-colors`}>
               Products <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isProductsOpen ? "rotate-180" : ""}`} />
             </button>
 
@@ -136,23 +160,36 @@ const Navbar = () => {
             </div>
           </div>
 
-          <button onClick={scrollToFaq} className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">FAQ</button>
+          <button onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors`}>FAQ</button>
         </div>
 
         {/* Mobile logo */}
         <Link to="/" onClick={closeMobileMenu} className="md:hidden">
-          <img src={ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
+          <img
+            src={ventusLogo}
+            alt="Ventus AI"
+            className="h-6 w-auto transition-all duration-300"
+            style={isTransparent ? { filter: "brightness(0) invert(1)" } : undefined}
+          />
         </Link>
 
         {/* Right: CTA */}
         <div className="hidden md:block">
           <Link to="/contact">
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
+            <Button
+              size="sm"
+              className={isTransparent
+                ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+              }
+            >
+              Schedule Demo
+            </Button>
           </Link>
         </div>
 
         {/* Mobile toggle */}
-        <button onClick={toggleMobileMenu} className="md:hidden text-gray-700 p-2" aria-label="Toggle menu">
+        <button onClick={toggleMobileMenu} className={`md:hidden ${mobileIconColor} p-2`} aria-label="Toggle menu">
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
