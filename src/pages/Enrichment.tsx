@@ -178,7 +178,7 @@ const Enrichment = () => {
         <ScrollReveal>
           <section className="py-24 bg-white">
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
-              <div className="w-16 h-px bg-blue-600 mx-auto mb-8" />
+              
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 The intelligence layer your bank is missing.
               </h2>
