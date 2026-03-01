@@ -388,22 +388,6 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
         </Card>
       )}
 
-      {/* Subcategory Transactions Modal */}
-      {selectedSubcategory && (
-        <SubcategoryTransactionsModal
-          isOpen={!!selectedSubcategory}
-          onClose={() => setSelectedSubcategory(null)}
-          subcategory={selectedSubcategory.subcategory}
-          pillar={selectedSubcategory.pillar}
-          transactions={transactions.filter(
-            t => t.pillar === selectedSubcategory.pillar && 
-                 t.subcategory === selectedSubcategory.subcategory
-          )}
-          onTransactionClick={(transaction) => {
-            setSelectedTransaction(transaction);
-          }}
-        />
-      )}
 
       {/* Transaction Detail Modal */}
       {selectedTransaction && (
