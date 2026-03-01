@@ -66,26 +66,60 @@ ${name}
   return (
     <div>
       <main className="pt-20">
-        {/* Hero */}
+        {/* Two-column: Trust + Form */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Get In Touch</p>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Let's talk.</h1>
-              <p className="text-lg text-gray-500 max-w-2xl leading-relaxed">
-                Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you. We'll get back within one business day.
-              </p>
-            </ScrollReveal>
-          </div>
-        </section>
+            <div className="grid md:grid-cols-[45%_55%] gap-10 md:gap-14">
 
-        {/* Two-column: Form + Trust */}
-        <section className="py-16 md:py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <div className="grid md:grid-cols-[55%_45%] gap-10 md:gap-14">
-
-              {/* LEFT — Form */}
+              {/* LEFT — Trust & Context */}
               <ScrollReveal>
+                <div className="md:pt-2">
+                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Get In Touch</p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Let's talk.</h2>
+                  <p className="text-lg text-gray-500 max-w-md leading-relaxed mb-10">
+                    Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you. We'll get back within one business day.
+                  </p>
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">What happens next</h3>
+                  <div className="space-y-6 mb-8">
+                    {steps.map((step, i) => (
+                      <div key={i} className="flex gap-4">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#f0f6ff" }}>
+                          <step.icon className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-blue-600">{String(i + 1).padStart(2, '0')}</span>
+                            <h4 className="text-sm font-bold text-gray-900">{step.title}</h4>
+                          </div>
+                          <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-6 mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#f0f6ff" }}>
+                        <Mail className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Email us directly</p>
+                        <a href="mailto:info@ventusai.com" className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                          info@ventusai.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-400">
+                    Trusted by institutions managing <span className="font-semibold text-gray-500">$385B+</span> in annual spend.
+                  </p>
+                </div>
+              </ScrollReveal>
+
+              {/* RIGHT — Form */}
+              <ScrollReveal delay={0.15}>
                 <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-6 md:p-8">
                   {showSuccess && (
                     <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
@@ -143,47 +177,6 @@ ${name}
                       Send Message
                     </Button>
                   </form>
-                </div>
-              </ScrollReveal>
-
-              {/* RIGHT — Trust & Context */}
-              <ScrollReveal delay={0.15}>
-                <div className="md:pt-2">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">What happens next</h3>
-                  <div className="space-y-6 mb-8">
-                    {steps.map((step, i) => (
-                      <div key={i} className="flex gap-4">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#f0f6ff" }}>
-                          <step.icon className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-bold text-blue-600">{String(i + 1).padStart(2, '0')}</span>
-                            <h4 className="text-sm font-bold text-gray-900">{step.title}</h4>
-                          </div>
-                          <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-6 mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#f0f6ff" }}>
-                        <Mail className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Email us directly</p>
-                        <a href="mailto:info@ventusai.com" className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
-                          info@ventusai.com
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-gray-400">
-                    Trusted by institutions managing <span className="font-semibold text-gray-500">$385B+</span> in annual spend.
-                  </p>
                 </div>
               </ScrollReveal>
             </div>
