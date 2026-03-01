@@ -279,10 +279,15 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                         return (
                           <div
                             key={subcat.subcategory}
-                            className="flex flex-col h-full p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                            className={`flex flex-col h-full p-4 rounded-lg border cursor-pointer transition-colors ${
+                              selectedSubcategory?.subcategory === subcat.subcategory && selectedSubcategory?.pillar === selectedPillar
+                                ? 'bg-slate-100 border-slate-400 ring-1 ring-slate-400'
+                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                            }`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedSubcategory({
+                              const isAlreadySelected = selectedSubcategory?.subcategory === subcat.subcategory && selectedSubcategory?.pillar === selectedPillar;
+                              setSelectedSubcategory(isAlreadySelected ? null : {
                                 subcategory: subcat.subcategory,
                                 pillar: selectedPillar
                               });
@@ -343,23 +348,37 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                   })()}
 
                   <div>
-                    <h4 className="text-sm font-medium mb-4 text-slate-900">Recent Transactions</h4>
+                    <h4 className="text-sm font-medium mb-4 text-slate-900">
+                      {selectedSubcategory
+                        ? `${selectedSubcategory.subcategory} Transactions`
+                        : 'Recent Transactions'}
+                    </h4>
                     <div className="space-y-2">
-                      {pillarTransactions.slice(0, 5).map((t, idx) => (
-                         <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200"
-                        >
-                          <div className="flex-1">
-                            <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
-                            <p className="text-xs text-slate-600">{t.subcategory}</p>
+                      {(() => {
+                        const filtered = selectedSubcategory
+                          ? pillarTransactions.filter(t => t.subcategory === selectedSubcategory.subcategory)
+                          : pillarTransactions;
+                        const shown = filtered.slice(0, selectedSubcategory ? 20 : 5);
+                        if (shown.length === 0) {
+                          return <p className="text-sm text-slate-500">No transactions found.</p>;
+                        }
+                        return shown.map((t, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors"
+                            onClick={() => setSelectedTransaction(t)}
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
+                              <p className="text-xs text-slate-600">{t.subcategory}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
+                              <p className="text-xs text-slate-600">{new Date(t.date).toLocaleDateString()}</p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
-                            <p className="text-xs text-slate-600">{new Date(t.date).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ));
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -369,22 +388,6 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
         </Card>
       )}
 
-      {/* Subcategory Transactions Modal */}
-      {selectedSubcategory && (
-        <SubcategoryTransactionsModal
-          isOpen={!!selectedSubcategory}
-          onClose={() => setSelectedSubcategory(null)}
-          subcategory={selectedSubcategory.subcategory}
-          pillar={selectedSubcategory.pillar}
-          transactions={transactions.filter(
-            t => t.pillar === selectedSubcategory.pillar && 
-                 t.subcategory === selectedSubcategory.subcategory
-          )}
-          onTransactionClick={(transaction) => {
-            setSelectedTransaction(transaction);
-          }}
-        />
-      )}
 
       {/* Transaction Detail Modal */}
       {selectedTransaction && (
