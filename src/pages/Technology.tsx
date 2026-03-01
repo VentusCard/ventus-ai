@@ -1,5 +1,5 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+
+
 import { Brain, Gift, Users, Briefcase, ArrowRight, LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -39,8 +39,7 @@ const Technology = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div>
       <main className="pt-32 pb-16">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
@@ -84,7 +83,6 @@ const Technology = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

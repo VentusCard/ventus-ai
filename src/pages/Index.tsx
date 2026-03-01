@@ -1,5 +1,3 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -12,8 +10,7 @@ import {
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div>
       <main className="flex flex-col">
         <Hero />
 
@@ -161,7 +158,6 @@ const Index = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
