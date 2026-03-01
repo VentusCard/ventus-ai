@@ -28,6 +28,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
   } | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
   const [travelViewMode, setTravelViewMode] = useState<"categories" | "trips">("categories");
+  const [selectedTripIdx, setSelectedTripIdx] = useState<number | null>(null);
 
   // Reset travel view mode when pillar changes
   useEffect(() => {
