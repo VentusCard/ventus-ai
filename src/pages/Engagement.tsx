@@ -44,7 +44,7 @@ const Engagement = () => {
     <div>
       <main>
         {/* SECTION 1 — HERO */}
-        <section className="pt-20 pb-16 md:py-0 md:min-h-screen flex items-center" style={{ background: "#0a0f1e" }}>
+        <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Customer Engagement</p>
@@ -57,14 +57,13 @@ const Engagement = () => {
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
                 Ventus transforms your mobile banking experience into a personalized lifestyle platform — adapting to each customer's spending patterns, life stage, and location in real time.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3">
                 <Link to="/contact">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                     Schedule Demo
                   </Button>
                 </Link>
                 <Button
-                  size="lg"
                   variant="outline"
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
                   onClick={scrollToDemo}

@@ -58,7 +58,7 @@ const BankWideAnalytics = () => {
     <div>
       <main>
         {/* SECTION 1 — HERO */}
-        <section className="pt-20 pb-16 md:py-0 md:min-h-screen flex items-center" style={{ background: "#0a0f1e" }}>
+        <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Bank-Wide Analytics</p>
@@ -71,14 +71,13 @@ const BankWideAnalytics = () => {
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
                 Ventus layers behavioral intelligence across every transaction in your institution — surfacing spending trends, customer segments, and revenue opportunities that traditional BI tools simply cannot see.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3">
                 <Link to="/contact">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                     Schedule Demo
                   </Button>
                 </Link>
                 <Button
-                  size="lg"
                   variant="outline"
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
                   onClick={() => document.getElementById("analytics-demo")?.scrollIntoView({ behavior: "smooth" })}
@@ -150,15 +149,18 @@ const BankWideAnalytics = () => {
                 </div>
 
                 {/* 6 Metric cards */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
                   {[
                     { label: "Total Accounts", value: "120.0M", sub: "Across all products" },
                     { label: "Unique Users", value: "75.0M", sub: "1.60 avg accounts/user" },
                     { label: "Total Annual Spend", value: "$385.0B", sub: "$3,208 per account" },
+                    { label: "Active Account Rate", value: "78.5%", sub: "Transacted in last 30 days" },
+                    { label: "Avg Spending per Year", value: "$5,133", sub: "Per user annually" },
+                    { label: "Avg Transactions", value: "42", sub: "Per account/month" },
                   ].map((m, i) => (
                     <div
                       key={m.label}
-                      className="rounded-xl px-4 py-3.5 transition-all duration-700 border border-gray-200"
+                      className="rounded-xl px-3 sm:px-4 py-3 sm:py-3.5 transition-all duration-700 border border-gray-200"
                       style={{
                         background: "#f8fafc",
                         opacity: demoVisible ? 1 : 0,
@@ -167,29 +169,7 @@ const BankWideAnalytics = () => {
                       }}
                     >
                       <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
-                      <p className="text-gray-900 text-2xl font-bold">{m.value}</p>
-                      <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                  {[
-                    { label: "Active Account Rate", value: "78.5%", sub: "Transacted in last 30 days" },
-                    { label: "Avg Spending per Year", value: "$5,133", sub: "Per user annually" },
-                    { label: "Avg Transactions", value: "42", sub: "Per account/month" },
-                  ].map((m, i) => (
-                    <div
-                      key={m.label}
-                      className="rounded-xl px-4 py-3.5 transition-all duration-700 border border-gray-200"
-                      style={{
-                        background: "#f8fafc",
-                        opacity: demoVisible ? 1 : 0,
-                        transform: demoVisible ? "translateY(0)" : "translateY(16px)",
-                        transitionDelay: `${(i + 3) * 120}ms`,
-                      }}
-                    >
-                      <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
-                      <p className="text-gray-900 text-2xl font-bold">{m.value}</p>
+                      <p className="text-gray-900 text-xl sm:text-2xl font-bold">{m.value}</p>
                       <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
                     </div>
                   ))}
