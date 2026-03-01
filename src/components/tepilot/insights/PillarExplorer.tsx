@@ -88,8 +88,8 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                     style={{ backgroundColor: color }}
                   />
                   <div>
-                    <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
-                    <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
+                    <p className="font-semibold text-sm line-clamp-2 text-slate-900">{pillar.pillar}</p>
+                    <p className="text-lg font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
                     {budgetMode && (
                       <p className="text-xs mt-0.5" style={{ color: budgetInfo.color }}>
                         Budget: ${budget}
