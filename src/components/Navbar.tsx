@@ -58,7 +58,7 @@ const Navbar = () => {
   }, [location.pathname, navigate]);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-md">
       <div className="flex h-16 items-center justify-between px-4 md:px-8 max-w-7xl mx-auto">
         {/* Left: Logo + Nav Links */}
         <div className="hidden md:flex items-center gap-8">
