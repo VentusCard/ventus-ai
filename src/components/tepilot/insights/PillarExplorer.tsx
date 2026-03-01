@@ -348,23 +348,37 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                   })()}
 
                   <div>
-                    <h4 className="text-sm font-medium mb-4 text-slate-900">Recent Transactions</h4>
+                    <h4 className="text-sm font-medium mb-4 text-slate-900">
+                      {selectedSubcategory
+                        ? `${selectedSubcategory.subcategory} Transactions`
+                        : 'Recent Transactions'}
+                    </h4>
                     <div className="space-y-2">
-                      {pillarTransactions.slice(0, 5).map((t, idx) => (
-                         <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200"
-                        >
-                          <div className="flex-1">
-                            <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
-                            <p className="text-xs text-slate-600">{t.subcategory}</p>
+                      {(() => {
+                        const filtered = selectedSubcategory
+                          ? pillarTransactions.filter(t => t.subcategory === selectedSubcategory.subcategory)
+                          : pillarTransactions;
+                        const shown = filtered.slice(0, selectedSubcategory ? 20 : 5);
+                        if (shown.length === 0) {
+                          return <p className="text-sm text-slate-500">No transactions found.</p>;
+                        }
+                        return shown.map((t, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors"
+                            onClick={() => setSelectedTransaction(t)}
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium text-sm text-slate-900">{t.merchant_name}</p>
+                              <p className="text-xs text-slate-600">{t.subcategory}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
+                              <p className="text-xs text-slate-600">{new Date(t.date).toLocaleDateString()}</p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-slate-900">${t.amount.toFixed(2)}</p>
-                            <p className="text-xs text-slate-600">{new Date(t.date).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ));
+                      })()}
                     </div>
                   </div>
                 </div>
