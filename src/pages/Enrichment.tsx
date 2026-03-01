@@ -110,7 +110,7 @@ const Enrichment = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Six agents. One pipeline. Real-time intelligence.</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
               <p className="text-gray-500 text-lg mb-10 max-w-2xl">
                 Watch a single transaction flow through all six agents in real time.
               </p>
