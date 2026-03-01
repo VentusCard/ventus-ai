@@ -1,5 +1,6 @@
 import Hero from "@/components/Hero";
 import PlatformTabs from "@/components/PlatformTabs";
+import BeforeAfterAnimation from "@/components/BeforeAfterAnimation";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -58,22 +59,14 @@ const Index = () => {
         {/* Differentiation Section */}
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-2 gap-16 items-start">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
-              We don't label transactions.{" "}
-              <span className="text-blue-600">We understand them.</span>
-            </h2>
-            <div className="space-y-6">
-              <div className="rounded-xl border border-gray-200 p-6">
-                <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-2">Before</p>
-                <p className="text-gray-500 text-lg">"This customer shops at REI"</p>
-              </div>
-              <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-6">
-                <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">After</p>
-                <p className="text-gray-700 text-lg leading-relaxed">
-                  "Outdoor enthusiast approaching retirement, planning a summer trip, loyalty to their usual airline is decaying — serve the Delta miles offer today, the REI deal next week, and schedule a travel rewards card conversation this month."
-                </p>
-              </div>
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
+                We don't label transactions.{" "}
+                <span className="text-blue-600">We understand them.</span>
+              </h2>
             </div>
+            <BeforeAfterAnimation />
           </div>
         </section>
 
