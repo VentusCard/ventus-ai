@@ -1,121 +1,292 @@
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BarChart3, PieChart, Users, Globe, TrendingUp, Layers, Target, Eye, Lightbulb, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ScrollReveal from "@/components/ScrollReveal";
+import HeroAnalyticsCard from "@/components/hero/HeroAnalyticsCard";
+import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+const capabilities = [
+  { icon: Layers, title: "Portfolio Segmentation", desc: "Automatically cluster your entire customer base into dynamic behavioral segments — updated with every transaction, not every quarter." },
+  { icon: Search, title: "Spend Gap Detection", desc: "See exactly where your customers are spending outside your ecosystem. Size the opportunity and build a strategy to capture it." },
+  { icon: TrendingUp, title: "Trend Detection", desc: "Identify category-level spending shifts before they become obvious. Track seasonal patterns, emerging merchants, and wallet-share migration in real time." },
+  { icon: LayoutDashboard, title: "Executive Dashboards", desc: "Real-time portfolio health metrics, segment growth trends, and revenue opportunity sizing — built for leadership decisions, not just analyst exploration." },
+];
+
+const integrationSteps = [
+  { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
+  { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
+  { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
+];
+
+const pillars = [
+  { label: "Travel & Exploration", pct: 20.4, color: "#3b82f6" },
+  { label: "Food & Dining", pct: 18.2, color: "#8b5cf6" },
+  { label: "Health & Wellness", pct: 14.1, color: "#14b8a6" },
+  { label: "Shopping & Retail", pct: 12.3, color: "#f59e0b" },
+  { label: "Financial & Aspirational", pct: 9.8, color: "#22c55e" },
+];
 
 const BankWideAnalytics = () => {
-  const features = [
-    { icon: PieChart, title: "Portfolio-Level Intelligence", description: "Aggregate enriched transaction data across your entire customer base to reveal macro spending trends, category shifts, and emerging behavioral patterns." },
-    { icon: Users, title: "Behavioral Segmentation", description: "Automatically cluster customers into dynamic segments based on lifestyle signals, spending velocity, and life-stage indicators—not just demographics." },
-    { icon: Globe, title: "Geographic Spend Mapping", description: "Visualize where your customers spend across states and regions, uncovering travel corridors, relocation patterns, and local economic engagement." },
-    { icon: TrendingUp, title: "Trend Detection & Forecasting", description: "Identify category-level spending shifts before they become obvious—track seasonal patterns, emerging merchants, and wallet-share migration in real time." },
-  ];
+  const [integrationVisible, setIntegrationVisible] = useState(false);
+  const [demoVisible, setDemoVisible] = useState(false);
+  const integrationRef = useRef<HTMLDivElement>(null);
+  const demoRef = useRef<HTMLDivElement>(null);
 
-  const useCases = [
-    { icon: Target, title: "Precision Marketing Campaigns", description: "Build hyper-targeted segments using behavioral and lifestyle dimensions, then deploy campaigns that reach the right customers at the right moment." },
-    { icon: Layers, title: "Product Strategy & Cross-Sell", description: "Discover cross-sell opportunities by understanding which product combinations align with specific customer segments and life events." },
-    { icon: Eye, title: "Competitive Intelligence", description: "Monitor wallet-share trends to understand where customers are spending outside your ecosystem and identify opportunities to recapture share." },
-    { icon: Lightbulb, title: "Executive Decision Support", description: "Equip leadership with real-time dashboards showing portfolio health, segment growth, and revenue opportunity sizing across the institution." },
-  ];
+  useEffect(() => {
+    const el = integrationRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIntegrationVisible(true); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  const benefits = [
-    "360° view of portfolio spending behavior",
-    "AI-powered segment discovery and targeting",
-    "Real-time geographic and demographic breakdowns",
-    "Actionable cross-sell and retention insights",
-  ];
+  useEffect(() => {
+    const el = demoRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setDemoVisible(true); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <div>
-      <main className="pt-20 pb-10">
-        <section className="py-6 md:py-10">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-blue-600" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Bank-Wide Analytics</h1>
-            </div>
-            <p className="text-xl text-gray-500 max-w-3xl">
-              Turn millions of enriched transactions into portfolio-level intelligence—segment customers, spot trends, and size opportunities across your entire institution.
-            </p>
-          </div>
-        </section>
-
-        <section className="py-4">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Overview</h2>
-              <p className="text-gray-500 leading-relaxed text-lg">
-                Most banks can tell you how much a customer spent. Ventus Bank-Wide Analytics tells you what your entire portfolio is doing—and why. By layering semantic enrichment across every transaction, we surface behavioral segments, geographic patterns, and revenue opportunities that traditional BI tools simply can't see. From marketing teams building campaigns to executives sizing new product launches, this is the intelligence layer that turns data into decisions.
+      <main>
+        {/* SECTION 1 — HERO */}
+        <section className="pt-20 pb-16 md:py-0 md:min-h-screen flex items-center" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Bank-Wide Analytics</p>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
+                See what your entire portfolio is doing.
+              </h1>
+              <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
+                And why.
               </p>
+              <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
+                Ventus layers behavioral intelligence across every transaction in your institution — surfacing spending trends, customer segments, and revenue opportunities that traditional BI tools simply cannot see.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Schedule Demo
+                  </Button>
+                </Link>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
+                  onClick={() => document.getElementById("analytics-demo")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  See It Work ↓
+                </Button>
+              </div>
+            </div>
+            <div className="hidden md:flex justify-center">
+              <HeroAnalyticsCard />
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Key Features</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <feature.icon className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
+        {/* SECTION 2 — THE PROBLEM */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
+                Your BI tools tell you what happened.{" "}
+                <span className="text-blue-600">Ventus tells you what it means.</span>
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                "Traditional dashboards show you transaction volumes and category totals. They cannot tell you that 14% of your portfolio is quietly shifting spend to a competitor.",
+                "Your marketing team is building campaigns on demographic data from two years ago. Ventus builds segments from what customers did last Tuesday.",
+                "A new product launch is coming. Your leadership team has no idea which customer segments are most likely to adopt it — or how large the opportunity actually is.",
+              ].map((pain, i) => (
+                <ScrollReveal key={i} delay={i * 0.15}>
+                  <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100 h-full">
+                    <span className="absolute top-4 left-4 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                    <p className="text-gray-600 leading-relaxed pl-4 pt-2">{pain}</p>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{feature.title}</h3>
-                  <p className="text-gray-500">{feature.description}</p>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3 — SEE IT IN ACTION */}
+        <section id="analytics-demo" className="py-16 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Portfolio intelligence at institutional scale.</h2>
+              <p className="text-gray-500 text-lg mb-6 max-w-2xl">
+                The same enrichment engine that powers individual transaction intelligence — applied across your entire customer base.
+              </p>
+            </ScrollReveal>
+
+            {/* Demo panel */}
+            <div ref={demoRef} className="rounded-2xl overflow-hidden border border-gray-200" style={{ background: "#0a0f1e" }}>
+              <div className="p-6 md:p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-white text-lg font-bold">Portfolio Intelligence Dashboard</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                    </span>
+                    <span className="text-green-400 text-[11px] font-semibold">Live</span>
+                  </div>
+                </div>
+
+                {/* Metric cards */}
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  {[
+                    { label: "Total Accounts", value: "120M" },
+                    { label: "Total Annual Spend", value: "$385B" },
+                    { label: "Active Account Rate", value: "78.5%" },
+                  ].map((m, i) => (
+                    <div
+                      key={m.label}
+                      className="rounded-xl px-5 py-4 text-center transition-all duration-700"
+                      style={{
+                        background: "#111827",
+                        border: "1px solid #1e2d4a",
+                        opacity: demoVisible ? 1 : 0,
+                        transform: demoVisible ? "translateY(0)" : "translateY(16px)",
+                        transitionDelay: `${i * 150}ms`,
+                      }}
+                    >
+                      <p className="text-white text-2xl md:text-3xl font-bold">{m.value}</p>
+                      <p className="text-gray-500 text-xs uppercase tracking-wider mt-1">{m.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Spending by pillar */}
+                <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold mb-4">Spending by Lifestyle Pillar</p>
+                <div className="space-y-4 mb-8">
+                  {pillars.map((p, i) => (
+                    <div key={p.label}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-gray-300 text-sm">{p.label}</span>
+                        <span className="text-gray-400 text-sm font-semibold">{p.pct}%</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#1e2d4a" }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-1000"
+                          style={{
+                            width: demoVisible ? `${(p.pct / 25) * 100}%` : "0%",
+                            background: p.color,
+                            transitionDelay: `${i * 120 + 400}ms`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Revenue opportunity */}
+                <div
+                  className="rounded-xl px-5 py-4 transition-all duration-700"
+                  style={{
+                    background: "#111827",
+                    border: "1px solid #1e2d4a",
+                    opacity: demoVisible ? 1 : 0,
+                    transform: demoVisible ? "translateY(0)" : "translateY(12px)",
+                    transitionDelay: "1000ms",
+                  }}
+                >
+                  <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Revenue Opportunity Identified</p>
+                  <p className="text-white text-xl font-bold">$17.1B <span className="text-gray-500 text-sm font-normal">across 17 merchant partnership categories</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 4 — CAPABILITIES */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
+                Intelligence at every level of your institution.
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-2 gap-6">
+              {capabilities.map((cap, i) => (
+                <ScrollReveal key={cap.title} delay={i * 0.1}>
+                  <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
+                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 5 — INTEGRATION */}
+        <section className="py-24" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">Plug in. No infrastructure changes.</h2>
+            <div ref={integrationRef} className="relative grid md:grid-cols-3 gap-8">
+              <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
+                  style={{ animation: "connector-dot 3s ease-in-out infinite" }}
+                />
+              </div>
+              {integrationSteps.map((s, i) => (
+                <div
+                  key={s.step}
+                  className="relative z-10 rounded-xl p-6 transition-all duration-700"
+                  style={{
+                    background: "#111827",
+                    opacity: integrationVisible ? 1 : 0,
+                    transform: integrationVisible ? "translateY(0)" : "translateY(24px)",
+                    transitionDelay: `${i * 200}ms`,
+                  }}
+                >
+                  <p className="text-3xl font-bold text-blue-500 mb-3">{s.step}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Use Cases</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <useCase.icon className="w-5 h-5 text-blue-600 transition-all duration-300 group-hover:scale-110" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{useCase.title}</h3>
-                  <p className="text-gray-500">{useCase.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Benefits</h2>
-              <ul className="grid md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-center gap-3 text-gray-600">
-                    <div className="w-2 h-2 rounded-full bg-blue-600" />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ready to See Your Portfolio Differently?</h2>
-            <p className="text-gray-500 mb-8 max-w-2xl mx-auto">Discover how Ventus Bank-Wide Analytics can power smarter decisions across marketing, product, and leadership.</p>
-            <div className="flex flex-wrap justify-center gap-4">
+        {/* SECTION 6 — CTA */}
+        <ScrollReveal>
+          <section className="py-24 bg-white">
+            <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Your portfolio is already telling you where the opportunities are.
+              </h2>
+              <p className="text-lg text-gray-500 mb-8">Ventus helps you hear it.</p>
               <Link to="/contact">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Schedule Demo
+                </Button>
               </Link>
-              <Link to="/#platform">
-                <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Explore All Capabilities</Button>
-              </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       </main>
     </div>
   );
