@@ -149,7 +149,7 @@ const BankWideAnalytics = () => {
                 </div>
 
                 {/* 6 Metric cards */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
                   {[
                     { label: "Total Accounts", value: "120.0M", sub: "Across all products" },
                     { label: "Unique Users", value: "75.0M", sub: "1.60 avg accounts/user" },
@@ -166,12 +166,12 @@ const BankWideAnalytics = () => {
                       }}
                     >
                       <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
-                      <p className="text-gray-900 text-2xl font-bold">{m.value}</p>
+                      <p className="text-gray-900 text-xl sm:text-2xl font-bold">{m.value}</p>
                       <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
                   {[
                     { label: "Active Account Rate", value: "78.5%", sub: "Transacted in last 30 days" },
                     { label: "Avg Spending per Year", value: "$5,133", sub: "Per user annually" },
@@ -188,7 +188,7 @@ const BankWideAnalytics = () => {
                       }}
                     >
                       <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
-                      <p className="text-gray-900 text-2xl font-bold">{m.value}</p>
+                      <p className="text-gray-900 text-xl sm:text-2xl font-bold">{m.value}</p>
                       <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
                     </div>
                   ))}
