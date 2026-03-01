@@ -37,6 +37,10 @@ const FIELD_KEYWORDS: Record<string, string[]> = {
   ],
   zip_code: [
     "zipcode", "zip", "postalcode", "postal", "zipcode", "zip_code"
+  ],
+  source: [
+    "source", "account", "card", "cardtype", "accounttype", 
+    "fundingsource", "paymentmethod"
   ]
 };
 
@@ -88,7 +92,8 @@ export function detectColumns(headers: string[]): {
     date: null,
     mcc: null,
     transaction_id: null,
-    zip_code: null
+    zip_code: null,
+    source: null
   };
   
   const confidence: Record<string, number> = {};
