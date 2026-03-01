@@ -178,26 +178,26 @@ const Navbar = () => {
         <div style={{ padding: '1.5rem' }}>
           <button
             onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100"
+            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100"
           >
             Products
             <ChevronDown className={`h-4 w-4 transition-transform ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
           </button>
           <div className={`overflow-hidden transition-all duration-300 ${isMobileProductsOpen ? 'max-h-96' : 'max-h-0'}`}>
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-6 pt-2 pb-1">One Tech Core</p>
-              <Link to={coreProduct.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-base py-2 px-6">
+              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-3 pb-1">One Tech Core</p>
+              <Link to={coreProduct.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
                 {coreProduct.title}
               </Link>
-              <div className="mx-6 my-1 border-t border-gray-100" />
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-6 pt-2 pb-1">Four Insight Tools</p>
+              <div className="ml-4 my-1 border-t border-gray-100" />
+              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-2 pb-1">Four Insight Tools</p>
               {insightTools.map((p) => (
-                <Link key={p.href} to={p.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-base py-2 px-6">
+                <Link key={p.href} to={p.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
                   {p.title}
                 </Link>
               ))}
             </div>
-          <button onClick={scrollToFaq} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100 w-full text-left">FAQ</button>
-          <Link to="/contact" onClick={closeMobileMenu} className="block pt-2">
+          <button onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</button>
+          <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
         </div>
