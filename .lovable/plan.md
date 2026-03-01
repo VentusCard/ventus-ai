@@ -1,26 +1,72 @@
 
 
-## Merge Trip Cards Into Subcategory Grid (Trips View)
+# Homepage Redesign — Single Long-Scroll Page
 
-### What Changes
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-When the "Trips" toggle is active in Travel & Exploration, instead of showing trip cards in a separate section, the trip cards will appear as the **first cards** in the same subcategory grid (before "Hotels & Lodging", "Flights", etc.). This gives users a unified view of both trips and subcategories, letting them see the full spending picture and adjust budget numbers in one place.
+---
 
-### Technical Changes
+## Sections to Build
 
-**File: `src/components/tepilot/insights/PillarExplorer.tsx`**
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-1. **Remove the separate trips block** (lines ~274-324) that currently renders a standalone "Detected Trips" section with its own grid.
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-2. **Modify the categories view condition** (line 210) so subcategories always render when Travel & Exploration is selected (remove the `travelViewMode === "categories"` gate).
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-3. **Insert trip cards at the top of the subcategory grid** when `travelViewMode === "trips"`: Before mapping over `subcategories`, render each detected trip as a card with the same styling (`p-4 rounded-lg bg-slate-50 border...`) but with a subtle purple accent to distinguish trips from subcategories. Each trip card shows destination, total spend, date range, duration, transaction count, and percentage bar.
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-4. **Keep trip expand behavior**: Clicking a trip card sets `selectedTripIdx`, which renders the `TripSection` detail below the grid (before "Recent Transactions").
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-5. **Keep subcategory click behavior**: Clicking a subcategory card still opens the `SubcategoryTransactionsModal` as before.
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-### Result
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-Toggling "Trips" shows: `[Trip: Tokyo] [Trip: Paris] [Hotels & Lodging] [Flights] [Car Rentals] ...` all in one grid. Users see both trip-level and category-level spending together, with budget editing available on all cards.
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
+
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
+
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
