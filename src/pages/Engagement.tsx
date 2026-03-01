@@ -112,7 +112,7 @@ const Engagement = () => {
 
         {/* SECTION 3 — SEE IT IN ACTION */}
         <section id="engagement-demo" className="py-24 bg-white scroll-mt-20">
-          <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" />
+          <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" hideHeader />
         </section>
 
         {/* SECTION 4 — CAPABILITIES */}
