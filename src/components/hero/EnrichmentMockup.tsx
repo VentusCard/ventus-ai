@@ -209,22 +209,20 @@ const EnrichmentMockup = () => {
           </div>
         </div>
 
-        {/* Recommendation — only shows on final stage */}
-        {currentStage?.action && (
-          <div className="px-5 pb-4">
-            <div
-              className="rounded-lg px-3 py-2 text-[10px] text-blue-200 leading-relaxed"
-              style={{
-                background: "rgba(59,130,246,0.08)",
-                border: "1px solid rgba(59,130,246,0.25)",
-                animation: "fade-in 0.5s ease-out",
-              }}
-            >
-              <span className="font-semibold text-blue-400">Recommended Action:</span>{" "}
-              {currentStage.action}
-            </div>
+        {/* Recommendation — always reserve space */}
+        <div className="px-5 pb-4" style={{ height: 52 }}>
+          <div
+            className="rounded-lg px-3 py-2 text-[10px] text-blue-200 leading-relaxed transition-opacity duration-500"
+            style={{
+              background: "rgba(59,130,246,0.08)",
+              border: "1px solid rgba(59,130,246,0.25)",
+              opacity: currentStage?.action ? 1 : 0,
+            }}
+          >
+            <span className="font-semibold text-blue-400">Recommended Action:</span>{" "}
+            Serve Delta miles offer + REI cashback deal today
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
