@@ -44,6 +44,7 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <a href="/#faq" className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">FAQ</a>
           <Link to="/contact">
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
@@ -72,6 +73,7 @@ const Navbar = () => {
             <Link to="/smartrewards" onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-base py-2 px-6">Smart Rewards</Link>
             <Link to="/wealth" onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-base py-2 px-6">Wealth Management Copilot</Link>
           </div>
+          <a href="/#faq" onClick={closeMobileMenu} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100">FAQ</a>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-2">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
