@@ -1,135 +1,234 @@
-
-
-import VentusSmartRewards from "@/components/technology/demos/VentusSmartRewards";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Gift, ArrowLeft, UserCheck, Sparkles, Target, RefreshCw, TrendingUp, Heart, Percent, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ScrollReveal from "@/components/ScrollReveal";
+import VentusSmartRewards from "@/components/technology/demos/VentusSmartRewards";
+import { Users, TrendingUp, Heart, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+const capabilities = [
+  { icon: Users, title: "Behavioral Profiling", desc: "Dynamic customer profiles built from spending patterns, lifestyle signals, and purchase history — updated with every transaction." },
+  { icon: TrendingUp, title: "Purchase Cycle Prediction", desc: "We detect when a customer is about to buy and serve the offer at exactly the right moment." },
+  { icon: Heart, title: "Life Stage Matching", desc: "Offers matched to where the customer is in life — not just what they bought last week." },
+  { icon: Search, title: "Spend Gap Detection", desc: "Identify where customers are spending outside your ecosystem and capture that wallet share with targeted offers." },
+];
+
+const integrationSteps = [
+  { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
+  { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
+  { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
+];
 
 const SmartRewards = () => {
-  const features = [
-    { icon: UserCheck, title: "AI-Driven Purchase Personas", description: "Build dynamic customer profiles based on spending patterns, preferences, and lifestyle signals extracted from transaction data." },
-    { icon: Target, title: "Dynamic Offer Matching", description: "Match customers to the most relevant rewards and offers in real-time based on their unique behavioral patterns and preferences." },
-    { icon: Sparkles, title: "Personalized Recommendations", description: "Deliver reward suggestions that feel intuitive and valuable, not random—driving higher engagement and satisfaction." },
-    { icon: RefreshCw, title: "Continuous Learning", description: "Algorithms that evolve with each transaction, refining recommendations as customer preferences and behaviors change." }
-  ];
+  const [integrationVisible, setIntegrationVisible] = useState(false);
+  const integrationRef = useRef<HTMLDivElement>(null);
 
-  const useCases = [
-    { icon: TrendingUp, title: "Increased Redemption Rates", description: "Boost reward redemption by 3-5x by presenting offers customers actually want at the moment they're most receptive." },
-    { icon: Percent, title: "Targeted Promotions", description: "Run merchant partner campaigns that reach the right customers, maximizing ROI for both the bank and partners." },
-    { icon: Heart, title: "Loyalty Enhancement", description: "Strengthen customer relationships by demonstrating that you understand and value their unique preferences." },
-    { icon: Bell, title: "Proactive Notifications", description: "Alert customers to relevant deals and rewards before they even search, creating moments of delight." }
-  ];
+  useEffect(() => {
+    const el = integrationRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIntegrationVisible(true); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  const benefits = [
-    "3-5x increase in reward redemption rates",
-    "Higher customer satisfaction scores",
-    "Improved merchant partner ROI",
-    "Reduced reward program costs through targeting"
-  ];
+  const scrollToDemo = () => {
+    document.getElementById("smartrewards-demo")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div>
-      <main className="pt-20 pb-10">
-        <section className="py-6 md:py-10">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <Gift className="w-8 h-8 text-blue-600" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Intelligent Reward Personalization</h1>
-            </div>
-            <p className="text-xl text-gray-500 max-w-3xl">
-              Deliver rewards, offers, and content that resonate with each customer's unique lifestyle and spending habits using AI-driven purchase personas.
-            </p>
-          </div>
-        </section>
-
-        <section className="py-4">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Overview</h2>
-              <p className="text-gray-500 leading-relaxed text-lg">
-                Traditional rewards programs treat all customers the same, resulting in low engagement and wasted marketing spend. Ventus SmartRewards uses AI to understand each customer's unique preferences and behaviors, enabling hyper-personalized reward recommendations that feel intuitive rather than intrusive.
+      <main>
+        {/* SECTION 1 — HERO */}
+        <section className="pt-20 pb-16 md:py-0 md:min-h-screen flex items-center" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Consumer Rewards</p>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
+                Stop showing everyone the same catalog.
+              </h1>
+              <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
+                Start showing the right offer to the right person.
               </p>
+              <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
+                Ventus matches deals to customers based on real behavioral signals — life stage, spending velocity, and purchase cycle prediction.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Schedule Demo
+                  </Button>
+                </Link>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
+                  onClick={scrollToDemo}
+                >
+                  See It Work ↓
+                </Button>
+              </div>
+            </div>
+            {/* Right column: Static preview card */}
+            <div className="hidden md:flex justify-center">
+              <div className="w-full max-w-md rounded-2xl p-6" style={{ background: "#111827", border: "1px solid #1e2d4a" }}>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center">
+                    <span className="text-blue-400 font-bold text-sm">SM</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm">Sarah M.</p>
+                    <p className="text-gray-500 text-xs">Premium Checking · Chicago, IL</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {["Outdoor Enthusiast", "Domestic Traveler", "Family"].map(tag => (
+                    <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { name: "REI 10% Back", match: "96%" },
+                    { name: "Delta Miles 2x", match: "94%" },
+                    { name: "Patagonia 15% Back", match: "91%" },
+                  ].map(offer => (
+                    <div key={offer.name} className="flex items-center justify-between rounded-lg px-4 py-3" style={{ background: "#0a0f1e" }}>
+                      <div>
+                        <p className="text-white text-sm font-medium">{offer.name}</p>
+                        <p className="text-gray-500 text-xs">{offer.match} match</p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{ background: "rgba(34,197,94,0.15)", color: "#4ade80" }}>
+                        Matched
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">See It In Action</h2>
+        {/* SECTION 2 — THE PROBLEM */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
+                Reward programs that treat everyone the same{" "}
+                <span className="text-blue-600">get ignored by everyone.</span>
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                "The average rewards redemption rate is 2%. That means 98% of your offers are invisible to your customers.",
+                "A 28-year-old planning a ski trip and a 60-year-old planning retirement get the same catalog. Neither feels understood.",
+                "Generic offers erode trust. Customers notice when you don't know them — and they go to whoever does.",
+              ].map((pain, i) => (
+                <ScrollReveal key={i} delay={i * 0.15}>
+                  <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100 h-full">
+                    <span className="absolute top-4 left-4 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                    <p className="text-gray-600 leading-relaxed pl-4 pt-2">{pain}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3 — SEE IT IN ACTION */}
+        <section id="smartrewards-demo" className="py-24 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Watch Ventus match offers to a real customer profile.</h2>
+              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
+                Explore how behavioral signals drive personalized reward matching in real time.
+              </p>
+            </ScrollReveal>
             <div className="rounded-2xl overflow-hidden border border-gray-200">
               <VentusSmartRewards />
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Key Features</h2>
+        {/* SECTION 4 — CAPABILITIES */}
+        <section className="py-24" style={{ background: "#f0f6ff" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
+                How Ventus personalizes every offer.
+              </h2>
+            </ScrollReveal>
             <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <feature.icon className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
+              {capabilities.map((cap, i) => (
+                <ScrollReveal key={cap.title} delay={i * 0.1}>
+                  <div className="rounded-xl p-6 bg-white shadow-sm">
+                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{feature.title}</h3>
-                  <p className="text-gray-500">{feature.description}</p>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 5 — INTEGRATION */}
+        <section className="py-24" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">Plug in. No infrastructure changes.</h2>
+            <div ref={integrationRef} className="relative grid md:grid-cols-3 gap-8">
+              <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
+                  style={{ animation: "connector-dot 3s ease-in-out infinite" }}
+                />
+              </div>
+              {integrationSteps.map((s, i) => (
+                <div
+                  key={s.step}
+                  className="relative z-10 rounded-xl p-6 transition-all duration-700"
+                  style={{
+                    background: "#111827",
+                    opacity: integrationVisible ? 1 : 0,
+                    transform: integrationVisible ? "translateY(0)" : "translateY(24px)",
+                    transitionDelay: `${i * 200}ms`,
+                  }}
+                >
+                  <p className="text-3xl font-bold text-blue-500 mb-3">{s.step}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Use Cases</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <useCase.icon className="w-5 h-5 text-blue-600 transition-all duration-300 group-hover:scale-110" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{useCase.title}</h3>
-                  <p className="text-gray-500">{useCase.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Benefits</h2>
-              <ul className="grid md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-center gap-3 text-gray-600">
-                    <div className="w-2 h-2 rounded-full bg-blue-600" />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ready to Supercharge Your Rewards Program?</h2>
-            <p className="text-gray-500 mb-8 max-w-2xl mx-auto">Learn how SmartRewards can increase engagement and deliver personalized value to every customer.</p>
-            <div className="flex flex-wrap justify-center gap-4">
+        {/* SECTION 6 — CTA */}
+        <ScrollReveal>
+          <section className="py-24 bg-white">
+            <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Your customers are telling you what they want.
+              </h2>
+              <p className="text-lg text-gray-500 mb-8">Ventus helps you listen — and respond.</p>
               <Link to="/contact">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Schedule Demo
+                </Button>
               </Link>
-              <Link to="/#platform">
-                <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Explore All Capabilities</Button>
-              </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       </main>
     </div>
   );

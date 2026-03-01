@@ -43,7 +43,7 @@ const insightTools = [
 const allProducts = [coreProduct, ...insightTools];
 
 /** Pages where the hero has a dark background and the navbar should start transparent */
-const DARK_HERO_PAGES = ["/enrichment"];
+const DARK_HERO_PAGES = ["/enrichment", "/smartrewards"];
 
 const Navbar = () => {
   const navigate = useNavigate();
