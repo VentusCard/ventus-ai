@@ -37,6 +37,9 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
 
+  const trips = useMemo(() => groupTransactionsByTrip(transactions), [transactions]);
+  const totalTripSpend = useMemo(() => trips.reduce((sum, t) => sum + t.transactions.reduce((s, tx) => s + tx.amount, 0), 0), [trips]);
+
   const getSubcategoryBudget = useCallback((pillar: string, subcategory: string, spend: number) => {
     const key = `${pillar}::${subcategory}`;
     if (subcategoryBudgets[key] !== undefined) return subcategoryBudgets[key];
