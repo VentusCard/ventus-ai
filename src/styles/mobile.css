@@ -160,54 +160,36 @@
       overflow-x: hidden;
     }
 
-    /* Better focus states — exclude nav */
+    /* Focus states — only for form elements */
     input:focus,
-    select:focus,
-    button:not(nav button):not(nav *):focus {
+    select:focus {
       outline: 2px solid #3b82f6;
       outline-offset: 2px;
     }
 
-    /* Button active states — exclude nav */
-    button:not(nav button):not(nav *):active {
-      transform: scale(0.98);
-    }
-
-    /* Reset all nav button overrides */
-    nav button,
-    nav a,
-    #mobile-nav-menu,
+    /* ── Mobile nav: nuclear reset ─────────────────────────── */
     #mobile-nav-menu * {
       min-height: auto !important;
       min-width: auto !important;
-    }
-    #mobile-nav-menu {
-      padding: 0 !important;
-    }
-    #mobile-nav-menu button,
-    #mobile-nav-menu a {
-      font-size: inherit !important;
-      background: transparent !important;
-      border-radius: 0 !important;
       box-shadow: none !important;
       outline: none !important;
-      padding: revert !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
     }
-    #mobile-nav-menu button:focus,
-    #mobile-nav-menu a:focus {
-      outline: none !important;
+    #mobile-nav-menu {
+      background: white !important;
+      border-bottom: 1px solid #f3f4f6 !important;
     }
-    #mobile-nav-menu button:active {
-      transform: none !important;
-    }
-    /* Allow the Schedule Demo button to keep its blue bg */
+    /* Restore intentional dividers */
+    #mobile-nav-menu .border-b { border-bottom: 1px solid #f3f4f6 !important; }
+    #mobile-nav-menu .border-t { border-top: 1px solid #f3f4f6 !important; }
+    /* Restore Schedule Demo button styling */
     #mobile-nav-menu .bg-blue-600 {
       background: #2563eb !important;
-      border-radius: 0.375rem !important;
+      border-radius: 0.5rem !important;
     }
-    #mobile-nav-menu .bg-blue-600:hover {
-      background: #1d4ed8 !important;
-    }
+    #mobile-nav-menu .bg-blue-600:hover { background: #1d4ed8 !important; }
 
     /* Select elements */
     select {
@@ -318,10 +300,10 @@
       box-shadow: 0 1px 4px hsla(222, 47%, 3%, 0.25) !important;
     }
 
-    /* Ensure consistent horizontal padding on main containers */
+    /* Keep standard horizontal padding — don't reduce */
     .px-6 {
-      padding-left: 1.25rem !important;
-      padding-right: 1.25rem !important;
+      padding-left: 1.5rem !important;
+      padding-right: 1.5rem !important;
     }
 
     /* Reduce card content padding for tighter mobile layout */
