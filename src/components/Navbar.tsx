@@ -73,8 +73,9 @@ const Navbar = () => {
       }
     };
     if (location.pathname !== "/") {
-      navigate("/", { state: { skipScroll: true } });
-      setTimeout(doScroll, 300);
+      (window as any).__skipNextScrollToTop = true;
+      navigate("/");
+      setTimeout(doScroll, 400);
     } else {
       doScroll();
     }
