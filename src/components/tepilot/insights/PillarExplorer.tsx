@@ -315,8 +315,45 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                         </div>
 
                         {selectedTripIdx !== null && trips[selectedTripIdx] && (
-                          <div className="mt-4">
+                          <div className="mt-4 space-y-6">
                             <TripSection trip={trips[selectedTripIdx]} defaultOpen={true} />
+                            <div className="pt-4 border-t border-slate-200">
+                              <h4 className="text-sm font-medium mb-4 text-slate-900">Subcategories</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {subcategories.slice(0, 6).map((subcat) => {
+                                  const percentage = (subcat.totalSpend / pillarTotal) * 100;
+                                  return (
+                                    <div
+                                      key={subcat.subcategory}
+                                      className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedSubcategory({
+                                          subcategory: subcat.subcategory,
+                                          pillar: selectedPillar
+                                        });
+                                      }}
+                                    >
+                                      <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
+                                      <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                                      <div className="flex items-center justify-between text-xs text-slate-600">
+                                        <span>{subcat.transactionCount} transactions</span>
+                                        <span>{percentage.toFixed(1)}% of pillar</span>
+                                      </div>
+                                      <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                        <div
+                                          className="h-full rounded-full transition-all"
+                                          style={{
+                                            width: `${percentage}%`,
+                                            backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b"
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>
