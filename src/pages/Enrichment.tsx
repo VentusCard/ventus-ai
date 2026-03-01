@@ -2,18 +2,15 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import EnrichmentHeroCard from "@/components/enrichment/EnrichmentHeroCard";
-import EnrichmentPipeline from "@/components/enrichment/EnrichmentPipeline";
 import EnrichmentInteractiveDemo from "@/components/enrichment/EnrichmentInteractiveDemo";
-import { Brain, Layers, Search, Heart, ShieldCheck, Activity } from "lucide-react";
+import { Layers, Search, Heart, Activity } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const capabilities = [
-  { icon: Brain, title: "Merchant Intelligence", desc: "Beyond name cleaning. We resolve chain identity, category, location type, and online vs physical presence." },
   { icon: Layers, title: "Lifestyle Pillars", desc: "12 behavioral categories extracted from spending patterns. From Travel & Adventure to Financial Planning." },
-  { icon: Search, title: "Intent Signals", desc: "What is this customer planning to do next? We detect purchase intent before it becomes a transaction." },
   { icon: Heart, title: "Life Event Detection", desc: "20+ life events detected in real time. New baby, home purchase, retirement, relocation, and more." },
-  { icon: ShieldCheck, title: "Confidence Scoring", desc: "Every enriched output carries a confidence score. You always know how reliable the signal is." },
-  { icon: Activity, title: "Behavioral Patterns", desc: "Velocity, frequency, loyalty signals, and cross-category patterns tracked across time." },
+  { icon: Activity, title: "Travel Detection", desc: "Destinations, loyalty programs, hotel patterns, and travel frequency tracked across every transaction." },
+  { icon: Search, title: "Intent Signals", desc: "What is this customer planning to do next? We detect purchase intent before it becomes a transaction." },
 ];
 
 const integrationSteps = [
@@ -108,25 +105,12 @@ const Enrichment = () => {
           </div>
         </section>
 
-        {/* SECTION 3 — HOW IT WORKS (Pipeline) */}
-        <section className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug mb-12">
-                Six agents. One pipeline. Real-time intelligence.
-              </h2>
-            </ScrollReveal>
-            <EnrichmentPipeline />
-          </div>
-        </section>
-
-        {/* SECTION 4 — INTERACTIVE DEMO */}
+        {/* SECTION 3 — INTERACTIVE DEMO (How It Works) */}
         <section id="enrichment-demo" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Six agents. One pipeline. Real-time intelligence.</h2>
               <p className="text-gray-500 text-lg mb-10 max-w-2xl">
                 Enter any transaction and watch Ventus process it in real time.
               </p>
@@ -141,7 +125,7 @@ const Enrichment = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
-                What Ventus extracts from every transaction.
+                Four signal layers. Every transaction.
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
