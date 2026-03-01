@@ -67,7 +67,7 @@ export function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Tr
   return trips.sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
-function formatDateRange(startDate: string, endDate: string): string {
+export function formatDateRange(startDate: string, endDate: string): string {
   const start = new Date(startDate);
   const end = new Date(endDate);
   
