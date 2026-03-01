@@ -331,10 +331,14 @@ export default function VentusWealthDemo() {
 
       // Highlight row and pulse button first
       setActiveRowIdx(eventIdx);
-      // Auto-scroll to active row
+      // Auto-scroll within the alert list container (not the page)
       if (alertListRef.current) {
-        const row = alertListRef.current.querySelector(`[data-event-idx="${eventIdx}"]`);
-        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const row = alertListRef.current.querySelector(`[data-event-idx="${eventIdx}"]`) as HTMLElement | null;
+        if (row) {
+          const container = alertListRef.current;
+          const rowTop = row.offsetTop - container.offsetTop;
+          container.scrollTo({ top: rowTop - 8, behavior: 'smooth' });
+        }
       }
 
       await wait(800);
