@@ -229,12 +229,12 @@ const PlatformTabs = () => {
         </p>
 
         {/* Tab Buttons */}
-        <div className="flex flex-nowrap gap-1.5 sm:gap-2 mb-8 overflow-x-auto no-scrollbar">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mb-8">
           {tabs.map((t, i) => (
             <button
               key={t.label}
               onClick={() => handleTabClick(i)}
-              className={`whitespace-nowrap px-2.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-sm font-medium transition-all duration-200 shrink-0 ${
+              className={`px-3 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
                 i === activeIndex
                   ? "bg-blue-600 text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
