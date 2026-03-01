@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import PlatformTabs from "@/components/PlatformTabs";
 import BeforeAfterAnimation from "@/components/BeforeAfterAnimation";
 import IntegrationSection from "@/components/IntegrationSection";
+import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -20,7 +21,7 @@ const Index = () => {
         {/* Problem Section */}
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-2 gap-16 items-start">
-            <div>
+            <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
                 Traditional enrichment tells you what happened.{" "}
@@ -29,59 +30,62 @@ const Index = () => {
               <p className="text-gray-500 mt-4 text-lg">
                 Banks are sitting on the most predictive dataset in the world. Most are doing almost nothing with it.
               </p>
-            </div>
-            <div className="space-y-4">
-              {[
-                "Rewards catalogs show every customer the same deals. Redemption rates stay at 2%.",
-                "Life events go undetected until customers tell you. By then someone else is already there.",
-                "Wealth advisors walk into client meetings without knowing their client just put a deposit at a hospital.",
-              ].map((pain, i) => (
-                <div
-                  key={i}
-                  className="relative rounded-xl p-5 bg-white shadow-sm border border-gray-200"
-                  style={{
-                    opacity: 0,
-                    animation: `slideInFromRight 0.5s ease-out ${i * 0.15}s forwards`,
-                  }}
-                >
-                  <span className="absolute top-3 left-3 flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-                  </span>
-                  <p className="text-gray-600 leading-relaxed pl-4">{pain}</p>
-                </div>
-              ))}
-            </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.2}>
+              <div className="space-y-4">
+                {[
+                  "Rewards catalogs show every customer the same deals. Redemption rates stay at 2%.",
+                  "Life events go undetected until customers tell you. By then someone else is already there.",
+                  "Wealth advisors walk into client meetings without knowing their client just put a deposit at a hospital.",
+                ].map((pain, i) => (
+                  <div
+                    key={i}
+                    className="relative rounded-xl p-5 bg-white shadow-sm border border-gray-200"
+                    style={{
+                      opacity: 0,
+                      animation: `slideInFromRight 0.5s ease-out ${i * 0.15}s forwards`,
+                    }}
+                  >
+                    <span className="absolute top-3 left-3 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                    <p className="text-gray-600 leading-relaxed pl-4">{pain}</p>
+                  </div>
+                ))}
+              </div>
+            </ScrollReveal>
           </div>
         </section>
 
-        <PlatformTabs />
+        <ScrollReveal>
+          <PlatformTabs />
+        </ScrollReveal>
 
         {/* Differentiation Section */}
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-2 gap-16 items-start">
-            <div>
+            <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
                 We don't label transactions.{" "}
                 <span className="text-blue-600">We understand them.</span>
               </h2>
-            </div>
+            </ScrollReveal>
             <BeforeAfterAnimation />
           </div>
         </section>
 
         <IntegrationSection />
 
-
         {/* FAQ */}
         <section id="faq" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-5 gap-16">
-            <div className="md:col-span-2">
+            <ScrollReveal className="md:col-span-2">
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">FAQ</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">Frequently Asked Questions</h2>
-            </div>
-            <div className="md:col-span-3">
+            </ScrollReveal>
+            <ScrollReveal delay={0.2} className="md:col-span-3">
               <Accordion type="single" collapsible defaultValue="faq-0" className="w-full">
                 {[
                   { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
@@ -96,24 +100,26 @@ const Index = () => {
                   </AccordionItem>
                 ))}
               </Accordion>
-            </div>
+            </ScrollReveal>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="py-24 bg-white">
-          <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">See it in action.</h2>
-            <p className="text-lg text-gray-500 mb-8">
-              Join the banks already using Ventus to turn transaction data into their most valuable asset.
-            </p>
-            <Link to="/contact">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-                Schedule a Demo
-              </Button>
-            </Link>
-          </div>
-        </section>
+        <ScrollReveal>
+          <section className="py-24 bg-white">
+            <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">See it in action.</h2>
+              <p className="text-lg text-gray-500 mb-8">
+                Join the banks already using Ventus to turn transaction data into their most valuable asset.
+              </p>
+              <Link to="/contact">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Schedule a Demo
+                </Button>
+              </Link>
+            </div>
+          </section>
+        </ScrollReveal>
       </main>
     </div>
   );
