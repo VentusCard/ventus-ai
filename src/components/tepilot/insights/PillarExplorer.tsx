@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
+import { formatDateRange, calculateDays } from "./TravelTimeline";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { useState, useCallback, useEffect } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
@@ -28,10 +29,12 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
   } | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
   const [travelViewMode, setTravelViewMode] = useState<"categories" | "trips">("categories");
+  const [selectedTripIdx, setSelectedTripIdx] = useState<number | null>(null);
 
   // Reset travel view mode when pillar changes
   useEffect(() => {
     setTravelViewMode("categories");
+    setSelectedTripIdx(null);
   }, [selectedPillar]);
   
   const trips = groupTransactionsByTrip(transactions);
@@ -271,6 +274,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                   {/* Trips view (Travel & Exploration only) */}
                   {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && (() => {
                     const trips = groupTransactionsByTrip(transactions);
+                    const totalTravelSpend = trips.reduce((sum, t) => sum + t.totalSpend, 0);
                     if (trips.length === 0) return (
                       <p className="text-sm text-slate-500 italic">No trips detected in transaction data.</p>
                     );
@@ -279,15 +283,42 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                         <h4 className="text-sm font-medium mb-4 text-slate-900">
                           Detected Trips ({trips.length})
                         </h4>
-                        <div className="space-y-3">
-                          {trips.map((trip, idx) => (
-                            <TripSection
-                              key={`${trip.destination}-${trip.startDate}`}
-                              trip={trip}
-                              defaultOpen={idx === 0}
-                            />
-                          ))}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {trips.map((trip, idx) => {
+                            const percentage = totalTravelSpend > 0 ? (trip.totalSpend / totalTravelSpend) * 100 : 0;
+                            const days = calculateDays(trip.startDate, trip.endDate);
+                            const isSelected = selectedTripIdx === idx;
+                            return (
+                              <div
+                                key={`${trip.destination}-${trip.startDate}`}
+                                className={`p-4 rounded-lg bg-slate-50 border cursor-pointer hover:bg-slate-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-slate-200'}`}
+                                onClick={() => setSelectedTripIdx(isSelected ? null : idx)}
+                              >
+                                <p className="font-medium text-sm mb-2 text-slate-900">{trip.destination}</p>
+                                <p className="text-xl font-bold mb-1 text-slate-900">${trip.totalSpend.toFixed(2)}</p>
+                                <p className="text-xs text-slate-600 mb-1">
+                                  {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
+                                </p>
+                                <div className="flex items-center justify-between text-xs text-slate-600">
+                                  <span>{trip.transactions.length} transactions</span>
+                                  <span>{percentage.toFixed(1)}% of travel</span>
+                                </div>
+                                <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all bg-purple-500"
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
+
+                        {selectedTripIdx !== null && trips[selectedTripIdx] && (
+                          <div className="mt-4">
+                            <TripSection trip={trips[selectedTripIdx]} defaultOpen={true} />
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
