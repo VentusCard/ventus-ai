@@ -222,8 +222,8 @@ const BeforeAfterAnimation = () => {
 
         {/* Learn more link */}
         <div className="flex justify-center pt-3">
-          <Link to="/enrichment" className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-            Learn more about Transaction Enrichment <ArrowRight className="w-4 h-4" />
+          <Link to="/enrichment" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+            Learn More →
           </Link>
         </div>
       </div>
