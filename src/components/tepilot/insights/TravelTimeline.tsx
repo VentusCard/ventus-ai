@@ -17,7 +17,7 @@ interface Trip {
   reclassifiedCount: number;
 }
 
-function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
+export function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
   // Filter out transactions without valid destinations to prevent "Unknown" trips
   const travelTransactions = transactions.filter(t => 
     t.travel_context?.is_travel_related && 
