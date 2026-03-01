@@ -279,10 +279,15 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                         return (
                           <div
                             key={subcat.subcategory}
-                            className="flex flex-col h-full p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                            className={`flex flex-col h-full p-4 rounded-lg border cursor-pointer transition-colors ${
+                              selectedSubcategory?.subcategory === subcat.subcategory && selectedSubcategory?.pillar === selectedPillar
+                                ? 'bg-slate-100 border-slate-400 ring-1 ring-slate-400'
+                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                            }`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedSubcategory({
+                              const isAlreadySelected = selectedSubcategory?.subcategory === subcat.subcategory && selectedSubcategory?.pillar === selectedPillar;
+                              setSelectedSubcategory(isAlreadySelected ? null : {
                                 subcategory: subcat.subcategory,
                                 pillar: selectedPillar
                               });
