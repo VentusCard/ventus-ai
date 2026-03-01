@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import AnimatedDemo from "@/components/technology/AnimatedDemo";
 import { engagementDemoHtml } from "@/components/technology/demos/engagement-demo";
-import { Zap, BarChart3, Send, Clock } from "lucide-react";
+import { User, Target, MapPin, Crown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const capabilities = [
-  { icon: Zap, title: "Life Event Triggers", desc: "Campaigns fire automatically when Ventus detects a life event — new baby, home purchase, vacation planning, retirement." },
-  { icon: BarChart3, title: "Micro-Segment Builder", desc: "Build audience segments from behavioral signals in real time. See exact customer counts update as you refine." },
-  { icon: Send, title: "Multi-Channel Delivery", desc: "Reach customers across email, push notification, and SMS with channel preference detection." },
-  { icon: Clock, title: "Purchase Cycle Timing", desc: "Serve offers when the customer is actively in a purchase cycle — not a week after they already bought elsewhere." },
+  { icon: User, title: "Lifestyle Profiling", desc: "Every customer gets a dynamic lifestyle profile built from their spending patterns — updated with every transaction. Wellness Explorer, Frequent Traveler, Family Focused and more." },
+  { icon: Target, title: "Behavioral Offer Matching", desc: "Offers in the app adapt to each customer's actual behavior — not their demographic. REI for the outdoor enthusiast, Delta miles for the frequent flier." },
+  { icon: MapPin, title: "Location Intelligence", desc: "The app detects where the customer is and surfaces relevant perks and offers for their current city — home or traveling." },
+  { icon: Crown, title: "Premium Experience Layer", desc: "Tiered membership benefits, exclusive perks, and lifestyle rewards that make your banking app feel like a premium product worth opening every day." },
 ];
 
 const integrationSteps = [
@@ -19,10 +19,10 @@ const integrationSteps = [
   { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
 ];
 
-const channelRows = [
-  { channel: "Email", message: "Your flight deal to Cancún expires tonight" },
-  { channel: "Push", message: "2x miles on travel purchases this week" },
-  { channel: "SMS", message: "TSA PreCheck offer — save 20% today" },
+const lifestyleTiles = [
+  { label: "Travel", stat: "12 trips/yr", color: "#3b82f6" },
+  { label: "Dining", stat: "$840/mo", color: "#8b5cf6" },
+  { label: "Wellness", stat: "6x/week", color: "#10b981" },
 ];
 
 const Engagement = () => {
@@ -53,13 +53,13 @@ const Engagement = () => {
             <div>
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Customer Engagement</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
-                Reach the right customer.
+                Your bank app.
               </h1>
               <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
-                At the right life moment.
+                Personalized to every customer's life.
               </p>
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
-                Ventus powers hyper-targeted campaigns and micro-segments built from real behavioral intelligence — not demographics.
+                Ventus transforms your mobile banking experience into a personalized lifestyle platform — adapting to each customer's spending patterns, life stage, and location in real time.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/contact">
@@ -77,25 +77,31 @@ const Engagement = () => {
                 </Button>
               </div>
             </div>
-            {/* Right column: Campaign preview card */}
+            {/* Right column: Lifestyle profile preview card */}
             <div className="hidden md:flex justify-center">
               <div className="w-full max-w-md rounded-2xl p-6" style={{ background: "#111827", border: "1px solid #1e2d4a" }}>
-                <div className="mb-5">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Active Segment</p>
-                  <p className="text-white font-semibold text-lg">Summer Travel Planners</p>
-                  <p className="text-blue-400 text-sm font-medium mt-1">14,200 customers identified</p>
-                </div>
-                <div className="space-y-3">
-                  {channelRows.map(row => (
-                    <div key={row.channel} className="flex items-center gap-3 rounded-lg px-4 py-3" style={{ background: "#0a0f1e" }}>
-                      <span className="relative flex h-2 w-2 shrink-0">
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <span className="text-blue-400 font-bold text-sm">JM</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">Jessica Martinez</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider" style={{ background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
+                        ✦ Wellness Explorer
                       </span>
-                      <div className="min-w-0">
-                        <p className="text-white text-sm font-medium">{row.channel}</p>
-                        <p className="text-gray-500 text-xs truncate">{row.message}</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-3">Lifestyle Signals</p>
+                <div className="space-y-2.5">
+                  {lifestyleTiles.map(tile => (
+                    <div key={tile.label} className="flex items-center justify-between rounded-lg px-4 py-3" style={{ background: "#0a0f1e" }}>
+                      <div className="flex items-center gap-3">
+                        <span className="w-2 h-2 rounded-full" style={{ background: tile.color }} />
+                        <span className="text-white text-sm font-medium">{tile.label}</span>
                       </div>
+                      <span className="text-gray-400 text-xs font-medium">{tile.stat}</span>
                     </div>
                   ))}
                 </div>
@@ -110,15 +116,15 @@ const Engagement = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
-                Most bank campaigns target demographics.{" "}
-                <span className="text-blue-600">Ventus targets life moments.</span>
+                Every customer gets the same app.{" "}
+                <span className="text-blue-600">None of them feel understood.</span>
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                "Sending a travel rewards push to every customer aged 25–45 is not targeting. It is guessing.",
-                "A customer who just booked flights, rented a car, and bought luggage is planning a trip right now. Most banks miss this window entirely.",
-                "Without behavioral triggers, you are always reacting — sending offers after the moment has already passed.",
+                "Your mobile banking app shows the same home screen to a 28-year-old wellness enthusiast and a 62-year-old pre-retiree. Neither feels like it was built for them.",
+                "Generic offer catalogs in banking apps see less than 2% engagement. Customers scroll past them because nothing feels relevant.",
+                "Your customers are telling you everything about their lives through their transactions. Your app is not listening.",
               ].map((pain, i) => (
                 <ScrollReveal key={i} delay={i * 0.15}>
                   <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100 h-full">
@@ -139,9 +145,9 @@ const Engagement = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">A personalized banking experience powered by transaction intelligence.</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">A banking app that knows your customer.</h2>
               <p className="text-gray-500 text-lg mb-10 max-w-2xl">
-                Explore how behavioral signals drive personalized customer engagement across every channel.
+                Watch how transaction intelligence transforms a standard banking app into a personalized lifestyle experience.
               </p>
             </ScrollReveal>
           </div>
@@ -149,18 +155,18 @@ const Engagement = () => {
         </section>
 
         {/* SECTION 4 — CAPABILITIES */}
-        <section className="py-24 bg-white">
+        <section className="py-24" style={{ background: "#f0f6ff" }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
-                How Ventus targets life moments.
+                How Ventus personalizes every session.
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 gap-6">
               {capabilities.map((cap, i) => (
                 <ScrollReveal key={cap.title} delay={i * 0.1}>
-                  <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
+                  <div className="rounded-xl p-6 shadow-sm bg-white">
                     <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
                     <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
@@ -208,9 +214,9 @@ const Engagement = () => {
           <section className="py-24 bg-white">
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Your customers are in a life moment right now.
+                Your customers open their banking app every day.
               </h2>
-              <p className="text-lg text-gray-500 mb-8">Ventus tells you which one.</p>
+              <p className="text-lg text-gray-500 mb-8">Give them a reason to.</p>
               <Link to="/contact">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                   Schedule Demo
