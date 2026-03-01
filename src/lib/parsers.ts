@@ -453,6 +453,7 @@ function validateTransaction(row: any, headerMap: Record<string, string>, index:
     let date = "";
     let transaction_id = "";
     let zip_code = "";
+    let source = "";
 
     Object.entries(headerMap).forEach(([originalHeader, standardField]) => {
       const value = row[originalHeader];
