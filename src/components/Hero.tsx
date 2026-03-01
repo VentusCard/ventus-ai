@@ -9,7 +9,7 @@ const scrollToPlatform = () => {
 
 const Hero = () => {
   return (
-    <div className="relative bg-white text-gray-900 flex items-start lg:items-center justify-center overflow-hidden py-24 md:py-32 lg:min-h-screen lg:py-0">
+    <div className="relative bg-white text-gray-900 flex items-start lg:items-center justify-center overflow-hidden pt-28 pb-24 md:py-32 lg:min-h-screen lg:py-0">
       <div className="hidden lg:block absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[150px] pointer-events-none" />
       <div className="hidden lg:block absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-indigo-300/8 rounded-full blur-[130px] pointer-events-none" />
 
