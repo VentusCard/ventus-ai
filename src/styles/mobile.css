@@ -187,7 +187,7 @@
     /* Restore Schedule Demo button styling */
     #mobile-nav-menu .bg-blue-600 {
       background: #2563eb !important;
-      border-radius: 0.5rem !important;
+      border-radius: 9999px !important;
     }
     #mobile-nav-menu .bg-blue-600:hover { background: #1d4ed8 !important; }
 
