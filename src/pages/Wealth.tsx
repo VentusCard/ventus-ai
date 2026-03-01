@@ -58,15 +58,14 @@ const Wealth = () => {
                     Schedule Demo
                   </Button>
                 </Link>
-                <Link to="/about">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
-                  >
-                    Learn More
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
+                  onClick={() => document.getElementById("wealth-demo")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  See How It Works ↓
+                </Button>
               </div>
             </div>
             <div className="hidden md:flex justify-center">
