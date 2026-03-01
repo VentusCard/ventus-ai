@@ -155,10 +155,10 @@ const EnrichmentInteractiveDemo = () => {
   }, [runSequence, clearAllTimeouts]);
 
   const pillColors = [
-    { bg: "rgba(59,130,246,0.12)", text: "#93c5fd" },
-    { bg: "rgba(139,92,246,0.12)", text: "#c4b5fd" },
-    { bg: "rgba(249,115,22,0.12)", text: "#fdba74" },
-    { bg: "rgba(20,184,166,0.12)", text: "#5eead4" },
+    { bg: "rgba(59,130,246,0.12)", text: "#2563eb" },
+    { bg: "rgba(139,92,246,0.12)", text: "#7c3aed" },
+    { bg: "rgba(249,115,22,0.12)", text: "#c2410c" },
+    { bg: "rgba(20,184,166,0.12)", text: "#0d9488" },
   ];
 
   return (
