@@ -84,7 +84,7 @@ const Navbar = () => {
         {/* Left: Logo + Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogo} alt="Ventus AI" className={`h-6 w-auto ${isTransparent ? "brightness-0 invert" : ""}`} />
+            <img src={ventusLogo} alt="Ventus AI" className={`h-6 w-auto ${isTransparent ? "mix-blend-screen" : ""}`} />
           </Link>
 
           {/* Products dropdown */}
@@ -153,7 +153,7 @@ const Navbar = () => {
 
         {/* Mobile logo */}
         <Link to="/" onClick={closeMobileMenu} className="md:hidden">
-          <img src={ventusLogo} alt="Ventus AI" className={`h-6 w-auto ${isTransparent ? "brightness-0 invert" : ""}`} />
+          <img src={ventusLogo} alt="Ventus AI" className={`h-6 w-auto ${isTransparent ? "mix-blend-screen" : ""}`} />
         </Link>
 
         {/* Right: CTA */}
