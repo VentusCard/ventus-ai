@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 
+
 export default function RewardsPipelinePage() {
   return (
     <div className="tepilot-theme min-h-screen bg-background">

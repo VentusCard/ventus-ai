@@ -2,13 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Index from "./pages/Index";
 import ContactUs from "./pages/ContactUs";
-import About from "./pages/About";
-import Technology from "./pages/Technology";
-import FAQ from "./pages/FAQ";
+
+
+
 import TePilot from "./pages/TePilot";
 import NotFound from "./pages/NotFound";
 import RecommendationsPage from "./pages/RecommendationsPage";
@@ -19,25 +21,28 @@ import Enrichment from "./pages/Enrichment";
 import SmartRewards from "./pages/SmartRewards";
 import Engagement from "./pages/Engagement";
 import Wealth from "./pages/Wealth";
+import BankWideAnalytics from "./pages/BankWideAnalytics";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
+const AppLayout = () => {
+  const location = useLocation();
+  const isTepilot = location.pathname.startsWith("/tepilot");
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      {!isTepilot && <Navbar />}
+      <div className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/technology" element={<Technology />} />
+          
+          
           <Route path="/enrichment" element={<Enrichment />} />
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
           <Route path="/wealth" element={<Wealth />} />
-          <Route path="/faq" element={<FAQ />} />
+          <Route path="/analytics" element={<BankWideAnalytics />} />
+          
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/tepilot" element={<TePilot />} />
           <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
@@ -47,6 +52,20 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+      </div>
+      {!isTepilot && <Footer />}
+    </div>
+  );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <ScrollToTop />
+        <AppLayout />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

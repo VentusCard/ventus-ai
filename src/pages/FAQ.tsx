@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import TechnologyBackground from "@/components/technology/TechnologyBackground";
 import {
   Accordion,
   AccordionContent,
@@ -37,40 +36,33 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative">
-      <TechnologyBackground />
+    <div className="min-h-screen bg-[#0B1120]">
       <Navbar />
-      <main className="pt-32 pb-16 relative z-10">
+      <main className="pt-32 pb-16">
         <div className="max-w-3xl mx-auto px-4 md:px-8">
           <div className="text-center mb-12">
-            <h1 
-              className="text-4xl md:text-5xl font-bold text-foreground mb-4 animate-fade-float"
-              style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
-            >
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Frequently Asked Questions
             </h1>
-            <p 
-              className="text-xl text-foreground/70 animate-fade-float"
-              style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
-            >
+            <p className="text-xl text-gray-400">
               Everything you need to know about Ventus AI
             </p>
           </div>
           
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible defaultValue="item-0" className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="border border-white/20 rounded-xl px-6 bg-white/5 backdrop-blur-sm 
-                  hover:bg-white/10 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] 
-                  transition-all duration-500 animate-fade-float"
-                style={{ animationDelay: `${0.3 + index * 0.1}s`, animationFillMode: 'backwards' }}
+                className="border border-white/10 rounded-xl px-6 bg-white/5 
+                  data-[state=open]:border-l-blue-500 data-[state=open]:border-l-2 data-[state=open]:bg-white/[0.07]
+                  hover:bg-white/[0.07] 
+                  transition-all duration-300"
               >
-                <AccordionTrigger className="text-left text-lg font-medium text-foreground hover:no-underline hover:text-primary py-6 transition-colors duration-300">
+                <AccordionTrigger className="text-left text-lg font-medium text-white hover:no-underline py-6 transition-colors duration-300">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-foreground/70 leading-relaxed pb-6">
+                <AccordionContent className="text-gray-400 leading-relaxed pb-6">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

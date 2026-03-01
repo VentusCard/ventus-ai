@@ -51,6 +51,7 @@ import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailMo
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
+import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
 const CURRENT_VERSION = "V3.0";
 const TePilot = () => {
   const isMobile = useIsMobile();
@@ -1032,7 +1033,7 @@ const TePilot = () => {
                 {/* Persona Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Analytics Card */}
-                  <PersonaCard icon={Building2} title="Analytics & Targeting" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
+                  <PersonaCard icon={Building2} title="Bank-Wide Analytics" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
                     "Portfolio-wide behavioral analysis across 70M+ accounts",
                     "12-Pillar interactive spending category explorer with drill-down",
                     "Card product performance matrix comparing spend and frequency",
@@ -1127,6 +1128,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
+                  <IntegrationDiagramButton variant="enrichment" />
                 </div>
                 <AnalyticsContainer defaultTab={analyticsDefaultTab} />
               </div>}
@@ -1140,6 +1142,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Intelligent Reward Personalization</h2>
+                  <IntegrationDiagramButton variant="rewards" />
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}
