@@ -106,7 +106,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                     const remaining = trips.length - maxShow;
                     const label = destinations.join(', ') + (remaining > 0 ? `, +${remaining} more` : '');
                     return (
-                      <p className="text-xs font-medium mt-1" style={{ color }}>
+                      <p className="text-xs font-medium" style={{ color }}>
                         {trips.length} {trips.length === 1 ? 'Trip' : 'Trips'}: {label}
                       </p>
                     );
