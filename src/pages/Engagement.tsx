@@ -112,6 +112,15 @@ const Engagement = () => {
 
         {/* SECTION 3 — SEE IT IN ACTION */}
         <section id="engagement-demo" className="py-24 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">A banking app that knows your customer.</h2>
+              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
+                Watch how transaction intelligence transforms a standard banking app into a personalized lifestyle experience.
+              </p>
+            </ScrollReveal>
+          </div>
           <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" hideHeader />
         </section>
 
