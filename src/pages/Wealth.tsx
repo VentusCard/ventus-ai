@@ -34,9 +34,6 @@ const Wealth = () => {
     return () => obs.disconnect();
   }, []);
 
-  const scrollToDemo = () => {
-    document.getElementById("wealth-demo")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <div>
@@ -61,14 +58,15 @@ const Wealth = () => {
                     Schedule Demo
                   </Button>
                 </Link>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
-                  onClick={scrollToDemo}
-                >
-                  See It Work ↓
-                </Button>
+                <Link to="/about">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
+                  >
+                    Learn More
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="hidden md:flex justify-center">
