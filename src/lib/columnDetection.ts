@@ -37,6 +37,10 @@ const FIELD_KEYWORDS: Record<string, string[]> = {
   ],
   zip_code: [
     "zipcode", "zip", "postalcode", "postal", "zipcode", "zip_code"
+  ],
+  source: [
+    "source", "account", "card", "cardtype", "accounttype", 
+    "fundingsource", "paymentmethod"
   ]
 };
 
