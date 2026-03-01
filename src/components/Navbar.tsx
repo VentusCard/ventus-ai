@@ -173,7 +173,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile toggle */}
-        <button onClick={toggleMobileMenu} className={`md:hidden ${mobileIconColor} p-2`} aria-label="Toggle menu">
+        <button onClick={toggleMobileMenu} className={`md:hidden ml-auto ${mobileIconColor} p-2 -mr-2`} aria-label="Toggle menu">
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
