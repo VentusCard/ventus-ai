@@ -99,7 +99,7 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                     {transactions.some(t => t.source) && (
                       <TableCell>
                         {transaction.source ? (
-                          <Badge variant="outline" className="text-xs font-medium text-slate-600 border-slate-300 whitespace-nowrap">
+                          <Badge variant="outline" className={`text-xs font-medium whitespace-nowrap ${getSourceColor(transaction.source)}`}>
                             {transaction.source}
                           </Badge>
                         ) : (
