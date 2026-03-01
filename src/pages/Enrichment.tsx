@@ -1,133 +1,213 @@
-
-
-import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Brain, ArrowLeft, MapPin, TrendingUp, Tag, Zap, Shield, BarChart3, FileText, Building } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ScrollReveal from "@/components/ScrollReveal";
+import EnrichmentHeroCard from "@/components/enrichment/EnrichmentHeroCard";
+import EnrichmentPipeline from "@/components/enrichment/EnrichmentPipeline";
+import EnrichmentInteractiveDemo from "@/components/enrichment/EnrichmentInteractiveDemo";
+import { Brain, Layers, Search, Heart, ShieldCheck, Activity } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+const capabilities = [
+  { icon: Brain, title: "Merchant Intelligence", desc: "Beyond name cleaning. We resolve chain identity, category, location type, and online vs physical presence." },
+  { icon: Layers, title: "Lifestyle Pillars", desc: "12 behavioral categories extracted from spending patterns. From Travel & Adventure to Financial Planning." },
+  { icon: Search, title: "Intent Signals", desc: "What is this customer planning to do next? We detect purchase intent before it becomes a transaction." },
+  { icon: Heart, title: "Life Event Detection", desc: "20+ life events detected in real time. New baby, home purchase, retirement, relocation, and more." },
+  { icon: ShieldCheck, title: "Confidence Scoring", desc: "Every enriched output carries a confidence score. You always know how reliable the signal is." },
+  { icon: Activity, title: "Behavioral Patterns", desc: "Velocity, frequency, loyalty signals, and cross-category patterns tracked across time." },
+];
+
+const integrationSteps = [
+  { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
+  { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
+  { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
+];
 
 const Enrichment = () => {
-  const features = [
-    { icon: Tag, title: "Smart Category Detection", description: "Automatically classify transactions into granular categories using contextual AI that understands merchant names, MCC codes, and transaction patterns." },
-    { icon: MapPin, title: "Location Intelligence", description: "Extract geographic insights from transactions to understand customer travel patterns, local vs. distant spending, and regional preferences." },
-    { icon: TrendingUp, title: "Spending Velocity Analysis", description: "Track spending momentum and detect unusual patterns in real-time, enabling proactive engagement and fraud prevention." },
-    { icon: Zap, title: "Real-Time Processing", description: "Enrich transactions as they occur with sub-second latency, enabling immediate personalization and alert capabilities." }
-  ];
+  const [integrationVisible, setIntegrationVisible] = useState(false);
+  const integrationRef = useRef<HTMLDivElement>(null);
 
-  const useCases = [
-    { icon: Shield, title: "Fraud Detection", description: "Identify anomalous transactions by comparing enriched data against established customer behavior patterns." },
-    { icon: BarChart3, title: "Personalized Insights", description: "Deliver spending summaries and financial health insights tailored to each customer's unique transaction history." },
-    { icon: FileText, title: "Enhanced Statements", description: "Transform cryptic merchant codes into clear, readable transaction descriptions customers actually understand." },
-    { icon: Building, title: "Regulatory Compliance", description: "Maintain detailed transaction metadata for AML monitoring and regulatory reporting requirements." }
-  ];
+  useEffect(() => {
+    const el = integrationRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIntegrationVisible(true); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  const benefits = [
-    "95%+ accuracy in merchant identification",
-    "40% reduction in customer service inquiries",
-    "Real-time enrichment under 100ms",
-    "Seamless API integration with existing systems"
-  ];
+  const scrollToDemo = () => {
+    document.getElementById("enrichment-demo")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div>
-      <main className="pt-20 pb-10">
-        <section className="py-6 md:py-10">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <Brain className="w-8 h-8 text-blue-600" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Advanced Transaction Enrichment</h1>
-            </div>
-            <p className="text-xl text-gray-500 max-w-3xl">
-              Transform raw transaction data into actionable intelligence with semantic AI that goes far beyond basic merchant name cleaning.
-            </p>
-          </div>
-        </section>
-
-        <section className="py-4">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Overview</h2>
-              <p className="text-gray-500 leading-relaxed text-lg">
-                Our semantic AI analyzes every transaction to extract deep, contextual signals—merchant category, location patterns, spending velocity, and more. Unlike traditional enrichment that simply cleans merchant names, Ventus builds a complete picture of customer behavior by understanding the context and meaning behind each transaction.
+      <main>
+        {/* SECTION 1 — HERO */}
+        <section className="pt-20 pb-16 md:py-0 md:min-h-screen flex items-center" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">One Tech Core</p>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-6">
+                From raw transaction to human intelligence.{" "}
+                <span className="text-blue-400">In milliseconds.</span>
+              </h1>
+              <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
+                Ventus extracts lifestyle pillars, intent signals, and life events from every transaction — without touching your core infrastructure.
               </p>
+              <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Schedule Demo
+                  </Button>
+                </Link>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-white/10"
+                  onClick={scrollToDemo}
+                >
+                  See It Work ↓
+                </Button>
+              </div>
+            </div>
+            <div className="hidden md:flex justify-center">
+              <EnrichmentHeroCard />
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">See It In Action</h2>
-            <VentusTransactionEnrichment />
+        {/* SECTION 2 — THE PROBLEM */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-red-500 uppercase mb-3">The Problem</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
+                MX cleans your data. Plaid connects it.{" "}
+                <span className="text-blue-600">Ventus understands it.</span>
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                "Merchant name cleaning tells you where someone spent. It doesn't tell you they're planning a wedding.",
+                "Category labels give you buckets. They don't give you behavioral signals or life stage.",
+                "Without intent detection, you're reacting to customers. Ventus lets you get ahead of them.",
+              ].map((pain, i) => (
+                <ScrollReveal key={i} delay={i * 0.15}>
+                  <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100">
+                    <span className="absolute top-4 left-4 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                    <p className="text-gray-600 leading-relaxed pl-4 pt-2">{pain}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Key Features</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <feature.icon className="w-6 h-6 text-blue-600 transition-all duration-300 group-hover:scale-110" />
+        {/* SECTION 3 — HOW IT WORKS (Pipeline) */}
+        <section className="py-24" style={{ background: "#f8f9fa" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug mb-12">
+                Six agents. One pipeline. Real-time intelligence.
+              </h2>
+            </ScrollReveal>
+            <EnrichmentPipeline />
+          </div>
+        </section>
+
+        {/* SECTION 4 — INTERACTIVE DEMO */}
+        <section id="enrichment-demo" className="py-24 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-emerald-600 uppercase mb-3">See It In Action</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Try it yourself.</h2>
+              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
+                Type any transaction below and watch Ventus enrich it in real time.
+              </p>
+            </ScrollReveal>
+            <EnrichmentInteractiveDemo />
+          </div>
+        </section>
+
+        {/* SECTION 5 — CAPABILITIES */}
+        <section className="py-24" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Capabilities</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-12">
+                What Ventus extracts from every transaction.
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-6">
+              {capabilities.map((cap, i) => (
+                <ScrollReveal key={cap.title} delay={i * 0.1}>
+                  <div className="rounded-xl p-6 bg-white shadow-lg">
+                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{feature.title}</h3>
-                  <p className="text-gray-500">{feature.description}</p>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 6 — INTEGRATION */}
+        <section className="py-24" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">Plug in. No infrastructure changes.</h2>
+            <div ref={integrationRef} className="relative grid md:grid-cols-3 gap-8">
+              <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
+                  style={{ animation: "connector-dot 3s ease-in-out infinite" }}
+                />
+              </div>
+              {integrationSteps.map((s, i) => (
+                <div
+                  key={s.step}
+                  className="relative z-10 rounded-xl p-6 transition-all duration-700"
+                  style={{
+                    background: "#111827",
+                    opacity: integrationVisible ? 1 : 0,
+                    transform: integrationVisible ? "translateY(0)" : "translateY(24px)",
+                    transitionDelay: `${i * 200}ms`,
+                  }}
+                >
+                  <p className="text-3xl font-bold text-blue-500 mb-3">{s.step}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-8">Use Cases</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => (
-                <div key={index} className="group p-6 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ease-out">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4 transition-all duration-500 group-hover:bg-blue-100">
-                    <useCase.icon className="w-5 h-5 text-blue-600 transition-all duration-300 group-hover:scale-110" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 group-hover:text-blue-600">{useCase.title}</h3>
-                  <p className="text-gray-500">{useCase.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="p-8 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition-all duration-500">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Benefits</h2>
-              <ul className="grid md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-center gap-3 text-gray-600">
-                    <div className="w-2 h-2 rounded-full bg-blue-600" />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ready to Transform Your Transaction Data?</h2>
-            <p className="text-gray-500 mb-8 max-w-2xl mx-auto">Discover how Ventus enrichment can unlock new insights and opportunities for your institution.</p>
-            <div className="flex flex-wrap justify-center gap-4">
+        {/* SECTION 7 — CTA */}
+        <ScrollReveal>
+          <section className="py-24 bg-white">
+            <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+              <div className="w-16 h-px bg-blue-600 mx-auto mb-8" />
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                The intelligence layer your bank is missing.
+              </h2>
+              <p className="text-lg text-gray-500 mb-8">Everything else is built on top of this.</p>
               <Link to="/contact">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Schedule Demo
+                </Button>
               </Link>
-              <Link to="/#platform">
-                <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Explore All Capabilities</Button>
-              </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       </main>
     </div>
   );
