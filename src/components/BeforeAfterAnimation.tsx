@@ -1,70 +1,145 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowDown, RotateCcw } from "lucide-react";
 
-const pills = [
-  { label: "Outdoor Enthusiast", color: "bg-blue-100 text-blue-700" },
-  { label: "Pre-Summer Trip Planning", color: "bg-purple-100 text-purple-700" },
-  { label: "Loyalty Decay Detected", color: "bg-orange-100 text-orange-700" },
-  { label: "Life Event: Vacation Upcoming", color: "bg-teal-100 text-teal-700" },
+const examples = [
+  {
+    before: "Walgreens • $47.20",
+    pills: [
+      { label: "New Parent", color: "bg-blue-100 text-blue-700" },
+      { label: "Baby Care Shopping", color: "bg-purple-100 text-purple-700" },
+      { label: "Formula & Diapers Pattern", color: "bg-teal-100 text-teal-700" },
+      { label: "Life Event: New Baby", color: "bg-green-100 text-green-700" },
+    ],
+    confidence: 97,
+  },
+  {
+    before: "REI • $127.43",
+    pills: [
+      { label: "Outdoor Enthusiast", color: "bg-blue-100 text-blue-700" },
+      { label: "Pre-Summer Trip Planning", color: "bg-purple-100 text-purple-700" },
+      { label: "Loyalty Decay Detected", color: "bg-orange-100 text-orange-700" },
+      { label: "Life Event: Vacation Upcoming", color: "bg-teal-100 text-teal-700" },
+    ],
+    confidence: 94,
+  },
+  {
+    before: "Zillow Premium • $49.99",
+    pills: [
+      { label: "Home Buyer", color: "bg-blue-100 text-blue-700" },
+      { label: "Active Property Search", color: "bg-purple-100 text-purple-700" },
+      { label: "Pre-Purchase Research Phase", color: "bg-orange-100 text-orange-700" },
+      { label: "Life Event: Home Purchase", color: "bg-green-100 text-green-700" },
+    ],
+    confidence: 96,
+  },
+  {
+    before: "AARP • $18.00",
+    pills: [
+      { label: "Pre-Retiree", color: "bg-blue-100 text-blue-700" },
+      { label: "Retirement Planning Active", color: "bg-purple-100 text-purple-700" },
+      { label: "Benefits Research", color: "bg-teal-100 text-teal-700" },
+      { label: "Life Event: Approaching Retirement", color: "bg-green-100 text-green-700" },
+    ],
+    confidence: 93,
+  },
+  {
+    before: "Whole Foods • $210.40",
+    pills: [
+      { label: "Health Conscious", color: "bg-blue-100 text-blue-700" },
+      { label: "Premium Grocery Shopper", color: "bg-purple-100 text-purple-700" },
+      { label: "Wellness Lifestyle", color: "bg-teal-100 text-teal-700" },
+      { label: "High Disposable Income", color: "bg-green-100 text-green-700" },
+    ],
+    confidence: 91,
+  },
+  {
+    before: "United Airlines • $890.00",
+    pills: [
+      { label: "Frequent Traveler", color: "bg-blue-100 text-blue-700" },
+      { label: "Business Travel Pattern", color: "bg-purple-100 text-purple-700" },
+      { label: "Miles Optimizer", color: "bg-orange-100 text-orange-700" },
+      { label: "Life Event: Relocation Possible", color: "bg-teal-100 text-teal-700" },
+    ],
+    confidence: 95,
+  },
 ];
 
 const BeforeAfterAnimation = () => {
-  const [phase, setPhase] = useState<"idle" | "before" | "arrow" | "after" | "done">("idle");
+  const [phase, setPhase] = useState<"idle" | "before" | "arrow" | "after" | "fading">("idle");
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [barWidth, setBarWidth] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  const runSequence = useCallback(() => {
-    setPhase("idle");
-    setBarWidth(0);
-
-    // Before fades in
-    setTimeout(() => setPhase("before"), 100);
-    // Arrow appears
-    setTimeout(() => setPhase("arrow"), 1100);
-    // After slides up
-    setTimeout(() => {
-      setPhase("after");
-      setTimeout(() => setBarWidth(94), 200);
-    }, 1600);
-    // Mark done
-    setTimeout(() => setPhase("done"), 3200);
+  const clearTimeouts = useCallback(() => {
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
   }, []);
 
-  // Auto-loop every 8 seconds
-  useEffect(() => {
-    if (phase === "done") {
-      timerRef.current = setTimeout(() => runSequence(), 5000);
-    }
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [phase, runSequence]);
+  const schedule = useCallback((fn: () => void, ms: number) => {
+    timeoutsRef.current.push(setTimeout(fn, ms));
+  }, []);
 
-  // Intersection observer to trigger on scroll
+  const runCycle = useCallback(
+    (index: number) => {
+      clearTimeouts();
+      setCurrentIndex(index);
+      setPhase("idle");
+      setBarWidth(0);
+
+      schedule(() => setPhase("before"), 100);
+      schedule(() => setPhase("arrow"), 1100);
+      schedule(() => {
+        setPhase("after");
+        setTimeout(() => setBarWidth(examples[index].confidence), 200);
+      }, 1600);
+      // Hold for 3s then fade out
+      schedule(() => setPhase("fading"), 4600);
+      // Start next
+      schedule(() => {
+        const next = (index + 1) % examples.length;
+        runCycle(next);
+      }, 5200);
+    },
+    [clearTimeouts, schedule]
+  );
+
+  const handleReplay = useCallback(() => {
+    runCycle(0);
+  }, [runCycle]);
+
+  // Intersection observer
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          runSequence();
+          runCycle(0);
           observer.disconnect();
         }
       },
       { threshold: 0.3 }
     );
     observer.observe(el);
-    return () => observer.disconnect();
-  }, [runSequence]);
+    return () => {
+      observer.disconnect();
+      clearTimeouts();
+    };
+  }, [runCycle, clearTimeouts]);
 
-  const showBefore = phase !== "idle";
-  const showArrow = phase === "arrow" || phase === "after" || phase === "done";
-  const showAfter = phase === "after" || phase === "done";
+  const example = examples[currentIndex];
+  const showBefore = phase !== "idle" && phase !== "fading";
+  const showArrow = phase === "arrow" || phase === "after";
+  const showAfter = phase === "after";
 
   return (
-    <div ref={sectionRef} className="space-y-4">
+    <div ref={sectionRef} className="space-y-4 relative">
+      {/* Counter */}
+      <p className="absolute -top-1 right-0 text-xs text-gray-400">
+        {currentIndex + 1} of {examples.length}
+      </p>
+
       {/* BEFORE card */}
       <div
         className="rounded-xl p-6 transition-all duration-500"
@@ -74,10 +149,8 @@ const BeforeAfterAnimation = () => {
           transform: showBefore ? "translateY(0)" : "translateY(10px)",
         }}
       >
-        <p className="text-[10px] font-bold tracking-widest text-red-500 uppercase mb-2">
-          Before
-        </p>
-        <p className="text-gray-700 text-lg">"This customer shops at REI"</p>
+        <p className="text-[10px] font-bold tracking-widest text-red-500 uppercase mb-2">Before</p>
+        <p className="text-gray-700 text-lg">"{example.before}"</p>
       </div>
 
       {/* Animated arrow */}
@@ -105,29 +178,22 @@ const BeforeAfterAnimation = () => {
           transform: showAfter ? "translateY(0)" : "translateY(20px)",
         }}
       >
-        <p className="text-[10px] font-bold tracking-widest text-green-400 uppercase mb-3">
-          After
-        </p>
+        <p className="text-[10px] font-bold tracking-widest text-green-400 uppercase mb-3">After</p>
         <div className="flex flex-wrap gap-2 mb-4">
-          {pills.map((p, i) => (
+          {example.pills.map((p, i) => (
             <span
               key={p.label}
               className={`text-xs font-medium px-3 py-1 rounded-full ${p.color} transition-opacity duration-300`}
-              style={{
-                opacity: showAfter ? 1 : 0,
-                transitionDelay: `${i * 100}ms`,
-              }}
+              style={{ opacity: showAfter ? 1 : 0, transitionDelay: `${i * 100}ms` }}
             >
               {p.label}
             </span>
           ))}
         </div>
-
-        {/* Confidence bar */}
         <div className="mt-4">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[11px] text-gray-400">Confidence Score</span>
-            <span className="text-[11px] font-bold text-green-400">94%</span>
+            <span className="text-[11px] font-bold text-green-400">{example.confidence}%</span>
           </div>
           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
@@ -144,7 +210,7 @@ const BeforeAfterAnimation = () => {
       {/* Replay button */}
       <div className="flex justify-center pt-1">
         <button
-          onClick={runSequence}
+          onClick={handleReplay}
           className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
           <RotateCcw className="w-3 h-3" />
