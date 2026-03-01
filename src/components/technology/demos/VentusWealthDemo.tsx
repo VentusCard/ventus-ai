@@ -579,9 +579,10 @@ export default function VentusWealthDemo() {
         .vwm-detail-title { font-weight: 760; font-size: 20px; color: #0f172a; }
         .vwm-detail-client-name { font-size: 15px; color: rgba(15,23,42,.50); margin-top: 2px; }
         .vwm-back-btn {
-          padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700;
+          padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;
           border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
           color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
+          white-space: nowrap; min-height: auto !important; min-width: auto !important;
         }
         .vwm-back-btn:hover { background: rgba(15,23,42,.08); }
         .vwm-detail-body {
