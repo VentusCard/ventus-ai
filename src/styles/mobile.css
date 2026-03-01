@@ -318,10 +318,10 @@
       box-shadow: 0 1px 4px hsla(222, 47%, 3%, 0.25) !important;
     }
 
-    /* Reduce main container horizontal padding */
+    /* Ensure consistent horizontal padding on main containers */
     .px-6 {
-      padding-left: 0.75rem !important;
-      padding-right: 0.75rem !important;
+      padding-left: 1.25rem !important;
+      padding-right: 1.25rem !important;
     }
 
     /* Reduce card content padding for tighter mobile layout */
