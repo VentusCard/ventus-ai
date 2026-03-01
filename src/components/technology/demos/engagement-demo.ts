@@ -249,6 +249,12 @@ export const engagementDemoHtml = `
 </style>
 
 <div class="vx-wrap">
+  <div class="vx-head">
+    <div class="vx-title">Personalized Banking Experience</div>
+    <div class="vx-sub">
+      A profile-centric experience where transaction intelligence organizes lifestyle pillars, curates deals, and adapts discovery by travel and location — in a bank-agnostic way.
+    </div>
+  </div>
 
   <div class="phone-row">
 
