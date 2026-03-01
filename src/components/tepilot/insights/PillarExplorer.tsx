@@ -62,7 +62,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
           return (
             <Card
               key={pillar.pillar}
-              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative ${
+              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative h-full ${
                 isSelected ? 'ring-2 shadow-xl' : ''
               }`}
               style={{
@@ -81,8 +81,8 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                   <budgetInfo.icon className="w-3.5 h-3.5" style={{ color: budgetInfo.color }} />
                 </div>
               )}
-              <CardContent className="p-4">
-                <div className="space-y-3">
+              <CardContent className="p-4 h-full">
+                <div className="flex flex-col h-full gap-3">
                   <div 
                     className="w-full h-1 rounded-full"
                     style={{ backgroundColor: color }}
@@ -112,7 +112,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                     );
                   })()}
                   {/* Mini sparkline */}
-                  <div className="flex items-end gap-0.5 h-6">
+                  <div className="mt-auto flex items-end gap-0.5 h-6">
                     {Array.from({ length: 8 }).map((_, idx) => {
                       const height = Math.random() * 100;
                       return (
