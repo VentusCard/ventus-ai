@@ -88,7 +88,7 @@ const Index = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">Frequently Asked Questions</h2>
             </ScrollReveal>
             <ScrollReveal delay={0.2} className="md:col-span-3">
-              <Accordion type="single" collapsible defaultValue="faq-0" className="w-full">
+              <Accordion type="single" collapsible className="w-full">
                 {[
                   { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
                   { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API." },
