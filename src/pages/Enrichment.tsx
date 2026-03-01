@@ -84,8 +84,8 @@ const Enrichment = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-red-500 uppercase mb-3">The Problem</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
-                MX cleans your data. Plaid connects it.{" "}
-                <span className="text-blue-600">Ventus understands it.</span>
+                Most banks are sitting on the world's most predictive dataset.{" "}
+                <span className="text-blue-600">Almost none of them can read it.</span>
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
@@ -126,9 +126,9 @@ const Enrichment = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-emerald-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Try it yourself.</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
               <p className="text-gray-500 text-lg mb-10 max-w-2xl">
-                Type any transaction below and watch Ventus enrich it in real time.
+                Enter any transaction and watch Ventus process it in real time.
               </p>
             </ScrollReveal>
             <EnrichmentInteractiveDemo />
@@ -136,18 +136,18 @@ const Enrichment = () => {
         </section>
 
         {/* SECTION 5 — CAPABILITIES */}
-        <section className="py-24" style={{ background: "#0a0f1e" }}>
+        <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Capabilities</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-12">
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
                 What Ventus extracts from every transaction.
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
               {capabilities.map((cap, i) => (
                 <ScrollReveal key={cap.title} delay={i * 0.1}>
-                  <div className="rounded-xl p-6 bg-white shadow-lg">
+                  <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
                     <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
                     <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
