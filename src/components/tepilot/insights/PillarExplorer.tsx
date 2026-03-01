@@ -62,7 +62,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
           return (
             <Card
               key={pillar.pillar}
-              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative ${
+              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative h-full ${
                 isSelected ? 'ring-2 shadow-xl' : ''
               }`}
               style={{
