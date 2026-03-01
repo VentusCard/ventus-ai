@@ -35,15 +35,17 @@ const Index = () => {
               ].map((pain, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-3 rounded-xl p-5 border-l-4 border-l-red-500"
+                  className="relative rounded-xl p-5 bg-white shadow-sm"
                   style={{
-                    background: "#f8f9fa",
                     opacity: 0,
                     animation: `slideInFromRight 0.5s ease-out ${i * 0.15}s forwards`,
                   }}
                 >
-                  <span className="text-lg mt-0.5 shrink-0">⚠️</span>
-                  <p className="text-gray-600 leading-relaxed">{pain}</p>
+                  <span className="absolute top-3 left-3 flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                  </span>
+                  <p className="text-gray-600 leading-relaxed pl-4">{pain}</p>
                 </div>
               ))}
             </div>
