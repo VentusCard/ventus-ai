@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -24,6 +24,38 @@ import Wealth from "./pages/Wealth";
 
 const queryClient = new QueryClient();
 
+const AppLayout = () => {
+  const location = useLocation();
+  const isTepilot = location.pathname.startsWith("/tepilot");
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      {!isTepilot && <Navbar />}
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          
+          <Route path="/technology" element={<Technology />} />
+          <Route path="/enrichment" element={<Enrichment />} />
+          <Route path="/smartrewards" element={<SmartRewards />} />
+          <Route path="/engagement" element={<Engagement />} />
+          <Route path="/wealth" element={<Wealth />} />
+          
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/tepilot" element={<TePilot />} />
+          <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
+          <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
+          <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
+          <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      {!isTepilot && <Footer />}
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -31,30 +63,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
-        <div className="min-h-screen bg-white flex flex-col">
-          <Navbar />
-          <div className="flex-1">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              
-              <Route path="/technology" element={<Technology />} />
-              <Route path="/enrichment" element={<Enrichment />} />
-              <Route path="/smartrewards" element={<SmartRewards />} />
-              <Route path="/engagement" element={<Engagement />} />
-              <Route path="/wealth" element={<Wealth />} />
-              
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="/tepilot" element={<TePilot />} />
-              <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
-              <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
-              <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
-              <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-          <Footer />
-        </div>
+        <AppLayout />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

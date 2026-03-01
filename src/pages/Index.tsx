@@ -150,11 +150,8 @@ const Index = () => {
                 Schedule a Demo
               </Button>
             </Link>
-            <p className="text-sm text-gray-400 mt-6">
-              Or explore the{" "}
-              <Link to="/tepilot" className="text-blue-600 hover:underline">live demo</Link>
-              {" "}at ventusai.com/tepilot
-            </p>
+
+
           </div>
         </section>
       </main>
