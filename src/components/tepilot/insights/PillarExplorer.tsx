@@ -241,26 +241,28 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                           return (
                             <div
                               key={`trip-${trip.destination}-${trip.startDate}`}
-                              className={`p-4 rounded-lg bg-purple-50 border cursor-pointer hover:bg-purple-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-purple-200'}`}
+                              className={`flex flex-col h-full p-4 rounded-lg bg-purple-50 border cursor-pointer hover:bg-purple-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-purple-200'}`}
                               onClick={() => setSelectedTripIdx(isSelected ? null : idx)}
                             >
-                              <div className="flex items-center gap-1.5 mb-2">
+                              <div className="flex items-center gap-1.5 mb-1">
                                 <Map className="w-3.5 h-3.5 text-purple-500" />
                                 <p className="font-medium text-sm text-slate-900">{trip.destination}</p>
                               </div>
-                              <p className="text-xl font-bold mb-1 text-slate-900">${trip.totalSpend.toFixed(2)}</p>
-                              <p className="text-xs text-slate-600 mb-1">
+                              <p className="text-xl font-bold text-slate-900">${trip.totalSpend.toFixed(2)}</p>
+                              <p className="text-xs text-slate-600 mt-1">
                                 {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
                               </p>
-                              <div className="flex items-center justify-between text-xs text-slate-600">
-                                <span>{trip.transactions.length} transactions</span>
-                                <span>{percentage.toFixed(1)}% of travel</span>
-                              </div>
-                              <div className="mt-2 h-1.5 bg-purple-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full rounded-full transition-all bg-purple-500"
-                                  style={{ width: `${percentage}%` }}
-                                />
+                              <div className="mt-auto pt-3 space-y-2">
+                                <div className="flex items-center justify-between text-xs text-slate-600">
+                                  <span>{trip.transactions.length} transactions</span>
+                                  <span>{percentage.toFixed(1)}% of travel</span>
+                                </div>
+                                <div className="h-1.5 bg-purple-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all bg-purple-500"
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           );
