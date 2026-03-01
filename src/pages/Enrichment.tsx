@@ -1,5 +1,5 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+
+
 import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -28,8 +28,7 @@ const Enrichment = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div>
       <main className="pt-20 pb-10">
         <section className="py-6 md:py-10">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -131,7 +130,6 @@ const Enrichment = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

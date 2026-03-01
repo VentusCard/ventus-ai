@@ -1,5 +1,5 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+
+
 import AnimatedDemo from "@/components/technology/AnimatedDemo";
 import { engagementDemoHtml } from "@/components/technology/demos/engagement-demo";
 import { Button } from "@/components/ui/button";
@@ -29,8 +29,7 @@ const Engagement = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div>
       <main className="pt-20 pb-10">
         <section className="py-6 md:py-10">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -127,7 +126,6 @@ const Engagement = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

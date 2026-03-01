@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, CheckCircle } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+
+
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const ContactUs = () => {
@@ -52,8 +52,7 @@ ${name}
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div>
       <div className="px-4 md:px-8 pt-24 md:pt-28 pb-12 md:pb-16">
         <div className={`mx-auto relative ${isMobile ? 'max-w-full' : 'max-w-2xl'}`}>
           <Card className="border border-gray-200 bg-white shadow-sm">
@@ -111,7 +110,6 @@ ${name}
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
