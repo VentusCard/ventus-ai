@@ -110,15 +110,14 @@ const Index = () => {
         <ScrollReveal>
           <section className="py-24 bg-white">
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">See It in Action</h2>
-              <p className="text-lg text-gray-500 mb-8">
-                Discover intelligent financial technology that transforms how you manage and grow your wealth.
-              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Your transactions are already telling a story.</h2>
+              <p className="text-lg text-gray-500 mb-8">Ventus helps you listen.</p>
               <Link to="/contact">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                   Schedule a Demo
                 </Button>
               </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
           </section>
         </ScrollReveal>

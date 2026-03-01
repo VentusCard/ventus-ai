@@ -9,7 +9,7 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold tracking-wide mb-4 text-gray-900">VENTUS AI</h3>
             <p className="text-gray-500 text-sm leading-relaxed mb-4">
-              Deeper insights. Smarter engagement. Better outcomes.
+              The transaction intelligence layer for modern financial institutions.
             </p>
             <nav className="flex flex-col gap-2">
               <Link to="/#platform" onClick={(e) => { e.preventDefault(); const el = document.getElementById('platform'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else window.location.href = '/#platform'; }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
