@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
+import { suppressNextScroll } from "@/components/ScrollToTop";
 import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -73,9 +74,9 @@ const Navbar = () => {
       }
     };
     if (location.pathname !== "/") {
-      (window as any).__skipNextScrollToTop = true;
+      suppressNextScroll();
       navigate("/");
-      setTimeout(doScroll, 400);
+      setTimeout(doScroll, 500);
     } else {
       doScroll();
     }
