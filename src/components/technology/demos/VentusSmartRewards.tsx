@@ -889,24 +889,21 @@ export default function VentusSmartRewards() {
         .vsr-mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
         .vsr-fadeIn { animation: vsr-fadeIn .35s ease both; }
         @keyframes vsr-fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        .vsr-scale-wrapper {
-          transform-origin: top center;
-        }
-        @media (max-width: 1024px) {
-          .vsr-scale-wrapper {
-            transform: scale(0.7);
-            margin-bottom: -30%;
-          }
-        }
         @media (max-width: 767px) {
-          .vsr-scale-wrapper {
-            transform: scale(0.5);
-            margin-bottom: -50%;
-          }
+          .vsr-root { padding: 10px; border-radius: 14px; }
+          .vsr-title { font-size: 16px; }
+          .vsr-chip { padding: 6px 8px; font-size: 11px; }
+          .vsr-pill { padding: 7px 9px; font-size: 11px; }
+          .vsr-pill-icon { width: 22px; height: 22px; font-size: 12px; }
+          .vsr-panel { min-height: 250px; max-height: 400px; }
+          .vsr-priority-section { min-height: 300px; max-height: 500px; }
+          .vsr-controls { flex-direction: column; align-items: stretch; }
+          .vsr-ctrl-left { font-size: 11px; }
+          .vsr-ctrl-btns { justify-content: flex-end; }
         }
       `}</style>
 
-      <div className="vsr-scale-wrapper">
+
       <div className="vsr-root" ref={rootRef}>
         {/* Header */}
         <div className="vsr-top">
@@ -1049,7 +1046,6 @@ export default function VentusSmartRewards() {
 
           <div className="vsr-foot">Note: Example data shown for illustration only.</div>
         </div>
-      </div>
       </div>
     </>
   );
