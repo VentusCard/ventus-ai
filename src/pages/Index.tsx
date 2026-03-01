@@ -35,7 +35,7 @@ const Index = () => {
               ].map((pain, i) => (
                 <div
                   key={i}
-                  className="relative rounded-xl p-5 bg-white shadow-sm"
+                  className="relative rounded-xl p-5 bg-white shadow-sm border border-gray-200"
                   style={{
                     opacity: 0,
                     animation: `slideInFromRight 0.5s ease-out ${i * 0.15}s forwards`,
