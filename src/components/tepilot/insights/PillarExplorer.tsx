@@ -233,9 +233,9 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                       {/* Trip cards first when trips view is active */}
                       {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && (() => {
                         const tripsData = groupTransactionsByTrip(transactions);
-                        const totalTravelSpend = tripsData.reduce((sum, t) => sum + t.totalSpend, 0);
+                        const pillarTotalSpend = pillars.find(p => p.pillar === "Travel & Exploration")?.totalSpend || 0;
                         return tripsData.map((trip, idx) => {
-                          const percentage = totalTravelSpend > 0 ? (trip.totalSpend / totalTravelSpend) * 100 : 0;
+                          const percentage = pillarTotalSpend > 0 ? (trip.totalSpend / pillarTotalSpend) * 100 : 0;
                           const days = calculateDays(trip.startDate, trip.endDate);
                           const isSelected = selectedTripIdx === idx;
                           return (
