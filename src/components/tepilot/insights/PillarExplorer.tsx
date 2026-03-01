@@ -100,6 +100,17 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                     <span>{pillar.transactionCount} trans.</span>
                     <span>{percentage.toFixed(1)}%</span>
                   </div>
+                  {pillar.pillar === "Travel & Exploration" && trips.length > 0 && (() => {
+                    const maxShow = 3;
+                    const destinations = trips.slice(0, maxShow).map(t => t.destination);
+                    const remaining = trips.length - maxShow;
+                    const label = destinations.join(', ') + (remaining > 0 ? `, +${remaining} more` : '');
+                    return (
+                      <p className="text-xs font-medium mt-1" style={{ color }}>
+                        {trips.length} {trips.length === 1 ? 'Trip' : 'Trips'}: {label}
+                      </p>
+                    );
+                  })()}
                   {/* Mini sparkline */}
                   <div className="flex items-end gap-0.5 h-6">
                     {Array.from({ length: 8 }).map((_, idx) => {
