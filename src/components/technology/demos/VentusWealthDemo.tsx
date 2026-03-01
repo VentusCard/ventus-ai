@@ -668,12 +668,13 @@ export default function VentusWealthDemo() {
         .vwm-empty-text { font-size: 14px; font-weight: 600; }
         .vwm-empty-sub { font-size: 12px; margin-top: 4px; }
 
-        .vwm-scale-wrapper { transform-origin: top center; }
-        @media (max-width: 1024px) { .vwm-scale-wrapper { transform: scale(0.7); margin-bottom: -30%; } }
-        @media (max-width: 767px) { .vwm-scale-wrapper { transform: scale(0.5); margin-bottom: -50%; } }
+        @media (max-width: 767px) {
+          .vwm-root { padding: 10px; border-radius: 14px; }
+          .vwm-dash-title { font-size: 16px; }
+          .vwm-detail-overlay { padding: 14px; }
+        }
       `}</style>
 
-      <div className="vwm-scale-wrapper">
         <div className="vwm-root">
           {/* Header */}
           <div className="vwm-dashboard-header">
@@ -840,7 +841,6 @@ export default function VentusWealthDemo() {
             </div>
           )}
         </div>
-      </div>
     </>
   );
 }
