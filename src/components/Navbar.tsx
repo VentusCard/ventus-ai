@@ -69,12 +69,11 @@ const Navbar = () => {
       if (el) {
         el.scrollIntoView({ behavior: "smooth" });
       } else {
-        // Element not yet rendered, retry
         setTimeout(doScroll, 150);
       }
     };
     if (location.pathname !== "/") {
-      navigate("/");
+      navigate("/", { state: { skipScroll: true } });
       setTimeout(doScroll, 300);
     } else {
       doScroll();
