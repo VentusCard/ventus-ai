@@ -160,17 +160,33 @@
       overflow-x: hidden;
     }
 
-    /* Better focus states */
+    /* Better focus states — exclude nav */
     input:focus,
     select:focus,
-    button:focus {
+    button:not(nav button):not(nav *):focus {
       outline: 2px solid #3b82f6;
       outline-offset: 2px;
     }
 
-    /* Button active states */
-    button:active {
+    /* Button active states — exclude nav */
+    button:not(nav button):not(nav *):active {
       transform: scale(0.98);
+    }
+
+    /* Reset all nav button overrides */
+    nav button,
+    nav a {
+      min-height: auto !important;
+      min-width: auto !important;
+      font-size: inherit !important;
+      background: transparent;
+    }
+    nav button:focus,
+    nav a:focus {
+      outline: none !important;
+    }
+    nav button:active {
+      transform: none !important;
     }
 
     /* Select elements */
