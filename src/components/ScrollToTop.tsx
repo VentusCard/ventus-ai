@@ -1,22 +1,21 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-let _suppress = false;
-
-export function suppressNextScroll() {
-  _suppress = true;
-}
-
 export default function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
-    if (_suppress) {
-      _suppress = false;
+    const params = new URLSearchParams(search);
+    if (params.has("scrollTo")) {
+      const target = params.get("scrollTo");
+      setTimeout(() => {
+        const el = document.getElementById(target || "");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
       return;
     }
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, search]);
 
   return null;
 }

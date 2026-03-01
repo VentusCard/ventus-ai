@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
-import { suppressNextScroll } from "@/components/ScrollToTop";
 import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -62,23 +61,14 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
     setIsMobileProductsOpen(false);
   };
-
   const scrollToFaq = useCallback(() => {
     closeMobileMenu();
-    const doScroll = () => {
-      const el = document.getElementById("faq");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      } else {
-        setTimeout(doScroll, 150);
-      }
-    };
     if (location.pathname !== "/") {
-      suppressNextScroll();
-      navigate("/");
-      setTimeout(doScroll, 500);
+      // Navigate to /?scrollTo=faq — ScrollToTop will handle the scroll
+      navigate("/?scrollTo=faq");
     } else {
-      doScroll();
+      const el = document.getElementById("faq");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }
   }, [location.pathname, navigate]);
 
