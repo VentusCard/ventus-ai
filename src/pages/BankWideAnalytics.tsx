@@ -149,35 +149,73 @@ const BankWideAnalytics = () => {
                   </div>
                 </div>
 
-                {/* Metric cards */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                {/* 6 Metric cards */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
                   {[
-                    { label: "Total Accounts", value: "120M" },
-                    { label: "Total Annual Spend", value: "$385B" },
-                    { label: "Active Account Rate", value: "78.5%" },
+                    { label: "Total Accounts", value: "120.0M", sub: "Across all products" },
+                    { label: "Unique Users", value: "75.0M", sub: "1.60 avg accounts/user" },
+                    { label: "Total Annual Spend", value: "$385.0B", sub: "$3,208 per account" },
                   ].map((m, i) => (
                     <div
                       key={m.label}
-                      className="rounded-xl px-5 py-4 text-center transition-all duration-700 border border-gray-200"
+                      className="rounded-xl px-4 py-3.5 transition-all duration-700 border border-gray-200"
                       style={{
                         background: "#f8fafc",
                         opacity: demoVisible ? 1 : 0,
                         transform: demoVisible ? "translateY(0)" : "translateY(16px)",
-                        transitionDelay: `${i * 150}ms`,
+                        transitionDelay: `${i * 120}ms`,
                       }}
                     >
-                      <p className="text-gray-900 text-2xl md:text-3xl font-bold">{m.value}</p>
-                      <p className="text-gray-500 text-xs uppercase tracking-wider mt-1">{m.label}</p>
+                      <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
+                      <p className="text-gray-900 text-2xl font-bold">{m.value}</p>
+                      <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  {[
+                    { label: "Active Account Rate", value: "78.5%", sub: "Transacted in last 30 days" },
+                    { label: "Avg Spending per Year", value: "$5,133", sub: "Per user annually" },
+                    { label: "Avg Transactions", value: "42", sub: "Per account/month" },
+                  ].map((m, i) => (
+                    <div
+                      key={m.label}
+                      className="rounded-xl px-4 py-3.5 transition-all duration-700 border border-gray-200"
+                      style={{
+                        background: "#f8fafc",
+                        opacity: demoVisible ? 1 : 0,
+                        transform: demoVisible ? "translateY(0)" : "translateY(16px)",
+                        transitionDelay: `${(i + 3) * 120}ms`,
+                      }}
+                    >
+                      <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
+                      <p className="text-gray-900 text-2xl font-bold">{m.value}</p>
+                      <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
                     </div>
                   ))}
                 </div>
 
+                {/* Divider */}
+                <div className="border-t border-gray-100 mb-6" />
+
                 {/* Spending by pillar */}
-                <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold mb-4">Spending by Lifestyle Pillar</p>
-                <div className="space-y-4 mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-gray-900 text-sm font-bold">Spending Distribution by Lifestyle Pillar</p>
+                    <p className="text-gray-400 text-[11px] mt-0.5">Click any pillar to explore detailed breakdown</p>
+                  </div>
+                  <div
+                    className="text-right transition-all duration-700"
+                    style={{ opacity: demoVisible ? 1 : 0, transitionDelay: "600ms" }}
+                  >
+                    <p className="text-gray-900 text-lg font-bold">$525.7B</p>
+                    <p className="text-gray-400 text-[10px]">Total Spend</p>
+                  </div>
+                </div>
+                <div className="space-y-3.5 mb-6">
                   {pillars.map((p, i) => (
                     <div key={p.label}>
-                      <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center justify-between mb-1">
                         <span className="text-gray-700 text-sm">{p.label}</span>
                         <span className="text-gray-500 text-sm font-semibold">{p.pct}%</span>
                       </div>
@@ -187,26 +225,45 @@ const BankWideAnalytics = () => {
                           style={{
                             width: demoVisible ? `${(p.pct / 25) * 100}%` : "0%",
                             background: p.color,
-                            transitionDelay: `${i * 120 + 400}ms`,
+                            transitionDelay: `${i * 120 + 500}ms`,
                           }}
                         />
                       </div>
                     </div>
                   ))}
                 </div>
+                <p
+                  className="text-gray-500 text-xs mb-8 transition-all duration-700"
+                  style={{ opacity: demoVisible ? 1 : 0, transitionDelay: "1100ms" }}
+                >
+                  <span className="text-blue-600 font-semibold">Travel & Exploration</span> leads at 20.4% of spend. Top 3 pillars = <span className="font-bold text-gray-700">54%</span> of total. <span className="text-orange-500 font-semibold">Financial & Aspirational</span> underperforms — expansion opportunity.
+                </p>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100 mb-6" />
 
                 {/* Revenue opportunity */}
-                <div
-                  className="rounded-xl px-5 py-4 transition-all duration-700 border border-gray-200"
-                  style={{
-                    background: "#f8fafc",
-                    opacity: demoVisible ? 1 : 0,
-                    transform: demoVisible ? "translateY(0)" : "translateY(12px)",
-                    transitionDelay: "1000ms",
-                  }}
-                >
-                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Revenue Opportunity Identified</p>
-                  <p className="text-gray-900 text-xl font-bold">$17.1B <span className="text-gray-500 text-sm font-normal">across 17 merchant partnership categories</span></p>
+                <div className="flex items-center justify-between">
+                  <div
+                    className="transition-all duration-700"
+                    style={{
+                      opacity: demoVisible ? 1 : 0,
+                      transform: demoVisible ? "translateY(0)" : "translateY(12px)",
+                      transitionDelay: "1200ms",
+                    }}
+                  >
+                    <p className="text-gray-900 text-sm font-bold mb-1">Revenue Opportunities & Partner Insights</p>
+                    <p className="text-gray-500 text-xs">
+                      <span className="text-blue-600 font-bold">$17.1B</span> total opportunity with <span className="font-bold text-gray-700">17 merchant partnership pitches</span> ready for negotiation.
+                    </p>
+                  </div>
+                  <div
+                    className="text-right transition-all duration-700"
+                    style={{ opacity: demoVisible ? 1 : 0, transitionDelay: "1300ms" }}
+                  >
+                    <p className="text-gray-900 text-lg font-bold">$38.2B</p>
+                    <p className="text-gray-400 text-[10px]">Cross-Sell Potential</p>
+                  </div>
                 </div>
               </div>
             </div>
