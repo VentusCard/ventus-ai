@@ -169,10 +169,13 @@ const Navbar = () => {
 
 
       {/* Mobile Menu */}
-      <div className={`md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 transition-all duration-300 ${
-        isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
-      }`}>
-        <div className="px-4 py-6 space-y-2">
+      <div
+        className={`md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 transition-all duration-300 ${
+          isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
+        }`}
+        style={{ padding: 0 }}
+      >
+        <div className="py-6 space-y-2" style={{ padding: '1.5rem' }}>
           <button
             onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
             className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100"
@@ -194,9 +197,9 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-          <button onClick={scrollToFaq} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100 w-full text-left" style={{ minHeight: 'auto', minWidth: 'auto', outline: 'none', borderRadius: 0 }}>FAQ</button>
+          <button onClick={scrollToFaq} className="block text-gray-700 hover:text-gray-900 font-medium text-lg py-3 px-2 border-b border-gray-100 w-full text-left" style={{ minHeight: 'auto', minWidth: 'auto', outline: 'none', borderRadius: 0, background: 'transparent', boxShadow: 'none' }}>FAQ</button>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-2">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" style={{ minHeight: 'auto', outline: 'none' }}>Schedule Demo</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" style={{ minHeight: 'auto', outline: 'none', boxShadow: 'none' }}>Schedule Demo</Button>
           </Link>
         </div>
       </div>
