@@ -31,21 +31,20 @@ const EnrichmentPipeline = () => {
         {agents.map((agent, i) => (
           <div key={agent.name} className="flex items-stretch">
             <div
-              className="flex-1 rounded-xl p-4 transition-all duration-700"
+              className="flex-1 rounded-xl p-4 bg-white shadow-sm transition-all duration-700"
               style={{
-                background: "#0a0f1e",
-                border: "1px solid #1e2d4a",
+                borderLeft: "3px solid #2563eb",
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateY(0)" : "translateY(20px)",
                 transitionDelay: `${i * 100}ms`,
               }}
             >
-              <p className="text-blue-400 font-bold text-sm mb-2">{agent.name}</p>
-              <p className="text-gray-400 text-xs leading-relaxed">{agent.desc}</p>
+              <p className="font-bold text-sm mb-2" style={{ color: "#0a0f1e" }}>{agent.name}</p>
+              <p className="text-gray-500 text-xs leading-relaxed">{agent.desc}</p>
             </div>
             {i < agents.length - 1 && (
               <div className="flex items-center px-1">
-                <div className="relative w-6 h-px" style={{ background: "#1e2d4a" }}>
+                <div className="relative w-6 h-px bg-blue-200">
                   <div
                     className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
                     style={{
@@ -66,21 +65,20 @@ const EnrichmentPipeline = () => {
         {agents.map((agent, i) => (
           <div key={agent.name}>
             <div
-              className="rounded-xl p-5 transition-all duration-700"
+              className="rounded-xl p-5 bg-white shadow-sm transition-all duration-700"
               style={{
-                background: "#0a0f1e",
-                border: "1px solid #1e2d4a",
+                borderLeft: "3px solid #2563eb",
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateX(0)" : "translateX(-20px)",
                 transitionDelay: `${i * 100}ms`,
               }}
             >
-              <p className="text-blue-400 font-bold text-sm mb-1">{agent.name}</p>
-              <p className="text-gray-400 text-xs leading-relaxed">{agent.desc}</p>
+              <p className="font-bold text-sm mb-1" style={{ color: "#0a0f1e" }}>{agent.name}</p>
+              <p className="text-gray-500 text-xs leading-relaxed">{agent.desc}</p>
             </div>
             {i < agents.length - 1 && (
               <div className="flex justify-center py-1">
-                <div className="relative w-px h-6" style={{ background: "#1e2d4a" }}>
+                <div className="relative w-px h-6 bg-blue-200">
                   <div
                     className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
                     style={{
