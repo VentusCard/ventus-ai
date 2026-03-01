@@ -27,6 +27,12 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
     pillar: string;
   } | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
+  const [travelViewMode, setTravelViewMode] = useState<"categories" | "trips">("categories");
+
+  // Reset travel view mode when pillar changes
+  useEffect(() => {
+    setTravelViewMode("categories");
+  }, [selectedPillar]);
   
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
