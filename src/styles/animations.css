@@ -109,6 +109,12 @@
   }
 }
 
+@keyframes connector-dot {
+  0% { left: 0%; }
+  50% { left: 100%; }
+  100% { left: 0%; }
+}
+
 @keyframes arrow-glow {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(300%); }
