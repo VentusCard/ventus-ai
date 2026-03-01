@@ -87,9 +87,9 @@ const Enrichment = () => {
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                "Merchant name cleaning tells you where someone spent. It doesn't tell you they're planning a wedding.",
-                "Category labels give you buckets. They don't give you behavioral signals or life stage.",
-                "Without intent detection, you're reacting to customers. Ventus lets you get ahead of them.",
+                "Your rewards team is sending the same catalog to a 28-year-old planning a wedding and a 62-year-old planning retirement.",
+                "A customer just made a $50k down payment. Your wealth advisor found out when they called to complain about fees.",
+                "You can see that someone shops at REI. You cannot see that they are about to book a $4,000 Alaska trip and need travel insurance.",
               ].map((pain, i) => (
                 <ScrollReveal key={i} delay={i * 0.15}>
                   <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100">
@@ -128,7 +128,7 @@ const Enrichment = () => {
                 Four signal layers. Every transaction.
               </h2>
             </ScrollReveal>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               {capabilities.map((cap, i) => (
                 <ScrollReveal key={cap.title} delay={i * 0.1}>
                   <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
