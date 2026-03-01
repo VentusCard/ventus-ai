@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import AnimatedDemo from "@/components/technology/AnimatedDemo";
 import { engagementDemoHtml } from "@/components/technology/demos/engagement-demo";
+import HeroLifestyleCard from "@/components/hero/HeroLifestyleCard";
 import { User, Target, MapPin, Crown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -19,11 +20,6 @@ const integrationSteps = [
   { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
 ];
 
-const lifestyleTiles = [
-  { label: "Travel", stat: "12 trips/yr", color: "#3b82f6" },
-  { label: "Dining", stat: "$840/mo", color: "#8b5cf6" },
-  { label: "Wellness", stat: "6x/week", color: "#10b981" },
-];
 
 const Engagement = () => {
   const [integrationVisible, setIntegrationVisible] = useState(false);
@@ -77,35 +73,9 @@ const Engagement = () => {
                 </Button>
               </div>
             </div>
-            {/* Right column: Lifestyle profile preview card */}
+            {/* Right column: Animated lifestyle profile card */}
             <div className="hidden md:flex justify-center">
-              <div className="w-full max-w-md rounded-2xl p-6" style={{ background: "#111827", border: "1px solid #1e2d4a" }}>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <span className="text-blue-400 font-bold text-sm">JM</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">Jessica Martinez</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider" style={{ background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
-                        ✦ Wellness Explorer
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-3">Lifestyle Signals</p>
-                <div className="space-y-2.5">
-                  {lifestyleTiles.map(tile => (
-                    <div key={tile.label} className="flex items-center justify-between rounded-lg px-4 py-3" style={{ background: "#0a0f1e" }}>
-                      <div className="flex items-center gap-3">
-                        <span className="w-2 h-2 rounded-full" style={{ background: tile.color }} />
-                        <span className="text-white text-sm font-medium">{tile.label}</span>
-                      </div>
-                      <span className="text-gray-400 text-xs font-medium">{tile.stat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <HeroLifestyleCard />
             </div>
           </div>
         </section>

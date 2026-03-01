@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import VentusSmartRewards from "@/components/technology/demos/VentusSmartRewards";
+import HeroRewardsCard from "@/components/hero/HeroRewardsCard";
 import { Users, TrendingUp, Heart, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -70,43 +71,9 @@ const SmartRewards = () => {
                 </Button>
               </div>
             </div>
-            {/* Right column: Static preview card */}
+            {/* Right column: Animated preview card */}
             <div className="hidden md:flex justify-center">
-              <div className="w-full max-w-md rounded-2xl p-6" style={{ background: "#111827", border: "1px solid #1e2d4a" }}>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center">
-                    <span className="text-blue-400 font-bold text-sm">SM</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-sm">Sarah M.</p>
-                    <p className="text-gray-500 text-xs">Premium Checking · Chicago, IL</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {["Outdoor Enthusiast", "Domestic Traveler", "Family"].map(tag => (
-                    <span key={tag} className="px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa" }}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="space-y-3">
-                  {[
-                    { name: "REI 10% Back", match: "96%" },
-                    { name: "Delta Miles 2x", match: "94%" },
-                    { name: "Patagonia 15% Back", match: "91%" },
-                  ].map(offer => (
-                    <div key={offer.name} className="flex items-center justify-between rounded-lg px-4 py-3" style={{ background: "#0a0f1e" }}>
-                      <div>
-                        <p className="text-white text-sm font-medium">{offer.name}</p>
-                        <p className="text-gray-500 text-xs">{offer.match} match</p>
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{ background: "rgba(34,197,94,0.15)", color: "#4ade80" }}>
-                        Matched
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <HeroRewardsCard />
             </div>
           </div>
         </section>
