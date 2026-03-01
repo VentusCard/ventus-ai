@@ -82,7 +82,7 @@ const Enrichment = () => {
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-red-500 uppercase mb-3">The Problem</p>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
                 Most banks are sitting on the world's most predictive dataset.{" "}
                 <span className="text-blue-600">Almost none of them can read it.</span>
@@ -125,7 +125,7 @@ const Enrichment = () => {
         <section id="enrichment-demo" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-emerald-600 uppercase mb-3">See It In Action</p>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
               <p className="text-gray-500 text-lg mb-10 max-w-2xl">
                 Enter any transaction and watch Ventus process it in real time.
