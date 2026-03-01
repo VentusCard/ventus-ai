@@ -32,9 +32,8 @@ const SmartRewards = () => {
       <main className="pt-20 pb-10">
         <section className="py-6 md:py-10">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <Link to="/technology" className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-900 mb-8 transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back to What We Do
-            </Link>
+
+
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
                 <Gift className="w-8 h-8 text-blue-600" />
