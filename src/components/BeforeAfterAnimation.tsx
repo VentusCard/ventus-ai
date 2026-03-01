@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowDown, RotateCcw } from "lucide-react";
+import { ArrowDown, RotateCcw, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const examples = [
   {
@@ -217,6 +218,13 @@ const BeforeAfterAnimation = () => {
             <RotateCcw className="w-3 h-3" />
             Replay
           </button>
+        </div>
+
+        {/* Learn more link */}
+        <div className="flex justify-center pt-3">
+          <Link to="/enrichment" className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+            Learn more about Transaction Enrichment <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </div>
