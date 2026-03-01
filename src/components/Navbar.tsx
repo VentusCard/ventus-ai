@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,18 +49,10 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
-  const isTransparent = isDarkHero && !scrolled && !isMobileMenuOpen;
-
-  useEffect(() => {
-    if (!isDarkHero) { setScrolled(false); return; }
-    const onScroll = () => setScrolled(window.scrollY > 80);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isDarkHero, location.pathname]);
+  const isTransparent = isDarkHero && !isMobileMenuOpen;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => {
@@ -91,12 +83,7 @@ const Navbar = () => {
         {/* Left: Logo + Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img
-              src={ventusLogo}
-              alt="Ventus AI"
-              className="h-6 w-auto transition-all duration-300"
-              style={isTransparent ? { filter: "brightness(0) invert(1)" } : undefined}
-            />
+            <img src={ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
           </Link>
 
           {/* Products dropdown */}
@@ -165,12 +152,7 @@ const Navbar = () => {
 
         {/* Mobile logo */}
         <Link to="/" onClick={closeMobileMenu} className="md:hidden">
-          <img
-            src={ventusLogo}
-            alt="Ventus AI"
-            className="h-6 w-auto transition-all duration-300"
-            style={isTransparent ? { filter: "brightness(0) invert(1)" } : undefined}
-          />
+          <img src={ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
         </Link>
 
         {/* Right: CTA */}
