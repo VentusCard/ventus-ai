@@ -7,6 +7,7 @@ const tabs = [
   {
     label: "Analytics & Targeting",
     heading: "Analytics & Targeting",
+    href: "/analytics",
     description:
       "Portfolio-wide behavioral intelligence across every account and card product. Identify spending gaps, cross-sell opportunities, and revenue leakage before it compounds.",
     capabilities: [
@@ -18,6 +19,7 @@ const tabs = [
   {
     label: "Consumer Rewards",
     heading: "Consumer Rewards",
+    href: "/smartrewards",
     description:
       "Stop showing every customer the same catalog. Ventus matches offers to individuals based on real behavioral signals — life stage, spending velocity, and purchase cycle prediction.",
     capabilities: [
@@ -29,6 +31,7 @@ const tabs = [
   {
     label: "Customer Engagement",
     heading: "Customer Engagement",
+    href: "/engagement",
     description:
       "Hyper-targeted campaigns powered by real behavioral intelligence, not demographics. Reach the right customer at the right life moment across every channel.",
     capabilities: [
@@ -40,6 +43,7 @@ const tabs = [
   {
     label: "Wealth Management Copilot",
     heading: "Wealth Management Copilot",
+    href: "/wealth",
     description:
       "Turn transaction patterns into relationship intelligence. Detect life events before clients mention them and walk into every meeting prepared.",
     capabilities: [
@@ -264,11 +268,16 @@ const PlatformTabs = () => {
                   ))}
                 </ul>
               </div>
-              <Link to="/contact" className="mt-8">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Schedule Demo
-                </Button>
-              </Link>
+              <div className="flex items-center gap-4 mt-8">
+                <Link to="/contact">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Schedule Demo
+                  </Button>
+                </Link>
+                <Link to={tab.href} className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  Learn More →
+                </Link>
+              </div>
             </div>
 
             {/* Right Column — 3/5: Browser Mockup */}
