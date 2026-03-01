@@ -109,9 +109,9 @@
       line-height: 1.5;
     }
 
-    /* Button text optimization */
+    /* Button text optimization — hero/CTA buttons */
     button {
-      font-size: 1rem; /* 16px minimum for buttons */
+      font-size: 0.875rem; /* 14px on mobile */
     }
 
     /* Mobile form improvements */
