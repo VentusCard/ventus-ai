@@ -200,7 +200,21 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
           
           <CardContent className="pt-6">
             {(() => {
-              const subcategories = getSubcategoriesForPillar(selectedPillar, transactions);
+              // When in trips view, exclude trip-associated transactions from subcategory totals to avoid double-counting
+              const isTripsView = selectedPillar === "Travel & Exploration" && travelViewMode === "trips";
+              const tripTransactionSet = new Set<number>();
+              if (isTripsView) {
+                const tripsData = groupTransactionsByTrip(transactions);
+                tripsData.forEach(trip => trip.transactions.forEach((t, i) => {
+                  // Use index in full transactions array to identify
+                  const idx = transactions.indexOf(t);
+                  if (idx >= 0) tripTransactionSet.add(idx);
+                }));
+              }
+              const nonTripTransactions = isTripsView
+                ? transactions.filter((_, idx) => !tripTransactionSet.has(idx))
+                : transactions;
+              const subcategories = getSubcategoriesForPillar(selectedPillar, isTripsView ? nonTripTransactions : transactions);
               const pillarTransactions = transactions.filter(t => t.pillar === selectedPillar);
               const pillarTotal = subcategories.reduce((sum, s) => sum + s.totalSpend, 0);
               
