@@ -66,11 +66,16 @@ const Navbar = () => {
     closeMobileMenu();
     const doScroll = () => {
       const el = document.getElementById("faq");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // Element not yet rendered, retry
+        setTimeout(doScroll, 150);
+      }
     };
     if (location.pathname !== "/") {
       navigate("/");
-      setTimeout(doScroll, 100);
+      setTimeout(doScroll, 300);
     } else {
       doScroll();
     }
