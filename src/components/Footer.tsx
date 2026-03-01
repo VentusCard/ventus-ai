@@ -8,9 +8,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-xl font-bold tracking-wide mb-4 text-gray-900">VENTUS AI</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <p className="text-gray-500 text-sm leading-relaxed mb-4">
               Deeper insights. Smarter engagement. Better outcomes.
             </p>
+            <nav className="flex flex-col gap-2">
+              <Link to="/enrichment" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
+              <Link to="/#faq" onClick={(e) => { e.preventDefault(); const el = document.getElementById('faq'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else window.location.href = '/#faq'; }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">FAQ</Link>
+              <Link to="/contact" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Schedule Demo</Link>
+            </nav>
           </div>
           <div className="md:text-right">
             <h4 className="text-lg font-semibold mb-4 text-gray-900">Get in Touch</h4>
