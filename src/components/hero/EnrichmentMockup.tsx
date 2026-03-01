@@ -1,17 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
+const CYCLE_DURATION = 6000;
+const FILL_DURATION = 1500;
+const FADE_IN_DELAY = 300;
 
 const EnrichmentMockup = () => {
-  const [visible, setVisible] = useState(false);
+  const [cardVisible, setCardVisible] = useState(false);
+  const [phase, setPhase] = useState<"filling" | "visible" | "fading">("filling");
+  const [barWidth, setBarWidth] = useState(0);
+  const [pillsVisible, setPillsVisible] = useState(false);
 
+  // Initial card fade-in
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 500);
+    const timer = setTimeout(() => setCardVisible(true), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Cycle loop
+  const startCycle = useCallback(() => {
+    setPhase("filling");
+    setBarWidth(0);
+    setPillsVisible(false);
+
+    // Fade in pills
+    const t1 = setTimeout(() => setPillsVisible(true), FADE_IN_DELAY);
+    // Start bar fill
+    const t2 = setTimeout(() => setBarWidth(94), FADE_IN_DELAY + 50);
+    // Mark visible
+    const t3 = setTimeout(() => setPhase("visible"), FILL_DURATION + FADE_IN_DELAY);
+    // Start fade out before next cycle
+    const t4 = setTimeout(() => {
+      setPhase("fading");
+      setPillsVisible(false);
+      setBarWidth(0);
+    }, CYCLE_DURATION - 800);
+
+    return [t1, t2, t3, t4];
+  }, []);
+
+  useEffect(() => {
+    if (!cardVisible) return;
+    let timers = startCycle();
+    const interval = setInterval(() => {
+      timers = startCycle();
+    }, CYCLE_DURATION);
+    return () => {
+      timers.forEach(clearTimeout);
+      clearInterval(interval);
+    };
+  }, [cardVisible, startCycle]);
 
   return (
     <div
       className={`transition-all duration-700 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
     >
       <div
@@ -49,10 +91,16 @@ const EnrichmentMockup = () => {
             </div>
           </div>
 
-          {/* Pipeline connector */}
+          {/* Pipeline connector with traveling dot */}
           <div className="flex justify-center">
-            <div className="relative w-px h-10" style={{ background: "#1e2d4a" }}>
-              <div className="absolute inset-x-0 w-full h-4 rounded-full bg-blue-500/60 blur-sm animate-pipeline-glow" />
+            <div className="relative w-px h-12" style={{ background: "#1e2d4a" }}>
+              <div
+                className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full animate-pipeline-dot"
+                style={{
+                  background: "#3b82f6",
+                  boxShadow: "0 0 8px 3px rgba(59,130,246,0.6), 0 0 16px 6px rgba(59,130,246,0.3)",
+                }}
+              />
             </div>
           </div>
 
@@ -62,10 +110,21 @@ const EnrichmentMockup = () => {
               Enriched Output
             </span>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Pill color="blue">Outdoor &amp; Adventure</Pill>
-              <Pill color="purple">Pre-Summer Trip Planning</Pill>
-              <Pill color="orange">Loyalty Decay Detected</Pill>
-              <Pill color="teal">Life Event: Vacation Upcoming</Pill>
+              {[
+                { color: "blue", label: "Outdoor & Adventure" },
+                { color: "purple", label: "Pre-Summer Trip Planning" },
+                { color: "orange", label: "Loyalty Decay Detected" },
+                { color: "teal", label: "Life Event: Vacation Upcoming" },
+              ].map((pill, i) => (
+                <Pill
+                  key={pill.label}
+                  color={pill.color}
+                  visible={pillsVisible}
+                  delay={i * 100}
+                >
+                  {pill.label}
+                </Pill>
+              ))}
             </div>
           </div>
 
@@ -73,14 +132,19 @@ const EnrichmentMockup = () => {
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-[11px] text-gray-400">Confidence Score</span>
-              <span className="text-[11px] font-semibold text-emerald-400 font-mono">94%</span>
+              <span className="text-[11px] font-semibold text-emerald-400 font-mono">
+                {barWidth > 0 ? "94%" : "0%"}
+              </span>
             </div>
             <div className="h-1.5 w-full rounded-full" style={{ background: "#1a2332" }}>
               <div
                 className="h-full rounded-full"
                 style={{
-                  width: "94%",
+                  width: `${barWidth}%`,
                   background: "linear-gradient(90deg, #10b981, #34d399)",
+                  transition: barWidth > 0
+                    ? `width ${FILL_DURATION}ms cubic-bezier(0.16, 1, 0.3, 1)`
+                    : "width 400ms ease-in",
                 }}
               />
             </div>
@@ -88,10 +152,11 @@ const EnrichmentMockup = () => {
 
           {/* Recommendation */}
           <div
-            className="rounded-lg px-3 py-2 text-[11px] text-blue-200 leading-relaxed"
+            className="rounded-lg px-3 py-2 text-[11px] text-blue-200 leading-relaxed transition-opacity duration-500"
             style={{
               background: "rgba(59,130,246,0.08)",
               border: "1px solid rgba(59,130,246,0.25)",
+              opacity: pillsVisible ? 1 : 0,
             }}
           >
             <span className="font-semibold text-blue-400">Recommended Action:</span>{" "}
@@ -110,12 +175,28 @@ const colorMap: Record<string, { bg: string; text: string }> = {
   teal: { bg: "rgba(20,184,166,0.15)", text: "#2dd4bf" },
 };
 
-const Pill = ({ color, children }: { color: string; children: React.ReactNode }) => {
+const Pill = ({
+  color,
+  children,
+  visible,
+  delay,
+}: {
+  color: string;
+  children: React.ReactNode;
+  visible: boolean;
+  delay: number;
+}) => {
   const c = colorMap[color] ?? colorMap.blue;
   return (
     <span
       className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-      style={{ background: c.bg, color: c.text }}
+      style={{
+        background: c.bg,
+        color: c.text,
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(6px)",
+        transition: `opacity 400ms ease-out ${delay}ms, transform 400ms ease-out ${delay}ms`,
+      }}
     >
       {children}
     </span>
