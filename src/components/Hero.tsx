@@ -2,6 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import EnrichmentMockup from "@/components/hero/EnrichmentMockup";
 
+const scrollToPlatform = () => {
+  const el = document.getElementById("platform");
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+};
+
 const Hero = () => {
   return (
     <div className="relative bg-white text-gray-900 flex items-center justify-center overflow-hidden min-h-screen pt-20">
@@ -27,11 +32,9 @@ const Hero = () => {
                   Schedule Demo
                 </Button>
               </Link>
-              <Link to="/technology">
-                <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                  Learn More
-                </Button>
-              </Link>
+              <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" onClick={scrollToPlatform}>
+                Learn More
+              </Button>
             </div>
           </div>
 

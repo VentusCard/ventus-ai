@@ -122,7 +122,7 @@ const Enrichment = () => {
               <Link to="/contact">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
               </Link>
-              <Link to="/technology">
+              <Link to="/#platform">
                 <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Explore All Capabilities</Button>
               </Link>
             </div>
