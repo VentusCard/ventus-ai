@@ -111,7 +111,7 @@
 
     /* Button text optimization — hero/CTA buttons */
     button {
-      font-size: 0.875rem; /* 14px on mobile */
+      font-size: 0.8125rem; /* 13px on mobile */
     }
 
     /* Mobile form improvements */
