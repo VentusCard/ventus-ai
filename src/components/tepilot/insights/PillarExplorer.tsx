@@ -34,6 +34,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
     setTravelViewMode("categories");
   }, [selectedPillar]);
   
+  const trips = groupTransactionsByTrip(transactions);
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
 
