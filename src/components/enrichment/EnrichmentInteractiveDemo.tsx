@@ -8,11 +8,11 @@ const SPINNER_DURATION = 400;
 const AUTO_REPLAY_INTERVAL = 12000;
 
 const transactions = [
-  { desc: "Titleist.com · $58.00 · Online · Feb 22" },
-  { desc: "United Airlines · $412.00 · Online · Feb 28" },
-  { desc: "REI Co-op · $43.20 · Chicago, IL · March 6" },
-  { desc: "Patagonia · $89.00 · Online · March 11" },
-  { desc: "REI #045 · $124.99 · Chicago, IL · March 14" },
+  { desc: "Titleist.com · $58.00 · Feb 22" },
+  { desc: "United Airlines · $412.00 · Feb 28" },
+  { desc: "REI Co-op · $43.20 · Mar 6" },
+  { desc: "Patagonia · $89.00 · Mar 11" },
+  { desc: "REI #045 · $124.99 · Mar 14" },
 ];
 
 const agents = [
