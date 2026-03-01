@@ -127,7 +127,7 @@ const BeforeAfterAnimation = () => {
           <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-3">
             Transaction Feed (Rolling 90 Days)
           </p>
-          <div className="space-y-1 min-h-[100px]">
+          <div className="space-y-1" style={{ height: 120 , overflow: "hidden" }}>
             {visibleTxs.map((tx, i) => (
               <div
                 key={`${tx.merchant}-${tx.date}`}
