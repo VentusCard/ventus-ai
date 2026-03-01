@@ -125,14 +125,49 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
       {/* Expanded Details */}
       {selectedPillar && (
         <Card className="animate-fade-in bg-white border-slate-200">
-          <div className="p-6 flex items-center gap-3 border-b border-slate-200">
+          <div className="p-6 flex items-center gap-3 border-b border-slate-200 flex-wrap">
             <div
               className="w-4 h-4 rounded"
               style={{ backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b" }}
             />
             <h3 className="text-xl font-semibold text-slate-900">{selectedPillar} - Detailed Breakdown</h3>
-            {budgetMode && (
+            
+            {/* Travel view toggle */}
+            {selectedPillar === "Travel & Exploration" && (
+              <ToggleGroup
+                type="single"
+                value={travelViewMode}
+                onValueChange={(val) => { if (val) setTravelViewMode(val as "categories" | "trips"); }}
+                className="ml-auto"
+              >
+                <ToggleGroupItem value="categories" aria-label="Categories view" className="gap-1.5 text-xs px-3">
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  Categories
+                </ToggleGroupItem>
+                <ToggleGroupItem value="trips" aria-label="Trips view" className="gap-1.5 text-xs px-3">
+                  <Map className="w-3.5 h-3.5" />
+                  Trips ({groupTransactionsByTrip(transactions).length})
+                </ToggleGroupItem>
+              </ToggleGroup>
+            )}
+
+            {budgetMode && selectedPillar !== "Travel & Exploration" && (
               <div className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+                <span>Budget: $</span>
+                <Input
+                  type="number"
+                  className="w-24 h-8 text-sm"
+                  value={budgets[selectedPillar] ?? 0}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 0;
+                    setBudgets(prev => ({ ...prev, [selectedPillar]: val }));
+                  }}
+                />
+              </div>
+            )}
+            {budgetMode && selectedPillar === "Travel & Exploration" && (
+              <div className="flex items-center gap-2 text-sm text-slate-600">
                 <span>Budget: $</span>
                 <Input
                   type="number"
