@@ -162,10 +162,10 @@ const WealthPreview = () => (
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
             <span className="text-[11px] text-gray-600">{c.event}</span>
-            <span className="text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+            <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
           </div>
         </div>
-        <button className="text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
+        <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
           Prepare
         </button>
       </div>
