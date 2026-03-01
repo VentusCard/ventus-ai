@@ -119,3 +119,14 @@
 .animate-pipeline-glow {
   animation: pipeline-glow 2s ease-in-out infinite;
 }
+
+@keyframes pipeline-dot {
+  0% { top: -4px; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: calc(100% - 4px); opacity: 0; }
+}
+
+.animate-pipeline-dot {
+  animation: pipeline-dot 2s ease-in-out infinite;
+}
