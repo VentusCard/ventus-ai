@@ -911,8 +911,7 @@ export default function VentusSmartRewards() {
         {/* Header */}
         <div className="vsr-top">
           <div>
-            <div className="vsr-title">Ventus AI Consumer Rewards Personalization</div>
-            <div className="vsr-sub">Customer Profile × (Lifestyle Signals + AI Purchase Analysis) = Deal Personalization</div>
+            <div className="vsr-title">Consumer Rewards — Live Demo</div>
           </div>
         </div>
 
