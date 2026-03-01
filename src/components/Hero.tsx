@@ -10,10 +10,10 @@ const scrollToPlatform = () => {
 const Hero = () => {
   return (
     <div className="relative bg-white text-gray-900 flex items-center justify-center overflow-hidden min-h-screen pt-10">
-      <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-indigo-300/8 rounded-full blur-[130px] pointer-events-none" />
+      <div className="hidden lg:block absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="hidden lg:block absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-indigo-300/8 rounded-full blur-[130px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 w-full">
+      <div className="max-w-7xl mx-auto px-5 md:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left column — headline & CTAs */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">

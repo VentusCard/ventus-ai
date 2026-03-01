@@ -81,7 +81,7 @@ const Navbar = () => {
 
   return (
     <div className={`absolute top-0 left-0 right-0 z-50 transition-colors duration-300 ${isTransparent ? "bg-[#0a0f1e]" : "bg-white"}`}>
-      <div className="flex h-16 items-center justify-between px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="flex h-16 items-center justify-between px-5 md:px-8 max-w-7xl mx-auto w-full">
         {/* Left: Logo + Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
