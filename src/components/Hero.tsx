@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div className="relative bg-white text-gray-900 flex items-center justify-center overflow-hidden min-h-screen pt-20">
-      {/* Aurora blob effects - contained to center */}
       <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-indigo-300/8 rounded-full blur-[130px] pointer-events-none" />
 
@@ -16,7 +15,7 @@ const Hero = () => {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            Beyond basic enrichment — interpreting transaction data to reveal consumer intent, behavior, and life events
+            Banks sit on the most valuable behavioral data in the world. Ventus transforms it into lifestyle signals, intent detection, and life event intelligence — without touching core infrastructure.
           </p>
 
           <div className="flex items-center gap-4 mt-4">
@@ -25,19 +24,12 @@ const Hero = () => {
                 Schedule Demo
               </Button>
             </Link>
-            <Link to="/technology">
+            <Link to="/tepilot">
               <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                Learn More
+                View Live Demo
               </Button>
             </Link>
           </div>
-        </div>
-
-        {/* Credibility bar */}
-        <div className="mt-20 border-t border-gray-200 pt-6">
-          <p className="text-sm text-gray-400 tracking-wide uppercase">
-            Trusted by top 10 US financial institutions
-          </p>
         </div>
       </div>
     </div>
