@@ -165,7 +165,7 @@ const EnrichmentInteractiveDemo = () => {
             {visibleTxs.map((tx, i) => (
               <div
                 key={i}
-                className="font-mono text-sm text-gray-700 px-3 py-1.5 rounded transition-all duration-300"
+                className="font-mono text-xs md:text-sm text-gray-700 px-3 py-1.5 rounded transition-all duration-300 truncate"
                 style={{
                   background: i === visibleTxs.length - 1 ? "rgba(59,130,246,0.06)" : "transparent",
                   animation: "fade-in 0.4s ease-out",
@@ -178,7 +178,7 @@ const EnrichmentInteractiveDemo = () => {
               </div>
             ))}
             {streamedTxCount === 0 && (
-              <div className="font-mono text-sm text-gray-400 px-3 py-1.5">
+              <div className="font-mono text-xs md:text-sm text-gray-400 px-3 py-1.5">
                 Streaming transactions...
               </div>
             )}
@@ -213,7 +213,7 @@ const EnrichmentInteractiveDemo = () => {
               )}
 
               <div
-                className="rounded-xl p-5 transition-all duration-500 border-2"
+                className="rounded-xl p-4 md:p-5 transition-all duration-500 border-2"
                 style={{
                   background: isDone ? "#ffffff" : "#f9fafb",
                   borderColor: state === "loading" ? "#3b82f6" : isDone ? "#3b82f6" : "#e5e7eb",
@@ -223,30 +223,32 @@ const EnrichmentInteractiveDemo = () => {
                   opacity: state === "inactive" ? 0.5 : 1,
                 }}
               >
-                <div className="flex items-center gap-3 mb-1">
-                  <div
-                    className="flex items-center justify-center w-6 h-6 rounded-full shrink-0 transition-colors duration-300"
-                    style={{
-                      background: isDone ? "#dcfce7" : state === "loading" ? "#dbeafe" : "#f3f4f6",
-                    }}
-                  >
-                    {state === "loading" && <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />}
-                    {isDone && <Check className="w-3.5 h-3.5 text-emerald-600" />}
-                    {state === "inactive" && <span className="w-2 h-2 rounded-full bg-gray-300" />}
+                <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-1 flex-wrap">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div
+                      className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full shrink-0 transition-colors duration-300"
+                      style={{
+                        background: isDone ? "#dcfce7" : state === "loading" ? "#dbeafe" : "#f3f4f6",
+                      }}
+                    >
+                      {state === "loading" && <Loader2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500 animate-spin" />}
+                      {isDone && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />}
+                      {state === "inactive" && <span className="w-2 h-2 rounded-full bg-gray-300" />}
+                    </div>
+                    <p className="font-bold text-xs sm:text-sm" style={{ color: "#0a0f1e" }}>{agent.name}</p>
                   </div>
-                  <p className="font-bold text-sm" style={{ color: "#0a0f1e" }}>{agent.name}</p>
                   {isDone && (
                     <span
-                      className="ml-auto inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-medium whitespace-nowrap"
                       style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}
                     >
-                      Analyzed {streamedTxCount} transactions
+                      Analyzed {streamedTxCount} txns
                     </span>
                   )}
                 </div>
-                <p className="text-gray-500 text-xs ml-9 mb-1">{agent.desc}</p>
+                <p className="text-gray-500 text-[11px] sm:text-xs ml-7 sm:ml-9 mb-1">{agent.desc}</p>
                 {isDone && (
-                  <div className="ml-9 mt-2 animate-fade-in">
+                  <div className="ml-7 sm:ml-9 mt-2 animate-fade-in">
                     <span
                       className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium"
                       style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e" }}

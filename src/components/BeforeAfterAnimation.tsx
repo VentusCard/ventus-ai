@@ -131,7 +131,7 @@ const BeforeAfterAnimation = () => {
             {visibleTxs.map((tx, i) => (
               <div
                 key={`${tx.merchant}-${tx.date}`}
-                className="font-mono text-sm text-gray-700 px-3 py-1.5 rounded transition-all duration-300"
+                className="font-mono text-xs sm:text-sm text-gray-700 px-3 py-1.5 rounded transition-all duration-300 truncate"
                 style={{
                   background: i === visibleTxs.length - 1 ? "rgba(59,130,246,0.06)" : "transparent",
                   animation: i === visibleTxs.length - 1 ? "fade-in 0.4s ease-out" : undefined,
