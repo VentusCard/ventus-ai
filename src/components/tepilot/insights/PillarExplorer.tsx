@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
+import { formatDateRange, calculateDays } from "./TravelTimeline";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { useState, useCallback, useEffect } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
