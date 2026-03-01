@@ -17,19 +17,34 @@ const Index = () => {
         {/* Problem Section */}
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-2 gap-16 items-start">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
-              Traditional enrichment tells you what happened.{" "}
-              <span className="text-blue-600">Ventus tells you what it means.</span>
-            </h2>
-            <div className="space-y-0">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
+                Traditional enrichment tells you what happened.{" "}
+                <span className="text-blue-600">Ventus tells you what it means.</span>
+              </h2>
+              <p className="text-gray-500 mt-4 text-lg">
+                Banks are sitting on the most predictive dataset in the world. Most are doing almost nothing with it.
+              </p>
+            </div>
+            <div className="space-y-4">
               {[
                 "Rewards catalogs show every customer the same deals. Redemption rates stay at 2%.",
                 "Life events go undetected until customers tell you. By then someone else is already there.",
                 "Wealth advisors walk into client meetings without knowing their client just put a deposit at a hospital.",
               ].map((pain, i) => (
-                <p key={i} className={`text-gray-500 text-lg leading-relaxed py-5 ${i < 2 ? "border-b border-gray-200" : ""}`}>
-                  {pain}
-                </p>
+                <div
+                  key={i}
+                  className="flex items-start gap-3 rounded-xl p-5 border-l-4 border-l-red-500"
+                  style={{
+                    background: "#f8f9fa",
+                    opacity: 0,
+                    animation: `slideInFromRight 0.5s ease-out ${i * 0.15}s forwards`,
+                  }}
+                >
+                  <span className="text-lg mt-0.5 shrink-0">⚠️</span>
+                  <p className="text-gray-600 leading-relaxed">{pain}</p>
+                </div>
               ))}
             </div>
           </div>
