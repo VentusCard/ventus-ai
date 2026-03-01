@@ -108,3 +108,14 @@
     display: none;
   }
 }
+
+@keyframes pipeline-glow {
+  0% { transform: translateY(-100%); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(250%); opacity: 0; }
+}
+
+.animate-pipeline-glow {
+  animation: pipeline-glow 2s ease-in-out infinite;
+}
