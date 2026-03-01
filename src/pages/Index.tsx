@@ -87,7 +87,7 @@ const Index = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-14">Plug in. No infrastructure changes.</h2>
             <div className="grid md:grid-cols-3 gap-12">
               {[
-                { step: "01", title: "Connect", desc: "Bank drops transaction data via secure AWS S3. No changes to core banking systems." },
+                { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
                 { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
                 { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
               ].map((s) => (
@@ -124,8 +124,8 @@ const Index = () => {
             <Accordion type="single" collapsible className="w-full">
               {[
                 { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
-                { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data to our AWS pipeline and receive enriched intelligence through a simple API." },
-                { q: "Is our data secure?", a: "Yes. Ventus runs on AWS with SOC 2 compliant infrastructure, VPC isolation, end-to-end encryption, and full audit logging." },
+                { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API." },
+                { q: "Is our data secure?", a: "Yes. Ventus operates on SOC 2 compliant infrastructure with VPC isolation, end-to-end encryption, and full audit logging." },
                 { q: "Who is Ventus for?", a: "Built for banks and financial institutions — specifically digital banking teams, rewards and loyalty teams, and wealth management divisions." },
                 { q: "How is Ventus different from MX or Plaid?", a: "MX and Plaid clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
               ].map((faq, i) => (
