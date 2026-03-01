@@ -13,7 +13,7 @@ const coreProduct = {
 
 const insightTools = [
   {
-    title: "Analytics & Targeting",
+    title: "Bank-Wide Analytics",
     desc: "Portfolio-level intelligence with behavioral segmentation and campaign targeting.",
     icon: BarChart3,
     href: "/analytics",

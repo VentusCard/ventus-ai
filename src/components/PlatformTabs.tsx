@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 
 const tabs = [
   {
-    label: "Analytics & Targeting",
-    heading: "Analytics & Targeting",
+    label: "Bank-Wide Analytics",
+    heading: "Bank-Wide Analytics",
     href: "/analytics",
     description:
       "Portfolio-wide behavioral intelligence across every account and card product. Identify spending gaps, cross-sell opportunities, and revenue leakage before it compounds.",
