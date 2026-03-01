@@ -24,9 +24,9 @@ const Hero = () => {
                 Schedule Demo
               </Button>
             </Link>
-            <Link to="/tepilot">
+            <Link to="/technology">
               <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                View Live Demo
+                Learn More
               </Button>
             </Link>
           </div>
