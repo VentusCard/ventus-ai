@@ -56,7 +56,7 @@ export const engagementDemoHtml = `
   .bottomnav{
     position:absolute; left:0; right:0; bottom:0;
     border-top:1px solid rgba(15,23,42,.08);
-    background:rgba(255,255,255,.90);
+    background:rgba(255,255,255,1);
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
     padding:10px 10px 12px;

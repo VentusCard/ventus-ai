@@ -61,18 +61,14 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
     setIsMobileProductsOpen(false);
   };
-
   const scrollToFaq = useCallback(() => {
     closeMobileMenu();
-    const doScroll = () => {
+    if (location.pathname !== "/") {
+      // Navigate to /?scrollTo=faq — ScrollToTop will handle the scroll
+      navigate("/?scrollTo=faq");
+    } else {
       const el = document.getElementById("faq");
       if (el) el.scrollIntoView({ behavior: "smooth" });
-    };
-    if (location.pathname !== "/") {
-      navigate("/");
-      setTimeout(doScroll, 100);
-    } else {
-      doScroll();
     }
   }, [location.pathname, navigate]);
 
