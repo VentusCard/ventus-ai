@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Calendar, Hash, MapPin } from "lucide-react";
+import { getSourceColor } from "@/lib/sampleData";
 
 interface PreviewTableProps {
   transactions: Transaction[];
