@@ -135,17 +135,17 @@ const BankWideAnalytics = () => {
             </ScrollReveal>
 
             {/* Demo panel */}
-            <div ref={demoRef} className="rounded-2xl overflow-hidden border border-gray-200" style={{ background: "#0a0f1e" }}>
+            <div ref={demoRef} className="rounded-2xl overflow-hidden border border-gray-200 bg-white">
               <div className="p-6 md:p-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-white text-lg font-bold">Institution Intelligence Dashboard</h3>
+                  <h3 className="text-gray-900 text-lg font-bold">Institution Intelligence Dashboard</h3>
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-400 text-[11px] font-semibold">Live</span>
+                    <span className="text-green-600 text-[11px] font-semibold">Live</span>
                   </div>
                 </div>
 
@@ -158,16 +158,15 @@ const BankWideAnalytics = () => {
                   ].map((m, i) => (
                     <div
                       key={m.label}
-                      className="rounded-xl px-5 py-4 text-center transition-all duration-700"
+                      className="rounded-xl px-5 py-4 text-center transition-all duration-700 border border-gray-200"
                       style={{
-                        background: "#111827",
-                        border: "1px solid #1e2d4a",
+                        background: "#f8fafc",
                         opacity: demoVisible ? 1 : 0,
                         transform: demoVisible ? "translateY(0)" : "translateY(16px)",
                         transitionDelay: `${i * 150}ms`,
                       }}
                     >
-                      <p className="text-white text-2xl md:text-3xl font-bold">{m.value}</p>
+                      <p className="text-gray-900 text-2xl md:text-3xl font-bold">{m.value}</p>
                       <p className="text-gray-500 text-xs uppercase tracking-wider mt-1">{m.label}</p>
                     </div>
                   ))}
@@ -179,10 +178,10 @@ const BankWideAnalytics = () => {
                   {pillars.map((p, i) => (
                     <div key={p.label}>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-gray-300 text-sm">{p.label}</span>
-                        <span className="text-gray-400 text-sm font-semibold">{p.pct}%</span>
+                        <span className="text-gray-700 text-sm">{p.label}</span>
+                        <span className="text-gray-500 text-sm font-semibold">{p.pct}%</span>
                       </div>
-                      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#1e2d4a" }}>
+                      <div className="h-2 rounded-full overflow-hidden bg-gray-100">
                         <div
                           className="h-full rounded-full transition-all duration-1000"
                           style={{
@@ -198,17 +197,16 @@ const BankWideAnalytics = () => {
 
                 {/* Revenue opportunity */}
                 <div
-                  className="rounded-xl px-5 py-4 transition-all duration-700"
+                  className="rounded-xl px-5 py-4 transition-all duration-700 border border-gray-200"
                   style={{
-                    background: "#111827",
-                    border: "1px solid #1e2d4a",
+                    background: "#f8fafc",
                     opacity: demoVisible ? 1 : 0,
                     transform: demoVisible ? "translateY(0)" : "translateY(12px)",
                     transitionDelay: "1000ms",
                   }}
                 >
-                  <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Revenue Opportunity Identified</p>
-                  <p className="text-white text-xl font-bold">$17.1B <span className="text-gray-500 text-sm font-normal">across 17 merchant partnership categories</span></p>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Revenue Opportunity Identified</p>
+                  <p className="text-gray-900 text-xl font-bold">$17.1B <span className="text-gray-500 text-sm font-normal">across 17 merchant partnership categories</span></p>
                 </div>
               </div>
             </div>
