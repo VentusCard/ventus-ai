@@ -65,7 +65,7 @@ ${name}
 
   return (
     <div>
-      <main className="pt-20">
+      <main className="pt-32">
         {/* Two-column: Trust + Form */}
         <section className="py-8 md:py-14 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
