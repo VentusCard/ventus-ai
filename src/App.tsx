@@ -21,6 +21,7 @@ import Enrichment from "./pages/Enrichment";
 import SmartRewards from "./pages/SmartRewards";
 import Engagement from "./pages/Engagement";
 import Wealth from "./pages/Wealth";
+import BankWideAnalytics from "./pages/BankWideAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const AppLayout = () => {
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
           <Route path="/wealth" element={<Wealth />} />
+          <Route path="/analytics" element={<BankWideAnalytics />} />
           
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/tepilot" element={<TePilot />} />
