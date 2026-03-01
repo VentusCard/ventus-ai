@@ -7,6 +7,7 @@ export interface Transaction {
   date: string;
   zip_code?: string;
   home_zip?: string;
+  source?: string;
 }
 
 export interface EnrichedTransaction extends Transaction {

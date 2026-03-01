@@ -172,6 +172,17 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
+                      {transactions.some(t => t.source) && (
+                        <TableCell>
+                          {transaction.source ? (
+                            <Badge variant="outline" className="text-xs font-medium text-slate-600 border-slate-300 whitespace-nowrap">
+                              {transaction.source}
+                            </Badge>
+                          ) : (
+                            <span className="text-slate-400 text-sm">—</span>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell>
                         <Badge
                           variant="outline"

@@ -521,6 +521,7 @@ function validateTransaction(row: any, headerMap: Record<string, string>, index:
       date: parsedDate,
       zip_code: zip_code || undefined,
       home_zip: finalHomeZip || undefined,
+      source: source || undefined,
     };
   } catch (error) {
     console.warn(`Row ${index + 1}: Validation failed - ${error.message}`);

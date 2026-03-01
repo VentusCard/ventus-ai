@@ -92,7 +92,8 @@ export function detectColumns(headers: string[]): {
     date: null,
     mcc: null,
     transaction_id: null,
-    zip_code: null
+    zip_code: null,
+    source: null
   };
   
   const confidence: Record<string, number> = {};
