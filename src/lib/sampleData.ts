@@ -376,85 +376,85 @@ txn_s077,AUSTIN OB GYN ASSOCIATES,Prenatal checkup,8011,350.00,2025-10-05,78701,
 txn_s078,POTTERY BARN KIDS,Nursery decor and bedding,5712,485.00,2025-10-08,78701,Cashback Card
 `;
 
-export const SAMPLE_CSV_FOOD_HOME = `transaction_id,merchant_name,description,mcc,amount,date,zip_code
-txn_h001,GIBSONS BAR & STEAKHOUSE,Anniversary dinner,5812,287.50,2025-08-15,60614
-txn_h002,WHOLE FOODS MARKET,Weekly grocery shopping,5411,167.89,2025-08-15,60614
-txn_h003,HOME DEPOT,Kitchen cabinet hardware,5211,156.78,2025-08-16,60614
-txn_h004,MARIANO'S,Large grocery haul,5411,234.56,2025-08-16,60614
-txn_h005,STARBUCKS COFFEE,Morning coffee routine,5814,6.75,2025-08-17,60614
-txn_h006,UBER EATS,Dinner delivery,5814,45.30,2025-08-17,60614
-txn_h007,MENARDS,Home improvement supplies,5211,198.90,2025-08-18,60614
-txn_h008,PORTILLOS HOT DOGS,Chicago classic lunch,5814,18.45,2025-08-18,60614
-txn_h009,TRADER JOES,Specialty groceries,5411,89.23,2025-08-19,60614
-txn_h010,NETFLIX,Monthly subscription,4899,15.99,2025-08-15,
-txn_h011,TARGET,Home décor and essentials,5411,145.67,2025-08-19,60614
-txn_h012,LOU MALNATIS PIZZERIA,Deep dish pizza dinner,5812,67.50,2025-08-20,60614
-txn_h013,LOWE'S,Garden tools and plants,5211,124.30,2025-08-20,60657
-txn_h014,PANERA BREAD,Lunch and coffee,5814,16.90,2025-08-21,60614
-txn_h015,COSTCO WHOLESALE,Bulk grocery shopping,5411,298.76,2025-08-21,60614
-txn_h016,SHELL,Gas fill-up,5541,52.30,2025-08-22,60614
-txn_h017,CRATE AND BARREL,Living room pillows,5712,156.50,2025-08-22,60614
-txn_h018,WHOLE FOODS MARKET,Organic produce,5411,124.56,2025-08-23,60614
-txn_h019,DOORDASH,Late night food delivery,5814,38.60,2025-08-23,60614
-txn_h020,ACE HARDWARE,Plumbing supplies,5251,67.80,2025-08-24,60614
-txn_h021,CHIPOTLE MEXICAN GRILL,Quick lunch,5814,12.75,2025-08-24,60614
-txn_h022,WEST ELM,Bedroom furniture,5712,567.90,2025-08-25,60610
-txn_h023,MARIANO'S,Weekly groceries,5411,178.45,2025-08-25,60614
-txn_h024,RPM ITALIAN,Date night dinner,5812,198.75,2025-08-26,60610
-txn_h025,HOME DEPOT,Power tools,5211,234.99,2025-08-26,60614
-txn_h026,HULU,Monthly subscription,4899,14.99,2025-08-15,
-txn_h027,STARBUCKS COFFEE,Coffee run,5814,7.25,2025-08-27,60614
-txn_h028,TRADER JOES,Grocery shopping,5411,95.67,2025-08-27,60614
-txn_h029,GRUBHUB,Lunch delivery,5814,28.40,2025-08-28,60614
-txn_h030,COMED,Electric utility bill,4900,145.67,2025-08-28,60614
-txn_h031,IKEA,Dining room furniture,5712,445.00,2025-08-29,60126
-txn_h032,WHOLE FOODS MARKET,Specialty items,5411,134.90,2025-08-29,60614
-txn_h033,PEQUODS PIZZA,Weekend dinner,5812,54.30,2025-08-30,60614
-txn_h034,BP,Gas station,5541,48.70,2025-08-30,60614
-txn_h035,HOMEGOODS,Bathroom accessories,5714,89.50,2025-08-31,60614
-txn_h036,MARIANO'S,Weekly grocery run,5411,187.34,2025-08-31,60614
-txn_h037,PEOPLES GAS,Gas utility bill,4900,89.45,2025-09-01,60614
-txn_h038,PANERA BREAD,Breakfast and coffee,5814,13.60,2025-09-01,60614
-txn_h039,BEST BUY,Kitchen appliances,5722,567.89,2025-09-02,60614
-txn_h040,UBER EATS,Dinner delivery,5814,42.30,2025-09-02,60614
-txn_h041,GIRL AND THE GOAT,Celebration dinner,5812,234.50,2025-09-03,60607
-txn_h042,TARGET,Household supplies,5411,98.45,2025-09-03,60614
-txn_h043,HELLOFRESH,Weekly meal kit delivery,5814,89.94,2025-09-04,
-txn_h044,STARBUCKS COFFEE,Morning coffee,5814,6.95,2025-09-04,60614
-txn_h045,HOME DEPOT,Bathroom renovation supplies,5211,456.78,2025-09-05,60614
-txn_h046,WHOLE FOODS MARKET,Organic groceries,5411,156.78,2025-09-05,60614
-txn_h047,COSTCO WHOLESALE,Monthly bulk shopping,5411,312.45,2025-09-06,60614
-txn_h048,ROTO-ROOTER,Plumbing service call,1711,285.00,2025-09-06,60614
-txn_h049,CHIPOTLE MEXICAN GRILL,Lunch,5814,14.25,2025-09-07,60614
-txn_h050,CB2,Modern furniture pieces,5712,389.00,2025-09-07,60614
-txn_h051,MARIANO'S,Weekly groceries,5411,167.89,2025-09-08,60614
-txn_h052,DOORDASH,Lunch delivery,5814,32.75,2025-09-08,60614
-txn_h053,SPOTIFY,Premium subscription,4899,10.99,2025-09-08,
-txn_h054,LOWE'S,Outdoor patio furniture,5211,678.90,2025-09-09,60657
-txn_h055,PORTILLOS,Quick dinner,5814,24.50,2025-09-09,60614
-txn_h056,TRADER JOES,Specialty groceries,5411,102.34,2025-09-10,60614
-txn_h057,MARATHON,Gas fill-up,5541,51.20,2025-09-10,60614
-txn_h058,STANLEY STEEMER,Carpet cleaning service,7217,195.00,2025-09-11,60614
-txn_h059,WHOLE FOODS MARKET,Weekly shopping,5411,178.90,2025-09-11,60614
-txn_h060,AMAZON PRIME,Annual membership renewal,5999,139.00,2025-09-11,
-txn_h061,HOME DEPOT,Washer and dryer,5722,1289.00,2025-09-12,60614
-txn_h062,LOU MALNATIS PIZZERIA,Family dinner,5812,89.40,2025-09-12,60614
-txn_h063,CVS PHARMACY,Household items,5912,34.67,2025-09-13,60614
-txn_h064,PANERA BREAD,Lunch meeting,5814,22.80,2025-09-13,60614
-txn_h065,WAYFAIR,Online furniture purchase,5712,445.67,2025-09-14,
-txn_h066,COSTCO WHOLESALE,Bulk food items,5411,245.78,2025-09-14,60614
-txn_h067,ULTA BEAUTY,Personal care items,5977,87.50,2025-09-15,60614
-txn_h068,STARBUCKS COFFEE,Coffee and pastry,5814,9.45,2025-09-15,60614
-txn_h069,MARIANO'S,Weekly grocery shopping,5411,189.56,2025-09-16,60614
-txn_h070,GRUBHUB,Dinner delivery,5814,51.30,2025-09-16,60614
-txn_h071,WALGREENS,Pharmacy and sundries,5912,28.90,2025-09-17,60614
-txn_h072,AMC THEATRES,Movie night,7832,42.00,2025-09-17,60610
-txn_h073,MUSIC BOX THEATRE,Indie film tickets,7832,28.00,2025-09-18,60614
-txn_h074,WHOLE FOODS MARKET,Final weekly groceries,5411,167.34,2025-09-19,60614
-txn_h075,ETSY,Handmade home décor,5969,78.25,2025-09-19,
-txn_h076,GUARANTEED RATE MORTGAGE,Pre-approval application fee,6163,500.00,2025-10-03,60601
-txn_h077,CHICAGO HOME INSPECTIONS,Home inspection service,7389,450.00,2025-10-08,60614
-txn_h078,CHICAGO TITLE COMPANY,Title search and escrow,6411,1200.00,2025-10-12,60601
+export const SAMPLE_CSV_FOOD_HOME = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
+txn_h001,GIBSONS BAR & STEAKHOUSE,Anniversary dinner,5812,287.50,2025-08-15,60614,Premium Card
+txn_h002,WHOLE FOODS MARKET,Weekly grocery shopping,5411,167.89,2025-08-15,60614,Cashback Card
+txn_h003,HOME DEPOT,Kitchen cabinet hardware,5211,156.78,2025-08-16,60614,Checking
+txn_h004,MARIANO'S,Large grocery haul,5411,234.56,2025-08-16,60614,Cashback Card
+txn_h005,STARBUCKS COFFEE,Morning coffee routine,5814,6.75,2025-08-17,60614,Cashback Card
+txn_h006,UBER EATS,Dinner delivery,5814,45.30,2025-08-17,60614,Cashback Card
+txn_h007,MENARDS,Home improvement supplies,5211,198.90,2025-08-18,60614,Checking
+txn_h008,PORTILLOS HOT DOGS,Chicago classic lunch,5814,18.45,2025-08-18,60614,Cashback Card
+txn_h009,TRADER JOES,Specialty groceries,5411,89.23,2025-08-19,60614,Cashback Card
+txn_h010,NETFLIX,Monthly subscription,4899,15.99,2025-08-15,,Cashback Card
+txn_h011,TARGET,Home décor and essentials,5411,145.67,2025-08-19,60614,Cashback Card
+txn_h012,LOU MALNATIS PIZZERIA,Deep dish pizza dinner,5812,67.50,2025-08-20,60614,Travel Card
+txn_h013,LOWE'S,Garden tools and plants,5211,124.30,2025-08-20,60657,Checking
+txn_h014,PANERA BREAD,Lunch and coffee,5814,16.90,2025-08-21,60614,Cashback Card
+txn_h015,COSTCO WHOLESALE,Bulk grocery shopping,5411,298.76,2025-08-21,60614,Cashback Card
+txn_h016,SHELL,Gas fill-up,5541,52.30,2025-08-22,60614,Cashback Card
+txn_h017,CRATE AND BARREL,Living room pillows,5712,156.50,2025-08-22,60614,Premium Card
+txn_h018,WHOLE FOODS MARKET,Organic produce,5411,124.56,2025-08-23,60614,Cashback Card
+txn_h019,DOORDASH,Late night food delivery,5814,38.60,2025-08-23,60614,Cashback Card
+txn_h020,ACE HARDWARE,Plumbing supplies,5251,67.80,2025-08-24,60614,Checking
+txn_h021,CHIPOTLE MEXICAN GRILL,Quick lunch,5814,12.75,2025-08-24,60614,Cashback Card
+txn_h022,WEST ELM,Bedroom furniture,5712,567.90,2025-08-25,60610,Premium Card
+txn_h023,MARIANO'S,Weekly groceries,5411,178.45,2025-08-25,60614,Cashback Card
+txn_h024,RPM ITALIAN,Date night dinner,5812,198.75,2025-08-26,60610,Premium Card
+txn_h025,HOME DEPOT,Power tools,5211,234.99,2025-08-26,60614,Checking
+txn_h026,HULU,Monthly subscription,4899,14.99,2025-08-15,,Cashback Card
+txn_h027,STARBUCKS COFFEE,Coffee run,5814,7.25,2025-08-27,60614,Cashback Card
+txn_h028,TRADER JOES,Grocery shopping,5411,95.67,2025-08-27,60614,Cashback Card
+txn_h029,GRUBHUB,Lunch delivery,5814,28.40,2025-08-28,60614,Cashback Card
+txn_h030,COMED,Electric utility bill,4900,145.67,2025-08-28,60614,Checking
+txn_h031,IKEA,Dining room furniture,5712,445.00,2025-08-29,60126,Checking
+txn_h032,WHOLE FOODS MARKET,Specialty items,5411,134.90,2025-08-29,60614,Cashback Card
+txn_h033,PEQUODS PIZZA,Weekend dinner,5812,54.30,2025-08-30,60614,Travel Card
+txn_h034,BP,Gas station,5541,48.70,2025-08-30,60614,Cashback Card
+txn_h035,HOMEGOODS,Bathroom accessories,5714,89.50,2025-08-31,60614,Cashback Card
+txn_h036,MARIANO'S,Weekly grocery run,5411,187.34,2025-08-31,60614,Cashback Card
+txn_h037,PEOPLES GAS,Gas utility bill,4900,89.45,2025-09-01,60614,Checking
+txn_h038,PANERA BREAD,Breakfast and coffee,5814,13.60,2025-09-01,60614,Cashback Card
+txn_h039,BEST BUY,Kitchen appliances,5722,567.89,2025-09-02,60614,Checking
+txn_h040,UBER EATS,Dinner delivery,5814,42.30,2025-09-02,60614,Cashback Card
+txn_h041,GIRL AND THE GOAT,Celebration dinner,5812,234.50,2025-09-03,60607,Premium Card
+txn_h042,TARGET,Household supplies,5411,98.45,2025-09-03,60614,Cashback Card
+txn_h043,HELLOFRESH,Weekly meal kit delivery,5814,89.94,2025-09-04,,Cashback Card
+txn_h044,STARBUCKS COFFEE,Morning coffee,5814,6.95,2025-09-04,60614,Cashback Card
+txn_h045,HOME DEPOT,Bathroom renovation supplies,5211,456.78,2025-09-05,60614,Checking
+txn_h046,WHOLE FOODS MARKET,Organic groceries,5411,156.78,2025-09-05,60614,Cashback Card
+txn_h047,COSTCO WHOLESALE,Monthly bulk shopping,5411,312.45,2025-09-06,60614,Cashback Card
+txn_h048,ROTO-ROOTER,Plumbing service call,1711,285.00,2025-09-06,60614,Checking
+txn_h049,CHIPOTLE MEXICAN GRILL,Lunch,5814,14.25,2025-09-07,60614,Cashback Card
+txn_h050,CB2,Modern furniture pieces,5712,389.00,2025-09-07,60614,Premium Card
+txn_h051,MARIANO'S,Weekly groceries,5411,167.89,2025-09-08,60614,Cashback Card
+txn_h052,DOORDASH,Lunch delivery,5814,32.75,2025-09-08,60614,Cashback Card
+txn_h053,SPOTIFY,Premium subscription,4899,10.99,2025-09-08,,Cashback Card
+txn_h054,LOWE'S,Outdoor patio furniture,5211,678.90,2025-09-09,60657,Checking
+txn_h055,PORTILLOS,Quick dinner,5814,24.50,2025-09-09,60614,Cashback Card
+txn_h056,TRADER JOES,Specialty groceries,5411,102.34,2025-09-10,60614,Cashback Card
+txn_h057,MARATHON,Gas fill-up,5541,51.20,2025-09-10,60614,Cashback Card
+txn_h058,STANLEY STEEMER,Carpet cleaning service,7217,195.00,2025-09-11,60614,Checking
+txn_h059,WHOLE FOODS MARKET,Weekly shopping,5411,178.90,2025-09-11,60614,Cashback Card
+txn_h060,AMAZON PRIME,Annual membership renewal,5999,139.00,2025-09-11,,Cashback Card
+txn_h061,HOME DEPOT,Washer and dryer,5722,1289.00,2025-09-12,60614,Checking
+txn_h062,LOU MALNATIS PIZZERIA,Family dinner,5812,89.40,2025-09-12,60614,Travel Card
+txn_h063,CVS PHARMACY,Household items,5912,34.67,2025-09-13,60614,Cashback Card
+txn_h064,PANERA BREAD,Lunch meeting,5814,22.80,2025-09-13,60614,Cashback Card
+txn_h065,WAYFAIR,Online furniture purchase,5712,445.67,2025-09-14,,Checking
+txn_h066,COSTCO WHOLESALE,Bulk food items,5411,245.78,2025-09-14,60614,Cashback Card
+txn_h067,ULTA BEAUTY,Personal care items,5977,87.50,2025-09-15,60614,Premium Card
+txn_h068,STARBUCKS COFFEE,Coffee and pastry,5814,9.45,2025-09-15,60614,Cashback Card
+txn_h069,MARIANO'S,Weekly grocery shopping,5411,189.56,2025-09-16,60614,Cashback Card
+txn_h070,GRUBHUB,Dinner delivery,5814,51.30,2025-09-16,60614,Cashback Card
+txn_h071,WALGREENS,Pharmacy and sundries,5912,28.90,2025-09-17,60614,HSA
+txn_h072,AMC THEATRES,Movie night,7832,42.00,2025-09-17,60610,Cashback Card
+txn_h073,MUSIC BOX THEATRE,Indie film tickets,7832,28.00,2025-09-18,60614,Cashback Card
+txn_h074,WHOLE FOODS MARKET,Final weekly groceries,5411,167.34,2025-09-19,60614,Cashback Card
+txn_h075,ETSY,Handmade home décor,5969,78.25,2025-09-19,,Cashback Card
+txn_h076,GUARANTEED RATE MORTGAGE,Pre-approval application fee,6163,500.00,2025-10-03,60601,Checking
+txn_h077,CHICAGO HOME INSPECTIONS,Home inspection service,7389,450.00,2025-10-08,60614,Checking
+txn_h078,CHICAGO TITLE COMPANY,Title search and escrow,6411,1200.00,2025-10-12,60601,Checking
 `;
 
 export const PILLAR_COLORS: Record<string, string> = {
