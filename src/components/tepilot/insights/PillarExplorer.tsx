@@ -145,7 +145,9 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
               className="w-4 h-4 rounded"
               style={{ backgroundColor: PILLAR_COLORS[selectedPillar] || "#64748b" }}
             />
-            <h3 className="text-xl font-semibold text-slate-900">{selectedPillar} - Detailed Breakdown</h3>
+            <h3 className="text-xl font-semibold text-slate-900">
+              {selectedPillar} (${pillars.find(p => p.pillar === selectedPillar)?.totalSpend.toFixed(0) || '0'}) - Detailed Breakdown
+            </h3>
             
             {/* Travel view toggle */}
             {selectedPillar === "Travel & Exploration" && (
