@@ -112,7 +112,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                     );
                   })()}
                   {/* Mini sparkline */}
-                  <div className="mt-auto flex items-end gap-0.5 h-6">
+                  <div className="mt-auto flex items-end gap-0.5 h-4">
                     {Array.from({ length: 8 }).map((_, idx) => {
                       const height = Math.random() * 100;
                       return (
