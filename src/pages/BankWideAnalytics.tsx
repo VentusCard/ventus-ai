@@ -63,7 +63,7 @@ const BankWideAnalytics = () => {
             <div>
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Bank-Wide Analytics</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
-                See what your entire portfolio is doing.
+                See what your entire customer base is doing.
               </h1>
               <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
                 And why.
