@@ -17,7 +17,7 @@ interface Trip {
   reclassifiedCount: number;
 }
 
-function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
+export function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
   // Filter out transactions without valid destinations to prevent "Unknown" trips
   const travelTransactions = transactions.filter(t => 
     t.travel_context?.is_travel_related && 
@@ -67,7 +67,7 @@ function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
   return trips.sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
-function formatDateRange(startDate: string, endDate: string): string {
+export function formatDateRange(startDate: string, endDate: string): string {
   const start = new Date(startDate);
   const end = new Date(endDate);
   
@@ -82,14 +82,14 @@ function formatDateRange(startDate: string, endDate: string): string {
   return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
 }
 
-function calculateDays(startDate: string, endDate: string): number {
+export function calculateDays(startDate: string, endDate: string): number {
   const start = new Date(startDate);
   const end = new Date(endDate);
   const diffTime = Math.abs(end.getTime() - start.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
-function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: boolean }) {
+export function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
   // Group transactions by date

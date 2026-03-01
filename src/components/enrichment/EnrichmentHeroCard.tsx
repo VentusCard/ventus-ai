@@ -1,38 +1,40 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 const transactions = [
+  { merchant: "United Airlines", amount: "$412.00", date: "Feb 28" },
+  { merchant: "Titleist.com", amount: "$58.00", date: "Feb 22" },
+  { merchant: "REI Co-op", amount: "$43.20", date: "Mar 6" },
+  { merchant: "Patagonia", amount: "$89.00", date: "Mar 11" },
+  { merchant: "REI Co-op", amount: "$127.43", date: "Mar 14" },
+];
+
+const profileStages = [
+  { pills: [{ color: "blue", label: "Outdoor & Adventure" }], confidence: 40 },
+  { pills: [{ color: "blue", label: "Outdoor & Adventure" }], confidence: 55 },
   {
-    raw: "REI • $127.43 • March 14",
     pills: [
       { color: "blue", label: "Outdoor & Adventure" },
-      { color: "purple", label: "Pre-Summer Trip Planning" },
       { color: "orange", label: "Loyalty Decay Detected" },
+    ],
+    confidence: 78,
+  },
+  {
+    pills: [
+      { color: "blue", label: "Outdoor & Adventure" },
+      { color: "orange", label: "Loyalty Decay Detected" },
+      { color: "purple", label: "Pre-Summer Trip Planning" },
+    ],
+    confidence: 86,
+  },
+  {
+    pills: [
+      { color: "blue", label: "Outdoor & Adventure" },
+      { color: "orange", label: "Loyalty Decay Detected" },
+      { color: "purple", label: "Pre-Summer Trip Planning" },
       { color: "teal", label: "Life Event: Vacation Upcoming" },
     ],
     confidence: 94,
     action: "Serve Delta miles offer + REI cashback deal today",
-  },
-  {
-    raw: "Whole Foods • $210.40 • March 16",
-    pills: [
-      { color: "blue", label: "Health Conscious" },
-      { color: "purple", label: "Premium Grocery Shopper" },
-      { color: "teal", label: "Wellness Lifestyle" },
-      { color: "green", label: "High Disposable Income" },
-    ],
-    confidence: 91,
-    action: "Surface organic meal-kit partnership + wellness rewards",
-  },
-  {
-    raw: "United Airlines • $890.00 • March 18",
-    pills: [
-      { color: "blue", label: "Frequent Traveler" },
-      { color: "purple", label: "Business Travel Pattern" },
-      { color: "orange", label: "Miles Optimizer" },
-      { color: "teal", label: "Life Event: Relocation Possible" },
-    ],
-    confidence: 95,
-    action: "Activate travel insurance cross-sell + lounge access offer",
   },
 ];
 
@@ -41,41 +43,52 @@ const colorMap: Record<string, { bg: string; text: string }> = {
   purple: { bg: "rgba(139,92,246,0.15)", text: "#a78bfa" },
   orange: { bg: "rgba(249,115,22,0.15)", text: "#fb923c" },
   teal: { bg: "rgba(20,184,166,0.15)", text: "#2dd4bf" },
-  green: { bg: "rgba(34,197,94,0.15)", text: "#4ade80" },
 };
 
-const CYCLE = 6000;
-const FILL = 1500;
+const TX_INTERVAL = 1500;
+const HOLD = 2500;
+const CYCLE = TX_INTERVAL * transactions.length + HOLD;
 
 const EnrichmentHeroCard = () => {
-  const [index, setIndex] = useState(0);
-  const [pillsVisible, setPillsVisible] = useState(false);
-  const [barWidth, setBarWidth] = useState(0);
+  const [visibleTxCount, setVisibleTxCount] = useState(0);
+  const [targetConfidence, setTargetConfidence] = useState(0);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  const startCycle = useCallback(() => {
-    setPillsVisible(false);
-    setBarWidth(0);
-    const t1 = setTimeout(() => setPillsVisible(true), 300);
-    const t2 = setTimeout(() => setBarWidth(transactions[index].confidence), 350);
-    const t3 = setTimeout(() => {
-      setPillsVisible(false);
-      setBarWidth(0);
-    }, CYCLE - 800);
-    return [t1, t2, t3];
-  }, [index]);
+  const clear = useCallback(() => {
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+  }, []);
+
+  const sched = useCallback((fn: () => void, ms: number) => {
+    timeoutsRef.current.push(setTimeout(fn, ms));
+  }, []);
+
+  const runCycle = useCallback(() => {
+    clear();
+    setVisibleTxCount(0);
+    setTargetConfidence(0);
+
+    transactions.forEach((_, i) => {
+      sched(() => {
+        setVisibleTxCount(i + 1);
+        setTargetConfidence(profileStages[i].confidence);
+      }, (i + 1) * TX_INTERVAL);
+    });
+
+    sched(() => {
+      setVisibleTxCount(0);
+      setTargetConfidence(0);
+      sched(() => runCycle(), 600);
+    }, CYCLE);
+  }, [clear, sched]);
 
   useEffect(() => {
-    const timers = startCycle();
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % transactions.length);
-    }, CYCLE);
-    return () => {
-      timers.forEach(clearTimeout);
-      clearInterval(interval);
-    };
-  }, [startCycle]);
+    runCycle();
+    return () => clear();
+  }, [runCycle, clear]);
 
-  const tx = transactions[index];
+  const currentStage = visibleTxCount > 0 ? profileStages[visibleTxCount - 1] : null;
+  const visibleTxs = transactions.slice(0, visibleTxCount).reverse();
 
   return (
     <div
@@ -100,94 +113,87 @@ const EnrichmentHeroCard = () => {
         <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
       </div>
 
-      <div className="px-5 py-4 space-y-4">
-        {/* Raw input */}
-        <div>
+      <div className="grid grid-cols-2 gap-3 px-5 py-4" style={{ height: 180 }}>
+        {/* Left: Feed */}
+        <div className="overflow-hidden">
           <span className="text-[10px] font-mono font-semibold text-blue-400 tracking-widest uppercase">
-            Raw Input
+            Transaction Feed
           </span>
-          <div
-            className="mt-1.5 rounded-lg px-3 py-2 font-mono text-sm text-gray-300 transition-all duration-300"
-            style={{ background: "#0a0f1e" }}
-          >
-            {tx.raw}
+          <div className="mt-2 space-y-0.5 overflow-hidden" style={{ maxHeight: 130 }}>
+            {visibleTxs.map((tx, i) => (
+              <div
+                key={`${tx.merchant}-${tx.date}-${i}`}
+                className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded"
+                style={{
+                  color: i === 0 ? "#e2e8f0" : "#64748b",
+                  background: i === 0 ? "rgba(59,130,246,0.1)" : "transparent",
+                  animation: i === 0 ? "fade-in 0.4s ease-out" : undefined,
+                }}
+              >
+                {tx.merchant} · {tx.amount} · {tx.date}
+                {i === 0 && <span className="text-blue-400 ml-1">←</span>}
+              </div>
+            ))}
+            {visibleTxCount === 0 && (
+              <div className="font-mono text-[9px] text-gray-600 px-1.5 py-0.5">Awaiting...</div>
+            )}
           </div>
         </div>
 
-        {/* Pipeline connector */}
-        <div className="flex justify-center">
-          <div className="relative w-px h-12" style={{ background: "#1e2d4a" }}>
-            <div
-              className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
-              style={{
-                background: "#3b82f6",
-                boxShadow: "0 0 8px 3px rgba(59,130,246,0.6)",
-                animation: "pipeline-dot 1.5s ease-in-out infinite",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Enriched output */}
-        <div>
+        {/* Right: Profile */}
+        <div className="overflow-hidden">
           <span className="text-[10px] font-mono font-semibold text-emerald-400 tracking-widest uppercase">
             Enriched Output
           </span>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {tx.pills.map((pill, i) => {
+          <div className="mt-2 flex flex-wrap gap-1">
+            {currentStage?.pills.map((pill) => {
               const c = colorMap[pill.color] ?? colorMap.blue;
               return (
                 <span
                   key={pill.label}
-                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-                  style={{
-                    background: c.bg,
-                    color: c.text,
-                    opacity: pillsVisible ? 1 : 0,
-                    transform: pillsVisible ? "translateY(0)" : "translateY(6px)",
-                    transition: `opacity 400ms ease-out ${i * 100}ms, transform 400ms ease-out ${i * 100}ms`,
-                  }}
+                  className="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-medium"
+                  style={{ background: c.bg, color: c.text, animation: "fade-in 0.4s ease-out" }}
                 >
                   {pill.label}
                 </span>
               );
             })}
           </div>
+          {currentStage && (
+            <div className="mt-2">
+              <div className="flex items-center justify-between mb-0.5">
+                <span className="text-[9px] text-gray-500">Confidence</span>
+                <span className="text-[9px] font-semibold text-emerald-400 font-mono">
+                  {currentStage.confidence}%
+                </span>
+              </div>
+              <div className="h-1 w-full rounded-full" style={{ background: "#1a2332" }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${targetConfidence}%`,
+                    background: "linear-gradient(90deg, #10b981, #34d399)",
+                    transition: "width 800ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Confidence */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] text-gray-400">Confidence Score</span>
-            <span className="text-[11px] font-semibold text-emerald-400 font-mono">
-              {barWidth > 0 ? `${tx.confidence}%` : "0%"}
-            </span>
-          </div>
-          <div className="h-1.5 w-full rounded-full" style={{ background: "#1a2332" }}>
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${barWidth}%`,
-                background: "linear-gradient(90deg, #10b981, #34d399)",
-                transition: barWidth > 0
-                  ? `width ${FILL}ms cubic-bezier(0.16, 1, 0.3, 1)`
-                  : "width 400ms ease-in",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Recommendation */}
+      {/* Recommendation — always reserve space */}
+      <div className="px-5 pb-4" style={{ height: 52 }}>
         <div
-          className="rounded-lg px-3 py-2 text-[11px] text-blue-200 leading-relaxed transition-opacity duration-500"
+          className="rounded-lg px-3 py-2 text-[10px] text-blue-200 leading-relaxed transition-opacity duration-500"
           style={{
             background: "rgba(59,130,246,0.08)",
             border: "1px solid rgba(59,130,246,0.25)",
-            opacity: pillsVisible ? 1 : 0,
+            opacity: currentStage?.action ? 1 : 0,
           }}
         >
           <span className="font-semibold text-blue-400">Recommended Action:</span>{" "}
-          {tx.action}
+          Serve Delta miles offer + REI cashback deal today
         </div>
       </div>
     </div>

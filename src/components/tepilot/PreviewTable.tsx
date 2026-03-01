@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Calendar, Hash, MapPin } from "lucide-react";
+import { getSourceColor } from "@/lib/sampleData";
 
 interface PreviewTableProps {
   transactions: Transaction[];
@@ -67,6 +68,9 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                   <TableHead className="text-right text-slate-700">Amount</TableHead>
                   <TableHead className="text-slate-700">Date</TableHead>
                   <TableHead className="text-slate-700">Zip Code</TableHead>
+                  {transactions.some(t => t.source) && (
+                    <TableHead className="text-slate-700">Source</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -92,6 +96,17 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                     <TableCell className="text-sm text-slate-700">
                       {transaction.zip_code || "—"}
                     </TableCell>
+                    {transactions.some(t => t.source) && (
+                      <TableCell>
+                        {transaction.source ? (
+                          <Badge variant="outline" className={`text-xs font-medium whitespace-nowrap ${getSourceColor(transaction.source)}`}>
+                            {transaction.source}
+                          </Badge>
+                        ) : (
+                          <span className="text-slate-400 text-sm">—</span>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

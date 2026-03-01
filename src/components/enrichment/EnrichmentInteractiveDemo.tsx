@@ -2,61 +2,55 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Check, Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const AGENT_DELAY = 800;
-const SPINNER_DURATION = 500;
-const AUTO_REPLAY_INTERVAL = 15000;
+const TX_STREAM_DELAY = 1200;
+const AGENT_DELAY = 600;
+const SPINNER_DURATION = 400;
+const AUTO_REPLAY_INTERVAL = 12000;
+
+const transactions = [
+  { desc: "Titleist.com · $58.00 · Feb 22" },
+  { desc: "United Airlines · $412.00 · Feb 28" },
+  { desc: "REI Co-op · $43.20 · Mar 6" },
+  { desc: "Patagonia · $89.00 · Mar 11" },
+  { desc: "REI #045 · $124.99 · Mar 14" },
+];
 
 const agents = [
   {
     name: "Merchant Identifier",
-    outputs: [
-      { label: "Merchant", value: "REI Co-op" },
-      { label: "Category", value: "Outdoor & Sporting Goods" },
-      { label: "Type", value: "Retail Chain" },
-      { label: "Location", value: "Physical Store, Chicago IL" },
-    ],
+    desc: "Resolves merchant identity for each transaction as it arrives.",
+    threshold: 1,
+    thresholdLabel: "Tags each transaction on arrival",
   },
   {
     name: "Category Classifier",
-    outputs: [
-      { label: "Primary Pillar", value: "Outdoor & Adventure" },
-      { label: "Sub-category", value: "Hiking & Camping" },
-      { label: "Spend Velocity", value: "Above Average" },
-    ],
+    desc: "Places transactions into lifestyle pillars. Confidence rises with volume.",
+    threshold: 2,
+    thresholdLabel: "Confidence rising — 2 transactions matched",
   },
   {
     name: "Intent Detector",
-    outputs: [
-      { label: "Purchase Intent", value: "Pre-summer trip planning" },
-      { label: "Travel Intent", value: "Domestic outdoor trip detected" },
-      { label: "Loyalty Signal", value: "Moderate, decay risk present" },
-    ],
+    desc: "Identifies behavioral intent from spending sequences.",
+    threshold: 3,
+    thresholdLabel: "Pattern threshold met",
   },
   {
     name: "Life Event Analyzer",
-    outputs: [
-      { label: "Life Event", value: "Vacation Upcoming (87% confidence)" },
-      { label: "Secondary Signal", value: "Possible relocation research" },
-      { label: "Travel Pattern", value: "3 outdoor purchases in 60 days" },
-    ],
+    desc: "Detects 20+ life events from transaction patterns.",
+    threshold: 4,
+    thresholdLabel: "Life event signal detected",
   },
   {
-    name: "Travel Detection",
-    outputs: [
-      { label: "Travel Profile", value: "Active" },
-      { label: "Destinations", value: "Chicago home base, Mountain West frequent" },
-      { label: "Airline Loyalty", value: "United MileagePlus detected" },
-      { label: "Hotel Pattern", value: "Boutique and outdoor lodges" },
-    ],
+    name: "Spend Velocity Engine",
+    desc: "Compares spend against the customer's 90-day baseline.",
+    threshold: 4,
+    thresholdLabel: "Compared against 90-day baseline",
   },
   {
-    name: "Confidence Validator",
-    outputs: [
-      { label: "Overall Confidence", value: "94%" },
-      { label: "Signal Strength", value: "Strong" },
-      { label: "Output Status", value: "Validated ✓" },
-      { label: "Ready for", value: "Activation" },
-    ],
+    name: "Offer Match Engine",
+    desc: "Activates personalized offers once profile confidence is sufficient.",
+    threshold: 5,
+    thresholdLabel: "Profile confidence sufficient",
   },
 ];
 
@@ -72,21 +66,17 @@ const summaryPills = [
 type AgentState = "inactive" | "loading" | "done";
 
 const EnrichmentInteractiveDemo = () => {
+  const [streamedTxCount, setStreamedTxCount] = useState(0);
   const [agentStates, setAgentStates] = useState<AgentState[]>(agents.map(() => "inactive"));
   const [showSummary, setShowSummary] = useState(false);
   const [confidenceWidth, setConfidenceWidth] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
-  const autoReplayRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearAllTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
-    if (autoReplayRef.current) {
-      clearTimeout(autoReplayRef.current);
-      autoReplayRef.current = null;
-    }
   }, []);
 
   const schedule = useCallback((fn: () => void, ms: number) => {
@@ -95,33 +85,43 @@ const EnrichmentInteractiveDemo = () => {
 
   const runSequence = useCallback(() => {
     clearAllTimeouts();
+    setStreamedTxCount(0);
     setAgentStates(agents.map(() => "inactive"));
     setShowSummary(false);
     setConfidenceWidth(0);
     setIsRunning(true);
 
-    agents.forEach((_, i) => {
-      const startTime = i * AGENT_DELAY + 300;
-      // Start loading
+    // Stream transactions in one at a time
+    transactions.forEach((_, txIdx) => {
+      const txTime = (txIdx + 1) * TX_STREAM_DELAY;
       schedule(() => {
-        setAgentStates((prev) => {
-          const next = [...prev];
-          next[i] = "loading";
-          return next;
+        setStreamedTxCount(txIdx + 1);
+
+        // After each tx, fire agents whose threshold is met
+        agents.forEach((agent, agentIdx) => {
+          if (agent.threshold === txIdx + 1) {
+            const agentStart = AGENT_DELAY;
+            schedule(() => {
+              setAgentStates((prev) => {
+                const next = [...prev];
+                next[agentIdx] = "loading";
+                return next;
+              });
+            }, agentStart);
+            schedule(() => {
+              setAgentStates((prev) => {
+                const next = [...prev];
+                next[agentIdx] = "done";
+                return next;
+              });
+            }, agentStart + SPINNER_DURATION);
+          }
         });
-      }, startTime);
-      // Done
-      schedule(() => {
-        setAgentStates((prev) => {
-          const next = [...prev];
-          next[i] = "done";
-          return next;
-        });
-      }, startTime + SPINNER_DURATION);
+      }, txTime);
     });
 
-    // Show summary after all agents
-    const summaryTime = agents.length * AGENT_DELAY + SPINNER_DURATION + 500;
+    // Show summary after all
+    const summaryTime = (transactions.length + 1) * TX_STREAM_DELAY + AGENT_DELAY + SPINNER_DURATION + 300;
     schedule(() => {
       setShowSummary(true);
       setTimeout(() => setConfidenceWidth(94), 200);
@@ -129,10 +129,7 @@ const EnrichmentInteractiveDemo = () => {
     }, summaryTime);
 
     // Auto-replay
-    autoReplayRef.current = setTimeout(() => {
-      runSequence();
-    }, summaryTime + AUTO_REPLAY_INTERVAL);
-    timeoutsRef.current.push(autoReplayRef.current);
+    schedule(() => runSequence(), summaryTime + AUTO_REPLAY_INTERVAL);
   }, [clearAllTimeouts, schedule]);
 
   useEffect(() => {
@@ -154,22 +151,38 @@ const EnrichmentInteractiveDemo = () => {
     };
   }, [runSequence, clearAllTimeouts]);
 
-  const pillColors = [
-    { bg: "rgba(59,130,246,0.12)", text: "#2563eb" },
-    { bg: "rgba(139,92,246,0.12)", text: "#7c3aed" },
-    { bg: "rgba(249,115,22,0.12)", text: "#c2410c" },
-    { bg: "rgba(20,184,166,0.12)", text: "#0d9488" },
-  ];
+  const visibleTxs = transactions.slice(0, streamedTxCount);
 
   return (
     <div ref={sectionRef}>
-      {/* Raw Transaction Input Card */}
+      {/* Transaction History Stream */}
       <div className="max-w-2xl mx-auto mb-8">
         <div className="rounded-xl p-5 border border-gray-200 bg-white shadow-sm">
-          <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-2">Raw Transaction</p>
-          <p className="font-mono text-gray-800 text-base md:text-lg">
-            REI #045 &bull; $124.99 &bull; Chicago, IL &bull; March 14
+          <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">
+            Transaction History
           </p>
+          <div className="space-y-1 overflow-hidden" style={{ height: 190 }}>
+            {visibleTxs.map((tx, i) => (
+              <div
+                key={i}
+                className="font-mono text-xs md:text-sm text-gray-700 px-3 py-1.5 rounded transition-all duration-300 truncate"
+                style={{
+                  background: i === visibleTxs.length - 1 ? "rgba(59,130,246,0.06)" : "transparent",
+                  animation: "fade-in 0.4s ease-out",
+                }}
+              >
+                {tx.desc}
+                {i === visibleTxs.length - 1 && (
+                  <span className="text-blue-500 ml-2 text-xs font-semibold">← new</span>
+                )}
+              </div>
+            ))}
+            {streamedTxCount === 0 && (
+              <div className="font-mono text-xs md:text-sm text-gray-400 px-3 py-1.5">
+                Streaming transactions...
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -182,7 +195,6 @@ const EnrichmentInteractiveDemo = () => {
 
           return (
             <div key={agent.name}>
-              {/* Connector line */}
               {i > 0 && (
                 <div className="flex justify-center">
                   <div className="relative w-px h-8" style={{ background: isActive ? "#3b82f6" : "#d1d5db" }}>
@@ -200,9 +212,8 @@ const EnrichmentInteractiveDemo = () => {
                 </div>
               )}
 
-              {/* Agent Card */}
               <div
-                className="rounded-xl p-5 transition-all duration-500 border-2"
+                className="rounded-xl p-4 md:p-5 transition-all duration-500 border-2"
                 style={{
                   background: isDone ? "#ffffff" : "#f9fafb",
                   borderColor: state === "loading" ? "#3b82f6" : isDone ? "#3b82f6" : "#e5e7eb",
@@ -212,38 +223,38 @@ const EnrichmentInteractiveDemo = () => {
                   opacity: state === "inactive" ? 0.5 : 1,
                 }}
               >
-                <div className="flex items-center gap-3 mb-2">
-                  {/* Status icon */}
-                  <div
-                    className="flex items-center justify-center w-6 h-6 rounded-full shrink-0 transition-colors duration-300"
-                    style={{
-                      background: isDone ? "#dcfce7" : state === "loading" ? "#dbeafe" : "#f3f4f6",
-                    }}
-                  >
-                    {state === "loading" && <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />}
-                    {isDone && <Check className="w-3.5 h-3.5 text-emerald-600" />}
-                    {state === "inactive" && (
-                      <span className="w-2 h-2 rounded-full bg-gray-300" />
-                    )}
+                <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-1 flex-wrap">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div
+                      className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full shrink-0 transition-colors duration-300"
+                      style={{
+                        background: isDone ? "#dcfce7" : state === "loading" ? "#dbeafe" : "#f3f4f6",
+                      }}
+                    >
+                      {state === "loading" && <Loader2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500 animate-spin" />}
+                      {isDone && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />}
+                      {state === "inactive" && <span className="w-2 h-2 rounded-full bg-gray-300" />}
+                    </div>
+                    <p className="font-bold text-xs sm:text-sm" style={{ color: "#0a0f1e" }}>{agent.name}</p>
                   </div>
-                  <p className="font-bold text-sm" style={{ color: "#0a0f1e" }}>{agent.name}</p>
+                  {isDone && (
+                    <span
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-medium whitespace-nowrap"
+                      style={{ background: "rgba(59,130,246,0.1)", color: "#3b82f6" }}
+                    >
+                      Analyzed {streamedTxCount} txns
+                    </span>
+                  )}
                 </div>
-
-                {/* Outputs */}
+                <p className="text-gray-500 text-[11px] sm:text-xs ml-7 sm:ml-9 mb-1">{agent.desc}</p>
                 {isDone && (
-                  <div className="flex flex-wrap gap-1.5 mt-3 animate-fade-in">
-                    {agent.outputs.map((output, j) => {
-                      const c = pillColors[j % pillColors.length];
-                      return (
-                        <span
-                          key={output.label}
-                          className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium"
-                          style={{ background: c.bg, color: c.text }}
-                        >
-                          {output.label}: {output.value}
-                        </span>
-                      );
-                    })}
+                  <div className="ml-7 sm:ml-9 mt-2 animate-fade-in">
+                    <span
+                      className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium"
+                      style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e" }}
+                    >
+                      {agent.thresholdLabel}
+                    </span>
                   </div>
                 )}
               </div>
@@ -252,7 +263,7 @@ const EnrichmentInteractiveDemo = () => {
         })}
       </div>
 
-      {/* Final connector to summary */}
+      {/* Final connector */}
       {showSummary && (
         <div className="flex justify-center max-w-2xl mx-auto">
           <div className="relative w-px h-8" style={{ background: "#3b82f6" }}>
@@ -292,7 +303,6 @@ const EnrichmentInteractiveDemo = () => {
           ))}
         </div>
 
-        {/* Confidence bar */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[11px] text-gray-400">Overall Confidence</span>
@@ -310,7 +320,6 @@ const EnrichmentInteractiveDemo = () => {
           </div>
         </div>
 
-        {/* Recommended action */}
         <div className="rounded-lg p-3" style={{ background: "#111827" }}>
           <p className="text-[10px] font-bold tracking-widest text-blue-400 uppercase mb-1">Recommended Action</p>
           <p className="text-gray-300 text-sm leading-relaxed">
@@ -319,8 +328,15 @@ const EnrichmentInteractiveDemo = () => {
         </div>
       </div>
 
-      {/* Replay button */}
-      <div className="max-w-2xl mx-auto mt-6 flex justify-center">
+      {/* Footnote */}
+      <div className="max-w-2xl mx-auto mt-4">
+        <p className="text-xs text-gray-400 text-center leading-relaxed">
+          Ventus enriches profiles continuously — every new transaction refines the signal. Most meaningful patterns emerge after 5–10 transactions within a rolling 90-day window.
+        </p>
+      </div>
+
+      {/* Replay */}
+      <div className="max-w-2xl mx-auto mt-4 flex justify-center">
         <Button
           variant="outline"
           size="sm"

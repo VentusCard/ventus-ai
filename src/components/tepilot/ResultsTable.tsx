@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Eye, Edit, Loader2, Plane, MapPin } from "lucide-react";
-import { PILLAR_COLORS } from "@/lib/sampleData";
+import { PILLAR_COLORS, getSourceColor } from "@/lib/sampleData";
 import { TransactionDetailModal } from "./TransactionDetailModal";
 import { CorrectionModal } from "./CorrectionModal";
 import {
@@ -71,6 +71,9 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     </TableHead>
                     <TableHead className="text-slate-700">Pillar</TableHead>
                     <TableHead className="text-slate-700">Subcategory</TableHead>
+                    {transactions.some(t => t.source) && (
+                      <TableHead className="text-slate-700">Source</TableHead>
+                    )}
                     <TableHead className="text-slate-700">Confidence</TableHead>
                     <TableHead className="text-right text-slate-700">Actions</TableHead>
                   </TableRow>
@@ -169,6 +172,17 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
+                      {transactions.some(t => t.source) && (
+                        <TableCell>
+                          {transaction.source ? (
+                            <Badge variant="outline" className={`text-xs font-medium whitespace-nowrap ${getSourceColor(transaction.source)}`}>
+                              {transaction.source}
+                            </Badge>
+                          ) : (
+                            <span className="text-slate-400 text-sm">—</span>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell>
                         <Badge
                           variant="outline"

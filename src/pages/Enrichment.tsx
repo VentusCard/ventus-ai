@@ -51,7 +51,7 @@ const Enrichment = () => {
                 <span className="text-blue-400">In milliseconds.</span>
               </h1>
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
-                Ventus extracts lifestyle pillars, intent signals, and life events from every transaction — without touching your core infrastructure.
+                Ventus builds rich behavioral profiles from your customers' rolling transaction history — extracting lifestyle pillars, intent signals, and life events without touching your core infrastructure.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link to="/contact">
@@ -111,7 +111,7 @@ const Enrichment = () => {
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
               <p className="text-gray-500 text-lg mb-10 max-w-2xl">
-                Watch a single transaction flow through all six agents in real time.
+                Watch how Ventus builds a behavioral profile from a real customer's transaction history — updated with every new purchase.
               </p>
             </ScrollReveal>
             <EnrichmentInteractiveDemo />
@@ -124,7 +124,7 @@ const Enrichment = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
-                Four signal layers. Every transaction.
+                Four signal layers. Built from your transaction history.
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 gap-6">

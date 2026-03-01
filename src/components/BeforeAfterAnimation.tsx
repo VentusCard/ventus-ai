@@ -1,10 +1,43 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowDown, RotateCcw, ArrowRight } from "lucide-react";
+import { ArrowDown, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const examples = [
+const transactions = [
+  { merchant: "Walgreens", amount: "$47.20", date: "Feb 10" },
+  { merchant: "Buy Buy Baby", amount: "$134.00", date: "Feb 18" },
+  { merchant: "Walgreens", amount: "$62.30", date: "Feb 25" },
+  { merchant: "Amazon Baby Registry", amount: "$89.00", date: "Mar 2" },
+  { merchant: "Walgreens", amount: "$51.10", date: "Mar 9" },
+];
+
+const profileStages = [
   {
-    before: "Walgreens • $47.20",
+    pills: [{ label: "Pharmacy Shopper", color: "bg-blue-100 text-blue-700" }],
+    confidence: 30,
+  },
+  {
+    pills: [
+      { label: "Pharmacy Shopper", color: "bg-blue-100 text-blue-700" },
+      { label: "Baby Care Shopping", color: "bg-purple-100 text-purple-700" },
+    ],
+    confidence: 55,
+  },
+  {
+    pills: [
+      { label: "Baby Care Shopping", color: "bg-purple-100 text-purple-700" },
+      { label: "Formula & Diapers Pattern", color: "bg-teal-100 text-teal-700" },
+    ],
+    confidence: 74,
+  },
+  {
+    pills: [
+      { label: "Baby Care Shopping", color: "bg-purple-100 text-purple-700" },
+      { label: "Formula & Diapers Pattern", color: "bg-teal-100 text-teal-700" },
+      { label: "Life Event: New Baby", color: "bg-green-100 text-green-700" },
+    ],
+    confidence: 89,
+  },
+  {
     pills: [
       { label: "New Parent", color: "bg-blue-100 text-blue-700" },
       { label: "Baby Care Shopping", color: "bg-purple-100 text-purple-700" },
@@ -13,61 +46,13 @@ const examples = [
     ],
     confidence: 97,
   },
-  {
-    before: "REI • $127.43",
-    pills: [
-      { label: "Outdoor Enthusiast", color: "bg-blue-100 text-blue-700" },
-      { label: "Pre-Summer Trip Planning", color: "bg-purple-100 text-purple-700" },
-      { label: "Loyalty Decay Detected", color: "bg-orange-100 text-orange-700" },
-      { label: "Life Event: Vacation Upcoming", color: "bg-teal-100 text-teal-700" },
-    ],
-    confidence: 94,
-  },
-  {
-    before: "Zillow Premium • $49.99",
-    pills: [
-      { label: "Home Buyer", color: "bg-blue-100 text-blue-700" },
-      { label: "Active Property Search", color: "bg-purple-100 text-purple-700" },
-      { label: "Pre-Purchase Research Phase", color: "bg-orange-100 text-orange-700" },
-      { label: "Life Event: Home Purchase", color: "bg-green-100 text-green-700" },
-    ],
-    confidence: 96,
-  },
-  {
-    before: "AARP • $18.00",
-    pills: [
-      { label: "Pre-Retiree", color: "bg-blue-100 text-blue-700" },
-      { label: "Retirement Planning Active", color: "bg-purple-100 text-purple-700" },
-      { label: "Benefits Research", color: "bg-teal-100 text-teal-700" },
-      { label: "Life Event: Approaching Retirement", color: "bg-green-100 text-green-700" },
-    ],
-    confidence: 93,
-  },
-  {
-    before: "Whole Foods • $210.40",
-    pills: [
-      { label: "Health Conscious", color: "bg-blue-100 text-blue-700" },
-      { label: "Premium Grocery Shopper", color: "bg-purple-100 text-purple-700" },
-      { label: "Wellness Lifestyle", color: "bg-teal-100 text-teal-700" },
-      { label: "High Disposable Income", color: "bg-green-100 text-green-700" },
-    ],
-    confidence: 91,
-  },
-  {
-    before: "United Airlines • $890.00",
-    pills: [
-      { label: "Frequent Traveler", color: "bg-blue-100 text-blue-700" },
-      { label: "Business Travel Pattern", color: "bg-purple-100 text-purple-700" },
-      { label: "Miles Optimizer", color: "bg-orange-100 text-orange-700" },
-      { label: "Life Event: Relocation Possible", color: "bg-teal-100 text-teal-700" },
-    ],
-    confidence: 95,
-  },
 ];
 
+const TX_INTERVAL = 1500;
+const HOLD = 2500;
+
 const BeforeAfterAnimation = () => {
-  const [phase, setPhase] = useState<"idle" | "before" | "arrow" | "after" | "fading">("idle");
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [visibleTxCount, setVisibleTxCount] = useState(0);
   const [barWidth, setBarWidth] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -81,42 +66,37 @@ const BeforeAfterAnimation = () => {
     timeoutsRef.current.push(setTimeout(fn, ms));
   }, []);
 
-  const runCycle = useCallback(
-    (index: number) => {
-      clearTimeouts();
-      setCurrentIndex(index);
-      setPhase("idle");
-      setBarWidth(0);
+  const runCycle = useCallback(() => {
+    clearTimeouts();
+    setVisibleTxCount(0);
+    setBarWidth(0);
 
-      schedule(() => setPhase("before"), 100);
-      schedule(() => setPhase("arrow"), 1100);
+    transactions.forEach((_, i) => {
       schedule(() => {
-        setPhase("after");
-        setTimeout(() => setBarWidth(examples[index].confidence), 200);
-      }, 1600);
-      // Hold for 3s then fade out
-      schedule(() => setPhase("fading"), 4600);
-      // Start next
-      schedule(() => {
-        const next = (index + 1) % examples.length;
-        runCycle(next);
-      }, 5200);
-    },
-    [clearTimeouts, schedule]
-  );
+        setVisibleTxCount(i + 1);
+        setBarWidth(profileStages[i].confidence);
+      }, (i + 1) * TX_INTERVAL);
+    });
+
+    // Hold then reset
+    schedule(() => {
+      setVisibleTxCount(0);
+      setBarWidth(0);
+      schedule(() => runCycle(), 600);
+    }, TX_INTERVAL * transactions.length + HOLD);
+  }, [clearTimeouts, schedule]);
 
   const handleReplay = useCallback(() => {
-    runCycle(0);
+    runCycle();
   }, [runCycle]);
 
-  // Intersection observer
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          runCycle(0);
+          runCycle();
           observer.disconnect();
         }
       },
@@ -129,38 +109,52 @@ const BeforeAfterAnimation = () => {
     };
   }, [runCycle, clearTimeouts]);
 
-  const example = examples[currentIndex];
-  const showBefore = phase !== "idle" && phase !== "fading";
-  const showArrow = phase === "arrow" || phase === "after";
-  const showAfter = phase === "after";
+  const currentStage = visibleTxCount > 0 ? profileStages[visibleTxCount - 1] : null;
+  const visibleTxs = transactions.slice(0, visibleTxCount);
 
   return (
-    <div ref={sectionRef} className="relative" style={{ minHeight: 420 }}>
-      {/* Counter */}
+    <div ref={sectionRef} className="relative" style={{ minHeight: 460 }}>
       <p className="text-xs text-gray-400 text-right mb-3">
-        {currentIndex + 1} of {examples.length}
+        {visibleTxCount > 0 ? `${visibleTxCount} of ${transactions.length} transactions` : "Waiting for data..."}
       </p>
 
       <div className="space-y-4">
-        {/* BEFORE card */}
+        {/* Transaction Feed */}
         <div
           className="rounded-xl p-6 transition-all duration-500"
-          style={{
-            background: "#f8f9fa",
-            opacity: showBefore ? 1 : 0,
-            transform: showBefore ? "translateY(0)" : "translateY(10px)",
-          }}
+          style={{ background: "#f8f9fa" }}
         >
-          <p className="text-[10px] font-bold tracking-widest text-red-500 uppercase mb-2">Before</p>
-          <p className="text-gray-700 text-lg">"{example.before}"</p>
+          <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-3">
+            Transaction Feed
+          </p>
+          <div className="space-y-1" style={{ height: 180, overflow: "hidden" }}>
+            {visibleTxs.map((tx, i) => (
+              <div
+                key={`${tx.merchant}-${tx.date}`}
+                className="font-mono text-xs sm:text-sm text-gray-700 px-3 py-1.5 rounded transition-all duration-300 truncate"
+                style={{
+                  background: i === visibleTxs.length - 1 ? "rgba(59,130,246,0.06)" : "transparent",
+                  animation: i === visibleTxs.length - 1 ? "fade-in 0.4s ease-out" : undefined,
+                }}
+              >
+                {tx.merchant} · {tx.amount} · {tx.date}
+                {i === visibleTxs.length - 1 && (
+                  <span className="text-blue-500 ml-2 text-xs font-semibold">← new</span>
+                )}
+              </div>
+            ))}
+            {visibleTxCount === 0 && (
+              <p className="text-sm text-gray-400 px-3 py-1.5">Streaming transactions...</p>
+            )}
+          </div>
         </div>
 
-        {/* Animated arrow */}
+        {/* Arrow */}
         <div
           className="flex justify-center transition-all duration-500"
           style={{
-            opacity: showArrow ? 1 : 0,
-            transform: showArrow ? "scaleY(1)" : "scaleY(0)",
+            opacity: visibleTxCount > 0 ? 1 : 0,
+            transform: visibleTxCount > 0 ? "scaleY(1)" : "scaleY(0)",
           }}
         >
           <div className="relative flex flex-col items-center">
@@ -171,22 +165,24 @@ const BeforeAfterAnimation = () => {
           </div>
         </div>
 
-        {/* AFTER card */}
+        {/* Enriched Profile (progressive) */}
         <div
           className="rounded-xl p-6 transition-all duration-700"
           style={{
             background: "#0a0f1e",
-            opacity: showAfter ? 1 : 0,
-            transform: showAfter ? "translateY(0)" : "translateY(20px)",
+            opacity: currentStage ? 1 : 0,
+            transform: currentStage ? "translateY(0)" : "translateY(20px)",
           }}
         >
-          <p className="text-[10px] font-bold tracking-widest text-green-400 uppercase mb-3">After</p>
+          <p className="text-[10px] font-bold tracking-widest text-green-400 uppercase mb-3">
+            Enriched Profile (Building...)
+          </p>
           <div className="flex flex-wrap gap-2 mb-4">
-            {example.pills.map((p, i) => (
+            {currentStage?.pills.map((p, i) => (
               <span
                 key={p.label}
-                className={`text-xs font-medium px-3 py-1 rounded-full ${p.color} transition-opacity duration-300`}
-                style={{ opacity: showAfter ? 1 : 0, transitionDelay: `${i * 100}ms` }}
+                className={`text-xs font-medium px-3 py-1 rounded-full ${p.color}`}
+                style={{ animation: "fade-in 0.3s ease-out" }}
               >
                 {p.label}
               </span>
@@ -195,21 +191,23 @@ const BeforeAfterAnimation = () => {
           <div className="mt-4">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[11px] text-gray-400">Confidence Score</span>
-              <span className="text-[11px] font-bold text-green-400">{example.confidence}%</span>
+              <span className="text-[11px] font-bold text-green-400">
+                {currentStage ? `${currentStage.confidence}%` : "0%"}
+              </span>
             </div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400"
                 style={{
                   width: `${barWidth}%`,
-                  transition: "width 1.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                  transition: "width 800ms cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               />
             </div>
           </div>
         </div>
 
-        {/* Replay button */}
+        {/* Replay */}
         <div className="flex justify-center pt-1">
           <button
             onClick={handleReplay}
@@ -220,7 +218,7 @@ const BeforeAfterAnimation = () => {
           </button>
         </div>
 
-        {/* Learn more link */}
+        {/* Learn more */}
         <div className="flex justify-center pt-3">
           <Link to="/enrichment" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
             Learn More →

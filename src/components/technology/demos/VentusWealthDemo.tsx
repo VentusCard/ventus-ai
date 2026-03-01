@@ -571,24 +571,33 @@ export default function VentusWealthDemo() {
         .vwm-detail-overlay.entering { opacity: 1; transform: translateY(0); }
         .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
         .vwm-detail-header {
-          display: flex; align-items: center; justify-content: space-between; gap: 16px;
-          padding: 20px 28px; border-bottom: 1px solid rgba(15,23,42,.08);
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          padding: 16px 20px; border-bottom: 1px solid rgba(15,23,42,.08);
+          flex-wrap: wrap;
         }
-        .vwm-detail-header-left { display: flex; align-items: center; gap: 14px; }
-        .vwm-detail-icon { font-size: 30px; }
-        .vwm-detail-title { font-weight: 760; font-size: 20px; color: #0f172a; }
-        .vwm-detail-client-name { font-size: 15px; color: rgba(15,23,42,.50); margin-top: 2px; }
+        .vwm-detail-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .vwm-detail-icon { font-size: 24px; }
+        .vwm-detail-title { font-weight: 760; font-size: 16px; color: #0f172a; }
+        .vwm-detail-client-name { font-size: 12px; color: rgba(15,23,42,.50); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .vwm-back-btn {
-          padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700;
+          padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
           border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
           color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
+          white-space: nowrap; min-height: auto !important; min-width: auto !important;
         }
         .vwm-back-btn:hover { background: rgba(15,23,42,.08); }
         .vwm-detail-body {
-          flex: 1; overflow-y: auto; padding: 24px 28px;
-          display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+          flex: 1; overflow-y: auto; padding: 16px 20px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
         }
-        @media (max-width: 700px) { .vwm-detail-body { grid-template-columns: 1fr; } }
+        @media (max-width: 700px) {
+          .vwm-detail-body { grid-template-columns: 1fr; padding: 12px 16px; gap: 16px; }
+          .vwm-detail-header { padding: 12px 16px; }
+          .vwm-detail-title { font-size: 14px; }
+          .vwm-detail-icon { font-size: 20px; }
+          .vwm-detail-client-name { font-size: 11px; }
+          .vwm-back-btn { font-size: 10px; padding: 4px 8px; }
+        }
         .vwm-detail-section-title {
           font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
           color: rgba(15,23,42,.50); margin-bottom: 12px;
@@ -777,7 +786,7 @@ export default function VentusWealthDemo() {
                   <div>
                     <div className="vwm-detail-title">{selectedEvent.event.eventName}</div>
                     <div className="vwm-detail-client-name">
-                      {selectedEvent.client.name} · {selectedEvent.client.segment} · {selectedEvent.client.aum} · {selectedEvent.event.confidence}% confidence
+                      {selectedEvent.client.name} · {selectedEvent.client.aum} · {selectedEvent.event.confidence}%
                     </div>
                   </div>
                 </div>
