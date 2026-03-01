@@ -161,7 +161,7 @@ const Navbar = () => {
         <Link to="/" onClick={closeMobileMenu}>
           <img src={ventusLogoTransparent} alt="Ventus AI" className="h-6 w-auto" />
         </Link>
-        <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu">
+        <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu" style={{ minWidth: 'auto', minHeight: 'auto', padding: 0 }}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
