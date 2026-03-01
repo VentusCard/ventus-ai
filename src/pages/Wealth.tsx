@@ -64,7 +64,7 @@ const Wealth = () => {
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
                   onClick={() => document.getElementById("wealth-demo")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  See How It Works ↓
+                  See It Work ↓
                 </Button>
               </div>
             </div>
