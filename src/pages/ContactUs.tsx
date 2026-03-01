@@ -67,7 +67,7 @@ ${name}
     <div>
       <main className="pt-20">
         {/* Hero */}
-        <section className="py-16 md:py-24" style={{ background: "#f9fafb" }}>
+        <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Get In Touch</p>
@@ -80,7 +80,7 @@ ${name}
         </section>
 
         {/* Two-column: Form + Trust */}
-        <section className="py-16 md:py-20" style={{ background: "#f9fafb" }}>
+        <section className="py-16 md:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <div className="grid md:grid-cols-[55%_45%] gap-10 md:gap-14">
 
