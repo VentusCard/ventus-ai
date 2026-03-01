@@ -67,6 +67,9 @@ export function PreviewTable({ transactions }: PreviewTableProps) {
                   <TableHead className="text-right text-slate-700">Amount</TableHead>
                   <TableHead className="text-slate-700">Date</TableHead>
                   <TableHead className="text-slate-700">Zip Code</TableHead>
+                  {transactions.some(t => t.source) && (
+                    <TableHead className="text-slate-700">Source</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
