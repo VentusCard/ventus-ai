@@ -314,7 +314,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                             <div className="mt-auto pt-3 space-y-2">
                               <div className="flex items-center justify-between text-xs text-slate-600">
                                 <span>{subcat.transactionCount} transactions</span>
-                                <span>{percentage.toFixed(1)}% of pillar</span>
+                                <span>{percentage.toFixed(1)}% of {selectedPillar}</span>
                               </div>
                               <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
                                 <div
