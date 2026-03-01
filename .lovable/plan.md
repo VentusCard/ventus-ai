@@ -1,72 +1,38 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+## Fix Card Element Vertical Alignment
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+### Problem
+When the Trips toggle is active, the trip card (e.g., "New York City") and subcategory cards (e.g., "Hotels & Lodging", "Flights") have different internal content heights. The trip card has an extra date line, causing the dollar amounts, transaction counts, and progress bars to sit at different vertical positions across cards in the same row.
 
----
+### Solution
+Convert both trip cards and subcategory cards to use a `flex flex-col h-full` layout with consistent element positioning:
 
-## Sections to Build
+1. **Title row** -- fixed at top
+2. **Dollar amount** -- directly below title
+3. **Detail line** -- trip cards show date info, subcategory cards show nothing (use a spacer or min-height to keep alignment)
+4. **Transaction count + percentage row** -- pushed to bottom area using `mt-auto`
+5. **Progress bar** -- anchored at the very bottom
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+### File Changed
+`src/components/tepilot/insights/PillarExplorer.tsx`
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+### Technical Details
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+**Trip card (lines 242-265):** Restructure to `flex flex-col h-full` with `mt-auto` on the bottom group (transactions row + progress bar).
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+**Subcategory card (lines 278-325):** Same `flex flex-col h-full` structure with `mt-auto` on the bottom group, so elements align with trip cards even though subcategory cards lack the date line.
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+Both card types will share this internal structure:
+```text
++---------------------------+
+| Title (font-medium)       |
+| $Amount (text-xl bold)    |
+| [date line or empty space]|
+|         (flex-1 spacer)   |
+| transactions   % of pillar|
+| [====progress bar=======] |
++---------------------------+
+```
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
-
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
-
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
-
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
-
+The `flex-1` spacer between the middle content and the bottom group ensures that regardless of how many lines of content each card has, the transaction count and progress bar always align across cards in the same row.
