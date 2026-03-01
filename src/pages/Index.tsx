@@ -70,7 +70,7 @@ const Index = () => {
                 <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
                   We don't label transactions.{" "}
-                  <span className="text-blue-600">We understand them.</span>
+                  <span className="text-blue-600">We read the story they tell together.</span>
                 </h2>
               </div>
             </ScrollReveal>
