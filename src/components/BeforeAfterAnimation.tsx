@@ -125,7 +125,7 @@ const BeforeAfterAnimation = () => {
           style={{ background: "#f8f9fa" }}
         >
           <p className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-3">
-            Transaction Feed (Rolling 90 Days)
+            Transaction Feed
           </p>
           <div className="space-y-1" style={{ height: 180, overflow: "hidden" }}>
             {visibleTxs.map((tx, i) => (

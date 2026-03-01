@@ -131,7 +131,7 @@ const EnrichmentMockup = () => {
           {/* Left: Transaction Feed */}
           <div className="overflow-hidden">
             <span className="text-[10px] font-mono font-semibold text-blue-400 tracking-widest uppercase">
-              Transaction Feed (Rolling)
+              Transaction Feed
             </span>
             <div className="mt-2 space-y-1 overflow-hidden" style={{ maxHeight: 150 }}>
               {visibleTxs.map((tx, i) => (

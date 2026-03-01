@@ -159,7 +159,7 @@ const EnrichmentInteractiveDemo = () => {
       <div className="max-w-2xl mx-auto mb-8">
         <div className="rounded-xl p-5 border border-gray-200 bg-white shadow-sm">
           <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">
-            Transaction History (Rolling 90 Days)
+            Transaction History
           </p>
           <div className="space-y-1" style={{ height: 140, overflow: "hidden" }}>
             {visibleTxs.map((tx, i) => (
