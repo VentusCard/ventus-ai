@@ -241,26 +241,28 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                           return (
                             <div
                               key={`trip-${trip.destination}-${trip.startDate}`}
-                              className={`p-4 rounded-lg bg-purple-50 border cursor-pointer hover:bg-purple-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-purple-200'}`}
+                              className={`flex flex-col h-full p-4 rounded-lg bg-purple-50 border cursor-pointer hover:bg-purple-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-purple-200'}`}
                               onClick={() => setSelectedTripIdx(isSelected ? null : idx)}
                             >
-                              <div className="flex items-center gap-1.5 mb-2">
+                              <div className="flex items-center gap-1.5 mb-1">
                                 <Map className="w-3.5 h-3.5 text-purple-500" />
                                 <p className="font-medium text-sm text-slate-900">{trip.destination}</p>
                               </div>
-                              <p className="text-xl font-bold mb-1 text-slate-900">${trip.totalSpend.toFixed(2)}</p>
-                              <p className="text-xs text-slate-600 mb-1">
+                              <p className="text-xl font-bold text-slate-900">${trip.totalSpend.toFixed(2)}</p>
+                              <p className="text-xs text-slate-600 mt-1">
                                 {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
                               </p>
-                              <div className="flex items-center justify-between text-xs text-slate-600">
-                                <span>{trip.transactions.length} transactions</span>
-                                <span>{percentage.toFixed(1)}% of travel</span>
-                              </div>
-                              <div className="mt-2 h-1.5 bg-purple-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full rounded-full transition-all bg-purple-500"
-                                  style={{ width: `${percentage}%` }}
-                                />
+                              <div className="mt-auto pt-3 space-y-2">
+                                <div className="flex items-center justify-between text-xs text-slate-600">
+                                  <span>{trip.transactions.length} transactions</span>
+                                  <span>{percentage.toFixed(1)}% of travel</span>
+                                </div>
+                                <div className="h-1.5 bg-purple-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all bg-purple-500"
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           );
@@ -277,7 +279,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                         return (
                           <div
                             key={subcat.subcategory}
-                            className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                            className="flex flex-col h-full p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedSubcategory({
@@ -286,10 +288,10 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                               });
                             }}
                           >
-                            <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
-                            <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                            <p className="font-medium text-sm mb-1 text-slate-900">{subcat.subcategory}</p>
+                            <p className="text-xl font-bold text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
                             {budgetMode && subcatBudgetInfo && (
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mt-1">
                                 <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
                                 <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
                                 <Input
@@ -304,22 +306,24 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                                 />
                               </div>
                             )}
-                            <div className="flex items-center justify-between text-xs text-slate-600">
-                              <span>{subcat.transactionCount} transactions</span>
-                              <span>{percentage.toFixed(1)}% of pillar</span>
-                            </div>
-                            <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full transition-all"
-                                style={{
-                                  width: budgetMode && subcatBudget > 0
-                                    ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
-                                    : `${percentage}%`,
-                                  backgroundColor: budgetMode && subcatBudgetInfo
-                                    ? subcatBudgetInfo.color
-                                    : (PILLAR_COLORS[selectedPillar] || "#64748b")
-                                }}
-                              />
+                            <div className="mt-auto pt-3 space-y-2">
+                              <div className="flex items-center justify-between text-xs text-slate-600">
+                                <span>{subcat.transactionCount} transactions</span>
+                                <span>{percentage.toFixed(1)}% of pillar</span>
+                              </div>
+                              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all"
+                                  style={{
+                                    width: budgetMode && subcatBudget > 0
+                                      ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
+                                      : `${percentage}%`,
+                                    backgroundColor: budgetMode && subcatBudgetInfo
+                                      ? subcatBudgetInfo.color
+                                      : (PILLAR_COLORS[selectedPillar] || "#64748b")
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
                         );
