@@ -64,13 +64,15 @@ const Index = () => {
 
         {/* Differentiation Section */}
         <section className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-2 gap-16 items-start">
+          <div className="max-w-3xl mx-auto px-6 md:px-8">
             <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
-                We don't label transactions.{" "}
-                <span className="text-blue-600">We understand them.</span>
-              </h2>
+              <div className="text-center mb-12">
+                <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
+                  We don't label transactions.{" "}
+                  <span className="text-blue-600">We understand them.</span>
+                </h2>
+              </div>
             </ScrollReveal>
             <BeforeAfterAnimation />
           </div>
@@ -106,17 +108,19 @@ const Index = () => {
 
         {/* CTA */}
         <ScrollReveal>
-          <section className="py-24 bg-white">
+          <section className="py-24" style={{ backgroundColor: '#f0f6ff' }}>
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">See it in action.</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Your transactions are already telling a story.</h2>
               <p className="text-lg text-gray-500 mb-8">
-                Join the banks already using Ventus to turn transaction data into their most valuable asset.
+                Built for forward-thinking financial institutions ready to turn data into their most valuable asset.
               </p>
+              <p className="text-lg text-gray-500 mb-8">Ventus helps you listen.</p>
               <Link to="/contact">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                   Schedule a Demo
                 </Button>
               </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
           </section>
         </ScrollReveal>
