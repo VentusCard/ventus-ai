@@ -127,9 +127,9 @@ const EnrichmentMockup = () => {
           <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 px-5 py-4">
+        <div className="grid grid-cols-2 gap-4 px-5 py-4" style={{ height: 200 }}>
           {/* Left: Transaction Feed */}
-          <div className="min-h-[180px]">
+          <div className="overflow-hidden">
             <span className="text-[10px] font-mono font-semibold text-blue-400 tracking-widest uppercase">
               Transaction Feed (Rolling)
             </span>
@@ -162,7 +162,7 @@ const EnrichmentMockup = () => {
           </div>
 
           {/* Right: Enriched Output */}
-          <div className="min-h-[180px]">
+          <div className="overflow-hidden">
             <span className="text-[10px] font-mono font-semibold text-emerald-400 tracking-widest uppercase">
               Enriched Output
             </span>

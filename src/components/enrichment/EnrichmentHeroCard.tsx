@@ -113,13 +113,13 @@ const EnrichmentHeroCard = () => {
         <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-4">
+      <div className="grid grid-cols-2 gap-3 px-5 py-4" style={{ height: 180 }}>
         {/* Left: Feed */}
-        <div className="min-h-[160px]">
+        <div className="overflow-hidden">
           <span className="text-[10px] font-mono font-semibold text-blue-400 tracking-widest uppercase">
             Transaction Feed (Rolling)
           </span>
-          <div className="mt-2 space-y-0.5 overflow-hidden" style={{ maxHeight: 140 }}>
+          <div className="mt-2 space-y-0.5 overflow-hidden" style={{ maxHeight: 130 }}>
             {visibleTxs.map((tx, i) => (
               <div
                 key={`${tx.merchant}-${tx.date}-${i}`}
@@ -141,7 +141,7 @@ const EnrichmentHeroCard = () => {
         </div>
 
         {/* Right: Profile */}
-        <div className="min-h-[160px]">
+        <div className="overflow-hidden">
           <span className="text-[10px] font-mono font-semibold text-emerald-400 tracking-widest uppercase">
             Enriched Output
           </span>
