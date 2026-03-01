@@ -480,6 +480,9 @@ function validateTransaction(row: any, headerMap: Record<string, string>, index:
         case "zip_code":
           zip_code = String(value || "").trim();
           break;
+        case "source":
+          source = String(value || "").trim();
+          break;
       }
     });
 
