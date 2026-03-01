@@ -3,13 +3,13 @@ import { Input } from "@/components/ui/input";
 import { EnrichedTransaction } from "@/types/transaction";
 import { aggregateByPillar, getSubcategoriesForPillar } from "@/lib/aggregations";
 import { PILLAR_COLORS } from "@/lib/sampleData";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
 import { hashString, getBudgetStatus } from "@/lib/budgetUtils";
 import { groupTransactionsByTrip, TripSection } from "./TravelTimeline";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { LayoutGrid, Map } from "lucide-react";
+import { LayoutGrid, Map, Plane } from "lucide-react";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
@@ -37,6 +37,9 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
   const pillars = aggregateByPillar(transactions);
   const totalSpend = pillars.reduce((sum, p) => sum + p.totalSpend, 0);
 
+  const trips = useMemo(() => groupTransactionsByTrip(transactions), [transactions]);
+  const totalTripSpend = useMemo(() => trips.reduce((sum, t) => sum + t.transactions.reduce((s, tx) => s + tx.amount, 0), 0), [trips]);
+
   const getSubcategoryBudget = useCallback((pillar: string, subcategory: string, spend: number) => {
     const key = `${pillar}::${subcategory}`;
     if (subcategoryBudgets[key] !== undefined) return subcategoryBudgets[key];
@@ -57,13 +60,14 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
           const isSelected = selectedPillar === pillar.pillar;
           const budget = budgets[pillar.pillar] || 0;
           const budgetInfo = getBudgetStatus(pillar.totalSpend, budget);
+          const isTravel = pillar.pillar === "Travel & Exploration";
           
           return (
             <Card
               key={pillar.pillar}
-              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl bg-white border-slate-200 relative ${
-                isSelected ? 'ring-2 shadow-xl' : ''
-              }`}
+              className={`cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-slate-200 relative ${
+                isTravel ? 'col-span-2 bg-purple-50/60' : 'bg-white'
+              } ${isSelected ? 'ring-2 shadow-xl' : ''}`}
               style={{
                 borderColor: isSelected ? color : undefined,
                 boxShadow: isSelected ? `0 10px 30px -10px ${color}40` : undefined
@@ -81,40 +85,54 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                 </div>
               )}
               <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div 
-                    className="w-full h-1 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                  <div>
-                    <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
-                    <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
-                    {budgetMode && (
-                      <p className="text-xs mt-0.5" style={{ color: budgetInfo.color }}>
-                        Budget: ${budget}
-                      </p>
-                    )}
+                <div className={isTravel ? "grid grid-cols-2 gap-4" : ""}>
+                  {/* Left / Standard stats */}
+                  <div className="space-y-3">
+                    <div 
+                      className="w-full h-1 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    <div>
+                      <p className="font-semibold text-sm mb-1 line-clamp-2 text-slate-900">{pillar.pillar}</p>
+                      <p className="text-2xl font-bold" style={{ color }}>${pillar.totalSpend.toFixed(0)}</p>
+                      {budgetMode && (
+                        <p className="text-xs mt-0.5" style={{ color: budgetInfo.color }}>
+                          Budget: ${budget}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-slate-600">
+                      <span>{pillar.transactionCount} trans.</span>
+                      <span>{percentage.toFixed(1)}%</span>
+                    </div>
+                    {/* Mini sparkline */}
+                    <div className="flex items-end gap-0.5 h-6">
+                      {Array.from({ length: 8 }).map((_, idx) => {
+                        const height = Math.random() * 100;
+                        return (
+                          <div
+                            key={idx}
+                            className="flex-1 rounded-t"
+                            style={{
+                              backgroundColor: `${color}60`,
+                              height: `${height}%`
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-600">
-                    <span>{pillar.transactionCount} trans.</span>
-                    <span>{percentage.toFixed(1)}%</span>
-                  </div>
-                  {/* Mini sparkline */}
-                  <div className="flex items-end gap-0.5 h-6">
-                    {Array.from({ length: 8 }).map((_, idx) => {
-                      const height = Math.random() * 100;
-                      return (
-                        <div
-                          key={idx}
-                          className="flex-1 rounded-t"
-                          style={{
-                            backgroundColor: `${color}60`,
-                            height: `${height}%`
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
+
+                  {/* Right half — Trip summary (Travel only) */}
+                  {isTravel && (
+                    <div className="flex flex-col justify-center items-center text-center space-y-2 border-l border-purple-200 pl-4">
+                      <Plane className="w-6 h-6 text-purple-500" />
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Detected Trips</p>
+                      <p className="text-3xl font-bold text-purple-700">{trips.length}</p>
+                      <p className="text-sm text-slate-600">${totalTripSpend.toFixed(0)} trip spend</p>
+                      <p className="text-xs text-purple-500 font-medium mt-1">click to view details →</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
