@@ -161,7 +161,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                 </ToggleGroupItem>
                 <ToggleGroupItem value="trips" aria-label="Trips view" className="gap-1.5 text-xs px-3">
                   <Map className="w-3.5 h-3.5" />
-                  Trips ({groupTransactionsByTrip(transactions).length})
+                  Trips ({trips.length})
                 </ToggleGroupItem>
               </ToggleGroup>
             )}
@@ -206,123 +206,121 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
               
               return (
                 <div className="space-y-6">
-                  {/* Categories view (default, or always for non-travel pillars) */}
-                  {(selectedPillar !== "Travel & Exploration" || travelViewMode === "categories") && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-4 text-slate-900">Subcategories</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {subcategories.slice(0, 6).map((subcat) => {
-                          const percentage = (subcat.totalSpend / pillarTotal) * 100;
-                          const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
-                          const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
-                          const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
-                          
+                  {/* Unified grid: trip cards (when trips view) + subcategory cards */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-4 text-slate-900">
+                      {selectedPillar === "Travel & Exploration" && travelViewMode === "trips"
+                        ? "Trips & Subcategories"
+                        : "Subcategories"}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {/* Trip cards first when trips view is active */}
+                      {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && (() => {
+                        const tripsData = groupTransactionsByTrip(transactions);
+                        const totalTravelSpend = tripsData.reduce((sum, t) => sum + t.totalSpend, 0);
+                        return tripsData.map((trip, idx) => {
+                          const percentage = totalTravelSpend > 0 ? (trip.totalSpend / totalTravelSpend) * 100 : 0;
+                          const days = calculateDays(trip.startDate, trip.endDate);
+                          const isSelected = selectedTripIdx === idx;
                           return (
                             <div
-                              key={subcat.subcategory}
-                              className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedSubcategory({
-                                  subcategory: subcat.subcategory,
-                                  pillar: selectedPillar
-                                });
-                              }}
+                              key={`trip-${trip.destination}-${trip.startDate}`}
+                              className={`p-4 rounded-lg bg-purple-50 border cursor-pointer hover:bg-purple-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-purple-200'}`}
+                              onClick={() => setSelectedTripIdx(isSelected ? null : idx)}
                             >
-                              <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
-                              <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
-                              {budgetMode && subcatBudgetInfo && (
-                                <div className="flex items-center gap-2 mb-1">
-                                  <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
-                                  <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
-                                  <Input
-                                    type="number"
-                                    className="w-20 h-6 text-xs px-1"
-                                    value={subcategoryBudgets[budgetKey] ?? subcatBudget}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => {
-                                      const val = parseInt(e.target.value) || 0;
-                                      setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
-                                    }}
-                                  />
-                                </div>
-                              )}
-                              <div className="flex items-center justify-between text-xs text-slate-600">
-                                <span>{subcat.transactionCount} transactions</span>
-                                <span>{percentage.toFixed(1)}% of pillar</span>
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <Map className="w-3.5 h-3.5 text-purple-500" />
+                                <p className="font-medium text-sm text-slate-900">{trip.destination}</p>
                               </div>
-                              <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                              <p className="text-xl font-bold mb-1 text-slate-900">${trip.totalSpend.toFixed(2)}</p>
+                              <p className="text-xs text-slate-600 mb-1">
+                                {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
+                              </p>
+                              <div className="flex items-center justify-between text-xs text-slate-600">
+                                <span>{trip.transactions.length} transactions</span>
+                                <span>{percentage.toFixed(1)}% of travel</span>
+                              </div>
+                              <div className="mt-2 h-1.5 bg-purple-200 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full rounded-full transition-all"
-                                  style={{
-                                    width: budgetMode && subcatBudget > 0
-                                      ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
-                                      : `${percentage}%`,
-                                    backgroundColor: budgetMode && subcatBudgetInfo
-                                      ? subcatBudgetInfo.color
-                                      : (PILLAR_COLORS[selectedPillar] || "#64748b")
-                                  }}
+                                  className="h-full rounded-full transition-all bg-purple-500"
+                                  style={{ width: `${percentage}%` }}
                                 />
                               </div>
                             </div>
                           );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                        });
+                      })()}
 
-                  {/* Trips view (Travel & Exploration only) */}
-                  {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && (() => {
-                    const trips = groupTransactionsByTrip(transactions);
-                    const totalTravelSpend = trips.reduce((sum, t) => sum + t.totalSpend, 0);
-                    if (trips.length === 0) return (
-                      <p className="text-sm text-slate-500 italic">No trips detected in transaction data.</p>
-                    );
+                      {/* Subcategory cards */}
+                      {subcategories.slice(0, 6).map((subcat) => {
+                        const percentage = (subcat.totalSpend / pillarTotal) * 100;
+                        const subcatBudget = budgetMode ? getSubcategoryBudget(selectedPillar, subcat.subcategory, subcat.totalSpend) : 0;
+                        const subcatBudgetInfo = budgetMode ? getBudgetStatus(subcat.totalSpend, subcatBudget) : null;
+                        const budgetKey = `${selectedPillar}::${subcat.subcategory}`;
+                        
+                        return (
+                          <div
+                            key={subcat.subcategory}
+                            className="p-4 rounded-lg bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedSubcategory({
+                                subcategory: subcat.subcategory,
+                                pillar: selectedPillar
+                              });
+                            }}
+                          >
+                            <p className="font-medium text-sm mb-2 text-slate-900">{subcat.subcategory}</p>
+                            <p className="text-xl font-bold mb-1 text-slate-900">${subcat.totalSpend.toFixed(2)}</p>
+                            {budgetMode && subcatBudgetInfo && (
+                              <div className="flex items-center gap-2 mb-1">
+                                <subcatBudgetInfo.icon className="w-3.5 h-3.5" style={{ color: subcatBudgetInfo.color }} />
+                                <span className="text-xs" style={{ color: subcatBudgetInfo.color }}>Budget: $</span>
+                                <Input
+                                  type="number"
+                                  className="w-20 h-6 text-xs px-1"
+                                  value={subcategoryBudgets[budgetKey] ?? subcatBudget}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value) || 0;
+                                    setSubcategoryBudgets(prev => ({ ...prev, [budgetKey]: val }));
+                                  }}
+                                />
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between text-xs text-slate-600">
+                              <span>{subcat.transactionCount} transactions</span>
+                              <span>{percentage.toFixed(1)}% of pillar</span>
+                            </div>
+                            <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all"
+                                style={{
+                                  width: budgetMode && subcatBudget > 0
+                                    ? `${Math.min(100, (subcat.totalSpend / subcatBudget) * 100)}%`
+                                    : `${percentage}%`,
+                                  backgroundColor: budgetMode && subcatBudgetInfo
+                                    ? subcatBudgetInfo.color
+                                    : (PILLAR_COLORS[selectedPillar] || "#64748b")
+                                }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Expanded trip detail below grid */}
+                  {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && selectedTripIdx !== null && (() => {
+                    const tripsData = groupTransactionsByTrip(transactions);
+                    if (!tripsData[selectedTripIdx]) return null;
                     return (
                       <div>
-                        <h4 className="text-sm font-medium mb-4 text-slate-900">
-                          Detected Trips ({trips.length})
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {trips.map((trip, idx) => {
-                            const percentage = totalTravelSpend > 0 ? (trip.totalSpend / totalTravelSpend) * 100 : 0;
-                            const days = calculateDays(trip.startDate, trip.endDate);
-                            const isSelected = selectedTripIdx === idx;
-                            return (
-                              <div
-                                key={`${trip.destination}-${trip.startDate}`}
-                                className={`p-4 rounded-lg bg-slate-50 border cursor-pointer hover:bg-slate-100 transition-colors ${isSelected ? 'border-purple-400 ring-1 ring-purple-400' : 'border-slate-200'}`}
-                                onClick={() => setSelectedTripIdx(isSelected ? null : idx)}
-                              >
-                                <p className="font-medium text-sm mb-2 text-slate-900">{trip.destination}</p>
-                                <p className="text-xl font-bold mb-1 text-slate-900">${trip.totalSpend.toFixed(2)}</p>
-                                <p className="text-xs text-slate-600 mb-1">
-                                  {formatDateRange(trip.startDate, trip.endDate)} • {days} day{days > 1 ? 's' : ''}
-                                </p>
-                                <div className="flex items-center justify-between text-xs text-slate-600">
-                                  <span>{trip.transactions.length} transactions</span>
-                                  <span>{percentage.toFixed(1)}% of travel</span>
-                                </div>
-                                <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full transition-all bg-purple-500"
-                                    style={{ width: `${percentage}%` }}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {selectedTripIdx !== null && trips[selectedTripIdx] && (
-                          <div className="mt-4">
-                            <TripSection trip={trips[selectedTripIdx]} defaultOpen={true} />
-                          </div>
-                        )}
+                        <TripSection trip={tripsData[selectedTripIdx]} defaultOpen={true} />
                       </div>
                     );
                   })()}
-
 
                   <div>
                     <h4 className="text-sm font-medium mb-4 text-slate-900">Recent Transactions</h4>
