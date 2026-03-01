@@ -67,21 +67,21 @@ ${name}
     <div>
       <main className="pt-20">
         {/* Two-column: Trust + Form */}
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-8 md:py-14 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <div className="grid md:grid-cols-[45%_55%] gap-10 md:gap-14">
+            <div className="grid md:grid-cols-[42%_58%] gap-8 md:gap-12">
 
               {/* LEFT — Trust & Context */}
               <ScrollReveal>
-                <div className="md:pt-2">
-                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Get In Touch</p>
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Let's talk.</h2>
-                  <p className="text-lg text-gray-500 max-w-md leading-relaxed mb-10">
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Get In Touch</p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Let's talk.</h2>
+                  <p className="text-base text-gray-500 max-w-md leading-relaxed mb-7">
                     Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you. We'll get back within one business day.
                   </p>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">What happens next</h3>
-                  <div className="space-y-6 mb-8">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">What happens next</h3>
+                  <div className="space-y-4 mb-6">
                     {steps.map((step, i) => (
                       <div key={i} className="flex gap-4">
                         <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#f0f6ff" }}>
@@ -98,7 +98,7 @@ ${name}
                     ))}
                   </div>
 
-                  <div className="border-t border-gray-200 pt-6 mb-6">
+                  <div className="border-t border-gray-200 pt-4 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#f0f6ff" }}>
                         <Mail className="w-4 h-4 text-blue-600" />
@@ -120,7 +120,7 @@ ${name}
 
               {/* RIGHT — Form */}
               <ScrollReveal delay={0.15}>
-                <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-6 md:p-8">
+                <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
                   {showSuccess && (
                     <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
                       <div className="text-center max-w-sm">
@@ -136,7 +136,7 @@ ${name}
                     </div>
                   )}
 
-                  <form className="space-y-5">
+                  <form className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-gray-900 font-medium mb-1.5 block text-sm">Full Name</label>
@@ -167,7 +167,7 @@ ${name}
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Message</label>
-                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[120px] resize-none bg-white border-gray-300 text-gray-900" required />
+                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900" required />
                     </div>
                     <Button
                       type="button"
