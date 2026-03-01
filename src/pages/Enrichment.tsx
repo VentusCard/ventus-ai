@@ -109,7 +109,7 @@ const Enrichment = () => {
         </section>
 
         {/* SECTION 3 — HOW IT WORKS (Pipeline) */}
-        <section className="py-24" style={{ background: "#f8f9fa" }}>
+        <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
