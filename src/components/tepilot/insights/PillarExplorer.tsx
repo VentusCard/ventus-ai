@@ -229,7 +229,7 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                         ? "Trips & Subcategories"
                         : "Subcategories"}
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 [grid-auto-rows:1fr]">
                       {/* Trip cards first when trips view is active */}
                       {selectedPillar === "Travel & Exploration" && travelViewMode === "trips" && (() => {
                         const tripsData = groupTransactionsByTrip(transactions);
