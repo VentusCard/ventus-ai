@@ -88,7 +88,7 @@ const IntegrationSection = () => {
         </div>
 
         {/* Stats */}
-        <div ref={statsRef} className="mt-20 grid grid-cols-3 gap-4 md:gap-8 text-center">
+        <div ref={statsRef} className="mt-20 grid grid-cols-3 gap-4 md:gap-8 text-center -ml-2 md:ml-0">
           <div>
             <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count0 : 0}{stats[0].suffix}</p>
             <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[0].label}</p>
