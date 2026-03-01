@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Check, Lock } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
@@ -49,6 +49,124 @@ const tabs = [
     ],
   },
 ];
+
+const AnalyticsPreview = () => {
+  const pillars = [
+    { label: "Travel", pct: 20.4 },
+    { label: "Dining", pct: 18.2 },
+    { label: "Wellness", pct: 14.1 },
+    { label: "Shopping", pct: 12.3 },
+    { label: "Auto", pct: 9.8 },
+  ];
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: "Total Accounts", value: "120M" },
+          { label: "Total Annual Spend", value: "$385B" },
+          { label: "Active Account Rate", value: "78.5%" },
+        ].map((m) => (
+          <div key={m.label} className="rounded-lg border border-gray-100 bg-gray-50 p-3 text-center">
+            <p className="text-lg font-bold text-gray-900">{m.value}</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">{m.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {pillars.map((p) => (
+          <div key={p.label} className="flex items-center gap-2">
+            <span className="text-[11px] text-gray-500 w-16 shrink-0">{p.label}</span>
+            <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${p.pct * 3}%` }} />
+            </div>
+            <span className="text-[11px] font-medium text-gray-700 w-10 text-right">{p.pct}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const RewardsPreview = () => (
+  <div className="space-y-3">
+    <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
+      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">SM</div>
+      <span className="text-sm font-semibold text-gray-900">Sarah M.</span>
+      <span className="ml-auto text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Outdoor Enthusiast</span>
+    </div>
+    {[
+      { name: "REI", offer: "10% back", match: "96%" },
+      { name: "Patagonia", offer: "15% back", match: "94%" },
+      { name: "Delta Miles", offer: "2x miles", match: "91%" },
+    ].map((o) => (
+      <div key={o.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-900">{o.name}</p>
+          <p className="text-[11px] text-gray-500">{o.offer}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">Matched</span>
+          <span className="text-xs font-bold text-gray-700">{o.match}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const EngagementPreview = () => (
+  <div className="space-y-3">
+    <div className="rounded-lg bg-blue-50 p-3">
+      <p className="text-sm font-semibold text-gray-900">Summer Travel Planners</p>
+      <p className="text-[11px] text-gray-500">14,200 customers identified</p>
+    </div>
+    {[
+      { channel: "Email", msg: "Your personalized travel rewards are ready..." },
+      { channel: "Push Notification", msg: "Don't miss 3x miles on your next booking" },
+      { channel: "SMS", msg: "Sarah, exclusive Delta offer expires Friday" },
+    ].map((c) => (
+      <div key={c.channel} className="flex items-center gap-3 rounded-lg border border-gray-100 p-3">
+        <span className="flex h-2 w-2 shrink-0">
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-gray-900">{c.channel}</p>
+          <p className="text-[11px] text-gray-400 truncate">{c.msg}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const WealthPreview = () => (
+  <div className="space-y-3">
+    {[
+      { name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026" },
+      { name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026" },
+    ].map((c) => (
+      <div key={c.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-gray-900">{c.name}</p>
+            <span className="text-[10px] text-gray-500">{c.aum}</span>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
+            <span className="text-[11px] text-gray-600">{c.event}</span>
+            <span className="text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+          </div>
+        </div>
+        <button className="text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
+          Prepare
+        </button>
+      </div>
+    ))}
+  </div>
+);
+
+const TabPreview = ({ index }: { index: number }) => {
+  const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <WealthPreview />];
+  return previews[index] || null;
+};
 
 const ROTATE_INTERVAL = 5000;
 
@@ -165,32 +283,9 @@ const PlatformTabs = () => {
                     ventus.ai/dashboard
                   </span>
                 </div>
-                {/* Content area */}
-                <div className="relative h-72 md:h-80 bg-[#0a0f1e] flex items-center justify-center">
-                  {/* Fake blurred dashboard content */}
-                  <div className="absolute inset-0 opacity-20 p-6 space-y-4">
-                    <div className="h-4 w-2/3 bg-white/30 rounded" />
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="h-20 bg-white/20 rounded-lg" />
-                      <div className="h-20 bg-white/20 rounded-lg" />
-                      <div className="h-20 bg-white/20 rounded-lg" />
-                    </div>
-                    <div className="h-32 bg-white/15 rounded-lg" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="h-16 bg-white/10 rounded-lg" />
-                      <div className="h-16 bg-white/10 rounded-lg" />
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 backdrop-blur-sm" />
-                  {/* Lock overlay */}
-                  <div className="relative z-10 flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                      <Lock className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <p className="text-gray-400 text-sm">
-                      Full demo available on request
-                    </p>
-                  </div>
+                {/* Dashboard content */}
+                <div className="p-5 bg-white min-h-[300px]">
+                  <TabPreview index={activeIndex} />
                 </div>
               </div>
             </div>
