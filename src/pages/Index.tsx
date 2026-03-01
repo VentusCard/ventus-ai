@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import PlatformTabs from "@/components/PlatformTabs";
 import BeforeAfterAnimation from "@/components/BeforeAfterAnimation";
+import IntegrationSection from "@/components/IntegrationSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -70,42 +71,8 @@ const Index = () => {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Integration</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-14">Plug in. No infrastructure changes.</h2>
-            <div className="grid md:grid-cols-3 gap-12">
-              {[
-                { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
-                { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
-                { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
-              ].map((s) => (
-                <div key={s.step}>
-                  <p className="text-5xl font-bold text-gray-200 mb-4">{s.step}</p>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{s.title}</h3>
-                  <p className="text-gray-500 leading-relaxed">{s.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <IntegrationSection />
 
-        {/* Stats Bar */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-6 md:px-8 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
-            {[
-              { value: "20+", label: "Life events detected" },
-              { value: "12", label: "Lifestyle pillars" },
-              { value: "Real-time", label: "Enrichment" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p className="text-4xl md:text-5xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-gray-500 mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* FAQ */}
         <section id="faq" className="py-24 bg-white scroll-mt-20">
