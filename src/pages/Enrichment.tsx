@@ -65,7 +65,7 @@ const Enrichment = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-gray-600 text-white hover:bg-white/10"
+                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
                   onClick={scrollToDemo}
                 >
                   See It Work ↓
