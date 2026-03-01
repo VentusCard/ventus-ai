@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
+import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 
 const coreProduct = {
@@ -84,7 +85,7 @@ const Navbar = () => {
         {/* Left: Logo + Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogo} alt="Ventus AI" className={`h-6 w-auto ${isTransparent ? "mix-blend-screen" : ""}`} />
+            <img src={isTransparent ? ventusLogoTransparent : ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
           </Link>
 
           {/* Products dropdown */}
@@ -153,7 +154,7 @@ const Navbar = () => {
 
         {/* Mobile logo */}
         <Link to="/" onClick={closeMobileMenu} className="md:hidden">
-          <img src={ventusLogo} alt="Ventus AI" className={`h-6 w-auto ${isTransparent ? "mix-blend-screen" : ""}`} />
+          <img src={isTransparent ? ventusLogoTransparent : ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
         </Link>
 
         {/* Right: CTA */}
