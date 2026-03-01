@@ -75,52 +75,48 @@ const Index = () => {
 
 
         {/* FAQ */}
-        <section id="faq" className="py-24 scroll-mt-20" style={{ background: "#f8f9fa" }}>
-          <div className="max-w-3xl mx-auto px-6 md:px-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 text-center">Frequently Asked Questions</h2>
-            <Accordion type="single" collapsible className="w-full space-y-2">
-              {[
-                { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
-                { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API." },
-                { q: "Is our data secure?", a: "Yes. Ventus operates on SOC 2 compliant infrastructure with VPC isolation, end-to-end encryption, and full audit logging." },
-                { q: "Who is Ventus for?", a: "Built for banks and financial institutions — specifically digital banking teams, rewards and loyalty teams, and wealth management divisions." },
-                { q: "How is Ventus different from MX or Plaid?", a: "MX and Plaid clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
-              ].map((faq, i) => (
-                <AccordionItem key={i} value={`faq-${i}`} className="bg-white rounded-lg px-4 border border-gray-200 transition-colors hover:bg-blue-50/50">
-                  <AccordionTrigger className="text-left text-base text-gray-900">{faq.q}</AccordionTrigger>
-                  <AccordionContent className="text-gray-500">{faq.a}</AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+        <section id="faq" className="py-24 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-5 gap-16">
+            <div className="md:col-span-2">
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">FAQ</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">Frequently Asked Questions</h2>
+            </div>
+            <div className="md:col-span-3">
+              <Accordion type="single" collapsible defaultValue="faq-0" className="w-full">
+                {[
+                  { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
+                  { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API." },
+                  { q: "Is our data secure?", a: "Yes. Ventus operates on SOC 2 compliant infrastructure with VPC isolation, end-to-end encryption, and full audit logging." },
+                  { q: "Who is Ventus for?", a: "Built for banks and financial institutions — specifically digital banking teams, rewards and loyalty teams, and wealth management divisions." },
+                  { q: "How is Ventus different from MX or Plaid?", a: "MX and Plaid clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
+                ].map((faq, i) => (
+                  <AccordionItem key={i} value={`faq-${i}`} className="border-b border-gray-200">
+                    <AccordionTrigger className="text-left text-base text-gray-900 py-5">{faq.q}</AccordionTrigger>
+                    <AccordionContent className="text-gray-500 pb-5">{faq.a}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="relative py-28 overflow-hidden" style={{ background: "linear-gradient(135deg, #1a3a6e, #0f2456)" }}>
-          {/* Floating orbs */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute w-64 h-64 rounded-full bg-blue-400/10 blur-3xl animate-[float-orb_8s_ease-in-out_infinite]" style={{ top: "10%", left: "10%" }} />
-            <div className="absolute w-48 h-48 rounded-full bg-blue-300/10 blur-3xl animate-[float-orb_10s_ease-in-out_infinite_1s]" style={{ bottom: "10%", right: "15%" }} />
-            <div className="absolute w-32 h-32 rounded-full bg-blue-500/10 blur-2xl animate-[float-orb_7s_ease-in-out_infinite_2s]" style={{ top: "50%", left: "60%" }} />
-          </div>
-
-          <div className="relative z-10 max-w-3xl mx-auto px-6 md:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 opacity-0 animate-[fadeIn_0.8s_ease-out_0.2s_forwards]">
+        <section className="py-28" style={{ background: "#f0f6ff" }}>
+          <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
               Your transactions are already telling a story.
             </h2>
-            <p className="text-xl text-blue-100 mb-8 opacity-0 animate-[fadeIn_0.8s_ease-out_0.4s_forwards]">
+            <p className="text-xl text-gray-500 mb-8">
               Ventus helps you listen.
             </p>
-            <div className="opacity-0 animate-[fadeIn_0.8s_ease-out_0.6s_forwards]">
-              <Link to="/contact">
-                <Button size="lg" className="bg-white text-[#0f2456] hover:bg-gray-100 font-semibold">
-                  Schedule a Demo
-                </Button>
-              </Link>
-              <p className="text-blue-200/70 text-sm mt-4">
-                No commitment. 30-minute walkthrough.
-              </p>
-            </div>
+            <Link to="/contact">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+                Schedule a Demo
+              </Button>
+            </Link>
+            <p className="text-gray-400 text-sm mt-4">
+              No commitment. 30-minute walkthrough.
+            </p>
           </div>
         </section>
       </main>
