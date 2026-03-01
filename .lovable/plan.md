@@ -1,62 +1,72 @@
 
 
-# Redesign Ventus AI Homepage -- Light, Premium, Enterprise
+# Homepage Redesign — Single Long-Scroll Page
 
 ## Overview
-Complete redesign of the homepage (`/`) from dark/particle-heavy to a clean white enterprise aesthetic inspired by Stripe/Plaid. White background throughout, minimal nav, soft blue aurora blob, credibility bar, and a clean CTA section.
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-## Files to modify
+---
 
-### 1. `src/components/Hero.tsx` -- Full rewrite
-- **White background** instead of black
-- **Headline**: Large bold black text -- "Turn transaction data into *intelligence*" with "intelligence" in italic blue (`text-blue-600 italic`)
-- **Soft blue aurora blob**: A CSS radial gradient blob (blue-to-transparent) positioned behind the hero text, subtle and blurred, no particle animations
-- **Remove**: GradientOrbs, DataNetworkSVG, useMouseParallax, all parallax logic, brushstroke SVG
-- **Subheading**: Gray text below headline -- "Beyond basic enrichment -- interpreting transaction data to reveal consumer intent, behavior, and life events"
-- **CTA button**: Blue "Schedule Demo" button linking to `/contact`, plus a secondary "Learn More" linking to `/technology`
-- **Credibility bar**: Below the hero content, a thin section with subtle top border line saying "Trusted by top 10 US financial institutions" in small gray text
+## Sections to Build
 
-### 2. `src/components/Navbar.tsx` -- Restyle for white theme
-- White/transparent background with subtle bottom border (`border-b border-gray-100`)
-- Logo on left, nav links center-ish, "Schedule Demo" blue button on right
-- Nav link text: `text-gray-600 hover:text-gray-900` instead of white
-- Mobile menu: white background with gray text
-- Remove `bg-background/90` and dark-themed classes
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-### 3. `src/components/CTA.tsx` -- White background CTA
-- White background instead of black
-- Dark text (`text-gray-900`) for heading
-- Gray subtext
-- Blue "Contact Us" button (default primary variant)
-- Clean, minimal layout
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-### 4. `src/components/Footer.tsx` -- Light footer
-- Light gray background (`bg-gray-50`) instead of black
-- Dark text for headings, gray for body text
-- Subtle top border
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-### 5. `src/pages/Index.tsx` -- Minor wrapper update
-- Ensure `min-h-screen bg-white` on the wrapper div
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-## Design details
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-### Aurora blob effect (in Hero)
-Two overlapping `div` elements with:
-- `bg-blue-400/20` with large `blur-[120px]` -- positioned top-right
-- `bg-indigo-300/15` with `blur-[100px]` -- positioned bottom-left
-- Both absolutely positioned behind the text content
-- Subtle, soft, no animation needed (static glow)
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-### Typography
-- Headline: `text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900`
-- "intelligence" keyword: `italic text-blue-600 font-semibold`
-- Subheading: `text-lg md:text-xl text-gray-500`
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-### Credibility bar
-- Thin `border-t border-gray-200` divider
-- Centered text: "Trusted by top 10 US financial institutions" in `text-sm text-gray-400 tracking-wide uppercase`
-- Sits at the bottom of the hero section with some padding
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-### Color approach
-- The homepage components will use hardcoded white/gray/blue Tailwind classes rather than CSS variables, since the rest of the site (Technology, TePilot, etc.) still uses the dark theme via CSS variables
-- This scopes the light redesign to the homepage only without breaking other pages
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
+
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
+
