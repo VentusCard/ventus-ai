@@ -109,6 +109,12 @@
   }
 }
 
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  33% { transform: translateY(-15px) translateX(10px); }
+  66% { transform: translateY(10px) translateX(-8px); }
+}
+
 @keyframes connector-dot {
   0% { left: 0%; }
   50% { left: 100%; }
