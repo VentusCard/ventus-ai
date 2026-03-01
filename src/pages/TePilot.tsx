@@ -987,7 +987,7 @@ const TePilot = () => {
                 
                 <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
                 
-                <TravelTimeline transactions={displayTransactions} />
+                
                 
                 <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
                 

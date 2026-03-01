@@ -89,7 +89,7 @@ export function calculateDays(startDate: string, endDate: string): number {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
-function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: boolean }) {
+export function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
   // Group transactions by date

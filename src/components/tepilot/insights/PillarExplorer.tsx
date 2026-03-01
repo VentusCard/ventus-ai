@@ -7,6 +7,7 @@ import { useState, useCallback } from "react";
 import { SubcategoryTransactionsModal } from "./SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "../TransactionDetailModal";
 import { hashString, getBudgetStatus } from "@/lib/budgetUtils";
+import { groupTransactionsByTrip, TripSection } from "./TravelTimeline";
 
 interface PillarExplorerProps {
   transactions: EnrichedTransaction[];
