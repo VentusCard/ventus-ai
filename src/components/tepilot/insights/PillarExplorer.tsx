@@ -211,7 +211,29 @@ export function PillarExplorer({ transactions, budgetMode = false, budgets, setB
                     </div>
                   </div>
                   
-                  {/* Recent Transactions */}
+                  {/* Detected Trips (Travel & Exploration only) */}
+                  {selectedPillar === "Travel & Exploration" && (() => {
+                    const trips = groupTransactionsByTrip(transactions);
+                    if (trips.length === 0) return null;
+                    return (
+                      <div>
+                        <h4 className="text-sm font-medium mb-4 text-slate-900">
+                          Detected Trips ({trips.length})
+                        </h4>
+                        <div className="space-y-3">
+                          {trips.map((trip, idx) => (
+                            <TripSection
+                              key={`${trip.destination}-${trip.startDate}`}
+                              trip={trip}
+                              defaultOpen={idx === 0}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+
                   <div>
                     <h4 className="text-sm font-medium mb-4 text-slate-900">Recent Transactions</h4>
                     <div className="space-y-2">
