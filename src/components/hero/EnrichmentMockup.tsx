@@ -512,7 +512,7 @@ const EnrichmentMockup = () => {
 
           {/* ======== RIGHT PANEL ======== */}
           <div className="px-3 py-3 overflow-hidden flex flex-col">
-            <div className="text-[10px] font-mono font-semibold text-emerald-400 tracking-widest uppercase mb-2">
+            <div className="text-[11px] font-mono font-semibold text-blue-300 tracking-widest uppercase mb-2">
               Personalization Orchestration
             </div>
 
