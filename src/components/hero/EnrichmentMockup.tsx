@@ -486,10 +486,10 @@ const EnrichmentMockup = () => {
                     }}
                   >
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`cscan-${i}`} tx={tx} dim={false} />
+                      <TxRow key={`cscan-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`cscan2-${i}`} tx={tx} dim />
+                      <TxRow key={`cscan2-${i}`} tx={tx} dim sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                   </div>
                 </div>
