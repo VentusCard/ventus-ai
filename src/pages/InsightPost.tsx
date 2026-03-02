@@ -57,7 +57,7 @@ const InsightPost = () => {
           </div>
 
           {/* Body */}
-          <div className="prose prose-lg max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-blue-600 prose-headings:text-gray-900 prose-headings:mt-12 prose-headings:mb-5 prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:mb-6 prose-strong:text-gray-900 prose-li:text-gray-700 prose-li:leading-[1.7] prose-ul:my-6 prose-ol:my-6 prose-hr:my-10 prose-blockquote:border-blue-500 prose-blockquote:text-gray-600 prose-em:text-gray-600">
+          <div className="prose prose-lg max-w-none text-gray-700 prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-blue-600 prose-headings:text-gray-900 prose-headings:mt-12 prose-headings:mb-5 prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:mb-6 prose-strong:text-gray-900 prose-li:text-gray-700 prose-li:leading-[1.7] prose-ul:my-6 prose-ol:my-6 prose-hr:my-10 prose-blockquote:border-blue-500 prose-blockquote:text-gray-600 prose-em:text-gray-700 [&_li]:!text-gray-700 [&_li_strong]:!text-gray-900">
             <ReactMarkdown>{post.body}</ReactMarkdown>
           </div>
         </div>
