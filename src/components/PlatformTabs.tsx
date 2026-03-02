@@ -275,7 +275,7 @@ const PlatformTabs = () => {
           The Platform
         </p>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          One Tech Core. Four Insight Tools.
+          One Tech Core. Five Insight Tools.
         </h2>
         <p className="text-gray-500 text-lg mb-10">
           Every team in your bank. One enrichment engine underneath.
