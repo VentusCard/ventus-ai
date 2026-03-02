@@ -1,34 +1,72 @@
 
 
-## Improve Right Panel Space Usage, Font Sizes, and Colors
+# Homepage Redesign — Single Long-Scroll Page
 
-The right panel (60% of the 560x440px mockup) currently uses small font sizes (8-10px) and muted colors that don't fill the available space well. This plan increases sizes, improves color contrast, and adjusts spacing so the intelligence cards feel more substantial.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-### Changes (1 file: `src/components/hero/EnrichmentMockup.tsx`)
+---
 
-**1. Section header — "Personalization Orchestration" (line 515-516)**
-- Increase from `text-[10px]` to `text-[11px]`
-- Change color from `text-emerald-400` to a brighter white-blue (`text-blue-300`) for better contrast against the dark background
+## Sections to Build
 
-**2. Persona card (Dynamic Persona) — lines 520-555**
-- Increase title from `text-[9px]` to `text-[10px]`
-- Increase pill text from `text-[8px]` to `text-[9px]`
-- Increase padding from `px-2.5 py-2` to `px-3 py-2.5`
-- Brighten pill text color from `#60a5fa` to `#93c5fd`
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-**3. Intelligence cards (Analytics, Rewards, Relationship) — lines 581-661**
-- Increase card padding from `px-3 py-2.5` to `px-3.5 py-3`
-- Increase card title icon from `fontSize: 12` to `fontSize: 14`
-- Increase card title text from `text-[10px]` to `text-[11px]`
-- Increase subtitle from `text-[8px] text-gray-500` to `text-[9px] text-gray-400` for better readability
-- Increase pill text from `text-[9px]` to `text-[10px]`, padding from `px-2 py-0.5` to `px-2.5 py-1`
-- Increase content text from `text-[10px] text-gray-400` to `text-[11px] text-gray-300`
-- Reduce gap between cards from `gap-2` to `gap-1.5` to reclaim vertical space for larger content
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-**4. Color improvements throughout right panel**
-- Card accent colors remain as-is (they're already distinct per card type)
-- Pill backgrounds: increase opacity from `18` hex to `22` for better visibility
-- Revealed card background: from `rgba(255,255,255,0.03)` to `rgba(255,255,255,0.05)` for more definition
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-These changes make the right panel content ~15-20% larger and more legible while staying within the existing 60% width column and 440px height constraint.
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
+
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
+
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
+
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 

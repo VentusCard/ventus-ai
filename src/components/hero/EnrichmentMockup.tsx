@@ -512,14 +512,14 @@ const EnrichmentMockup = () => {
 
           {/* ======== RIGHT PANEL ======== */}
           <div className="px-3 py-3 overflow-hidden flex flex-col">
-            <div className="text-[10px] font-mono font-semibold text-emerald-400 tracking-widest uppercase mb-2">
+            <div className="text-[11px] font-mono font-semibold text-blue-300 tracking-widest uppercase mb-2">
               Personalization Orchestration
             </div>
 
             {/* Persona card — always visible once profile shows */}
             {showProfile && (
               <div
-                className="rounded-lg px-2.5 py-2 mb-2 transition-all duration-700 ease-out"
+                className="rounded-lg px-3 py-2.5 mb-2 transition-all duration-700 ease-out"
                 style={{
                   background: "rgba(59,130,246,0.08)",
                   opacity: showProfile ? 1 : 0,
@@ -527,10 +527,10 @@ const EnrichmentMockup = () => {
                 }}
               >
                 <div className="flex items-center gap-1 mb-1">
-                  <span style={{ color: "#60a5fa", fontSize: 10 }}>{personaCard.icon}</span>
+                  <span style={{ color: "#93c5fd", fontSize: 12 }}>{personaCard.icon}</span>
                   <span
-                    className="text-[9px] font-semibold tracking-wider uppercase"
-                    style={{ color: "#60a5fa" }}
+                    className="text-[10px] font-semibold tracking-wider uppercase"
+                    style={{ color: "#93c5fd" }}
                   >
                     {personaCard.title}
                   </span>
@@ -539,10 +539,10 @@ const EnrichmentMockup = () => {
                   {personaCard.pills?.map((pill, i) => (
                     <span
                       key={pill}
-                      className="text-[8px] font-medium px-1.5 py-0.5 rounded-full"
+                      className="text-[9px] font-medium px-2 py-0.5 rounded-full"
                       style={{
-                        background: "rgba(59,130,246,0.15)",
-                        color: "#60a5fa",
+                        background: "rgba(59,130,246,0.18)",
+                        color: "#93c5fd",
                         opacity: i < visiblePills ? 1 : 0,
                         transform: i < visiblePills ? "scale(1)" : "scale(0.7)",
                         transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
@@ -578,20 +578,20 @@ const EnrichmentMockup = () => {
 
             {/* Intelligence cards — revealed one at a time during cardCycle, all visible during hold */}
             {(phase === "cardCycle" || phase === "hold") && (
-              <div className="flex flex-col gap-2 flex-1 justify-between">
+              <div className="flex flex-col gap-1.5 flex-1 justify-between">
                 {remainingCards.map((card, i) => {
                   const isRevealed = i < revealedCards;
                   const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && (cardPhase === "scroll" || cardPhase === "scanning");
                   return (
                     <div
                       key={card.title}
-                      className="rounded-lg px-3 py-2.5 flex-1 flex flex-col transition-all duration-500"
+                      className="rounded-lg px-3.5 py-3 flex-1 flex flex-col transition-all duration-500"
                       style={{
                         borderLeft: `3px solid ${isRevealed ? card.accent : "transparent"}`,
                         background: isActiveScrolling
-                          ? `${card.accent}08`
+                          ? `${card.accent}0a`
                           : isRevealed
-                          ? "rgba(255,255,255,0.03)"
+                          ? "rgba(255,255,255,0.05)"
                           : "transparent",
                         opacity: isRevealed ? 1 : isActiveScrolling ? 0.5 : 0,
                         transform: isRevealed
@@ -602,16 +602,16 @@ const EnrichmentMockup = () => {
                       }}
                     >
                       <div className="flex items-center gap-1 mb-1">
-                        <span style={{ color: card.accent, fontSize: 12 }}>{card.icon}</span>
+                        <span style={{ color: card.accent, fontSize: 14 }}>{card.icon}</span>
                         <span
-                          className="text-[10px] font-semibold tracking-wider uppercase"
+                          className="text-[11px] font-semibold tracking-wider uppercase"
                           style={{ color: card.accent }}
                         >
                           {card.title}
                         </span>
                       </div>
                       {isRevealed && card.subtitle && (
-                        <div className="text-[8px] text-gray-500 mb-1">{card.subtitle}</div>
+                        <div className="text-[9px] text-gray-400 mb-1">{card.subtitle}</div>
                       )}
                       {isRevealed && (
                         <>
@@ -620,9 +620,9 @@ const EnrichmentMockup = () => {
                               {card.pills.map((pill) => (
                                 <span
                                   key={pill}
-                                  className="text-[9px] font-medium px-2 py-0.5 rounded-full"
+                                  className="text-[10px] font-medium px-2.5 py-1 rounded-full"
                                   style={{
-                                    background: `${card.accent}18`,
+                                    background: `${card.accent}22`,
                                     color: card.accent,
                                   }}
                                 >
@@ -631,7 +631,7 @@ const EnrichmentMockup = () => {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-[10px] text-gray-400 leading-relaxed">{card.content}</p>
+                            <p className="text-[11px] text-gray-300 leading-relaxed">{card.content}</p>
                           )}
                         </>
                       )}
