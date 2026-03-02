@@ -519,7 +519,7 @@ const EnrichmentMockup = () => {
             {/* Persona card — always visible once profile shows */}
             {showProfile && (
               <div
-                className="rounded-lg px-2.5 py-2 mb-2 transition-all duration-700 ease-out"
+                className="rounded-lg px-3 py-2.5 mb-2 transition-all duration-700 ease-out"
                 style={{
                   background: "rgba(59,130,246,0.08)",
                   opacity: showProfile ? 1 : 0,
