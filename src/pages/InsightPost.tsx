@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import { insightsPosts } from "@/lib/insightsData";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
+import insightsCover from "@/assets/insights-cover.png";
 
 const categoryColor: Record<string, string> = {
   Product: "bg-blue-50 text-blue-700 border-blue-200",
