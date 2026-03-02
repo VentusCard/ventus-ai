@@ -437,21 +437,22 @@ export default function VentusTransactionEnrichment() {
         /* Connector between table and persona */
         .vte-connector {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           padding: 20px 16px;
         }
         .vte-connector-arrow {
           color: #2563eb;
           font-size: 20px;
           line-height: 1;
+          flex-shrink: 0;
         }
         .vte-connector-text {
           font-size: 12px;
           color: #94a3b8;
-          text-align: center;
-          max-width: 480px;
+          text-align: left;
+          white-space: nowrap;
           line-height: 1.4;
         }
         .vte-spacer { height: 20px; }

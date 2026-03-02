@@ -13,6 +13,7 @@ const Footer = () => {
             </p>
             <nav className="flex flex-col gap-2">
               <Link to="/?scrollTo=platform" onClick={(e) => { const el = document.getElementById('platform'); if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); } }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
+              <Link to="/insights" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Insights</Link>
               <Link to="/?scrollTo=faq" onClick={(e) => { const el = document.getElementById('faq'); if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); } }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">FAQ</Link>
               <Link to="/contact" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Schedule Demo</Link>
             </nav>
