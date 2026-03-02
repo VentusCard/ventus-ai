@@ -1,72 +1,51 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+## Replace "How It Works" with Animated Architecture Diagram
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+Replace the current "How It Works" section (BeforeAfterAnimation) on the homepage with an animated, interactive architecture diagram inspired by the pitch deck slide. The diagram shows how Ventus Suite plugs into a bank's existing infrastructure across three pillars, flowing down to a Personalized Banking Experience.
 
----
+### Content Structure (top to bottom)
 
-## Sections to Build
+1. **Bank Partner Database** -- rounded card at top: "BANK PARTNER DATABASE" + "Existing Transaction Data"
+2. **Connector line** down to...
+3. **Ventus Suite** -- bold blue bar
+4. **Three connector lines** branching to three pillar columns
+5. **Three Pillars** side by side (stacked on mobile):
+   - **Analytics and Targeting**: Existing Stack (BI Dashboards, Segment Tools, Data Warehouse) vs Ventus (Persona Dashboards, Behavioral Segmentation, Smart Budgeting Tools, Targeted Campaigns)
+   - **Rewards and Deals**: Existing Stack (Card Reward Programs, Reward Aggregators like CardLinx/Figg, Partner Portals) vs Ventus (Lifestyle-Matched Offers, Real-Time Deal Matching, Personalized Rewards Experience)
+   - **Wealth and Relationship**: Existing Stack (Salesforce/HubSpot, Planning Software like eMoney) vs Ventus (External account aggregation e.g. Plaid, Holistic budgeting, Proactive Life Event Alerts, WM CoPilot Suite, Automated Meeting Prep) -- **added: "Connect external accounts at other banks"**
+6. **Connector lines** down from each pillar to...
+7. **Personalized Banking Experience** -- amber/orange banner with four pills: Next Gen UX, Lifestyle Budgeting, Personalized Rewards, Relationship Intelligence
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+### Animation Flow
+- Elements appear in a staggered top-to-bottom sequence as the section scrolls into view
+- Bank Partner Database fades in first
+- Connector lines animate downward (draw effect)
+- Ventus Suite bar slides in
+- Three pillars fade in left-to-right with slight delay
+- Within each pillar, existing stack appears first, then Ventus card with a slight scale-in
+- Bottom banner slides up last
+- Subtle arrow pulse animations on connector lines
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+### Visual Design
+- Section label: "HOW IT WORKS" in blue uppercase
+- Headline: "A modular intelligence layer that works with your existing stack."
+- Dark navy (#0f172a) cards for Ventus capabilities, white/light gray for existing stack
+- Blue accent (#2563EB) for Ventus labels and connector lines
+- Amber/orange (#f59e0b) gradient for the bottom Personalized Banking Experience bar
+- Clean enterprise aesthetic matching site theme
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+### Mobile Responsiveness
+- Three pillars stack vertically on mobile
+- Each pillar's existing/Ventus pair displayed side by side within a card
+- Connector lines simplified to vertical arrows on mobile
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+### Technical Details
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
-
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
-
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
-
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
-
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
 | File | Change |
 |------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
+| `src/components/ArchitectureDiagram.tsx` | **New file** -- the full animated architecture diagram component |
+| `src/pages/Index.tsx` | Replace BeforeAfterAnimation import/usage (lines 65-79) with ArchitectureDiagram |
 
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
+The BeforeAfterAnimation component file remains untouched (still used on /enrichment page's "Learn More" link target). Only the Index.tsx reference changes.
 
