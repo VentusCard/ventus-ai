@@ -1,72 +1,56 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+## Rewrite 5 Generated Blog Posts
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+### Scope
+Rewrite only the 5 generated blog posts in `src/lib/insightsData.ts`, leaving the first post ("AI Won't Replace Your Bank...") untouched.
 
----
+### Posts to Rewrite
+1. **"Transaction Enrichment: Moving Beyond MCC Codes"** (Product)
+2. **"Detecting Life Events from Spending Patterns"** (Research)
+3. **"Personalizing Rewards Without Losing Margin"** (Industry)
+4. **"Designing the Wealth Management Copilot"** (Engineering)
+5. **"From Demographics to Behavioral Segmentation"** (Industry)
 
-## Sections to Build
+### Content Guidelines
+- **Expand significantly**: Each post currently feels thin. Add more substance on why this matters to banks and why it defines the future of consumer experience
+- **Natural, conversational tone**: Write like a knowledgeable peer sharing perspective, not a marketing deck
+- **No em-dashes**: Replace all with commas, periods, or restructured sentences
+- **High-traffic SEO keywords** woven naturally: transaction enrichment, behavioral segmentation, AI in banking, customer retention, personalized banking, life event detection, wealth management AI, card-linked offers, open banking, financial personalization, proactive banking, customer intelligence
+- **No operational claims**: Remove lines like "Ventus processes millions of transactions daily" or anything implying current production scale. Position ideas as vision and approach
+- **Slugs, categories, and dates stay the same**. Titles and excerpts may be lightly refined
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+### Post-by-Post Direction
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+**1. Transaction Enrichment: Moving Beyond MCC Codes**
+- Expand on what MCC codes actually miss with concrete, relatable examples
+- Add a section on how enriched transaction data powers personalized banking, card-linked offers, and smarter campaigns
+- Discuss why consumers now expect their bank to understand them the way Netflix or Spotify does
+- Remove the "processes millions" closing line
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+**2. Detecting Life Events from Spending Patterns**
+- More life event examples with specific transaction signal patterns
+- Add a section on why timing is everything in banking and how proactive engagement changes customer loyalty
+- Reframe any Ventus-specific sections as general industry capability and philosophy
+- Tie to the broader consumer expectation shift
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+**3. Personalizing Rewards Without Losing Margin**
+- Expand on the economics of generic vs. targeted rewards with more depth
+- Add a consumer psychology angle on why relevance drives engagement and loyalty
+- Reframe from product pitch to thought leadership on behavioral deal matching
+- Discuss how this approach changes the merchant partnership dynamic
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+**4. Designing the Wealth Management Copilot**
+- Expand on why advisors are under pressure and how AI copilots transform the advisor-client relationship
+- Add a section on what clients actually want from their advisor (and what they're not getting)
+- Reframe from internal engineering blog to forward-looking thought leadership
+- Discuss why the wealth management industry is ripe for this shift
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
+**5. From Demographics to Behavioral Segmentation**
+- More depth on why demographic targeting is fundamentally broken in modern banking
+- Expand with examples of behavioral personas and their real business impact
+- Tie to the broader shift in how banks need to understand their customers to survive
+- Discuss how other industries already made this shift and banking is behind
 
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
-
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
-
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
-
+### File Modified
+- `src/lib/insightsData.ts` (posts 2 through 6 in the array, leaving post 1 untouched)
