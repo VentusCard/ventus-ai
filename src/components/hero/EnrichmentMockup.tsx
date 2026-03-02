@@ -398,8 +398,27 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: scroll/reveal — collected float to top */}
-              {(phase === "cardCycle" || phase === "hold") && (
+              {/* Card cycle: scanning — rapid scroll per card */}
+              {phase === "cardCycle" && cardPhase === "scanning" && (
+                <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
+                  <div
+                    className="space-y-0.5"
+                    style={{
+                      animation: `orch-card-scroll ${TIMINGS.cardScan}ms linear forwards`,
+                    }}
+                  >
+                    {customer.transactions.map((tx, i) => (
+                      <TxRow key={`cscan-${i}`} tx={tx} dim={false} />
+                    ))}
+                    {customer.transactions.map((tx, i) => (
+                      <TxRow key={`cscan2-${i}`} tx={tx} dim />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Card cycle: collect/reveal — collected float to top */}
+              {((phase === "cardCycle" && cardPhase !== "scanning") || phase === "hold") && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.3s ease-out" }}>
                   {/* Collected transactions at top */}
                   {collected.map(({ tx, i }) => (
