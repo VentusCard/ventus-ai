@@ -601,7 +601,7 @@ const EnrichmentMockup = () => {
                           : "translateX(12px)",
                       }}
                     >
-                      <div className="flex items-center gap-1 mb-1">
+                      <div className="flex items-center gap-1 mb-0.5">
                         <span style={{ color: card.accent, fontSize: 14 }}>{card.icon}</span>
                         <span
                           className="text-[11px] font-semibold tracking-wider uppercase"
