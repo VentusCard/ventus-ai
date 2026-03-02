@@ -91,15 +91,15 @@ const IntegrationSection = () => {
         {/* Stats */}
         <div ref={statsRef} className="mt-20 grid grid-cols-3 gap-4 md:gap-8 text-center -ml-2 md:ml-0">
           <div>
-            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count0 : 0}{stats[0].suffix}</p>
+            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count0.toLocaleString() : 0}{stats[0].suffix}</p>
             <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[0].label}</p>
           </div>
           <div>
-            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count1 : 0}</p>
+            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count1 : 0}{stats[1].suffix}</p>
             <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[1].label}</p>
           </div>
           <div>
-            <p className="text-2xl md:text-5xl font-bold text-white whitespace-nowrap">Real-time</p>
+            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count2 : 0}{stats[2].suffix}</p>
             <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[2].label}</p>
           </div>
         </div>
