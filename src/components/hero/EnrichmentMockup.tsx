@@ -367,8 +367,7 @@ const EnrichmentMockup = () => {
               <div
                 className="rounded-lg px-2.5 py-2 mb-2 transition-all duration-700 ease-out"
                 style={{
-                  borderLeft: `3px solid ${personaCard.accent}`,
-                  background: "rgba(255,255,255,0.03)",
+                  background: "rgba(59,130,246,0.08)",
                   opacity: showProfile ? 1 : 0,
                   transform: showProfile ? "translateY(0)" : "translateY(8px)",
                 }}
