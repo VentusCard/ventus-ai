@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 const PREFIX = "Turn transaction data into ";
 const KEYWORD = "intelligence";
 
-const AnimatedHeroTitle = () => {
+const AnimatedHeroTitle = ({ onComplete }: { onComplete?: () => void }) => {
   const [prefixLen, setPrefixLen] = useState(0);
   const [keywordLen, setKeywordLen] = useState(0);
   const [highlight, setHighlight] = useState(false);
@@ -31,7 +31,10 @@ const AnimatedHeroTitle = () => {
         setKeywordLen(j);
         setTimeout(typeKeyword, 22);
       } else {
-        setTimeout(() => setHighlight(true), 300);
+        setTimeout(() => {
+          setHighlight(true);
+          onComplete?.();
+        }, 300);
       }
     };
 
