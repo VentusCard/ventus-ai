@@ -43,7 +43,7 @@ const tabs = [
   {
     label: "Travel Experience",
     heading: "Travel Experience",
-    href: "/smartrewards",
+    href: "/travel",
     description:
       "Detect trips from transaction patterns alone — no GPS, no permissions, no privacy concerns. Then position your bank as a holistic travel companion with curated deals and experiences across dining, arts, shopping, and entertainment — wherever your customers go.",
     capabilities: [
