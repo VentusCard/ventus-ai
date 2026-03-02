@@ -64,12 +64,12 @@ const TravelInteractiveDemo = () => {
   }, [visibleTxCount, isRunning, tripDetected, reset]);
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-gray-200" style={{ background: "#0F172A" }}>
+    <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
       <div className="grid md:grid-cols-2 min-h-[480px]">
         {/* LEFT — Transaction Feed */}
-        <div className="p-6 md:p-8 flex flex-col md:border-r border-b md:border-b-0" style={{ borderColor: "#1e293b" }}>
+        <div className="p-6 md:p-8 flex flex-col md:border-r border-b md:border-b-0 border-gray-200">
           <div className="flex items-center gap-2 mb-5">
-            <span className="text-[10px] font-bold tracking-[0.15em] text-blue-400 uppercase">Transaction Feed</span>
+            <span className="text-[10px] font-bold tracking-[0.15em] text-blue-600 uppercase">Transaction Feed</span>
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
@@ -82,20 +82,20 @@ const TravelInteractiveDemo = () => {
                 key={i}
                 className="flex items-center justify-between py-2.5 px-3 rounded-md transition-all duration-500 animate-fade-in"
                 style={{
-                  background: i === visibleTxCount - 1 ? "rgba(59,130,246,0.08)" : "transparent",
-                  borderBottom: "1px solid rgba(30,41,59,0.5)",
+                  background: i === visibleTxCount - 1 ? "rgba(59,130,246,0.06)" : "transparent",
+                  borderBottom: "1px solid #e5e7eb",
                 }}
               >
-                <span className="text-[13px] text-gray-300 font-mono truncate mr-4">{tx.merchant}</span>
+                <span className="text-[13px] text-gray-700 font-mono truncate mr-4">{tx.merchant}</span>
                 <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-[13px] text-white font-mono font-semibold">{tx.amount}</span>
-                  <span className="text-[11px] text-gray-500 font-mono w-14 text-right">{tx.date}</span>
+                  <span className="text-[13px] text-gray-900 font-mono font-semibold">{tx.amount}</span>
+                  <span className="text-[11px] text-gray-400 font-mono w-14 text-right">{tx.date}</span>
                 </div>
               </div>
             ))}
 
             {visibleTxCount === 0 && (
-              <div className="flex items-center justify-center h-40 text-gray-600 text-sm">
+              <div className="flex items-center justify-center h-40 text-gray-400 text-sm">
                 Waiting for transactions…
               </div>
             )}
@@ -105,17 +105,17 @@ const TravelInteractiveDemo = () => {
           <div
             className="mt-4 rounded-lg px-4 py-3 transition-all duration-700"
             style={{
-              border: tripDetected ? "1px solid rgba(16,185,129,0.4)" : "1px solid transparent",
-              background: tripDetected ? "rgba(16,185,129,0.08)" : "transparent",
+              border: tripDetected ? "1px solid rgba(16,185,129,0.3)" : "1px solid transparent",
+              background: tripDetected ? "rgba(16,185,129,0.06)" : "transparent",
               opacity: tripDetected ? 1 : 0,
               transform: tripDetected ? "translateY(0)" : "translateY(8px)",
             }}
           >
             <div className="flex items-center gap-2 mb-1">
-              <Plane className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-bold text-emerald-300">Trip Detected — Miami, FL</span>
+              <Plane className="w-4 h-4 text-emerald-600" />
+              <span className="text-sm font-bold text-emerald-700">Trip Detected — Miami, FL</span>
             </div>
-            <p className="text-[11px] text-gray-400">Inferred from spending patterns · No location tracking</p>
+            <p className="text-[11px] text-gray-500">Inferred from spending patterns · No location tracking</p>
           </div>
         </div>
 
@@ -127,58 +127,58 @@ const TravelInteractiveDemo = () => {
             filter: rightVisible ? "none" : "blur(2px)",
           }}
         >
-          <span className="text-[10px] font-bold tracking-[0.15em] text-blue-400 uppercase mb-5">Trip Intelligence</span>
+          <span className="text-[10px] font-bold tracking-[0.15em] text-blue-600 uppercase mb-5">Trip Intelligence</span>
 
           {/* Summary Card */}
-          <div className="rounded-xl p-5 mb-5" style={{ background: "#1e293b", border: "1px solid #334155" }}>
+          <div className="rounded-xl p-5 mb-5 bg-gray-50 border border-gray-200">
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Destination</p>
-                <p className="text-sm font-bold text-white">Miami, FL</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Destination</p>
+                <p className="text-sm font-bold text-gray-900">Miami, FL</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Dates</p>
-                <p className="text-sm font-bold text-white">Mar 12 – Mar 17</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Dates</p>
+                <p className="text-sm font-bold text-gray-900">Mar 12 – Mar 17</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Transactions</p>
-                <p className="text-sm font-bold text-white">14</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Transactions</p>
+                <p className="text-sm font-bold text-gray-900">14</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Spend</p>
-                <p className="text-sm font-bold text-white">$4,280</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Total Spend</p>
+                <p className="text-sm font-bold text-gray-900">$4,280</p>
               </div>
             </div>
             <span
               className="inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full"
-              style={{ background: "rgba(16,185,129,0.12)", color: "#34d399" }}
+              style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
               Inferred from spending patterns
             </span>
           </div>
 
           {/* Divider */}
-          <div className="h-px mb-5" style={{ background: "#1e293b" }} />
+          <div className="h-px mb-5 bg-gray-200" />
 
           {/* Deals */}
-          <p className="text-[10px] font-bold tracking-[0.12em] text-gray-500 uppercase mb-3">Curated For This Trip</p>
+          <p className="text-[10px] font-bold tracking-[0.12em] text-gray-400 uppercase mb-3">Curated For This Trip</p>
           <div className="space-y-2.5 flex-1">
             {deals.map((deal, i) => (
               <div
                 key={deal.name}
                 className="flex items-center justify-between rounded-lg px-4 py-3 transition-all duration-500"
                 style={{
-                  background: "#1e293b",
-                  border: "1px solid #334155",
+                  background: "#f9fafb",
+                  border: "1px solid #e5e7eb",
                   opacity: rightVisible ? 1 : 0,
                   transform: rightVisible ? "translateY(0)" : "translateY(12px)",
                   transitionDelay: `${i * 150 + 200}ms`,
                 }}
               >
                 <div>
-                  <p className="text-sm font-semibold text-white">{deal.name}</p>
-                  <p className="text-[11px] text-gray-400">{deal.deal}</p>
+                  <p className="text-sm font-semibold text-gray-900">{deal.name}</p>
+                  <p className="text-[11px] text-gray-500">{deal.deal}</p>
                 </div>
                 <span
                   className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
@@ -190,17 +190,17 @@ const TravelInteractiveDemo = () => {
             ))}
           </div>
 
-          <p className="text-[10px] text-gray-600 mt-4">Deals update in real time as new transactions are detected</p>
+          <p className="text-[10px] text-gray-400 mt-4">Deals update in real time as new transactions are detected</p>
         </div>
       </div>
 
       {/* Replay Button */}
-      <div className="flex justify-center py-4" style={{ borderTop: "1px solid #1e293b" }}>
+      <div className="flex justify-center py-4 border-t border-gray-200">
         <Button
           variant="ghost"
           size="sm"
           onClick={reset}
-          className="text-gray-400 hover:text-white hover:bg-white/5"
+          className="text-gray-400 hover:text-gray-700 hover:bg-gray-50"
         >
           <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
           Replay
