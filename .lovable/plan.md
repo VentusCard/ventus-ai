@@ -1,72 +1,39 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+## Per-Card Scroll + Accumulate Animation
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+### Current Behavior
+During the card cycle, transactions are just collected one-by-one without any scrolling animation. The initial scroll phase only happens once at the beginning.
 
----
+### New Behavior
+For each intelligence card (Analytics, Smart Rewards, Relationship Intelligence):
+1. **Scroll sub-phase**: The full transaction list scrolls (like the initial rapid-scroll animation), simulating "scanning" through the data
+2. **Collect sub-phase**: After scrolling completes, matched transactions are identified one-by-one and float to the top of the list (the existing accumulate behavior)
+3. **Reveal**: Card slides in on the right with its content
+4. Reset and repeat for the next card
 
-## Sections to Build
+### Technical Changes (EnrichmentMockup.tsx only)
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+**1. Add a new `cardPhase` value: `"scanning"`**
+- Card phases become: `"scanning" | "scroll" | "reveal"` (where "scanning" = scrolling animation, "scroll" = collecting/accumulating)
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+**2. Update `runCycle` timing per card**
+- Each card now has 3 sub-phases:
+  - `scanning` (800ms): Show the rapid-scroll animation through all transactions
+  - `scroll`/collect (existing staggered collection logic): Transactions identified one-by-one, float to top
+  - `reveal` (existing): Card content slides in on right panel
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+**3. Left panel rendering during `scanning` sub-phase**
+- Show the full transaction list with the `orch-rapid-scroll` (or a shorter variant `orch-card-scroll`) animation
+- All transactions shown at normal opacity (not dimmed) during the scan
+- This creates the "scanning through data" visual before collection begins
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+**4. Left panel rendering during `scroll`/collect sub-phase**
+- Same as current: collected transactions float to top highlighted, uncollected dimmed below
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+**5. Add a shorter scroll keyframe for per-card scanning**
+- `orch-card-scroll`: ~800ms scroll animation (faster than the initial 2.8s scroll) to keep the pacing tight
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
-
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
-
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
-
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
-
+**6. Timing adjustments**
+- Add `cardScan: 800` to TIMINGS
+- Each card's total duration = `cardScan + (txIndices.length * collectInterval) + collectBuffer + cardReveal`
