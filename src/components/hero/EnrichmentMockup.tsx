@@ -161,6 +161,7 @@ type Phase = "profile" | "scroll" | "cardCycle" | "hold" | "flip";
 const TIMINGS = {
   profile: 1000,
   scroll: 3000,
+  cardScan: 800,        // rapid scroll per card before collecting
   collectInterval: 250, // time between each tx "found"
   collectBuffer: 500,   // buffer after last tx found before reveal
   cardReveal: 800,
@@ -181,7 +182,7 @@ const EnrichmentMockup = () => {
   // Per-card cycle state
   const [revealedCards, setRevealedCards] = useState(0);
   const [activeCardIdx, setActiveCardIdx] = useState(-1);
-  const [cardPhase, setCardPhase] = useState<"scroll" | "reveal" | null>(null);
+  const [cardPhase, setCardPhase] = useState<"scanning" | "scroll" | "reveal" | null>(null);
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState<string>("#60a5fa");
 
@@ -225,31 +226,37 @@ const EnrichmentMockup = () => {
       for (let c = 0; c < remainingCards.length; c++) {
         const card = remainingCards[c];
         const cardElapsed = elapsed;
-        const cardScrollDuration = card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
+        const cardCollectDuration = card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
 
-        // Card scroll sub-phase — stagger collection
+        // 1) Scanning sub-phase — rapid scroll animation
         schedule(() => {
           setPhase("cardCycle");
           setActiveCardIdx(c);
-          setCardPhase("scroll");
+          setCardPhase("scanning");
           setCollectedIndices([]); // reset for this card
           setCurrentCardColor(card.accent);
         }, cardElapsed);
+
+        // 2) Collect sub-phase — stagger collection after scan
+        const collectStart = cardElapsed + TIMINGS.cardScan;
+        schedule(() => {
+          setCardPhase("scroll");
+        }, collectStart);
 
         // Stagger each tx found
         card.txIndices.forEach((txIdx, j) => {
           schedule(() => {
             setCollectedIndices(prev => [...prev, txIdx]);
-          }, cardElapsed + (j + 1) * TIMINGS.collectInterval);
+          }, collectStart + (j + 1) * TIMINGS.collectInterval);
         });
 
-        // Card reveal sub-phase
+        // 3) Card reveal sub-phase
         schedule(() => {
           setCardPhase("reveal");
           setRevealedCards(c + 1);
-        }, cardElapsed + cardScrollDuration);
+        }, collectStart + cardCollectDuration);
 
-        elapsed += cardScrollDuration + TIMINGS.cardReveal;
+        elapsed += TIMINGS.cardScan + cardCollectDuration + TIMINGS.cardReveal;
       }
 
       // -> hold
@@ -391,8 +398,27 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: scroll/reveal — collected float to top */}
-              {(phase === "cardCycle" || phase === "hold") && (
+              {/* Card cycle: scanning — rapid scroll per card */}
+              {phase === "cardCycle" && cardPhase === "scanning" && (
+                <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
+                  <div
+                    className="space-y-0.5"
+                    style={{
+                      animation: `orch-card-scroll ${TIMINGS.cardScan}ms linear forwards`,
+                    }}
+                  >
+                    {customer.transactions.map((tx, i) => (
+                      <TxRow key={`cscan-${i}`} tx={tx} dim={false} />
+                    ))}
+                    {customer.transactions.map((tx, i) => (
+                      <TxRow key={`cscan2-${i}`} tx={tx} dim />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Card cycle: collect/reveal — collected float to top */}
+              {((phase === "cardCycle" && cardPhase !== "scanning") || phase === "hold") && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.3s ease-out" }}>
                   {/* Collected transactions at top */}
                   {collected.map(({ tx, i }) => (
@@ -488,7 +514,7 @@ const EnrichmentMockup = () => {
               <div className="flex flex-col gap-2 flex-1 justify-between">
                 {remainingCards.map((card, i) => {
                   const isRevealed = i < revealedCards;
-                  const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && cardPhase === "scroll";
+                  const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && (cardPhase === "scroll" || cardPhase === "scanning");
                   return (
                     <div
                       key={card.title}
@@ -588,6 +614,11 @@ const EnrichmentMockup = () => {
           0% { opacity: 0; transform: translateY(4px); background: rgba(255,255,255,0.06); }
           50% { background: rgba(255,255,255,0.06); }
           100% { opacity: 1; transform: translateY(0); background: transparent; }
+        }
+        @keyframes orch-card-scroll {
+          0% { transform: translateY(0); }
+          80% { transform: translateY(-55%); }
+          100% { transform: translateY(-55%); }
         }
       `}</style>
     </div>
