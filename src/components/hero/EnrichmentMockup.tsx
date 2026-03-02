@@ -134,6 +134,7 @@ const customers: CustomerProfile[] = [
         accent: "#60a5fa",
         icon: "◆",
         title: "Analytics Intelligence",
+        subtitle: "Personalized product recommendations from spend signals",
         content: "Recommend Family Rewards Card — baby-related spend is 40% of wallet. Personalized upgrade offer queued.",
         txIndices: [0, 1, 2, 3, 4],
       },
