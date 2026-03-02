@@ -631,7 +631,7 @@ const EnrichmentMockup = () => {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-[11px] text-gray-300 leading-relaxed">{card.content}</p>
+                            <p className="text-[11px] text-gray-300 leading-snug">{card.content}</p>
                           )}
                         </>
                       )}
