@@ -96,7 +96,7 @@ const EnrichmentHeroCard = () => {
       style={{
         background: "#111827",
         border: "1px solid #1e2d4a",
-        transform: "rotate(-2deg)",
+        transform: "rotate(0deg)",
         width: 440,
         maxWidth: "100%",
         animation: "float 6s ease-in-out infinite",
