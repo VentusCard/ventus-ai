@@ -46,25 +46,25 @@ const customers: CustomerProfile[] = [
     location: "Wellesley, MA",
     income: "High Income",
     transactions: [
-      { account: "••4821", merchant: "Home Depot", amount: "$847.00" },
-      { account: "••4821", merchant: "Lowe's", amount: "$312.50" },
-      { account: "••4821", merchant: "Pottery Barn", amount: "$1,245.00" },
-      { account: "••4821", merchant: "Restoration Hardware", amount: "$2,180.00" },
-      { account: "••4821", merchant: "Ferguson", amount: "$489.00" },
-      { account: "••4821", merchant: "Sherwin-Williams", amount: "$167.30" },
-      { account: "••9053", merchant: "Vail Resorts", amount: "$3,200.00" },
-      { account: "••9053", merchant: "United Airlines", amount: "$1,890.00" },
-      { account: "••9053", merchant: "Delta Sky Club", amount: "$45.00" },
-      { account: "••9053", merchant: "Marriott Bonvoy", amount: "$892.00" },
-      { account: "••7390", merchant: "Whole Foods", amount: "$187.40" },
-      { account: "••7390", merchant: "Trader Joe's", amount: "$94.20" },
-      { account: "••7390", merchant: "Blue Apron", amount: "$62.00" },
-      { account: "••7390", merchant: "Peloton", amount: "$44.00" },
-      { account: "••2156", merchant: "Benjamin Moore", amount: "$234.00" },
-      { account: "••2156", merchant: "Houzz Pro", amount: "$89.00" },
-      { account: "••2156", merchant: "West Elm", amount: "$567.00" },
-      { account: "••2156", merchant: "Crate & Barrel", amount: "$423.00" },
-      { account: "••2156", merchant: "Ace Hardware", amount: "$78.50" },
+      { account: "••4821", merchant: "Home Depot", amount: "$847.00" },        // 0
+      { account: "••9053", merchant: "Vail Resorts", amount: "$3,200.00" },    // 1
+      { account: "••7390", merchant: "Whole Foods", amount: "$187.40" },       // 2
+      { account: "••2156", merchant: "Benjamin Moore", amount: "$234.00" },    // 3
+      { account: "••4821", merchant: "Lowe's", amount: "$312.50" },            // 4
+      { account: "••9053", merchant: "United Airlines", amount: "$1,890.00" }, // 5
+      { account: "••7390", merchant: "Trader Joe's", amount: "$94.20" },       // 6
+      { account: "••2156", merchant: "Houzz Pro", amount: "$89.00" },          // 7
+      { account: "••4821", merchant: "Pottery Barn", amount: "$1,245.00" },    // 8
+      { account: "••9053", merchant: "Delta Sky Club", amount: "$45.00" },     // 9
+      { account: "••7390", merchant: "Blue Apron", amount: "$62.00" },         // 10
+      { account: "••2156", merchant: "West Elm", amount: "$567.00" },          // 11
+      { account: "••4821", merchant: "Restoration Hardware", amount: "$2,180.00" }, // 12
+      { account: "••9053", merchant: "Marriott Bonvoy", amount: "$892.00" },   // 13
+      { account: "••7390", merchant: "Peloton", amount: "$44.00" },            // 14
+      { account: "••2156", merchant: "Crate & Barrel", amount: "$423.00" },    // 15
+      { account: "••4821", merchant: "Ferguson", amount: "$489.00" },          // 16
+      { account: "••4821", merchant: "Sherwin-Williams", amount: "$167.30" },  // 17
+      { account: "••2156", merchant: "Ace Hardware", amount: "$78.50" },       // 18
     ],
     cards: [
       {
@@ -81,7 +81,7 @@ const customers: CustomerProfile[] = [
         title: "Analytics Intelligence",
         subtitle: "Personalized product recommendations from spend signals",
         content: "Recommend Premium Home Equity Line — renovation spend pattern detected across 6 transactions. Personalized pre-approval message ready.",
-        txIndices: [0, 1, 2, 3, 4, 5],
+        txIndices: [0, 4, 8, 12, 16, 17],
       },
       {
         accent: "#34d399",
@@ -90,7 +90,7 @@ const customers: CustomerProfile[] = [
         subtitle: "Hyper-personalized ranking and messages",
         content: "",
         pills: ["Delta SkyMiles 3x", "Marriott Elite Match", "United Lounge Pass", "Vail Season Deal"],
-        txIndices: [6, 7, 8, 9],
+        txIndices: [1, 5, 9, 13],
       },
       {
         accent: "#fbbf24",
@@ -98,7 +98,7 @@ const customers: CustomerProfile[] = [
         title: "Relationship Intelligence",
         subtitle: "Personalized projections, timeline and meeting prep",
         content: "Life Event: Major Home Renovation detected from lifestyle shifts across 3 accounts. Sent meeting prep to wealth advisor.",
-        txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
+        txIndices: [2, 3, 6, 7, 10, 11, 14, 15, 18],
       },
     ],
   },
