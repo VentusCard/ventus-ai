@@ -71,6 +71,7 @@ const customers: CustomerProfile[] = [
         accent: "#60a5fa",
         icon: "◆",
         title: "Analytics Intelligence",
+        subtitle: "Personalized product recommendations from spend signals",
         content: "Recommend Premium Home Equity Line — renovation spend pattern detected across 6 transactions. Personalized pre-approval message ready.",
         txIndices: [0, 1, 2, 3, 4, 5],
       },
