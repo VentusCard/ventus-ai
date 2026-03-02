@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 
 const transactions = [
-  { merchant: "United Air", amount: "$412", date: "Feb 28" },
-  { merchant: "Titleist", amount: "$58", date: "Feb 22" },
-  { merchant: "REI Co-op", amount: "$43", date: "Mar 6" },
-  { merchant: "Patagonia", amount: "$89", date: "Mar 11" },
-  { merchant: "REI Co-op", amount: "$127", date: "Mar 14" },
+  { merchant: "United Airlines", amount: "$412.00", date: "Feb 28" },
+  { merchant: "Titleist.com", amount: "$58.00", date: "Feb 22" },
+  { merchant: "REI Co-op", amount: "$43.20", date: "Mar 6" },
+  { merchant: "Patagonia", amount: "$89.00", date: "Mar 11" },
+  { merchant: "REI Co-op", amount: "$127.43", date: "Mar 14" },
 ];
 
 const profileStages = [
@@ -114,7 +114,7 @@ const EnrichmentHeroCard = () => {
         <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-4" style={{ height: 180 }}>
+      <div className="grid grid-cols-[1fr_0.85fr] gap-3 px-5 py-4" style={{ height: 180 }}>
         {/* Left: Feed */}
         <div className="overflow-hidden">
           <span className="text-[10px] font-mono font-semibold text-blue-400 tracking-widest uppercase">
