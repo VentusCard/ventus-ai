@@ -602,9 +602,9 @@ const EnrichmentMockup = () => {
                       }}
                     >
                       <div className="flex items-center gap-1 mb-1">
-                        <span style={{ color: card.accent, fontSize: 12 }}>{card.icon}</span>
+                        <span style={{ color: card.accent, fontSize: 14 }}>{card.icon}</span>
                         <span
-                          className="text-[10px] font-semibold tracking-wider uppercase"
+                          className="text-[11px] font-semibold tracking-wider uppercase"
                           style={{ color: card.accent }}
                         >
                           {card.title}
