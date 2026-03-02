@@ -257,6 +257,8 @@ const WealthPreview = () => {
       txns: [
         { merchant: "Fidelity Rollover", amount: "$45,000", source: "Premium Card", color: "bg-purple-500", note: "401k consolidation" },
         { merchant: "AARP Membership", amount: "$48", source: "Checking", color: "bg-slate-400", note: "membership activation" },
+        { merchant: "Schwab Advisory", amount: "$2,400", source: "Travel Card", color: "bg-blue-500", note: "annual fee payment" },
+        { merchant: "Medicare Supplement", amount: "$312", source: "HSA", color: "bg-amber-500", note: "coverage upgrade" },
       ],
     },
     {
@@ -264,6 +266,8 @@ const WealthPreview = () => {
       txns: [
         { merchant: "Zillow Premium", amount: "$35", source: "Checking", color: "bg-slate-400", note: "active home search" },
         { merchant: "Home Depot", amount: "$1,280", source: "Cashback Card", color: "bg-green-500", note: "renovation planning" },
+        { merchant: "First American Title", amount: "$450", source: "Premium Card", color: "bg-purple-500", note: "title search initiated" },
+        { merchant: "Lowe's Pro Services", amount: "$890", source: "Travel Card", color: "bg-blue-500", note: "contractor materials" },
       ],
     },
   ];
