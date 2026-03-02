@@ -206,7 +206,7 @@ const EnrichmentMockup = () => {
       setRevealedCards(0);
       setActiveCardIdx(-1);
       setCardPhase(null);
-      setAccumulatedTxs(new Map());
+      setCollectedIndices([]);
       let elapsed = TIMINGS.profile;
 
       // -> scroll + progressive persona pills
@@ -225,30 +225,34 @@ const EnrichmentMockup = () => {
       for (let c = 0; c < remainingCards.length; c++) {
         const card = remainingCards[c];
         const cardElapsed = elapsed;
+        const cardScrollDuration = card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
 
-        // Card scroll sub-phase
+        // Card scroll sub-phase — stagger collection
         schedule(() => {
           setPhase("cardCycle");
           setActiveCardIdx(c);
           setCardPhase("scroll");
-          setAccumulatedTxs(prev => {
-            const next = new Map(prev);
-            card.txIndices.forEach(idx => next.set(idx, card.accent));
-            return next;
-          });
-          setHighlightColor(card.accent);
+          setCollectedIndices([]); // reset for this card
+          setCurrentCardColor(card.accent);
         }, cardElapsed);
+
+        // Stagger each tx found
+        card.txIndices.forEach((txIdx, j) => {
+          schedule(() => {
+            setCollectedIndices(prev => [...prev, txIdx]);
+          }, cardElapsed + (j + 1) * TIMINGS.collectInterval);
+        });
 
         // Card reveal sub-phase
         schedule(() => {
           setCardPhase("reveal");
           setRevealedCards(c + 1);
-        }, cardElapsed + TIMINGS.cardScroll);
+        }, cardElapsed + cardScrollDuration);
 
-        elapsed += TIMINGS.cardScroll + TIMINGS.cardReveal;
+        elapsed += cardScrollDuration + TIMINGS.cardReveal;
       }
 
-      // -> hold (keep last card's highlighted txs visible)
+      // -> hold
       schedule(() => {
         setPhase("hold");
         setCardPhase(null);
