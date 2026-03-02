@@ -167,6 +167,7 @@ const EnrichmentMockup = () => {
   const [customerIdx, setCustomerIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("profile");
   const [visibleCards, setVisibleCards] = useState(0);
+  const [visiblePills, setVisiblePills] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
