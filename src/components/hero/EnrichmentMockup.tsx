@@ -441,6 +441,7 @@ const EnrichmentMockup = () => {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="0" width="3.5" height="12" /><rect x="7.5" y="0" width="3.5" height="12" /></svg>
             )}
           </button>
+        </div>
 
         {/* ---- Body ---- */}
         <div className="grid gap-0" style={{ height: 450, gridTemplateColumns: "40% 60%" }}>
