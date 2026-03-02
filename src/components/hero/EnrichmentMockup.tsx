@@ -264,7 +264,7 @@ const EnrichmentMockup = () => {
           <span className="text-white text-[11px] font-medium tracking-wide">
             Ventus AI Intelligent Orchestration
           </span>
-          <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
+          
         </div>
 
         {/* ---- Body ---- */}
