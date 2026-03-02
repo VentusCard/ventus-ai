@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from 
 import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 
 
 const coreProduct = {
