@@ -400,7 +400,7 @@ const EnrichmentMockup = () => {
         </div>
 
         {/* ---- Body ---- */}
-        <div className="grid gap-0" style={{ height: 440, gridTemplateColumns: "40% 60%" }}>
+        <div className="grid gap-0" style={{ height: 450, gridTemplateColumns: "40% 60%" }}>
           {/* ======== LEFT PANEL ======== */}
           <div className="border-r border-[#1e2d4a] px-4 py-3 overflow-hidden flex flex-col">
             {/* Demographics */}
