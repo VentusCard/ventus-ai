@@ -181,7 +181,7 @@ const EnrichmentMockup = () => {
   // Per-card cycle state
   const [revealedCards, setRevealedCards] = useState(0);
   const [activeCardIdx, setActiveCardIdx] = useState(-1);
-  const [cardPhase, setCardPhase] = useState<"scroll" | "reveal" | null>(null);
+  const [cardPhase, setCardPhase] = useState<"scanning" | "scroll" | "reveal" | null>(null);
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState<string>("#60a5fa");
 
