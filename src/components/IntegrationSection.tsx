@@ -8,8 +8,8 @@ const steps = [
 
 const stats = [
   { target: 20, suffix: "+", label: "Life events detected" },
-  { target: 12, suffix: "", label: "Lifestyle pillars" },
-  { target: null, text: "Real-time", label: "Enrichment" },
+  { target: 50, suffix: "+", label: "Lifestyle dimensions" },
+  { target: null, text: "Real-time", label: "Processing" },
 ];
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
