@@ -62,21 +62,7 @@ const Index = () => {
           <PlatformTabs />
         </ScrollReveal>
 
-        {/* Differentiation Section */}
-        <section className="py-24 bg-white">
-          <div className="max-w-3xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <div className="text-center mb-12">
-                <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
-                  We don't label transactions.{" "}
-                  <span className="text-blue-600">We read the story they tell together.</span>
-                </h2>
-              </div>
-            </ScrollReveal>
-            <BeforeAfterAnimation />
-          </div>
-        </section>
+        <ArchitectureDiagram />
 
         <IntegrationSection />
 
