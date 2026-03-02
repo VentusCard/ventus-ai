@@ -123,8 +123,8 @@ const TravelInteractiveDemo = () => {
         <div
           className="p-6 md:p-8 flex flex-col transition-all duration-700"
           style={{
-            opacity: rightVisible ? 1 : 0.15,
-            filter: rightVisible ? "none" : "blur(2px)",
+            opacity: rightVisible ? 1 : 0,
+            visibility: rightVisible ? "visible" : "hidden",
           }}
         >
           <span className="text-[10px] font-bold tracking-[0.15em] text-blue-600 uppercase mb-5">Trip Intelligence</span>
