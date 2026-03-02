@@ -52,6 +52,7 @@ const IntegrationSection = () => {
 
   const count0 = useCountUp(stats[0].target, statsVisible);
   const count1 = useCountUp(stats[1].target, statsVisible);
+  const count2 = useCountUp(stats[2].target, statsVisible);
 
   return (
     <section className="py-24" style={{ background: "#0a0f1e" }}>
