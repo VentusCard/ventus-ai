@@ -112,7 +112,8 @@ const EnrichmentMockup = () => {
           background: "#0a0f1e",
           border: "1px solid #1e2d4a",
           transform: "rotate(-2deg)",
-          maxWidth: 480,
+          width: 480,
+          maxWidth: "100%",
         }}
       >
         {/* Header */}
