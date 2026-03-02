@@ -616,11 +616,11 @@ const EnrichmentMockup = () => {
                       {isRevealed && (
                         <>
                           {card.pills ? (
-                            <div className="flex flex-wrap gap-1.5">
+                            <div className="flex flex-wrap gap-1">
                               {card.pills.map((pill) => (
                                 <span
                                   key={pill}
-                                  className="text-[10px] font-medium px-2.5 py-1 rounded-full"
+                                  className="text-[10px] font-medium px-2 py-0.5 rounded-full"
                                   style={{
                                     background: `${card.accent}22`,
                                     color: card.accent,
