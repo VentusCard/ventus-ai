@@ -599,7 +599,7 @@ const EnrichmentMockup = () => {
       <style>{`
         @keyframes orch-rapid-scroll {
           0% { transform: translateY(0); }
-          70% { transform: translateY(-65%); }
+          90% { transform: translateY(-65%); }
           100% { transform: translateY(-65%); }
         }
         @keyframes orch-shimmer {
