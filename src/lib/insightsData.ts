@@ -11,6 +11,68 @@ export interface InsightPost {
 
 export const insightsPosts: InsightPost[] = [
   {
+    slug: "ai-wont-replace-your-bank",
+    title: "AI Won't Replace Your Bank. But a Bank That Uses AI Will Replace Yours.",
+    excerpt:
+      "The real threat to banks isn't AI itself — it's inaction. Why the attention gap is where institutions are bleeding customers, and how an intelligence layer changes everything.",
+    category: "Industry",
+    date: "Feb 25, 2026",
+    readTime: "6 min read",
+    body: `*By Marco — Co-Founder & CEO, VentusAI*
+
+---
+
+There's a narrative floating around fintech right now that goes something like this: AI is coming for the banks. Neobanks and fintechs armed with machine learning will disintermediate traditional financial institutions, strip away their deposits, and render the branch-and-balance-sheet model obsolete.
+
+It makes for a great headline. It's also wrong.
+
+The real threat to banks isn't AI itself. It's *inaction* in the face of it. And the difference between the two is everything.
+
+## The Attention Gap
+
+Here's what's actually happening. Your customers generate thousands of transaction signals every month. Every swipe, every subscription renewal, every direct deposit tells a story — about life changes, spending shifts, emerging needs. A customer who just started paying for daycare probably needs a 529 plan. A small business whose vendor payments just tripled might need a line of credit.
+
+These signals exist *today*, inside your core systems. The problem is that nobody's reading them.
+
+Meanwhile, fintechs are. They're ingesting the same behavioral data — sometimes through open banking, sometimes through screen scraping — and using it to show up at exactly the right moment with exactly the right offer. Not because they have better products. Because they have better *timing*.
+
+That's the attention gap. And it's where banks are bleeding customers without realizing it.
+
+## Intelligence Without Infrastructure Is Just a Demo
+
+Now, the instinct for most banks hearing this is to go buy an AI tool. Stand up a data science team. Build a model. Run a pilot.
+
+Six to eighteen months later, you have a proof of concept that proves a concept nobody disputed in the first place — yes, transaction data contains useful signals. The question was never *whether* it does. The question is what happens after you find those signals. Where do they go? Who acts on them? How fast?
+
+This is where most AI initiatives in banking stall. Not because the models don't work, but because insights without orchestration are just dashboards nobody checks. A machine learning model that identifies a customer's life event is worthless if it can't trigger a real-time offer through your card-linked platform, surface a recommendation in your mobile app, or alert a relationship manager before the customer walks into a competitor's branch.
+
+The banks that will win the next decade aren't the ones with the best models. They're the ones that build the **intelligence layer** — the connective tissue between raw transaction data and every downstream system that touches the customer. Card-linked offers. Personalized rewards. Proactive outreach. Wealth management referrals. All of it, coordinated, in real time.
+
+## Your Data Is the Moat. You're Just Not Using It.
+
+Here's what fintechs don't want banks to realize: the incumbents are sitting on the most valuable behavioral dataset in financial services. No fintech has the depth of transaction history, the breadth of product relationships, or the trust infrastructure that a bank does.
+
+The issue has never been data. It's been *translation* — turning raw transaction records into dynamic behavioral intelligence that every team in the bank can act on. Marketing. Product. Wealth. Risk. They all need the same customer understanding, but they've been working from siloed, static snapshots instead of a living, breathing behavioral graph.
+
+When you solve the translation problem, something interesting happens. Your existing products don't need to change. Your existing channels don't need to change. What changes is *when* and *how* you show up for your customer — and suddenly, you're not competing with fintechs on features. You're competing on relevance. And relevance, it turns out, is a much harder thing to disrupt.
+
+## The Banks That Move Now Will Define the Category
+
+We're at an inflection point. The technology to transform transaction data into real-time behavioral intelligence exists today. The integration paths into banks' existing ecosystems — through aggregators, card processors, CRM platforms, and digital banking providers — are well-established. The ROI case is clear: higher engagement, deeper wallet share, lower attrition.
+
+What's missing is urgency.
+
+Every quarter a bank waits is a quarter where a fintech or a competing institution gets better at reading their customers' signals. The window to establish a behavioral intelligence advantage is open right now, but it won't stay open forever.
+
+The future of banking isn't about who has the best AI. It's about who builds the best *intelligence infrastructure* — the layer that turns every transaction into an opportunity to deepen a relationship, before someone else does.
+
+The question for every bank executive reading this is simple: are you building that layer, or are you waiting for someone else to build it around you?
+
+---
+
+*That's exactly the problem we're solving at [VentusAI](https://ventusai.com/). If this resonates, I'd love to talk.*`,
+  },
+  {
     slug: "transaction-enrichment-beyond-mcc",
     title: "Transaction Enrichment: Moving Beyond MCC Codes",
     excerpt:
