@@ -218,25 +218,16 @@ const EngagementPreview = () => {
 const TravelLocalPreview = () => (
   <div className="space-y-3">
     <div className="rounded-lg border border-gray-100 p-3">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Detected Trip</span>
-          <span className="text-sm font-semibold text-gray-900">Miami, FL</span>
-        </div>
-        <span className="text-[10px] text-gray-400">Mar 12 – Mar 17</span>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Detected Trip</span>
+        <span className="text-sm font-semibold text-gray-900">Miami, FL</span>
       </div>
-      <div className="flex items-center gap-4 text-[11px] text-gray-500">
-        <span>14 transactions</span>
-        <span>$4,280 total spend</span>
-      </div>
-      <p className="text-[9px] text-gray-400 mt-1.5 flex items-center gap-1">
+      <p className="text-[13px] font-bold text-slate-800">Hi John, welcome to Miami!</p>
+      <p className="text-[11px] text-slate-500 mb-2">Your Ventus Bank Membership gets you the following deals:</p>
+      <p className="text-[9px] text-gray-400 flex items-center gap-1">
         <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
         Inferred from spending patterns — no location tracking
       </p>
-    </div>
-    <div className="rounded-lg bg-slate-50 border border-slate-100 p-2.5">
-      <p className="text-[13px] font-bold text-slate-800">Hi John, welcome to Miami!</p>
-      <p className="text-[11px] text-slate-500">Your Ventus Bank Membership gets you the following deals:</p>
     </div>
     {[
       { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", bg: "bg-purple-50", text: "text-purple-700" },
