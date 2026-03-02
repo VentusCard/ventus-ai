@@ -256,6 +256,7 @@ const EnrichmentMockup = () => {
   const [phase, setPhase] = useState<Phase>("profile");
   const [visiblePills, setVisiblePills] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Per-card cycle state
   const [revealedCards, setRevealedCards] = useState(0);
@@ -265,6 +266,8 @@ const EnrichmentMockup = () => {
   const [currentCardColor, setCurrentCardColor] = useState<string>("#60a5fa");
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const pausedRef = useRef(false);
+  const resumeCbRef = useRef<(() => void) | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -272,7 +275,25 @@ const EnrichmentMockup = () => {
   }, []);
 
   const schedule = useCallback((fn: () => void, ms: number) => {
-    timeoutsRef.current.push(setTimeout(fn, ms));
+    const wrappedFn = () => {
+      if (pausedRef.current) {
+        resumeCbRef.current = fn;
+        return;
+      }
+      fn();
+    };
+    timeoutsRef.current.push(setTimeout(wrappedFn, ms));
+  }, []);
+
+  const togglePause = useCallback(() => {
+    const next = !pausedRef.current;
+    pausedRef.current = next;
+    setIsPaused(next);
+    if (!next && resumeCbRef.current) {
+      const cb = resumeCbRef.current;
+      resumeCbRef.current = null;
+      cb();
+    }
   }, []);
 
   const runCycle = useCallback(
@@ -399,15 +420,27 @@ const EnrichmentMockup = () => {
           width: "100%",
         }}
       >
-        {/* ---- Header ---- */}
-        <div className="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-[#1e2d4a]">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <span className="text-white text-[11px] font-medium tracking-wide">
-            Ventus AI Intelligent Orchestration
-          </span>
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-[#1e2d4a]">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="text-white text-[11px] font-medium tracking-wide">
+              Ventus AI Intelligent Orchestration
+            </span>
+          </div>
+          <button
+            onClick={togglePause}
+            className="text-gray-400 hover:text-white transition-colors p-1 rounded"
+            title={isPaused ? "Resume" : "Pause"}
+          >
+            {isPaused ? (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="2,0 12,6 2,12" /></svg>
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="0" width="3.5" height="12" /><rect x="7.5" y="0" width="3.5" height="12" /></svg>
+            )}
+          </button>
         </div>
 
         {/* ---- Body ---- */}
