@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
+import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -34,6 +34,12 @@ const insightTools = [
     href: "/engagement",
   },
   {
+    title: "Travel Experience",
+    desc: "Turn every trip into a banking moment with privacy-first travel intelligence.",
+    icon: Plane,
+    href: "/travel",
+  },
+  {
     title: "Wealth Management",
     desc: "AI-powered relationship intelligence with life event detection for advisors.",
     icon: Briefcase,
@@ -44,7 +50,7 @@ const insightTools = [
 const allProducts = [coreProduct, ...insightTools];
 
 /** Pages where the hero has a dark background and the navbar should start transparent */
-const DARK_HERO_PAGES = ["/enrichment", "/smartrewards", "/engagement", "/wealth", "/analytics"];
+const DARK_HERO_PAGES = ["/enrichment", "/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -113,7 +119,7 @@ const Navbar = () => {
                   </div>
                 </Link>
                 <div className="mx-3 my-2 border-t border-gray-100" />
-                <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-3 pt-1 pb-2">Four Insight Tools</p>
+                <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-3 pt-1 pb-2">Five Insight Tools</p>
                 <div className="space-y-0.5">
                   {insightTools.map((p) => (
                     <Link
@@ -187,7 +193,7 @@ const Navbar = () => {
                 {coreProduct.title}
               </Link>
               <div className="ml-4 my-1 border-t border-gray-100" />
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-2 pb-1">Four Insight Tools</p>
+              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-2 pb-1">Five Insight Tools</p>
               {insightTools.map((p) => (
                 <Link key={p.href} to={p.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
                   {p.title}
