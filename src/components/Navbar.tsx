@@ -137,6 +137,7 @@ const Navbar = () => {
               </div>
             </div>
           </div>
+          <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
           <button onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors`}>FAQ</button>
         </div>
         <Link to="/contact">
