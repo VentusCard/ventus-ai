@@ -43,8 +43,8 @@ const AnimatedHeroTitle = () => {
       {PREFIX.slice(0, prefixLen)}
       {keywordLen > 0 && (
         <span
-          className={`italic transition-colors duration-500 ${
-            highlight ? "text-blue-600" : "text-gray-900"
+          className={`transition-all duration-500 ${
+            highlight ? "text-blue-600 italic" : "text-gray-900"
           }`}
         >
           {KEYWORD.slice(0, keywordLen)}
