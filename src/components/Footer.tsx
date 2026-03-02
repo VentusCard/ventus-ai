@@ -12,8 +12,8 @@ const Footer = () => {
               The transaction intelligence layer for modern financial institutions.
             </p>
             <nav className="flex flex-col gap-2">
-              <Link to="/#platform" onClick={(e) => { e.preventDefault(); const el = document.getElementById('platform'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else window.location.href = '/#platform'; }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
-              <Link to="/#faq" onClick={(e) => { e.preventDefault(); const el = document.getElementById('faq'); if (el) el.scrollIntoView({ behavior: 'smooth' }); else window.location.href = '/#faq'; }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">FAQ</Link>
+              <Link to="/?scrollTo=platform" onClick={(e) => { const el = document.getElementById('platform'); if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); } }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Products</Link>
+              <Link to="/?scrollTo=faq" onClick={(e) => { const el = document.getElementById('faq'); if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); } }} className="text-gray-500 hover:text-gray-900 text-sm transition-colors">FAQ</Link>
               <Link to="/contact" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">Schedule Demo</Link>
             </nav>
           </div>

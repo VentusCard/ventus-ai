@@ -112,7 +112,8 @@ const EnrichmentMockup = () => {
           background: "#0a0f1e",
           border: "1px solid #1e2d4a",
           transform: "rotate(-2deg)",
-          maxWidth: 480,
+          width: 480,
+          maxWidth: "100%",
         }}
       >
         {/* Header */}
@@ -137,7 +138,7 @@ const EnrichmentMockup = () => {
               {visibleTxs.map((tx, i) => (
                 <div
                   key={`${tx.merchant}-${tx.date}-${i}`}
-                  className="font-mono text-[10px] leading-tight px-2 py-1 rounded transition-all duration-400"
+                  className="font-mono text-[9px] leading-tight px-2 py-1 rounded transition-all duration-400 truncate"
                   style={{
                     color: i === 0 ? "#e2e8f0" : "#64748b",
                     background: i === 0 ? "rgba(59,130,246,0.1)" : "transparent",

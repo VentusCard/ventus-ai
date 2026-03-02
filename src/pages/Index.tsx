@@ -85,7 +85,7 @@ const Index = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-5 gap-16">
             <ScrollReveal className="md:col-span-2">
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">FAQ</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug">Frequently Asked Questions</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-snug">Frequently Asked Questions</h2>
             </ScrollReveal>
             <ScrollReveal delay={0.2} className="md:col-span-3">
               <Accordion type="single" collapsible className="w-full">
@@ -97,8 +97,8 @@ const Index = () => {
                   { q: "How is Ventus different from MX or Plaid?", a: "MX and Plaid clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
                 ].map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`} className="border-b border-gray-200">
-                    <AccordionTrigger className="text-left text-base text-gray-900 py-5">{faq.q}</AccordionTrigger>
-                    <AccordionContent className="text-gray-500 pb-5">{faq.a}</AccordionContent>
+                    <AccordionTrigger className="text-left text-lg text-gray-900 py-5">{faq.q}</AccordionTrigger>
+                    <AccordionContent className="text-gray-500 text-base pb-5">{faq.a}</AccordionContent>
                   </AccordionItem>
                 ))}
               </Accordion>

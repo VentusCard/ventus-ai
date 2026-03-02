@@ -97,7 +97,8 @@ const EnrichmentHeroCard = () => {
         background: "#111827",
         border: "1px solid #1e2d4a",
         transform: "rotate(-2deg)",
-        maxWidth: 440,
+        width: 440,
+        maxWidth: "100%",
         animation: "float 6s ease-in-out infinite",
       }}
     >
@@ -113,7 +114,7 @@ const EnrichmentHeroCard = () => {
         <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-4" style={{ height: 180 }}>
+      <div className="grid grid-cols-[1fr_0.85fr] gap-3 px-5 py-4" style={{ height: 180 }}>
         {/* Left: Feed */}
         <div className="overflow-hidden">
           <span className="text-[10px] font-mono font-semibold text-blue-400 tracking-widest uppercase">
@@ -122,8 +123,8 @@ const EnrichmentHeroCard = () => {
           <div className="mt-2 space-y-0.5 overflow-hidden" style={{ maxHeight: 130 }}>
             {visibleTxs.map((tx, i) => (
               <div
-                key={`${tx.merchant}-${tx.date}-${i}`}
-                className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded"
+                 key={`${tx.merchant}-${tx.date}-${i}`}
+                 className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded whitespace-nowrap"
                 style={{
                   color: i === 0 ? "#e2e8f0" : "#64748b",
                   background: i === 0 ? "rgba(59,130,246,0.1)" : "transparent",
