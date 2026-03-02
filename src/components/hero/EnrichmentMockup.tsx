@@ -585,13 +585,13 @@ const EnrichmentMockup = () => {
                   return (
                     <div
                       key={card.title}
-                      className="rounded-lg px-3 py-2.5 flex-1 flex flex-col transition-all duration-500"
+                      className="rounded-lg px-3.5 py-3 flex-1 flex flex-col transition-all duration-500"
                       style={{
                         borderLeft: `3px solid ${isRevealed ? card.accent : "transparent"}`,
                         background: isActiveScrolling
-                          ? `${card.accent}08`
+                          ? `${card.accent}0a`
                           : isRevealed
-                          ? "rgba(255,255,255,0.03)"
+                          ? "rgba(255,255,255,0.05)"
                           : "transparent",
                         opacity: isRevealed ? 1 : isActiveScrolling ? 0.5 : 0,
                         transform: isRevealed
