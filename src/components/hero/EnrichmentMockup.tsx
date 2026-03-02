@@ -585,7 +585,7 @@ const EnrichmentMockup = () => {
                   return (
                     <div
                       key={card.title}
-                      className="rounded-lg px-3.5 py-3 flex-1 flex flex-col transition-all duration-500"
+                      className="rounded-lg px-3 py-2 flex-1 flex flex-col transition-all duration-500"
                       style={{
                         borderLeft: `3px solid ${isRevealed ? card.accent : "transparent"}`,
                         background: isActiveScrolling
@@ -601,7 +601,7 @@ const EnrichmentMockup = () => {
                           : "translateX(12px)",
                       }}
                     >
-                      <div className="flex items-center gap-1 mb-1">
+                      <div className="flex items-center gap-1 mb-0.5">
                         <span style={{ color: card.accent, fontSize: 14 }}>{card.icon}</span>
                         <span
                           className="text-[11px] font-semibold tracking-wider uppercase"
@@ -611,16 +611,16 @@ const EnrichmentMockup = () => {
                         </span>
                       </div>
                       {isRevealed && card.subtitle && (
-                        <div className="text-[9px] text-gray-400 mb-1">{card.subtitle}</div>
+                        <div className="text-[9px] text-gray-400 mb-0.5">{card.subtitle}</div>
                       )}
                       {isRevealed && (
                         <>
                           {card.pills ? (
-                            <div className="flex flex-wrap gap-1.5">
+                            <div className="flex flex-wrap gap-1">
                               {card.pills.map((pill) => (
                                 <span
                                   key={pill}
-                                  className="text-[10px] font-medium px-2.5 py-1 rounded-full"
+                                  className="text-[10px] font-medium px-2 py-0.5 rounded-full"
                                   style={{
                                     background: `${card.accent}22`,
                                     color: card.accent,
@@ -631,7 +631,7 @@ const EnrichmentMockup = () => {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-[11px] text-gray-300 leading-relaxed">{card.content}</p>
+                            <p className="text-[11px] text-gray-300 leading-snug">{card.content}</p>
                           )}
                         </>
                       )}
