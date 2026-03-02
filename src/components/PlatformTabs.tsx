@@ -111,17 +111,17 @@ const RewardsPreview = () => (
       <span className="ml-auto text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Outdoor Enthusiast</span>
     </div>
     {[
-      { name: "REI", offer: "10% back", match: "96%" },
-      { name: "Patagonia", offer: "15% back", match: "94%" },
-      { name: "Delta Miles", offer: "2x miles", match: "91%" },
+      { name: "REI", msg: "Your weekend trail runs deserve gear rewards", match: "96%" },
+      { name: "Patagonia", msg: "Adventure-ready styles picked for you", match: "94%" },
+      { name: "Delta Miles", msg: "Your next mountain getaway, on us", match: "91%" },
     ].map((o) => (
       <div key={o.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
         <div>
           <p className="text-sm font-semibold text-gray-900">{o.name}</p>
-          <p className="text-[11px] text-gray-500">{o.offer}</p>
+          <p className="text-[11px] text-gray-500 italic">{o.msg}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">Matched</span>
+          <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium">AI Personalized</span>
           <span className="text-xs font-bold text-gray-700">{o.match}</span>
         </div>
       </div>
