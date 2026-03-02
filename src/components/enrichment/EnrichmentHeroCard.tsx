@@ -123,8 +123,8 @@ const EnrichmentHeroCard = () => {
           <div className="mt-2 space-y-0.5 overflow-hidden" style={{ maxHeight: 130 }}>
             {visibleTxs.map((tx, i) => (
               <div
-                key={`${tx.merchant}-${tx.date}-${i}`}
-                className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded"
+                 key={`${tx.merchant}-${tx.date}-${i}`}
+                 className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded truncate"
                 style={{
                   color: i === 0 ? "#e2e8f0" : "#64748b",
                   background: i === 0 ? "rgba(59,130,246,0.1)" : "transparent",
