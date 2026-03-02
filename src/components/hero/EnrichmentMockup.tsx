@@ -244,10 +244,9 @@ const EnrichmentMockup = () => {
         elapsed += TIMINGS.cardScroll + TIMINGS.cardReveal;
       }
 
-      // -> hold
+      // -> hold (keep last card's highlighted txs visible)
       schedule(() => {
         setPhase("hold");
-        setActiveCardIdx(-1);
         setCardPhase(null);
       }, elapsed);
       elapsed += TIMINGS.hold;
