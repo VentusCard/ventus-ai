@@ -631,6 +631,30 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-disclaimer">
           <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
         </div>
+
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+          <button
+            onClick={resetDemo}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 14px",
+              fontSize: "13px",
+              color: "#9ca3af",
+              background: "transparent",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              transition: "color 0.2s, background 0.2s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Replay
+          </button>
+        </div>
       </div>
       </div>
     </>
