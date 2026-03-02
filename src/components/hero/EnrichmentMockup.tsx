@@ -226,31 +226,37 @@ const EnrichmentMockup = () => {
       for (let c = 0; c < remainingCards.length; c++) {
         const card = remainingCards[c];
         const cardElapsed = elapsed;
-        const cardScrollDuration = card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
+        const cardCollectDuration = card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
 
-        // Card scroll sub-phase — stagger collection
+        // 1) Scanning sub-phase — rapid scroll animation
         schedule(() => {
           setPhase("cardCycle");
           setActiveCardIdx(c);
-          setCardPhase("scroll");
+          setCardPhase("scanning");
           setCollectedIndices([]); // reset for this card
           setCurrentCardColor(card.accent);
         }, cardElapsed);
+
+        // 2) Collect sub-phase — stagger collection after scan
+        const collectStart = cardElapsed + TIMINGS.cardScan;
+        schedule(() => {
+          setCardPhase("scroll");
+        }, collectStart);
 
         // Stagger each tx found
         card.txIndices.forEach((txIdx, j) => {
           schedule(() => {
             setCollectedIndices(prev => [...prev, txIdx]);
-          }, cardElapsed + (j + 1) * TIMINGS.collectInterval);
+          }, collectStart + (j + 1) * TIMINGS.collectInterval);
         });
 
-        // Card reveal sub-phase
+        // 3) Card reveal sub-phase
         schedule(() => {
           setCardPhase("reveal");
           setRevealedCards(c + 1);
-        }, cardElapsed + cardScrollDuration);
+        }, collectStart + cardCollectDuration);
 
-        elapsed += cardScrollDuration + TIMINGS.cardReveal;
+        elapsed += TIMINGS.cardScan + cardCollectDuration + TIMINGS.cardReveal;
       }
 
       // -> hold
