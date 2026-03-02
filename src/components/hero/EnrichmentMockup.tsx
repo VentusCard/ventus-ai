@@ -509,12 +509,13 @@ const EnrichmentMockup = () => {
                         dim={false}
                         highlight
                         highlightColor={currentCardColor}
+                        sourceColor={getSourceColor(customer.transactions, tx.account)}
                       />
                     </div>
                   ))}
                   {/* Uncollected transactions below, dimmed */}
                   {uncollected.map(({ tx, i }) => (
-                    <TxRow key={`unc-${i}`} tx={tx} dim />
+                    <TxRow key={`unc-${i}`} tx={tx} dim sourceColor={getSourceColor(customer.transactions, tx.account)} />
                   ))}
                 </div>
               )}
