@@ -632,19 +632,20 @@ export default function VentusTransactionEnrichment() {
           <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+        <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
           <button
             onClick={resetDemo}
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              padding: "6px 14px",
-              fontSize: "13px",
+              padding: "8px 16px",
+              fontSize: "14px",
+              fontWeight: 500,
               color: "#9ca3af",
               background: "transparent",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: "9999px",
               cursor: "pointer",
               transition: "color 0.2s, background 0.2s",
             }}
