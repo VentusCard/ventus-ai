@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Plane, MapPin, Shield, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import HeroTravelCard from "@/components/hero/HeroTravelCard";
 
 const capabilities = [
   { icon: Plane, title: "Trip Detection", desc: "Ventus detects travel from transaction patterns alone — flights, hotels, and out-of-city spending trigger automatic trip recognition without GPS or app permissions." },
@@ -16,44 +17,6 @@ const integrationSteps = [
   { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
   { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
 ];
-
-const TravelHeroCard = () => (
-  <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
-    <div className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 border-b border-gray-200">
-      <span className="w-3 h-3 rounded-full bg-red-400" />
-      <span className="w-3 h-3 rounded-full bg-yellow-400" />
-      <span className="w-3 h-3 rounded-full bg-green-400" />
-      <span className="ml-3 text-xs text-gray-400 font-mono">ventusai.com/travel</span>
-    </div>
-    <div className="p-5 space-y-3">
-      <div className="rounded-lg border border-gray-100 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Detected Trip</span>
-          <span className="text-sm font-semibold text-gray-900">Miami, FL</span>
-        </div>
-        <p className="text-[13px] font-bold text-slate-800">Hi John, welcome to Miami!</p>
-        <p className="text-[11px] text-slate-500 mb-2">Your Ventus Bank Membership gets you the following deals:</p>
-        <p className="text-[9px] text-gray-400 flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-          Inferred from spending patterns — no location tracking
-        </p>
-      </div>
-      {[
-        { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", bg: "bg-purple-50", text: "text-purple-700" },
-        { name: "Zuma Miami", deal: "$50 dining credit", category: "Dining", bg: "bg-orange-50", text: "text-orange-700" },
-        { name: "Bayside Marketplace", deal: "10% back on purchases", category: "Shopping", bg: "bg-emerald-50", text: "text-emerald-700" },
-      ].map((e) => (
-        <div key={e.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-          <div>
-            <p className="text-sm font-semibold text-gray-900">{e.name}</p>
-            <p className="text-[11px] text-gray-500">{e.deal}</p>
-          </div>
-          <span className={`text-[10px] ${e.bg} ${e.text} px-2 py-0.5 rounded-full font-medium`}>{e.category}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 const TravelExperience = () => {
   const [integrationVisible, setIntegrationVisible] = useState(false);
@@ -103,7 +66,7 @@ const TravelExperience = () => {
               </div>
             </div>
             <div className="hidden md:flex justify-center">
-              <TravelHeroCard />
+              <HeroTravelCard />
             </div>
           </div>
         </section>
