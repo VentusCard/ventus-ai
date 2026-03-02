@@ -266,6 +266,8 @@ const WealthPreview = () => {
       txns: [
         { merchant: "Zillow Premium", amount: "$35", source: "Checking", color: "bg-slate-400", note: "active home search" },
         { merchant: "Home Depot", amount: "$1,280", source: "Cashback Card", color: "bg-green-500", note: "renovation planning" },
+        { merchant: "First American Title", amount: "$450", source: "Premium Card", color: "bg-purple-500", note: "title search initiated" },
+        { merchant: "Lowe's Pro Services", amount: "$890", source: "Travel Card", color: "bg-blue-500", note: "contractor materials" },
       ],
     },
   ];
