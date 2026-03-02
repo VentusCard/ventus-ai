@@ -1,72 +1,34 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+## Enhance WealthPreview with More Supporting Transactions from Diverse Sources
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+**File: `src/components/PlatformTabs.tsx`** — update `WealthPreview` component data only.
 
----
+### Changes
 
-## Sections to Build
+Expand each client's transaction evidence from 2 rows to 4 rows, using all five source types (Checking, Cashback Card, Travel Card, Premium Card, HSA) across the two clients.
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+### Updated Data
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+**Margaret Chen — Retirement Planning ($4.2M)**
+| Merchant | Amount | Source | Color | Note |
+|---|---|---|---|---|
+| Fidelity Rollover | $45,000 | Premium Card | purple | 401k consolidation |
+| AARP Membership | $48 | Checking | slate | membership activation |
+| Schwab Advisory | $2,400 | Travel Card | blue | annual fee payment |
+| Medicare Supplement | $312 | HSA | amber | coverage upgrade |
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+**David Park — Home Purchase ($1.8M)**
+| Merchant | Amount | Source | Color | Note |
+|---|---|---|---|---|
+| Zillow Premium | $35 | Checking | slate | active home search |
+| Home Depot | $1,280 | Cashback Card | green | renovation planning |
+| First American Title | $450 | Premium Card | purple | title search initiated |
+| Lowe's Pro Services | $890 | Travel Card | blue | contractor materials |
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+### Technical Notes
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
-
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
-
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
-
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
-
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
+- Only the `txns` arrays change — no layout or styling modifications needed
+- All five source colors now represented across the two clients (Checking=slate, Cashback=green, Travel=blue, Premium=purple, HSA=amber)
+- Transaction merchants are tightly coupled to the detected life event for high-confidence signaling
 
