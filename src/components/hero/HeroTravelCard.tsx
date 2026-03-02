@@ -13,9 +13,8 @@ const HeroTravelCard = () => {
   const runCycle = useCallback(() => {
     setPhase(0);
     const t1 = setTimeout(() => setPhase(1), 600);
-    const t2 = setTimeout(() => setPhase(2), 3000);
-    const t3 = setTimeout(() => setPhase(3), 5200);
-    return [t1, t2, t3];
+    const t2 = setTimeout(() => setPhase(2), 5200);
+    return [t1, t2];
   }, []);
 
   useEffect(() => {
@@ -30,15 +29,14 @@ const HeroTravelCard = () => {
     };
   }, [runCycle]);
 
-  const isVisible = phase < 3;
+  const dealsVisible = phase === 1;
 
   return (
     <div
-      className="w-full max-w-md rounded-2xl p-6 transition-opacity duration-500"
+      className="w-full max-w-md rounded-2xl p-6"
       style={{
         background: "#111827",
         border: "1px solid #1e2d4a",
-        opacity: isVisible ? 1 : 0,
       }}
     >
       {/* Trip header */}
@@ -61,8 +59,8 @@ const HeroTravelCard = () => {
             style={{
               background: i === 0 ? "rgba(59,130,246,0.15)" : i === 1 ? "rgba(34,197,94,0.12)" : "rgba(168,85,247,0.12)",
               color: i === 0 ? "#60a5fa" : i === 1 ? "#4ade80" : "#c084fc",
-              opacity: phase >= 0 && isVisible ? 1 : 0,
-              transform: phase >= 0 && isVisible ? "translateY(0)" : "translateY(8px)",
+              opacity: 1,
+              transform: "translateY(0)",
               transitionDelay: `${i * 150}ms`,
             }}
           >
@@ -79,8 +77,8 @@ const HeroTravelCard = () => {
             className="flex items-center justify-between rounded-lg px-4 py-3 transition-all duration-500"
             style={{
               background: "#0a0f1e",
-              opacity: phase >= 1 && isVisible ? 1 : 0,
-              transform: phase >= 1 && isVisible ? "translateX(0)" : "translateX(16px)",
+              opacity: dealsVisible ? 1 : 0,
+              transform: dealsVisible ? "translateX(0)" : "translateX(16px)",
               transitionDelay: `${i * 200}ms`,
             }}
           >
@@ -92,7 +90,7 @@ const HeroTravelCard = () => {
                     className="h-full rounded-full transition-all duration-1000 ease-out"
                     style={{
                       background: "#3b82f6",
-                      width: phase >= 1 && isVisible ? `${deal.match}%` : "0%",
+                      width: dealsVisible ? `${deal.match}%` : "0%",
                       transitionDelay: `${i * 200 + 300}ms`,
                     }}
                   />
@@ -103,8 +101,8 @@ const HeroTravelCard = () => {
             <span
               className="px-2 py-0.5 rounded text-[10px] font-semibold transition-all duration-300"
               style={{
-                background: phase >= 1 && isVisible ? "rgba(59,130,246,0.15)" : "transparent",
-                color: phase >= 1 && isVisible ? "#60a5fa" : "transparent",
+                background: dealsVisible ? "rgba(59,130,246,0.15)" : "transparent",
+                color: dealsVisible ? "#60a5fa" : "transparent",
                 transitionDelay: `${i * 200 + 600}ms`,
               }}
             >
