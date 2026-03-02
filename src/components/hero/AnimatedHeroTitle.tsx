@@ -42,11 +42,7 @@ const AnimatedHeroTitle = () => {
     <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-tight">
       {PREFIX.slice(0, prefixLen)}
       {keywordLen > 0 && (
-        <span
-          className={`italic text-blue-600 transition-all duration-500 ${
-            keywordRevealed ? "drop-shadow-[0_0_24px_rgba(37,99,235,0.3)]" : ""
-          }`}
-        >
+        <span className="italic text-blue-600">
           {KEYWORD.slice(0, keywordLen)}
         </span>
       )}
