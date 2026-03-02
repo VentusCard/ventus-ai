@@ -1,61 +1,72 @@
 
 
-## Enhance AnalyticsPreview with Cross-Sell and Card Product Details
+# Homepage Redesign — Single Long-Scroll Page
 
-**File: `src/components/PlatformTabs.tsx`** — rewrite `AnalyticsPreview` component to match the detail level of the other four previews.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
 ---
 
-### Current State
+## Sections to Build
 
-The AnalyticsPreview only shows 3 summary metrics and 5 simple pillar bars — much less detailed than the other previews.
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-### New Layout
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-Keep the 3 top-level metrics row, then replace the simple pillar bars with richer content:
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-**1. Pillar Bars with Penetration Detail** (keep but enhance)
-- Each pillar bar now includes a secondary "competitor leakage" indicator — a small red segment showing wallet share lost
-- Add account counts next to each pillar (e.g., "24.5M accounts")
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-**2. Cross-Sell Gap Card** (new section)
-A compact card below the pillar bars showing a detected cross-sell opportunity:
-- Blue left-border accent card
-- "Travel cardholders missing Dining rewards — 23% gap"
-- "12.4K accounts" badge + "View Segment" link-style text
-- Demonstrates the cross-sell intelligence capability
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-**3. Card Product Matrix** (new section)
-A compact 3-row table showing card product performance:
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-| Card Product | Penetration | Active Rate | Avg Spend |
-|---|---|---|---|
-| Travel Rewards | 34.2% | 82% | $18.4K |
-| Cashback Plus | 28.7% | 71% | $12.1K |
-| Premium Elite | 8.1% | 94% | $42.8K |
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-Each row uses small colored dots matching a product color, with the highest "Active Rate" highlighted in green.
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-### Sample Data
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
 
-**Pillar bars** (enhanced):
-- Travel: 20.4% — 24.5M accounts — 4.2% leakage
-- Dining: 18.2% — 21.8M accounts — 6.1% leakage  
-- Wellness: 14.1% — 16.9M accounts — 3.8% leakage
-- Shopping: 12.3% — 14.8M accounts — 5.5% leakage
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
 
-**Cross-sell card**:
-- Gap: "Travel cardholders missing Dining rewards"
-- Size: "12.4K accounts"
-- Percentage: "23% gap"
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
 
-**Card product table**:
-- 3 rows as described above
+---
 
-### Technical Notes
+## Technical Details
 
-- All inline data, no imports needed
-- Uses same compact styling patterns (text-[10px], text-[11px], rounded-lg borders) as the other previews
-- Compact enough to fit within the ~300px min-height preview area
-- Pillar bars reduced from 5 to 4 to make room for the new sections
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
