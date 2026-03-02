@@ -1,51 +1,72 @@
 
 
-## Color-Code Transaction Sources in the Feed
+# Homepage Redesign — Single Long-Scroll Page
 
-Currently, the account badges (e.g. `••4821`, `••9053`) in the transaction feed are all rendered in the same gray. This change assigns a distinct color to each unique account number per persona, making it visually clear that enrichment signals are drawn from multiple funding sources.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-### Changes (1 file: `src/components/hero/EnrichmentMockup.tsx`)
+---
 
-**1. Add a source color palette constant (~line 7)**
+## Sections to Build
 
-A small array of 5 distinct colors (slate blue, emerald, amber, purple, rose) to cycle through for each unique account within a persona.
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-```ts
-const SOURCE_COLORS = ["#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#fb7185"];
-```
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-**2. Add a helper to map account to color**
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-A simple function that extracts unique accounts from a persona's transactions and assigns colors by index:
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-```ts
-const getSourceColor = (transactions: Transaction[], account: string): string => {
-  const uniqueAccounts = [...new Set(transactions.map(t => t.account))];
-  const idx = uniqueAccounts.indexOf(account);
-  return SOURCE_COLORS[idx % SOURCE_COLORS.length];
-};
-```
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-**3. Pass source color to TxRow (~line 708)**
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-Update the `TxRow` component to accept a `sourceColor` prop, and use it for the account badge background and text color instead of the current gray defaults.
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-**4. Update account badge styling in TxRow**
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-Change the account badge to always use its source color (with transparency for background), regardless of highlight state:
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
 
-```tsx
-<span style={{
-  background: `${sourceColor}20`,
-  color: sourceColor,
-}}>
-  {tx.account}
-</span>
-```
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
 
-**5. Pass `sourceColor` from the caller**
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
 
-Where `TxRow` is rendered in the transaction feed loop, compute the source color from the current persona's transactions and pass it down.
+---
 
-This creates a clear visual pattern: same-colored account badges group together, showing that e.g. the renovation signal comes from 2 different cards while the travel signal comes from a 3rd.
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 

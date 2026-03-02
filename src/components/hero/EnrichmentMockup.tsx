@@ -1,8 +1,16 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
+
+const SOURCE_COLORS = ["#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#fb7185"];
+
+const getSourceColor = (transactions: Transaction[], account: string): string => {
+  const uniqueAccounts = [...new Set(transactions.map(t => t.account))];
+  const idx = uniqueAccounts.indexOf(account);
+  return SOURCE_COLORS[idx % SOURCE_COLORS.length];
+};
 
 interface Transaction {
   account: string;
@@ -459,10 +467,10 @@ const EnrichmentMockup = () => {
                     }}
                   >
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`scroll-${i}`} tx={tx} dim={false} />
+                      <TxRow key={`scroll-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`scroll2-${i}`} tx={tx} dim />
+                      <TxRow key={`scroll2-${i}`} tx={tx} dim sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                   </div>
                 </div>
@@ -478,10 +486,10 @@ const EnrichmentMockup = () => {
                     }}
                   >
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`cscan-${i}`} tx={tx} dim={false} />
+                      <TxRow key={`cscan-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`cscan2-${i}`} tx={tx} dim />
+                      <TxRow key={`cscan2-${i}`} tx={tx} dim sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                   </div>
                 </div>
@@ -501,12 +509,13 @@ const EnrichmentMockup = () => {
                         dim={false}
                         highlight
                         highlightColor={currentCardColor}
+                        sourceColor={getSourceColor(customer.transactions, tx.account)}
                       />
                     </div>
                   ))}
                   {/* Uncollected transactions below, dimmed */}
                   {uncollected.map(({ tx, i }) => (
-                    <TxRow key={`unc-${i}`} tx={tx} dim />
+                    <TxRow key={`unc-${i}`} tx={tx} dim sourceColor={getSourceColor(customer.transactions, tx.account)} />
                   ))}
                 </div>
               )}
@@ -707,11 +716,13 @@ const TxRow = ({
   dim,
   highlight,
   highlightColor,
+  sourceColor,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
+  sourceColor?: string;
 }) => (
   <div
     className="font-mono text-[9px] leading-tight px-1.5 py-[3px] rounded flex items-center gap-1 truncate transition-all duration-300"
@@ -724,8 +735,10 @@ const TxRow = ({
     <span
       className="text-[8px] font-medium px-1 py-0 rounded shrink-0"
       style={{
-        background: highlight ? `${highlightColor}20` : "rgba(100,116,139,0.2)",
-        color: highlight ? highlightColor : "#94a3b8",
+        background: sourceColor ? `${sourceColor}20` : "rgba(100,116,139,0.2)",
+        color: sourceColor || "#94a3b8",
+        border: sourceColor ? `1px solid ${sourceColor}30` : "none",
+        opacity: dim ? 0.5 : 1,
       }}
     >
       {tx.account}
