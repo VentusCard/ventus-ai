@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const steps = [
-  { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
-  { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
-  { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
+  { step: "01", title: "Connect", desc: "Banks and vendors securely share transaction data via API. No changes to core banking systems required." },
+  { step: "02", title: "Enrich", desc: "Ventus AI analyzes every transaction to detect lifestyle pillars, intent signals, and life events in real time." },
+  { step: "03", title: "Orchestrate", desc: "Enriched intelligence flows into personalized rewards, behavioral analytics, and wealth advisor tools automatically." },
 ];
 
 const stats = [
   { target: 20, suffix: "+", label: "Life events detected" },
-  { target: 12, suffix: "", label: "Lifestyle pillars" },
-  { target: null, text: "Real-time", label: "Enrichment" },
+  { target: 50, suffix: "+", label: "Lifestyle dimensions" },
+  { target: null, text: "Real-time", label: "Processing" },
 ];
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
@@ -56,8 +56,8 @@ const IntegrationSection = () => {
   return (
     <section className="py-24" style={{ background: "#0a0f1e" }}>
       <div className="max-w-7xl mx-auto px-6 md:px-8">
-        <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">Plug in. No infrastructure changes.</h2>
+        <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">How It Works</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">A modular intelligence layer that works with your existing stack.</h2>
 
         {/* Steps with connector */}
         <div ref={sectionRef} className="relative grid md:grid-cols-3 gap-8">
