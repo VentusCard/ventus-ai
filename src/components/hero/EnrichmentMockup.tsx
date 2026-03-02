@@ -620,9 +620,9 @@ const EnrichmentMockup = () => {
                               {card.pills.map((pill) => (
                                 <span
                                   key={pill}
-                                  className="text-[9px] font-medium px-2 py-0.5 rounded-full"
+                                  className="text-[10px] font-medium px-2.5 py-1 rounded-full"
                                   style={{
-                                    background: `${card.accent}18`,
+                                    background: `${card.accent}22`,
                                     color: card.accent,
                                   }}
                                 >
