@@ -287,8 +287,13 @@ const EnrichmentMockup = () => {
   const personaCard = customer.cards[0];
   const remainingCards = customer.cards.slice(1);
 
-  // Build the current card's tx indices for active scrolling highlight
-  const currentCardTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
+  // Build collected/uncollected split for left panel
+  const collected = customer.transactions
+    .map((tx, i) => ({ tx, i }))
+    .filter(({ i }) => collectedIndices.includes(i));
+  const uncollected = customer.transactions
+    .map((tx, i) => ({ tx, i }))
+    .filter(({ i }) => !collectedIndices.includes(i));
 
   return (
     <div
