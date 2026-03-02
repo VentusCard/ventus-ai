@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import EnrichmentHeroCard from "@/components/enrichment/EnrichmentHeroCard";
-import EnrichmentInteractiveDemo from "@/components/enrichment/EnrichmentInteractiveDemo";
+import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
 import { Layers, Search, Heart, Activity } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -114,7 +114,7 @@ const Enrichment = () => {
                 Watch how Ventus builds a behavioral profile from a real customer's transaction history — updated with every new purchase.
               </p>
             </ScrollReveal>
-            <EnrichmentInteractiveDemo />
+            <VentusTransactionEnrichment />
           </div>
         </section>
 
