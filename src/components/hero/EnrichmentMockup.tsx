@@ -214,8 +214,7 @@ const EnrichmentMockup = () => {
       schedule(() => {
         setPhase("scroll");
         const pillCount = customers[idx].cards[0].pills?.length ?? 0;
-        const pillWindow = TIMINGS.scroll * 0.55; // pills finish in first 55% of scroll
-        const pillInterval = pillWindow / (pillCount + 1);
+        const pillInterval = TIMINGS.scroll / (pillCount + 1);
         for (let p = 0; p < pillCount; p++) {
           schedule(() => setVisiblePills(p + 1), (p + 1) * pillInterval);
         }
