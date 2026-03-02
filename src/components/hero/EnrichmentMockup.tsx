@@ -172,25 +172,25 @@ const customers: CustomerProfile[] = [
     location: "Scottsdale, AZ",
     income: "High Income",
     transactions: [
-      { account: "••6102", merchant: "Fidelity Investments", amount: "$5,000.00" },
-      { account: "••6102", merchant: "Charles Schwab", amount: "$3,200.00" },
-      { account: "••6102", merchant: "Edward Jones", amount: "$2,750.00" },
-      { account: "••6102", merchant: "Vanguard", amount: "$4,500.00" },
-      { account: "••6102", merchant: "Northwestern Mutual", amount: "$1,800.00" },
-      { account: "••6102", merchant: "TIAA", amount: "$2,100.00" },
-      { account: "••7745", merchant: "Four Seasons Resort", amount: "$4,850.00" },
-      { account: "••7745", merchant: "Napa Valley Wine Train", amount: "$680.00" },
-      { account: "••7745", merchant: "Viking Cruises", amount: "$8,200.00" },
-      { account: "••7745", merchant: "Amex Travel", amount: "$1,950.00" },
-      { account: "••3318", merchant: "Mayo Clinic", amount: "$450.00" },
-      { account: "••3318", merchant: "Equinox", amount: "$220.00" },
-      { account: "••3318", merchant: "United Way", amount: "$1,000.00" },
-      { account: "••3318", merchant: "Habitat for Humanity", amount: "$500.00" },
-      { account: "••9901", merchant: "Williams Sonoma", amount: "$345.00" },
-      { account: "••9901", merchant: "Sur La Table", amount: "$189.00" },
-      { account: "••9901", merchant: "MasterClass", amount: "$120.00" },
-      { account: "••9901", merchant: "Audible", amount: "$14.95" },
-      { account: "••9901", merchant: "National Geographic", amount: "$39.00" },
+      { account: "••6102", merchant: "Fidelity Investments", amount: "$5,000.00" },  // 0
+      { account: "••7745", merchant: "Four Seasons Resort", amount: "$4,850.00" },   // 1
+      { account: "••3318", merchant: "Mayo Clinic", amount: "$450.00" },             // 2
+      { account: "••9901", merchant: "Williams Sonoma", amount: "$345.00" },         // 3
+      { account: "••6102", merchant: "Charles Schwab", amount: "$3,200.00" },        // 4
+      { account: "••7745", merchant: "Napa Valley Wine Train", amount: "$680.00" },  // 5
+      { account: "••3318", merchant: "Equinox", amount: "$220.00" },                 // 6
+      { account: "••9901", merchant: "Sur La Table", amount: "$189.00" },            // 7
+      { account: "••6102", merchant: "Edward Jones", amount: "$2,750.00" },          // 8
+      { account: "••7745", merchant: "Viking Cruises", amount: "$8,200.00" },        // 9
+      { account: "••3318", merchant: "United Way", amount: "$1,000.00" },            // 10
+      { account: "••9901", merchant: "MasterClass", amount: "$120.00" },             // 11
+      { account: "••6102", merchant: "Vanguard", amount: "$4,500.00" },              // 12
+      { account: "••7745", merchant: "Amex Travel", amount: "$1,950.00" },           // 13
+      { account: "••3318", merchant: "Habitat for Humanity", amount: "$500.00" },    // 14
+      { account: "••9901", merchant: "Audible", amount: "$14.95" },                  // 15
+      { account: "••6102", merchant: "Northwestern Mutual", amount: "$1,800.00" },   // 16
+      { account: "••6102", merchant: "TIAA", amount: "$2,100.00" },                  // 17
+      { account: "••9901", merchant: "National Geographic", amount: "$39.00" },      // 18
     ],
     cards: [
       {
@@ -207,7 +207,7 @@ const customers: CustomerProfile[] = [
         title: "Analytics Intelligence",
         subtitle: "Personalized product recommendations from spend signals",
         content: "Recommend Wealth Management Upgrade — retirement consolidation pattern detected across 6 accounts. Personalized advisor introduction queued.",
-        txIndices: [0, 1, 2, 3, 4, 5],
+        txIndices: [0, 4, 8, 12, 16, 17],
       },
       {
         accent: "#34d399",
@@ -216,7 +216,7 @@ const customers: CustomerProfile[] = [
         subtitle: "Hyper-personalized ranking and messages",
         content: "",
         pills: ["Four Seasons 5x Points", "Viking Cruises $500 Credit", "Napa Wine Club", "Amex Centurion Invite"],
-        txIndices: [6, 7, 8, 9],
+        txIndices: [1, 5, 9, 13],
       },
       {
         accent: "#fbbf24",
@@ -224,7 +224,7 @@ const customers: CustomerProfile[] = [
         title: "Relationship Intelligence",
         subtitle: "Personalized projections, timeline and meeting prep",
         content: "Life Event: Retirement Transition detected from financial consolidation and lifestyle shifts. Estate planning package sent to advisor.",
-        txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
+        txIndices: [2, 3, 6, 7, 10, 11, 14, 15, 18],
       },
     ],
   },
