@@ -367,17 +367,16 @@ const EnrichmentMockup = () => {
               <div
                 className="rounded-lg px-2.5 py-2 mb-2 transition-all duration-700 ease-out"
                 style={{
-                  borderLeft: `3px solid ${personaCard.accent}`,
-                  background: "rgba(255,255,255,0.03)",
+                  background: "rgba(59,130,246,0.08)",
                   opacity: showProfile ? 1 : 0,
                   transform: showProfile ? "translateY(0)" : "translateY(8px)",
                 }}
               >
                 <div className="flex items-center gap-1 mb-1">
-                  <span style={{ color: personaCard.accent, fontSize: 10 }}>{personaCard.icon}</span>
+                  <span style={{ color: "#60a5fa", fontSize: 10 }}>{personaCard.icon}</span>
                   <span
                     className="text-[9px] font-semibold tracking-wider uppercase"
-                    style={{ color: personaCard.accent }}
+                    style={{ color: "#60a5fa" }}
                   >
                     {personaCard.title}
                   </span>
@@ -388,8 +387,8 @@ const EnrichmentMockup = () => {
                       key={pill}
                       className="text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-all duration-400"
                       style={{
-                        background: `${personaCard.accent}18`,
-                        color: personaCard.accent,
+                        background: "rgba(59,130,246,0.15)",
+                        color: "#60a5fa",
                         opacity: i < visiblePills ? 1 : 0,
                         transform: i < visiblePills ? "scale(1)" : "scale(0.7)",
                         transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
