@@ -467,10 +467,10 @@ const EnrichmentMockup = () => {
                     }}
                   >
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`scroll-${i}`} tx={tx} dim={false} />
+                      <TxRow key={`scroll-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`scroll2-${i}`} tx={tx} dim />
+                      <TxRow key={`scroll2-${i}`} tx={tx} dim sourceColor={getSourceColor(customer.transactions, tx.account)} />
                     ))}
                   </div>
                 </div>
