@@ -1,47 +1,72 @@
 
 
-## Per-Card Scrolling with Accumulated Highlights
+# Homepage Redesign — Single Long-Scroll Page
 
-### Current Problem
-During the card cycle, each card shows a mini-scroll with only its own transactions highlighted. When the next card starts scrolling, the previous card's highlights disappear. The user wants each card to have its own full scrolling animation AND accumulate highlights from all previous cards.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-### New Behavior
-- **Card 1 scroll**: Full transaction list scrolls. Card 1's transactions get highlighted as they appear.
-- **Card 1 reveal**: Transactions settle. Card 1's highlights visible.
-- **Card 2 scroll**: Full transaction list scrolls again. Card 1's highlights persist (accumulated), Card 2's transactions get highlighted with card 2's color.
-- **Card 2 reveal**: Transactions settle. Card 1 + Card 2 highlights visible.
-- **Card 3 scroll**: Full transaction list scrolls again. Card 1 + Card 2 highlights persist, Card 3's transactions highlighted with card 3's color.
-- **Card 3 reveal**: All three sets of highlights visible.
-- **Hold**: All accumulated highlights remain.
+---
 
-### Technical Changes (EnrichmentMockup.tsx only)
+## Sections to Build
 
-**1. Replace `highlightedTxs` with accumulated map**
-- New state: `accumulatedTxs: Map<number, string>` -- maps transaction index to accent color
-- On each card's scroll phase, merge current card's txIndices into the map (keeping previous entries)
-- `highlightColor` stays for the "active" card's color reference
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-**2. Scroll phase rendering**
-- During each card's scroll phase, show ALL transactions with the `orch-mini-scroll` animation
-- Transactions in `accumulatedTxs` from previous cards stay highlighted with their stored color
-- Current card's transactions highlighted with the active card's color
-- Non-matched transactions dimmed
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-**3. Reveal phase rendering**
-- Show all transactions statically (no scroll)
-- All accumulated transactions highlighted with their respective colors
-- Non-accumulated transactions dimmed
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-**4. Hold phase**
-- Same as reveal -- show all transactions with full accumulated highlights
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-**5. TxRow update**
-- No changes needed -- already supports `highlight` and `highlightColor` props
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-**6. Left panel rendering logic**
-- Replace the separate scroll/reveal/hold transaction blocks with a unified approach:
-  - Always render the full `customer.transactions` list
-  - Each row checks if its index is in `accumulatedTxs` map to get highlight color
-  - During scroll phases, wrap in the scroll animation
-  - During reveal/hold phases, show statically
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
+
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
+
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
+
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 

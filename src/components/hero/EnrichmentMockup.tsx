@@ -181,7 +181,7 @@ const EnrichmentMockup = () => {
   const [revealedCards, setRevealedCards] = useState(0); // how many cards fully revealed (0-3)
   const [activeCardIdx, setActiveCardIdx] = useState(-1); // which card is currently cycling (-1 = none)
   const [cardPhase, setCardPhase] = useState<"scroll" | "reveal" | null>(null);
-  const [highlightedTxs, setHighlightedTxs] = useState<number[]>([]);
+  const [accumulatedTxs, setAccumulatedTxs] = useState<Map<number, string>>(new Map());
   const [highlightColor, setHighlightColor] = useState<string>("#60a5fa");
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -205,8 +205,7 @@ const EnrichmentMockup = () => {
       setRevealedCards(0);
       setActiveCardIdx(-1);
       setCardPhase(null);
-      setHighlightedTxs([]);
-
+      setAccumulatedTxs(new Map());
       let elapsed = TIMINGS.profile;
 
       // -> scroll + progressive persona pills
@@ -231,7 +230,11 @@ const EnrichmentMockup = () => {
           setPhase("cardCycle");
           setActiveCardIdx(c);
           setCardPhase("scroll");
-          setHighlightedTxs(card.txIndices);
+          setAccumulatedTxs(prev => {
+            const next = new Map(prev);
+            card.txIndices.forEach(idx => next.set(idx, card.accent));
+            return next;
+          });
           setHighlightColor(card.accent);
         }, cardElapsed);
 
@@ -279,9 +282,8 @@ const EnrichmentMockup = () => {
   const personaCard = customer.cards[0];
   const remainingCards = customer.cards.slice(1);
 
-  // Build the left-panel transaction list for card cycle phases
-  const cardCycleTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
-  const cardCycleTransactions = cardCycleTxs.map((i) => customer.transactions[i]).filter(Boolean);
+  // Build the current card's tx indices for active scrolling highlight
+  const currentCardTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
 
   return (
     <div
@@ -379,7 +381,7 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: scroll sub-phase — mini roll of relevant txs */}
+              {/* Card cycle: scroll sub-phase — mini roll with accumulated highlights */}
               {phase === "cardCycle" && cardPhase === "scroll" && (
                 <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
                   <div
@@ -388,16 +390,21 @@ const EnrichmentMockup = () => {
                       animation: "orch-mini-scroll 1s linear forwards",
                     }}
                   >
-                    {/* Show all txs but highlight only relevant ones */}
-                    {customer.transactions.map((tx, i) => (
-                      <TxRow
-                        key={`csroll-${i}`}
-                        tx={tx}
-                        dim={!cardCycleTxs.includes(i)}
-                        highlight={cardCycleTxs.includes(i)}
-                        highlightColor={highlightColor}
-                      />
-                    ))}
+                    {customer.transactions.map((tx, i) => {
+                      const isInCurrentCard = currentCardTxs.includes(i);
+                      const accColor = accumulatedTxs.get(i);
+                      const isHighlighted = isInCurrentCard || !!accColor;
+                      const color = isInCurrentCard ? highlightColor : accColor;
+                      return (
+                        <TxRow
+                          key={`csroll-${i}`}
+                          tx={tx}
+                          dim={!isHighlighted}
+                          highlight={isHighlighted}
+                          highlightColor={color}
+                        />
+                      );
+                    })}
                     {customer.transactions.map((tx, i) => (
                       <TxRow key={`csroll2-${i}`} tx={tx} dim />
                     ))}
@@ -405,33 +412,39 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: reveal sub-phase — settled highlighted txs */}
+              {/* Card cycle: reveal sub-phase — all accumulated txs highlighted */}
               {phase === "cardCycle" && cardPhase === "reveal" && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {cardCycleTransactions.map((tx, i) => (
-                    <TxRow
-                      key={`crev-${i}`}
-                      tx={tx}
-                      dim={false}
-                      highlight
-                      highlightColor={highlightColor}
-                    />
-                  ))}
+                  {customer.transactions.map((tx, i) => {
+                    const accColor = accumulatedTxs.get(i);
+                    return (
+                      <TxRow
+                        key={`crev-${i}`}
+                        tx={tx}
+                        dim={!accColor}
+                        highlight={!!accColor}
+                        highlightColor={accColor}
+                      />
+                    );
+                  })}
                 </div>
               )}
 
-              {/* Hold phase — keep last card's highlighted txs */}
+              {/* Hold phase — all accumulated highlights */}
               {phase === "hold" && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {cardCycleTransactions.map((tx, i) => (
-                    <TxRow
-                      key={`hold-${i}`}
-                      tx={tx}
-                      dim={false}
-                      highlight
-                      highlightColor={highlightColor}
-                    />
-                  ))}
+                  {customer.transactions.map((tx, i) => {
+                    const accColor = accumulatedTxs.get(i);
+                    return (
+                      <TxRow
+                        key={`hold-${i}`}
+                        tx={tx}
+                        dim={!accColor}
+                        highlight={!!accColor}
+                        highlightColor={accColor}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </div>
