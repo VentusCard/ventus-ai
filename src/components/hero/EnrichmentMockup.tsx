@@ -237,14 +237,14 @@ const customers: CustomerProfile[] = [
 type Phase = "profile" | "scroll" | "cardCycle" | "hold" | "flip";
 
 const TIMINGS = {
-  profile: 1400,
-  scroll: 4000,
-  cardScan: 1100,
-  collectInterval: 350,
-  collectBuffer: 700,
-  cardReveal: 1000,
-  hold: 3200,
-  flip: 800,
+  profile: 1680,
+  scroll: 4800,
+  cardScan: 1320,
+  collectInterval: 420,
+  collectBuffer: 840,
+  cardReveal: 1200,
+  hold: 3840,
+  flip: 960,
 };
 
 /* ------------------------------------------------------------------ */
