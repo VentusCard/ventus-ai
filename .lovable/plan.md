@@ -1,56 +1,72 @@
 
 
-## Enrich Platform Tabs with Business-Impact Messaging
+# Homepage Redesign — Single Long-Scroll Page
 
-**File: `src/components/PlatformTabs.tsx`** — update the `tabs` array (descriptions + capabilities) for all 5 entries.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-### 1. Bank-Wide Analytics
+---
 
-**Description**: "See your entire portfolio through 12 lifestyle pillars — not legacy merchant codes. Spot cross-sell gaps between card products, identify revenue leaking to competitors, and personalize product recommendations at portfolio scale."
+## Sections to Build
 
-**Capabilities**:
-- "Cross-sell intelligence — see which customers hold Travel cards but lack Dining rewards, and target the gap with personalized offers"
-- "Revenue leakage detection — quantify wallet share lost to competitors by pillar and surface merchant partnership opportunities"
-- "Card product performance matrix — compare penetration rates, activation, and spend velocity across every product in your portfolio"
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-### 2. Consumer Rewards
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-**Description**: "Generic cashback catalogs get ignored. Ventus builds a real-time purchase persona for each customer — lifestyle pillars, spending velocity, purchase cycle — then matches offers that feel hand-picked, not mass-blasted."
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-**Capabilities**:
-- "Hyper-personalized offer matching — relevance scores based on actual behavior, not demographics, so every notification feels curated"
-- "Spending gap detection — identify where customers spend outside your ecosystem and recapture wallet share with targeted incentives"
-- "Purchase cycle prediction — time offers to when customers are most likely to buy, increasing redemption rates and reducing offer fatigue"
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-### 3. Customer Engagement
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-**Description**: "Move beyond batch-and-blast. Build micro-segments from behavioral dimensions no one else has — lifestyle pillars, predicted life events, product ownership gaps — then deliver messages that land because they're relevant, not just personalized."
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-**Capabilities**:
-- "Life event triggers — detect new parents, movers, retirees from spending patterns and activate campaigns at exactly the right moment"
-- "Lifestyle pillar targeting — reach the 'Wellness Enthusiasts' or 'Pet Parents' in your portfolio with messaging that speaks to how they actually live"
-- "AI-generated campaign briefs — describe your audience in plain English and get channel strategy, copy, and audience sizing in seconds"
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-### 4. Travel & Local
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-**Description**: "Detect trips from transaction patterns alone — no GPS, no permissions, no privacy concerns. Then position your bank as a holistic travel companion with curated deals and experiences across dining, arts, shopping, and entertainment — wherever your customers go."
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
 
-**Capabilities**:
-- "Privacy-first trip detection — infer destination, dates, and spend from transactions alone, building trust while delivering value"
-- "Holistic travel companion — surface curated local experiences across dining, arts, shopping, and entertainment so your bank is part of every trip"
-- "Home-city activation — the same intelligence powers local deal targeting, turning everyday spending into engagement opportunities year-round"
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
 
-### 5. Wealth Management
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
 
-**Description**: "Give every advisor a transaction-powered copilot. Detect life events — retirement, home purchase, new baby — before clients mention them. Walk into every meeting prepared with talking points, psychological insights, and proactive recommendations."
+---
 
-**Capabilities**:
-- "AI life event detection — spot retirement planning, relocations, and family changes from spending signals with urgency scoring"
-- "One-click meeting prep — auto-generated talking points, client psychology profile, and action items so advisors spend time advising, not researching"
-- "Proactive relationship management — surface standout transactions and behavioral shifts before they become surprises in client conversations"
+## Technical Details
 
-### Summary
-- Only text content changes in the `tabs` array — no component or logic changes
-- Each capability now explains the "what" AND the "why it matters" with a concrete business outcome
-- Descriptions are longer and more narrative, positioning each tool as solving a specific industry problem
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
