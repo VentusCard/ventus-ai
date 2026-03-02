@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
-import AnimatedDemo from "@/components/technology/AnimatedDemo";
-import { engagementDemoHtml } from "@/components/technology/demos/engagement-demo";
+import VentusEngagementDemo from "@/components/technology/demos/VentusEngagementDemo";
+
 import HeroLifestyleCard from "@/components/hero/HeroLifestyleCard";
 import { User, Target, MapPin, Crown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -119,8 +119,8 @@ const Engagement = () => {
                 Watch how transaction intelligence transforms a standard banking app into a personalized lifestyle experience.
               </p>
             </ScrollReveal>
+            <VentusEngagementDemo />
           </div>
-          <AnimatedDemo htmlContent={engagementDemoHtml} animationDelay="0.45s" hideHeader />
         </section>
 
         {/* SECTION 4 — CAPABILITIES */}

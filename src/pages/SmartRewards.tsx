@@ -117,9 +117,7 @@ const SmartRewards = () => {
                 Explore how behavioral signals drive personalized reward matching in real time.
               </p>
             </ScrollReveal>
-            <div className="rounded-2xl overflow-hidden border border-gray-200">
-              <VentusSmartRewards />
-            </div>
+            <VentusSmartRewards />
           </div>
         </section>
 

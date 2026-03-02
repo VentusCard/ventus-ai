@@ -608,22 +608,57 @@ export default function VentusSmartRewards() {
           color: #0f172a;
           max-width: 1600px;
           margin: 0 auto;
-          padding: 22px;
-          background: transparent;
-          border: 1px solid rgba(15,23,42,.12);
-          border-radius: 22px;
+          padding: 0;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
           overflow: hidden;
           position: relative;
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
         }
         .vsr-root *, .vsr-root *::before, .vsr-root *::after { box-sizing: border-box; }
 
-        .vsr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 6px 6px 10px; }
-        .vsr-title { font-weight: 760; letter-spacing: -.02em; line-height: 1.05; font-size: 20px; color: #0f172a; }
+        .vsr-top {
+          display: flex; align-items: center; justify-content: space-between; gap: 16px;
+          padding: 14px 20px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .vsr-title-left {
+          display: flex; align-items: center; gap: 8px;
+        }
+        .vsr-pulsing-dot {
+          position: relative; width: 8px; height: 8px; flex-shrink: 0;
+        }
+        .vsr-pulsing-dot::before {
+          content: ''; position: absolute; inset: 0; border-radius: 50%; background: #10b981;
+          animation: vsr-dotPulse 2s ease-in-out infinite;
+        }
+        .vsr-pulsing-dot::after {
+          content: ''; position: absolute; inset: 0; border-radius: 50%; background: #10b981;
+          opacity: 0.75; animation: vsr-dotPing 2s ease-in-out infinite;
+        }
+        @keyframes vsr-dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        @keyframes vsr-dotPing { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.5); opacity: 0; } }
+        .vsr-title {
+          font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+          line-height: 1.05; font-size: 10px; color: #2563eb;
+        }
+        .vsr-live-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 4px 10px; border-radius: 999px;
+          background: rgba(16,185,129,0.08); color: #059669;
+          font-size: 11px; font-weight: 600;
+        }
+        .vsr-live-dot {
+          width: 6px; height: 6px; border-radius: 50%; background: #10b981;
+          animation: vsr-dotPulse 2s ease-in-out infinite;
+          box-shadow: 0 0 6px rgba(16,185,129,0.6);
+        }
         .vsr-sub { color: rgba(15,23,42,.55); font-size: 13px; line-height: 1.35; max-width: 1200px; margin-top: 6px; }
 
-        .vsr-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 8px 6px 6px; }
+        .vsr-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 16px 20px; }
 
         .vsr-row {
           display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
@@ -907,9 +942,14 @@ export default function VentusSmartRewards() {
       <div className="vsr-root" ref={rootRef}>
         {/* Header */}
         <div className="vsr-top">
-          <div>
-            <div className="vsr-title">Consumer Rewards — Live Demo</div>
+          <div className="vsr-title-left">
+            <span className="vsr-pulsing-dot" />
+            <div className="vsr-title">Consumer Rewards Intelligence</div>
           </div>
+          <span className="vsr-live-badge">
+            <span className="vsr-live-dot" />
+            Live Demo
+          </span>
         </div>
 
         <div className="vsr-grid">
@@ -1045,6 +1085,34 @@ export default function VentusSmartRewards() {
           </div>
 
           <div className="vsr-foot">Note: Example data shown for illustration only.</div>
+
+          <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+            <button
+              onClick={() => {
+                highPipelineRef.current = [];
+                lowPipelineRef.current = [];
+                renderPipeline();
+                stepIdxRef.current = 0;
+                cyclesRef.current = 0;
+                runningRef.current = false;
+                flowTokenRef.current++;
+                if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause";
+                start();
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Replay
+            </button>
+          </div>
         </div>
       </div>
     </>
