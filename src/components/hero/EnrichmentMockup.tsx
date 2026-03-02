@@ -387,8 +387,8 @@ const EnrichmentMockup = () => {
                       key={pill}
                       className="text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-all duration-400"
                       style={{
-                        background: `${personaCard.accent}18`,
-                        color: personaCard.accent,
+                        background: "rgba(59,130,246,0.15)",
+                        color: "#60a5fa",
                         opacity: i < visiblePills ? 1 : 0,
                         transform: i < visiblePills ? "scale(1)" : "scale(0.7)",
                         transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
