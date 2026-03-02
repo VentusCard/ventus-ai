@@ -257,6 +257,8 @@ const WealthPreview = () => {
       txns: [
         { merchant: "Fidelity Rollover", amount: "$45,000", source: "Premium Card", color: "bg-purple-500", note: "401k consolidation" },
         { merchant: "AARP Membership", amount: "$48", source: "Checking", color: "bg-slate-400", note: "membership activation" },
+        { merchant: "Schwab Advisory", amount: "$2,400", source: "Travel Card", color: "bg-blue-500", note: "annual fee payment" },
+        { merchant: "Medicare Supplement", amount: "$312", source: "HSA", color: "bg-amber-500", note: "coverage upgrade" },
       ],
     },
     {
