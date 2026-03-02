@@ -19,7 +19,7 @@ const Insights = () => (
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
           Insights
         </h1>
-        <p className="mt-4 text-lg text-gray-500 max-w-2xl leading-relaxed">
+        <p className="mt-4 text-lg text-gray-500 max-w-4xl leading-relaxed">
           Perspectives on behavioral intelligence, transaction enrichment, and the future of data-driven banking.
         </p>
       </div>
