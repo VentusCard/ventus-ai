@@ -364,27 +364,96 @@ export default function VentusTransactionEnrichment() {
         @keyframes vte-slideOut {
           to { opacity: 0; transform: translateY(-20px); margin-bottom: -50px; }
         }
+        /* Group header row */
+        .vte-group-row {
+          display: grid;
+          grid-template-columns:
+            minmax(280px, 2.3fr)
+            minmax(85px, .6fr)
+            minmax(74px, .55fr)
+            minmax(170px, 1.15fr)
+            minmax(170px, 1.15fr)
+            minmax(170px, 1.15fr);
+          background: #f8faff;
+        }
+        .vte-group-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 16px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .vte-group-raw {
+          grid-column: 1 / 4;
+          color: #94a3b8;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .vte-group-enriched {
+          grid-column: 4 / 7;
+          color: #2563eb;
+          border-bottom: 1px solid #e2e8f0;
+          border-left: 2px solid #e2e8f0;
+        }
+        .vte-group-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #94a3b8;
+          flex-shrink: 0;
+        }
+        .vte-group-icon {
+          width: 12px;
+          height: 12px;
+          flex-shrink: 0;
+        }
+        /* Vertical divider on header and data rows */
+        .vte-row .vte-cell:nth-child(4) {
+          border-left: 2px solid #e2e8f0;
+        }
         .raw {
           font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
           white-space: normal;
           word-break: break-word;
           line-height: 1.25;
-          color: #0f172a;
+          color: #94a3b8;
           font-size: 12px;
         }
         .one { white-space: nowrap; line-height: 1.2; }
-        .one.amount-text { font-weight: 600; color: #0f172a; }
+        .one.amount-text { font-weight: 600; color: #94a3b8; }
         .one.mcc-badge {
           display: inline-flex;
           padding: 2px 8px;
           border-radius: 999px;
           background: #f1f5f9;
-          color: #64748b;
+          color: #94a3b8;
           font-size: 11px;
           font-weight: 500;
         }
         .one.merchant-text { font-weight: 700; color: #0f172a; }
         .derived-text { color: #2563eb; font-weight: 600; }
+        /* Connector between table and persona */
+        .vte-connector {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          padding: 20px 16px;
+        }
+        .vte-connector-arrow {
+          color: #2563eb;
+          font-size: 20px;
+          line-height: 1;
+        }
+        .vte-connector-text {
+          font-size: 12px;
+          color: #94a3b8;
+          text-align: center;
+          max-width: 480px;
+          line-height: 1.4;
+        }
         .vte-spacer { height: 20px; }
         .vte-disclaimer {
           margin-top: 16px;
@@ -513,6 +582,16 @@ export default function VentusTransactionEnrichment() {
             </span>
           </div>
           <div className="vte-table">
+            <div className="vte-group-row">
+              <div className="vte-group-label vte-group-raw">
+                <span className="vte-group-dot" />
+                Raw Input
+              </div>
+              <div className="vte-group-label vte-group-enriched">
+                <svg className="vte-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Enriched by Ventus
+              </div>
+            </div>
             <div className="vte-row head">
               {["Raw Transaction", "Amount", "MCC", "Merchant", "Category", "Sub-Category"].map((h) => (
                 <div key={h} className="vte-cell">
@@ -524,7 +603,10 @@ export default function VentusTransactionEnrichment() {
           </div>
         </div>
 
-        <div className="vte-spacer" />
+        <div className="vte-connector">
+          <span className="vte-connector-arrow">↓</span>
+          <span className="vte-connector-text">Ventus aggregates enriched signals across all transactions to build a live customer profile</span>
+        </div>
 
         {/* Persona card */}
         <div className="vte-card">
