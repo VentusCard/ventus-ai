@@ -68,14 +68,18 @@ const tabs = [
 
 const AnalyticsPreview = () => {
   const pillars = [
-    { label: "Travel", pct: 20.4 },
-    { label: "Dining", pct: 18.2 },
-    { label: "Wellness", pct: 14.1 },
-    { label: "Shopping", pct: 12.3 },
-    { label: "Auto", pct: 9.8 },
+    { label: "Travel", pct: 20.4, accounts: "24.5M", leakage: 4.2, color: "#3b82f6" },
+    { label: "Dining", pct: 18.2, accounts: "21.8M", leakage: 6.1, color: "#f97316" },
+    { label: "Wellness", pct: 14.1, accounts: "16.9M", leakage: 3.8, color: "#10b981" },
+    { label: "Shopping", pct: 12.3, accounts: "14.8M", leakage: 5.5, color: "#8b5cf6" },
+  ];
+  const products = [
+    { name: "Travel Rewards", pen: "34.2%", active: "82%", spend: "$18.4K", color: "bg-blue-400" },
+    { name: "Cashback Plus", pen: "28.7%", active: "71%", spend: "$12.1K", color: "bg-emerald-400" },
+    { name: "Premium Elite", pen: "8.1%", active: "94%", spend: "$42.8K", color: "bg-purple-400" },
   ];
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="grid grid-cols-3 gap-2">
         {[
           { label: "Total Accounts", value: "120M" },
@@ -88,16 +92,41 @@ const AnalyticsPreview = () => {
           </div>
         ))}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {pillars.map((p) => (
           <div key={p.label} className="flex items-center gap-2">
-            <span className="text-[11px] text-gray-500 w-16 shrink-0">{p.label}</span>
-            <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${p.pct * 3}%` }} />
+            <span className="text-[11px] text-gray-500 w-14 shrink-0">{p.label}</span>
+            <div className="flex-1 h-3.5 bg-gray-100 rounded-full overflow-hidden flex">
+              <div className="h-full rounded-l-full" style={{ width: `${(p.pct - p.leakage) * 3}%`, backgroundColor: p.color }} />
+              <div className="h-full bg-red-300" style={{ width: `${p.leakage * 3}%` }} />
             </div>
-            <span className="text-[11px] font-medium text-gray-700 w-10 text-right">{p.pct}%</span>
+            <span className="text-[9px] text-gray-400 w-12 shrink-0">{p.accounts}</span>
+            <span className="text-[9px] text-red-400 w-10 text-right shrink-0">-{p.leakage}%</span>
           </div>
         ))}
+      </div>
+      <div className="rounded-lg border-l-[3px] border-l-blue-500 border border-gray-100 p-2.5 flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-semibold text-gray-900">Cross-Sell Gap Detected</p>
+          <p className="text-[10px] text-gray-500">Travel cardholders missing Dining rewards — <span className="font-semibold text-blue-600">23% gap</span></p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">12.4K accounts</span>
+        </div>
+      </div>
+      <div>
+        <p className="text-[10px] font-semibold text-gray-700 mb-1.5">Card Product Performance</p>
+        <div className="space-y-1">
+          {products.map((p) => (
+            <div key={p.name} className="flex items-center gap-2 text-[10px] rounded-md border border-gray-100 px-2.5 py-1.5">
+              <span className={`w-2 h-2 rounded-full ${p.color} shrink-0`} />
+              <span className="font-medium text-gray-800 w-24 shrink-0">{p.name}</span>
+              <span className="text-gray-500 w-12">{p.pen}</span>
+              <span className={`w-10 font-semibold ${p.active === "94%" ? "text-green-600" : "text-gray-700"}`}>{p.active}</span>
+              <span className="text-gray-600 ml-auto font-medium">{p.spend}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
