@@ -391,70 +391,27 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: scroll sub-phase — mini roll with accumulated highlights */}
-              {phase === "cardCycle" && cardPhase === "scroll" && (
-                <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
-                  <div
-                    className="space-y-0.5"
-                    style={{
-                      animation: "orch-mini-scroll 1s linear forwards",
-                    }}
-                  >
-                    {customer.transactions.map((tx, i) => {
-                      const isInCurrentCard = currentCardTxs.includes(i);
-                      const accColor = accumulatedTxs.get(i);
-                      const isHighlighted = isInCurrentCard || !!accColor;
-                      const color = isInCurrentCard ? highlightColor : accColor;
-                      return (
-                        <TxRow
-                          key={`csroll-${i}`}
-                          tx={tx}
-                          dim={!isHighlighted}
-                          highlight={isHighlighted}
-                          highlightColor={color}
-                        />
-                      );
-                    })}
-                    {customer.transactions.map((tx, i) => (
-                      <TxRow key={`csroll2-${i}`} tx={tx} dim />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Card cycle: reveal sub-phase — all accumulated txs highlighted */}
-              {phase === "cardCycle" && cardPhase === "reveal" && (
-                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {customer.transactions.map((tx, i) => {
-                    const accColor = accumulatedTxs.get(i);
-                    return (
+              {/* Card cycle: scroll/reveal — collected float to top */}
+              {(phase === "cardCycle" || phase === "hold") && (
+                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.3s ease-out" }}>
+                  {/* Collected transactions at top */}
+                  {collected.map(({ tx, i }) => (
+                    <div
+                      key={`col-${i}`}
+                      style={{ animation: "orch-collect-pulse 0.4s ease-out" }}
+                    >
                       <TxRow
-                        key={`crev-${i}`}
                         tx={tx}
-                        dim={!accColor}
-                        highlight={!!accColor}
-                        highlightColor={accColor}
+                        dim={false}
+                        highlight
+                        highlightColor={currentCardColor}
                       />
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Hold phase — all accumulated highlights */}
-              {phase === "hold" && (
-                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {customer.transactions.map((tx, i) => {
-                    const accColor = accumulatedTxs.get(i);
-                    return (
-                      <TxRow
-                        key={`hold-${i}`}
-                        tx={tx}
-                        dim={!accColor}
-                        highlight={!!accColor}
-                        highlightColor={accColor}
-                      />
-                    );
-                  })}
+                    </div>
+                  ))}
+                  {/* Uncollected transactions below, dimmed */}
+                  {uncollected.map(({ tx, i }) => (
+                    <TxRow key={`unc-${i}`} tx={tx} dim />
+                  ))}
                 </div>
               )}
             </div>
