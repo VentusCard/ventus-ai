@@ -150,6 +150,66 @@ const customers: CustomerProfile[] = [
       },
     ],
   },
+  {
+    name: "Emily & James W.",
+    age: 58,
+    family: "Empty Nesters",
+    location: "Scottsdale, AZ",
+    income: "High Income",
+    transactions: [
+      { account: "••6102", merchant: "Fidelity Investments", amount: "$5,000.00" },
+      { account: "••6102", merchant: "Charles Schwab", amount: "$3,200.00" },
+      { account: "••6102", merchant: "Edward Jones", amount: "$2,750.00" },
+      { account: "••6102", merchant: "Vanguard", amount: "$4,500.00" },
+      { account: "••6102", merchant: "Northwestern Mutual", amount: "$1,800.00" },
+      { account: "••6102", merchant: "TIAA", amount: "$2,100.00" },
+      { account: "••7745", merchant: "Four Seasons Resort", amount: "$4,850.00" },
+      { account: "••7745", merchant: "Napa Valley Wine Train", amount: "$680.00" },
+      { account: "••7745", merchant: "Viking Cruises", amount: "$8,200.00" },
+      { account: "••7745", merchant: "Amex Travel", amount: "$1,950.00" },
+      { account: "••3318", merchant: "Mayo Clinic", amount: "$450.00" },
+      { account: "••3318", merchant: "Equinox", amount: "$220.00" },
+      { account: "••3318", merchant: "United Way", amount: "$1,000.00" },
+      { account: "••3318", merchant: "Habitat for Humanity", amount: "$500.00" },
+      { account: "••9901", merchant: "Williams Sonoma", amount: "$345.00" },
+      { account: "••9901", merchant: "Sur La Table", amount: "$189.00" },
+      { account: "••9901", merchant: "MasterClass", amount: "$120.00" },
+      { account: "••9901", merchant: "Audible", amount: "$14.95" },
+      { account: "••9901", merchant: "National Geographic", amount: "$39.00" },
+    ],
+    cards: [
+      {
+        accent: "#a78bfa",
+        icon: "◈",
+        title: "Dynamic Persona",
+        content: "",
+        pills: ["Pre-Retiree", "Luxury Traveler", "Philanthropist", "Wellness Focused", "Lifelong Learner"],
+        txIndices: [],
+      },
+      {
+        accent: "#60a5fa",
+        icon: "◆",
+        title: "Analytics Intelligence",
+        content: "Recommend Wealth Management Upgrade — retirement consolidation pattern detected across 6 accounts. Personalized advisor introduction queued.",
+        txIndices: [0, 1, 2, 3, 4, 5],
+      },
+      {
+        accent: "#34d399",
+        icon: "★",
+        title: "Smart Rewards",
+        content: "",
+        pills: ["Four Seasons 5x Points", "Viking Cruises $500 Credit", "Napa Wine Club", "Amex Centurion Invite"],
+        txIndices: [6, 7, 8, 9],
+      },
+      {
+        accent: "#fbbf24",
+        icon: "⚡",
+        title: "Relationship Intelligence",
+        content: "Life Event: Retirement Transition detected from financial consolidation and lifestyle shifts. Estate planning package sent to advisor.",
+        txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
+      },
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -159,13 +219,13 @@ const customers: CustomerProfile[] = [
 type Phase = "profile" | "scroll" | "cardCycle" | "hold" | "flip";
 
 const TIMINGS = {
-  profile: 1000,
-  scroll: 3000,
-  cardScan: 800,        // rapid scroll per card before collecting
-  collectInterval: 250, // time between each tx "found"
-  collectBuffer: 500,   // buffer after last tx found before reveal
-  cardReveal: 800,
-  hold: 2500,
+  profile: 1400,
+  scroll: 4000,
+  cardScan: 1100,
+  collectInterval: 350,
+  collectBuffer: 700,
+  cardReveal: 1000,
+  hold: 3200,
   flip: 800,
 };
 
@@ -333,7 +393,7 @@ const EnrichmentMockup = () => {
         </div>
 
         {/* ---- Body ---- */}
-        <div className="grid gap-0" style={{ height: 380, gridTemplateColumns: "40% 60%" }}>
+        <div className="grid gap-0" style={{ height: 440, gridTemplateColumns: "40% 60%" }}>
           {/* ======== LEFT PANEL ======== */}
           <div className="border-r border-[#1e2d4a] px-4 py-3 overflow-hidden flex flex-col">
             {/* Demographics */}
