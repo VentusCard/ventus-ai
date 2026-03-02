@@ -14,6 +14,7 @@ interface IntelCard {
   accent: string;
   icon: string;
   title: string;
+  subtitle?: string;
   content: string;
   pills?: string[];
   txIndices: number[];
@@ -77,6 +78,7 @@ const customers: CustomerProfile[] = [
         accent: "#34d399",
         icon: "★",
         title: "Smart Rewards",
+        subtitle: "Hyper-personalized ranking and messages",
         content: "",
         pills: ["Delta SkyMiles 3x", "Marriott Elite Match", "United Lounge Pass", "Vail Season Deal"],
         txIndices: [6, 7, 8, 9],
@@ -85,6 +87,7 @@ const customers: CustomerProfile[] = [
         accent: "#fbbf24",
         icon: "⚡",
         title: "Relationship Intelligence",
+        subtitle: "Personalized projections, timeline and meeting prep",
         content: "Life Event: Major Home Renovation detected from lifestyle shifts across 3 accounts. Sent meeting prep to wealth advisor.",
         txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
       },
@@ -137,6 +140,7 @@ const customers: CustomerProfile[] = [
         accent: "#34d399",
         icon: "★",
         title: "Smart Rewards",
+        subtitle: "Hyper-personalized ranking and messages",
         content: "",
         pills: ["Whole Foods 5% Back", "Instacart Free Delivery", "DoorDash DashPass", "Blue Apron Family Plan"],
         txIndices: [5, 6, 7, 8, 9],
@@ -145,6 +149,7 @@ const customers: CustomerProfile[] = [
         accent: "#fbbf24",
         icon: "⚡",
         title: "Relationship Intelligence",
+        subtitle: "Personalized projections, timeline and meeting prep",
         content: "Life Event: New Baby detected from health and planning transactions. Family financial package sent to advisor.",
         txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
       },
@@ -197,6 +202,7 @@ const customers: CustomerProfile[] = [
         accent: "#34d399",
         icon: "★",
         title: "Smart Rewards",
+        subtitle: "Hyper-personalized ranking and messages",
         content: "",
         pills: ["Four Seasons 5x Points", "Viking Cruises $500 Credit", "Napa Wine Club", "Amex Centurion Invite"],
         txIndices: [6, 7, 8, 9],
@@ -205,6 +211,7 @@ const customers: CustomerProfile[] = [
         accent: "#fbbf24",
         icon: "⚡",
         title: "Relationship Intelligence",
+        subtitle: "Personalized projections, timeline and meeting prep",
         content: "Life Event: Retirement Transition detected from financial consolidation and lifestyle shifts. Estate planning package sent to advisor.",
         txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
       },
@@ -603,6 +610,9 @@ const EnrichmentMockup = () => {
                           {card.title}
                         </span>
                       </div>
+                      {isRevealed && card.subtitle && (
+                        <div className="text-[8px] text-gray-500 mb-1">{card.subtitle}</div>
+                      )}
                       {isRevealed && (
                         <>
                           {card.pills ? (
