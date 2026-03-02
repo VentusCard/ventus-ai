@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Check, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
@@ -328,8 +328,10 @@ const ROTATE_INTERVAL = 5000;
 const PlatformTabs = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [paused, setPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
   const rafRef = useRef<number>();
+  const pausedElapsedRef = useRef(0);
 
   const resetTimer = useCallback(() => {
     setProgress(0);
@@ -344,16 +346,31 @@ const PlatformTabs = () => {
     [resetTimer]
   );
 
+  const togglePause = useCallback(() => {
+    setPaused((prev) => {
+      if (!prev) {
+        // Pausing — save elapsed time
+        pausedElapsedRef.current = Date.now() - startTimeRef.current;
+      } else {
+        // Resuming — restore start time so progress continues
+        startTimeRef.current = Date.now() - pausedElapsedRef.current;
+      }
+      return !prev;
+    });
+  }, []);
+
   // Auto-rotate
   useEffect(() => {
     const tick = () => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
-      setProgress(pct);
+      if (!paused) {
+        const elapsed = Date.now() - startTimeRef.current;
+        const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
+        setProgress(pct);
 
-      if (elapsed >= ROTATE_INTERVAL) {
-        setActiveIndex((prev) => (prev + 1) % tabs.length);
-        startTimeRef.current = Date.now();
+        if (elapsed >= ROTATE_INTERVAL) {
+          setActiveIndex((prev) => (prev + 1) % tabs.length);
+          startTimeRef.current = Date.now();
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -361,7 +378,7 @@ const PlatformTabs = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [paused]);
 
   const tab = tabs[activeIndex];
 
@@ -460,9 +477,9 @@ const PlatformTabs = () => {
           </div>
         </div>
 
-        {/* Dot indicators — hidden on mobile */}
+        {/* Dot indicators with pause button — hidden on mobile */}
         <div className="hidden md:flex items-center justify-center gap-2 mt-6">
-          {tabs.map((_, i) => (
+          {tabs.slice(0, Math.ceil(tabs.length / 2)).map((_, i) => (
             <button
               key={i}
               onClick={() => handleTabClick(i)}
@@ -474,6 +491,32 @@ const PlatformTabs = () => {
               aria-label={`Go to tab ${i + 1}`}
             />
           ))}
+          <button
+            onClick={togglePause}
+            className="mx-1 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            aria-label={paused ? "Resume auto-rotate" : "Pause auto-rotate"}
+          >
+            {paused ? (
+              <Play className="w-3.5 h-3.5 text-gray-600 ml-0.5" />
+            ) : (
+              <Pause className="w-3.5 h-3.5 text-gray-600" />
+            )}
+          </button>
+          {tabs.slice(Math.ceil(tabs.length / 2)).map((_, i) => {
+            const idx = i + Math.ceil(tabs.length / 2);
+            return (
+              <button
+                key={idx}
+                onClick={() => handleTabClick(idx)}
+                className={`rounded-full transition-all duration-300 ${
+                  idx === activeIndex
+                    ? "w-3 h-3 bg-blue-600"
+                    : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+                }`}
+                aria-label={`Go to tab ${idx + 1}`}
+              />
+            );
+          })}
         </div>
       </div>
     </section>
