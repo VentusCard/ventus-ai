@@ -1,8 +1,16 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
+
+const SOURCE_COLORS = ["#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#fb7185"];
+
+const getSourceColor = (transactions: Transaction[], account: string): string => {
+  const uniqueAccounts = [...new Set(transactions.map(t => t.account))];
+  const idx = uniqueAccounts.indexOf(account);
+  return SOURCE_COLORS[idx % SOURCE_COLORS.length];
+};
 
 interface Transaction {
   account: string;
