@@ -381,7 +381,7 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: scroll sub-phase — mini roll of relevant txs */}
+              {/* Card cycle: scroll sub-phase — mini roll with accumulated highlights */}
               {phase === "cardCycle" && cardPhase === "scroll" && (
                 <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
                   <div
@@ -390,16 +390,21 @@ const EnrichmentMockup = () => {
                       animation: "orch-mini-scroll 1s linear forwards",
                     }}
                   >
-                    {/* Show all txs but highlight only relevant ones */}
-                    {customer.transactions.map((tx, i) => (
-                      <TxRow
-                        key={`csroll-${i}`}
-                        tx={tx}
-                        dim={!cardCycleTxs.includes(i)}
-                        highlight={cardCycleTxs.includes(i)}
-                        highlightColor={highlightColor}
-                      />
-                    ))}
+                    {customer.transactions.map((tx, i) => {
+                      const isInCurrentCard = currentCardTxs.includes(i);
+                      const accColor = accumulatedTxs.get(i);
+                      const isHighlighted = isInCurrentCard || !!accColor;
+                      const color = isInCurrentCard ? highlightColor : accColor;
+                      return (
+                        <TxRow
+                          key={`csroll-${i}`}
+                          tx={tx}
+                          dim={!isHighlighted}
+                          highlight={isHighlighted}
+                          highlightColor={color}
+                        />
+                      );
+                    })}
                     {customer.transactions.map((tx, i) => (
                       <TxRow key={`csroll2-${i}`} tx={tx} dim />
                     ))}
@@ -407,33 +412,39 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: reveal sub-phase — settled highlighted txs */}
+              {/* Card cycle: reveal sub-phase — all accumulated txs highlighted */}
               {phase === "cardCycle" && cardPhase === "reveal" && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {cardCycleTransactions.map((tx, i) => (
-                    <TxRow
-                      key={`crev-${i}`}
-                      tx={tx}
-                      dim={false}
-                      highlight
-                      highlightColor={highlightColor}
-                    />
-                  ))}
+                  {customer.transactions.map((tx, i) => {
+                    const accColor = accumulatedTxs.get(i);
+                    return (
+                      <TxRow
+                        key={`crev-${i}`}
+                        tx={tx}
+                        dim={!accColor}
+                        highlight={!!accColor}
+                        highlightColor={accColor}
+                      />
+                    );
+                  })}
                 </div>
               )}
 
-              {/* Hold phase — keep last card's highlighted txs */}
+              {/* Hold phase — all accumulated highlights */}
               {phase === "hold" && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {cardCycleTransactions.map((tx, i) => (
-                    <TxRow
-                      key={`hold-${i}`}
-                      tx={tx}
-                      dim={false}
-                      highlight
-                      highlightColor={highlightColor}
-                    />
-                  ))}
+                  {customer.transactions.map((tx, i) => {
+                    const accColor = accumulatedTxs.get(i);
+                    return (
+                      <TxRow
+                        key={`hold-${i}`}
+                        tx={tx}
+                        dim={!accColor}
+                        highlight={!!accColor}
+                        highlightColor={accColor}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </div>
