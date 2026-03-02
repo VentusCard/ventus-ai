@@ -41,6 +41,18 @@ const tabs = [
     ],
   },
   {
+    label: "Travel & Local",
+    heading: "Travel & Local Experiences",
+    href: "/smartrewards",
+    description:
+      "Detect trips from transaction patterns alone — no location tracking required. Then position your bank as a holistic travel companion with curated deals, local experiences, and perks across dining, shopping, arts, and entertainment.",
+    capabilities: [
+      "Trip detection from spending patterns without GPS or location data",
+      "Curated local experiences across dining, arts, shopping, and entertainment",
+      "Geo-targeted deals that turn every trip into a bank-powered experience",
+    ],
+  },
+  {
     label: "Wealth Management",
     heading: "Wealth Management",
     href: "/wealth",
@@ -147,6 +159,41 @@ const EngagementPreview = () => (
   </div>
 );
 
+const TravelLocalPreview = () => (
+  <div className="space-y-3">
+    <div className="rounded-lg border border-gray-100 p-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Detected Trip</span>
+          <span className="text-sm font-semibold text-gray-900">Miami, FL</span>
+        </div>
+        <span className="text-[10px] text-gray-400">Mar 12 – Mar 17</span>
+      </div>
+      <div className="flex items-center gap-4 text-[11px] text-gray-500">
+        <span>14 transactions</span>
+        <span>$4,280 total spend</span>
+      </div>
+      <p className="text-[9px] text-gray-400 mt-1.5 flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+        Inferred from spending patterns — no location tracking
+      </p>
+    </div>
+    {[
+      { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", bg: "bg-purple-50", text: "text-purple-700" },
+      { name: "Zuma Miami", deal: "$50 dining credit", category: "Dining", bg: "bg-orange-50", text: "text-orange-700" },
+      { name: "Bayside Marketplace", deal: "10% back on purchases", category: "Shopping", bg: "bg-emerald-50", text: "text-emerald-700" },
+    ].map((e) => (
+      <div key={e.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-900">{e.name}</p>
+          <p className="text-[11px] text-gray-500">{e.deal}</p>
+        </div>
+        <span className={`text-[10px] ${e.bg} ${e.text} px-2 py-0.5 rounded-full font-medium`}>{e.category}</span>
+      </div>
+    ))}
+  </div>
+);
+
 const WealthPreview = () => (
   <div className="space-y-3">
     {[
@@ -174,7 +221,7 @@ const WealthPreview = () => (
 );
 
 const TabPreview = ({ index }: { index: number }) => {
-  const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <WealthPreview />];
+  const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <TravelLocalPreview />, <WealthPreview />];
   return previews[index] || null;
 };
 
@@ -228,7 +275,7 @@ const PlatformTabs = () => {
           The Platform
         </p>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          One Tech Core. Four Insight Tools.
+          One Tech Core. Five Insight Tools.
         </h2>
         <p className="text-gray-500 text-lg mb-10">
           Every team in your bank. One enrichment engine underneath.
