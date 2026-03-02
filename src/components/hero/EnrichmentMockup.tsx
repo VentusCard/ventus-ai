@@ -385,7 +385,7 @@ const EnrichmentMockup = () => {
                   <div
                     className="space-y-0.5"
                     style={{
-                      animation: "orch-rapid-scroll 2.8s linear forwards",
+                      animation: `orch-rapid-scroll ${TIMINGS.scroll}ms linear forwards`,
                     }}
                   >
                     {customer.transactions.map((tx, i) => (
