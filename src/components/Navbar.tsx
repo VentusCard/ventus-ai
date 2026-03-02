@@ -2,7 +2,8 @@ import { useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
+import ventusLogo from "@/assets/ventus-logo.png";
+import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 
 const coreProduct = {
@@ -80,7 +81,7 @@ const Navbar = () => {
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogoBlue} alt="Ventus AI" className="h-6 w-auto" />
+            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-6 w-auto" />
           </Link>
           {/* Products dropdown */}
           <div
@@ -155,7 +156,7 @@ const Navbar = () => {
       {/* Mobile navbar */}
       <div className="flex md:hidden h-16 items-center justify-between" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogoBlue} alt="Ventus AI" className="h-6 w-auto" />
+          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-6 w-auto" />
         </Link>
         <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu" style={{ minWidth: 'auto', minHeight: 'auto', padding: 0 }}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
