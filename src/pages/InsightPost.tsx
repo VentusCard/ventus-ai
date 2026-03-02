@@ -52,7 +52,9 @@ const InsightPost = () => {
             {post.excerpt}
           </p>
 
-          <hr className="my-10 border-gray-100" />
+          <div className="rounded-2xl overflow-hidden my-10">
+            <img src={insightsCover} alt="Ventus AI Insights" className="w-full h-56 object-cover" />
+          </div>
 
           {/* Body */}
           <div className="prose prose-gray prose-lg max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-blue-600">
