@@ -57,7 +57,7 @@ const IntegrationSection = () => {
   return (
     <section className="py-24" style={{ background: "#0a0f1e" }}>
       <div className="max-w-7xl mx-auto px-6 md:px-8">
-        <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">How It Works</p>
+        <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">A modular intelligence layer that works with your existing stack.</h2>
 
         {/* Steps with connector */}
