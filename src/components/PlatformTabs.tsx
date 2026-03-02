@@ -41,8 +41,8 @@ const tabs = [
     ],
   },
   {
-    label: "Wealth Management Copilot",
-    heading: "Wealth Management Copilot",
+    label: "Wealth Management",
+    heading: "Wealth Management",
     href: "/wealth",
     description:
       "Turn transaction patterns into relationship intelligence. Detect life events before clients mention them and walk into every meeting prepared.",

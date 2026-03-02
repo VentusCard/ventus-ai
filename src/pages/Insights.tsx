@@ -15,11 +15,11 @@ const Insights = () => (
   <main className="bg-white min-h-screen">
     {/* Hero */}
     <section className="pt-32 pb-16 px-6">
-      <div className="max-w-7xl mx-auto text-center">
+      <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
           Insights
         </h1>
-        <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-4 text-lg text-gray-500 max-w-2xl leading-relaxed">
           Perspectives on behavioral intelligence, transaction enrichment, and the future of data-driven banking.
         </p>
       </div>
