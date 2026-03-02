@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const deals = [
   { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", match: 94 },
@@ -7,24 +7,40 @@ const deals = [
 ];
 
 const HeroTravelCard = () => {
-  const [phase, setPhase] = useState(0); // 0=trip detected, 1=deals filling
+  // 0=fade-in tags, 1=deals filling, 2=hold, 3=fade-out
+  const [phase, setPhase] = useState(0);
 
-  useEffect(() => {
-    const t = setTimeout(() => setPhase(1), 600);
-    return () => clearTimeout(t);
+  const runCycle = useCallback(() => {
+    setPhase(0);
+    const t1 = setTimeout(() => setPhase(1), 600);
+    const t2 = setTimeout(() => setPhase(2), 3000);
+    const t3 = setTimeout(() => setPhase(3), 5200);
+    return [t1, t2, t3];
   }, []);
 
-  // Loop: reset and replay every 6s
   useEffect(() => {
+    let timers = runCycle();
     const interval = setInterval(() => {
-      setPhase(0);
-      setTimeout(() => setPhase(1), 600);
+      timers.forEach(clearTimeout);
+      timers = runCycle();
     }, 6000);
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      timers.forEach(clearTimeout);
+      clearInterval(interval);
+    };
+  }, [runCycle]);
+
+  const isVisible = phase < 3;
 
   return (
-    <div className="w-full max-w-md rounded-2xl p-6" style={{ background: "#111827", border: "1px solid #1e2d4a" }}>
+    <div
+      className="w-full max-w-md rounded-2xl p-6 transition-opacity duration-500"
+      style={{
+        background: "#111827",
+        border: "1px solid #1e2d4a",
+        opacity: isVisible ? 1 : 0,
+      }}
+    >
       {/* Trip header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center">
@@ -36,7 +52,7 @@ const HeroTravelCard = () => {
         </div>
       </div>
 
-      {/* Animated trip badge */}
+      {/* Animated trip badges */}
       <div className="flex flex-wrap gap-2 mb-5">
         {["Detected Trip", "Miami, FL", "Privacy-First"].map((tag, i) => (
           <span
@@ -45,8 +61,8 @@ const HeroTravelCard = () => {
             style={{
               background: i === 0 ? "rgba(59,130,246,0.15)" : i === 1 ? "rgba(34,197,94,0.12)" : "rgba(168,85,247,0.12)",
               color: i === 0 ? "#60a5fa" : i === 1 ? "#4ade80" : "#c084fc",
-              opacity: phase >= 0 ? 1 : 0,
-              transform: phase >= 0 ? "translateY(0)" : "translateY(8px)",
+              opacity: phase >= 0 && isVisible ? 1 : 0,
+              transform: phase >= 0 && isVisible ? "translateY(0)" : "translateY(8px)",
               transitionDelay: `${i * 150}ms`,
             }}
           >
@@ -63,8 +79,8 @@ const HeroTravelCard = () => {
             className="flex items-center justify-between rounded-lg px-4 py-3 transition-all duration-500"
             style={{
               background: "#0a0f1e",
-              opacity: phase >= 1 ? 1 : 0,
-              transform: phase >= 1 ? "translateX(0)" : "translateX(16px)",
+              opacity: phase >= 1 && isVisible ? 1 : 0,
+              transform: phase >= 1 && isVisible ? "translateX(0)" : "translateX(16px)",
               transitionDelay: `${i * 200}ms`,
             }}
           >
@@ -76,7 +92,7 @@ const HeroTravelCard = () => {
                     className="h-full rounded-full transition-all duration-1000 ease-out"
                     style={{
                       background: "#3b82f6",
-                      width: phase >= 1 ? `${deal.match}%` : "0%",
+                      width: phase >= 1 && isVisible ? `${deal.match}%` : "0%",
                       transitionDelay: `${i * 200 + 300}ms`,
                     }}
                   />
@@ -87,8 +103,8 @@ const HeroTravelCard = () => {
             <span
               className="px-2 py-0.5 rounded text-[10px] font-semibold transition-all duration-300"
               style={{
-                background: phase >= 1 ? "rgba(59,130,246,0.15)" : "transparent",
-                color: phase >= 1 ? "#60a5fa" : "transparent",
+                background: phase >= 1 && isVisible ? "rgba(59,130,246,0.15)" : "transparent",
+                color: phase >= 1 && isVisible ? "#60a5fa" : "transparent",
                 transitionDelay: `${i * 200 + 600}ms`,
               }}
             >
