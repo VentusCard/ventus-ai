@@ -82,7 +82,7 @@ const Navbar = () => {
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={isTransparent ? ventusLogoTransparent : ventusLogo} alt="Ventus AI" className="h-4 w-auto" />
+            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
           </Link>
           {/* Products dropdown */}
           <div
@@ -157,7 +157,7 @@ const Navbar = () => {
       {/* Mobile navbar */}
       <div className="flex md:hidden h-16 items-center justify-between" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={isTransparent ? ventusLogoTransparent : ventusLogo} alt="Ventus AI" className="h-4 w-auto" />
+          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
         </Link>
         <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu" style={{ minWidth: 'auto', minHeight: 'auto', padding: 0 }}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
