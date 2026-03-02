@@ -234,6 +234,10 @@ const TravelLocalPreview = () => (
         Inferred from spending patterns — no location tracking
       </p>
     </div>
+    <div className="rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+      <p className="text-[13px] font-bold text-slate-800">Hi John, welcome to Miami!</p>
+      <p className="text-[11px] text-slate-500">Your Ventus Bank Membership gets you the following deals:</p>
+    </div>
     {[
       { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", bg: "bg-purple-50", text: "text-purple-700" },
       { name: "Zuma Miami", deal: "$50 dining credit", category: "Dining", bg: "bg-orange-50", text: "text-orange-700" },
@@ -247,6 +251,13 @@ const TravelLocalPreview = () => (
         <span className={`text-[10px] ${e.bg} ${e.text} px-2 py-0.5 rounded-full font-medium`}>{e.category}</span>
       </div>
     ))}
+    <div className="rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/50 p-3 flex items-center justify-between cursor-pointer">
+      <div>
+        <p className="text-[12px] font-bold text-blue-700">Explore National Deals</p>
+        <p className="text-[10px] text-blue-600/80">200+ deals available nationwide</p>
+      </div>
+      <span className="text-blue-400 text-lg">→</span>
+    </div>
   </div>
 );
 
