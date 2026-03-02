@@ -131,38 +131,57 @@ const RewardsPreview = () => (
 
 const EngagementPreview = () => {
   const pillars = [
-    { label: "Travel", spend: 1240, txns: 18, pct: 28.4, color: "#3b82f6", bars: [60, 90, 45, 80, 70, 55, 95, 65] },
-    { label: "Dining", spend: 480, txns: 32, pct: 18.2, color: "#f97316", bars: [40, 75, 85, 50, 65, 90, 55, 70] },
-    { label: "Wellness", spend: 320, txns: 12, pct: 14.1, color: "#10b981", bars: [30, 50, 70, 45, 60, 35, 80, 55] },
-    { label: "Shopping", spend: 180, txns: 9, pct: 9.8, color: "#8b5cf6", bars: [50, 35, 65, 40, 55, 75, 45, 60] },
-    { label: "Auto", spend: 150, txns: 4, pct: 7.2, color: "#64748b", bars: [25, 45, 60, 35, 50, 70, 40, 55] },
-    { label: "Pets", spend: 95, txns: 6, pct: 4.8, color: "#ec4899", bars: [35, 55, 40, 70, 50, 30, 65, 45] },
+    { label: "Travel", spend: 1240, budget: 1500, color: "#3b82f6", subs: [{ name: "Flights", amount: 680 }, { name: "Hotels", amount: 340 }, { name: "Car Rental", amount: 220 }] },
+    { label: "Dining", spend: 480, budget: 500, color: "#f97316", subs: [{ name: "Restaurants", amount: 310 }, { name: "Coffee Shops", amount: 95 }, { name: "Delivery", amount: 75 }] },
+    { label: "Wellness", spend: 320, budget: 250, color: "#10b981", subs: [{ name: "Gym", amount: 140 }, { name: "Supplements", amount: 105 }, { name: "Spa", amount: 75 }] },
+    { label: "Shopping", spend: 180, budget: 400, color: "#8b5cf6", subs: [{ name: "Clothing", amount: 95 }, { name: "Electronics", amount: 50 }, { name: "Home", amount: 35 }] },
   ];
+  const getStatus = (spend: number, budget: number) => {
+    const ratio = spend / budget;
+    if (ratio > 1) return { label: "Over Budget", barColor: "#ef4444" };
+    if (ratio >= 0.8) return { label: "Near Limit", barColor: "#f59e0b" };
+    return { label: "Under Budget", barColor: "#22c55e" };
+  };
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold text-gray-900">Lifestyle Pillars</p>
-      <div className="grid grid-cols-3 gap-2">
-        {pillars.map((p) => (
-          <div key={p.label} className="rounded-lg border border-gray-200 bg-white p-2 flex flex-col gap-1.5 hover:shadow-md transition-shadow cursor-pointer">
-            <div className="w-full h-0.5 rounded-full" style={{ backgroundColor: p.color }} />
-            <p className="text-[11px] font-semibold text-gray-900 leading-tight">{p.label}</p>
-            <p className="text-sm font-bold" style={{ color: p.color }}>${p.spend.toLocaleString()}</p>
-            <div className="flex items-center justify-between text-[9px] text-gray-500">
-              <span>{p.txns} trans.</span>
-              <span>{p.pct}%</span>
-            </div>
-            <div className="mt-auto flex items-end gap-px h-3">
-              {p.bars.map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-t"
-                  style={{ backgroundColor: `${p.color}50`, height: `${h}%` }}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-900">Monthly Spending by Pillar</p>
+        <span className="text-[9px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Budget Mode</span>
       </div>
+      <div className="grid grid-cols-2 gap-2">
+        {pillars.map((p) => {
+          const status = getStatus(p.spend, p.budget);
+          return (
+            <div key={p.label} className="rounded-lg border border-gray-200 bg-white p-2.5 flex flex-col gap-1.5">
+              <div className="w-full h-0.5 rounded-full" style={{ backgroundColor: p.color }} />
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold text-gray-900">{p.label}</p>
+                <span className="text-[9px] font-medium" style={{ color: status.barColor }}>{status.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${Math.min((p.spend / p.budget) * 100, 100)}%`, backgroundColor: status.barColor }} />
+                </div>
+                <span className="text-[9px] text-gray-500 shrink-0">${p.spend} / ${p.budget.toLocaleString()}</span>
+              </div>
+              <div className="border-t border-gray-100 pt-1 mt-0.5 space-y-1">
+                {p.subs.map((s) => (
+                  <div key={s.name} className="flex items-center justify-between text-[10px]">
+                    <span className="text-gray-500">{s.name}</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-10 h-1 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full opacity-60" style={{ width: `${(s.amount / p.spend) * 100}%`, backgroundColor: p.color }} />
+                      </div>
+                      <span className="font-medium text-gray-700 w-8 text-right">${s.amount}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[9px] text-red-500 font-medium">⚠ Wellness spending is 28% over budget this month — 3 subcategories contributing</p>
     </div>
   );
 };
