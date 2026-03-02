@@ -114,7 +114,7 @@ const Enrichment = () => {
                 Watch how Ventus builds a behavioral profile from a real customer's transaction history — updated with every new purchase.
               </p>
             </ScrollReveal>
-            <EnrichmentInteractiveDemo />
+            <VentusTransactionEnrichment />
           </div>
         </section>
 
