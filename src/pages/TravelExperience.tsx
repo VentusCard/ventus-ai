@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Plane, MapPin, Shield, Zap } from "lucide-react";
+import TravelInteractiveDemo from "@/components/travel/TravelInteractiveDemo";
 import { useEffect, useRef, useState } from "react";
 import HeroTravelCard from "@/components/hero/HeroTravelCard";
 
@@ -110,42 +111,7 @@ const TravelExperience = () => {
                 See how Ventus turns transaction patterns into a curated travel companion experience.
               </p>
             </ScrollReveal>
-            <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white p-6 md:p-10">
-              <div className="max-w-lg mx-auto space-y-4">
-                <div className="rounded-lg border border-gray-100 p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[11px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">Detected Trip</span>
-                    <span className="text-base font-semibold text-gray-900">Miami, FL</span>
-                  </div>
-                  <p className="text-sm font-bold text-slate-800">Hi John, welcome to Miami!</p>
-                  <p className="text-xs text-slate-500 mb-3">Your Ventus Bank Membership gets you the following deals:</p>
-                  <p className="text-[10px] text-gray-400 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
-                    Inferred from spending patterns — no location tracking
-                  </p>
-                </div>
-                {[
-                  { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", bg: "bg-purple-50", text: "text-purple-700" },
-                  { name: "Zuma Miami", deal: "$50 dining credit", category: "Dining", bg: "bg-orange-50", text: "text-orange-700" },
-                  { name: "Bayside Marketplace", deal: "10% back on purchases", category: "Shopping", bg: "bg-emerald-50", text: "text-emerald-700" },
-                ].map((e) => (
-                  <div key={e.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-4">
-                    <div>
-                      <p className="text-base font-semibold text-gray-900">{e.name}</p>
-                      <p className="text-xs text-gray-500">{e.deal}</p>
-                    </div>
-                    <span className={`text-[11px] ${e.bg} ${e.text} px-2.5 py-1 rounded-full font-medium`}>{e.category}</span>
-                  </div>
-                ))}
-                <div className="rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/50 p-4 flex items-center justify-between cursor-pointer">
-                  <div>
-                    <p className="text-sm font-bold text-blue-700">Explore National Deals</p>
-                    <p className="text-xs text-blue-600/80">200+ deals available nationwide</p>
-                  </div>
-                  <span className="text-blue-400 text-lg">→</span>
-                </div>
-              </div>
-            </div>
+            <TravelInteractiveDemo />
           </div>
         </section>
 
