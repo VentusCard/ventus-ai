@@ -1,72 +1,61 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+## Add Subcategories + Budget Bars to Engagement Pillar Cards
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+**File: `src/components/PlatformTabs.tsx`** — rewrite `EngagementPreview` component.
 
----
+### Changes
 
-## Sections to Build
+Replace the current pillar cards (which only show spend, transaction count, and sparklines) with a richer layout that includes **subcategories** and **budget progress bars** — mirroring TEPilot's `PillarExplorer` budget mode.
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+### New Data Structure
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+Each pillar entry gains a `subcategories` array and a `budget` value:
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+```text
+Travel ($1,240 / $1,500 budget)
+  ├── Flights — $680
+  ├── Hotels — $340
+  └── Car Rental — $220
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+Dining ($480 / $500 budget)
+  ├── Restaurants — $310
+  ├── Coffee Shops — $95
+  └── Delivery — $75
+```
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+Four pillars total (Travel, Dining, Wellness, Shopping) to keep the preview compact.
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
+### Visual Layout
 
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+- **Header**: "Monthly Spending by Pillar" with a "Budget Mode" badge
+- **2x2 grid of pillar cards**, each containing:
+  - Color accent bar at top (matching pillar color)
+  - Pillar name + spend/budget text (e.g., "$480 / $500")
+  - Budget progress bar (green = under, amber = near limit, red = over)
+  - Status label ("Under Budget", "Near Limit", "Over Budget")
+  - **2-3 subcategory rows** below, each showing subcategory name, amount, and a mini proportion bar
+- **Bottom insight line**: "Wellness spending is 28% over budget this month — 3 subcategories contributing"
 
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
+### Budget Status Logic (inline, no imports)
 
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
+- Under 80% of budget: green, "Under Budget"
+- 80-100%: amber, "Near Limit"  
+- Over 100%: red, "Over Budget"
 
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+### Sample Data
 
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+| Pillar | Spend | Budget | Status | Subcategories |
+|--------|-------|--------|--------|---------------|
+| Travel | $1,240 | $1,500 | Under (green) | Flights $680, Hotels $340, Car Rental $220 |
+| Dining | $480 | $500 | Near Limit (amber) | Restaurants $310, Coffee $95, Delivery $75 |
+| Wellness | $320 | $250 | Over (red) | Gym $140, Supplements $105, Spa $75 |
+| Shopping | $180 | $400 | Under (green) | Clothing $95, Electronics $50, Home $35 |
 
----
+### Technical Notes
 
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
+- Grid changes from 3-column to 2-column (`grid-cols-2`) to fit subcategory rows
+- Subcategory rows use the same pillar color at reduced opacity for their mini bars
+- No new imports needed — all inline JSX and Tailwind
+- Sparklines are removed to make room for subcategory detail
 
