@@ -1,54 +1,72 @@
 
 
-## Interleave Transaction Sources Across Intelligence Cards
+# Homepage Redesign — Single Long-Scroll Page
 
-**Problem**: Transactions in each persona's array are currently grouped by account number. When an intelligence card selects consecutive indices (e.g. `[0,1,2,3,4,5]`), they all come from the same account — defeating the purpose of showing multi-source signal detection.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-**Solution**: Reorder the `transactions` arrays for all 3 personas so that account numbers are interleaved/criss-crossed. Then adjust `txIndices` on each card to match the new positions.
+---
 
-**File**: `src/components/hero/EnrichmentMockup.tsx`
+## Sections to Build
 
-### Michael R. (lines 48-68)
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-Current order groups all `••4821` together, then `••9053`, etc. Reorder to interleave accounts so the feed shows transactions jumping between sources:
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-```
- ••4821  Home Depot         $847.00
- ••9053  Vail Resorts        $3,200.00
- ••7390  Whole Foods          $187.40
- ••2156  Benjamin Moore       $234.00
- ••4821  Lowe's              $312.50
- ••9053  United Airlines     $1,890.00
- ••7390  Trader Joe's         $94.20
- ••2156  Houzz Pro            $89.00
- ••4821  Pottery Barn        $1,245.00
- ••9053  Delta Sky Club       $45.00
- ••7390  Blue Apron           $62.00
- ••2156  West Elm             $567.00
- ••4821  Restoration Hardware $2,180.00
- ••9053  Marriott Bonvoy      $892.00
- ••7390  Peloton              $44.00
- ••2156  Crate & Barrel       $423.00
- ••4821  Ferguson             $489.00
- ••4821  Sherwin-Williams     $167.30
- ••2156  Ace Hardware          $78.50
-```
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-Then update `txIndices` on each card to select the correct (now-scattered) transactions:
-- **Analytics Intelligence**: indices pointing to Home Depot, Lowe's, Pottery Barn, Restoration Hardware, Ferguson, Sherwin-Williams (the renovation merchants, now spread across the list)
-- **Smart Rewards**: indices pointing to Vail, United, Delta, Marriott
-- **Relationship Intelligence**: all remaining indices
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-### Sarah & David L. (lines 111-131)
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-Same interleaving approach — shuffle `••3347`, `••8812`, `••5501`, `••6274` transactions so they alternate, then remap `txIndices`.
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-### Emily & James W. (lines 174-194)
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-Same — interleave `••6102`, `••7745`, `••3318`, `••9901` and remap indices.
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-### Summary
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
 
-- Only data reordering and index remapping — no logic or component changes needed
-- The color-coding from the previous change will now visually "criss-cross" in the feed since accounts alternate
-- Each card's accumulated transactions will show mixed-color account badges, demonstrating cross-source signal detection
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
+
