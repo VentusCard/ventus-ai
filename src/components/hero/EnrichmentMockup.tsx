@@ -161,7 +161,8 @@ type Phase = "profile" | "scroll" | "cardCycle" | "hold" | "flip";
 const TIMINGS = {
   profile: 1000,
   scroll: 3000,
-  cardScroll: 1200,
+  collectInterval: 250, // time between each tx "found"
+  collectBuffer: 500,   // buffer after last tx found before reveal
   cardReveal: 800,
   hold: 2500,
   flip: 800,
@@ -178,11 +179,11 @@ const EnrichmentMockup = () => {
   const [isFlipping, setIsFlipping] = useState(false);
 
   // Per-card cycle state
-  const [revealedCards, setRevealedCards] = useState(0); // how many cards fully revealed (0-3)
-  const [activeCardIdx, setActiveCardIdx] = useState(-1); // which card is currently cycling (-1 = none)
+  const [revealedCards, setRevealedCards] = useState(0);
+  const [activeCardIdx, setActiveCardIdx] = useState(-1);
   const [cardPhase, setCardPhase] = useState<"scroll" | "reveal" | null>(null);
-  const [accumulatedTxs, setAccumulatedTxs] = useState<Map<number, string>>(new Map());
-  const [highlightColor, setHighlightColor] = useState<string>("#60a5fa");
+  const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
+  const [currentCardColor, setCurrentCardColor] = useState<string>("#60a5fa");
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
@@ -205,7 +206,7 @@ const EnrichmentMockup = () => {
       setRevealedCards(0);
       setActiveCardIdx(-1);
       setCardPhase(null);
-      setAccumulatedTxs(new Map());
+      setCollectedIndices([]);
       let elapsed = TIMINGS.profile;
 
       // -> scroll + progressive persona pills
@@ -224,30 +225,34 @@ const EnrichmentMockup = () => {
       for (let c = 0; c < remainingCards.length; c++) {
         const card = remainingCards[c];
         const cardElapsed = elapsed;
+        const cardScrollDuration = card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
 
-        // Card scroll sub-phase
+        // Card scroll sub-phase — stagger collection
         schedule(() => {
           setPhase("cardCycle");
           setActiveCardIdx(c);
           setCardPhase("scroll");
-          setAccumulatedTxs(prev => {
-            const next = new Map(prev);
-            card.txIndices.forEach(idx => next.set(idx, card.accent));
-            return next;
-          });
-          setHighlightColor(card.accent);
+          setCollectedIndices([]); // reset for this card
+          setCurrentCardColor(card.accent);
         }, cardElapsed);
+
+        // Stagger each tx found
+        card.txIndices.forEach((txIdx, j) => {
+          schedule(() => {
+            setCollectedIndices(prev => [...prev, txIdx]);
+          }, cardElapsed + (j + 1) * TIMINGS.collectInterval);
+        });
 
         // Card reveal sub-phase
         schedule(() => {
           setCardPhase("reveal");
           setRevealedCards(c + 1);
-        }, cardElapsed + TIMINGS.cardScroll);
+        }, cardElapsed + cardScrollDuration);
 
-        elapsed += TIMINGS.cardScroll + TIMINGS.cardReveal;
+        elapsed += cardScrollDuration + TIMINGS.cardReveal;
       }
 
-      // -> hold (keep last card's highlighted txs visible)
+      // -> hold
       schedule(() => {
         setPhase("hold");
         setCardPhase(null);
@@ -282,8 +287,13 @@ const EnrichmentMockup = () => {
   const personaCard = customer.cards[0];
   const remainingCards = customer.cards.slice(1);
 
-  // Build the current card's tx indices for active scrolling highlight
-  const currentCardTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
+  // Build collected/uncollected split for left panel
+  const collected = customer.transactions
+    .map((tx, i) => ({ tx, i }))
+    .filter(({ i }) => collectedIndices.includes(i));
+  const uncollected = customer.transactions
+    .map((tx, i) => ({ tx, i }))
+    .filter(({ i }) => !collectedIndices.includes(i));
 
   return (
     <div
@@ -381,70 +391,27 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Card cycle: scroll sub-phase — mini roll with accumulated highlights */}
-              {phase === "cardCycle" && cardPhase === "scroll" && (
-                <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
-                  <div
-                    className="space-y-0.5"
-                    style={{
-                      animation: "orch-mini-scroll 1s linear forwards",
-                    }}
-                  >
-                    {customer.transactions.map((tx, i) => {
-                      const isInCurrentCard = currentCardTxs.includes(i);
-                      const accColor = accumulatedTxs.get(i);
-                      const isHighlighted = isInCurrentCard || !!accColor;
-                      const color = isInCurrentCard ? highlightColor : accColor;
-                      return (
-                        <TxRow
-                          key={`csroll-${i}`}
-                          tx={tx}
-                          dim={!isHighlighted}
-                          highlight={isHighlighted}
-                          highlightColor={color}
-                        />
-                      );
-                    })}
-                    {customer.transactions.map((tx, i) => (
-                      <TxRow key={`csroll2-${i}`} tx={tx} dim />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Card cycle: reveal sub-phase — all accumulated txs highlighted */}
-              {phase === "cardCycle" && cardPhase === "reveal" && (
-                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {customer.transactions.map((tx, i) => {
-                    const accColor = accumulatedTxs.get(i);
-                    return (
+              {/* Card cycle: scroll/reveal — collected float to top */}
+              {(phase === "cardCycle" || phase === "hold") && (
+                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.3s ease-out" }}>
+                  {/* Collected transactions at top */}
+                  {collected.map(({ tx, i }) => (
+                    <div
+                      key={`col-${i}`}
+                      style={{ animation: "orch-collect-pulse 0.4s ease-out" }}
+                    >
                       <TxRow
-                        key={`crev-${i}`}
                         tx={tx}
-                        dim={!accColor}
-                        highlight={!!accColor}
-                        highlightColor={accColor}
+                        dim={false}
+                        highlight
+                        highlightColor={currentCardColor}
                       />
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Hold phase — all accumulated highlights */}
-              {phase === "hold" && (
-                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {customer.transactions.map((tx, i) => {
-                    const accColor = accumulatedTxs.get(i);
-                    return (
-                      <TxRow
-                        key={`hold-${i}`}
-                        tx={tx}
-                        dim={!accColor}
-                        highlight={!!accColor}
-                        highlightColor={accColor}
-                      />
-                    );
-                  })}
+                    </div>
+                  ))}
+                  {/* Uncollected transactions below, dimmed */}
+                  {uncollected.map(({ tx, i }) => (
+                    <TxRow key={`unc-${i}`} tx={tx} dim />
+                  ))}
                 </div>
               )}
             </div>
@@ -609,11 +576,6 @@ const EnrichmentMockup = () => {
           70% { transform: translateY(-65%); }
           100% { transform: translateY(-65%); }
         }
-        @keyframes orch-mini-scroll {
-          0% { transform: translateY(0); }
-          80% { transform: translateY(-40%); }
-          100% { transform: translateY(-40%); }
-        }
         @keyframes orch-shimmer {
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
@@ -621,6 +583,11 @@ const EnrichmentMockup = () => {
         @keyframes orch-fade-in {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes orch-collect-pulse {
+          0% { opacity: 0; transform: translateY(4px); background: rgba(255,255,255,0.06); }
+          50% { background: rgba(255,255,255,0.06); }
+          100% { opacity: 1; transform: translateY(0); background: transparent; }
         }
       `}</style>
     </div>

@@ -1,54 +1,72 @@
 
 
-## Per-Card Scroll with Transaction Accumulation (No Cross-Card Persistence)
+# Homepage Redesign — Single Long-Scroll Page
 
-### Current Problem
-During the card cycle, all transactions from the current card are highlighted at once in a mini-scroll. Highlights from previous cards persist (accumulate across cards), which the user does not want. The user wants each card to have its **own independent scroll** where related transactions are **identified one by one** and **float to the top** of the list as they're found.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-### New Behavior
-For each intelligence card (Analytics, Smart Rewards, Relationship Intelligence):
+---
 
-1. **Scroll phase starts**: Full transaction list scrolls. As transactions matching this card's `txIndices` appear, they get highlighted and move/accumulate at the top of the list.
-2. **Scroll phase ends / Reveal**: The card's matched transactions are settled at the top, card slides in on the right.
-3. **Next card starts fresh**: Previous card's highlights are cleared. The full transaction list resets and a new scroll begins for the next card.
+## Sections to Build
 
-### Visual Effect
-Like a search/filter scanning through the list -- relevant transactions "light up" and rise to the top as they're found, building a collected set. Each card starts from a clean slate.
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-### Technical Changes (EnrichmentMockup.tsx only)
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-**1. Replace `accumulatedTxs` with per-card state**
-- Remove `accumulatedTxs: Map<number, string>` 
-- Add `collectedIndices: number[]` -- grows during scroll as transactions are "found"
-- Add `currentCardColor: string` -- the active card's accent color
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-**2. Staggered collection during scroll phase**
-- Instead of highlighting all `txIndices` at once, schedule them one by one at ~200ms intervals
-- Each new index gets added to `collectedIndices`
-- The left panel renders: collected transactions at the top (highlighted), then remaining transactions below (dimmed)
-- This creates the "scanning and accumulating to top" effect
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-**3. Reveal phase**
-- Show only the collected transactions (highlighted) at the top, rest dimmed below
-- Card slides in on the right
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-**4. Reset between cards**
-- When the next card's scroll starts, clear `collectedIndices` and start fresh
-- No persistence of highlights from previous cards
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-**5. Hold phase**
-- Show the last card's collected transactions at top (or show all transactions normally)
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-**6. Timing adjustments**
-- `cardScroll` duration becomes dynamic: `card.txIndices.length * 200 + 400` (enough time for staggered reveals)
-- Each card may have different scroll durations based on how many transactions it needs to find
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-**7. Left panel rendering during cardCycle scroll**
-- Split transactions into two groups: `collected` (indices already in `collectedIndices`) and `uncollected` (the rest)
-- Render collected first (highlighted with card accent color), then uncollected (dimmed)
-- Each newly added transaction gets a brief fade-in/pulse animation
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
 
-**8. Keyframe updates**
-- Remove `orch-mini-scroll` usage during card cycle (no longer scrolling the whole list)
-- Add a subtle `orch-collect-pulse` keyframe for the "just found" transaction flash
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
