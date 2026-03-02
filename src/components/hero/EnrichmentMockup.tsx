@@ -610,6 +610,9 @@ const EnrichmentMockup = () => {
                           {card.title}
                         </span>
                       </div>
+                      {isRevealed && card.subtitle && (
+                        <div className="text-[8px] text-gray-500 mb-1">{card.subtitle}</div>
+                      )}
                       {isRevealed && (
                         <>
                           {card.pills ? (
