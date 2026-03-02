@@ -9,11 +9,11 @@ const tabs = [
     heading: "Bank-Wide Analytics",
     href: "/analytics",
     description:
-      "Portfolio-wide behavioral intelligence across every account and card product. Identify spending gaps, cross-sell opportunities, and revenue leakage before it compounds.",
+      "See your entire portfolio through 12 lifestyle pillars — not legacy merchant codes. Spot cross-sell gaps between card products, identify revenue leaking to competitors, and personalize product recommendations at portfolio scale.",
     capabilities: [
-      "Spending distribution across 12 lifestyle pillars",
-      "Card product performance matrix with penetration rates",
-      "Revenue opportunity pipeline with merchant partnership suggestions",
+      "Cross-sell intelligence — see which customers hold Travel cards but lack Dining rewards, and target the gap with personalized offers",
+      "Revenue leakage detection — quantify wallet share lost to competitors by pillar and surface merchant partnership opportunities",
+      "Card product performance matrix — compare penetration rates, activation, and spend velocity across every product in your portfolio",
     ],
   },
   {
@@ -21,11 +21,11 @@ const tabs = [
     heading: "Consumer Rewards",
     href: "/smartrewards",
     description:
-      "Stop showing every customer the same catalog. Ventus matches offers to individuals based on real behavioral signals — life stage, spending velocity, and purchase cycle prediction.",
+      "Generic cashback catalogs get ignored. Ventus builds a real-time purchase persona for each customer — lifestyle pillars, spending velocity, purchase cycle — then matches offers that feel hand-picked, not mass-blasted.",
     capabilities: [
-      "Hyper-personalized offer matching with relevance scores",
-      "Location-based deal targeting for home city and travel",
-      "Spending gap detection to capture out-of-ecosystem wallet share",
+      "Hyper-personalized offer matching — relevance scores based on actual behavior, not demographics, so every notification feels curated",
+      "Spending gap detection — identify where customers spend outside your ecosystem and recapture wallet share with targeted incentives",
+      "Purchase cycle prediction — time offers to when customers are most likely to buy, increasing redemption rates and reducing offer fatigue",
     ],
   },
   {
@@ -33,11 +33,11 @@ const tabs = [
     heading: "Customer Engagement",
     href: "/engagement",
     description:
-      "Hyper-targeted campaigns powered by real behavioral intelligence, not demographics. Reach the right customer at the right life moment across every channel.",
+      "Move beyond batch-and-blast. Build micro-segments from behavioral dimensions no one else has — lifestyle pillars, predicted life events, product ownership gaps — then deliver messages that land because they're relevant, not just personalized.",
     capabilities: [
-      "AI-detected life event triggers for campaign activation",
-      "Multi-channel delivery across email, push, and SMS",
-      "Micro-segment builder with real-time audience sizing",
+      "Life event triggers — detect new parents, movers, retirees from spending patterns and activate campaigns at exactly the right moment",
+      "Lifestyle pillar targeting — reach the 'Wellness Enthusiasts' or 'Pet Parents' in your portfolio with messaging that speaks to how they actually live",
+      "AI-generated campaign briefs — describe your audience in plain English and get channel strategy, copy, and audience sizing in seconds",
     ],
   },
   {
@@ -45,11 +45,11 @@ const tabs = [
     heading: "Travel & Local Experiences",
     href: "/smartrewards",
     description:
-      "Detect trips from transaction patterns alone — no location tracking required. Then position your bank as a holistic travel companion with curated deals, local experiences, and perks across dining, shopping, arts, and entertainment.",
+      "Detect trips from transaction patterns alone — no GPS, no permissions, no privacy concerns. Then position your bank as a holistic travel companion with curated deals and experiences across dining, arts, shopping, and entertainment — wherever your customers go.",
     capabilities: [
-      "Trip detection from spending patterns without GPS or location data",
-      "Curated local experiences across dining, arts, shopping, and entertainment",
-      "Geo-targeted deals that turn every trip into a bank-powered experience",
+      "Privacy-first trip detection — infer destination, dates, and spend from transactions alone, building trust while delivering value",
+      "Holistic travel companion — surface curated local experiences across dining, arts, shopping, and entertainment so your bank is part of every trip",
+      "Home-city activation — the same intelligence powers local deal targeting, turning everyday spending into engagement opportunities year-round",
     ],
   },
   {
@@ -57,11 +57,11 @@ const tabs = [
     heading: "Wealth Management",
     href: "/wealth",
     description:
-      "Turn transaction patterns into relationship intelligence. Detect life events before clients mention them and walk into every meeting prepared.",
+      "Give every advisor a transaction-powered copilot. Detect life events — retirement, home purchase, new baby — before clients mention them. Walk into every meeting prepared with talking points, psychological insights, and proactive recommendations.",
     capabilities: [
-      "AI life event detection with urgency scoring",
-      "Automated meeting prep with talking points and action items",
-      "Standout transaction alerts for unusual client activity",
+      "AI life event detection — spot retirement planning, relocations, and family changes from spending signals with urgency scoring",
+      "One-click meeting prep — auto-generated talking points, client psychology profile, and action items so advisors spend time advising, not researching",
+      "Proactive relationship management — surface standout transactions and behavioral shifts before they become surprises in client conversations",
     ],
   },
 ];
