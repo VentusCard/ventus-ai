@@ -16,6 +16,7 @@ interface IntelCard {
   title: string;
   content: string;
   pills?: string[];
+  txIndices: number[];
 }
 
 interface CustomerProfile {
@@ -63,12 +64,14 @@ const customers: CustomerProfile[] = [
         title: "Dynamic Persona",
         content: "",
         pills: ["Urban Homeowner", "High-Spend Renovation", "Annual Ski Trips", "Health-Conscious"],
+        txIndices: [],
       },
       {
         accent: "#60a5fa",
         icon: "◆",
         title: "Analytics Intelligence",
         content: "Recommend Premium Home Equity line — spending indicates major renovation ($8K+ in 6 weeks)",
+        txIndices: [0, 1, 2, 3, 4, 5],
       },
       {
         accent: "#34d399",
@@ -76,12 +79,14 @@ const customers: CustomerProfile[] = [
         title: "Smart Rewards",
         content: "",
         pills: ["Home Depot 5% Cashback", "Lowe's Bonus Points", "Vail Ski Pass Deal", "Whole Foods Bundle"],
+        txIndices: [0, 1, 6, 10],
       },
       {
         accent: "#fbbf24",
         icon: "⚡",
         title: "Relationship Intelligence",
         content: "Life Event: Major Home Renovation from 8 transactions across 3 accounts. Sent meeting prep to wealth advisor.",
+        txIndices: [0, 1, 2, 3, 4, 5, 14, 15, 16, 17, 18],
       },
     ],
   },
@@ -119,12 +124,14 @@ const customers: CustomerProfile[] = [
         title: "Dynamic Persona",
         content: "",
         pills: ["New Parent", "Nesting Phase", "Health-Focused", "Meal Delivery Reliant", "Financial Planner"],
+        txIndices: [],
       },
       {
         accent: "#60a5fa",
         icon: "◆",
         title: "Analytics Intelligence",
         content: "Recommend family rewards card — baby spend is 40% of wallet. Projected annual value: $1,200",
+        txIndices: [0, 1, 2, 3, 4],
       },
       {
         accent: "#34d399",
@@ -132,12 +139,14 @@ const customers: CustomerProfile[] = [
         title: "Smart Rewards",
         content: "",
         pills: ["Buy Buy Baby 8%", "Whole Foods Family", "One Medical Plan", "529 Match"],
+        txIndices: [0, 5, 13, 18],
       },
       {
         accent: "#fbbf24",
         icon: "⚡",
         title: "Relationship Intelligence",
         content: "Life Event: New Baby from 12 transactions across 4 accounts. Sent family planning package to advisor.",
+        txIndices: [0, 1, 2, 3, 4, 14, 15, 16, 17, 18],
       },
     ],
   },
@@ -147,17 +156,16 @@ const customers: CustomerProfile[] = [
 /*  Phases & Timing                                                    */
 /* ------------------------------------------------------------------ */
 
-type Phase = "profile" | "scroll" | "cards" | "hold" | "flip";
+type Phase = "profile" | "scroll" | "cardCycle" | "hold" | "flip";
 
-const TIMINGS: Record<Phase, number> = {
+const TIMINGS = {
   profile: 1000,
   scroll: 3000,
-  cards: 3200, // 4 cards × 600ms stagger + buffer
+  cardScroll: 1200,
+  cardReveal: 800,
   hold: 2500,
   flip: 800,
 };
-
-const PHASE_ORDER: Phase[] = ["profile", "scroll", "cards", "hold", "flip"];
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -166,9 +174,16 @@ const PHASE_ORDER: Phase[] = ["profile", "scroll", "cards", "hold", "flip"];
 const EnrichmentMockup = () => {
   const [customerIdx, setCustomerIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("profile");
-  const [visibleCards, setVisibleCards] = useState(0);
   const [visiblePills, setVisiblePills] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
+
+  // Per-card cycle state
+  const [revealedCards, setRevealedCards] = useState(0); // how many cards fully revealed (0-3)
+  const [activeCardIdx, setActiveCardIdx] = useState(-1); // which card is currently cycling (-1 = none)
+  const [cardPhase, setCardPhase] = useState<"scroll" | "reveal" | null>(null);
+  const [highlightedTxs, setHighlightedTxs] = useState<number[]>([]);
+  const [highlightColor, setHighlightColor] = useState<string>("#60a5fa");
+
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   const clearTimeouts = useCallback(() => {
@@ -185,9 +200,12 @@ const EnrichmentMockup = () => {
       clearTimeouts();
       setCustomerIdx(idx);
       setPhase("profile");
-      setVisibleCards(0);
       setVisiblePills(0);
       setIsFlipping(false);
+      setRevealedCards(0);
+      setActiveCardIdx(-1);
+      setCardPhase(null);
+      setHighlightedTxs([]);
 
       let elapsed = TIMINGS.profile;
 
@@ -202,17 +220,36 @@ const EnrichmentMockup = () => {
       }, elapsed);
       elapsed += TIMINGS.scroll;
 
-      // -> cards (stagger reveal of cards 1-3, skipping persona which is already shown)
-      schedule(() => {
-        setPhase("cards");
-        for (let c = 0; c < 3; c++) {
-          schedule(() => setVisibleCards(c + 1), c * 600);
-        }
-      }, elapsed);
-      elapsed += TIMINGS.cards;
+      // -> per-card cycles (cards 1-3, skipping persona at index 0)
+      const remainingCards = customers[idx].cards.slice(1);
+      for (let c = 0; c < remainingCards.length; c++) {
+        const card = remainingCards[c];
+        const cardElapsed = elapsed;
+
+        // Card scroll sub-phase
+        schedule(() => {
+          setPhase("cardCycle");
+          setActiveCardIdx(c);
+          setCardPhase("scroll");
+          setHighlightedTxs(card.txIndices);
+          setHighlightColor(card.accent);
+        }, cardElapsed);
+
+        // Card reveal sub-phase
+        schedule(() => {
+          setCardPhase("reveal");
+          setRevealedCards(c + 1);
+        }, cardElapsed + TIMINGS.cardScroll);
+
+        elapsed += TIMINGS.cardScroll + TIMINGS.cardReveal;
+      }
 
       // -> hold
-      schedule(() => setPhase("hold"), elapsed);
+      schedule(() => {
+        setPhase("hold");
+        setActiveCardIdx(-1);
+        setCardPhase(null);
+      }, elapsed);
       elapsed += TIMINGS.hold;
 
       // -> flip
@@ -221,7 +258,6 @@ const EnrichmentMockup = () => {
         setPhase("flip");
       }, elapsed);
 
-      // After flip animation, start next customer
       schedule(() => {
         const next = (idx + 1) % customers.length;
         runCycle(next);
@@ -241,11 +277,12 @@ const EnrichmentMockup = () => {
   const customer = customers[customerIdx];
   const showProfile = phase !== "flip";
   const showScrolling = phase === "scroll";
-  const showSettled = phase === "cards" || phase === "hold";
-  const showProcessing = phase === "scroll";
-  const settledTxs = customer.transactions.slice(-6);
-  const personaCard = customer.cards[0]; // Dynamic Persona — always first
-  const remainingCards = customer.cards.slice(1); // Analytics, Rewards, Relationship
+  const personaCard = customer.cards[0];
+  const remainingCards = customer.cards.slice(1);
+
+  // Build the left-panel transaction list for card cycle phases
+  const cardCycleTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
+  const cardCycleTransactions = cardCycleTxs.map((i) => customer.transactions[i]).filter(Boolean);
 
   return (
     <div
@@ -275,7 +312,6 @@ const EnrichmentMockup = () => {
           <span className="text-white text-[11px] font-medium tracking-wide">
             Ventus AI Intelligent Orchestration
           </span>
-          
         </div>
 
         {/* ---- Body ---- */}
@@ -318,7 +354,14 @@ const EnrichmentMockup = () => {
                 Transaction Feed
               </div>
 
-              {/* Rapid-scroll phase */}
+              {/* Waiting state */}
+              {phase === "profile" && (
+                <div className="font-mono text-[10px] text-gray-600 mt-2">
+                  Awaiting data stream...
+                </div>
+              )}
+
+              {/* Initial rapid-scroll phase */}
               {showScrolling && (
                 <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
                   <div
@@ -330,27 +373,60 @@ const EnrichmentMockup = () => {
                     {customer.transactions.map((tx, i) => (
                       <TxRow key={`scroll-${i}`} tx={tx} dim={false} />
                     ))}
-                    {/* Duplicate for scroll length */}
                     {customer.transactions.map((tx, i) => (
-                      <TxRow key={`scroll2-${i}`} tx={tx} dim={true} />
+                      <TxRow key={`scroll2-${i}`} tx={tx} dim />
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Settled phase */}
-              {showSettled && (
-                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.5s ease-out" }}>
-                  {settledTxs.map((tx, i) => (
-                    <TxRow key={`settled-${i}`} tx={tx} dim={i < 2} />
+              {/* Card cycle: scroll sub-phase — mini roll of relevant txs */}
+              {phase === "cardCycle" && cardPhase === "scroll" && (
+                <div className="absolute inset-x-0 top-5 bottom-0 overflow-hidden">
+                  <div
+                    className="space-y-0.5"
+                    style={{
+                      animation: "orch-mini-scroll 1s linear forwards",
+                    }}
+                  >
+                    {/* Show all txs but highlight only relevant ones */}
+                    {customer.transactions.map((tx, i) => (
+                      <TxRow
+                        key={`csroll-${i}`}
+                        tx={tx}
+                        dim={!cardCycleTxs.includes(i)}
+                        highlight={cardCycleTxs.includes(i)}
+                        highlightColor={highlightColor}
+                      />
+                    ))}
+                    {customer.transactions.map((tx, i) => (
+                      <TxRow key={`csroll2-${i}`} tx={tx} dim />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Card cycle: reveal sub-phase — settled highlighted txs */}
+              {phase === "cardCycle" && cardPhase === "reveal" && (
+                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
+                  {cardCycleTransactions.map((tx, i) => (
+                    <TxRow
+                      key={`crev-${i}`}
+                      tx={tx}
+                      dim={false}
+                      highlight
+                      highlightColor={highlightColor}
+                    />
                   ))}
                 </div>
               )}
 
-              {/* Waiting state */}
-              {phase === "profile" && (
-                <div className="font-mono text-[10px] text-gray-600 mt-2">
-                  Awaiting data stream...
+              {/* Hold phase — show all txs with last card's highlights */}
+              {phase === "hold" && (
+                <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
+                  {customer.transactions.slice(-6).map((tx, i) => (
+                    <TxRow key={`hold-${i}`} tx={tx} dim={i < 2} />
+                  ))}
                 </div>
               )}
             </div>
@@ -362,7 +438,7 @@ const EnrichmentMockup = () => {
               Personalization Orchestration
             </div>
 
-            {/* Persona card — fixed, always visible once profile shows */}
+            {/* Persona card — always visible once profile shows */}
             {showProfile && (
               <div
                 className="rounded-lg px-2.5 py-2 mb-2 transition-all duration-700 ease-out"
@@ -385,7 +461,7 @@ const EnrichmentMockup = () => {
                   {personaCard.pills?.map((pill, i) => (
                     <span
                       key={pill}
-                      className="text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-all duration-400"
+                      className="text-[8px] font-medium px-1.5 py-0.5 rounded-full"
                       style={{
                         background: "rgba(59,130,246,0.15)",
                         color: "#60a5fa",
@@ -401,8 +477,8 @@ const EnrichmentMockup = () => {
               </div>
             )}
 
-            {/* Processing shimmer — during scroll phase, below persona */}
-            {showProcessing && (
+            {/* Processing shimmer — during initial scroll phase */}
+            {phase === "scroll" && (
               <div className="flex-1 flex flex-col justify-center items-center gap-2">
                 <div
                   className="w-3/4 h-1.5 rounded-full overflow-hidden"
@@ -422,50 +498,86 @@ const EnrichmentMockup = () => {
               </div>
             )}
 
-            {/* Remaining intelligence cards (cards index 1-3) */}
-            {(phase === "cards" || phase === "hold") && (
+            {/* Intelligence cards — revealed one at a time during cardCycle, all visible during hold */}
+            {(phase === "cardCycle" || phase === "hold") && (
               <div className="flex flex-col gap-2 flex-1 justify-between">
-                {remainingCards.map((card, i) => (
-                  <div
-                    key={card.title}
-                    className="rounded-lg px-3 py-2.5 flex-1 flex flex-col transition-all duration-500"
-                    style={{
-                      borderLeft: `3px solid ${card.accent}`,
-                      background: "rgba(255,255,255,0.03)",
-                      opacity: i < visibleCards ? 1 : 0,
-                      transform: i < visibleCards ? "translateX(0)" : "translateX(12px)",
-                      transition: "opacity 0.5s ease-out, transform 0.5s ease-out",
-                    }}
-                  >
-                    <div className="flex items-center gap-1 mb-1">
-                      <span style={{ color: card.accent, fontSize: 12 }}>{card.icon}</span>
-                      <span
-                        className="text-[10px] font-semibold tracking-wider uppercase"
-                        style={{ color: card.accent }}
-                      >
-                        {card.title}
-                      </span>
-                    </div>
-                    {card.pills ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {card.pills.map((pill) => (
-                          <span
-                            key={pill}
-                            className="text-[9px] font-medium px-2 py-0.5 rounded-full"
-                            style={{
-                              background: `${card.accent}18`,
-                              color: card.accent,
-                            }}
-                          >
-                            {pill}
-                          </span>
-                        ))}
+                {remainingCards.map((card, i) => {
+                  const isRevealed = i < revealedCards;
+                  const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && cardPhase === "scroll";
+                  return (
+                    <div
+                      key={card.title}
+                      className="rounded-lg px-3 py-2.5 flex-1 flex flex-col transition-all duration-500"
+                      style={{
+                        borderLeft: `3px solid ${isRevealed ? card.accent : "transparent"}`,
+                        background: isActiveScrolling
+                          ? `${card.accent}08`
+                          : isRevealed
+                          ? "rgba(255,255,255,0.03)"
+                          : "transparent",
+                        opacity: isRevealed ? 1 : isActiveScrolling ? 0.5 : 0,
+                        transform: isRevealed
+                          ? "translateX(0)"
+                          : isActiveScrolling
+                          ? "translateX(4px)"
+                          : "translateX(12px)",
+                      }}
+                    >
+                      <div className="flex items-center gap-1 mb-1">
+                        <span style={{ color: card.accent, fontSize: 12 }}>{card.icon}</span>
+                        <span
+                          className="text-[10px] font-semibold tracking-wider uppercase"
+                          style={{ color: card.accent }}
+                        >
+                          {card.title}
+                        </span>
                       </div>
-                    ) : (
-                      <p className="text-[10px] text-gray-400 leading-relaxed">{card.content}</p>
-                    )}
-                  </div>
-                ))}
+                      {isRevealed && (
+                        <>
+                          {card.pills ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {card.pills.map((pill) => (
+                                <span
+                                  key={pill}
+                                  className="text-[9px] font-medium px-2 py-0.5 rounded-full"
+                                  style={{
+                                    background: `${card.accent}18`,
+                                    color: card.accent,
+                                  }}
+                                >
+                                  {pill}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-gray-400 leading-relaxed">{card.content}</p>
+                          )}
+                        </>
+                      )}
+                      {isActiveScrolling && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <div
+                            className="w-12 h-1 rounded-full overflow-hidden"
+                            style={{ background: "#1a2332" }}
+                          >
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: "60%",
+                                background: `linear-gradient(90deg, transparent, ${card.accent}, transparent)`,
+                                backgroundSize: "200% 100%",
+                                animation: "orch-shimmer 1s ease-in-out infinite",
+                              }}
+                            />
+                          </div>
+                          <span className="text-[8px] font-mono" style={{ color: card.accent, opacity: 0.6 }}>
+                            Analyzing...
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -478,6 +590,11 @@ const EnrichmentMockup = () => {
           0% { transform: translateY(0); }
           70% { transform: translateY(-65%); }
           100% { transform: translateY(-65%); }
+        }
+        @keyframes orch-mini-scroll {
+          0% { transform: translateY(0); }
+          80% { transform: translateY(-40%); }
+          100% { transform: translateY(-40%); }
         }
         @keyframes orch-shimmer {
           0% { background-position: 200% 0; }
@@ -496,19 +613,36 @@ const EnrichmentMockup = () => {
 /*  Sub-components                                                     */
 /* ------------------------------------------------------------------ */
 
-const TxRow = ({ tx, dim }: { tx: Transaction; dim: boolean }) => (
+const TxRow = ({
+  tx,
+  dim,
+  highlight,
+  highlightColor,
+}: {
+  tx: Transaction;
+  dim: boolean;
+  highlight?: boolean;
+  highlightColor?: string;
+}) => (
   <div
-    className="font-mono text-[9px] leading-tight px-1.5 py-[3px] rounded flex items-center gap-1 truncate"
-    style={{ color: dim ? "#475569" : "#e2e8f0" }}
+    className="font-mono text-[9px] leading-tight px-1.5 py-[3px] rounded flex items-center gap-1 truncate transition-all duration-300"
+    style={{
+      color: highlight ? "#e2e8f0" : dim ? "#475569" : "#e2e8f0",
+      background: highlight ? `${highlightColor}12` : "transparent",
+      borderLeft: highlight ? `2px solid ${highlightColor}` : "2px solid transparent",
+    }}
   >
     <span
       className="text-[8px] font-medium px-1 py-0 rounded shrink-0"
-      style={{ background: "rgba(100,116,139,0.2)", color: "#94a3b8" }}
+      style={{
+        background: highlight ? `${highlightColor}20` : "rgba(100,116,139,0.2)",
+        color: highlight ? highlightColor : "#94a3b8",
+      }}
     >
       {tx.account}
     </span>
     <span className="truncate">{tx.merchant}</span>
-    <span className="ml-auto shrink-0 tabular-nums" style={{ color: dim ? "#64748b" : "#94a3b8" }}>
+    <span className="ml-auto shrink-0 tabular-nums" style={{ color: highlight ? highlightColor : dim ? "#64748b" : "#94a3b8" }}>
       {tx.amount}
     </span>
   </div>
