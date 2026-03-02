@@ -576,11 +576,6 @@ const EnrichmentMockup = () => {
           70% { transform: translateY(-65%); }
           100% { transform: translateY(-65%); }
         }
-        @keyframes orch-mini-scroll {
-          0% { transform: translateY(0); }
-          80% { transform: translateY(-40%); }
-          100% { transform: translateY(-40%); }
-        }
         @keyframes orch-shimmer {
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
@@ -588,6 +583,11 @@ const EnrichmentMockup = () => {
         @keyframes orch-fade-in {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes orch-collect-pulse {
+          0% { opacity: 0; transform: translateY(4px); background: rgba(255,255,255,0.06); }
+          50% { background: rgba(255,255,255,0.06); }
+          100% { opacity: 1; transform: translateY(0); background: transparent; }
         }
       `}</style>
     </div>
