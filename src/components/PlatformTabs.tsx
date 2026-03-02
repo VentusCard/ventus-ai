@@ -41,6 +41,18 @@ const tabs = [
     ],
   },
   {
+    label: "Travel & Local",
+    heading: "Travel & Local Experiences",
+    href: "/smartrewards",
+    description:
+      "Detect trips from transaction patterns alone — no location tracking required. Then position your bank as a holistic travel companion with curated deals, local experiences, and perks across dining, shopping, arts, and entertainment.",
+    capabilities: [
+      "Trip detection from spending patterns without GPS or location data",
+      "Curated local experiences across dining, arts, shopping, and entertainment",
+      "Geo-targeted deals that turn every trip into a bank-powered experience",
+    ],
+  },
+  {
     label: "Wealth Management",
     heading: "Wealth Management",
     href: "/wealth",
