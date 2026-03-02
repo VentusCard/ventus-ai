@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 
 const transactions = [
-  { merchant: "United Airlines", amount: "$412.00", date: "Feb 28" },
-  { merchant: "Titleist.com", amount: "$58.00", date: "Feb 22" },
-  { merchant: "REI Co-op", amount: "$43.20", date: "Mar 6" },
-  { merchant: "Patagonia", amount: "$89.00", date: "Mar 11" },
-  { merchant: "REI Co-op", amount: "$127.43", date: "Mar 14" },
+  { merchant: "United Air", amount: "$412", date: "Feb 28" },
+  { merchant: "Titleist", amount: "$58", date: "Feb 22" },
+  { merchant: "REI Co-op", amount: "$43", date: "Mar 6" },
+  { merchant: "Patagonia", amount: "$89", date: "Mar 11" },
+  { merchant: "REI Co-op", amount: "$127", date: "Mar 14" },
 ];
 
 const profileStages = [
@@ -124,7 +124,7 @@ const EnrichmentHeroCard = () => {
             {visibleTxs.map((tx, i) => (
               <div
                  key={`${tx.merchant}-${tx.date}-${i}`}
-                 className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded truncate"
+                 className="font-mono text-[9px] leading-tight px-1.5 py-0.5 rounded whitespace-nowrap"
                 style={{
                   color: i === 0 ? "#e2e8f0" : "#64748b",
                   background: i === 0 ? "rgba(59,130,246,0.1)" : "transparent",
