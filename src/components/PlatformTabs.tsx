@@ -131,40 +131,37 @@ const RewardsPreview = () => (
 
 const EngagementPreview = () => {
   const pillars = [
-    { label: "Travel", spend: 1240, budget: 1500 },
-    { label: "Dining", spend: 480, budget: 500 },
-    { label: "Wellness", spend: 320, budget: 250 },
-    { label: "Shopping", spend: 180, budget: 400 },
+    { label: "Travel", spend: 1240, txns: 18, pct: 28.4, color: "#3b82f6", bars: [60, 90, 45, 80, 70, 55, 95, 65] },
+    { label: "Dining", spend: 480, txns: 32, pct: 18.2, color: "#f97316", bars: [40, 75, 85, 50, 65, 90, 55, 70] },
+    { label: "Wellness", spend: 320, txns: 12, pct: 14.1, color: "#10b981", bars: [30, 50, 70, 45, 60, 35, 80, 55] },
+    { label: "Shopping", spend: 180, txns: 9, pct: 9.8, color: "#8b5cf6", bars: [50, 35, 65, 40, 55, 75, 45, 60] },
+    { label: "Auto", spend: 150, txns: 4, pct: 7.2, color: "#64748b", bars: [25, 45, 60, 35, 50, 70, 40, 55] },
+    { label: "Pets", spend: 95, txns: 6, pct: 4.8, color: "#ec4899", bars: [35, 55, 40, 70, 50, 30, 65, 45] },
   ];
   return (
-    <div className="space-y-3">
-      <p className="text-xs font-semibold text-gray-900">Monthly Spending by Pillar</p>
-      {pillars.map((p) => {
-        const ratio = p.spend / p.budget;
-        const barColor = ratio > 1 ? "bg-red-500" : ratio >= 0.7 ? "bg-amber-500" : "bg-green-500";
-        const statusLabel = ratio > 1 ? "Over Budget" : ratio >= 0.7 ? "Near Limit" : "Under Budget";
-        const statusStyle = ratio > 1
-          ? "text-red-600 bg-red-50"
-          : ratio >= 0.7
-            ? "text-amber-600 bg-amber-50"
-            : "text-green-600 bg-green-50";
-        return (
-          <div key={p.label} className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-gray-700">{p.label}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-500">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</span>
-                <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${statusStyle}`}>{statusLabel}</span>
-              </div>
+    <div className="space-y-2">
+      <p className="text-xs font-semibold text-gray-900">Lifestyle Pillars</p>
+      <div className="grid grid-cols-3 gap-2">
+        {pillars.map((p) => (
+          <div key={p.label} className="rounded-lg border border-gray-200 bg-white p-2 flex flex-col gap-1.5 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="w-full h-0.5 rounded-full" style={{ backgroundColor: p.color }} />
+            <p className="text-[11px] font-semibold text-gray-900 leading-tight">{p.label}</p>
+            <p className="text-sm font-bold" style={{ color: p.color }}>${p.spend.toLocaleString()}</p>
+            <div className="flex items-center justify-between text-[9px] text-gray-500">
+              <span>{p.txns} trans.</span>
+              <span>{p.pct}%</span>
             </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(ratio * 100, 100)}%` }} />
+            <div className="mt-auto flex items-end gap-px h-3">
+              {p.bars.map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t"
+                  style={{ backgroundColor: `${p.color}50`, height: `${h}%` }}
+                />
+              ))}
             </div>
           </div>
-        );
-      })}
-      <div className="rounded-lg bg-red-50 border border-red-100 p-2.5 mt-1">
-        <p className="text-[10px] text-red-700 font-medium">⚠ Wellness spending is 28% over budget this month</p>
+        ))}
       </div>
     </div>
   );
