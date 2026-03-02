@@ -1,6 +1,6 @@
 import Hero from "@/components/Hero";
 import PlatformTabs from "@/components/PlatformTabs";
-import ArchitectureDiagram from "@/components/ArchitectureDiagram";
+
 import IntegrationSection from "@/components/IntegrationSection";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
