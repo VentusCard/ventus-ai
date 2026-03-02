@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3 } from 
 import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 
 
 const coreProduct = {
@@ -33,7 +34,7 @@ const insightTools = [
     href: "/engagement",
   },
   {
-    title: "Wealth Management Copilot",
+    title: "Wealth Management",
     desc: "AI-powered relationship intelligence with life event detection for advisors.",
     icon: Briefcase,
     href: "/wealth",
@@ -81,7 +82,7 @@ const Navbar = () => {
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-6 w-auto" />
+            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
           </Link>
           {/* Products dropdown */}
           <div
@@ -137,6 +138,7 @@ const Navbar = () => {
               </div>
             </div>
           </div>
+          <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
           <button onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors`}>FAQ</button>
         </div>
         <Link to="/contact">
@@ -155,7 +157,7 @@ const Navbar = () => {
       {/* Mobile navbar */}
       <div className="flex md:hidden h-16 items-center justify-between" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-6 w-auto" />
+          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
         </Link>
         <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu" style={{ minWidth: 'auto', minHeight: 'auto', padding: 0 }}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -192,6 +194,7 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
+          <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
           <button onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</button>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>

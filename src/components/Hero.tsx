@@ -27,7 +27,7 @@ const Hero = () => {
                 showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
               }`}
             >
-              Banks sit on the most valuable behavioral data in the world. Ventus transforms it into lifestyle signals, intent detection, and life event intelligence — without touching core infrastructure.
+              A modular customer intelligence layer that powers hyper-personalized experiences across every team — without changing core infrastructure.
             </p>
 
             <div

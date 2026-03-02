@@ -164,20 +164,20 @@ export default function VentusTransactionEnrichment() {
     row.className = "vte-row data-row";
 
     const cols = [
-      { label: "Raw Transaction", text: next.raw, raw: true, derived: false },
-      { label: "Amount", text: next.amount, raw: false, derived: false },
-      { label: "MCC", text: next.mcc, raw: false, derived: false },
-      { label: "Merchant", text: next.merchant, raw: false, derived: true },
-      { label: "Category", text: next.cat, raw: false, derived: true },
-      { label: "Sub-Category", text: next.sub, raw: false, derived: true },
+      { label: "Raw Transaction", text: next.raw, cls: "raw" },
+      { label: "Amount", text: next.amount, cls: "one amount-text" },
+      { label: "MCC", text: next.mcc, cls: "one mcc-badge" },
+      { label: "Merchant", text: next.merchant, cls: "one merchant-text", derived: true },
+      { label: "Category", text: next.cat, cls: "one derived-text", derived: true },
+      { label: "Sub-Category", text: next.sub, cls: "one derived-text", derived: true },
     ];
 
-    cols.forEach(({ label, text, raw, derived }) => {
+    cols.forEach(({ label, text, cls, derived }) => {
       const cell = document.createElement("div");
       cell.className = "vte-cell" + (derived ? " derived" : "");
       cell.setAttribute("data-label", label);
       const span = document.createElement("span");
-      span.className = (raw ? "raw" : "one") + (derived ? " derived-text" : "");
+      span.className = cls;
       span.textContent = text;
       cell.appendChild(span);
       row.appendChild(cell);
@@ -232,15 +232,14 @@ export default function VentusTransactionEnrichment() {
       <style>{`
         .vte-root {
           --ink: #0f172a;
-          --muted: rgba(15,23,42,.55);
-          --hair: rgba(15,23,42,.12);
-          --wash: rgba(15,23,42,.04);
-          --radius: 18px;
-          --sigBg: rgba(15,23,42,.05);
-          --sigBd: rgba(15,23,42,.18);
-          --sigInk: rgba(15,23,42,.88);
-          --hlBg: rgba(15,23,42,.03);
-          --hlBd: rgba(15,23,42,.12);
+          --muted: #64748b;
+          --hair: #e2e8f0;
+          --wash: #f8faff;
+          --radius: 16px;
+          --accent: #2563eb;
+          --sigBg: rgba(37,99,235,.08);
+          --sigBd: rgba(37,99,235,.20);
+          --sigInk: #2563eb;
 
           font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: var(--ink);
@@ -256,24 +255,56 @@ export default function VentusTransactionEnrichment() {
           border: 1px solid var(--hair);
           border-radius: var(--radius);
           overflow: hidden;
-          background: transparent;
+          background: #fff;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
         }
+        /* Dark navy header */
         .vte-head {
-          padding: 16px 18px;
-          border-bottom: 1px solid var(--hair);
-          background: rgba(15,23,42,.03);
+          padding: 14px 20px;
+          background: #0f172a;
           display: flex;
           justify-content: space-between;
-          align-items: baseline;
+          align-items: center;
           gap: 12px;
-          flex-wrap: wrap;
         }
         .vte-title {
           margin: 0;
-          font-size: 15px;
-          font-weight: 820;
-          letter-spacing: -0.01em;
-          color: #0f172a !important;
+          font-size: 14px;
+          font-weight: 600;
+          color: #fff !important;
+          letter-spacing: 0.01em;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .vte-title-icon {
+          width: 18px;
+          height: 18px;
+          opacity: 0.7;
+        }
+        .vte-live-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: rgba(34,197,94,0.15);
+          color: #4ade80;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+        }
+        .vte-live-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #4ade80;
+          animation: vte-pulse 2s ease-in-out infinite;
+          box-shadow: 0 0 6px rgba(74,222,128,0.6);
+        }
+        @keyframes vte-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
         }
         .vte-table { width: 100%; }
         .vte-row {
@@ -287,19 +318,29 @@ export default function VentusTransactionEnrichment() {
             minmax(170px, 1.15fr);
         }
         .vte-row.head {
-          background: var(--wash);
-          font-size: 12px;
-          font-weight: 780;
-          letter-spacing: -0.01em;
+          background: #f8faff;
+        }
+        .vte-row.head .vte-cell {
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #64748b;
+          border-bottom: 1px solid #e2e8f0;
+          padding: 10px 16px;
+          min-height: auto;
         }
         .vte-cell {
           padding: 12px 16px;
-          border-bottom: 1px solid var(--hair);
-          border-right: 1px solid var(--hair);
+          border-bottom: 1px solid #e2e8f0;
           font-size: 13px;
           display: flex;
           align-items: center;
           min-height: 50px;
+          transition: background 0.15s;
+        }
+        .vte-row.data-row:hover .vte-cell {
+          background: #f8faff;
         }
         .vte-row .vte-cell:last-child { border-right: none; }
         .vte-cell.derived {
@@ -323,14 +364,97 @@ export default function VentusTransactionEnrichment() {
         @keyframes vte-slideOut {
           to { opacity: 0; transform: translateY(-20px); margin-bottom: -50px; }
         }
+        /* Group header row */
+        .vte-group-row {
+          display: grid;
+          grid-template-columns:
+            minmax(280px, 2.3fr)
+            minmax(85px, .6fr)
+            minmax(74px, .55fr)
+            minmax(170px, 1.15fr)
+            minmax(170px, 1.15fr)
+            minmax(170px, 1.15fr);
+          background: #f8faff;
+        }
+        .vte-group-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 16px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .vte-group-raw {
+          grid-column: 1 / 4;
+          color: #94a3b8;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .vte-group-enriched {
+          grid-column: 4 / 7;
+          color: #2563eb;
+          border-bottom: 1px solid #e2e8f0;
+          border-left: 2px solid #e2e8f0;
+        }
+        .vte-group-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #94a3b8;
+          flex-shrink: 0;
+        }
+        .vte-group-icon {
+          width: 12px;
+          height: 12px;
+          flex-shrink: 0;
+        }
+        /* Vertical divider on header and data rows */
+        .vte-row .vte-cell:nth-child(4) {
+          border-left: 2px solid #e2e8f0;
+        }
         .raw {
+          font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
           white-space: normal;
           word-break: break-word;
           line-height: 1.25;
+          color: #94a3b8;
+          font-size: 12px;
         }
         .one { white-space: nowrap; line-height: 1.2; }
-        .derived-text { color: rgba(15,23,42,.70); font-weight: 650; }
-        .vte-spacer { height: 12px; }
+        .one.amount-text { font-weight: 600; color: #94a3b8; }
+        .one.mcc-badge {
+          display: inline-flex;
+          padding: 2px 8px;
+          border-radius: 999px;
+          background: #f1f5f9;
+          color: #94a3b8;
+          font-size: 11px;
+          font-weight: 500;
+        }
+        .one.merchant-text { font-weight: 700; color: #0f172a; }
+        .derived-text { color: #2563eb; font-weight: 600; }
+        /* Connector between table and persona */
+        .vte-connector {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          padding: 20px 16px;
+        }
+        .vte-connector-arrow {
+          color: #2563eb;
+          font-size: 20px;
+          line-height: 1;
+        }
+        .vte-connector-text {
+          font-size: 12px;
+          color: #94a3b8;
+          text-align: center;
+          max-width: 480px;
+          line-height: 1.4;
+        }
+        .vte-spacer { height: 20px; }
         .vte-disclaimer {
           margin-top: 16px;
           text-align: center;
@@ -338,67 +462,63 @@ export default function VentusTransactionEnrichment() {
         .vte-disclaimer p {
           margin: 0;
           font-size: 11px;
-          color: rgba(15,23,42,.35);
-          font-weight: 620;
-          letter-spacing: -0.005em;
+          color: #94a3b8;
+          font-weight: 400;
           line-height: 1.4;
         }
-        .vte-persona-wrap { padding: 16px 18px 18px; }
+        /* Persona card */
+        .vte-persona-wrap { padding: 20px; }
         .vte-persona-panel {
-          border: 1px solid var(--hlBd);
-          background: var(--hlBg);
-          border-radius: 16px;
-          padding: 14px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
         }
         .vte-persona-summary {
           margin: 0;
-          font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
-          font-size: 18px;
-          font-weight: 820;
-          letter-spacing: -0.012em;
-          line-height: 1.2;
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.015em;
+          line-height: 1.3;
+          color: #0f172a;
         }
-        .vte-key { font-weight: 920; }
+        .vte-key { font-weight: 800; }
         .vte-signal-top {
           display: flex;
-          align-items: baseline;
-          justify-content: space-between;
-          gap: 10px;
-          flex-wrap: wrap;
-          padding-top: 10px;
-          border-top: 1px solid rgba(15,23,42,.10);
+          flex-direction: column;
+          gap: 4px;
+          padding-top: 12px;
+          border-top: 1px solid #e2e8f0;
         }
         .vte-signal-label {
-          font-size: 12px;
-          font-weight: 820;
-          color: rgba(15,23,42,.55);
-          letter-spacing: -0.01em;
+          font-size: 10px;
+          font-weight: 700;
+          color: #2563eb;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          margin-bottom: 4px;
         }
         .vte-category-group {
-          border-bottom: 1px solid rgba(15,23,42,.08);
-          padding: 12px 0;
+          border-left: 3px solid #2563eb;
+          padding: 10px 0 10px 14px;
+          margin-bottom: 8px;
           display: grid;
           grid-template-columns: 200px 95px 1fr;
-          gap: 24px;
+          gap: 16px;
           align-items: center;
         }
-        .vte-category-group:first-child { padding-top: 0; }
-        .vte-category-group:last-child { border-bottom: none; padding-bottom: 0; }
+        .vte-category-group:last-child { margin-bottom: 0; }
         .vte-category-name {
-          font-size: 11px;
-          font-weight: 820;
-          color: rgba(15,23,42,.45);
-          letter-spacing: 0.02em;
+          font-size: 10px;
+          font-weight: 700;
+          color: #64748b;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           white-space: nowrap;
         }
         .vte-category-spending {
-          font-size: 13px;
-          font-weight: 650;
-          color: var(--ink);
+          font-size: 16px;
+          font-weight: 700;
+          color: #0f172a;
           letter-spacing: -0.01em;
           text-align: right;
           white-space: nowrap;
@@ -407,29 +527,29 @@ export default function VentusTransactionEnrichment() {
         .vte-chips {
           display: flex;
           flex-wrap: wrap;
-          gap: 8px;
+          gap: 6px;
           justify-content: flex-start;
           align-content: flex-start;
         }
         .vte-chip {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 10px;
+          gap: 6px;
+          padding: 4px 10px;
           border-radius: 999px;
-          border: 1px solid var(--sigBd);
-          background: var(--sigBg);
-          color: var(--sigInk);
-          font-size: 12px;
+          border: none;
+          background: rgba(37,99,235,0.08);
+          color: #2563eb;
+          font-size: 11px;
           line-height: 1;
           white-space: nowrap;
         }
-        .vte-chip strong { font-weight: 880; letter-spacing: -0.01em; }
-        .vte-chip-count { font-weight: 820; color: rgba(15,23,42,.55); }
+        .vte-chip strong { font-weight: 700; letter-spacing: -0.01em; }
+        .vte-chip-count { font-weight: 600; opacity: 0.7; }
         .vte-chip.is-off {
           opacity: .30;
-          background: rgba(15,23,42,.02);
-          border-color: rgba(15,23,42,.08);
+          background: #f1f5f9;
+          color: #94a3b8;
         }
         .vte-chip.is-off .vte-chip-count { display: none; }
 
@@ -456,8 +576,22 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-card">
           <div className="vte-head">
             <h3 className="vte-title">Transaction Enrichment</h3>
+            <span className="vte-live-badge">
+              <span className="vte-live-dot" />
+              Live Demo
+            </span>
           </div>
           <div className="vte-table">
+            <div className="vte-group-row">
+              <div className="vte-group-label vte-group-raw">
+                <span className="vte-group-dot" />
+                Raw Input
+              </div>
+              <div className="vte-group-label vte-group-enriched">
+                <svg className="vte-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Enriched by Ventus
+              </div>
+            </div>
             <div className="vte-row head">
               {["Raw Transaction", "Amount", "MCC", "Merchant", "Category", "Sub-Category"].map((h) => (
                 <div key={h} className="vte-cell">
@@ -469,12 +603,18 @@ export default function VentusTransactionEnrichment() {
           </div>
         </div>
 
-        <div className="vte-spacer" />
+        <div className="vte-connector">
+          <span className="vte-connector-arrow">↓</span>
+          <span className="vte-connector-text">Ventus aggregates enriched signals across all transactions to build a live customer profile</span>
+        </div>
 
         {/* Persona card */}
         <div className="vte-card">
           <div className="vte-head">
-            <h3 className="vte-title">Customer Persona</h3>
+            <h3 className="vte-title">
+              <svg className="vte-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Customer Persona
+            </h3>
           </div>
           <div className="vte-persona-wrap">
             <div className="vte-persona-panel">
