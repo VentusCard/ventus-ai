@@ -244,10 +244,9 @@ const EnrichmentMockup = () => {
         elapsed += TIMINGS.cardScroll + TIMINGS.cardReveal;
       }
 
-      // -> hold
+      // -> hold (keep last card's highlighted txs visible)
       schedule(() => {
         setPhase("hold");
-        setActiveCardIdx(-1);
         setCardPhase(null);
       }, elapsed);
       elapsed += TIMINGS.hold;
@@ -421,11 +420,17 @@ const EnrichmentMockup = () => {
                 </div>
               )}
 
-              {/* Hold phase — show all txs with last card's highlights */}
+              {/* Hold phase — keep last card's highlighted txs */}
               {phase === "hold" && (
                 <div className="space-y-0.5" style={{ animation: "orch-fade-in 0.4s ease-out" }}>
-                  {customer.transactions.slice(-6).map((tx, i) => (
-                    <TxRow key={`hold-${i}`} tx={tx} dim={i < 2} />
+                  {cardCycleTransactions.map((tx, i) => (
+                    <TxRow
+                      key={`hold-${i}`}
+                      tx={tx}
+                      dim={false}
+                      highlight
+                      highlightColor={highlightColor}
+                    />
                   ))}
                 </div>
               )}
