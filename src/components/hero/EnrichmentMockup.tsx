@@ -348,7 +348,7 @@ const EnrichmentMockup = () => {
           {/* ======== RIGHT PANEL ======== */}
           <div className="px-3 py-3 overflow-hidden flex flex-col">
             <div className="text-[10px] font-mono font-semibold text-emerald-400 tracking-widest uppercase mb-2">
-              Intelligence Output
+              Personalization Orchestration
             </div>
 
             {/* Processing shimmer */}
