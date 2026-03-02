@@ -514,7 +514,7 @@ const EnrichmentMockup = () => {
               <div className="flex flex-col gap-2 flex-1 justify-between">
                 {remainingCards.map((card, i) => {
                   const isRevealed = i < revealedCards;
-                  const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && cardPhase === "scroll";
+                  const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && (cardPhase === "scroll" || cardPhase === "scanning");
                   return (
                     <div
                       key={card.title}
