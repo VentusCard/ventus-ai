@@ -716,11 +716,13 @@ const TxRow = ({
   dim,
   highlight,
   highlightColor,
+  sourceColor,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
+  sourceColor?: string;
 }) => (
   <div
     className="font-mono text-[9px] leading-tight px-1.5 py-[3px] rounded flex items-center gap-1 truncate transition-all duration-300"
@@ -733,8 +735,10 @@ const TxRow = ({
     <span
       className="text-[8px] font-medium px-1 py-0 rounded shrink-0"
       style={{
-        background: highlight ? `${highlightColor}20` : "rgba(100,116,139,0.2)",
-        color: highlight ? highlightColor : "#94a3b8",
+        background: sourceColor ? `${sourceColor}20` : "rgba(100,116,139,0.2)",
+        color: sourceColor || "#94a3b8",
+        border: sourceColor ? `1px solid ${sourceColor}30` : "none",
+        opacity: dim ? 0.5 : 1,
       }}
     >
       {tx.account}
