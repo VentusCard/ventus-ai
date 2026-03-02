@@ -424,7 +424,7 @@ const EnrichmentMockup = () => {
 
             {/* Remaining intelligence cards (cards index 1-3) */}
             {(phase === "cards" || phase === "hold") && (
-              <div className="space-y-2 flex-1">
+              <div className="flex flex-col gap-2 flex-1 justify-between">
                 {remainingCards.map((card, i) => (
                   <div
                     key={card.title}
