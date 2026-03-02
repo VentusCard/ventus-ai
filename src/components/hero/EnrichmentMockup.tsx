@@ -385,7 +385,7 @@ const EnrichmentMockup = () => {
                   <div
                     className="space-y-0.5"
                     style={{
-                      animation: "orch-rapid-scroll 2.8s linear forwards",
+                      animation: `orch-rapid-scroll ${TIMINGS.scroll}ms linear forwards`,
                     }}
                   >
                     {customer.transactions.map((tx, i) => (
@@ -599,7 +599,7 @@ const EnrichmentMockup = () => {
       <style>{`
         @keyframes orch-rapid-scroll {
           0% { transform: translateY(0); }
-          70% { transform: translateY(-65%); }
+          90% { transform: translateY(-65%); }
           100% { transform: translateY(-65%); }
         }
         @keyframes orch-shimmer {
