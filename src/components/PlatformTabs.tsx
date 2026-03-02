@@ -111,17 +111,17 @@ const RewardsPreview = () => (
       <span className="ml-auto text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Outdoor Enthusiast</span>
     </div>
     {[
-      { name: "REI", offer: "10% back", match: "96%" },
-      { name: "Patagonia", offer: "15% back", match: "94%" },
-      { name: "Delta Miles", offer: "2x miles", match: "91%" },
+      { name: "REI", msg: "Your weekend trail runs deserve gear rewards", match: "96%" },
+      { name: "Patagonia", msg: "Adventure-ready styles picked for you", match: "94%" },
+      { name: "Delta Miles", msg: "Your next mountain getaway, on us", match: "91%" },
     ].map((o) => (
       <div key={o.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
         <div>
           <p className="text-sm font-semibold text-gray-900">{o.name}</p>
-          <p className="text-[11px] text-gray-500">{o.offer}</p>
+          <p className="text-[11px] text-gray-500 italic">{o.msg}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">Matched</span>
+          <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium">AI Personalized</span>
           <span className="text-xs font-bold text-gray-700">{o.match}</span>
         </div>
       </div>
@@ -129,35 +129,46 @@ const RewardsPreview = () => (
   </div>
 );
 
-const EngagementPreview = () => (
-  <div className="space-y-3">
-    <div className="rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-3">
-      <p className="text-[10px] text-gray-400 mb-0.5">Good morning</p>
-      <p className="text-sm font-semibold text-gray-900">Wellness Explorer</p>
-      <p className="text-[11px] text-gray-500">You've saved $325 this quarter through personalized rewards.</p>
-    </div>
-    <div className="grid grid-cols-2 gap-2">
-      {[
-        { label: "Travel", detail: "3 cities visited", bg: "bg-orange-50" },
-        { label: "Dining", detail: "5 new restaurants", bg: "bg-red-50" },
-        { label: "Wellness", detail: "12 gym visits", bg: "bg-emerald-50" },
-        { label: "Pets", detail: "2 grooming visits", bg: "bg-sky-50" },
-      ].map((t) => (
-        <div key={t.label} className={`${t.bg} rounded-lg p-2.5`}>
-          <p className="text-xs font-semibold text-gray-900">{t.label}</p>
-          <p className="text-[10px] text-gray-500">{t.detail}</p>
-        </div>
-      ))}
-    </div>
-    <div className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-      <div>
-        <p className="text-xs font-semibold text-gray-900">REI Co-op</p>
-        <p className="text-[10px] text-gray-500">10% back on outdoor gear</p>
+const EngagementPreview = () => {
+  const pillars = [
+    { label: "Travel", spend: 1240, budget: 1500 },
+    { label: "Dining", spend: 480, budget: 500 },
+    { label: "Wellness", spend: 320, budget: 250 },
+    { label: "Shopping", spend: 180, budget: 400 },
+  ];
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-gray-900">Monthly Spending by Pillar</p>
+      {pillars.map((p) => {
+        const ratio = p.spend / p.budget;
+        const barColor = ratio > 1 ? "bg-red-500" : ratio >= 0.7 ? "bg-amber-500" : "bg-green-500";
+        const statusLabel = ratio > 1 ? "Over Budget" : ratio >= 0.7 ? "Near Limit" : "Under Budget";
+        const statusStyle = ratio > 1
+          ? "text-red-600 bg-red-50"
+          : ratio >= 0.7
+            ? "text-amber-600 bg-amber-50"
+            : "text-green-600 bg-green-50";
+        return (
+          <div key={p.label} className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-medium text-gray-700">{p.label}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-500">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</span>
+                <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${statusStyle}`}>{statusLabel}</span>
+              </div>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(ratio * 100, 100)}%` }} />
+            </div>
+          </div>
+        );
+      })}
+      <div className="rounded-lg bg-red-50 border border-red-100 p-2.5 mt-1">
+        <p className="text-[10px] text-red-700 font-medium">⚠ Wellness spending is 28% over budget this month</p>
       </div>
-      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">For You</span>
     </div>
-  </div>
-);
+  );
+};
 
 const TravelLocalPreview = () => (
   <div className="space-y-3">
@@ -194,31 +205,58 @@ const TravelLocalPreview = () => (
   </div>
 );
 
-const WealthPreview = () => (
-  <div className="space-y-3">
-    {[
-      { name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026" },
-      { name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026" },
-    ].map((c) => (
-      <div key={c.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-gray-900">{c.name}</p>
-            <span className="text-[10px] text-gray-500">{c.aum}</span>
+const WealthPreview = () => {
+  const clients = [
+    {
+      name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026",
+      txns: [
+        { merchant: "Fidelity Rollover", amount: "$45,000", source: "Premium Card", color: "bg-purple-500", note: "401k consolidation" },
+        { merchant: "AARP Membership", amount: "$48", source: "Checking", color: "bg-slate-400", note: "membership activation" },
+      ],
+    },
+    {
+      name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026",
+      txns: [
+        { merchant: "Zillow Premium", amount: "$35", source: "Checking", color: "bg-slate-400", note: "active home search" },
+        { merchant: "Home Depot", amount: "$1,280", source: "Cashback Card", color: "bg-green-500", note: "renovation planning" },
+      ],
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      {clients.map((c) => (
+        <div key={c.name} className="rounded-lg border border-gray-100 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-gray-900">{c.name}</p>
+                <span className="text-[10px] text-gray-500">{c.aum}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
+                <span className="text-[11px] text-gray-600">{c.event}</span>
+                <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+              </div>
+            </div>
+            <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
+              Prepare
+            </button>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
-            <span className="text-[11px] text-gray-600">{c.event}</span>
-            <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+          <div className="border-t border-gray-100 pt-1.5 space-y-1">
+            {c.txns.map((t) => (
+              <div key={t.merchant} className="flex items-center gap-2 text-[10px]">
+                <span className={`w-1.5 h-1.5 rounded-full ${t.color} shrink-0`} />
+                <span className="font-medium text-gray-700">{t.merchant}</span>
+                <span className="text-gray-400">{t.amount}</span>
+                <span className="text-gray-400 italic">— {t.note}</span>
+              </div>
+            ))}
           </div>
         </div>
-        <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
-          Prepare
-        </button>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 const TabPreview = ({ index }: { index: number }) => {
   const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <TravelLocalPreview />, <WealthPreview />];
