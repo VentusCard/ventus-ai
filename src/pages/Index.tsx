@@ -62,7 +62,7 @@ const Index = () => {
           <PlatformTabs />
         </ScrollReveal>
 
-        <ArchitectureDiagram />
+        
 
         <IntegrationSection />
 
