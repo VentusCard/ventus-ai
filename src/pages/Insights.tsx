@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
+import insightsCover from "@/assets/insights-cover.png";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Badge } from "@/components/ui/badge";
 
