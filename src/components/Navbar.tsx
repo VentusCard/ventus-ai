@@ -80,7 +80,7 @@ const Navbar = () => {
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-6 w-auto" />
+            <img src={ventusLogoBlue} alt="Ventus AI" className="h-6 w-auto" />
           </Link>
           {/* Products dropdown */}
           <div
