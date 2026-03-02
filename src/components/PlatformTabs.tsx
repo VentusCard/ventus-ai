@@ -205,31 +205,58 @@ const TravelLocalPreview = () => (
   </div>
 );
 
-const WealthPreview = () => (
-  <div className="space-y-3">
-    {[
-      { name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026" },
-      { name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026" },
-    ].map((c) => (
-      <div key={c.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-gray-900">{c.name}</p>
-            <span className="text-[10px] text-gray-500">{c.aum}</span>
+const WealthPreview = () => {
+  const clients = [
+    {
+      name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026",
+      txns: [
+        { merchant: "Fidelity Rollover", amount: "$45,000", source: "Premium Card", color: "bg-purple-500", note: "401k consolidation" },
+        { merchant: "AARP Membership", amount: "$48", source: "Checking", color: "bg-slate-400", note: "membership activation" },
+      ],
+    },
+    {
+      name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026",
+      txns: [
+        { merchant: "Zillow Premium", amount: "$35", source: "Checking", color: "bg-slate-400", note: "active home search" },
+        { merchant: "Home Depot", amount: "$1,280", source: "Cashback Card", color: "bg-green-500", note: "renovation planning" },
+      ],
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      {clients.map((c) => (
+        <div key={c.name} className="rounded-lg border border-gray-100 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-gray-900">{c.name}</p>
+                <span className="text-[10px] text-gray-500">{c.aum}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
+                <span className="text-[11px] text-gray-600">{c.event}</span>
+                <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+              </div>
+            </div>
+            <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
+              Prepare
+            </button>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
-            <span className="text-[11px] text-gray-600">{c.event}</span>
-            <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+          <div className="border-t border-gray-100 pt-1.5 space-y-1">
+            {c.txns.map((t) => (
+              <div key={t.merchant} className="flex items-center gap-2 text-[10px]">
+                <span className={`w-1.5 h-1.5 rounded-full ${t.color} shrink-0`} />
+                <span className="font-medium text-gray-700">{t.merchant}</span>
+                <span className="text-gray-400">{t.amount}</span>
+                <span className="text-gray-400 italic">— {t.note}</span>
+              </div>
+            ))}
           </div>
         </div>
-        <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
-          Prepare
-        </button>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 const TabPreview = ({ index }: { index: number }) => {
   const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <TravelLocalPreview />, <WealthPreview />];
