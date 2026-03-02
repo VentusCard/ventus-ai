@@ -44,6 +44,7 @@ const AppLayout = () => {
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
           <Route path="/wealth" element={<Wealth />} />
+          <Route path="/travel" element={<TravelExperience />} />
           <Route path="/analytics" element={<BankWideAnalytics />} />
           
           <Route path="/insights" element={<Insights />} />
