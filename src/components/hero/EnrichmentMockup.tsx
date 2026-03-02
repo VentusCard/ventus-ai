@@ -244,6 +244,8 @@ const EnrichmentMockup = () => {
   const showSettled = phase === "cards" || phase === "hold";
   const showProcessing = phase === "scroll";
   const settledTxs = customer.transactions.slice(-6);
+  const personaCard = customer.cards[0]; // Dynamic Persona — always first
+  const remainingCards = customer.cards.slice(1); // Analytics, Rewards, Relationship
 
   return (
     <div
