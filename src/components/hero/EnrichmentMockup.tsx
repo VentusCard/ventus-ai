@@ -186,18 +186,26 @@ const EnrichmentMockup = () => {
       setCustomerIdx(idx);
       setPhase("profile");
       setVisibleCards(0);
+      setVisiblePills(0);
       setIsFlipping(false);
 
       let elapsed = TIMINGS.profile;
 
-      // -> scroll
-      schedule(() => setPhase("scroll"), elapsed);
+      // -> scroll + progressive persona pills
+      schedule(() => {
+        setPhase("scroll");
+        const pillCount = customers[idx].cards[0].pills?.length ?? 0;
+        const pillInterval = TIMINGS.scroll / (pillCount + 1);
+        for (let p = 0; p < pillCount; p++) {
+          schedule(() => setVisiblePills(p + 1), (p + 1) * pillInterval);
+        }
+      }, elapsed);
       elapsed += TIMINGS.scroll;
 
-      // -> cards (stagger reveal)
+      // -> cards (stagger reveal of cards 1-3, skipping persona which is already shown)
       schedule(() => {
         setPhase("cards");
-        for (let c = 0; c < 4; c++) {
+        for (let c = 0; c < 3; c++) {
           schedule(() => setVisibleCards(c + 1), c * 600);
         }
       }, elapsed);
