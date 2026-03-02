@@ -615,6 +615,11 @@ const EnrichmentMockup = () => {
           50% { background: rgba(255,255,255,0.06); }
           100% { opacity: 1; transform: translateY(0); background: transparent; }
         }
+        @keyframes orch-card-scroll {
+          0% { transform: translateY(0); }
+          80% { transform: translateY(-55%); }
+          100% { transform: translateY(-55%); }
+        }
       `}</style>
     </div>
   );
