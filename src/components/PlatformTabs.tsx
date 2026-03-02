@@ -129,35 +129,46 @@ const RewardsPreview = () => (
   </div>
 );
 
-const EngagementPreview = () => (
-  <div className="space-y-3">
-    <div className="rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-3">
-      <p className="text-[10px] text-gray-400 mb-0.5">Good morning</p>
-      <p className="text-sm font-semibold text-gray-900">Wellness Explorer</p>
-      <p className="text-[11px] text-gray-500">You've saved $325 this quarter through personalized rewards.</p>
-    </div>
-    <div className="grid grid-cols-2 gap-2">
-      {[
-        { label: "Travel", detail: "3 cities visited", bg: "bg-orange-50" },
-        { label: "Dining", detail: "5 new restaurants", bg: "bg-red-50" },
-        { label: "Wellness", detail: "12 gym visits", bg: "bg-emerald-50" },
-        { label: "Pets", detail: "2 grooming visits", bg: "bg-sky-50" },
-      ].map((t) => (
-        <div key={t.label} className={`${t.bg} rounded-lg p-2.5`}>
-          <p className="text-xs font-semibold text-gray-900">{t.label}</p>
-          <p className="text-[10px] text-gray-500">{t.detail}</p>
-        </div>
-      ))}
-    </div>
-    <div className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-      <div>
-        <p className="text-xs font-semibold text-gray-900">REI Co-op</p>
-        <p className="text-[10px] text-gray-500">10% back on outdoor gear</p>
+const EngagementPreview = () => {
+  const pillars = [
+    { label: "Travel", spend: 1240, budget: 1500 },
+    { label: "Dining", spend: 480, budget: 500 },
+    { label: "Wellness", spend: 320, budget: 250 },
+    { label: "Shopping", spend: 180, budget: 400 },
+  ];
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-gray-900">Monthly Spending by Pillar</p>
+      {pillars.map((p) => {
+        const ratio = p.spend / p.budget;
+        const barColor = ratio > 1 ? "bg-red-500" : ratio >= 0.7 ? "bg-amber-500" : "bg-green-500";
+        const statusLabel = ratio > 1 ? "Over Budget" : ratio >= 0.7 ? "Near Limit" : "Under Budget";
+        const statusStyle = ratio > 1
+          ? "text-red-600 bg-red-50"
+          : ratio >= 0.7
+            ? "text-amber-600 bg-amber-50"
+            : "text-green-600 bg-green-50";
+        return (
+          <div key={p.label} className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-medium text-gray-700">{p.label}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-500">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</span>
+                <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${statusStyle}`}>{statusLabel}</span>
+              </div>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(ratio * 100, 100)}%` }} />
+            </div>
+          </div>
+        );
+      })}
+      <div className="rounded-lg bg-red-50 border border-red-100 p-2.5 mt-1">
+        <p className="text-[10px] text-red-700 font-medium">⚠ Wellness spending is 28% over budget this month</p>
       </div>
-      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">For You</span>
     </div>
-  </div>
-);
+  );
+};
 
 const TravelLocalPreview = () => (
   <div className="space-y-3">
