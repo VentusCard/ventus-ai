@@ -479,7 +479,7 @@ const PlatformTabs = () => {
 
         {/* Dot indicators with pause button — hidden on mobile */}
         <div className="hidden md:flex items-center justify-center gap-2 mt-6">
-          {tabs.slice(0, Math.ceil(tabs.length / 2)).map((_, i) => (
+          {tabs.map((_, i) => (
             <button
               key={i}
               onClick={() => handleTabClick(i)}
@@ -493,7 +493,7 @@ const PlatformTabs = () => {
           ))}
           <button
             onClick={togglePause}
-            className="mx-1 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="ml-2 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
             aria-label={paused ? "Resume auto-rotate" : "Pause auto-rotate"}
           >
             {paused ? (
@@ -502,21 +502,6 @@ const PlatformTabs = () => {
               <Pause className="w-3.5 h-3.5 text-gray-600" />
             )}
           </button>
-          {tabs.slice(Math.ceil(tabs.length / 2)).map((_, i) => {
-            const idx = i + Math.ceil(tabs.length / 2);
-            return (
-              <button
-                key={idx}
-                onClick={() => handleTabClick(idx)}
-                className={`rounded-full transition-all duration-300 ${
-                  idx === activeIndex
-                    ? "w-3 h-3 bg-blue-600"
-                    : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
-                }`}
-                aria-label={`Go to tab ${idx + 1}`}
-              />
-            );
-          })}
         </div>
       </div>
     </section>
