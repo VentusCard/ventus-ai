@@ -282,9 +282,8 @@ const EnrichmentMockup = () => {
   const personaCard = customer.cards[0];
   const remainingCards = customer.cards.slice(1);
 
-  // Build the left-panel transaction list for card cycle phases
-  const cardCycleTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
-  const cardCycleTransactions = cardCycleTxs.map((i) => customer.transactions[i]).filter(Boolean);
+  // Build the current card's tx indices for active scrolling highlight
+  const currentCardTxs = activeCardIdx >= 0 ? remainingCards[activeCardIdx]?.txIndices ?? [] : [];
 
   return (
     <div
