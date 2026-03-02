@@ -197,6 +197,7 @@ const customers: CustomerProfile[] = [
         accent: "#60a5fa",
         icon: "◆",
         title: "Analytics Intelligence",
+        subtitle: "Personalized product recommendations from spend signals",
         content: "Recommend Wealth Management Upgrade — retirement consolidation pattern detected across 6 accounts. Personalized advisor introduction queued.",
         txIndices: [0, 1, 2, 3, 4, 5],
       },
