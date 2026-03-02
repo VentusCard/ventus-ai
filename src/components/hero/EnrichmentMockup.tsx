@@ -256,6 +256,7 @@ const EnrichmentMockup = () => {
   const [phase, setPhase] = useState<Phase>("profile");
   const [visiblePills, setVisiblePills] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Per-card cycle state
   const [revealedCards, setRevealedCards] = useState(0);
@@ -265,6 +266,8 @@ const EnrichmentMockup = () => {
   const [currentCardColor, setCurrentCardColor] = useState<string>("#60a5fa");
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const pausedRef = useRef(false);
+  const resumeCbRef = useRef<(() => void) | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -272,7 +275,25 @@ const EnrichmentMockup = () => {
   }, []);
 
   const schedule = useCallback((fn: () => void, ms: number) => {
-    timeoutsRef.current.push(setTimeout(fn, ms));
+    const wrappedFn = () => {
+      if (pausedRef.current) {
+        resumeCbRef.current = fn;
+        return;
+      }
+      fn();
+    };
+    timeoutsRef.current.push(setTimeout(wrappedFn, ms));
+  }, []);
+
+  const togglePause = useCallback(() => {
+    const next = !pausedRef.current;
+    pausedRef.current = next;
+    setIsPaused(next);
+    if (!next && resumeCbRef.current) {
+      const cb = resumeCbRef.current;
+      resumeCbRef.current = null;
+      cb();
+    }
   }, []);
 
   const runCycle = useCallback(
