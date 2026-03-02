@@ -109,25 +109,25 @@ const customers: CustomerProfile[] = [
     location: "Brooklyn, NY",
     income: "Upper-Middle Income",
     transactions: [
-      { account: "••3347", merchant: "Buy Buy Baby", amount: "$234.00" },
-      { account: "••3347", merchant: "Amazon Baby Registry", amount: "$189.00" },
-      { account: "••3347", merchant: "Pottery Barn Kids", amount: "$567.00" },
-      { account: "••3347", merchant: "Hanna Andersson", amount: "$89.00" },
-      { account: "••3347", merchant: "Carter's", amount: "$124.50" },
-      { account: "••8812", merchant: "Whole Foods", amount: "$203.00" },
-      { account: "••8812", merchant: "Instacart", amount: "$87.40" },
-      { account: "••8812", merchant: "DoorDash", amount: "$142.00" },
-      { account: "••8812", merchant: "Sweetgreen", amount: "$34.00" },
-      { account: "••8812", merchant: "Blue Apron", amount: "$62.00" },
-      { account: "••5501", merchant: "Walgreens", amount: "$67.20" },
-      { account: "••5501", merchant: "CVS", amount: "$45.80" },
-      { account: "••5501", merchant: "Walgreens", amount: "$52.10" },
-      { account: "••5501", merchant: "One Medical", amount: "$250.00" },
-      { account: "••6274", merchant: "Babylist", amount: "$312.00" },
-      { account: "••6274", merchant: "Snoo Rental", amount: "$159.00" },
-      { account: "••6274", merchant: "Owlet", amount: "$299.00" },
-      { account: "••6274", merchant: "Uppababy", amount: "$1,049.00" },
-      { account: "••6274", merchant: "529 Plan Contrib", amount: "$500.00" },
+      { account: "••3347", merchant: "Buy Buy Baby", amount: "$234.00" },       // 0
+      { account: "••8812", merchant: "Whole Foods", amount: "$203.00" },         // 1
+      { account: "••5501", merchant: "Walgreens", amount: "$67.20" },            // 2
+      { account: "••6274", merchant: "Babylist", amount: "$312.00" },            // 3
+      { account: "••3347", merchant: "Amazon Baby Registry", amount: "$189.00" },// 4
+      { account: "••8812", merchant: "Instacart", amount: "$87.40" },            // 5
+      { account: "••5501", merchant: "CVS", amount: "$45.80" },                  // 6
+      { account: "••6274", merchant: "Snoo Rental", amount: "$159.00" },         // 7
+      { account: "••3347", merchant: "Pottery Barn Kids", amount: "$567.00" },   // 8
+      { account: "••8812", merchant: "DoorDash", amount: "$142.00" },            // 9
+      { account: "••5501", merchant: "Walgreens", amount: "$52.10" },            // 10
+      { account: "••6274", merchant: "Owlet", amount: "$299.00" },               // 11
+      { account: "••3347", merchant: "Hanna Andersson", amount: "$89.00" },      // 12
+      { account: "••8812", merchant: "Sweetgreen", amount: "$34.00" },           // 13
+      { account: "••5501", merchant: "One Medical", amount: "$250.00" },         // 14
+      { account: "••6274", merchant: "Uppababy", amount: "$1,049.00" },          // 15
+      { account: "••3347", merchant: "Carter's", amount: "$124.50" },            // 16
+      { account: "••8812", merchant: "Blue Apron", amount: "$62.00" },           // 17
+      { account: "••6274", merchant: "529 Plan Contrib", amount: "$500.00" },    // 18
     ],
     cards: [
       {
@@ -144,7 +144,7 @@ const customers: CustomerProfile[] = [
         title: "Analytics Intelligence",
         subtitle: "Personalized product recommendations from spend signals",
         content: "Recommend Family Rewards Card — baby-related spend is 40% of wallet. Personalized upgrade offer queued.",
-        txIndices: [0, 1, 2, 3, 4],
+        txIndices: [0, 4, 8, 12, 16],
       },
       {
         accent: "#34d399",
@@ -153,7 +153,7 @@ const customers: CustomerProfile[] = [
         subtitle: "Hyper-personalized ranking and messages",
         content: "",
         pills: ["Whole Foods 5% Back", "Instacart Free Delivery", "DoorDash DashPass", "Blue Apron Family Plan"],
-        txIndices: [5, 6, 7, 8, 9],
+        txIndices: [1, 5, 9, 13, 17],
       },
       {
         accent: "#fbbf24",
@@ -161,7 +161,7 @@ const customers: CustomerProfile[] = [
         title: "Relationship Intelligence",
         subtitle: "Personalized projections, timeline and meeting prep",
         content: "Life Event: New Baby detected from health and planning transactions. Family financial package sent to advisor.",
-        txIndices: [10, 11, 12, 13, 14, 15, 16, 17, 18],
+        txIndices: [2, 3, 6, 7, 10, 11, 14, 15, 18],
       },
     ],
   },
