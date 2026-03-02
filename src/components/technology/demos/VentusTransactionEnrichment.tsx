@@ -258,10 +258,10 @@ export default function VentusTransactionEnrichment() {
           background: #fff;
           box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
         }
-        /* Dark navy header */
         .vte-head {
           padding: 14px 20px;
-          background: #0f172a;
+          background: #fff;
+          border-bottom: 1px solid #e2e8f0;
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -269,10 +269,11 @@ export default function VentusTransactionEnrichment() {
         }
         .vte-title {
           margin: 0;
-          font-size: 14px;
-          font-weight: 600;
-          color: #fff !important;
-          letter-spacing: 0.01em;
+          font-size: 10px;
+          font-weight: 700;
+          color: #2563eb !important;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
           display: flex;
           align-items: center;
           gap: 8px;
@@ -281,6 +282,7 @@ export default function VentusTransactionEnrichment() {
           width: 18px;
           height: 18px;
           opacity: 0.7;
+          color: #2563eb;
         }
         .vte-live-badge {
           display: inline-flex;
@@ -288,8 +290,8 @@ export default function VentusTransactionEnrichment() {
           gap: 6px;
           padding: 4px 10px;
           border-radius: 999px;
-          background: rgba(34,197,94,0.15);
-          color: #4ade80;
+          background: rgba(16,185,129,0.08);
+          color: #059669;
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 0.02em;
@@ -298,13 +300,39 @@ export default function VentusTransactionEnrichment() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #4ade80;
+          background: #10b981;
           animation: vte-pulse 2s ease-in-out infinite;
-          box-shadow: 0 0 6px rgba(74,222,128,0.6);
+          box-shadow: 0 0 6px rgba(16,185,129,0.6);
+        }
+        .vte-pulsing-dot {
+          position: relative;
+          width: 8px;
+          height: 8px;
+        }
+        .vte-pulsing-dot::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background: #10b981;
+          animation: vte-pulse 2s ease-in-out infinite;
+        }
+        .vte-pulsing-dot::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background: #10b981;
+          opacity: 0.75;
+          animation: vte-ping 2s ease-in-out infinite;
         }
         @keyframes vte-pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        @keyframes vte-ping {
+          0% { transform: scale(1); opacity: 0.75; }
+          100% { transform: scale(2.5); opacity: 0; }
         }
         .vte-table { width: 100%; }
         .vte-row {
@@ -576,7 +604,10 @@ export default function VentusTransactionEnrichment() {
         {/* Transaction table */}
         <div className="vte-card">
           <div className="vte-head">
-            <h3 className="vte-title">Transaction Enrichment</h3>
+            <h3 className="vte-title">
+              <span className="vte-pulsing-dot" />
+              Transaction Enrichment
+            </h3>
             <span className="vte-live-badge">
               <span className="vte-live-dot" />
               Live Demo
@@ -613,7 +644,7 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-card">
           <div className="vte-head">
             <h3 className="vte-title">
-              <svg className="vte-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span className="vte-pulsing-dot" />
               Customer Persona
             </h3>
           </div>

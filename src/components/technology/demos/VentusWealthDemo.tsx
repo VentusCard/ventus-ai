@@ -421,26 +421,60 @@ export default function VentusWealthDemo() {
           max-width: 1600px;
           margin: 0 auto;
           padding: 0;
-          background: rgba(15,23,42,.02);
-          border: 1px solid rgba(15,23,42,.12);
-          border-radius: 22px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
           overflow: hidden;
           position: relative;
           box-sizing: border-box;
           -webkit-font-smoothing: antialiased;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
         }
         .vwm-root *, .vwm-root *::before, .vwm-root *::after { box-sizing: border-box; }
 
         .vwm-dashboard-header {
-          padding: 16px 20px 12px;
-          background: rgba(15,23,42,.03);
-          border-bottom: 1px solid rgba(15,23,42,.08);
+          padding: 14px 20px;
+          background: #fff;
+          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
         }
+        .vwm-dash-title-left {
+          display: flex; align-items: center; gap: 8px;
+        }
+        .vwm-pulsing-dot {
+          position: relative; width: 8px; height: 8px; flex-shrink: 0;
+        }
+        .vwm-pulsing-dot::before {
+          content: ''; position: absolute; inset: 0; border-radius: 50%; background: #10b981;
+          animation: vwm-dotPulse 2s ease-in-out infinite;
+        }
+        .vwm-pulsing-dot::after {
+          content: ''; position: absolute; inset: 0; border-radius: 50%; background: #10b981;
+          opacity: 0.75; animation: vwm-dotPing 2s ease-in-out infinite;
+        }
+        @keyframes vwm-dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        @keyframes vwm-dotPing { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.5); opacity: 0; } }
         .vwm-dash-title {
-          font-weight: 760; letter-spacing: -.02em; font-size: 16px; color: #0f172a;
+          font-weight: 700; letter-spacing: 0.15em; font-size: 10px; color: #2563eb;
+          text-transform: uppercase;
         }
         .vwm-dash-title .vwm-powered {
           font-size: 12px; font-weight: 500; color: rgba(15,23,42,.45); margin-left: 8px;
+          text-transform: none; letter-spacing: normal;
+        }
+        .vwm-live-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 4px 10px; border-radius: 999px;
+          background: rgba(16,185,129,0.08); color: #059669;
+          font-size: 11px; font-weight: 600;
+        }
+        .vwm-live-dot {
+          width: 6px; height: 6px; border-radius: 50%; background: #10b981;
+          animation: vwm-dotPulse 2s ease-in-out infinite;
+          box-shadow: 0 0 6px rgba(16,185,129,0.6);
         }
         .vwm-dash-subtitle {
           font-size: 12px; color: rgba(15,23,42,.45); margin-top: 4px;
@@ -687,13 +721,17 @@ export default function VentusWealthDemo() {
         <div className="vwm-root">
           {/* Header */}
           <div className="vwm-dashboard-header">
-            <div className="vwm-dash-title">
-              Wealth Management Client Life Event Intelligence
-              <span className="vwm-powered">Powered by Ventus AI</span>
+            <div className="vwm-dash-title-left">
+              <span className="vwm-pulsing-dot" />
+              <div className="vwm-dash-title">
+                Wealth Management Intelligence
+                <span className="vwm-powered">Powered by Ventus AI</span>
+              </div>
             </div>
-            <div className="vwm-dash-subtitle">
-              {displayedClients} clients with upcoming life events need attention
-            </div>
+            <span className="vwm-live-badge">
+              <span className="vwm-live-dot" />
+              Live Demo
+            </span>
           </div>
 
           {/* Metrics */}
@@ -849,6 +887,25 @@ export default function VentusWealthDemo() {
               </div>
             </div>
           )}
+
+          {/* Replay button */}
+          <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+            <button
+              onClick={handleReset}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Replay
+            </button>
+          </div>
         </div>
     </>
   );
