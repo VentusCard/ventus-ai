@@ -346,16 +346,31 @@ const PlatformTabs = () => {
     [resetTimer]
   );
 
+  const togglePause = useCallback(() => {
+    setPaused((prev) => {
+      if (!prev) {
+        // Pausing — save elapsed time
+        pausedElapsedRef.current = Date.now() - startTimeRef.current;
+      } else {
+        // Resuming — restore start time so progress continues
+        startTimeRef.current = Date.now() - pausedElapsedRef.current;
+      }
+      return !prev;
+    });
+  }, []);
+
   // Auto-rotate
   useEffect(() => {
     const tick = () => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
-      setProgress(pct);
+      if (!paused) {
+        const elapsed = Date.now() - startTimeRef.current;
+        const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
+        setProgress(pct);
 
-      if (elapsed >= ROTATE_INTERVAL) {
-        setActiveIndex((prev) => (prev + 1) % tabs.length);
-        startTimeRef.current = Date.now();
+        if (elapsed >= ROTATE_INTERVAL) {
+          setActiveIndex((prev) => (prev + 1) % tabs.length);
+          startTimeRef.current = Date.now();
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -363,7 +378,7 @@ const PlatformTabs = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [paused]);
 
   const tab = tabs[activeIndex];
 
