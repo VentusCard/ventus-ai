@@ -2,8 +2,6 @@ import { useEffect, useState, useRef } from "react";
 
 const PREFIX = "Turn transaction data into ";
 const KEYWORD = "intelligence";
-const TYPING_SPEED = 40;
-const KEYWORD_DELAY = 150;
 
 const AnimatedHeroTitle = () => {
   const [prefixLen, setPrefixLen] = useState(0);
@@ -20,9 +18,9 @@ const AnimatedHeroTitle = () => {
       if (i < PREFIX.length) {
         i++;
         setPrefixLen(i);
-        setTimeout(typePrefix, TYPING_SPEED);
+        setTimeout(typePrefix, 28);
       } else {
-        setTimeout(typeKeyword, KEYWORD_DELAY);
+        setTimeout(typeKeyword, 100);
       }
     };
 
@@ -31,24 +29,18 @@ const AnimatedHeroTitle = () => {
       if (j < KEYWORD.length) {
         j++;
         setKeywordLen(j);
-        setTimeout(typeKeyword, 30);
+        setTimeout(typeKeyword, 22);
       } else {
         setKeywordRevealed(true);
       }
     };
 
-    setTimeout(typePrefix, 400);
+    setTimeout(typePrefix, 300);
   }, []);
 
   return (
     <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-tight">
       {PREFIX.slice(0, prefixLen)}
-      {prefixLen < PREFIX.length && (
-        <span
-          className="inline-block w-[3px] h-[0.85em] bg-gray-900 ml-0.5 align-text-bottom"
-          style={{ animation: "blink-cursor 0.6s step-end infinite" }}
-        />
-      )}
       {keywordLen > 0 && (
         <span
           className={`italic text-blue-600 transition-all duration-500 ${
