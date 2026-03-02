@@ -14,6 +14,7 @@ interface IntelCard {
   accent: string;
   icon: string;
   title: string;
+  subtitle?: string;
   content: string;
   pills?: string[];
   txIndices: number[];
