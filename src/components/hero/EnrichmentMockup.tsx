@@ -181,7 +181,7 @@ const EnrichmentMockup = () => {
   const [revealedCards, setRevealedCards] = useState(0); // how many cards fully revealed (0-3)
   const [activeCardIdx, setActiveCardIdx] = useState(-1); // which card is currently cycling (-1 = none)
   const [cardPhase, setCardPhase] = useState<"scroll" | "reveal" | null>(null);
-  const [highlightedTxs, setHighlightedTxs] = useState<number[]>([]);
+  const [accumulatedTxs, setAccumulatedTxs] = useState<Map<number, string>>(new Map());
   const [highlightColor, setHighlightColor] = useState<string>("#60a5fa");
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
