@@ -328,8 +328,10 @@ const ROTATE_INTERVAL = 5000;
 const PlatformTabs = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [paused, setPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
   const rafRef = useRef<number>();
+  const pausedElapsedRef = useRef(0);
 
   const resetTimer = useCallback(() => {
     setProgress(0);
