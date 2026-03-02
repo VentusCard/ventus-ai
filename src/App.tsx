@@ -21,6 +21,7 @@ import Enrichment from "./pages/Enrichment";
 import SmartRewards from "./pages/SmartRewards";
 import Engagement from "./pages/Engagement";
 import Wealth from "./pages/Wealth";
+import TravelExperience from "./pages/TravelExperience";
 import BankWideAnalytics from "./pages/BankWideAnalytics";
 import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
