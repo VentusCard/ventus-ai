@@ -161,6 +161,7 @@ type Phase = "profile" | "scroll" | "cardCycle" | "hold" | "flip";
 const TIMINGS = {
   profile: 1000,
   scroll: 3000,
+  cardScan: 800,        // rapid scroll per card before collecting
   collectInterval: 250, // time between each tx "found"
   collectBuffer: 500,   // buffer after last tx found before reveal
   cardReveal: 800,
