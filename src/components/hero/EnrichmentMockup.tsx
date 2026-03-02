@@ -205,8 +205,7 @@ const EnrichmentMockup = () => {
       setRevealedCards(0);
       setActiveCardIdx(-1);
       setCardPhase(null);
-      setHighlightedTxs([]);
-
+      setAccumulatedTxs(new Map());
       let elapsed = TIMINGS.profile;
 
       // -> scroll + progressive persona pills
