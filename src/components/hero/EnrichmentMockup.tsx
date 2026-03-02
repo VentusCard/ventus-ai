@@ -230,7 +230,11 @@ const EnrichmentMockup = () => {
           setPhase("cardCycle");
           setActiveCardIdx(c);
           setCardPhase("scroll");
-          setHighlightedTxs(card.txIndices);
+          setAccumulatedTxs(prev => {
+            const next = new Map(prev);
+            card.txIndices.forEach(idx => next.set(idx, card.accent));
+            return next;
+          });
           setHighlightColor(card.accent);
         }, cardElapsed);
 
