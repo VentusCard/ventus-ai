@@ -527,10 +527,10 @@ const EnrichmentMockup = () => {
                 }}
               >
                 <div className="flex items-center gap-1 mb-1">
-                  <span style={{ color: "#60a5fa", fontSize: 10 }}>{personaCard.icon}</span>
+                  <span style={{ color: "#93c5fd", fontSize: 12 }}>{personaCard.icon}</span>
                   <span
-                    className="text-[9px] font-semibold tracking-wider uppercase"
-                    style={{ color: "#60a5fa" }}
+                    className="text-[10px] font-semibold tracking-wider uppercase"
+                    style={{ color: "#93c5fd" }}
                   >
                     {personaCard.title}
                   </span>
