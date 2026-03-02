@@ -45,6 +45,8 @@ const AppLayout = () => {
           <Route path="/wealth" element={<Wealth />} />
           <Route path="/analytics" element={<BankWideAnalytics />} />
           
+          <Route path="/insights" element={<Insights />} />
+          <Route path="/insights/:slug" element={<InsightPost />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/tepilot" element={<TePilot />} />
           <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
