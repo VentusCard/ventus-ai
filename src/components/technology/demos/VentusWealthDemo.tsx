@@ -215,9 +215,9 @@ const CARD_TYPE_STYLES: Record<string, { bg: string; text: string; border: strin
 };
 
 const SEGMENT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
-  Private: { bg: 'rgba(168,85,247,.15)', text: '#c084fc', border: 'rgba(168,85,247,.30)' },
-  Premium: { bg: 'rgba(245,158,11,.15)', text: '#fbbf24', border: 'rgba(245,158,11,.30)' },
-  Preferred: { bg: 'rgba(59,130,246,.15)', text: '#93c5fd', border: 'rgba(59,130,246,.30)' },
+  Private: { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
+  Premium: { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
+  Preferred: { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
 };
 
 function wait(ms: number) { return new Promise(res => setTimeout(res, ms)); }
@@ -396,9 +396,9 @@ export default function VentusWealthDemo() {
 
   const urgencyBadge = (urgency: string) => {
     const colors: Record<string, { bg: string; text: string; border: string }> = {
-      Urgent: { bg: 'rgba(239,68,68,.12)', text: '#f87171', border: 'rgba(239,68,68,.30)' },
-      Soon: { bg: 'rgba(245,158,11,.12)', text: '#fbbf24', border: 'rgba(245,158,11,.30)' },
-      Upcoming: { bg: 'rgba(59,130,246,.12)', text: '#93c5fd', border: 'rgba(59,130,246,.30)' },
+      Urgent: { bg: '#fef2f2', text: '#dc2626', border: 'transparent' },
+      Soon: { bg: '#fefce8', text: '#ca8a04', border: 'transparent' },
+      Upcoming: { bg: '#eff6ff', text: '#2563eb', border: 'transparent' },
     };
     return colors[urgency] || colors.Upcoming;
   };
@@ -527,10 +527,10 @@ export default function VentusWealthDemo() {
         /* Individual alert row */
         .vwm-alert-row {
           display: flex; align-items: center; gap: 12px;
-          padding: 10px 12px; margin-bottom: 4px;
-          border: 1px solid rgba(15,23,42,.08);
-          border-radius: 14px;
-          background: rgba(15,23,42,.02);
+          padding: 12px 14px; margin-bottom: 6px;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          background: #fff;
           transition: all .2s;
           animation: vwm-rowIn .35s ease both;
         }
@@ -538,8 +538,8 @@ export default function VentusWealthDemo() {
         @keyframes vwm-rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
         .vwm-row-icon {
-          flex: 0 0 36px; height: 36px; border-radius: 10px;
-          display: grid; place-items: center; font-size: 18px;
+          flex: 0 0 10px; height: 10px; border-radius: 50%;
+          display: block; font-size: 0;
         }
         .vwm-row-info { flex: 1; min-width: 0; }
         .vwm-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -552,8 +552,8 @@ export default function VentusWealthDemo() {
         .vwm-row-middle { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
         .vwm-event-name { font-size: 12px; font-weight: 660; color: rgba(15,23,42,.80); }
         .vwm-urg-badge {
-          font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
-          border: 1px solid; text-transform: uppercase; letter-spacing: .03em;
+          font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+          border: none; text-transform: uppercase; letter-spacing: .03em;
         }
         .vwm-conf-pill {
           font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
@@ -572,8 +572,8 @@ export default function VentusWealthDemo() {
           white-space: nowrap;
         }
         .vwm-row-btn:hover { background: rgba(15,23,42,.08); }
-        .vwm-row-btn.prepare { background: #0f172a; color: #fff; border-color: transparent; }
-        .vwm-row-btn.prepare:hover { background: #1e293b; }
+        .vwm-row-btn.prepare { background: #fff; color: #0f172a; border-color: #0f172a; }
+        .vwm-row-btn.prepare:hover { background: #f8fafc; }
 
         /* Active row highlight */
         .vwm-alert-row.active {
@@ -659,8 +659,8 @@ export default function VentusWealthDemo() {
         .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; }
         .vwm-insight-box {
           padding: 16px; border-radius: 14px;
-          border: 1px solid rgba(15,23,42,.08);
-          background: rgba(15,23,42,.02);
+          border: 1px solid #dbeafe;
+          background: #eff6ff;
         }
         .vwm-insight-label { font-size: 12px; font-weight: 700; color: rgba(15,23,42,.50); margin-bottom: 8px; }
         .vwm-insight-text { font-size: 14px; color: rgba(15,23,42,.65); line-height: 1.6; min-height: 3em; }
@@ -781,8 +781,7 @@ export default function VentusWealthDemo() {
               const urg = urgencyBadge(event.urgency);
               return (
                 <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': event.color } as React.CSSProperties : {}) }}>
-                  <div className="vwm-row-icon" style={{ background: `${event.color}18` }}>
-                    {event.icon}
+                  <div className="vwm-row-icon" style={{ background: event.color }}>
                   </div>
                   <div className="vwm-row-info">
                     <div className="vwm-row-top">
