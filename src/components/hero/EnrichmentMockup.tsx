@@ -539,10 +539,10 @@ const EnrichmentMockup = () => {
                   {personaCard.pills?.map((pill, i) => (
                     <span
                       key={pill}
-                      className="text-[8px] font-medium px-1.5 py-0.5 rounded-full"
+                      className="text-[9px] font-medium px-2 py-0.5 rounded-full"
                       style={{
-                        background: "rgba(59,130,246,0.15)",
-                        color: "#60a5fa",
+                        background: "rgba(59,130,246,0.18)",
+                        color: "#93c5fd",
                         opacity: i < visiblePills ? 1 : 0,
                         transform: i < visiblePills ? "scale(1)" : "scale(0.7)",
                         transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
