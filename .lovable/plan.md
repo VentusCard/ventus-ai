@@ -1,44 +1,72 @@
 
 
-## Create Standalone Travel Experience Page
+# Homepage Redesign — Single Long-Scroll Page
 
-**New file: `src/pages/TravelExperience.tsx`**
-Follow the same 6-section structure used by SmartRewards and Enrichment pages.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-### Sections
+---
 
-1. **Hero** (dark bg `#0a0f1e`)
-   - Label: "Travel Experience"
-   - Headline: "Your bank becomes a travel companion." + blue italic subline: "Without tracking a single location."
-   - Body text about detecting trips from spending patterns and surfacing local deals
-   - Two CTAs: "Schedule Demo" + "See It Work"
-   - Right column: reuse the Travel preview from PlatformTabs (the merged Miami card + deal tiles) as a static hero card
+## Sections to Build
 
-2. **Problem** (white bg, 3 pain-point cards)
-   - "Banks miss the travel moment entirely."
-   - Pain points: generic travel rewards, no real-time trip awareness, missed local partnership revenue
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-3. **See It In Action** (white bg)
-   - Display the TravelLocalPreview component (extracted from PlatformTabs) as a larger, standalone demo
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-4. **Capabilities** (white bg, 2x2 grid)
-   - Trip Detection, Local Deal Matching, Privacy-First Design, Real-Time Activation
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-5. **Integration** (dark bg, 3 steps — same Connect/Enrich/Activate pattern)
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-6. **CTA** (white bg, centered)
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-### Route and Nav Updates
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-**`src/App.tsx`** — Add route: `<Route path="/travel" element={<TravelExperience />} />`
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-**`src/components/PlatformTabs.tsx`** — Update the Travel Experience tab's link from `/smartrewards` to `/travel`
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
 
-### Files
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
 
-| File | Action |
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
 |------|--------|
-| `src/pages/TravelExperience.tsx` | Create — new standalone page |
-| `src/App.tsx` | Edit — add `/travel` route |
-| `src/components/PlatformTabs.tsx` | Edit — update travel tab link to `/travel` |
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
