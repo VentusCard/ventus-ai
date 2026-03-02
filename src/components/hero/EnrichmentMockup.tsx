@@ -578,7 +578,7 @@ const EnrichmentMockup = () => {
 
             {/* Intelligence cards — revealed one at a time during cardCycle, all visible during hold */}
             {(phase === "cardCycle" || phase === "hold") && (
-              <div className="flex flex-col gap-2 flex-1 justify-between">
+              <div className="flex flex-col gap-1.5 flex-1 justify-between">
                 {remainingCards.map((card, i) => {
                   const isRevealed = i < revealedCards;
                   const isActiveScrolling = phase === "cardCycle" && activeCardIdx === i && (cardPhase === "scroll" || cardPhase === "scanning");
