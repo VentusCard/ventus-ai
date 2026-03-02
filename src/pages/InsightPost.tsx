@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import { insightsPosts } from "@/lib/insightsData";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
+import insightsCover from "@/assets/insights-cover.png";
 
 const categoryColor: Record<string, string> = {
   Product: "bg-blue-50 text-blue-700 border-blue-200",
@@ -51,7 +52,9 @@ const InsightPost = () => {
             {post.excerpt}
           </p>
 
-          <hr className="my-10 border-gray-100" />
+          <div className="rounded-2xl overflow-hidden my-10">
+            <img src={insightsCover} alt="Ventus AI Insights" className="w-full h-56 object-cover" />
+          </div>
 
           {/* Body */}
           <div className="prose prose-gray prose-lg max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-blue-600">

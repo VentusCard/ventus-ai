@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
+import insightsCover from "@/assets/insights-cover.png";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Badge } from "@/components/ui/badge";
 
@@ -34,10 +35,8 @@ const Insights = () => (
               className="group flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full"
             >
               {/* Placeholder image area */}
-              <div className="h-44 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
-                <span className="text-gray-300 text-sm font-medium tracking-wide">
-                  VENTUS INSIGHTS
-                </span>
+              <div className="h-44 overflow-hidden">
+                <img src={insightsCover} alt="Ventus AI Insights" className="w-full h-full object-cover" />
               </div>
 
               <div className="flex flex-col flex-1 p-6">
