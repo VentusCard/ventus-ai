@@ -899,7 +899,7 @@ export default function VentusSmartRewards() {
         .vsr-deal-desc { font-size: 11.5px; color: rgba(15,23,42,.60); line-height: 1.35; }
 
         /* Pipeline */
-        .vsr-pipeline { display: flex; flex-direction: column; gap: 7px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+        .vsr-pipeline { display: flex; flex-direction: column; gap: 7px; min-height: 0; }
         .vsr-pipeline::-webkit-scrollbar { width: 10px; }
         .vsr-pipeline::-webkit-scrollbar-track { background: transparent; }
         .vsr-pipeline::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
