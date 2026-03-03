@@ -999,7 +999,6 @@ export default function VentusSmartRewards() {
                   onClick={() => handlePillClick(id)}
                 >
                   <span>{PILL_LABELS[id]}</span>
-                  <span>{PILL_LABELS[id]}</span>
                 </button>
               ))}
             </div>
