@@ -457,7 +457,7 @@ export default function VentusWealthDemo() {
     <>
       <style>{`
         .vwm-root {
-          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+          font-family: "Manrope", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: #0f172a;
           max-width: 1600px;
           margin: 0 auto;
