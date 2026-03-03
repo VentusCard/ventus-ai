@@ -812,19 +812,22 @@ export default function VentusWealthDemo() {
           {/* Content area - overlay positions relative to this */}
           <div className="vwm-content-area">
 
+          {/* Subheader */}
+          <div style={{ padding: '12px 20px 0', fontSize: 12.5, fontWeight: 600, color: 'rgba(15,23,42,.45)', letterSpacing: '.04em' }}>Your Clients</div>
+
           {/* Metrics */}
           <div className="vwm-metrics">
             <span className="vwm-metric-pill clients">
-              👥 <span className="num">{displayedClients}</span> Clients
+              <span className="num">{displayedClients}</span> Clients
             </span>
             <span className="vwm-metric-pill urgent">
-              ⚠️ <span className="num">{displayedUrgent}</span> Urgent
+              <span className="num">{displayedUrgent}</span> Urgent
             </span>
             <span className="vwm-metric-pill quarter">
-              🕐 <span className="num">{displayedQuarter}</span> This Quarter
+              <span className="num">{displayedQuarter}</span> This Quarter
             </span>
             <span className="vwm-metric-pill total">
-              📅 <span className="num">{displayedEvents}</span> Total Events
+              <span className="num">{displayedEvents}</span> Total Events
             </span>
           </div>
 
@@ -844,9 +847,9 @@ export default function VentusWealthDemo() {
               const urg = urgencyBadge(event.urgency);
               const evType = EVENT_TYPE_BADGE[event.eventType] || EVENT_TYPE_BADGE.retirement;
               return (
-                <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': event.color } as React.CSSProperties : {}) }}>
-                  <div className="vwm-row-icon-circle" style={{ background: `${event.color}15` }}>
-                    {event.icon}
+                <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': '#3b82f6' } as React.CSSProperties : {}) }}>
+                  <div className="vwm-row-icon-circle" style={{ background: 'rgba(100,116,139,.10)' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(15,23,42,.55)', letterSpacing: '-.01em' }}>{client.name.split(' ').map(n => n[0]).join('')}</span>
                   </div>
                   <div className="vwm-row-info">
                     <div className="vwm-row-top">
@@ -891,7 +894,9 @@ export default function VentusWealthDemo() {
             <div className={`vwm-detail-overlay ${detailVisible ? 'entering' : 'exiting'}`}>
               <div className="vwm-detail-header">
                 <div className="vwm-detail-header-left">
-                  <span className="vwm-detail-icon">{selectedEvent.event.icon}</span>
+                  <div className="vwm-row-icon-circle" style={{ background: 'rgba(100,116,139,.10)', width: 40, height: 40, flex: '0 0 40px' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(15,23,42,.55)', letterSpacing: '-.01em' }}>{selectedEvent.client.name.split(' ').map(n => n[0]).join('')}</span>
+                  </div>
                   <div>
                     <div className="vwm-detail-title">Prepare: {selectedEvent.event.eventName}</div>
                     <div className="vwm-detail-badges">
