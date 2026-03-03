@@ -241,7 +241,7 @@ export default function VentusTransactionEnrichment() {
           --sigBd: rgba(37,99,235,.20);
           --sigInk: #2563eb;
 
-          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+          font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: var(--ink);
           width: 100%;
           box-sizing: border-box;
