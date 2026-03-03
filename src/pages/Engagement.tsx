@@ -47,7 +47,7 @@ const Engagement = () => {
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Customer Engagement</p>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Customer Experience</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
                 Your bank app.
               </h1>
