@@ -658,11 +658,7 @@ export default function VentusTransactionEnrichment() {
           </div>
         </div>
 
-        <div className="vte-disclaimer">
-          <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", marginTop: "8px" }}>
           <button
             onClick={resetDemo}
             style={{
