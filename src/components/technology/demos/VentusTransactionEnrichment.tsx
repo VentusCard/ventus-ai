@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 const FEED = [
   { raw: "DELTA AIR LINES 00624188912", amount: "$450.00", mcc: "4511", merchant: "Delta Air Lines", cat: "Travel & Transportation", sub: "Airlines" },
@@ -37,6 +37,10 @@ function formatAmount(num: number): string {
 }
 
 export default function VentusTransactionEnrichment() {
+  const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const cursorRef = useRef(0);
   const windowRowsRef = useRef<typeof FEED>([]);
   const categoryDataRef = useRef<Record<string, Record<string, number>>>({});
@@ -198,34 +202,66 @@ export default function VentusTransactionEnrichment() {
     }
   }, [updateSignalsForTransaction, updatePersonaSummary]);
 
+  const stopInterval = useCallback(() => {
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+  }, []);
+
+  const startInterval = useCallback(() => {
+    stopInterval();
+    intervalRef.current = setInterval(() => {
+      if (isPausedRef.current) return;
+      if (cursorRef.current === FEED.length) {
+        stopInterval();
+        setTimeout(() => {
+          if (isPausedRef.current) return;
+          // reset inline
+          cursorRef.current = 0;
+          windowRowsRef.current = [];
+          categoryDataRef.current = {};
+          categorySpendingRef.current = {};
+          activeCategoriesRef.current = [];
+          if (bodyRef.current) bodyRef.current.innerHTML = "";
+          if (personaSummaryRef.current) personaSummaryRef.current.innerHTML = "";
+          if (categoriesContainerRef.current) categoriesContainerRef.current.innerHTML = "";
+          if (signalsContainerRef.current) signalsContainerRef.current.style.display = "none";
+          setTimeout(() => { addTransaction(); startInterval(); }, 1000);
+        }, INTERVAL * 2);
+      } else {
+        addTransaction();
+      }
+    }, INTERVAL);
+  }, [addTransaction, stopInterval]);
+
   const resetDemo = useCallback(() => {
+    stopInterval();
+    isPausedRef.current = false;
+    setIsPaused(false);
     cursorRef.current = 0;
     windowRowsRef.current = [];
     categoryDataRef.current = {};
     categorySpendingRef.current = {};
     activeCategoriesRef.current = [];
-
     if (bodyRef.current) bodyRef.current.innerHTML = "";
     if (personaSummaryRef.current) personaSummaryRef.current.innerHTML = "";
     if (categoriesContainerRef.current) categoriesContainerRef.current.innerHTML = "";
     if (signalsContainerRef.current) signalsContainerRef.current.style.display = "none";
+    setTimeout(() => { addTransaction(); startInterval(); }, 1000);
+  }, [addTransaction, startInterval, stopInterval]);
 
-    setTimeout(() => addTransaction(), 1000);
-  }, [addTransaction]);
+  const togglePause = useCallback(() => {
+    setIsPaused((prev) => {
+      const next = !prev;
+      isPausedRef.current = next;
+      if (!next && !intervalRef.current) startInterval();
+      return next;
+    });
+  }, [startInterval]);
 
   useEffect(() => {
     addTransaction();
-    const iv = setInterval(() => {
-      if (cursorRef.current === FEED.length) {
-        clearInterval(iv);
-        setTimeout(() => resetDemo(), INTERVAL * 2);
-      } else {
-        addTransaction();
-      }
-    }, INTERVAL);
-
-    return () => clearInterval(iv);
-  }, [addTransaction, resetDemo]);
+    startInterval();
+    return () => stopInterval();
+  }, [addTransaction, startInterval, stopInterval]);
 
   return (
     <>
@@ -241,7 +277,7 @@ export default function VentusTransactionEnrichment() {
           --sigBd: rgba(37,99,235,.20);
           --sigInk: #2563eb;
 
-          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+          font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: var(--ink);
           width: 100%;
           box-sizing: border-box;
@@ -269,11 +305,11 @@ export default function VentusTransactionEnrichment() {
         }
         .vte-title {
           margin: 0;
-          font-size: 10px;
+          font-size: 18px;
           font-weight: 700;
-          color: #2563eb !important;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
+          color: #0f172a;
+          letter-spacing: 0;
+          text-transform: none;
           display: flex;
           align-items: center;
           gap: 8px;
@@ -517,6 +553,36 @@ export default function VentusTransactionEnrichment() {
           gap: 4px;
           padding-top: 12px;
           border-top: 1px solid #e2e8f0;
+          margin-left: -20px;
+          margin-right: -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        .vte-control-bar {
+          display: flex;
+          justify-content: center;
+          gap: 4px;
+          padding: 12px 0 4px;
+          margin-top: 8px;
+        }
+        .vte-control-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #9ca3af;
+          background: transparent;
+          border: none;
+          border-radius: 9999px;
+          cursor: pointer;
+          transition: color 0.2s, background 0.2s;
+          font-family: inherit;
+        }
+        .vte-control-btn:hover {
+          color: #374151;
+          background: #f9fafb;
         }
         .vte-signal-label {
           font-size: 10px;
@@ -605,8 +671,7 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-card">
           <div className="vte-head">
             <h3 className="vte-title">
-              <span className="vte-pulsing-dot" />
-              Transaction Enrichment
+              Enrichment Intelligence
             </h3>
             <span className="vte-live-badge">
               <span className="vte-live-dot" />
@@ -659,30 +724,16 @@ export default function VentusTransactionEnrichment() {
           </div>
         </div>
 
-        <div className="vte-disclaimer">
-          <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
-          <button
-            onClick={resetDemo}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "8px 16px",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: "#9ca3af",
-              background: "transparent",
-              border: "none",
-              borderRadius: "9999px",
-              cursor: "pointer",
-              transition: "color 0.2s, background 0.2s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
-          >
+        <div className="vte-control-bar">
+          <button onClick={togglePause} className="vte-control-btn">
+            {isPaused ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            )}
+            {isPaused ? "Play" : "Pause"}
+          </button>
+          <button onClick={resetDemo} className="vte-control-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
             Replay
           </button>

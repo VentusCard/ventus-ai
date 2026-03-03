@@ -207,7 +207,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
 
   <div class="vte-card">
     <div class="vte-head">
-      <h3 class="vte-title">Transaction Enrichment</h3>
+      <h3 class="vte-title">Enrichment Intelligence</h3>
     </div>
 
     <div class="vte-table">
@@ -232,9 +232,6 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     <div class="persona-wrap" id="vte-persona"></div>
   </div>
 
-  <div class="vte-disclaimer">
-    <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
-  </div>
 
   <script>
     (function(){

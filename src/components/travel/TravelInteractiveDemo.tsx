@@ -65,6 +65,13 @@ const TravelInteractiveDemo = () => {
 
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
+      <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-3 border-b border-gray-200">
+        <h3 className="text-gray-900 text-lg font-bold">Travel Intelligence</h3>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+          Live Demo
+        </span>
+      </div>
       <div className="grid md:grid-cols-2 min-h-[480px]">
         {/* LEFT — Transaction Feed */}
         <div className="p-6 md:p-8 flex flex-col md:border-r border-b md:border-b-0 border-gray-200">

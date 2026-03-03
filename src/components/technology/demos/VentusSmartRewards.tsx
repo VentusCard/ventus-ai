@@ -221,7 +221,7 @@ const PILL_DATA = {
   },
 };
 
-const PILL_ICONS = { golf: "⛳", snowsports: "🏂", domestic_travel: "✈️", pets: "🐾", dining: "🍣" };
+const PILL_ICONS = { golf: "", snowsports: "", domestic_travel: "", pets: "", dining: "" };
 const PILL_LABELS = { golf: "Golf", snowsports: "Snow Sports", domestic_travel: "Domestic Travel", pets: "Pets", dining: "Dining" };
 
 function pillLabel(id: string) { return (PILL_LABELS as Record<string, string>)[id] || id; }
@@ -252,6 +252,8 @@ export default function VentusSmartRewards() {
   const highCountRef = useRef(null);
   const lowCountRef = useRef(null);
   const flowStepRef = useRef(null);
+  const pauseLabelRef = useRef<HTMLSpanElement>(null);
+  const pauseIconRef = useRef<HTMLSpanElement>(null);
   const toggleBtnRef = useRef(null);
   const loadTxRef = useRef(null);
   const loadAiRef = useRef(null);
@@ -266,6 +268,16 @@ export default function VentusSmartRewards() {
     if (which === "deals") {
       if (loadHighRef.current) loadHighRef.current.style.display = on ? "flex" : "none";
       if (loadLowRef.current) loadLowRef.current.style.display = on ? "flex" : "none";
+    }
+  }, []);
+
+  const setPauseLabel = useCallback((label: string) => {
+    if (pauseLabelRef.current) pauseLabelRef.current.textContent = label;
+    if (pauseIconRef.current) {
+      const isPause = label === 'Pause';
+      pauseIconRef.current.innerHTML = isPause
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
     }
   }, []);
 
@@ -357,7 +369,6 @@ export default function VentusSmartRewards() {
 
   const renderDealAccordion = useCallback((d, isCurrent) => {
     const label = pillLabel(d.sourcePill);
-    const preview = (d.standard || "").slice(0, 45) + ((d.standard || "").length > 45 ? "…" : "");
     const openAttr = isCurrent ? "open" : "";
     const lowClass = d.lowPriority ? "low-priority" : "";
     return `
@@ -367,7 +378,6 @@ export default function VentusSmartRewards() {
             <div class="vsr-brand-name">${d.brand}</div>
             <div class="vsr-pill-tag">${label}</div>
             <div class="vsr-dollar-value">$${d.value}</div>
-            <div class="vsr-sum-meta">${preview}</div>
           </div>
           <div class="vsr-caret">▾</div>
         </summary>
@@ -383,7 +393,7 @@ export default function VentusSmartRewards() {
             <div class="vsr-deal-copy">${d.standard}</div>
           </div>
           <div class="vsr-deal-section">
-            <div class="vsr-deal-label">AI Personalization</div>
+            <div class="vsr-deal-label" style="color:#2563eb;">✨ AI Personalization</div>
             <div class="vsr-deal-copy">${d.personalized}</div>
           </div>
         </div>
@@ -520,7 +530,7 @@ export default function VentusSmartRewards() {
         cyclesRef.current++;
         if (cyclesRef.current >= 1) {
           runningRef.current = false;
-          if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Restart";
+          setPauseLabel("Play");
           if (flowStepRef.current) flowStepRef.current.textContent = "All indicators processed · Complete";
           break;
         }
@@ -533,14 +543,14 @@ export default function VentusSmartRewards() {
     runningRef.current = true;
     cyclesRef.current = 0;
     stepIdxRef.current = 0;
-    if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause";
+    setPauseLabel("Pause");
     flowTokenRef.current++;
     autoLoop();
   }, [autoLoop]);
 
   const pause = useCallback(() => {
     runningRef.current = false;
-    if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Resume";
+    setPauseLabel("Play");
     flowTokenRef.current++;
     setScanningUI("", false);
     showLoad("tx", false);
@@ -595,7 +605,17 @@ export default function VentusSmartRewards() {
     renderDealLibrary(DEAL_LIBRARY[first] || []);
     renderPipeline();
     start();
-    return () => { flowTokenRef.current++; runningRef.current = false; };
+    return () => {
+      flowTokenRef.current++;
+      runningRef.current = false;
+      // Clear all innerHTML-managed containers so React doesn't try to remove
+      // DOM nodes it didn't create, which causes "removeChild" errors.
+      if (txListRef.current) txListRef.current.innerHTML = "";
+      if (aiListRef.current) aiListRef.current.innerHTML = "";
+      if (dealLibraryRef.current) dealLibraryRef.current.innerHTML = "";
+      if (highPriorityRef.current) highPriorityRef.current.innerHTML = "";
+      if (lowPriorityRef.current) lowPriorityRef.current.innerHTML = "";
+    };
   }, [renderTx, renderDealLibrary, renderPipeline, start]);
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -604,7 +624,7 @@ export default function VentusSmartRewards() {
     <>
       <style>{`
         .vsr-root {
-          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+          font-family: "Manrope", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
           color: #0f172a;
           max-width: 1600px;
           margin: 0 auto;
@@ -642,8 +662,8 @@ export default function VentusSmartRewards() {
         @keyframes vsr-dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
         @keyframes vsr-dotPing { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.5); opacity: 0; } }
         .vsr-title {
-          font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-          line-height: 1.05; font-size: 10px; color: #2563eb;
+          font-weight: 700; letter-spacing: 0; text-transform: none;
+          line-height: 1.05; font-size: 18px; color: #0f172a;
         }
         .vsr-live-badge {
           display: inline-flex; align-items: center; gap: 6px;
@@ -662,15 +682,15 @@ export default function VentusSmartRewards() {
 
         .vsr-row {
           display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-          padding: 12px; background: rgba(15,23,42,.03);
-          border: 1px solid rgba(15,23,42,.10); border-radius: 18px;
+          padding: 12px; background: #fff;
+          border: 1px solid #e2e8f0; border-radius: 18px;
         }
         .vsr-row-label { font-size: 12px; color: rgba(15,23,42,.50); font-weight: 650; letter-spacing: .02em; margin-right: 4px; }
 
         .vsr-chip {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 8px 10px; border-radius: 999px;
-          border: 1px solid rgba(15,23,42,.12); background: rgba(15,23,42,.04);
+          border: 1px solid #e2e8f0; background: #fff;
           font-size: 12px; color: rgba(15,23,42,.80);
         }
         .vsr-chip strong { font-weight: 720; color: #0f172a; }
@@ -681,15 +701,16 @@ export default function VentusSmartRewards() {
           position: relative;
           display: inline-flex; align-items: center; gap: 10px;
           padding: 10px 12px; border-radius: 999px;
-          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
+          border: 1px solid #e2e8f0; background: #fff;
           cursor: pointer;
           transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
           font-size: 13px; color: rgba(15,23,42,.85);
           outline: none;
         }
         .vsr-pill:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); border-color: rgba(15,23,42,.25); background: rgba(15,23,42,.07); }
-        .vsr-pill[aria-selected="true"] { background: rgba(15,23,42,.08); border-color: rgba(15,23,42,.30); box-shadow: 0 12px 26px rgba(0,0,0,.06); }
-        .vsr-pill.scanning { border-color: rgba(59,130,246,.50); background: rgba(59,130,246,.08); box-shadow: 0 14px 34px rgba(59,130,246,.12); }
+        .vsr-pill[aria-selected="true"] { background: rgba(37,99,235,.08); border-color: rgba(37,99,235,.40); box-shadow: 0 12px 26px rgba(37,99,235,.08); color: #2563eb; font-weight: 700; }
+        .vsr-pill[aria-selected="true"] .vsr-pill-icon { background: rgba(37,99,235,.12); border-color: rgba(37,99,235,.30); }
+        .vsr-pill.scanning { border-color: rgba(59,130,246,.50); background: rgba(59,130,246,.08); box-shadow: 0 14px 34px rgba(59,130,246,.12); color: #2563eb; font-weight: 700; }
         .vsr-pill.scanning::after {
           content: ""; position: absolute; inset: -2px; border-radius: 999px;
           border: 1px solid rgba(59,130,246,.50);
@@ -703,7 +724,7 @@ export default function VentusSmartRewards() {
         .vsr-pill-icon {
           width: 26px; height: 26px; border-radius: 10px;
           display: grid; place-items: center;
-          background: rgba(15,23,42,.05); border: 1px solid rgba(15,23,42,.12);
+          background: #f8fafc; border: 1px solid #e2e8f0;
           font-size: 14px;
         }
         .vsr-pill[aria-selected="true"] .vsr-pill-icon { background: rgba(15,23,42,.08); border-color: rgba(15,23,42,.22); }
@@ -712,8 +733,8 @@ export default function VentusSmartRewards() {
         .vsr-controls {
           display: flex; gap: 10px; align-items: center; justify-content: space-between;
           padding: 10px 12px;
-          border: 1px solid rgba(15,23,42,.10);
-          background: rgba(15,23,42,.03);
+          border: 1px solid #e2e8f0;
+          background: #fff;
           border-radius: 18px;
         }
         .vsr-ctrl-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: rgba(15,23,42,.65); font-size: 12px; }
@@ -721,13 +742,13 @@ export default function VentusSmartRewards() {
         .vsr-btn {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 9px 10px; border-radius: 14px;
-          border: 1px solid rgba(15,23,42,.18);
-          background: rgba(15,23,42,.05);
+          border: 1px solid #e2e8f0;
+          background: #fff;
           color: rgba(15,23,42,.85);
           font-weight: 740; font-size: 12px; cursor: pointer;
           transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
         }
-        .vsr-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); background: rgba(15,23,42,.08); }
+        .vsr-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); background: #f8fafc; }
         .vsr-btn.primary { background: #0f172a; color: #fff; border-color: rgba(15,23,42,.10); }
         .vsr-btn.primary:hover { background: #1e293b; }
         .vsr-btn:active { transform: translateY(1px); }
@@ -736,7 +757,7 @@ export default function VentusSmartRewards() {
         @media (max-width: 980px) { .vsr-analysis-row { grid-template-columns: 1fr; } }
         .vsr-deals-row { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; padding: 6px; }
         @media (max-width: 980px) { .vsr-deals-row { grid-template-columns: 1fr; } }
-        .vsr-pipeline-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .vsr-pipeline-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 0; }
         @media (max-width: 760px) { .vsr-pipeline-panel { grid-template-columns: 1fr; } }
 
         .vsr-panel {
@@ -745,7 +766,7 @@ export default function VentusSmartRewards() {
           border-radius: 12px;
           overflow: hidden;
           display: flex; flex-direction: column;
-          min-height: 400px; max-height: 700px;
+          max-height: 420px;
           position: relative;
           box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
@@ -755,7 +776,7 @@ export default function VentusSmartRewards() {
           border-radius: 12px;
           overflow: hidden;
           display: flex; flex-direction: column;
-          min-height: 500px; max-height: 900px;
+          max-height: 420px;
           position: relative;
           box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
@@ -770,8 +791,8 @@ export default function VentusSmartRewards() {
         .vsr-hd-left { display: flex; align-items: center; gap: 10px; }
         .vsr-tag {
           font-size: 11px; padding: 6px 8px; border-radius: 999px;
-          border: 1px solid rgba(15,23,42,.12); background: rgba(15,23,42,.04);
-          color: rgba(15,23,42,.60); white-space: nowrap;
+          border: 1px solid #dbeafe; background: #eff6ff;
+          color: #2563eb; white-space: nowrap; font-weight: 600;
         }
         .vsr-bd {
           padding: 12px; display: flex; flex-direction: column; gap: 10px;
@@ -793,8 +814,8 @@ export default function VentusSmartRewards() {
         }
         .vsr-loader-box {
           display: flex; gap: 12px; align-items: center;
-          padding: 12px; background: rgba(15,23,42,.05);
-          border: 1px solid rgba(15,23,42,.12);
+          padding: 12px; background: #fff;
+          border: 1px solid #e2e8f0;
           border-radius: 16px; box-shadow: 0 10px 22px rgba(0,0,0,.06); max-width: 92%;
         }
         .vsr-spinner {
@@ -810,15 +831,18 @@ export default function VentusSmartRewards() {
 
         /* Items */
         .vsr-item {
-          border: 1px solid #e2e8f0; border-radius: 12px;
-          background: #fff; padding: 10px;
+          border: none; border-radius: 0;
+          background: transparent; padding: 10px 4px;
           display: flex; justify-content: space-between; align-items: center; gap: 10px;
+          border-bottom: 1px solid #e5e7eb;
         }
-        .vsr-item-name { font-weight: 600; font-size: 12.5px; letter-spacing: 0; color: #94a3b8; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .vsr-item:last-child { border-bottom: none; }
+        .vsr-item-name { font-weight: 500; font-size: 13px; letter-spacing: 0; color: #374151; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; text-transform: uppercase; }
         .vsr-amt {
-          font-size: 12px; padding: 6px 8px; border-radius: 999px;
-          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.05);
-          color: rgba(15,23,42,.85); white-space: nowrap;
+          font-size: 13px; padding: 0;
+          border: none; background: transparent;
+          color: #111827; white-space: nowrap; font-weight: 600;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         /* AI lines */
@@ -831,8 +855,8 @@ export default function VentusSmartRewards() {
         .vsr-spark {
           width: 28px; height: 28px; border-radius: 10px;
           display: grid; place-items: center;
-          border: 1px solid rgba(15,23,42,.15);
-          background: rgba(15,23,42,.05); flex: 0 0 auto; font-size: 14px;
+          border: 1px solid #dbeafe;
+          background: #eff6ff; flex: 0 0 auto; font-size: 14px;
         }
         .vsr-ai-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
         .vsr-ai-title-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -841,7 +865,7 @@ export default function VentusSmartRewards() {
         .vsr-ai-info { font-size: 11px; color: rgba(15,23,42,.55); line-height: 1.4; font-variant-numeric: tabular-nums; }
 
         /* Deal library */
-        .vsr-deal-library { display: flex; flex-direction: column; gap: 7px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+        .vsr-deal-library { display: flex; flex-direction: column; gap: 7px; }
         .vsr-deal-library::-webkit-scrollbar { width: 10px; }
         .vsr-deal-library::-webkit-scrollbar-track { background: transparent; }
         .vsr-deal-library::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
@@ -876,7 +900,7 @@ export default function VentusSmartRewards() {
         .vsr-deal-desc { font-size: 11.5px; color: rgba(15,23,42,.60); line-height: 1.35; }
 
         /* Pipeline */
-        .vsr-pipeline { display: flex; flex-direction: column; gap: 7px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+        .vsr-pipeline { display: flex; flex-direction: column; gap: 7px; min-height: 0; }
         .vsr-pipeline::-webkit-scrollbar { width: 10px; }
         .vsr-pipeline::-webkit-scrollbar-track { background: transparent; }
         .vsr-pipeline::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
@@ -885,11 +909,11 @@ export default function VentusSmartRewards() {
 
         /* Accordion */
         details.vsr-accord {
-          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
+          border: 1px solid rgba(15,23,42,.12); background: #fff;
           border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; max-height: 350px;
         }
         details.vsr-accord[open] { box-shadow: 0 12px 24px rgba(0,0,0,.08); }
-        details.vsr-accord.low-priority { border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.02); opacity: 0.65; }
+        details.vsr-accord.low-priority { border: 1px solid rgba(15,23,42,.10); background: #fff; opacity: 0.65; }
         details.vsr-accord.low-priority[open] { box-shadow: 0 8px 16px rgba(0,0,0,.06); border-color: rgba(15,23,42,.15); opacity: 1; }
 
         .vsr-accord-sum {
@@ -900,17 +924,18 @@ export default function VentusSmartRewards() {
         .vsr-accord-sum::-webkit-details-marker { display: none; }
         .vsr-sum-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; flex: 1; }
         .vsr-brand-name { font-weight: 820; letter-spacing: -.02em; font-size: 13px; color: #0f172a; white-space: nowrap; }
-        .vsr-pill-tag { font-size: 11px; padding: 5px 7px; border-radius: 999px; border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04); color: rgba(15,23,42,.65); white-space: nowrap; }
-        .vsr-dollar-value { font-size: 12px; padding: 5px 8px; border-radius: 999px; border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.05); color: rgba(15,23,42,.85); font-weight: 720; font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .vsr-sum-meta { font-size: 11px; color: rgba(15,23,42,.50); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
-        .vsr-caret { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 10px; border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04); color: rgba(15,23,42,.60); flex: 0 0 auto; transition: transform .22s ease; }
+        .vsr-pill-tag { font-size: 11px; padding: 5px 7px; border-radius: 999px; border: 1px solid #dbeafe; background: #eff6ff; color: #2563eb; white-space: nowrap; font-weight: 600; }
+        .vsr-dollar-value { font-size: 12px; padding: 5px 8px; border-radius: 999px; border: 1px solid #dcfce7; background: #f0fdf4; color: #16a34a; font-weight: 720; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .vsr-sum-meta { font-size: 11px; color: rgba(15,23,42,.50); white-space: nowrap; flex-shrink: 0; }
+        .vsr-caret { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; border: none; background: transparent; color: rgba(15,23,42,.40); flex: 0 0 auto; transition: transform .22s ease, background .22s ease; }
+        .vsr-caret:hover { background: #f1f5f9; }
         details.vsr-accord[open] .vsr-caret, details.vsr-collapse[open] .vsr-caret { transform: rotate(180deg); }
 
         .vsr-accord-body { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; min-height: 0; }
         .vsr-accord-body::-webkit-scrollbar { width: 8px; }
         .vsr-accord-body::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 2px solid transparent; border-radius: 999px; background-clip: content-box; }
 
-        .vsr-suppression { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.22); }
+        .vsr-suppression { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 10px; background: #fffbeb; border: 1px solid #fde68a; }
         .vsr-sup-icon { font-size: 14px; }
         .vsr-sup-txt { font-size: 11px; color: rgba(15,23,42,.65); line-height: 1.35; }
         .vsr-deal-section { display: flex; flex-direction: column; gap: 3px; }
@@ -918,7 +943,7 @@ export default function VentusSmartRewards() {
         .vsr-deal-copy { font-size: 12px; color: rgba(15,23,42,.75); line-height: 1.38; }
 
         /* Collapse */
-        .vsr-collapse { border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.02); border-radius: 14px; overflow: hidden; }
+        .vsr-collapse { border: 1px solid rgba(15,23,42,.10); background: #fff; border-radius: 14px; overflow: hidden; }
         .vsr-collapse-sum { list-style: none; cursor: pointer; padding: 9px 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; user-select: none; font-size: 12px; font-weight: 700; color: rgba(15,23,42,.60); }
         .vsr-collapse-sum::-webkit-details-marker { display: none; }
         .vsr-collapse-body { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 7px; }
@@ -933,8 +958,8 @@ export default function VentusSmartRewards() {
           .vsr-chip { padding: 6px 8px; font-size: 11px; }
           .vsr-pill { padding: 7px 9px; font-size: 11px; }
           .vsr-pill-icon { width: 22px; height: 22px; font-size: 12px; }
-          .vsr-panel { min-height: 250px; max-height: 400px; }
-          .vsr-priority-section { min-height: 300px; max-height: 500px; }
+          .vsr-panel { max-height: 350px; }
+          .vsr-priority-section { max-height: 350px; }
           .vsr-controls { flex-direction: column; align-items: stretch; }
           .vsr-ctrl-left { font-size: 11px; }
           .vsr-ctrl-btns { justify-content: flex-end; }
@@ -945,10 +970,7 @@ export default function VentusSmartRewards() {
       <div className="vsr-root" ref={rootRef}>
         {/* Header */}
         <div className="vsr-top">
-          <div className="vsr-title-left">
-            <span className="vsr-pulsing-dot" />
-            <div className="vsr-title">Consumer Rewards Intelligence</div>
-          </div>
+          <div className="vsr-title">Rewards Intelligence</div>
           <span className="vsr-live-badge">
             <span className="vsr-live-dot" />
             Live Demo
@@ -976,35 +998,16 @@ export default function VentusSmartRewards() {
                   aria-selected={i === 0 ? "true" : "false"}
                   onClick={() => handlePillClick(id)}
                 >
-                  <span className="vsr-pill-icon">{PILL_ICONS[id]}</span>
                   <span>{PILL_LABELS[id]}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="vsr-controls">
-            <div className="vsr-ctrl-left">
-              <span className="vsr-mono" ref={flowStepRef}>Step 1/5 · Scanning: Golf</span>
-              <span style={{color:"rgba(15,23,42,.45)",fontSize:"11px"}}>Tip: click a lifestyle indicator anytime to interrupt.</span>
-            </div>
-            <div className="vsr-ctrl-btns">
-              <button className="vsr-btn primary" ref={toggleBtnRef} onClick={() => {
-                if (runningRef.current) { pause(); }
-                else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause"; flowTokenRef.current++; autoLoop(); } }
-              }}>Pause</button>
-              <button className="vsr-btn" onClick={() => {
-                highPipelineRef.current = [];
-                lowPipelineRef.current = [];
-                renderPipeline();
-                stepIdxRef.current = 0;
-                cyclesRef.current = 0;
-                runningRef.current = false;
-                if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Start";
-                if (flowStepRef.current) flowStepRef.current.textContent = "Ready to begin";
-              }}>Reset pipeline</button>
-            </div>
+
+          {/* Step indicator */}
+          <div style={{ padding: "0 20px 4px", display: "flex", alignItems: "center", gap: "6px" }}>
+            <span ref={flowStepRef} style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500 }} />
           </div>
 
           {/* Analysis row */}
@@ -1055,11 +1058,11 @@ export default function VentusSmartRewards() {
             <div className="vsr-pipeline-panel">
               <div className="vsr-priority-section">
                 <div className="vsr-hd">
-                  <div className="vsr-hd-title">High Priority</div>
+                  <div className="vsr-hd-title" style={{ color: '#dc2626' }}>High Priority</div>
                   <div className="vsr-tag vsr-mono" ref={highCountRef}>0 deals</div>
                 </div>
                 <div className="vsr-bd">
-                  <div className="vsr-pipeline" ref={highPriorityRef} />
+                  <div className="vsr-deal-library" ref={highPriorityRef} />
                 </div>
                 <div className="vsr-load-overlay" ref={loadHighRef}>
                   <div className="vsr-loader-box">
@@ -1071,11 +1074,11 @@ export default function VentusSmartRewards() {
 
               <div className="vsr-priority-section">
                 <div className="vsr-hd">
-                  <div className="vsr-hd-title">Low Priority</div>
+                  <div className="vsr-hd-title" style={{ color: '#d97706' }}>Low Priority</div>
                   <div className="vsr-tag vsr-mono" ref={lowCountRef}>0 deals</div>
                 </div>
                 <div className="vsr-bd">
-                  <div className="vsr-pipeline" ref={lowPriorityRef} />
+                  <div className="vsr-deal-library" ref={lowPriorityRef} />
                 </div>
                 <div className="vsr-load-overlay" ref={loadLowRef}>
                   <div className="vsr-loader-box">
@@ -1086,10 +1089,28 @@ export default function VentusSmartRewards() {
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="vsr-foot">Note: Example data shown for illustration only.</div>
-
-          <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "12px 0 4px", borderTop: "1px solid #e2e8f0" }}>
+            <button
+              ref={toggleBtnRef}
+              onClick={() => {
+                if (runningRef.current) { pause(); }
+                else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; setPauseLabel("Pause"); flowTokenRef.current++; autoLoop(); } }
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s", height: "40px",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              <span ref={pauseIconRef} style={{ display: "inline-flex" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span>
+              <span ref={pauseLabelRef}>Pause</span>
+            </button>
             <button
               onClick={() => {
                 highPipelineRef.current = [];
@@ -1099,15 +1120,15 @@ export default function VentusSmartRewards() {
                 cyclesRef.current = 0;
                 runningRef.current = false;
                 flowTokenRef.current++;
-                if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause";
+                setPauseLabel("Pause");
                 start();
               }}
               style={{
                 display: "inline-flex", alignItems: "center", gap: "6px",
-                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
                 color: "#9ca3af", background: "transparent", border: "none",
                 borderRadius: "9999px", cursor: "pointer",
-                transition: "color 0.2s, background 0.2s",
+                transition: "color 0.2s, background 0.2s", height: "40px",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
@@ -1116,7 +1137,6 @@ export default function VentusSmartRewards() {
               Replay
             </button>
           </div>
-        </div>
       </div>
     </>
   );

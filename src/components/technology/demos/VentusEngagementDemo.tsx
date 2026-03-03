@@ -82,13 +82,7 @@ const VentusEngagementDemo = () => {
       <div className="rounded-xl overflow-hidden border border-[#e2e8f0] bg-white" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)" }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#e2e8f0]">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-[10px] font-bold tracking-[0.15em] text-blue-600 uppercase">Customer Engagement Intelligence</span>
-          </div>
+          <h3 className="text-gray-900 text-lg font-bold">Engagement Intelligence</h3>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
             Live Demo
@@ -287,12 +281,6 @@ const VentusEngagementDemo = () => {
           </div>
         </div>
 
-        {/* Caption */}
-        <div className="px-5 pt-3 pb-1">
-          <p className="text-center text-gray-400 italic text-[12px]">
-            Ventus powers the intelligence. Your bank delivers the experience.
-          </p>
-        </div>
 
         {/* Replay Button */}
         <div className="flex justify-center py-4 border-t border-[#e2e8f0]">
