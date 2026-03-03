@@ -52,7 +52,7 @@ const Engagement = () => {
                 Your bank app.
               </h1>
               <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
-                Personalized to every customer's life.
+                Redesigned around every customer's life.
               </p>
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
                 Ventus transforms your mobile banking experience into a personalized lifestyle platform — adapting to each customer's spending patterns, life stage, and location in real time.
