@@ -993,8 +993,8 @@ export default function VentusSmartRewards() {
           </div>
 
           {/* Lifestyle pills */}
-          <div className="vsr-row">
-            <span className="vsr-row-label">Lifestyle Indicators</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.15em', color: '#2563EB', textTransform: 'uppercase' as const }}>Lifestyle Indicators</span>
             <div className="vsr-pills">
               {PILL_ORDER.map((id, i) => (
                 <button
