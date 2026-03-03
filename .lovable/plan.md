@@ -1,72 +1,47 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+# Engagement Demo: Right Panel Bank App Mockup
 
 ## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+Replace the right panel's "Engagement Triggers" list with a mobile banking app mockup styled with browser chrome (traffic light dots + address bar), showing the personalized consumer experience Ventus intelligence powers.
 
----
+## Changes (single file)
 
-## Sections to Build
+### File: `src/components/technology/demos/VentusEngagementDemo.tsx`
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+**Remove**: The `engagementTriggers` data array and the entire right panel rendering (lines 19-25, 148-190).
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+**Add**: A new right panel containing a browser-chrome-framed mobile banking app with:
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+1. **Browser chrome header** (matching PlatformTabs style):
+   - Three traffic light dots (red, yellow, green)
+   - Mono URL: `metrobank.com/app`
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+2. **App header inside the frame**:
+   - "Metro Bank" label
+   - "Good morning, Sarah" greeting
+   - "Your personalized banking experience" subtitle
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+3. **Section 1 -- Lifestyle Profile Banner**:
+   - Full-width card with blue-to-purple soft gradient background
+   - Bold "WELLNESS EXPLORER" label in white
+   - Subtext: "You balanced fitness, healthy dining, and travel this quarter"
+   - Small "Powered by Ventus AI" in bottom-right corner, muted
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
+4. **Section 2 -- "FOR YOU" Personalized Offers**:
+   - Small uppercase "FOR YOU" label
+   - Three offer rows with the same card styling as the left panel:
+     - REI Co-op -- "Get 10% back on outdoor gear" with "Outdoor" tag
+     - Sweetgreen -- "$5 off your next order" with "Dining" tag
+     - Equinox -- "First month free" with "Wellness" tag
+   - Each row includes a small match percentage indicator
 
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+5. **Section 3 -- Contextual Nudge**:
+   - Small alert-style card with a sparkle icon
+   - Text: "Your Wellness spend is 28% higher this month -- you're on track for your fitness goal"
 
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
+**Animation**: The right panel fades in when `triggersVisible` becomes true (same trigger as current). Offer rows stagger in with incremental delays.
 
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
+**Below the split panel** (before the Replay button): A centered italic gray caption: "The bank app experience above is powered entirely by Ventus transaction intelligence -- no manual configuration required."
 
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
-
+**Keep unchanged**: Header bar, left panel, animation logic, Replay button, all state management.
