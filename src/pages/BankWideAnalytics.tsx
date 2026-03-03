@@ -137,7 +137,7 @@ const BankWideAnalytics = () => {
             <div ref={demoRef} className="rounded-2xl overflow-hidden border border-gray-200 bg-white">
               <div className="p-6 md:p-8">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-200">
                   <h3 className="text-gray-900 text-lg font-bold">Institution Intelligence Dashboard</h3>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />

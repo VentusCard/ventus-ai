@@ -269,11 +269,11 @@ export default function VentusTransactionEnrichment() {
         }
         .vte-title {
           margin: 0;
-          font-size: 10px;
+          font-size: 18px;
           font-weight: 700;
-          color: #2563eb !important;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
+          color: #0f172a;
+          letter-spacing: 0;
+          text-transform: none;
           display: flex;
           align-items: center;
           gap: 8px;
@@ -605,7 +605,6 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-card">
           <div className="vte-head">
             <h3 className="vte-title">
-              <span className="vte-pulsing-dot" />
               Transaction Enrichment
             </h3>
             <span className="vte-live-badge">

@@ -662,8 +662,8 @@ export default function VentusSmartRewards() {
         @keyframes vsr-dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
         @keyframes vsr-dotPing { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.5); opacity: 0; } }
         .vsr-title {
-          font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-          line-height: 1.05; font-size: 10px; color: #2563eb;
+          font-weight: 700; letter-spacing: 0; text-transform: none;
+          line-height: 1.05; font-size: 18px; color: #0f172a;
         }
         .vsr-live-badge {
           display: inline-flex; align-items: center; gap: 6px;
@@ -970,10 +970,7 @@ export default function VentusSmartRewards() {
       <div className="vsr-root" ref={rootRef}>
         {/* Header */}
         <div className="vsr-top">
-          <div className="vsr-title-left">
-            <span className="vsr-pulsing-dot" />
-            <div className="vsr-title">Consumer Rewards Intelligence</div>
-          </div>
+          <div className="vsr-title">Consumer Rewards Intelligence</div>
           <span className="vsr-live-badge">
             <span className="vsr-live-dot" />
             Live Demo
