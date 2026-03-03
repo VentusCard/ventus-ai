@@ -894,7 +894,6 @@ export default function VentusWealthDemo() {
                             className="vwm-detail-tx-card"
                             style={{ background: cardStyle.bg, color: cardStyle.text, borderColor: cardStyle.border }}
                           >
-                            <span className="vwm-detail-tx-card-dot" style={{ background: cardStyle.dot }} />
                             {tx.card}
                           </span>
                           <span className="vwm-detail-tx-date">{tx.date}</span>
