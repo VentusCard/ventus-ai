@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Check, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
@@ -9,11 +9,11 @@ const tabs = [
     heading: "Bank-Wide Analytics",
     href: "/analytics",
     description:
-      "Portfolio-wide behavioral intelligence across every account and card product. Identify spending gaps, cross-sell opportunities, and revenue leakage before it compounds.",
+      "See your entire portfolio through 12 lifestyle pillars — not legacy merchant codes. Spot cross-sell gaps between card products, identify revenue leaking to competitors, and personalize product recommendations at portfolio scale.",
     capabilities: [
-      "Spending distribution across 12 lifestyle pillars",
-      "Card product performance matrix with penetration rates",
-      "Revenue opportunity pipeline with merchant partnership suggestions",
+      "Cross-sell intelligence — see which customers hold Travel cards but lack Dining rewards, and target the gap with personalized offers",
+      "Revenue leakage detection — quantify wallet share lost to competitors by pillar and surface merchant partnership opportunities",
+      "Card product performance matrix — compare penetration rates, activation, and spend velocity across every product in your portfolio",
     ],
   },
   {
@@ -21,23 +21,35 @@ const tabs = [
     heading: "Consumer Rewards",
     href: "/smartrewards",
     description:
-      "Stop showing every customer the same catalog. Ventus matches offers to individuals based on real behavioral signals — life stage, spending velocity, and purchase cycle prediction.",
+      "Generic cashback catalogs get ignored. Ventus builds a real-time purchase persona for each customer — lifestyle pillars, spending velocity, purchase cycle — then matches offers that feel hand-picked, not mass-blasted.",
     capabilities: [
-      "Hyper-personalized offer matching with relevance scores",
-      "Location-based deal targeting for home city and travel",
-      "Spending gap detection to capture out-of-ecosystem wallet share",
+      "Hyper-personalized offer matching — relevance scores based on actual behavior, not demographics, so every notification feels curated",
+      "Spending gap detection — identify where customers spend outside your ecosystem and recapture wallet share with targeted incentives",
+      "Purchase cycle prediction — time offers to when customers are most likely to buy, increasing redemption rates and reducing offer fatigue",
     ],
   },
   {
-    label: "Customer Engagement",
-    heading: "Customer Engagement",
+    label: "Customer Experience",
+    heading: "Customer Experience",
     href: "/engagement",
     description:
-      "Hyper-targeted campaigns powered by real behavioral intelligence, not demographics. Reach the right customer at the right life moment across every channel.",
+      "Power a next-gen banking UX that adapts to every customer. Transaction intelligence drives personalized home screens, lifestyle-aware budgeting, and contextual nudges — making your app feel built for each individual.",
     capabilities: [
-      "AI-detected life event triggers for campaign activation",
-      "Multi-channel delivery across email, push, and SMS",
-      "Micro-segment builder with real-time audience sizing",
+      "Lifestyle-aware interfaces — dynamically adapt app content, budgeting views, and product highlights based on each customer's spending pillars",
+      "Contextual nudges — surface timely insights like over-budget alerts and spending shifts at the moment they matter, inside the banking experience",
+      "Life stage personalization — detect new parents, movers, and retirees from transaction patterns and tailor the entire UX to their current reality",
+    ],
+  },
+  {
+    label: "Travel Experience",
+    heading: "Travel Experience",
+    href: "/travel",
+    description:
+      "Detect trips from transaction patterns alone — no GPS, no permissions, no privacy concerns. Then position your bank as a holistic travel companion with curated deals and experiences across dining, arts, shopping, and entertainment — wherever your customers go.",
+    capabilities: [
+      "Privacy-first trip detection — infer destination, dates, and spend from transactions alone, building trust while delivering value",
+      "Holistic travel companion — surface curated local experiences across dining, arts, shopping, and entertainment so your bank is part of every trip",
+      "Home-city activation — the same intelligence powers local deal targeting, turning everyday spending into engagement opportunities year-round",
     ],
   },
   {
@@ -45,25 +57,29 @@ const tabs = [
     heading: "Wealth Management",
     href: "/wealth",
     description:
-      "Turn transaction patterns into relationship intelligence. Detect life events before clients mention them and walk into every meeting prepared.",
+      "Give every advisor a transaction-powered copilot. Detect life events — retirement, home purchase, new baby — before clients mention them. Walk into every meeting prepared with talking points, psychological insights, and proactive recommendations.",
     capabilities: [
-      "AI life event detection with urgency scoring",
-      "Automated meeting prep with talking points and action items",
-      "Standout transaction alerts for unusual client activity",
+      "AI life event detection — spot retirement planning, relocations, and family changes from spending signals with urgency scoring",
+      "One-click meeting prep — auto-generated talking points, client psychology profile, and action items so advisors spend time advising, not researching",
+      "Proactive relationship management — surface standout transactions and behavioral shifts before they become surprises in client conversations",
     ],
   },
 ];
 
 const AnalyticsPreview = () => {
   const pillars = [
-    { label: "Travel", pct: 20.4 },
-    { label: "Dining", pct: 18.2 },
-    { label: "Wellness", pct: 14.1 },
-    { label: "Shopping", pct: 12.3 },
-    { label: "Auto", pct: 9.8 },
+    { label: "Travel", pct: 20.4, accounts: "24.5M", leakage: 4.2, color: "#3b82f6" },
+    { label: "Dining", pct: 18.2, accounts: "21.8M", leakage: 6.1, color: "#f97316" },
+    { label: "Wellness", pct: 14.1, accounts: "16.9M", leakage: 3.8, color: "#10b981" },
+    { label: "Shopping", pct: 12.3, accounts: "14.8M", leakage: 5.5, color: "#8b5cf6" },
+  ];
+  const products = [
+    { name: "Travel Rewards", pen: "34.2%", active: "82%", spend: "$18.4K", color: "bg-blue-400" },
+    { name: "Cashback Plus", pen: "28.7%", active: "71%", spend: "$12.1K", color: "bg-emerald-400" },
+    { name: "Premium Elite", pen: "8.1%", active: "94%", spend: "$42.8K", color: "bg-purple-400" },
   ];
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="grid grid-cols-3 gap-2">
         {[
           { label: "Total Accounts", value: "120M" },
@@ -76,16 +92,41 @@ const AnalyticsPreview = () => {
           </div>
         ))}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {pillars.map((p) => (
           <div key={p.label} className="flex items-center gap-2">
-            <span className="text-[11px] text-gray-500 w-16 shrink-0">{p.label}</span>
-            <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${p.pct * 3}%` }} />
+            <span className="text-[11px] text-gray-500 w-14 shrink-0">{p.label}</span>
+            <div className="flex-1 h-3.5 bg-gray-100 rounded-full overflow-hidden flex">
+              <div className="h-full rounded-l-full" style={{ width: `${(p.pct - p.leakage) * 3}%`, backgroundColor: p.color }} />
+              <div className="h-full bg-red-300" style={{ width: `${p.leakage * 3}%` }} />
             </div>
-            <span className="text-[11px] font-medium text-gray-700 w-10 text-right">{p.pct}%</span>
+            <span className="text-[9px] text-gray-400 w-12 shrink-0">{p.accounts}</span>
+            <span className="text-[9px] text-red-400 w-10 text-right shrink-0">-{p.leakage}%</span>
           </div>
         ))}
+      </div>
+      <div className="rounded-lg border-l-[3px] border-l-blue-500 border border-gray-100 p-2.5 flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-semibold text-gray-900">Cross-Sell Gap Detected</p>
+          <p className="text-[10px] text-gray-500">Travel cardholders missing Dining rewards — <span className="font-semibold text-blue-600">23% gap</span></p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">12.4K accounts</span>
+        </div>
+      </div>
+      <div>
+        <p className="text-[10px] font-semibold text-gray-700 mb-1.5">Card Product Performance</p>
+        <div className="space-y-1">
+          {products.map((p) => (
+            <div key={p.name} className="flex items-center gap-2 text-[10px] rounded-md border border-gray-100 px-2.5 py-1.5">
+              <span className={`w-2 h-2 rounded-full ${p.color} shrink-0`} />
+              <span className="font-medium text-gray-800 w-24 shrink-0">{p.name}</span>
+              <span className="text-gray-500 w-12">{p.pen}</span>
+              <span className={`w-10 font-semibold ${p.active === "94%" ? "text-green-600" : "text-gray-700"}`}>{p.active}</span>
+              <span className="text-gray-600 ml-auto font-medium">{p.spend}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -99,17 +140,17 @@ const RewardsPreview = () => (
       <span className="ml-auto text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Outdoor Enthusiast</span>
     </div>
     {[
-      { name: "REI", offer: "10% back", match: "96%" },
-      { name: "Patagonia", offer: "15% back", match: "94%" },
-      { name: "Delta Miles", offer: "2x miles", match: "91%" },
+      { name: "REI", msg: "Your weekend trail runs deserve gear rewards", match: "96%" },
+      { name: "Patagonia", msg: "Adventure-ready styles picked for you", match: "94%" },
+      { name: "Delta Miles", msg: "Your next mountain getaway, on us", match: "91%" },
     ].map((o) => (
       <div key={o.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
         <div>
           <p className="text-sm font-semibold text-gray-900">{o.name}</p>
-          <p className="text-[11px] text-gray-500">{o.offer}</p>
+          <p className="text-[11px] text-gray-500 italic">{o.msg}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">Matched</span>
+          <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium">AI Personalized</span>
           <span className="text-xs font-bold text-gray-700">{o.match}</span>
         </div>
       </div>
@@ -117,64 +158,159 @@ const RewardsPreview = () => (
   </div>
 );
 
-const EngagementPreview = () => (
-  <div className="space-y-3">
-    <div className="rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-3">
-      <p className="text-[10px] text-gray-400 mb-0.5">Good morning</p>
-      <p className="text-sm font-semibold text-gray-900">Wellness Explorer</p>
-      <p className="text-[11px] text-gray-500">You've saved $325 this quarter through personalized rewards.</p>
+const EngagementPreview = () => {
+  const pillars = [
+    { label: "Travel", spend: 1240, budget: 1500, color: "#3b82f6", subs: [{ name: "Flights", amount: 680 }, { name: "Hotels", amount: 340 }, { name: "Car Rental", amount: 220 }] },
+    { label: "Dining", spend: 480, budget: 500, color: "#f97316", subs: [{ name: "Restaurants", amount: 310 }, { name: "Coffee Shops", amount: 95 }, { name: "Delivery", amount: 75 }] },
+    { label: "Wellness", spend: 320, budget: 250, color: "#10b981", subs: [{ name: "Gym", amount: 140 }, { name: "Supplements", amount: 105 }, { name: "Spa", amount: 75 }] },
+    { label: "Shopping", spend: 180, budget: 400, color: "#8b5cf6", subs: [{ name: "Clothing", amount: 95 }, { name: "Electronics", amount: 50 }, { name: "Home", amount: 35 }] },
+  ];
+  const getStatus = (spend: number, budget: number) => {
+    const ratio = spend / budget;
+    if (ratio > 1) return { label: "Over Budget", barColor: "#ef4444" };
+    if (ratio >= 0.8) return { label: "Near Limit", barColor: "#f59e0b" };
+    return { label: "Under Budget", barColor: "#22c55e" };
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-900">Monthly Spending by Pillar</p>
+        <span className="text-[9px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Budget Mode</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {pillars.map((p) => {
+          const status = getStatus(p.spend, p.budget);
+          return (
+            <div key={p.label} className="rounded-lg border border-gray-200 bg-white p-2.5 flex flex-col gap-1.5">
+              <div className="w-full h-0.5 rounded-full" style={{ backgroundColor: p.color }} />
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold text-gray-900">{p.label}</p>
+                <span className="text-[9px] font-medium" style={{ color: status.barColor }}>{status.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${Math.min((p.spend / p.budget) * 100, 100)}%`, backgroundColor: status.barColor }} />
+                </div>
+                <span className="text-[9px] text-gray-500 shrink-0">${p.spend} / ${p.budget.toLocaleString()}</span>
+              </div>
+              <div className="border-t border-gray-100 pt-1 mt-0.5 space-y-1">
+                {p.subs.map((s) => (
+                  <div key={s.name} className="flex items-center justify-between text-[10px]">
+                    <span className="text-gray-500">{s.name}</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-10 h-1 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full opacity-60" style={{ width: `${(s.amount / p.spend) * 100}%`, backgroundColor: p.color }} />
+                      </div>
+                      <span className="font-medium text-gray-700 w-8 text-right">${s.amount}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[9px] text-red-500 font-medium">⚠ Wellness spending is 28% over budget this month — 3 subcategories contributing</p>
     </div>
-    <div className="grid grid-cols-2 gap-2">
-      {[
-        { label: "Travel", detail: "3 cities visited", bg: "bg-orange-50" },
-        { label: "Dining", detail: "5 new restaurants", bg: "bg-red-50" },
-        { label: "Wellness", detail: "12 gym visits", bg: "bg-emerald-50" },
-        { label: "Pets", detail: "2 grooming visits", bg: "bg-sky-50" },
-      ].map((t) => (
-        <div key={t.label} className={`${t.bg} rounded-lg p-2.5`}>
-          <p className="text-xs font-semibold text-gray-900">{t.label}</p>
-          <p className="text-[10px] text-gray-500">{t.detail}</p>
+  );
+};
+
+const TravelLocalPreview = () => (
+  <div className="space-y-3">
+    <div className="rounded-lg border border-gray-100 p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Detected Trip</span>
+        <span className="text-sm font-semibold text-gray-900">Miami, FL</span>
+      </div>
+      <p className="text-[13px] font-bold text-slate-800">Hi John, welcome to Miami!</p>
+      <p className="text-[11px] text-slate-500 mb-2">Your Ventus Bank Membership gets you the following deals:</p>
+      <p className="text-[9px] text-gray-400 flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+        Inferred from spending patterns — no location tracking
+      </p>
+    </div>
+    {[
+      { name: "Perez Art Museum", deal: "15% off admission", category: "Arts", bg: "bg-purple-50", text: "text-purple-700" },
+      { name: "Zuma Miami", deal: "$50 dining credit", category: "Dining", bg: "bg-orange-50", text: "text-orange-700" },
+      { name: "Bayside Marketplace", deal: "10% back on purchases", category: "Shopping", bg: "bg-emerald-50", text: "text-emerald-700" },
+    ].map((e) => (
+      <div key={e.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-900">{e.name}</p>
+          <p className="text-[11px] text-gray-500">{e.deal}</p>
+        </div>
+        <span className={`text-[10px] ${e.bg} ${e.text} px-2 py-0.5 rounded-full font-medium`}>{e.category}</span>
+      </div>
+    ))}
+    <div className="rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/50 p-3 flex items-center justify-between cursor-pointer">
+      <div>
+        <p className="text-[12px] font-bold text-blue-700">Explore National Deals</p>
+        <p className="text-[10px] text-blue-600/80">200+ deals available nationwide</p>
+      </div>
+      <span className="text-blue-400 text-lg">→</span>
+    </div>
+  </div>
+);
+
+const WealthPreview = () => {
+  const clients = [
+    {
+      name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026",
+      txns: [
+        { merchant: "Fidelity Rollover", amount: "$45,000", source: "Premium Card", color: "bg-purple-500", note: "401k consolidation" },
+        { merchant: "AARP Membership", amount: "$48", source: "Checking", color: "bg-slate-400", note: "membership activation" },
+        { merchant: "Schwab Advisory", amount: "$2,400", source: "Travel Card", color: "bg-blue-500", note: "annual fee payment" },
+        { merchant: "Medicare Supplement", amount: "$312", source: "HSA", color: "bg-amber-500", note: "coverage upgrade" },
+      ],
+    },
+    {
+      name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026",
+      txns: [
+        { merchant: "Zillow Premium", amount: "$35", source: "Checking", color: "bg-slate-400", note: "active home search" },
+        { merchant: "Home Depot", amount: "$1,280", source: "Cashback Card", color: "bg-green-500", note: "renovation planning" },
+        { merchant: "First American Title", amount: "$450", source: "Premium Card", color: "bg-purple-500", note: "title search initiated" },
+        { merchant: "Lowe's Pro Services", amount: "$890", source: "Travel Card", color: "bg-blue-500", note: "contractor materials" },
+      ],
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      {clients.map((c) => (
+        <div key={c.name} className="rounded-lg border border-gray-100 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-gray-900">{c.name}</p>
+                <span className="text-[10px] text-gray-500">{c.aum}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
+                <span className="text-[11px] text-gray-600">{c.event}</span>
+                <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
+              </div>
+            </div>
+            <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
+              Prepare
+            </button>
+          </div>
+          <div className="border-t border-gray-100 pt-1.5 space-y-1">
+            {c.txns.map((t) => (
+              <div key={t.merchant} className="flex items-center gap-2 text-[10px]">
+                <span className={`w-1.5 h-1.5 rounded-full ${t.color} shrink-0`} />
+                <span className="font-medium text-gray-700">{t.merchant}</span>
+                <span className="text-gray-400">{t.amount}</span>
+                <span className="text-gray-400 italic">— {t.note}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>
-    <div className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-      <div>
-        <p className="text-xs font-semibold text-gray-900">REI Co-op</p>
-        <p className="text-[10px] text-gray-500">10% back on outdoor gear</p>
-      </div>
-      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">For You</span>
-    </div>
-  </div>
-);
-
-const WealthPreview = () => (
-  <div className="space-y-3">
-    {[
-      { name: "Margaret Chen", aum: "$4.2M", event: "Retirement Planning", urgency: "91%", timeline: "Q1 2026" },
-      { name: "David Park", aum: "$1.8M", event: "Home Purchase", urgency: "87%", timeline: "Q1 2026" },
-    ].map((c) => (
-      <div key={c.name} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-gray-900">{c.name}</p>
-            <span className="text-[10px] text-gray-500">{c.aum}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">URGENT</span>
-            <span className="text-[11px] text-gray-600">{c.event}</span>
-            <span className="hidden sm:inline text-[10px] text-gray-400">{c.urgency} • {c.timeline}</span>
-          </div>
-        </div>
-        <button className="hidden sm:block text-[11px] font-medium text-blue-600 border border-blue-200 rounded-md px-3 py-1 hover:bg-blue-50 transition-colors shrink-0">
-          Prepare
-        </button>
-      </div>
-    ))}
-  </div>
-);
+  );
+};
 
 const TabPreview = ({ index }: { index: number }) => {
-  const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <WealthPreview />];
+  const previews = [<AnalyticsPreview />, <RewardsPreview />, <EngagementPreview />, <TravelLocalPreview />, <WealthPreview />];
   return previews[index] || null;
 };
 
@@ -183,8 +319,10 @@ const ROTATE_INTERVAL = 5000;
 const PlatformTabs = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [paused, setPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
   const rafRef = useRef<number>();
+  const pausedElapsedRef = useRef(0);
 
   const resetTimer = useCallback(() => {
     setProgress(0);
@@ -199,16 +337,31 @@ const PlatformTabs = () => {
     [resetTimer]
   );
 
+  const togglePause = useCallback(() => {
+    setPaused((prev) => {
+      if (!prev) {
+        // Pausing — save elapsed time
+        pausedElapsedRef.current = Date.now() - startTimeRef.current;
+      } else {
+        // Resuming — restore start time so progress continues
+        startTimeRef.current = Date.now() - pausedElapsedRef.current;
+      }
+      return !prev;
+    });
+  }, []);
+
   // Auto-rotate
   useEffect(() => {
     const tick = () => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
-      setProgress(pct);
+      if (!paused) {
+        const elapsed = Date.now() - startTimeRef.current;
+        const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
+        setProgress(pct);
 
-      if (elapsed >= ROTATE_INTERVAL) {
-        setActiveIndex((prev) => (prev + 1) % tabs.length);
-        startTimeRef.current = Date.now();
+        if (elapsed >= ROTATE_INTERVAL) {
+          setActiveIndex((prev) => (prev + 1) % tabs.length);
+          startTimeRef.current = Date.now();
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -216,7 +369,7 @@ const PlatformTabs = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [paused]);
 
   const tab = tabs[activeIndex];
 
@@ -228,7 +381,7 @@ const PlatformTabs = () => {
           The Platform
         </p>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          One Tech Core. Four Insight Tools.
+          One Tech Core. Five Insight Tools.
         </h2>
         <p className="text-gray-500 text-lg mb-10">
           Every team in your bank. One enrichment engine underneath.
@@ -315,7 +468,7 @@ const PlatformTabs = () => {
           </div>
         </div>
 
-        {/* Dot indicators — hidden on mobile */}
+        {/* Dot indicators with pause button — hidden on mobile */}
         <div className="hidden md:flex items-center justify-center gap-2 mt-6">
           {tabs.map((_, i) => (
             <button
@@ -329,6 +482,17 @@ const PlatformTabs = () => {
               aria-label={`Go to tab ${i + 1}`}
             />
           ))}
+          <button
+            onClick={togglePause}
+            className="ml-2 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            aria-label={paused ? "Resume auto-rotate" : "Pause auto-rotate"}
+          >
+            {paused ? (
+              <Play className="w-3.5 h-3.5 text-gray-600 ml-0.5" />
+            ) : (
+              <Pause className="w-3.5 h-3.5 text-gray-600" />
+            )}
+          </button>
         </div>
       </div>
     </section>

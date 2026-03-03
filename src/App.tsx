@@ -21,6 +21,7 @@ import Enrichment from "./pages/Enrichment";
 import SmartRewards from "./pages/SmartRewards";
 import Engagement from "./pages/Engagement";
 import Wealth from "./pages/Wealth";
+import TravelExperience from "./pages/TravelExperience";
 import BankWideAnalytics from "./pages/BankWideAnalytics";
 import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
@@ -43,6 +44,7 @@ const AppLayout = () => {
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
           <Route path="/wealth" element={<Wealth />} />
+          <Route path="/travel" element={<TravelExperience />} />
           <Route path="/analytics" element={<BankWideAnalytics />} />
           
           <Route path="/insights" element={<Insights />} />

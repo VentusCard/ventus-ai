@@ -1,17 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
-import VentusEngagementDemo from "@/components/technology/demos/VentusEngagementDemo";
-
-import HeroLifestyleCard from "@/components/hero/HeroLifestyleCard";
-import { User, Target, MapPin, Crown } from "lucide-react";
+import { Plane, MapPin, Shield, Zap } from "lucide-react";
+import TravelInteractiveDemo from "@/components/travel/TravelInteractiveDemo";
 import { useEffect, useRef, useState } from "react";
+import HeroTravelCard from "@/components/hero/HeroTravelCard";
 
 const capabilities = [
-  { icon: User, title: "Lifestyle Profiling", desc: "Every customer gets a dynamic lifestyle profile built from their spending patterns — updated with every transaction. Wellness Explorer, Frequent Traveler, Family Focused and more." },
-  { icon: Target, title: "Behavioral Offer Matching", desc: "Offers in the app adapt to each customer's actual behavior — not their demographic. REI for the outdoor enthusiast, Delta miles for the frequent flier." },
-  { icon: MapPin, title: "Location Intelligence", desc: "The app detects where the customer is and surfaces relevant perks and offers for their current city — home or traveling." },
-  { icon: Crown, title: "Premium Experience Layer", desc: "Tiered membership benefits, exclusive perks, and lifestyle rewards that make your banking app feel like a premium product worth opening every day." },
+  { icon: Plane, title: "Trip Detection", desc: "Ventus detects travel from transaction patterns alone — flights, hotels, and out-of-city spending trigger automatic trip recognition without GPS or app permissions." },
+  { icon: MapPin, title: "Local Deal Matching", desc: "Once a trip is detected, curated local experiences surface instantly — dining, arts, shopping, and entertainment matched to the destination." },
+  { icon: Shield, title: "Privacy-First Design", desc: "No location tracking. No GPS. No permissions. Everything is inferred from spending patterns, building trust while delivering value." },
+  { icon: Zap, title: "Real-Time Activation", desc: "Deals and experiences appear the moment a customer arrives — not hours or days later. Your bank is part of the trip from the first transaction." },
 ];
 
 const integrationSteps = [
@@ -20,8 +19,7 @@ const integrationSteps = [
   { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
 ];
 
-
-const Engagement = () => {
+const TravelExperience = () => {
   const [integrationVisible, setIntegrationVisible] = useState(false);
   const integrationRef = useRef<HTMLDivElement>(null);
 
@@ -36,10 +34,6 @@ const Engagement = () => {
     return () => obs.disconnect();
   }, []);
 
-  const scrollToDemo = () => {
-    document.getElementById("engagement-demo")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <div>
       <main>
@@ -47,15 +41,15 @@ const Engagement = () => {
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Customer Experience</p>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Travel Experience</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
-                Your bank app.
+                Your bank becomes a travel companion.
               </h1>
               <p className="text-2xl md:text-3xl font-bold italic text-blue-400 mb-6">
-                Redesigned around every customer's life.
+                Without tracking a single location.
               </p>
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
-                Ventus transforms your mobile banking experience into a personalized lifestyle platform — adapting to each customer's spending patterns, life stage, and location in real time.
+                Ventus detects trips from spending patterns alone and surfaces curated local deals — dining, arts, shopping — wherever your customers go. No GPS. No permissions. Just intelligence.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link to="/contact">
@@ -66,15 +60,14 @@ const Engagement = () => {
                 <Button
                   variant="outline"
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
-                  onClick={scrollToDemo}
+                  onClick={() => document.getElementById("travel-demo")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   See It Work ↓
                 </Button>
               </div>
             </div>
-            {/* Right column: Animated lifestyle profile card */}
             <div className="hidden md:flex justify-center">
-              <HeroLifestyleCard />
+              <HeroTravelCard />
             </div>
           </div>
         </section>
@@ -85,15 +78,14 @@ const Engagement = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
-                Every customer gets the same app.{" "}
-                <span className="text-blue-600">None of them feel understood.</span>
+                Banks miss the travel moment entirely.
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                "Your mobile banking app shows the same home screen to a 28-year-old wellness enthusiast and a 62-year-old pre-retiree. Neither feels like it was built for them.",
-                "Generic offer catalogs in banking apps see less than 2% engagement. Customers scroll past them because nothing feels relevant.",
-                "Your customers are telling you everything about their lives through their transactions. Your app is not listening.",
+                "Your customer just landed in Miami. They'll spend $3,000 over five days — on dining, experiences, and shopping. Your bank won't surface a single relevant offer.",
+                "Generic travel rewards don't feel like rewards. A 1% cashback notification while exploring a new city doesn't compete with a curated local dining credit.",
+                "Every trip is a missed partnership opportunity. Local merchants want bank-driven traffic. Your customers want local deals. The connection doesn't exist yet.",
               ].map((pain, i) => (
                 <ScrollReveal key={i} delay={i * 0.15}>
                   <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100 h-full">
@@ -110,16 +102,16 @@ const Engagement = () => {
         </section>
 
         {/* SECTION 3 — SEE IT IN ACTION */}
-        <section id="engagement-demo" className="py-16 bg-white scroll-mt-20">
+        <section id="travel-demo" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">A banking app that knows your customer.</h2>
-              <p className="text-gray-500 text-lg mb-6 max-w-2xl">
-                Watch how transaction intelligence transforms a standard banking app into a personalized lifestyle experience.
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Trip detected. Deals delivered. No tracking required.</h2>
+              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
+                See how Ventus turns transaction patterns into a curated travel companion experience.
               </p>
             </ScrollReveal>
-            <VentusEngagementDemo />
+            <TravelInteractiveDemo />
           </div>
         </section>
 
@@ -129,7 +121,7 @@ const Engagement = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
-                How Ventus personalizes every session.
+                Turn every trip into a banking moment.
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 gap-6">
@@ -183,9 +175,9 @@ const Engagement = () => {
           <section className="py-24 bg-white">
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Your customers open their banking app every day.
+                Your customers travel. Your bank should travel with them.
               </h2>
-              <p className="text-lg text-gray-500 mb-8">Give them a reason to.</p>
+              <p className="text-lg text-gray-500 mb-8">Ventus makes every trip a banking moment — without tracking a thing.</p>
               <Link to="/contact">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                   Schedule Demo
@@ -200,4 +192,4 @@ const Engagement = () => {
   );
 };
 
-export default Engagement;
+export default TravelExperience;

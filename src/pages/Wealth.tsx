@@ -112,9 +112,7 @@ const Wealth = () => {
                 Watch how Ventus surfaces what your advisors need to know — before the client says a word.
               </p>
             </ScrollReveal>
-            <div className="rounded-2xl overflow-hidden border border-gray-200">
-              <VentusWealthDemo />
-            </div>
+            <VentusWealthDemo />
           </div>
         </section>
 
