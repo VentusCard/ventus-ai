@@ -287,12 +287,6 @@ const VentusEngagementDemo = () => {
           </div>
         </div>
 
-        {/* Caption */}
-        <div className="px-5 pt-3 pb-1">
-          <p className="text-center text-gray-400 italic text-[12px]">
-            Ventus powers the intelligence. Your bank delivers the experience.
-          </p>
-        </div>
 
         {/* Replay Button */}
         <div className="flex justify-center py-4 border-t border-[#e2e8f0]">
