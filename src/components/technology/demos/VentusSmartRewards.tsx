@@ -221,7 +221,7 @@ const PILL_DATA = {
   },
 };
 
-const PILL_ICONS = { golf: "", snowsports: "", domestic_travel: "", pets: "", dining: "" };
+const PILL_ICONS = { golf: "⛳", snowsports: "🎿", domestic_travel: "✈️", pets: "🐾", dining: "🍽️" };
 const PILL_LABELS = { golf: "Golf", snowsports: "Snow Sports", domestic_travel: "Domestic Travel", pets: "Pets", dining: "Dining" };
 
 function pillLabel(id: string) { return (PILL_LABELS as Record<string, string>)[id] || id; }
@@ -998,6 +998,7 @@ export default function VentusSmartRewards() {
                   aria-selected={i === 0 ? "true" : "false"}
                   onClick={() => handlePillClick(id)}
                 >
+                  <span className="vsr-pill-icon">{PILL_ICONS[id]}</span>
                   <span>{PILL_LABELS[id]}</span>
                 </button>
               ))}
