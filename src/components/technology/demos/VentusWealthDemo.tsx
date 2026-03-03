@@ -757,17 +757,14 @@ export default function VentusWealthDemo() {
           font-size: 12px; font-weight: 700;
           background: rgba(15,23,42,.06); color: rgba(15,23,42,.55);
         }
-        .vwm-detail-footer {
-          display: flex; align-items: center; justify-content: flex-end; gap: 10px;
-          padding: 14px 28px;
-          border-top: 1px solid rgba(15,23,42,.08);
-          background: rgba(15,23,42,.02);
+        .vwm-detail-actions {
+          display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
         }
         .vwm-footer-btn {
-          padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+          padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600;
           border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
-          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
-          display: inline-flex; align-items: center; gap: 6px;
+          color: rgba(15,23,42,.65); cursor: pointer; transition: all .2s;
+          display: inline-flex; align-items: center; gap: 5px;
         }
         .vwm-footer-btn:hover { background: rgba(15,23,42,.08); }
         .vwm-footer-btn.primary { background: #0f172a; color: #fff; border-color: transparent; }
@@ -955,12 +952,12 @@ export default function VentusWealthDemo() {
                       ))}
                     </ol>
                   </div>
+                  <div className="vwm-detail-actions">
+                    <button className="vwm-footer-btn">⚡ Prepare with Ventus WM Co-Pilot</button>
+                    <button className="vwm-footer-btn">📄 Download PDF</button>
+                    <button className="vwm-footer-btn primary">✉️ Email Me Summary</button>
+                  </div>
                 </div>
-              </div>
-              <div className="vwm-detail-footer">
-                <button className="vwm-footer-btn">⚡ Prepare with Ventus WM Co-Pilot</button>
-                <button className="vwm-footer-btn">📄 Download PDF</button>
-                <button className="vwm-footer-btn primary">✉️ Email Me Summary</button>
               </div>
             </div>
           )}
