@@ -953,7 +953,7 @@ export default function VentusWealthDemo() {
                       ))}
                     </ol>
                   </div>
-                  <div className="vwm-detail-actions">
+                  <div className="vwm-detail-actions" style={{ opacity: stepsShown >= (detail?.steps.length || 0) ? 1 : 0, transform: stepsShown >= (detail?.steps.length || 0) ? 'translateY(0)' : 'translateY(8px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
                     <button className="vwm-footer-btn">⚡ Prepare with Ventus</button>
                     <button className="vwm-footer-btn">📄 Download PDF</button>
                     <button className="vwm-footer-btn primary">✉️ Email Summary</button>
