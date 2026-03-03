@@ -100,9 +100,9 @@ const Navbar = () => {
               Platform <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isProductsOpen ? "rotate-180" : ""}`} />
             </button>
             <div className={`absolute top-full left-0 pt-3 transition-all duration-200 ${isProductsOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}>
-              <div className="w-[860px] bg-white rounded-xl border border-gray-200 shadow-xl flex overflow-hidden">
+              <div className="w-[340px] lg:w-[860px] bg-white rounded-xl border border-gray-200 shadow-xl flex flex-col lg:flex-row overflow-hidden max-h-[80vh] overflow-y-auto lg:max-h-none lg:overflow-y-visible">
                 {/* Left: One Tech Core */}
-                <div className="w-[300px] border-r border-gray-100 p-4">
+                <div className="lg:w-[300px] border-b lg:border-b-0 lg:border-r border-gray-100 p-4">
                   <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-3 pt-1 pb-2">One Tech Core</p>
                   <Link
                     to={coreProduct.href}
@@ -121,10 +121,10 @@ const Navbar = () => {
                     </div>
                   </Link>
                 </div>
-                {/* Right: Five Insight Tools — 2-col grid */}
+                {/* Right: Five Insight Tools — 2-col grid on desktop, 1-col on tablet */}
                 <div className="flex-1 p-4">
                   <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-3 pt-1 pb-2">Five Insight Tools</p>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-2 gap-y-0.5">
                     {insightTools.map((p) => (
                       <Link
                         key={p.href}

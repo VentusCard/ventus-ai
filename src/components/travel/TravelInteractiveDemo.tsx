@@ -64,11 +64,11 @@ const TravelInteractiveDemo = () => {
   }, [visibleTxCount, isRunning, tripDetected, reset]);
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
+    <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg" style={{ maxWidth: '100%' }}>
       <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-3 border-b border-gray-200">
         <h3 className="text-gray-900 text-lg font-bold">Travel Intelligence</h3>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 hidden lg:inline-block" style={{ animation: "liveDotPulse 2s ease-in-out infinite" }} />
           Live Demo
         </span>
       </div>
@@ -93,10 +93,10 @@ const TravelInteractiveDemo = () => {
                   borderBottom: "1px solid #e5e7eb",
                 }}
               >
-                <span className="text-[13px] text-gray-700 font-mono truncate mr-4">{tx.merchant}</span>
-                <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-[13px] text-gray-900 font-mono font-semibold">{tx.amount}</span>
-                  <span className="text-[11px] text-gray-400 font-mono w-14 text-right">{tx.date}</span>
+                <span className="text-[11px] md:text-[13px] text-gray-700 font-mono truncate mr-2 md:mr-4">{tx.merchant}</span>
+              <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                  <span className="text-[12px] md:text-[13px] text-gray-900 font-mono font-semibold">{tx.amount}</span>
+                  <span className="text-[10px] md:text-[11px] text-gray-400 font-mono w-10 md:w-14 text-right">{tx.date}</span>
                 </div>
               </div>
             ))}

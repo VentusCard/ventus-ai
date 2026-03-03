@@ -139,7 +139,7 @@ const BankWideAnalytics = () => {
               <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-3 border-b border-gray-200">
                 <h3 className="text-gray-900 text-lg font-bold">Analytics Intelligence</h3>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 hidden lg:inline-block" style={{ animation: "liveDotPulse 2s ease-in-out infinite" }} />
                   Live Demo
                 </span>
               </div>

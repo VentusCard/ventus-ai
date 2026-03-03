@@ -340,6 +340,9 @@ export default function VentusTransactionEnrichment() {
           animation: vte-pulse 2s ease-in-out infinite;
           box-shadow: 0 0 6px rgba(16,185,129,0.6);
         }
+        @media (max-width: 1023px) {
+          .vte-live-dot { display: none; }
+        }
         .vte-pulsing-dot {
           position: relative;
           width: 8px;
@@ -659,9 +662,52 @@ export default function VentusTransactionEnrichment() {
         }
         @media (max-width: 767px) {
           .vte-scale-wrapper {
-            transform: scale(0.5);
-            margin-bottom: -50%;
+            transform: none;
+            margin-bottom: 0;
           }
+          .vte-row, .vte-group-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+          }
+          .vte-row.head { display: none; }
+          .vte-group-row { display: none; }
+          .vte-cell {
+            padding: 4px 16px;
+            min-height: auto;
+            border-bottom: none;
+            font-size: 12px;
+            border-left: none !important;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+          }
+          .vte-cell::before {
+            content: attr(data-label);
+            display: inline;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #94a3b8;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+          .vte-live-badge { white-space: nowrap; }
+          .vte-head { flex-wrap: nowrap; }
+          .vte-cell.derived { animation-delay: 0.6s; }
+          .vte-row.data-row {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 8px 0;
+          }
+          .vte-category-group {
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+          }
+          .vte-category-group .vte-chips {
+            grid-column: 1 / -1;
+          }
+          .vte-connector-text { white-space: normal; }
         }
       `}</style>
 

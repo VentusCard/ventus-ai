@@ -514,6 +514,9 @@ export default function VentusWealthDemo() {
           animation: vwm-dotPulse 2s ease-in-out infinite;
           box-shadow: 0 0 6px rgba(16,185,129,0.6);
         }
+        @media (max-width: 1023px) {
+          .vwm-live-dot { display: none; }
+        }
         .vwm-dash-subtitle {
           font-size: 12px; color: rgba(15,23,42,.45); margin-top: 4px;
         }
@@ -674,14 +677,14 @@ export default function VentusWealthDemo() {
         .vwm-detail-overlay.entering { opacity: 1; transform: translateY(0); }
         .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
         .vwm-detail-header {
-          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
           padding: 18px 24px; border-bottom: 1px solid rgba(15,23,42,.08);
-          flex-wrap: wrap;
+          position: relative;
         }
-        .vwm-detail-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .vwm-detail-header-left { display: flex; align-items: flex-start; gap: 12px; min-width: 0; flex: 1; }
         .vwm-detail-icon { font-size: 24px; }
         .vwm-detail-title { font-weight: 700; font-size: 18px; color: #0f172a; }
-        .vwm-detail-badges { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .vwm-detail-badges { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
         .vwm-detail-badge {
           font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px;
         }
@@ -691,7 +694,7 @@ export default function VentusWealthDemo() {
           color: rgba(15,23,42,.40); cursor: pointer; transition: all .2s;
           min-height: auto !important; min-width: auto !important;
           width: 28px; height: 28px; display: grid; place-items: center;
-          line-height: 1;
+          line-height: 1; flex-shrink: 0; margin-top: 2px;
         }
         .vwm-back-btn:hover { background: rgba(15,23,42,.06); color: rgba(15,23,42,.75); }
         .vwm-detail-body {
@@ -783,9 +786,53 @@ export default function VentusWealthDemo() {
         .vwm-empty-sub { font-size: 12px; margin-top: 4px; }
 
         @media (max-width: 767px) {
-          .vwm-root { padding: 10px; border-radius: 14px; }
-          .vwm-dash-title { font-size: 16px; }
-          .vwm-detail-overlay { padding: 14px; }
+          .vwm-root { padding: 0; border-radius: 10px; }
+          .vwm-dash-title { font-size: 15px; }
+          .vwm-detail-overlay { padding: 0; }
+          .vwm-alert-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px 14px;
+          }
+          .vwm-row-right {
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .vwm-row-conf, .vwm-row-last-contact {
+            text-align: left;
+          }
+          .vwm-row-actions {
+            margin-left: auto;
+          }
+          .vwm-row-evidence {
+            white-space: normal;
+          }
+          .vwm-metrics {
+            padding: 8px 14px;
+            gap: 6px;
+          }
+          .vwm-metric-pill {
+            font-size: 11px;
+            padding: 4px 8px;
+          }
+          .vwm-alert-list {
+            padding: 4px 8px;
+            max-height: 400px;
+          }
+          .vwm-detail-header {
+            padding: 12px 14px;
+          }
+          .vwm-detail-title { font-size: 14px; }
+          .vwm-detail-body {
+            grid-template-columns: 1fr;
+            padding: 12px 14px;
+            gap: 16px;
+          }
+          .vwm-detail-tx-bottom { flex-wrap: wrap; }
+          .vwm-detail-tx-relevance { margin-left: 0; }
+          .vwm-detail-actions { flex-wrap: wrap; }
         }
       `}</style>
 
@@ -813,7 +860,7 @@ export default function VentusWealthDemo() {
           <div className="vwm-content-area">
 
           {/* Subheader */}
-          <div style={{ padding: '12px 20px 0', fontSize: 12.5, fontWeight: 600, color: 'rgba(15,23,42,.45)', letterSpacing: '.04em' }}>Your Clients</div>
+          <div style={{ padding: '12px 20px 0', fontSize: 10, fontWeight: 700, color: '#2563EB', letterSpacing: '.08em', textTransform: 'uppercase' as const }}>Your Clients</div>
 
           {/* Metrics */}
           <div className="vwm-metrics">
