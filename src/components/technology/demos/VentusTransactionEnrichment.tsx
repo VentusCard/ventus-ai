@@ -340,6 +340,9 @@ export default function VentusTransactionEnrichment() {
           animation: vte-pulse 2s ease-in-out infinite;
           box-shadow: 0 0 6px rgba(16,185,129,0.6);
         }
+        @media (max-width: 1023px) {
+          .vte-live-dot { display: none; }
+        }
         .vte-pulsing-dot {
           position: relative;
           width: 8px;

@@ -676,6 +676,9 @@ export default function VentusSmartRewards() {
           animation: vsr-dotPulse 2s ease-in-out infinite;
           box-shadow: 0 0 6px rgba(16,185,129,0.6);
         }
+        @media (max-width: 1023px) {
+          .vsr-live-dot { display: none; }
+        }
         .vsr-sub { color: rgba(15,23,42,.55); font-size: 13px; line-height: 1.35; max-width: 1200px; margin-top: 6px; }
 
         .vsr-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 16px 20px; }

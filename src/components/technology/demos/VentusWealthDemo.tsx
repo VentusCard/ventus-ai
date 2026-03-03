@@ -514,6 +514,9 @@ export default function VentusWealthDemo() {
           animation: vwm-dotPulse 2s ease-in-out infinite;
           box-shadow: 0 0 6px rgba(16,185,129,0.6);
         }
+        @media (max-width: 1023px) {
+          .vwm-live-dot { display: none; }
+        }
         .vwm-dash-subtitle {
           font-size: 12px; color: rgba(15,23,42,.45); margin-top: 4px;
         }
