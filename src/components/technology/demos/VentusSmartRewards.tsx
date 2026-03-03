@@ -831,15 +831,18 @@ export default function VentusSmartRewards() {
 
         /* Items */
         .vsr-item {
-          border: 1px solid #e2e8f0; border-radius: 12px;
-          background: #fff; padding: 10px;
+          border: none; border-radius: 0;
+          background: transparent; padding: 10px 4px;
           display: flex; justify-content: space-between; align-items: center; gap: 10px;
+          border-bottom: 1px solid #e5e7eb;
         }
-        .vsr-item-name { font-weight: 600; font-size: 12.5px; letter-spacing: 0; color: #94a3b8; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .vsr-item:last-child { border-bottom: none; }
+        .vsr-item-name { font-weight: 500; font-size: 13px; letter-spacing: 0; color: #374151; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
         .vsr-amt {
-          font-size: 12px; padding: 6px 8px; border-radius: 999px;
-          border: 1px solid #e2e8f0; background: #fff;
-          color: rgba(15,23,42,.85); white-space: nowrap; font-weight: 600;
+          font-size: 13px; padding: 0;
+          border: none; background: transparent;
+          color: #111827; white-space: nowrap; font-weight: 600;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         /* AI lines */
