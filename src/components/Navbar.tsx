@@ -189,7 +189,7 @@ const Navbar = () => {
             onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
             className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100"
           >
-            Products
+            Platform
             <ChevronDown className={`h-4 w-4 transition-transform ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
           </button>
           <div className={`overflow-hidden transition-all duration-300 ${isMobileProductsOpen ? 'max-h-96' : 'max-h-0'}`}>
