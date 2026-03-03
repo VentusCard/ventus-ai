@@ -139,13 +139,10 @@ const BankWideAnalytics = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-gray-900 text-lg font-bold">Institution Intelligence Dashboard</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75 animate-ping" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                    </span>
-                    <span className="text-green-600 text-[11px] font-semibold">Live</span>
-                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                    Live Demo
+                  </span>
                 </div>
 
                 {/* 6 Metric cards */}
