@@ -664,7 +664,7 @@ export default function VentusWealthDemo() {
 
         /* Detail overlay */
         .vwm-detail-overlay {
-          position: absolute; inset: 0; z-index: 10;
+          position: absolute; top: 0; left: 0; right: 0; bottom: 56px; z-index: 10;
           background: rgba(255,255,255,.97);
           backdrop-filter: blur(8px);
           display: flex; flex-direction: column;
@@ -966,15 +966,16 @@ export default function VentusWealthDemo() {
           )}
 
           {/* Controls: Pause/Play + Replay */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "8px", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "16px 0", borderTop: "1px solid #e2e8f0" }}>
             <button
               onClick={togglePause}
               style={{
                 display: "inline-flex", alignItems: "center", gap: "6px",
-                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
                 color: "#9ca3af", background: "transparent", border: "none",
                 borderRadius: "9999px", cursor: "pointer",
                 transition: "color 0.2s, background 0.2s",
+                height: "40px",
               }}
               onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
               onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
@@ -990,10 +991,11 @@ export default function VentusWealthDemo() {
               onClick={handleReset}
               style={{
                 display: "inline-flex", alignItems: "center", gap: "6px",
-                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
                 color: "#9ca3af", background: "transparent", border: "none",
                 borderRadius: "9999px", cursor: "pointer",
                 transition: "color 0.2s, background 0.2s",
+                height: "40px",
               }}
               onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
               onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
