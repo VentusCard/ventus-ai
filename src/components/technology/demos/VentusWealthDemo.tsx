@@ -831,7 +831,6 @@ export default function VentusWealthDemo() {
                     </div>
                     <div className="vwm-row-middle">
                       <span className="vwm-event-type-badge" style={{ background: evType.bg, color: evType.text }}>{evType.label}</span>
-                      <span className="vwm-event-name">{event.eventName}</span>
                       <span className="vwm-urg-badge" style={{ background: urg.bg, color: urg.text }}>
                         {event.urgency}
                       </span>
