@@ -1091,9 +1091,8 @@ export default function VentusSmartRewards() {
             </div>
           </div>
 
-          <div className="vsr-foot">Note: Example data shown for illustration only.</div>
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "16px 0", borderTop: "1px solid #e2e8f0" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "12px 0 4px" }}>
             <button
               ref={toggleBtnRef}
               onClick={() => {
