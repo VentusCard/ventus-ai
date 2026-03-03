@@ -908,11 +908,11 @@ export default function VentusSmartRewards() {
 
         /* Accordion */
         details.vsr-accord {
-          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
+          border: 1px solid rgba(15,23,42,.12); background: #fff;
           border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; max-height: 350px;
         }
         details.vsr-accord[open] { box-shadow: 0 12px 24px rgba(0,0,0,.08); }
-        details.vsr-accord.low-priority { border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.02); opacity: 0.65; }
+        details.vsr-accord.low-priority { border: 1px solid rgba(15,23,42,.10); background: #fff; opacity: 0.65; }
         details.vsr-accord.low-priority[open] { box-shadow: 0 8px 16px rgba(0,0,0,.06); border-color: rgba(15,23,42,.15); opacity: 1; }
 
         .vsr-accord-sum {
@@ -941,7 +941,7 @@ export default function VentusSmartRewards() {
         .vsr-deal-copy { font-size: 12px; color: rgba(15,23,42,.75); line-height: 1.38; }
 
         /* Collapse */
-        .vsr-collapse { border: 1px solid rgba(15,23,42,.10); background: rgba(15,23,42,.02); border-radius: 14px; overflow: hidden; }
+        .vsr-collapse { border: 1px solid rgba(15,23,42,.10); background: #fff; border-radius: 14px; overflow: hidden; }
         .vsr-collapse-sum { list-style: none; cursor: pointer; padding: 9px 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; user-select: none; font-size: 12px; font-weight: 700; color: rgba(15,23,42,.60); }
         .vsr-collapse-sum::-webkit-details-marker { display: none; }
         .vsr-collapse-body { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 7px; }
@@ -1064,7 +1064,7 @@ export default function VentusSmartRewards() {
                   <div className="vsr-tag vsr-mono" ref={highCountRef}>0 deals</div>
                 </div>
                 <div className="vsr-bd">
-                  <div className="vsr-pipeline" ref={highPriorityRef} />
+                  <div className="vsr-deal-library" ref={highPriorityRef} />
                 </div>
                 <div className="vsr-load-overlay" ref={loadHighRef}>
                   <div className="vsr-loader-box">
@@ -1080,7 +1080,7 @@ export default function VentusSmartRewards() {
                   <div className="vsr-tag vsr-mono" ref={lowCountRef}>0 deals</div>
                 </div>
                 <div className="vsr-bd">
-                  <div className="vsr-pipeline" ref={lowPriorityRef} />
+                  <div className="vsr-deal-library" ref={lowPriorityRef} />
                 </div>
                 <div className="vsr-load-overlay" ref={loadLowRef}>
                   <div className="vsr-loader-box">
