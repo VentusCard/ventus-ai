@@ -498,10 +498,10 @@ export default function VentusWealthDemo() {
         @keyframes vwm-dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
         @keyframes vwm-dotPing { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.5); opacity: 0; } }
         .vwm-dash-title {
-          font-weight: 700; font-size: 16px; color: #0f172a;
+          font-weight: 700; font-size: 18px; color: #0f172a;
         }
         .vwm-dash-title .vwm-powered {
-          font-size: 13px; font-weight: 400; color: rgba(15,23,42,.40); margin-left: 6px;
+          display: none;
         }
         .vwm-live-badge {
           display: inline-flex; align-items: center; gap: 6px;
