@@ -553,6 +553,10 @@ export default function VentusTransactionEnrichment() {
           gap: 4px;
           padding-top: 12px;
           border-top: 1px solid #e2e8f0;
+          margin-left: -20px;
+          margin-right: -20px;
+          padding-left: 20px;
+          padding-right: 20px;
         }
         .vte-control-bar {
           display: flex;
