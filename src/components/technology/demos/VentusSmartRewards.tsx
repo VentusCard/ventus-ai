@@ -1055,7 +1055,7 @@ export default function VentusSmartRewards() {
             <div className="vsr-pipeline-panel">
               <div className="vsr-priority-section">
                 <div className="vsr-hd">
-                  <div className="vsr-hd-title">High Priority</div>
+                  <div className="vsr-hd-title" style={{ color: '#dc2626' }}>High Priority</div>
                   <div className="vsr-tag vsr-mono" ref={highCountRef}>0 deals</div>
                 </div>
                 <div className="vsr-bd">
@@ -1071,7 +1071,7 @@ export default function VentusSmartRewards() {
 
               <div className="vsr-priority-section">
                 <div className="vsr-hd">
-                  <div className="vsr-hd-title">Low Priority</div>
+                  <div className="vsr-hd-title" style={{ color: '#d97706' }}>Low Priority</div>
                   <div className="vsr-tag vsr-mono" ref={lowCountRef}>0 deals</div>
                 </div>
                 <div className="vsr-bd">
