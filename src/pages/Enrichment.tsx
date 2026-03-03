@@ -47,7 +47,7 @@ const Enrichment = () => {
             <div>
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Transaction Enrichment</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-6">
-                From raw transaction to human intelligence.{" "}
+                From raw transaction to consim intelligence.{" "}
                 <span className="text-blue-400">In milliseconds.</span>
               </h1>
               <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
