@@ -68,10 +68,7 @@ const TravelInteractiveDemo = () => {
       <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-3 border-b border-gray-200">
         <h3 className="text-gray-900 text-lg font-bold">Travel Intelligence</h3>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" style={{ animation: "liveDotPulse 2s ease-in-out infinite" }} />
           Live Demo
         </span>
       </div>
