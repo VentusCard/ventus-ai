@@ -252,6 +252,8 @@ export default function VentusSmartRewards() {
   const highCountRef = useRef(null);
   const lowCountRef = useRef(null);
   const flowStepRef = useRef(null);
+  const pauseLabelRef = useRef<HTMLSpanElement>(null);
+  const pauseIconRef = useRef<HTMLSpanElement>(null);
   const toggleBtnRef = useRef(null);
   const loadTxRef = useRef(null);
   const loadAiRef = useRef(null);
@@ -266,6 +268,16 @@ export default function VentusSmartRewards() {
     if (which === "deals") {
       if (loadHighRef.current) loadHighRef.current.style.display = on ? "flex" : "none";
       if (loadLowRef.current) loadLowRef.current.style.display = on ? "flex" : "none";
+    }
+  }, []);
+
+  const setPauseLabel = useCallback((label: string) => {
+    if (pauseLabelRef.current) pauseLabelRef.current.textContent = label;
+    if (pauseIconRef.current) {
+      const isPause = label === 'Pause';
+      pauseIconRef.current.innerHTML = isPause
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
     }
   }, []);
 
@@ -520,7 +532,7 @@ export default function VentusSmartRewards() {
         cyclesRef.current++;
         if (cyclesRef.current >= 1) {
           runningRef.current = false;
-          if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Restart";
+          setPauseLabel("Play");
           if (flowStepRef.current) flowStepRef.current.textContent = "All indicators processed · Complete";
           break;
         }
@@ -533,14 +545,14 @@ export default function VentusSmartRewards() {
     runningRef.current = true;
     cyclesRef.current = 0;
     stepIdxRef.current = 0;
-    if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause";
+    setPauseLabel("Pause");
     flowTokenRef.current++;
     autoLoop();
   }, [autoLoop]);
 
   const pause = useCallback(() => {
     runningRef.current = false;
-    if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Resume";
+    setPauseLabel("Play");
     flowTokenRef.current++;
     setScanningUI("", false);
     showLoad("tx", false);
@@ -688,8 +700,9 @@ export default function VentusSmartRewards() {
           outline: none;
         }
         .vsr-pill:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.08); border-color: rgba(15,23,42,.25); background: rgba(15,23,42,.07); }
-        .vsr-pill[aria-selected="true"] { background: rgba(15,23,42,.08); border-color: rgba(15,23,42,.30); box-shadow: 0 12px 26px rgba(0,0,0,.06); }
-        .vsr-pill.scanning { border-color: rgba(59,130,246,.50); background: rgba(59,130,246,.08); box-shadow: 0 14px 34px rgba(59,130,246,.12); }
+        .vsr-pill[aria-selected="true"] { background: rgba(37,99,235,.08); border-color: rgba(37,99,235,.40); box-shadow: 0 12px 26px rgba(37,99,235,.08); color: #2563eb; font-weight: 700; }
+        .vsr-pill[aria-selected="true"] .vsr-pill-icon { background: rgba(37,99,235,.12); border-color: rgba(37,99,235,.30); }
+        .vsr-pill.scanning { border-color: rgba(59,130,246,.50); background: rgba(59,130,246,.08); box-shadow: 0 14px 34px rgba(59,130,246,.12); color: #2563eb; font-weight: 700; }
         .vsr-pill.scanning::after {
           content: ""; position: absolute; inset: -2px; border-radius: 999px;
           border: 1px solid rgba(59,130,246,.50);
@@ -983,29 +996,6 @@ export default function VentusSmartRewards() {
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="vsr-controls">
-            <div className="vsr-ctrl-left">
-              <span className="vsr-mono" ref={flowStepRef}>Step 1/5 · Scanning: Golf</span>
-              <span style={{color:"rgba(15,23,42,.45)",fontSize:"11px"}}>Tip: click a lifestyle indicator anytime to interrupt.</span>
-            </div>
-            <div className="vsr-ctrl-btns">
-              <button className="vsr-btn primary" ref={toggleBtnRef} onClick={() => {
-                if (runningRef.current) { pause(); }
-                else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause"; flowTokenRef.current++; autoLoop(); } }
-              }}>Pause</button>
-              <button className="vsr-btn" onClick={() => {
-                highPipelineRef.current = [];
-                lowPipelineRef.current = [];
-                renderPipeline();
-                stepIdxRef.current = 0;
-                cyclesRef.current = 0;
-                runningRef.current = false;
-                if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Start";
-                if (flowStepRef.current) flowStepRef.current.textContent = "Ready to begin";
-              }}>Reset pipeline</button>
-            </div>
-          </div>
 
           {/* Analysis row */}
           <div className="vsr-analysis-row">
@@ -1089,7 +1079,26 @@ export default function VentusSmartRewards() {
 
           <div className="vsr-foot">Note: Example data shown for illustration only.</div>
 
-          <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "16px 0", borderTop: "1px solid #e2e8f0" }}>
+            <button
+              ref={toggleBtnRef}
+              onClick={() => {
+                if (runningRef.current) { pause(); }
+                else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; setPauseLabel("Pause"); flowTokenRef.current++; autoLoop(); } }
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s", height: "40px",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              <span ref={pauseIconRef} style={{ display: "inline-flex" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span>
+              <span ref={pauseLabelRef}>Pause</span>
+            </button>
             <button
               onClick={() => {
                 highPipelineRef.current = [];
@@ -1099,15 +1108,15 @@ export default function VentusSmartRewards() {
                 cyclesRef.current = 0;
                 runningRef.current = false;
                 flowTokenRef.current++;
-                if (toggleBtnRef.current) toggleBtnRef.current.textContent = "Pause";
+                setPauseLabel("Pause");
                 start();
               }}
               style={{
                 display: "inline-flex", alignItems: "center", gap: "6px",
-                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
                 color: "#9ca3af", background: "transparent", border: "none",
                 borderRadius: "9999px", cursor: "pointer",
-                transition: "color 0.2s, background 0.2s",
+                transition: "color 0.2s, background 0.2s", height: "40px",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
