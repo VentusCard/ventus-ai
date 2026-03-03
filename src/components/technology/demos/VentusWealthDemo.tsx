@@ -940,11 +940,6 @@ export default function VentusWealthDemo() {
                         {!insightComplete && <span className="vwm-insight-cursor" />}
                       </div>
                     </div>
-                    <div className="vwm-detail-actions">
-                      <button className="vwm-footer-btn">⚡ Prepare with Ventus</button>
-                      <button className="vwm-footer-btn">📄 Download PDF</button>
-                      <button className="vwm-footer-btn primary">✉️ Email Summary</button>
-                    </div>
                   </div>
                   <div>
                     <div className="vwm-detail-section-title">⏱ Ventus AI Recommended Next Steps</div>
@@ -956,6 +951,11 @@ export default function VentusWealthDemo() {
                         </li>
                       ))}
                     </ol>
+                  </div>
+                  <div className="vwm-detail-actions">
+                    <button className="vwm-footer-btn">⚡ Prepare with Ventus</button>
+                    <button className="vwm-footer-btn">📄 Download PDF</button>
+                    <button className="vwm-footer-btn primary">✉️ Email Summary</button>
                   </div>
                 </div>
               </div>
