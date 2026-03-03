@@ -1007,6 +1007,11 @@ export default function VentusSmartRewards() {
           </div>
 
 
+          {/* Step indicator */}
+          <div style={{ padding: "0 20px 4px", display: "flex", alignItems: "center", gap: "6px" }}>
+            <span ref={flowStepRef} style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500 }} />
+          </div>
+
           {/* Analysis row */}
           <div className="vsr-analysis-row">
             <div className="vsr-panel">
@@ -1089,54 +1094,51 @@ export default function VentusSmartRewards() {
 
           <div className="vsr-foot">Note: Example data shown for illustration only.</div>
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", padding: "12px 20px", borderTop: "1px solid #e2e8f0" }}>
-            <span ref={flowStepRef} style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500, marginRight: "auto", whiteSpace: "nowrap" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: "2px", marginLeft: "auto" }}>
-              <button
-                ref={toggleBtnRef}
-                onClick={() => {
-                  if (runningRef.current) { pause(); }
-                  else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; setPauseLabel("Pause"); flowTokenRef.current++; autoLoop(); } }
-                }}
-                style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center",
-                  width: "32px", height: "32px", padding: 0,
-                  color: "#9ca3af", background: "transparent", border: "none",
-                  borderRadius: "50%", cursor: "pointer",
-                  transition: "color 0.2s, background 0.2s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f3f4f6"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
-                title="Pause / Play"
-              >
-                <span ref={pauseIconRef} style={{ display: "inline-flex" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span>
-              </button>
-              <button
-                onClick={() => {
-                  highPipelineRef.current = [];
-                  lowPipelineRef.current = [];
-                  renderPipeline();
-                  stepIdxRef.current = 0;
-                  cyclesRef.current = 0;
-                  runningRef.current = false;
-                  flowTokenRef.current++;
-                  setPauseLabel("Pause");
-                  start();
-                }}
-                style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center",
-                  width: "32px", height: "32px", padding: 0,
-                  color: "#9ca3af", background: "transparent", border: "none",
-                  borderRadius: "50%", cursor: "pointer",
-                  transition: "color 0.2s, background 0.2s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f3f4f6"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
-                title="Replay"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-              </button>
-            </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "16px 0", borderTop: "1px solid #e2e8f0" }}>
+            <button
+              ref={toggleBtnRef}
+              onClick={() => {
+                if (runningRef.current) { pause(); }
+                else { if (cyclesRef.current >= 1) { start(); } else { runningRef.current = true; setPauseLabel("Pause"); flowTokenRef.current++; autoLoop(); } }
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s", height: "40px",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              <span ref={pauseIconRef} style={{ display: "inline-flex" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span>
+              <span ref={pauseLabelRef}>Pause</span>
+            </button>
+            <button
+              onClick={() => {
+                highPipelineRef.current = [];
+                lowPipelineRef.current = [];
+                renderPipeline();
+                stepIdxRef.current = 0;
+                cyclesRef.current = 0;
+                runningRef.current = false;
+                flowTokenRef.current++;
+                setPauseLabel("Pause");
+                start();
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 20px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s", height: "40px",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Replay
+            </button>
           </div>
         </div>
       </div>
