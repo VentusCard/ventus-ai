@@ -159,58 +159,70 @@ const RewardsPreview = () => (
 );
 
 const EngagementPreview = () => {
-  const pillars = [
-    { label: "Travel", spend: 1240, budget: 1500, color: "#3b82f6", subs: [{ name: "Flights", amount: 680 }, { name: "Hotels", amount: 340 }, { name: "Car Rental", amount: 220 }] },
-    { label: "Dining", spend: 480, budget: 500, color: "#f97316", subs: [{ name: "Restaurants", amount: 310 }, { name: "Coffee Shops", amount: 95 }, { name: "Delivery", amount: 75 }] },
-    { label: "Wellness", spend: 320, budget: 250, color: "#10b981", subs: [{ name: "Gym", amount: 140 }, { name: "Supplements", amount: 105 }, { name: "Spa", amount: 75 }] },
-    { label: "Shopping", spend: 180, budget: 400, color: "#8b5cf6", subs: [{ name: "Clothing", amount: 95 }, { name: "Electronics", amount: 50 }, { name: "Home", amount: 35 }] },
-  ];
-  const getStatus = (spend: number, budget: number) => {
-    const ratio = spend / budget;
-    if (ratio > 1) return { label: "Over Budget", barColor: "#ef4444" };
-    if (ratio >= 0.8) return { label: "Near Limit", barColor: "#f59e0b" };
-    return { label: "Under Budget", barColor: "#22c55e" };
-  };
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-gray-900">Monthly Spending by Pillar</p>
-        <span className="text-[9px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium">Budget Mode</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {pillars.map((p) => {
-          const status = getStatus(p.spend, p.budget);
-          return (
-            <div key={p.label} className="rounded-lg border border-gray-200 bg-white p-2.5 flex flex-col gap-1.5">
-              <div className="w-full h-0.5 rounded-full" style={{ backgroundColor: p.color }} />
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-semibold text-gray-900">{p.label}</p>
-                <span className="text-[9px] font-medium" style={{ color: status.barColor }}>{status.label}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${Math.min((p.spend / p.budget) * 100, 100)}%`, backgroundColor: status.barColor }} />
-                </div>
-                <span className="text-[9px] text-gray-500 shrink-0">${p.spend} / ${p.budget.toLocaleString()}</span>
-              </div>
-              <div className="border-t border-gray-100 pt-1 mt-0.5 space-y-1">
-                {p.subs.map((s) => (
-                  <div key={s.name} className="flex items-center justify-between text-[10px]">
-                    <span className="text-gray-500">{s.name}</span>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-10 h-1 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full opacity-60" style={{ width: `${(s.amount / p.spend) * 100}%`, backgroundColor: p.color }} />
-                      </div>
-                      <span className="font-medium text-gray-700 w-8 text-right">${s.amount}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+    <div className="grid grid-cols-2 gap-3">
+      {/* LEFT — Customer Profile */}
+      <div className="space-y-2">
+        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Customer Profile</p>
+        <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-2">
+          <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
+            <span className="text-blue-600 font-bold text-[10px]">SM</span>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold text-gray-900">Sarah M.</p>
+            <p className="text-[9px] text-gray-500">Premium Banking · New York, NY</p>
+          </div>
+        </div>
+        <div className="space-y-1">
+          {[
+            { label: "Wellness", score: "91%" },
+            { label: "Travel", score: "87%" },
+            { label: "Dining", score: "82%" },
+          ].map((p) => (
+            <div key={p.label} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
+              <span className="text-[10px] font-medium text-gray-700">{p.label}</span>
+              <span className="text-[10px] font-semibold text-gray-500">{p.score}</span>
             </div>
-          );
-        })}
+          ))}
+        </div>
+        <div className="rounded-md px-2.5 py-1.5" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.15)" }}>
+          <p className="text-[10px] font-semibold text-blue-700">✦ Wellness Explorer</p>
+        </div>
       </div>
-      <p className="text-[9px] text-red-500 font-medium">⚠ Wellness spending is 28% over budget this month — 3 subcategories contributing</p>
+
+      {/* RIGHT — Bank App Output */}
+      <div className="space-y-2">
+        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Bank App Experience</p>
+        {/* Wellness Explorer Banner */}
+        <div className="rounded-lg px-2.5 py-2 relative" style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%)" }}>
+          <p className="text-[10px] font-bold text-white leading-tight">WELLNESS EXPLORER</p>
+          <p className="text-[8px] text-white/50 mt-0.5 text-right">Powered by Ventus AI</p>
+        </div>
+        {/* Offer rows */}
+        {[
+          { brand: "REI Co-op", offer: "10% back", tag: "Outdoor" },
+          { brand: "Equinox", offer: "First month free", tag: "Wellness" },
+        ].map((o) => (
+          <div key={o.brand} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
+            <div>
+              <p className="text-[11px] font-semibold text-gray-900">{o.brand}</p>
+              <p className="text-[9px] text-gray-500">{o.offer}</p>
+            </div>
+            <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(37,99,235,0.08)", color: "#2563eb" }}>{o.tag}</span>
+          </div>
+        ))}
+        {/* Spending insight */}
+        <div className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px]">💪</span>
+            <span className="text-[10px] font-medium text-gray-700">Wellness</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] text-gray-500">$320 / $250</span>
+            <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(239,68,68,0.08)", color: "#dc2626" }}>Over Budget</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
