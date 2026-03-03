@@ -844,7 +844,7 @@ export default function VentusWealthDemo() {
               const urg = urgencyBadge(event.urgency);
               const evType = EVENT_TYPE_BADGE[event.eventType] || EVENT_TYPE_BADGE.retirement;
               return (
-                <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': event.color } as React.CSSProperties : {}) }}>
+                <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': '#3b82f6' } as React.CSSProperties : {}) }}>
                   <div className="vwm-row-icon-circle" style={{ background: 'rgba(100,116,139,.10)' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(15,23,42,.55)', letterSpacing: '-.01em' }}>{client.name.split(' ').map(n => n[0]).join('')}</span>
                   </div>
