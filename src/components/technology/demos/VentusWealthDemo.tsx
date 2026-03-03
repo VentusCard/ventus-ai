@@ -803,9 +803,9 @@ export default function VentusWealthDemo() {
                 Live Demo
               </span>
             </div>
-            <div className="vwm-dash-subtitle">
-              {displayedClients > 0 ? `${displayedClients} clients with upcoming life events need attention` : 'Scanning client portfolios...'}
-            </div>
+            {displayedClients === 0 && (
+              <div className="vwm-dash-subtitle">Scanning client portfolios...</div>
+            )}
           </div>
 
           {/* Metrics */}
