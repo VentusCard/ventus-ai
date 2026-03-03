@@ -28,8 +28,8 @@ const insightTools = [
     href: "/smartrewards",
   },
   {
-    title: "Customer Engagement",
-    desc: "Hyper-targeted campaigns and segments powered by real behavioral intelligence.",
+    title: "Customer Experience",
+    desc: "Transaction intelligence powering personalized banking interfaces, lifestyle-aware budgeting, and contextual nudges.",
     icon: Users,
     href: "/engagement",
   },

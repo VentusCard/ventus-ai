@@ -29,15 +29,15 @@ const tabs = [
     ],
   },
   {
-    label: "Customer Engagement",
-    heading: "Customer Engagement",
+    label: "Customer Experience",
+    heading: "Customer Experience",
     href: "/engagement",
     description:
-      "Move beyond batch-and-blast. Build micro-segments from behavioral dimensions no one else has — lifestyle pillars, predicted life events, product ownership gaps — then deliver messages that land because they're relevant, not just personalized.",
+      "Power a next-gen banking UX that adapts to every customer. Transaction intelligence drives personalized home screens, lifestyle-aware budgeting, and contextual nudges — making your app feel built for each individual.",
     capabilities: [
-      "Life event triggers — detect new parents, movers, retirees from spending patterns and activate campaigns at exactly the right moment",
-      "Lifestyle pillar targeting — reach the 'Wellness Enthusiasts' or 'Pet Parents' in your portfolio with messaging that speaks to how they actually live",
-      "AI-generated campaign briefs — describe your audience in plain English and get channel strategy, copy, and audience sizing in seconds",
+      "Lifestyle-aware interfaces — dynamically adapt app content, budgeting views, and product highlights based on each customer's spending pillars",
+      "Contextual nudges — surface timely insights like over-budget alerts and spending shifts at the moment they matter, inside the banking experience",
+      "Life stage personalization — detect new parents, movers, and retirees from transaction patterns and tailor the entire UX to their current reality",
     ],
   },
   {
