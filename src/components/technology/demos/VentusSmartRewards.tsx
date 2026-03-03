@@ -768,7 +768,7 @@ export default function VentusSmartRewards() {
           border-radius: 12px;
           overflow: hidden;
           display: flex; flex-direction: column;
-          min-height: 400px; max-height: 700px;
+          min-height: 300px; max-height: 600px;
           position: relative;
           box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
@@ -778,7 +778,7 @@ export default function VentusSmartRewards() {
           border-radius: 12px;
           overflow: hidden;
           display: flex; flex-direction: column;
-          min-height: 500px; max-height: 900px;
+          min-height: 300px; max-height: 600px;
           position: relative;
           box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
