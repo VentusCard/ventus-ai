@@ -727,7 +727,7 @@ export default function VentusWealthDemo() {
         }
         .vwm-detail-tx-date { font-size: 12px; color: rgba(15,23,42,.40); }
         .vwm-detail-tx-relevance { font-size: 12px; color: rgba(15,23,42,.45); font-style: italic; margin-left: auto; }
-        .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; }
+        .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; justify-content: space-between; }
         .vwm-insight-box {
           padding: 16px; border-radius: 14px;
           border: 1px solid #dbeafe;
@@ -758,17 +758,17 @@ export default function VentusWealthDemo() {
           background: rgba(15,23,42,.06); color: rgba(15,23,42,.55);
         }
         .vwm-detail-actions {
-          display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
+          display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; padding-top: 12px;
         }
         .vwm-footer-btn {
-          padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600;
+          padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 600;
           border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
           color: rgba(15,23,42,.65); cursor: pointer; transition: all .2s;
-          display: inline-flex; align-items: center; gap: 5px;
+          display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
         }
         .vwm-footer-btn:hover { background: rgba(15,23,42,.08); }
-        .vwm-footer-btn.primary { background: #0f172a; color: #fff; border-color: transparent; }
-        .vwm-footer-btn.primary:hover { background: #1e293b; }
+        .vwm-footer-btn.primary { background: #2563eb; color: #fff; border-color: transparent; }
+        .vwm-footer-btn.primary:hover { background: #1d4ed8; }
 
         /* Empty state */
         .vwm-empty {
@@ -953,9 +953,9 @@ export default function VentusWealthDemo() {
                     </ol>
                   </div>
                   <div className="vwm-detail-actions">
-                    <button className="vwm-footer-btn">⚡ Prepare with Ventus WM Co-Pilot</button>
+                    <button className="vwm-footer-btn">⚡ Prepare with Ventus</button>
                     <button className="vwm-footer-btn">📄 Download PDF</button>
-                    <button className="vwm-footer-btn primary">✉️ Email Me Summary</button>
+                    <button className="vwm-footer-btn primary">✉️ Email Summary</button>
                   </div>
                 </div>
               </div>
