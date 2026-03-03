@@ -1,72 +1,58 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+# Rename "Customer Engagement" to "Customer Experience"
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+## Goal
+Reframe this product from a campaigns/segmentation tool into a **next-gen banking UX layer** — Ventus powering the customer experience itself, not just marketing to customers.
 
----
+## Changes
 
-## Sections to Build
+### 1. `src/components/PlatformTabs.tsx` (lines 32-41)
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+**Current:**
+```
+label: "Customer Engagement"
+heading: "Customer Engagement"
+description: "Move beyond batch-and-blast. Build micro-segments..."
+capabilities: [life event triggers, lifestyle pillar targeting, AI campaign briefs]
+```
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+**Updated:**
+```
+label: "Customer Experience"
+heading: "Customer Experience"
+description: "Power a next-gen banking UX that adapts to every customer. Transaction intelligence drives personalized home screens, lifestyle-aware budgeting, and contextual nudges — making your app feel built for each individual."
+capabilities:
+  - "Lifestyle-aware interfaces — dynamically adapt app content, budgeting views, and product highlights based on each customer's spending pillars"
+  - "Contextual nudges — surface timely insights like over-budget alerts and spending shifts at the moment they matter, inside the banking experience"
+  - "Life stage personalization — detect new parents, movers, and retirees from transaction patterns and tailor the entire UX to their current reality"
+```
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+### 2. `src/components/Navbar.tsx` (lines 30-35)
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+**Current:**
+```
+title: "Customer Engagement"
+desc: "Hyper-targeted campaigns and segments powered by real behavioral intelligence."
+```
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+**Updated:**
+```
+title: "Customer Experience"
+desc: "Transaction intelligence powering personalized banking interfaces, lifestyle-aware budgeting, and contextual nudges."
+```
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
+### 3. `src/pages/Engagement.tsx`
 
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+Update hero copy to match the new framing:
+- Subtitle label: "Customer Engagement" becomes "Customer Experience"
+- Headline: "Your bank app." stays, but the italic subline changes from "Personalized to every customer's life." to "Redesigned around every customer's life."
 
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
+### 4. No route or file rename
+The `/engagement` route and `Engagement.tsx` filename stay the same — renaming routes would break bookmarks and is unnecessary for a copy update.
 
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
+## What This Achieves
+- Shifts positioning from "we help you run campaigns" (marketing tool) to "we power the UX" (platform infrastructure)
+- The preview card in PlatformTabs (budgeting pillars) already shows a UX concept — the copy now matches
+- Differentiates from the campaigns/segmentation features already covered by the SegmentBuilder in tepilot
 
