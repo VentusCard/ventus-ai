@@ -393,7 +393,7 @@ export default function VentusSmartRewards() {
             <div class="vsr-deal-copy">${d.standard}</div>
           </div>
           <div class="vsr-deal-section">
-            <div class="vsr-deal-label">AI Personalization</div>
+            <div class="vsr-deal-label" style="color:#2563eb;">✨ AI Personalization</div>
             <div class="vsr-deal-copy">${d.personalized}</div>
           </div>
         </div>
