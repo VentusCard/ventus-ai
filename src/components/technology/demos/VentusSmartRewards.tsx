@@ -1092,7 +1092,7 @@ export default function VentusSmartRewards() {
           </div>
 
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "12px 0 4px" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "12px 0 4px", borderTop: "1px solid #e2e8f0" }}>
             <button
               ref={toggleBtnRef}
               onClick={() => {
