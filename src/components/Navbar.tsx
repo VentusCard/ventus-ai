@@ -97,7 +97,7 @@ const Navbar = () => {
             onMouseLeave={() => setIsProductsOpen(false)}
           >
             <button className={`flex items-center gap-1 ${textColor} text-sm font-medium transition-colors`}>
-              Products <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isProductsOpen ? "rotate-180" : ""}`} />
+              Platform <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isProductsOpen ? "rotate-180" : ""}`} />
             </button>
             <div className={`absolute top-full left-0 pt-3 transition-all duration-200 ${isProductsOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}>
               <div className="w-[860px] bg-white rounded-xl border border-gray-200 shadow-xl flex overflow-hidden">
@@ -189,7 +189,7 @@ const Navbar = () => {
             onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
             className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100"
           >
-            Products
+            Platform
             <ChevronDown className={`h-4 w-4 transition-transform ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
           </button>
           <div className={`overflow-hidden transition-all duration-300 ${isMobileProductsOpen ? 'max-h-96' : 'max-h-0'}`}>
