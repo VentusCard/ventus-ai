@@ -783,9 +783,53 @@ export default function VentusWealthDemo() {
         .vwm-empty-sub { font-size: 12px; margin-top: 4px; }
 
         @media (max-width: 767px) {
-          .vwm-root { padding: 10px; border-radius: 14px; }
-          .vwm-dash-title { font-size: 16px; }
-          .vwm-detail-overlay { padding: 14px; }
+          .vwm-root { padding: 0; border-radius: 10px; }
+          .vwm-dash-title { font-size: 15px; }
+          .vwm-detail-overlay { padding: 0; }
+          .vwm-alert-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px 14px;
+          }
+          .vwm-row-right {
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .vwm-row-conf, .vwm-row-last-contact {
+            text-align: left;
+          }
+          .vwm-row-actions {
+            margin-left: auto;
+          }
+          .vwm-row-evidence {
+            white-space: normal;
+          }
+          .vwm-metrics {
+            padding: 8px 14px;
+            gap: 6px;
+          }
+          .vwm-metric-pill {
+            font-size: 11px;
+            padding: 4px 8px;
+          }
+          .vwm-alert-list {
+            padding: 4px 8px;
+            max-height: 400px;
+          }
+          .vwm-detail-header {
+            padding: 12px 14px;
+          }
+          .vwm-detail-title { font-size: 14px; }
+          .vwm-detail-body {
+            grid-template-columns: 1fr;
+            padding: 12px 14px;
+            gap: 16px;
+          }
+          .vwm-detail-tx-bottom { flex-wrap: wrap; }
+          .vwm-detail-tx-relevance { margin-left: 0; }
+          .vwm-detail-actions { flex-wrap: wrap; }
         }
       `}</style>
 

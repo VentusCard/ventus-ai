@@ -659,9 +659,46 @@ export default function VentusTransactionEnrichment() {
         }
         @media (max-width: 767px) {
           .vte-scale-wrapper {
-            transform: scale(0.5);
-            margin-bottom: -50%;
+            transform: none;
+            margin-bottom: 0;
           }
+          .vte-row, .vte-group-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+          }
+          .vte-row.head { display: none; }
+          .vte-group-row { display: none; }
+          .vte-cell {
+            padding: 6px 16px;
+            min-height: auto;
+            border-bottom: none;
+            font-size: 12px;
+            border-left: none !important;
+          }
+          .vte-cell::before {
+            content: attr(data-label);
+            display: block;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #94a3b8;
+            margin-bottom: 2px;
+          }
+          .vte-cell.derived { animation-delay: 0.6s; }
+          .vte-row.data-row {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 8px 0;
+          }
+          .vte-category-group {
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+          }
+          .vte-category-group .vte-chips {
+            grid-column: 1 / -1;
+          }
+          .vte-connector-text { white-space: normal; }
         }
       `}</style>
 
