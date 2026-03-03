@@ -815,16 +815,16 @@ export default function VentusWealthDemo() {
           {/* Metrics */}
           <div className="vwm-metrics">
             <span className="vwm-metric-pill clients">
-              👥 <span className="num">{displayedClients}</span> Clients
+              <span className="num">{displayedClients}</span> Clients
             </span>
             <span className="vwm-metric-pill urgent">
-              ⚠️ <span className="num">{displayedUrgent}</span> Urgent
+              <span className="num">{displayedUrgent}</span> Urgent
             </span>
             <span className="vwm-metric-pill quarter">
-              🕐 <span className="num">{displayedQuarter}</span> This Quarter
+              <span className="num">{displayedQuarter}</span> This Quarter
             </span>
             <span className="vwm-metric-pill total">
-              📅 <span className="num">{displayedEvents}</span> Total Events
+              <span className="num">{displayedEvents}</span> Total Events
             </span>
           </div>
 
