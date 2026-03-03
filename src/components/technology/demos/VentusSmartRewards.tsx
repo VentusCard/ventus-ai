@@ -978,12 +978,18 @@ export default function VentusSmartRewards() {
         </div>
 
         <div className="vsr-grid">
-          {/* Customer info */}
-          <div className="vsr-row">
-            <span className="vsr-row-label">Customer</span>
-            {[["Age","39"],["Household","Family"],["State","MA"],["Income","$165K"],["Dependents","2 kids"]].map(([k,v]) => (
-              <span key={k} className="vsr-chip"><span className="k">{k}</span><strong>{v}</strong></span>
-            ))}
+          {/* Customer Profile */}
+          <div style={{ padding: '0 0 4px' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.15em', color: '#2563EB', textTransform: 'uppercase' as const, display: 'block', marginBottom: 12 }}>Customer Profile</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px' }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ color: '#2563eb', fontWeight: 700, fontSize: 14 }}>JT</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', margin: 0 }}>James T.</p>
+                <p style={{ fontSize: 11, color: '#64748b', margin: 0 }}>Age 39 · Family · MA · $165K · 2 kids</p>
+              </div>
+            </div>
           </div>
 
           {/* Lifestyle pills */}
@@ -1006,10 +1012,8 @@ export default function VentusSmartRewards() {
           </div>
 
 
-          {/* Step indicator */}
-          <div style={{ padding: "0 20px 4px", display: "flex", alignItems: "center", gap: "6px" }}>
-            <span ref={flowStepRef} style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 500 }} />
-          </div>
+          {/* Step indicator (hidden) */}
+          <span ref={flowStepRef} style={{ display: 'none' }} />
 
           {/* Analysis row */}
           <div className="vsr-analysis-row">
