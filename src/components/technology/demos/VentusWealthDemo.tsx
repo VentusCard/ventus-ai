@@ -870,7 +870,7 @@ export default function VentusWealthDemo() {
                     <div className="vwm-detail-badges">
                       <span>{selectedEvent.client.name}</span>
                       <span className="vwm-detail-badge" style={{ background: SEGMENT_STYLES[selectedEvent.client.segment]?.bg, color: SEGMENT_STYLES[selectedEvent.client.segment]?.text }}>{selectedEvent.client.segment}</span>
-                      <span className="vwm-detail-badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{selectedEvent.event.confidence}% confidence</span>
+                      <span className="vwm-detail-badge" style={{ background: '#dcfce7', color: '#16a34a' }}>{selectedEvent.event.confidence}% confidence</span>
                     </div>
                   </div>
                 </div>
