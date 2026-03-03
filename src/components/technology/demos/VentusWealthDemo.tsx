@@ -663,8 +663,9 @@ export default function VentusWealthDemo() {
         }
 
         /* Detail overlay */
+        .vwm-content-area { position: relative; flex: 1; }
         .vwm-detail-overlay {
-          position: absolute; top: 0; left: 0; right: 0; bottom: 56px; z-index: 10;
+          position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10;
           background: rgba(255,255,255,.97);
           backdrop-filter: blur(8px);
           display: flex; flex-direction: column;
@@ -807,6 +808,9 @@ export default function VentusWealthDemo() {
               <div className="vwm-dash-subtitle">Scanning client portfolios...</div>
             )}
           </div>
+
+          {/* Content area - overlay positions relative to this */}
+          <div className="vwm-content-area">
 
           {/* Metrics */}
           <div className="vwm-metrics">
@@ -963,6 +967,8 @@ export default function VentusWealthDemo() {
               </div>
             </div>
           )}
+          </div>
+          {/* End content area */}
 
           {/* Controls: Pause/Play + Replay */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", padding: "16px 0", borderTop: "1px solid #e2e8f0" }}>
