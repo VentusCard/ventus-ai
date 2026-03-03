@@ -812,6 +812,9 @@ export default function VentusWealthDemo() {
           {/* Content area - overlay positions relative to this */}
           <div className="vwm-content-area">
 
+          {/* Subheader */}
+          <div style={{ padding: '12px 20px 0', fontSize: 11, fontWeight: 600, color: 'rgba(15,23,42,.45)', letterSpacing: '.04em' }}>Your Clients</div>
+
           {/* Metrics */}
           <div className="vwm-metrics">
             <span className="vwm-metric-pill clients">
