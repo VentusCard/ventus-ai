@@ -813,7 +813,7 @@ export default function VentusWealthDemo() {
           <div className="vwm-content-area">
 
           {/* Subheader */}
-          <div style={{ padding: '12px 20px 0', fontSize: 11, fontWeight: 600, color: 'rgba(15,23,42,.45)', letterSpacing: '.04em' }}>Your Clients</div>
+          <div style={{ padding: '12px 20px 0', fontSize: 12.5, fontWeight: 600, color: 'rgba(15,23,42,.45)', letterSpacing: '.04em' }}>Your Clients</div>
 
           {/* Metrics */}
           <div className="vwm-metrics">
