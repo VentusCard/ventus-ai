@@ -214,10 +214,20 @@ const CARD_TYPE_STYLES: Record<string, { bg: string; text: string; border: strin
   web:       { bg: 'rgba(6,182,212,.12)',   text: '#0891b2', border: 'rgba(6,182,212,.30)',   dot: '#06b6d4' },
 };
 
-const SEGMENT_STYLES: Record<string, { bg: string; text: string; border: string }> = {
-  Private: { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
-  Premium: { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
-  Preferred: { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
+const SEGMENT_STYLES: Record<string, { bg: string; text: string }> = {
+  Private: { bg: '#dbeafe', text: '#1d4ed8' },
+  Premium: { bg: '#dcfce7', text: '#16a34a' },
+  Preferred: { bg: '#fef3c7', text: '#d97706' },
+};
+
+const EVENT_TYPE_BADGE: Record<string, { bg: string; text: string; label: string }> = {
+  retirement: { bg: '#fef3c7', text: '#92400e', label: 'Retirement Planning' },
+  education: { bg: '#dbeafe', text: '#1e40af', label: 'Education Funding' },
+  home_purchase: { bg: '#dcfce7', text: '#166534', label: 'Home Purchase' },
+  wealth_transfer: { bg: '#f3e8ff', text: '#6b21a8', label: 'Wealth Transfer' },
+  business_liquidity: { bg: '#f1f5f9', text: '#334155', label: 'Business Liquidity' },
+  family_formation: { bg: '#fce7f3', text: '#9d174d', label: 'Family Formation' },
+  elder_care: { bg: '#fee2e2', text: '#991b1b', label: 'Elder Care' },
 };
 
 function wait(ms: number) { return new Promise(res => setTimeout(res, ms)); }
@@ -433,19 +443,18 @@ export default function VentusWealthDemo() {
         .vwm-root *, .vwm-root *::before, .vwm-root *::after { box-sizing: border-box; }
 
         .vwm-dashboard-header {
-          padding: 14px 20px;
+          padding: 16px 20px 12px;
           background: #fff;
           border-bottom: 1px solid #e2e8f0;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
+        }
+        .vwm-dash-title-row {
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
         .vwm-dash-title-left {
-          display: flex; align-items: center; gap: 8px;
+          display: flex; align-items: baseline; gap: 8px;
         }
         .vwm-pulsing-dot {
-          position: relative; width: 8px; height: 8px; flex-shrink: 0;
+          position: relative; width: 8px; height: 8px; flex-shrink: 0; align-self: center;
         }
         .vwm-pulsing-dot::before {
           content: ''; position: absolute; inset: 0; border-radius: 50%; background: #10b981;
@@ -458,12 +467,10 @@ export default function VentusWealthDemo() {
         @keyframes vwm-dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
         @keyframes vwm-dotPing { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.5); opacity: 0; } }
         .vwm-dash-title {
-          font-weight: 700; letter-spacing: 0.15em; font-size: 10px; color: #2563eb;
-          text-transform: uppercase;
+          font-weight: 700; font-size: 16px; color: #0f172a;
         }
         .vwm-dash-title .vwm-powered {
-          font-size: 12px; font-weight: 500; color: rgba(15,23,42,.45); margin-left: 8px;
-          text-transform: none; letter-spacing: normal;
+          font-size: 13px; font-weight: 400; color: rgba(15,23,42,.40); margin-left: 6px;
         }
         .vwm-live-badge {
           display: inline-flex; align-items: center; gap: 6px;
@@ -478,6 +485,22 @@ export default function VentusWealthDemo() {
         }
         .vwm-dash-subtitle {
           font-size: 12px; color: rgba(15,23,42,.45); margin-top: 4px;
+        }
+
+        /* Search + Filters */
+        .vwm-filters-row {
+          display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+          border-bottom: 1px solid rgba(15,23,42,.06); flex-wrap: wrap;
+        }
+        .vwm-search-box {
+          display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+          border-radius: 8px; border: 1px solid #e2e8f0; background: #fff;
+          font-size: 12px; color: rgba(15,23,42,.35); flex: 0 0 auto; min-width: 140px;
+        }
+        .vwm-filter-select {
+          padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;
+          font-size: 12px; color: rgba(15,23,42,.65); background: #fff;
+          cursor: default; font-weight: 500;
         }
 
         /* Metrics bar */
@@ -527,53 +550,67 @@ export default function VentusWealthDemo() {
         /* Individual alert row */
         .vwm-alert-row {
           display: flex; align-items: center; gap: 12px;
-          padding: 12px 14px; margin-bottom: 6px;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
+          padding: 14px 16px; margin-bottom: 4px;
+          border-bottom: 1px solid rgba(15,23,42,.06);
           background: #fff;
           transition: all .2s;
           animation: vwm-rowIn .35s ease both;
         }
-        .vwm-alert-row:hover { background: rgba(15,23,42,.04); border-color: rgba(15,23,42,.14); }
+        .vwm-alert-row:hover { background: rgba(15,23,42,.02); }
         @keyframes vwm-rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .vwm-row-icon {
-          flex: 0 0 10px; height: 10px; border-radius: 50%;
-          display: block; font-size: 0;
+        .vwm-row-icon-circle {
+          flex: 0 0 36px; width: 36px; height: 36px; border-radius: 50%;
+          display: grid; place-items: center; font-size: 16px;
         }
         .vwm-row-info { flex: 1; min-width: 0; }
-        .vwm-row-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .vwm-row-name { font-weight: 720; font-size: 13px; color: #0f172a; white-space: nowrap; }
+        .vwm-row-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .vwm-row-name { font-weight: 700; font-size: 14px; color: #0f172a; white-space: nowrap; }
         .vwm-row-aum { font-size: 11px; color: rgba(15,23,42,.50); font-weight: 600; }
         .vwm-seg-badge {
-          font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
-          border: 1px solid;
+          font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
         }
-        .vwm-row-middle { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
-        .vwm-event-name { font-size: 12px; font-weight: 660; color: rgba(15,23,42,.80); }
+        .vwm-row-middle { display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
+        .vwm-event-type-badge {
+          font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+          white-space: nowrap;
+        }
+        .vwm-event-name { font-size: 13px; font-weight: 640; color: rgba(15,23,42,.85); }
         .vwm-urg-badge {
           font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
           border: none; text-transform: uppercase; letter-spacing: .03em;
         }
-        .vwm-conf-pill {
-          font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
-          border: 1px solid;
-        }
-        .vwm-timing-text { font-size: 10px; color: rgba(15,23,42,.40); }
         .vwm-row-evidence {
-          font-size: 10px; color: rgba(15,23,42,.40); margin-top: 2px;
+          font-size: 11px; color: rgba(15,23,42,.40); margin-top: 2px;
           overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .vwm-row-actions { flex: 0 0 auto; display: flex; gap: 6px; }
+        .vwm-row-right {
+          flex: 0 0 auto; display: flex; align-items: center; gap: 16px;
+        }
+        .vwm-row-conf {
+          text-align: right;
+        }
+        .vwm-row-conf-val { font-size: 12px; font-weight: 700; color: #16a34a; }
+        .vwm-row-conf-timing { font-size: 10px; color: rgba(15,23,42,.40); }
+        .vwm-row-last-contact {
+          text-align: right;
+        }
+        .vwm-row-last-label { font-size: 9px; color: rgba(15,23,42,.35); }
+        .vwm-row-last-val { font-size: 10px; color: rgba(15,23,42,.50); }
+        .vwm-row-actions { display: flex; align-items: center; gap: 6px; }
         .vwm-row-btn {
-          padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
-          border: 1px solid rgba(15,23,42,.15); background: rgba(15,23,42,.04);
-          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
+          padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+          border: none; cursor: pointer; transition: all .2s;
           white-space: nowrap;
         }
-        .vwm-row-btn:hover { background: rgba(15,23,42,.08); }
-        .vwm-row-btn.prepare { background: #fff; color: #0f172a; border-color: #0f172a; }
-        .vwm-row-btn.prepare:hover { background: #f8fafc; }
+        .vwm-row-btn.prepare { background: #22c55e; color: #fff; }
+        .vwm-row-btn.prepare:hover { background: #16a34a; }
+        .vwm-row-icon-btn {
+          width: 28px; height: 28px; border-radius: 50%; border: none;
+          background: transparent; color: rgba(15,23,42,.35); cursor: pointer;
+          display: grid; place-items: center; font-size: 14px; transition: all .2s;
+        }
+        .vwm-row-icon-btn:hover { background: rgba(15,23,42,.05); color: rgba(15,23,42,.65); }
 
         /* Active row highlight */
         .vwm-alert-row.active {
@@ -606,13 +643,16 @@ export default function VentusWealthDemo() {
         .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
         .vwm-detail-header {
           display: flex; align-items: center; justify-content: space-between; gap: 12px;
-          padding: 16px 20px; border-bottom: 1px solid rgba(15,23,42,.08);
+          padding: 18px 24px; border-bottom: 1px solid rgba(15,23,42,.08);
           flex-wrap: wrap;
         }
-        .vwm-detail-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .vwm-detail-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .vwm-detail-icon { font-size: 24px; }
-        .vwm-detail-title { font-weight: 760; font-size: 16px; color: #0f172a; }
-        .vwm-detail-client-name { font-size: 12px; color: rgba(15,23,42,.50); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .vwm-detail-title { font-weight: 700; font-size: 18px; color: #0f172a; }
+        .vwm-detail-badges { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .vwm-detail-badge {
+          font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px;
+        }
         .vwm-back-btn {
           padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
           border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
@@ -721,17 +761,21 @@ export default function VentusWealthDemo() {
         <div className="vwm-root">
           {/* Header */}
           <div className="vwm-dashboard-header">
-            <div className="vwm-dash-title-left">
-              <span className="vwm-pulsing-dot" />
-              <div className="vwm-dash-title">
-                Wealth Management Intelligence
-                <span className="vwm-powered">Powered by Ventus AI</span>
+            <div className="vwm-dash-title-row">
+              <div className="vwm-dash-title-left">
+                <div className="vwm-dash-title">
+                  Wealth Management Client Life Event Intelligence
+                  <span className="vwm-powered">Powered by Ventus AI</span>
+                </div>
               </div>
+              <span className="vwm-live-badge">
+                <span className="vwm-live-dot" />
+                Live Demo
+              </span>
             </div>
-            <span className="vwm-live-badge">
-              <span className="vwm-live-dot" />
-              Live Demo
-            </span>
+            <div className="vwm-dash-subtitle">
+              {displayedClients > 0 ? `${displayedClients} clients with upcoming life events need attention` : 'Scanning client portfolios...'}
+            </div>
           </div>
 
           {/* Metrics */}
@@ -750,20 +794,12 @@ export default function VentusWealthDemo() {
             </span>
           </div>
 
-          {/* Controls */}
-          <div className="vwm-controls-row">
-            <span className="vwm-phase-label">
-              {phase === 'building' && visibleRows < EVENTS.length && `Detecting events... ${visibleRows}/${EVENTS.length}`}
-              {phase === 'building' && visibleRows >= EVENTS.length && 'All events detected'}
-              {phase === 'autoprepare' && 'Viewing preparation details'}
-              {phase === 'complete' && 'Analysis complete · Restarting...'}
-            </span>
-            <div className="vwm-ctrl-btns">
-              <button className="vwm-ctrl-btn primary" onClick={() => setIsPaused(p => !p)}>
-                {isPaused ? 'Resume' : 'Pause'}
-              </button>
-              <button className="vwm-ctrl-btn" onClick={handleReset}>Reset</button>
-            </div>
+          {/* Search + Filters */}
+          <div className="vwm-filters-row">
+            <div className="vwm-search-box">🔍 Search clients...</div>
+            <div className="vwm-filter-select">All Events ▾</div>
+            <div className="vwm-filter-select">All Confidence ▾</div>
+            <div className="vwm-filter-select">Urgency ▾</div>
           </div>
 
           {/* Alert rows */}
@@ -779,35 +815,45 @@ export default function VentusWealthDemo() {
               const client = getClient(event.clientId);
               const seg = SEGMENT_STYLES[client.segment];
               const urg = urgencyBadge(event.urgency);
+              const evType = EVENT_TYPE_BADGE[event.eventType] || EVENT_TYPE_BADGE.retirement;
               return (
                 <div key={`${event.clientId}-${event.eventType}-${idx}`} data-event-idx={idx} className={`vwm-alert-row${activeRowIdx === idx ? ' active' : ''}`} style={{ animationDelay: `${idx * 0.05}s`, ...(activeRowIdx === idx ? { '--vwm-active-color': event.color } as React.CSSProperties : {}) }}>
-                  <div className="vwm-row-icon" style={{ background: event.color }}>
+                  <div className="vwm-row-icon-circle" style={{ background: `${event.color}15` }}>
+                    {event.icon}
                   </div>
                   <div className="vwm-row-info">
                     <div className="vwm-row-top">
                       <span className="vwm-row-name">{client.name}</span>
                       <span className="vwm-row-aum">{client.aum}</span>
-                      <span className="vwm-seg-badge" style={{ background: seg.bg, color: seg.text, borderColor: seg.border }}>
+                      <span className="vwm-seg-badge" style={{ background: seg.bg, color: seg.text }}>
                         {client.segment}
                       </span>
                     </div>
                     <div className="vwm-row-middle">
-                      <span className="vwm-event-name" style={{ color: event.color }}>{event.eventName}</span>
-                      <span className="vwm-urg-badge" style={{ background: urg.bg, color: urg.text, borderColor: urg.border }}>
+                      <span className="vwm-event-type-badge" style={{ background: evType.bg, color: evType.text }}>{evType.label}</span>
+                      <span className="vwm-event-name">{event.eventName}</span>
+                      <span className="vwm-urg-badge" style={{ background: urg.bg, color: urg.text }}>
                         {event.urgency}
                       </span>
-                      <span className="vwm-conf-pill" style={{ background: `${event.color}15`, color: event.color, borderColor: `${event.color}30` }}>
-                        {event.confidence}%
-                      </span>
-                      <span className="vwm-timing-text">{event.timing}</span>
                     </div>
                     <div className="vwm-row-evidence">{event.evidence}</div>
                   </div>
-                  <div className="vwm-row-actions">
-                    {DETAILS[`${event.clientId}-${event.eventType}`] && (
-                      <button className="vwm-row-btn prepare" onClick={() => handlePrepare(event)}>Prepare</button>
-                    )}
-                    <button className="vwm-row-btn">View</button>
+                  <div className="vwm-row-right">
+                    <div className="vwm-row-conf">
+                      <div className="vwm-row-conf-val">{event.confidence}% conf</div>
+                      <div className="vwm-row-conf-timing">{event.timing}</div>
+                    </div>
+                    <div className="vwm-row-last-contact">
+                      <div className="vwm-row-last-label">Last contact</div>
+                      <div className="vwm-row-last-val">1 months ago</div>
+                    </div>
+                    <div className="vwm-row-actions">
+                      {DETAILS[`${event.clientId}-${event.eventType}`] && (
+                        <button className="vwm-row-btn prepare" onClick={() => handlePrepare(event)}>Prepare</button>
+                      )}
+                      <button className="vwm-row-icon-btn" title="View">👁</button>
+                      <button className="vwm-row-icon-btn" title="Call">📞</button>
+                    </div>
                   </div>
                 </div>
               );
@@ -821,18 +867,20 @@ export default function VentusWealthDemo() {
                 <div className="vwm-detail-header-left">
                   <span className="vwm-detail-icon">{selectedEvent.event.icon}</span>
                   <div>
-                    <div className="vwm-detail-title">{selectedEvent.event.eventName}</div>
-                    <div className="vwm-detail-client-name">
-                      {selectedEvent.client.name} · {selectedEvent.client.aum} · {selectedEvent.event.confidence}%
+                    <div className="vwm-detail-title">Prepare: {selectedEvent.event.eventName}</div>
+                    <div className="vwm-detail-badges">
+                      <span>{selectedEvent.client.name}</span>
+                      <span className="vwm-detail-badge" style={{ background: SEGMENT_STYLES[selectedEvent.client.segment]?.bg, color: SEGMENT_STYLES[selectedEvent.client.segment]?.text }}>{selectedEvent.client.segment}</span>
+                      <span className="vwm-detail-badge" style={{ background: '#dbeafe', color: '#1e40af' }}>{selectedEvent.event.confidence}% confidence</span>
                     </div>
                   </div>
                 </div>
-                <button className="vwm-back-btn" onClick={handleCloseDetail}>← Back to Dashboard</button>
+                <button className="vwm-back-btn" onClick={handleCloseDetail}>✕</button>
               </div>
               <div className="vwm-detail-body">
                 {/* Left: Transactions */}
                 <div>
-                  <div className="vwm-detail-section-title">📋 Supporting Transactions ({detail.transactions.length})</div>
+                  <div className="vwm-detail-section-title">📋 Detected Supporting Transactions ({detail.transactions.length} total)</div>
                   {detail.transactions.map((tx, i) => {
                     const cardStyle = CARD_TYPE_STYLES[tx.cardType] || CARD_TYPE_STYLES.checking;
                     return (
@@ -859,7 +907,7 @@ export default function VentusWealthDemo() {
                 {/* Right: Insight + Steps */}
                 <div className="vwm-detail-right">
                   <div>
-                    <div className="vwm-detail-section-title">✨ Ventus AI Insight</div>
+                    <div className="vwm-detail-section-title">✨ Ventus AI Insights</div>
                     <div className="vwm-insight-box">
                       <div className="vwm-insight-text">
                         {visibleInsight}
@@ -868,7 +916,7 @@ export default function VentusWealthDemo() {
                     </div>
                   </div>
                   <div>
-                    <div className="vwm-detail-section-title">📋 Recommended Next Steps</div>
+                    <div className="vwm-detail-section-title">⏱ Ventus AI Recommended Next Steps</div>
                     <ol className="vwm-steps-list">
                       {detail.steps.map((step, i) => (
                         <li key={i} className={`vwm-step-item ${i < stepsShown ? 'revealed' : ''}`}>
@@ -881,8 +929,9 @@ export default function VentusWealthDemo() {
                 </div>
               </div>
               <div className="vwm-detail-footer">
-                <button className="vwm-footer-btn">✉️ Email Me</button>
-                <button className="vwm-footer-btn primary">⚡ Automate Prep</button>
+                <button className="vwm-footer-btn">⚡ Prepare with Ventus WM Co-Pilot</button>
+                <button className="vwm-footer-btn">📄 Download PDF</button>
+                <button className="vwm-footer-btn primary">✉️ Email Me Summary</button>
               </div>
             </div>
           )}
