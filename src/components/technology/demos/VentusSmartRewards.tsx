@@ -607,7 +607,17 @@ export default function VentusSmartRewards() {
     renderDealLibrary(DEAL_LIBRARY[first] || []);
     renderPipeline();
     start();
-    return () => { flowTokenRef.current++; runningRef.current = false; };
+    return () => {
+      flowTokenRef.current++;
+      runningRef.current = false;
+      // Clear all innerHTML-managed containers so React doesn't try to remove
+      // DOM nodes it didn't create, which causes "removeChild" errors.
+      if (txListRef.current) txListRef.current.innerHTML = "";
+      if (aiListRef.current) aiListRef.current.innerHTML = "";
+      if (dealLibraryRef.current) dealLibraryRef.current.innerHTML = "";
+      if (highPriorityRef.current) highPriorityRef.current.innerHTML = "";
+      if (lowPriorityRef.current) lowPriorityRef.current.innerHTML = "";
+    };
   }, [renderTx, renderDealLibrary, renderPipeline, start]);
 
   // ─── Render ───────────────────────────────────────────────────────────────
