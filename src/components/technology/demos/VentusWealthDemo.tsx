@@ -677,14 +677,14 @@ export default function VentusWealthDemo() {
         .vwm-detail-overlay.entering { opacity: 1; transform: translateY(0); }
         .vwm-detail-overlay.exiting { opacity: 0; transform: translateY(12px); }
         .vwm-detail-header {
-          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
           padding: 18px 24px; border-bottom: 1px solid rgba(15,23,42,.08);
-          flex-wrap: wrap;
+          position: relative;
         }
-        .vwm-detail-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .vwm-detail-header-left { display: flex; align-items: flex-start; gap: 12px; min-width: 0; flex: 1; }
         .vwm-detail-icon { font-size: 24px; }
         .vwm-detail-title { font-weight: 700; font-size: 18px; color: #0f172a; }
-        .vwm-detail-badges { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .vwm-detail-badges { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
         .vwm-detail-badge {
           font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px;
         }
@@ -694,7 +694,7 @@ export default function VentusWealthDemo() {
           color: rgba(15,23,42,.40); cursor: pointer; transition: all .2s;
           min-height: auto !important; min-width: auto !important;
           width: 28px; height: 28px; display: grid; place-items: center;
-          line-height: 1;
+          line-height: 1; flex-shrink: 0; margin-top: 2px;
         }
         .vwm-back-btn:hover { background: rgba(15,23,42,.06); color: rgba(15,23,42,.75); }
         .vwm-detail-body {
