@@ -27,7 +27,7 @@ const Hero = () => {
                 showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
               }`}
             >
-              A modular customer intelligence layer that powers hyper-personalized experiences across every team — without changing core infrastructure.
+              A modular AI customer intelligence layer that powers hyper-personalized experiences across every team — without changing core infrastructure.
             </p>
 
             <div
