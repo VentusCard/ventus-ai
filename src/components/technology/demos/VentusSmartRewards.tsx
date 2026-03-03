@@ -757,9 +757,9 @@ export default function VentusSmartRewards() {
 
         .vsr-analysis-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 6px; }
         @media (max-width: 980px) { .vsr-analysis-row { grid-template-columns: 1fr; } }
-        .vsr-deals-row { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; padding: 6px; }
-        @media (max-width: 980px) { .vsr-deals-row { grid-template-columns: 1fr; } }
-        .vsr-pipeline-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .vsr-deals-row { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; padding: 6px; height: 500px; }
+        @media (max-width: 980px) { .vsr-deals-row { grid-template-columns: 1fr; height: auto; } }
+        .vsr-pipeline-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 0; }
         @media (max-width: 760px) { .vsr-pipeline-panel { grid-template-columns: 1fr; } }
 
         .vsr-panel {
@@ -768,7 +768,7 @@ export default function VentusSmartRewards() {
           border-radius: 12px;
           overflow: hidden;
           display: flex; flex-direction: column;
-          min-height: 300px; max-height: 500px;
+          min-height: 0;
           position: relative;
           box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
@@ -778,7 +778,7 @@ export default function VentusSmartRewards() {
           border-radius: 12px;
           overflow: hidden;
           display: flex; flex-direction: column;
-          min-height: 200px; max-height: 500px;
+          min-height: 0;
           position: relative;
           box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
@@ -864,7 +864,7 @@ export default function VentusSmartRewards() {
         .vsr-ai-info { font-size: 11px; color: rgba(15,23,42,.55); line-height: 1.4; font-variant-numeric: tabular-nums; }
 
         /* Deal library */
-        .vsr-deal-library { display: flex; flex-direction: column; gap: 7px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+        .vsr-deal-library { display: flex; flex-direction: column; gap: 7px; }
         .vsr-deal-library::-webkit-scrollbar { width: 10px; }
         .vsr-deal-library::-webkit-scrollbar-track { background: transparent; }
         .vsr-deal-library::-webkit-scrollbar-thumb { background: rgba(15,23,42,.12); border: 3px solid transparent; border-radius: 999px; background-clip: content-box; }
@@ -956,8 +956,9 @@ export default function VentusSmartRewards() {
           .vsr-chip { padding: 6px 8px; font-size: 11px; }
           .vsr-pill { padding: 7px 9px; font-size: 11px; }
           .vsr-pill-icon { width: 22px; height: 22px; font-size: 12px; }
-          .vsr-panel { min-height: 250px; max-height: 400px; }
-          .vsr-priority-section { min-height: 300px; max-height: 500px; }
+          .vsr-panel { min-height: 200px; }
+          .vsr-priority-section { min-height: 200px; }
+          .vsr-deals-row { height: 400px; }
           .vsr-controls { flex-direction: column; align-items: stretch; }
           .vsr-ctrl-left { font-size: 11px; }
           .vsr-ctrl-btns { justify-content: flex-end; }
