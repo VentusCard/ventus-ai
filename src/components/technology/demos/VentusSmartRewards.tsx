@@ -369,7 +369,6 @@ export default function VentusSmartRewards() {
 
   const renderDealAccordion = useCallback((d, isCurrent) => {
     const label = pillLabel(d.sourcePill);
-    const preview = (d.standard || "").slice(0, 45) + ((d.standard || "").length > 45 ? "…" : "");
     const openAttr = isCurrent ? "open" : "";
     const lowClass = d.lowPriority ? "low-priority" : "";
     return `
@@ -379,7 +378,6 @@ export default function VentusSmartRewards() {
             <div class="vsr-brand-name">${d.brand}</div>
             <div class="vsr-pill-tag">${label}</div>
             <div class="vsr-dollar-value">$${d.value}</div>
-            <div class="vsr-sum-meta">${preview}</div>
           </div>
           <div class="vsr-caret">▾</div>
         </summary>
