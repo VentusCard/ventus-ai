@@ -84,7 +84,10 @@ const VentusEngagementDemo = () => {
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#e2e8f0]">
           <h3 className="text-gray-900 text-lg font-bold">Engagement Intelligence</h3>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
             Live Demo
           </span>
         </div>
