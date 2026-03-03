@@ -670,22 +670,28 @@ export default function VentusTransactionEnrichment() {
           .vte-row.head { display: none; }
           .vte-group-row { display: none; }
           .vte-cell {
-            padding: 6px 16px;
+            padding: 4px 16px;
             min-height: auto;
             border-bottom: none;
             font-size: 12px;
             border-left: none !important;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
           }
           .vte-cell::before {
             content: attr(data-label);
-            display: block;
+            display: inline;
             font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .06em;
             color: #94a3b8;
-            margin-bottom: 2px;
+            white-space: nowrap;
+            flex-shrink: 0;
           }
+          .vte-live-badge { white-space: nowrap; }
+          .vte-head { flex-wrap: nowrap; }
           .vte-cell.derived { animation-delay: 0.6s; }
           .vte-row.data-row {
             border-bottom: 1px solid #e2e8f0;
