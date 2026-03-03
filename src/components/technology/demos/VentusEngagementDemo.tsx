@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,19 @@ const personalizedOffers = [
   { brand: "Sweetgreen", offer: "$5 off your next order", tag: "Dining", match: 92 },
   { brand: "Equinox", offer: "First month free", tag: "Wellness", match: 89 },
 ];
+
+const pillarBudgets = [
+  { name: "Travel", icon: "✈️", spend: 1240, budget: 1500, status: "near" as const },
+  { name: "Dining", icon: "🍽️", spend: 480, budget: 500, status: "near" as const },
+  { name: "Wellness", icon: "💪", spend: 320, budget: 250, status: "over" as const },
+  { name: "Shopping", icon: "🛍️", spend: 180, budget: 400, status: "under" as const },
+];
+
+const budgetColors = {
+  near: { bar: "#f59e0b", bg: "rgba(245,158,11,0.08)", text: "#b45309", label: "Near Limit" },
+  over: { bar: "#ef4444", bg: "rgba(239,68,68,0.08)", text: "#dc2626", label: "Over Budget" },
+  under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
+};
 
 const TX_INTERVAL = 1200;
 const TRIGGER_COUNT = 3;
@@ -151,7 +165,7 @@ const VentusEngagementDemo = () => {
             <span className="text-[10px] font-bold tracking-[0.15em] text-blue-600 uppercase mb-5">Customer Experience</span>
 
             {/* Browser chrome frame */}
-            <div className="rounded-xl border border-[#e2e8f0] overflow-hidden flex-1 flex flex-col" style={{ background: "#f8fafc" }}>
+            <div className="rounded-xl border border-[#e2e8f0] overflow-hidden flex-1 flex flex-col" style={{ background: "#f8fafc", maxHeight: "520px" }}>
               {/* Browser bar */}
               <div className="flex items-center gap-2 px-3 py-2 border-b border-[#e2e8f0]" style={{ background: "#f1f5f9" }}>
                 <div className="flex items-center gap-1.5">
@@ -160,12 +174,13 @@ const VentusEngagementDemo = () => {
                   <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
                 </div>
                 <div className="flex-1 flex justify-center">
-                  <span className="text-[10px] text-gray-400 font-mono bg-white rounded px-3 py-0.5 border border-[#e2e8f0]">metrobank.com/app</span>
+                  <span className="text-[10px] text-gray-400 font-mono bg-white rounded px-3 py-0.5 border border-[#e2e8f0]">yourbank.com/app</span>
                 </div>
               </div>
 
-              {/* App content */}
-              <div className="p-4 flex-1 flex flex-col gap-3 bg-white">
+              {/* App content — scrollable */}
+              <ScrollArea className="flex-1">
+              <div className="p-4 flex flex-col gap-3 bg-white">
                 {/* App header */}
                 <div className="mb-1">
                   <p className="text-[10px] font-bold tracking-[0.12em] text-gray-400 uppercase">Metro Bank</p>
@@ -239,7 +254,56 @@ const VentusEngagementDemo = () => {
                     Your Wellness spend is 28% higher this month — you're on track for your fitness goal
                   </p>
                 </div>
+
+                {/* Section 4 — Lifestyle Spending */}
+                <div
+                  className="transition-all duration-500"
+                  style={{
+                    opacity: triggersVisible ? 1 : 0,
+                    transform: triggersVisible ? "translateY(0)" : "translateY(12px)",
+                    transitionDelay: "1000ms",
+                  }}
+                >
+                  <p className="text-[10px] font-bold tracking-[0.12em] text-gray-400 uppercase mb-2">Your Lifestyle Spending</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {pillarBudgets.map((p) => {
+                      const c = budgetColors[p.status];
+                      const pct = Math.min((p.spend / p.budget) * 100, 100);
+                      return (
+                        <div
+                          key={p.name}
+                          className="rounded-lg px-3 py-2.5"
+                          style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}
+                        >
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm">{p.icon}</span>
+                              <span className="text-[11px] font-semibold text-gray-900">{p.name}</span>
+                            </div>
+                            <span
+                              className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full"
+                              style={{ background: c.bg, color: c.text }}
+                            >
+                              {c.label}
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-gray-100 mb-1">
+                            <div
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ width: `${pct}%`, background: c.bar }}
+                            />
+                          </div>
+                          <p className="text-[10px] text-gray-500">
+                            ${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-2">Wellness spending is 28% over budget this month</p>
+                </div>
               </div>
+              </ScrollArea>
             </div>
           </div>
         </div>
@@ -247,7 +311,7 @@ const VentusEngagementDemo = () => {
         {/* Caption */}
         <div className="px-5 pt-3 pb-1">
           <p className="text-center text-gray-400 italic text-[12px]">
-            The bank app experience above is powered entirely by Ventus transaction intelligence — no manual configuration required.
+            Ventus powers the intelligence. Your bank delivers the experience.
           </p>
         </div>
 
