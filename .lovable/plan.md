@@ -1,55 +1,72 @@
 
 
-# Enhance HeroRewardsCard with TePilot-Level Details
+# Homepage Redesign — Single Long-Scroll Page
 
-## Goal
-Upgrade the hero animation on the Consumer Rewards page from a simple tags + match bars card into a richer preview that showcases **personalized messaging** and **cross-category recommendations** -- the two capabilities we just added to the product description.
+## Overview
+Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
 
-## What Changes
+---
 
-### Enhanced Data Model
-Replace the flat `offers` array with richer deal objects inspired by VentusSmartRewards:
+## Sections to Build
 
-```text
-Current:  { name: "REI 10% Back", match: 96 }
+### 1. Update Navbar (`src/components/Navbar.tsx`)
+- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
+- Remove About and FAQ links
+- Use Radix dropdown menu for the Products hover/click menu
+- Mobile menu: show Products as expandable section
 
-Enhanced: {
-  brand: "GoPro",
-  offer: "15% off HERO12",
-  match: 94,
-  pillar: "Snow Sports",        // lifestyle pillar (not the MCC)
-  mcc: "Electronics",           // actual merchant category
-  evidence: "$1,129 at Epic Pass",  // transaction that triggered match
-  personalized: "Capture family ski moments..."  // AI-generated message snippet
-}
-```
+### 2. Rewrite Hero (`src/components/Hero.tsx`)
+- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
+- New longer subheadline as specified
+- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
+- Remove the credibility bar
 
-### New Animation Phases (still loops every 6s)
+### 3. New Homepage Sections (in `src/pages/Index.tsx`)
+Build each as an inline section or small component within the Index page:
 
-| Phase | Timing | What Appears |
-|-------|--------|--------------|
-| 0 | 0ms | Customer profile + lifestyle tags fade in |
-| 1 | 600ms | First deal slides in with cross-category badge (e.g., "Snow Sports -> Electronics") |
-| 2 | 1200ms | Personalized message typewriter-animates below the deal |
-| 3 | 2000ms | Second and third deals cascade in |
-| 4 | 3500ms | Hold, then fade out and reset |
+**Problem Section**
+- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
 
-### Visual Additions per Deal Row
-- **Cross-category indicator**: Small pill showing `Snow Sports -> Electronics` to visually communicate cross-MCC matching
-- **Personalized message**: 1-line italic snippet below the deal name (truncated, typewriter effect)
-- **Transaction evidence**: Tiny "Detected: $1,129 at Epic Pass" line in gray, showing what triggered the match
+**Platform Section**
+- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
 
-### Sample Data (3 deals, cycling through one persona)
-1. **GoPro** — 15% off HERO12 — cross-category: Snow Sports to Electronics — "Capture family ski moments with waterproof action cam" — evidence: "$1,129 at Epic Pass"
-2. **Smith Goggles** — 25% off 4D MAG — same-category: Snow Sports — "Quick-swap lenses for all-condition visibility" — evidence: "$312 at Loon Mountain"
-3. **Ikon Pass** — suppressed (dimmed) — "Competing product: already purchased Epic Pass" — shows intelligence, not just matching
+**Differentiation Section**
+- Two-column: left bold statement, right before/after comparison block
 
-### File
-`src/components/hero/HeroRewardsCard.tsx` — rewrite the data arrays and add 1-2 new animation phases. Component stays self-contained, no new files needed.
+**How It Works Section**
+- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
 
-### What This Achieves
-- The hero card now **demonstrates** the two key claims in the product description: personalized messaging and cross-category recommendations
-- The GoPro-for-skier example (different MCCs, same lifestyle) is front-and-center
-- The suppressed deal shows intelligence depth without cluttering the card
-- Still compact and loops cleanly on a 6s cycle
+**Stats Bar**
+- Four stats in a horizontal row with large numbers/text
+
+**FAQ Accordion**
+- Reuse existing `Accordion` UI components with the 5 specified Q&As
+
+**CTA Section**
+- Headline, subheadline, blue button, secondary text linking to `/tepilot`
+
+### 4. Remove About & FAQ Routes
+- Remove `/about` and `/faq` routes from `src/App.tsx`
+- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
+
+---
+
+## Technical Details
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
+| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
+| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
+| `src/App.tsx` | Remove `/about` and `/faq` routes |
+
+### Design Approach
+- All sections use `max-w-7xl` containers with consistent padding
+- White background throughout, blue-600 accent color
+- Clean typography: large bold headings, gray-500 body text
+- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
+- FAQ uses existing Accordion components
+- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
+- Stripe/Plaid-inspired spacing and hierarchy
 
