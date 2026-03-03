@@ -837,7 +837,7 @@ export default function VentusSmartRewards() {
           border-bottom: 1px solid #e5e7eb;
         }
         .vsr-item:last-child { border-bottom: none; }
-        .vsr-item-name { font-weight: 500; font-size: 13px; letter-spacing: 0; color: #374151; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .vsr-item-name { font-weight: 500; font-size: 13px; letter-spacing: 0; color: #374151; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; text-transform: uppercase; }
         .vsr-amt {
           font-size: 13px; padding: 0;
           border: none; background: transparent;
@@ -860,7 +860,7 @@ export default function VentusSmartRewards() {
         }
         .vsr-ai-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
         .vsr-ai-title-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-        .vsr-ai-title-row b { font-size: 12.5px; letter-spacing: -.01em; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .vsr-ai-title-row b { font-size: 12.5px; letter-spacing: -.01em; color: #0f172a; }
         .vsr-conf { font-size: 10px; color: rgba(15,23,42,.50); font-variant-numeric: tabular-nums; }
         .vsr-ai-info { font-size: 11px; color: rgba(15,23,42,.55); line-height: 1.4; font-variant-numeric: tabular-nums; }
 
@@ -923,7 +923,7 @@ export default function VentusSmartRewards() {
         }
         .vsr-accord-sum::-webkit-details-marker { display: none; }
         .vsr-sum-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; flex: 1; }
-        .vsr-brand-name { font-weight: 820; letter-spacing: -.02em; font-size: 13px; color: #0f172a; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .vsr-brand-name { font-weight: 820; letter-spacing: -.02em; font-size: 13px; color: #0f172a; white-space: nowrap; }
         .vsr-pill-tag { font-size: 11px; padding: 5px 7px; border-radius: 999px; border: 1px solid #dbeafe; background: #eff6ff; color: #2563eb; white-space: nowrap; font-weight: 600; }
         .vsr-dollar-value { font-size: 12px; padding: 5px 8px; border-radius: 999px; border: 1px solid #dcfce7; background: #f0fdf4; color: #16a34a; font-weight: 720; font-variant-numeric: tabular-nums; white-space: nowrap; }
         .vsr-sum-meta { font-size: 11px; color: rgba(15,23,42,.50); white-space: nowrap; flex-shrink: 0; }
