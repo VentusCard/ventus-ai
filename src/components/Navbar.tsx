@@ -23,7 +23,7 @@ const insightTools = [
   },
   {
     title: "Consumer Rewards",
-    desc: "Match deals to customers based on life stage, spending velocity, and purchase cycles.",
+    desc: "Deep purchase analysis powers personalized offer messaging with cross-category recommendations.",
     icon: Gift,
     href: "/smartrewards",
   },
