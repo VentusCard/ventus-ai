@@ -924,7 +924,8 @@ export default function VentusSmartRewards() {
         .vsr-pill-tag { font-size: 11px; padding: 5px 7px; border-radius: 999px; border: 1px solid #dbeafe; background: #eff6ff; color: #2563eb; white-space: nowrap; font-weight: 600; }
         .vsr-dollar-value { font-size: 12px; padding: 5px 8px; border-radius: 999px; border: 1px solid #dcfce7; background: #f0fdf4; color: #16a34a; font-weight: 720; font-variant-numeric: tabular-nums; white-space: nowrap; }
         .vsr-sum-meta { font-size: 11px; color: rgba(15,23,42,.50); white-space: nowrap; flex-shrink: 0; }
-        .vsr-caret { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; color: rgba(15,23,42,.60); flex: 0 0 auto; transition: transform .22s ease; }
+        .vsr-caret { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; border: none; background: transparent; color: rgba(15,23,42,.40); flex: 0 0 auto; transition: transform .22s ease, background .22s ease; }
+        .vsr-caret:hover { background: #f1f5f9; }
         details.vsr-accord[open] .vsr-caret, details.vsr-collapse[open] .vsr-caret { transform: rotate(180deg); }
 
         .vsr-accord-body { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; min-height: 0; }
