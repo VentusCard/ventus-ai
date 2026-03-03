@@ -231,6 +231,16 @@ const EVENT_TYPE_BADGE: Record<string, { bg: string; text: string; label: string
 };
 
 function wait(ms: number) { return new Promise(res => setTimeout(res, ms)); }
+function waitWhilePaused(pausedRef: React.MutableRefObject<boolean>, tokenRef: React.MutableRefObject<number>, myToken: number, mountedRef: React.MutableRefObject<boolean>): Promise<boolean> {
+  return new Promise(res => {
+    const check = () => {
+      if (myToken !== tokenRef.current || !mountedRef.current) { res(false); return; }
+      if (!pausedRef.current) { res(true); return; }
+      setTimeout(check, 100);
+    };
+    check();
+  });
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -239,6 +249,7 @@ export default function VentusWealthDemo() {
   const [selectedEvent, setSelectedEvent] = useState<{ event: DemoEvent; client: DemoClient } | null>(null);
   const [detailVisible, setDetailVisible] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false);
   const [phase, setPhase] = useState<'building' | 'autoprepare' | 'complete'>('building');
   const [insightWordCount, setInsightWordCount] = useState(0);
   const [stepsShown, setStepsShown] = useState(0);
@@ -293,7 +304,6 @@ export default function VentusWealthDemo() {
     const detail = DETAILS[`${event.clientId}-${event.eventType}`];
     setSelectedEvent({ event, client });
     setDetailVisible(true);
-    setIsPaused(true);
     if (detail) startInsightAnimation(detail);
   }, [startInsightAnimation]);
 
@@ -322,6 +332,7 @@ export default function VentusWealthDemo() {
 
     for (let i = 1; i <= EVENTS.length; i++) {
       if (myToken !== tokenRef.current || !mountedRef.current) return;
+      if (!(await waitWhilePaused(isPausedRef, tokenRef, myToken, mountedRef))) return;
       setVisibleRows(i);
       await wait(350);
     }
@@ -334,6 +345,8 @@ export default function VentusWealthDemo() {
     let cycleIdx = 0;
 
     while (myToken === tokenRef.current && mountedRef.current) {
+      if (!(await waitWhilePaused(isPausedRef, tokenRef, myToken, mountedRef))) return;
+
       const eventIdx = CYCLE_ORDER[cycleIdx % CYCLE_ORDER.length];
       const event = EVENTS[eventIdx];
       const client = CLIENTS.find(c => c.id === event.clientId)!;
@@ -341,7 +354,6 @@ export default function VentusWealthDemo() {
 
       // Highlight row and pulse button first
       setActiveRowIdx(eventIdx);
-      // Auto-scroll within the alert list container (not the page)
       if (alertListRef.current) {
         const row = alertListRef.current.querySelector(`[data-event-idx="${eventIdx}"]`) as HTMLElement | null;
         if (row) {
@@ -353,6 +365,7 @@ export default function VentusWealthDemo() {
 
       await wait(800);
       if (myToken !== tokenRef.current || !mountedRef.current) return;
+      if (!(await waitWhilePaused(isPausedRef, tokenRef, myToken, mountedRef))) return;
 
       // Now open detail overlay
       setSelectedEvent({ event, client });
@@ -395,6 +408,7 @@ export default function VentusWealthDemo() {
     setSelectedEvent(null);
     setDetailVisible(false);
     setIsPaused(false);
+    isPausedRef.current = false;
     setPhase('building');
     setActiveRowIdx(null);
     setInsightWordCount(0);
@@ -402,6 +416,23 @@ export default function VentusWealthDemo() {
     mountedRef.current = true;
     const myToken = ++tokenRef.current;
     runAnimation(myToken);
+  };
+
+  const togglePause = () => {
+    const next = !isPaused;
+    setIsPaused(next);
+    isPausedRef.current = next;
+    if (next) {
+      // When pausing, close any open detail overlay and clear active row
+      setDetailVisible(false);
+      clearAnimIntervals();
+      setActiveRowIdx(null);
+      setTimeout(() => {
+        setSelectedEvent(null);
+        setInsightWordCount(0);
+        setStepsShown(0);
+      }, 300);
+    }
   };
 
   const urgencyBadge = (urgency: string) => {
@@ -934,8 +965,27 @@ export default function VentusWealthDemo() {
             </div>
           )}
 
-          {/* Replay button */}
-          <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+          {/* Controls: Pause/Play + Replay */}
+          <div style={{ display: "flex", justifyContent: "center", gap: "8px", padding: "16px 0 4px", borderTop: "1px solid #e5e7eb", marginTop: "8px" }}>
+            <button
+              onClick={togglePause}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                padding: "8px 16px", fontSize: "14px", fontWeight: 500,
+                color: "#9ca3af", background: "transparent", border: "none",
+                borderRadius: "9999px", cursor: "pointer",
+                transition: "color 0.2s, background 0.2s",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#374151"; e.currentTarget.style.background = "#f9fafb"; }}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#9ca3af"; e.currentTarget.style.background = "transparent"; }}
+            >
+              {isPaused ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              )}
+              {isPaused ? 'Play' : 'Pause'}
+            </button>
             <button
               onClick={handleReset}
               style={{
