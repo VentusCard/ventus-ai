@@ -1,72 +1,46 @@
 
 
-# Homepage Redesign — Single Long-Scroll Page
+# Horizontal Products Dropdown — 2-Column Layout
 
-## Overview
-Redesign the Ventus AI homepage into a premium, single long-scroll page that consolidates About and FAQ content. Update the navbar with a Products dropdown. Remove the separate About and FAQ pages/routes.
+## Goal
+Redesign the Products dropdown from a single narrow column (340px) into a wider horizontal layout with a clear visual separation between the core technology and the five insight tools.
 
----
+## Layout
 
-## Sections to Build
+```text
++---------------------||---------------------+---------------------+
+| ONE TECH CORE       || FIVE INSIGHT TOOLS                        |
+|                     ||                                           |
+| [icon] Transaction  || [icon] Bank-Wide    | [icon] Travel       |
+|   Enrichment        ||   Analytics         |   Experience        |
+|   desc...           ||   desc...           |   desc...           |
+|                     ||                     |                     |
+|                     || [icon] Consumer     | [icon] Wealth       |
+|                     ||   Rewards           |   Management        |
+|                     ||   desc...           |   desc...           |
+|                     ||                     |                     |
+|                     || [icon] Customer     |                     |
+|                     ||   Experience        |                     |
+|                     ||   desc...           |                     |
++---------------------||---------------------+---------------------+
+```
 
-### 1. Update Navbar (`src/components/Navbar.tsx`)
-- Replace flat nav links with: **Products** dropdown (Transaction Enrichment, Smart Rewards, Wealth Management Copilot linking to `/enrichment`, `/smartrewards`, `/wealth`) + **Schedule Demo** button
-- Remove About and FAQ links
-- Use Radix dropdown menu for the Products hover/click menu
-- Mobile menu: show Products as expandable section
+## Changes
 
-### 2. Rewrite Hero (`src/components/Hero.tsx`)
-- Headline: "Turn transaction data into *intelligence*" (intelligence in italic blue)
-- New longer subheadline as specified
-- Two CTAs: "Schedule Demo" (blue filled, links to `/contact`) and "View Live Demo" (outline, links to `/tepilot`)
-- Remove the credibility bar
+### File: `src/components/Navbar.tsx`
 
-### 3. New Homepage Sections (in `src/pages/Index.tsx`)
-Build each as an inline section or small component within the Index page:
+**Width**: `w-[340px]` becomes `w-[720px]`
 
-**Problem Section**
-- Two-column layout: left headline, right side with 3 pain point blocks separated by subtle dividers
+**Positioning**: Change from `left-1/2 -translate-x-1/2` to `left-0` so the wider dropdown anchors left and avoids viewport overflow.
 
-**Platform Section**
-- Label "THE PLATFORM", headline, three cards for Transaction Enrichment, Smart Rewards, Wealth Management Copilot with descriptions as specified
+**Structure**: Replace the single-column list with a flex row:
+- **Left section** (~240px): "One Tech Core" section label + the Transaction Enrichment card. Separated from the right by a vertical `border-r border-gray-100` divider.
+- **Right section** (~480px): "Five Insight Tools" section label spanning both sub-columns, then a `grid grid-cols-2` layout:
+  - Column 1: Bank-Wide Analytics, Consumer Rewards, Customer Experience (3 items)
+  - Column 2: Travel Experience, Wealth Management (2 items)
 
-**Differentiation Section**
-- Two-column: left bold statement, right before/after comparison block
+**Card styling**: Same icon + title + description pattern, same hover/active-page indicator. Text wraps naturally in narrower columns.
 
-**How It Works Section**
-- Label "INTEGRATION", headline, three numbered steps with titles and descriptions
+**Mobile menu**: No changes — stays as the existing collapsible accordion.
 
-**Stats Bar**
-- Four stats in a horizontal row with large numbers/text
-
-**FAQ Accordion**
-- Reuse existing `Accordion` UI components with the 5 specified Q&As
-
-**CTA Section**
-- Headline, subheadline, blue button, secondary text linking to `/tepilot`
-
-### 4. Remove About & FAQ Routes
-- Remove `/about` and `/faq` routes from `src/App.tsx`
-- The page files (`src/pages/About.tsx`, `src/pages/FAQ.tsx`) can remain but will be unreferenced
-
----
-
-## Technical Details
-
-### Files Modified
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Replace nav links with Products dropdown + Schedule Demo |
-| `src/components/Hero.tsx` | New headline, subheadline, two CTAs, remove credibility bar |
-| `src/pages/Index.tsx` | Add Problem, Platform, Differentiation, How It Works, Stats, FAQ, CTA sections |
-| `src/App.tsx` | Remove `/about` and `/faq` routes |
-
-### Design Approach
-- All sections use `max-w-7xl` containers with consistent padding
-- White background throughout, blue-600 accent color
-- Clean typography: large bold headings, gray-500 body text
-- Cards use `border border-gray-200 rounded-2xl` with subtle hover effects
-- FAQ uses existing Accordion components
-- Stats bar uses a light gray background strip (`bg-gray-50`) for visual separation
-- Stripe/Plaid-inspired spacing and hierarchy
-
+No other files are modified.
