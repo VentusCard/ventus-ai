@@ -603,8 +603,8 @@ export default function VentusWealthDemo() {
           border: none; cursor: pointer; transition: all .2s;
           white-space: nowrap;
         }
-        .vwm-row-btn.prepare { background: #22c55e; color: #fff; }
-        .vwm-row-btn.prepare:hover { background: #16a34a; }
+        .vwm-row-btn.prepare { background: #2563eb; color: #fff; }
+        .vwm-row-btn.prepare:hover { background: #1d4ed8; }
         .vwm-row-icon-btn {
           width: 28px; height: 28px; border-radius: 50%; border: none;
           background: transparent; color: rgba(15,23,42,.35); cursor: pointer;
@@ -655,11 +655,11 @@ export default function VentusWealthDemo() {
         }
         .vwm-back-btn {
           padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
-          border: 1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.05);
+          border: 1px solid rgba(15,23,42,.18); background: #fff;
           color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
           white-space: nowrap; min-height: auto !important; min-width: auto !important;
         }
-        .vwm-back-btn:hover { background: rgba(15,23,42,.08); }
+        .vwm-back-btn:hover { background: rgba(15,23,42,.04); }
         .vwm-detail-body {
           flex: 1; overflow-y: auto; padding: 16px 20px;
           display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
@@ -679,7 +679,7 @@ export default function VentusWealthDemo() {
         .vwm-detail-tx {
           padding: 10px 14px; border-radius: 12px;
           border: 1px solid rgba(15,23,42,.08);
-          background: rgba(15,23,42,.02);
+          background: #fff;
           margin-bottom: 8px;
         }
         .vwm-detail-tx-top { display: flex; justify-content: space-between; align-items: center; }
