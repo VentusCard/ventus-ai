@@ -206,12 +206,12 @@ const DETAILS: Record<string, DemoDetail> = {
 };
 
 const CARD_TYPE_STYLES: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-  checking:  { bg: 'rgba(59,130,246,.12)',  text: '#2563eb', border: 'rgba(59,130,246,.30)',  dot: '#3b82f6' },
-  platinum:  { bg: 'rgba(168,85,247,.12)',  text: '#7c3aed', border: 'rgba(168,85,247,.30)',  dot: '#a855f7' },
-  cashback:  { bg: 'rgba(34,197,94,.12)',   text: '#16a34a', border: 'rgba(34,197,94,.30)',   dot: '#22c55e' },
-  travel:    { bg: 'rgba(245,158,11,.12)',  text: '#d97706', border: 'rgba(245,158,11,.30)',  dot: '#f59e0b' },
-  business:  { bg: 'rgba(100,116,139,.12)', text: '#475569', border: 'rgba(100,116,139,.30)', dot: '#64748b' },
-  web:       { bg: 'rgba(6,182,212,.12)',   text: '#0891b2', border: 'rgba(6,182,212,.30)',   dot: '#06b6d4' },
+  checking:  { bg: 'rgba(100,116,139,.10)', text: '#475569', border: 'rgba(100,116,139,.25)', dot: '#64748b' },
+  platinum:  { bg: 'rgba(100,116,139,.10)', text: '#475569', border: 'rgba(100,116,139,.25)', dot: '#64748b' },
+  cashback:  { bg: 'rgba(100,116,139,.10)', text: '#475569', border: 'rgba(100,116,139,.25)', dot: '#64748b' },
+  travel:    { bg: 'rgba(100,116,139,.10)', text: '#475569', border: 'rgba(100,116,139,.25)', dot: '#64748b' },
+  business:  { bg: 'rgba(100,116,139,.10)', text: '#475569', border: 'rgba(100,116,139,.25)', dot: '#64748b' },
+  web:       { bg: 'rgba(100,116,139,.10)', text: '#475569', border: 'rgba(100,116,139,.25)', dot: '#64748b' },
 };
 
 const SEGMENT_STYLES: Record<string, { bg: string; text: string }> = {
@@ -795,7 +795,7 @@ export default function VentusWealthDemo() {
             <div className="vwm-dash-title-row">
               <div className="vwm-dash-title-left">
                 <div className="vwm-dash-title">
-                  Wealth Management Client Life Event Intelligence
+                  Wealth Intelligence
                   <span className="vwm-powered">Powered by Ventus AI</span>
                 </div>
               </div>
@@ -828,13 +828,6 @@ export default function VentusWealthDemo() {
             </span>
           </div>
 
-          {/* Search + Filters */}
-          <div className="vwm-filters-row">
-            <div className="vwm-search-box">🔍 Search clients...</div>
-            <div className="vwm-filter-select">All Events ▾</div>
-            <div className="vwm-filter-select">All Confidence ▾</div>
-            <div className="vwm-filter-select">Urgency ▾</div>
-          </div>
 
           {/* Alert rows */}
           <div className="vwm-alert-list" ref={alertListRef}>
