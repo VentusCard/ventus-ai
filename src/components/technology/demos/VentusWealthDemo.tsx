@@ -685,12 +685,13 @@ export default function VentusWealthDemo() {
           font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px;
         }
         .vwm-back-btn {
-          padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
-          border: 1px solid rgba(15,23,42,.18); background: #fff;
-          color: rgba(15,23,42,.75); cursor: pointer; transition: all .2s;
+          padding: 8px; border-radius: 8px; font-size: 14px; font-weight: 700;
+          border: none; background: transparent;
+          color: rgba(15,23,42,.45); cursor: pointer; transition: all .2s;
           white-space: nowrap; min-height: auto !important; min-width: auto !important;
+          width: 32px; height: 32px; display: grid; place-items: center;
         }
-        .vwm-back-btn:hover { background: rgba(15,23,42,.04); }
+        .vwm-back-btn:hover { background: rgba(15,23,42,.06); border-radius: 50%; color: rgba(15,23,42,.75); }
         .vwm-detail-body {
           flex: 1; overflow-y: auto; padding: 16px 20px;
           display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
