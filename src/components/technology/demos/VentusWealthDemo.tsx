@@ -727,7 +727,7 @@ export default function VentusWealthDemo() {
         }
         .vwm-detail-tx-date { font-size: 12px; color: rgba(15,23,42,.40); }
         .vwm-detail-tx-relevance { font-size: 12px; color: rgba(15,23,42,.45); font-style: italic; margin-left: auto; }
-        .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; justify-content: space-between; }
+        .vwm-detail-right { display: flex; flex-direction: column; gap: 20px; }
         .vwm-insight-box {
           padding: 16px; border-radius: 14px;
           border: 1px solid #dbeafe;
@@ -758,7 +758,7 @@ export default function VentusWealthDemo() {
           background: rgba(15,23,42,.06); color: rgba(15,23,42,.55);
         }
         .vwm-detail-actions {
-          display: flex; flex-wrap: nowrap; gap: 6px; margin-top: auto; padding-top: 12px;
+          display: flex; flex-wrap: nowrap; gap: 6px; padding-top: 4px;
         }
         .vwm-footer-btn {
           padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 600;
