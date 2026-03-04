@@ -49,3 +49,5 @@ const AnimatedHeroTitle = ({ onComplete }: { onComplete?: () => void }) => {
     </h1>
   );
 };
+
+export default AnimatedHeroTitle;
