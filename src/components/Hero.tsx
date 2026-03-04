@@ -27,7 +27,7 @@ const Hero = () => {
                 showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
               }`}
             >
-              A modular AI layer that reveals customer intent and orchestrates action across every banking team — without changing core infrastructure.
+              A modular AI layer that reveals dynamic behavioral insights and orchestrates action across banking teams — without changing core infrastructure.
             </p>
 
             <div
