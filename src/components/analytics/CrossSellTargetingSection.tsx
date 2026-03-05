@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Users, ArrowRight, Sparkles, Mail, Smartphone, MessageSquare, Bell } from "lucide-react";
+import { Users, ArrowRight, Sparkles, Mail, Smartphone, MessageSquare, Bell, User, Plane, CreditCard } from "lucide-react";
 
 const segments = [
   {
