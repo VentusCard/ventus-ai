@@ -175,12 +175,16 @@ const EngagementPreview = () => {
         </div>
         <div className="space-y-1">
           {[
-            { label: "Wellness", score: "91%" },
-            { label: "Travel", score: "87%" },
-            { label: "Dining", score: "82%" },
+            { label: "Travel", score: "56%", detail: "$1,240" },
+            { label: "Dining", score: "22%", detail: "$480" },
+            { label: "Wellness", score: "14%", detail: "$320" },
+            { label: "Shopping", score: "8%", detail: "$180" },
           ].map((p) => (
             <div key={p.label} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
-              <span className="text-[10px] font-medium text-gray-700">{p.label}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-medium text-gray-700">{p.label}</span>
+                <span className="text-[9px] text-gray-400">{p.detail}</span>
+              </div>
               <span className="text-[10px] font-semibold text-gray-500">{p.score}</span>
             </div>
           ))}
