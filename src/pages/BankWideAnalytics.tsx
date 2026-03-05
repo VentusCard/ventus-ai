@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroAnalyticsCard from "@/components/hero/HeroAnalyticsCard";
+import CrossSellTargetingSection from "@/components/analytics/CrossSellTargetingSection";
 import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+
 
 const capabilities = [
   { icon: Layers, title: "Customer Segmentation", desc: "Automatically cluster your entire customer base into dynamic behavioral segments — updated with every transaction, not every quarter." },
@@ -18,19 +20,10 @@ const integrationSteps = [
   { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
 ];
 
-const pillars = [
-  { label: "Travel & Exploration", pct: 20.4, color: "#3b82f6" },
-  { label: "Food & Dining", pct: 18.2, color: "#8b5cf6" },
-  { label: "Health & Wellness", pct: 14.1, color: "#14b8a6" },
-  { label: "Shopping & Retail", pct: 12.3, color: "#f59e0b" },
-  { label: "Financial & Aspirational", pct: 9.8, color: "#22c55e" },
-];
 
 const BankWideAnalytics = () => {
   const [integrationVisible, setIntegrationVisible] = useState(false);
-  const [demoVisible, setDemoVisible] = useState(false);
   const integrationRef = useRef<HTMLDivElement>(null);
-  const demoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = integrationRef.current;
@@ -43,16 +36,6 @@ const BankWideAnalytics = () => {
     return () => obs.disconnect();
   }, []);
 
-  useEffect(() => {
-    const el = demoRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setDemoVisible(true); obs.disconnect(); } },
-      { threshold: 0.2 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   return (
     <div>
@@ -80,7 +63,7 @@ const BankWideAnalytics = () => {
                 <Button
                   variant="outline"
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
-                  onClick={() => document.getElementById("analytics-demo")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() => document.getElementById("analytics-problem")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   See It Work ↓
                 </Button>
@@ -93,7 +76,7 @@ const BankWideAnalytics = () => {
         </section>
 
         {/* SECTION 2 — THE PROBLEM */}
-        <section className="py-24 bg-white">
+        <section id="analytics-problem" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
@@ -122,130 +105,9 @@ const BankWideAnalytics = () => {
           </div>
         </section>
 
-        {/* SECTION 3 — SEE IT IN ACTION */}
-        <section id="analytics-demo" className="py-16 bg-white scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Institution-wide intelligence at scale.</h2>
-              <p className="text-gray-500 text-lg mb-6 max-w-2xl">
-                The same enrichment engine that powers individual transaction intelligence — applied across your entire customer base.
-              </p>
-            </ScrollReveal>
 
-            {/* Demo panel */}
-            <div ref={demoRef} className="rounded-2xl overflow-hidden border border-gray-200 bg-white">
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-3 border-b border-gray-200">
-                <h3 className="text-gray-900 text-lg font-bold">Analytics Intelligence</h3>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{ background: "rgba(16,185,129,0.08)", color: "#059669" }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 hidden lg:inline-block" style={{ animation: "liveDotPulse 2s ease-in-out infinite" }} />
-                  Live Demo
-                </span>
-              </div>
-              <div className="p-6 md:p-8">
-
-                {/* 6 Metric cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
-                  {[
-                    { label: "Total Accounts", value: "120.0M", sub: "Across all products" },
-                    { label: "Unique Users", value: "75.0M", sub: "1.60 avg accounts/user" },
-                    { label: "Total Annual Spend", value: "$385.0B", sub: "$3,208 per account" },
-                    { label: "Active Account Rate", value: "78.5%", sub: "Transacted in last 30 days" },
-                    { label: "Avg Spending per Year", value: "$5,133", sub: "Per user annually" },
-                    { label: "Avg Transactions", value: "42", sub: "Per account/month" },
-                  ].map((m, i) => (
-                    <div
-                      key={m.label}
-                      className="rounded-xl px-3 sm:px-4 py-3 sm:py-3.5 transition-all duration-700 border border-gray-200"
-                      style={{
-                        background: "#f8fafc",
-                        opacity: demoVisible ? 1 : 0,
-                        transform: demoVisible ? "translateY(0)" : "translateY(16px)",
-                        transitionDelay: `${i * 120}ms`,
-                      }}
-                    >
-                      <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
-                      <p className="text-gray-900 text-xl sm:text-2xl font-bold">{m.value}</p>
-                      <p className="text-gray-400 text-[10px] mt-0.5">{m.sub}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-gray-100 mb-6" />
-
-                {/* Spending by pillar */}
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-gray-900 text-sm font-bold">Spending Distribution by Lifestyle Pillar</p>
-                    <p className="text-gray-400 text-[11px] mt-0.5">Click any pillar to explore detailed breakdown</p>
-                  </div>
-                  <div
-                    className="text-right transition-all duration-700"
-                    style={{ opacity: demoVisible ? 1 : 0, transitionDelay: "600ms" }}
-                  >
-                    <p className="text-gray-900 text-lg font-bold">$525.7B</p>
-                    <p className="text-gray-400 text-[10px]">Total Spend</p>
-                  </div>
-                </div>
-                <div className="space-y-3.5 mb-6">
-                  {pillars.map((p, i) => (
-                    <div key={p.label}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-gray-700 text-sm">{p.label}</span>
-                        <span className="text-gray-500 text-sm font-semibold">{p.pct}%</span>
-                      </div>
-                      <div className="h-2 rounded-full overflow-hidden bg-gray-100">
-                        <div
-                          className="h-full rounded-full transition-all duration-1000"
-                          style={{
-                            width: demoVisible ? `${(p.pct / 25) * 100}%` : "0%",
-                            background: p.color,
-                            transitionDelay: `${i * 120 + 500}ms`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p
-                  className="text-gray-500 text-xs mb-8 transition-all duration-700"
-                  style={{ opacity: demoVisible ? 1 : 0, transitionDelay: "1100ms" }}
-                >
-                  <span className="text-blue-600 font-semibold">Travel & Exploration</span> leads at 20.4% of spend. Top 3 pillars = <span className="font-bold text-gray-700">54%</span> of total. <span className="text-orange-500 font-semibold">Financial & Aspirational</span> underperforms — expansion opportunity.
-                </p>
-
-                {/* Divider */}
-                <div className="border-t border-gray-100 mb-6" />
-
-                {/* Revenue opportunity */}
-                <div className="flex items-center justify-between">
-                  <div
-                    className="transition-all duration-700"
-                    style={{
-                      opacity: demoVisible ? 1 : 0,
-                      transform: demoVisible ? "translateY(0)" : "translateY(12px)",
-                      transitionDelay: "1200ms",
-                    }}
-                  >
-                    <p className="text-gray-900 text-sm font-bold mb-1">Revenue Opportunities & Partner Insights</p>
-                    <p className="text-gray-500 text-xs">
-                      <span className="text-blue-600 font-bold">$17.1B</span> total opportunity with <span className="font-bold text-gray-700">17 merchant partnership pitches</span> ready for negotiation.
-                    </p>
-                  </div>
-                  <div
-                    className="text-right transition-all duration-700"
-                    style={{ opacity: demoVisible ? 1 : 0, transitionDelay: "1300ms" }}
-                  >
-                    <p className="text-gray-900 text-lg font-bold">$38.2B</p>
-                    <p className="text-gray-400 text-[10px]">Cross-Sell Potential</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* SECTION 3.5 — CROSS-SELL & TARGETING */}
+        <CrossSellTargetingSection />
 
         {/* SECTION 4 — CAPABILITIES */}
         <section className="py-24 bg-white">
