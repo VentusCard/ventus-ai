@@ -6,22 +6,22 @@ import { Mail, CheckCircle, ClipboardList, Calendar, Sparkles } from "lucide-rea
 import ScrollReveal from "@/components/ScrollReveal";
 
 const steps = [
-  {
-    icon: ClipboardList,
-    title: "We review your message",
-    desc: "We read every inquiry personally, usually within a few hours.",
-  },
-  {
-    icon: Calendar,
-    title: "We'll reach out to schedule time",
-    desc: "A member of our team will follow up to learn more about your needs.",
-  },
-  {
-    icon: Sparkles,
-    title: "We prepare something custom",
-    desc: "Before any demo, we build a sample analysis tailored to your institution.",
-  },
-];
+{
+  icon: ClipboardList,
+  title: "We review your message",
+  desc: "We read every inquiry personally, usually within a few hours."
+},
+{
+  icon: Calendar,
+  title: "We'll reach out to schedule time",
+  desc: "A member of our team will follow up to learn more about your needs."
+},
+{
+  icon: Sparkles,
+  title: "We prepare something custom",
+  desc: "Before any demo, we build a sample analysis tailored to your institution."
+}];
+
 
 const ContactUs = () => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -82,8 +82,8 @@ ${name}
 
                   <h3 className="text-lg font-bold text-gray-900 mb-4">What happens next</h3>
                   <div className="space-y-4 mb-6">
-                    {steps.map((step, i) => (
-                      <div key={i} className="flex gap-4">
+                    {steps.map((step, i) =>
+                    <div key={i} className="flex gap-4">
                         <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#f0f6ff" }}>
                           <step.icon className="w-5 h-5 text-blue-600" />
                         </div>
@@ -95,7 +95,7 @@ ${name}
                           <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
 
                   <div className="border-t border-gray-200 pt-4 mb-4">
@@ -112,17 +112,17 @@ ${name}
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-400">
-                    Trusted by institutions managing <span className="font-semibold text-gray-500">$385B+</span> in annual spend.
-                  </p>
+                  
+
+                  
                 </div>
               </ScrollReveal>
 
               {/* RIGHT — Form */}
               <ScrollReveal delay={0.15}>
                 <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
-                  {showSuccess && (
-                    <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
+                  {showSuccess &&
+                  <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
                       <div className="text-center max-w-sm">
                         <CheckCircle className="w-14 h-14 text-blue-600 mx-auto mb-4" />
                         <h3 className="text-2xl font-bold text-gray-900 mb-3">Message prepared!</h3>
@@ -134,7 +134,7 @@ ${name}
                         </Button>
                       </div>
                     </div>
-                  )}
+                  }
 
                   <form className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -156,8 +156,8 @@ ${name}
                       <select
                         name="subject"
                         className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        required
-                      >
+                        required>
+                        
                         <option value="">Select a topic...</option>
                         <option value="Schedule a Demo">Schedule a Demo</option>
                         <option value="Partnership Inquiry">Partnership Inquiry</option>
@@ -172,8 +172,8 @@ ${name}
                     <Button
                       type="button"
                       onClick={handleMailTo}
-                      className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base"
-                    >
+                      className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base">
+                      
                       Send Message
                     </Button>
                   </form>
@@ -183,8 +183,8 @@ ${name}
           </div>
         </section>
       </main>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ContactUs;
