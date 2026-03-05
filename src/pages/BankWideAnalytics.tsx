@@ -5,6 +5,7 @@ import HeroAnalyticsCard from "@/components/hero/HeroAnalyticsCard";
 import CrossSellTargetingSection from "@/components/analytics/CrossSellTargetingSection";
 import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import AnalyticsDemoPanel from "@/components/analytics/AnalyticsDemoPanel";
 
 const capabilities = [
   { icon: Layers, title: "Customer Segmentation", desc: "Automatically cluster your entire customer base into dynamic behavioral segments — updated with every transaction, not every quarter." },
