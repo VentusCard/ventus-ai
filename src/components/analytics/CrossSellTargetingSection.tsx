@@ -88,7 +88,7 @@ const CrossSellTargetingSection = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <ScrollReveal>
           <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">
-            From Insight to Action
+            SEE IT IN ACTION
           </p>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
             Turn spending patterns into revenue.
