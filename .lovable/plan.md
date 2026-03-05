@@ -1,47 +1,64 @@
 
 
-# Engagement Demo: Right Panel Bank App Mockup
+## Plan: Add Cross-Sell & Personalized Targeting Section to /analytics
 
-## Overview
-Replace the right panel's "Engagement Triggers" list with a mobile banking app mockup styled with browser chrome (traffic light dots + address bar), showing the personalized consumer experience Ventus intelligence powers.
+### What exists in TePilot that's relevant
+The TePilot dashboard already has rich cross-sell and targeting features:
+- **Cross-Sell Matrix** — card-to-card opportunity sizing with color-coded heatmap
+- **Revenue Opportunities Card** — spending gap detection with merchant partnership pitches (win-win proposals, timing, conversion rates)
+- **Campaign Studio** — multi-dimensional segment builder (lifestyle pillars, life events, products, demographics, geography) with AI-generated campaign briefs
+- **Segment Builder** — audience targeting by life events, lifestyle signals, and product holdings
 
-## Changes (single file)
+### What to add to /analytics page
 
-### File: `src/components/technology/demos/VentusEngagementDemo.tsx`
+Add a new **Section 3.5** (between "See It In Action" and "Capabilities") titled something like **"From Insight to Action"** or **"Personalized Cross-Sell & Targeting"**. This section demonstrates how banks use the analytics intelligence to drive personalized campaigns and cross-sell.
 
-**Remove**: The `engagementTriggers` data array and the entire right panel rendering (lines 19-25, 148-190).
+#### Content structure (3 subsections):
 
-**Add**: A new right panel containing a browser-chrome-framed mobile banking app with:
+**1. Behavioral Segmentation → Targeting**
+A visual showing how lifestyle pillars translate into targetable customer segments. Example: animated cards showing a customer segment ("Wellness Explorers — 4.2M users") with their top spending pillars and a recommended cross-sell product.
 
-1. **Browser chrome header** (matching PlatformTabs style):
-   - Three traffic light dots (red, yellow, green)
-   - Mono URL: `metrobank.com/app`
+**2. Cross-Sell Opportunity Matrix (static demo)**
+A simplified version of the TePilot CrossSellMatrix — a small 4x4 heatmap showing card-to-card cross-sell opportunities with dollar values. Animates in on scroll like the existing demo panel.
 
-2. **App header inside the frame**:
-   - "Metro Bank" label
-   - "Good morning, Sarah" greeting
-   - "Your personalized banking experience" subtitle
+**3. AI-Powered Campaign Activation**
+Show how segments flow into campaign briefs. A compact mockup showing: segment definition → AI-generated personalized message → channel delivery (email, push, SMS, in-app). Could reuse the campaign brief concept from CampaignStudio.
 
-3. **Section 1 -- Lifestyle Profile Banner**:
-   - Full-width card with blue-to-purple soft gradient background
-   - Bold "WELLNESS EXPLORER" label in white
-   - Subtext: "You balanced fitness, healthy dining, and travel this quarter"
-   - Small "Powered by Ventus AI" in bottom-right corner, muted
+#### Technical approach
+- All static/hardcoded demo data (no API calls needed)
+- Reuse the same scroll-triggered animation pattern (IntersectionObserver) already used on the page
+- Same design language: white bg, rounded-xl cards, blue accents, gray-900 headings
+- Add between current Section 3 (demo) and Section 4 (capabilities)
+- Single file edit to `src/pages/BankWideAnalytics.tsx`
 
-4. **Section 2 -- "FOR YOU" Personalized Offers**:
-   - Small uppercase "FOR YOU" label
-   - Three offer rows with the same card styling as the left panel:
-     - REI Co-op -- "Get 10% back on outdoor gear" with "Outdoor" tag
-     - Sweetgreen -- "$5 off your next order" with "Dining" tag
-     - Equinox -- "First month free" with "Wellness" tag
-   - Each row includes a small match percentage indicator
+#### Rough layout
+```text
+┌──────────────────────────────────────────────┐
+│  PERSONALIZED CROSS-SELL & TARGETING         │
+│  "Turn spending patterns into revenue."      │
+├──────────────────────────────────────────────┤
+│                                              │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐     │
+│  │ Segment  │  │ Cross-  │  │Campaign │     │
+│  │ Card     │→ │ Sell    │→ │ Brief   │     │
+│  │ "Travel  │  │ Matrix  │  │ Preview │     │
+│  │  Lovers" │  │ snippet │  │         │     │
+│  └─────────┘  └─────────┘  └─────────┘     │
+│                                              │
+│  3-step flow: Detect → Match → Activate      │
+│                                              │
+│  ┌──────────────────────────────────────┐    │
+│  │  Mini cross-sell heatmap (4x4)       │    │
+│  │  with animated fill on scroll        │    │
+│  └──────────────────────────────────────┘    │
+│                                              │
+│  AI Insight callout:                         │
+│  "12.3M users show Travel+Dining overlap     │
+│   — ideal for co-branded card upsell"        │
+│                                              │
+└──────────────────────────────────────────────┘
+```
 
-5. **Section 3 -- Contextual Nudge**:
-   - Small alert-style card with a sparkle icon
-   - Text: "Your Wellness spend is 28% higher this month -- you're on track for your fitness goal"
+### Files to modify
+- `src/pages/BankWideAnalytics.tsx` — add the new section with static demo data and scroll animations
 
-**Animation**: The right panel fades in when `triggersVisible` becomes true (same trigger as current). Offer rows stagger in with incremental delays.
-
-**Below the split panel** (before the Replay button): A centered italic gray caption: "The bank app experience above is powered entirely by Ventus transaction intelligence -- no manual configuration required."
-
-**Keep unchanged**: Header bar, left panel, animation logic, Replay button, all state management.
