@@ -42,7 +42,7 @@ const AnimatedHeroTitle = ({ onComplete }: { onComplete?: () => void }) => {
   }, []);
 
   return (
-    <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-tight">
+    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight">
       {PREFIX.slice(0, prefixLen)}
       {keywordLen > 0 && (
         <span
