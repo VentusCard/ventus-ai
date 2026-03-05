@@ -1,47 +1,34 @@
 
 
-# Engagement Demo: Right Panel Bank App Mockup
+## Understanding
 
-## Overview
-Replace the right panel's "Engagement Triggers" list with a mobile banking app mockup styled with browser chrome (traffic light dots + address bar), showing the personalized consumer experience Ventus intelligence powers.
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-## Changes (single file)
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-### File: `src/components/technology/demos/VentusEngagementDemo.tsx`
+## Plan
 
-**Remove**: The `engagementTriggers` data array and the entire right panel rendering (lines 19-25, 148-190).
+### Move AnalyticsDemoPanel into the Hero Section
 
-**Add**: A new right panel containing a browser-chrome-framed mobile banking app with:
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
 
-1. **Browser chrome header** (matching PlatformTabs style):
-   - Three traffic light dots (red, yellow, green)
-   - Mono URL: `metrobank.com/app`
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
 
-2. **App header inside the frame**:
-   - "Metro Bank" label
-   - "Good morning, Sarah" greeting
-   - "Your personalized banking experience" subtitle
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
 
-3. **Section 1 -- Lifestyle Profile Banner**:
-   - Full-width card with blue-to-purple soft gradient background
-   - Bold "WELLNESS EXPLORER" label in white
-   - Subtext: "You balanced fitness, healthy dining, and travel this quarter"
-   - Small "Powered by Ventus AI" in bottom-right corner, muted
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 
-4. **Section 2 -- "FOR YOU" Personalized Offers**:
-   - Small uppercase "FOR YOU" label
-   - Three offer rows with the same card styling as the left panel:
-     - REI Co-op -- "Get 10% back on outdoor gear" with "Outdoor" tag
-     - Sweetgreen -- "$5 off your next order" with "Dining" tag
-     - Equinox -- "First month free" with "Wellness" tag
-   - Each row includes a small match percentage indicator
-
-5. **Section 3 -- Contextual Nudge**:
-   - Small alert-style card with a sparkle icon
-   - Text: "Your Wellness spend is 28% higher this month -- you're on track for your fitness goal"
-
-**Animation**: The right panel fades in when `triggersVisible` becomes true (same trigger as current). Offer rows stagger in with incremental delays.
-
-**Below the split panel** (before the Replay button): A centered italic gray caption: "The bank app experience above is powered entirely by Ventus transaction intelligence -- no manual configuration required."
-
-**Keep unchanged**: Header bar, left panel, animation logic, Replay button, all state management.
