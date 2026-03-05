@@ -1,34 +1,24 @@
 
 
-## Understanding
+## Plan: Add Announcement Bar Above Navbar
 
-The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
+Create a sticky announcement bar above the navbar promoting Finovate Spring.
 
-Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
+### Changes
 
-## Plan
+**1. Create `src/components/AnnouncementBar.tsx`**
+- Full-width bar with blue-600 background
+- Text: "🎉 Ventus AI is demoing at Finovate Spring — May 5–7, San Diego"
+- CTA link: "Schedule a Meeting →" linking to `/contact`
+- Dismissible with an X button (state-driven, no persistence needed)
+- Small text, compact height (~36-40px)
 
-### Move AnalyticsDemoPanel into the Hero Section
+**2. Update `src/App.tsx`**
+- Render `AnnouncementBar` above `Navbar` (outside the `isTepilot` check, or inside it so it only shows on marketing pages)
 
-1. **Modify `src/pages/BankWideAnalytics.tsx`**:
-   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
-   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
-   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+**3. Update `src/components/Navbar.tsx`**
+- Adjust top positioning: the navbar is `absolute top-0`, so if the announcement bar is present, content below needs to account for the extra height
+- Alternatively, make the announcement bar part of the navbar component itself, rendered above the nav content
 
-2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
-   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
-   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
-   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
-   - Ensure tab bar, controls, and all content use dark-themed colors
-
-3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
-
-### Key Styling Changes in AnalyticsDemoPanel
-- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
-- Tab bar: dark background with light text, active tab in blue
-- Metric cards: dark cards with white values
-- Insight cards: dark cards with light text
-- Pillar bars: keep colored bars but on dark track
-- Personalization tab: dark cards, same transformation flow
-- Controls bar: dark theme
+The simplest approach: render the announcement bar inside `Navbar.tsx` at the very top, before the nav element, so positioning stays self-contained.
 
