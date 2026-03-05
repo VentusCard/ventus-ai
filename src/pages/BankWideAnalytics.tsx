@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroAnalyticsCard from "@/components/hero/HeroAnalyticsCard";
+import CrossSellTargetingSection from "@/components/analytics/CrossSellTargetingSection";
 import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
