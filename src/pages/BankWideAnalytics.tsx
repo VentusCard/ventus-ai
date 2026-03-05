@@ -63,7 +63,7 @@ const BankWideAnalytics = () => {
                 <Button
                   variant="outline"
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
-                  onClick={() => document.getElementById("analytics-demo")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() => document.getElementById("analytics-problem")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   See It Work ↓
                 </Button>
