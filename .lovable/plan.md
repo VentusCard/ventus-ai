@@ -1,60 +1,47 @@
 
 
-## Plan: Add "Deep Personalization" Showcase to Cross-Sell Section
+# Engagement Demo: Right Panel Bank App Mockup
 
-### Concept
-Add a new subsection after the Campaign Activation flow that demonstrates how the **same cross-sell product** generates completely different messaging per customer based on their transaction history and lifestyle signals. This is the key differentiator — not just *who* to target, but *what to say*.
+## Overview
+Replace the right panel's "Engagement Triggers" list with a mobile banking app mockup styled with browser chrome (traffic light dots + address bar), showing the personalized consumer experience Ventus intelligence powers.
 
-### Design: "Same Product, Different Story"
-A visual showing **one product** (e.g., "Co-Branded Travel Card") being pitched to **3 different customer profiles**, each with a unique AI-generated message derived from their spending behavior:
+## Changes (single file)
 
-```text
-┌─────────────────────────────────────────────────────┐
-│  HYPER-PERSONALIZED MESSAGING                       │
-│  "Same product. Three completely different stories." │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  ┌─ Customer A ──────────────────────────────────┐  │
-│  │ 👤 Sarah M. · European Travel + Fine Dining   │  │
-│  │ Signals: 4 Paris flights, 12 Michelin reviews  │  │
-│  │ ┌──────────────────────────────────────────┐   │  │
-│  │ │ ✉ "Reward your next European summer       │   │  │
-│  │ │   getaway — 3x points on flights & dining"│   │  │
-│  │ └──────────────────────────────────────────┘   │  │
-│  └────────────────────────────────────────────────┘  │
-│                                                     │
-│  ┌─ Customer B ──────────────────────────────────┐  │
-│  │ 👤 James T. · Hawaii Enthusiast + Family      │  │
-│  │ Signals: 3 Honolulu trips, resort bookings     │  │
-│  │ ┌──────────────────────────────────────────┐   │  │
-│  │ │ ✉ "Alohas from Hawaii are sweeter with    │   │  │
-│  │ │   5x points on island stays & dining"     │   │  │
-│  │ └──────────────────────────────────────────┘   │  │
-│  └────────────────────────────────────────────────┘  │
-│                                                     │
-│  ┌─ Customer C ──────────────────────────────────┐  │
-│  │ 👤 Priya K. · Business Travel + Wellness      │  │
-│  │ Signals: 22 domestic flights, lounge access    │  │
-│  │ ┌──────────────────────────────────────────┐   │  │
-│  │ │ ✉ "Turn every business trip into first-   │   │  │
-│  │ │   class rewards — lounge access included" │   │  │
-│  │ └──────────────────────────────────────────┘   │  │
-│  └────────────────────────────────────────────────┘  │
-│                                                     │
-│  💡 AI Insight: "Personalized messaging drives      │
-│     3.2x higher conversion vs. generic campaigns"   │
-└─────────────────────────────────────────────────────┘
-```
+### File: `src/components/technology/demos/VentusEngagementDemo.tsx`
 
-### Key Details
-- Each profile card shows: name, lifestyle tags, 2-3 behavioral signals (kept general per privacy rules — no exact amounts), and the personalized message in a styled "email preview" block
-- All 3 cards target the **same product** ("Co-Branded Travel Card") — the header makes this explicit
-- Cards animate in staggered on scroll (same IntersectionObserver pattern)
-- The personalized message block has a subtle gradient/highlight to draw the eye
-- Ends with an AI insight callout about conversion lift from personalization
+**Remove**: The `engagementTriggers` data array and the entire right panel rendering (lines 19-25, 148-190).
 
-### Technical Approach
-- Add to `CrossSellTargetingSection.tsx` as a 4th subsection after Campaign Activation
-- Static data, no API calls
-- Same animation pattern already in use
+**Add**: A new right panel containing a browser-chrome-framed mobile banking app with:
 
+1. **Browser chrome header** (matching PlatformTabs style):
+   - Three traffic light dots (red, yellow, green)
+   - Mono URL: `metrobank.com/app`
+
+2. **App header inside the frame**:
+   - "Metro Bank" label
+   - "Good morning, Sarah" greeting
+   - "Your personalized banking experience" subtitle
+
+3. **Section 1 -- Lifestyle Profile Banner**:
+   - Full-width card with blue-to-purple soft gradient background
+   - Bold "WELLNESS EXPLORER" label in white
+   - Subtext: "You balanced fitness, healthy dining, and travel this quarter"
+   - Small "Powered by Ventus AI" in bottom-right corner, muted
+
+4. **Section 2 -- "FOR YOU" Personalized Offers**:
+   - Small uppercase "FOR YOU" label
+   - Three offer rows with the same card styling as the left panel:
+     - REI Co-op -- "Get 10% back on outdoor gear" with "Outdoor" tag
+     - Sweetgreen -- "$5 off your next order" with "Dining" tag
+     - Equinox -- "First month free" with "Wellness" tag
+   - Each row includes a small match percentage indicator
+
+5. **Section 3 -- Contextual Nudge**:
+   - Small alert-style card with a sparkle icon
+   - Text: "Your Wellness spend is 28% higher this month -- you're on track for your fitness goal"
+
+**Animation**: The right panel fades in when `triggersVisible` becomes true (same trigger as current). Offer rows stagger in with incremental delays.
+
+**Below the split panel** (before the Replay button): A centered italic gray caption: "The bank app experience above is powered entirely by Ventus transaction intelligence -- no manual configuration required."
+
+**Keep unchanged**: Header bar, left panel, animation logic, Replay button, all state management.

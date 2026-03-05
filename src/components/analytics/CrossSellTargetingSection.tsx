@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Users, ArrowRight, Sparkles, Mail, Smartphone, MessageSquare, Bell } from "lucide-react";
+import { Users, ArrowRight, Sparkles, Mail, Smartphone, MessageSquare, Bell, User, Plane, CreditCard } from "lucide-react";
 
 const segments = [
   {
@@ -280,6 +280,134 @@ const CrossSellTargetingSection = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* ── 4. Deep Personalization ── */}
+        <div className="mt-14">
+          <div className="flex items-center gap-3 mb-2">
+            <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase">
+              Hyper-Personalized Messaging
+            </p>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
+              <CreditCard className="w-3 h-3" /> Co-Branded Travel Card
+            </span>
+          </div>
+          <p className="text-gray-900 text-lg font-semibold mb-1">
+            Same product. Three completely different stories.
+          </p>
+          <p className="text-gray-400 text-xs mb-6">
+            Ventus AI crafts unique messaging for each customer based on their actual spending behavior — not generic segments.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                name: "Sarah M.",
+                tags: ["European Travel", "Fine Dining"],
+                signals: ["4 Paris flights this year", "12 Michelin-rated restaurants"],
+                message: "Reward your next European summer getaway — 3x points on flights & fine dining across the continent.",
+                color: "#3b82f6",
+                emoji: "🇫🇷",
+              },
+              {
+                name: "James T.",
+                tags: ["Hawaii Enthusiast", "Family"],
+                signals: ["3 Honolulu trips in 18 months", "Resort & family dining bookings"],
+                message: "Alohas from Hawaii are sweeter with 5x points on island stays & oceanfront dining.",
+                color: "#f59e0b",
+                emoji: "🌺",
+              },
+              {
+                name: "Priya K.",
+                tags: ["Business Travel", "Wellness"],
+                signals: ["22 domestic flights this quarter", "Airport lounge & spa visits"],
+                message: "Turn every business trip into first-class rewards — complimentary lounge access included.",
+                color: "#8b5cf6",
+                emoji: "✈️",
+              },
+            ].map((profile, i) => (
+              <div
+                key={profile.name}
+                className="rounded-xl border border-gray-200 overflow-hidden transition-all duration-700"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0)" : "translateY(20px)",
+                  transitionDelay: `${i * 180 + 1800}ms`,
+                }}
+              >
+                {/* Profile header */}
+                <div className="px-5 pt-5 pb-3">
+                  <div className="flex items-center gap-2.5 mb-2.5">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+                      style={{ background: profile.color }}
+                    >
+                      {profile.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">{profile.name}</p>
+                      <div className="flex gap-1.5 mt-0.5">
+                        {profile.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="px-1.5 py-0.5 rounded text-[9px] font-semibold"
+                            style={{ background: `${profile.color}12`, color: profile.color }}
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Behavioral signals */}
+                  <div className="space-y-1 mb-3">
+                    {profile.signals.map((s) => (
+                      <div key={s} className="flex items-center gap-1.5 text-[11px] text-gray-500">
+                        <Plane className="w-3 h-3 text-gray-400 shrink-0" />
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Personalized message */}
+                <div
+                  className="mx-3 mb-4 p-3.5 rounded-lg border"
+                  style={{
+                    background: `linear-gradient(135deg, ${profile.color}08, ${profile.color}04)`,
+                    borderColor: `${profile.color}20`,
+                  }}
+                >
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Mail className="w-3 h-3" style={{ color: profile.color }} />
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+                      AI-Generated Message
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-800 leading-relaxed font-medium">
+                    <span className="mr-1">{profile.emoji}</span>
+                    "{profile.message}"
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Conversion insight */}
+          <div
+            className="mt-5 flex items-start gap-2.5 px-4 py-3 rounded-lg transition-all duration-700"
+            style={{
+              background: "#f0f6ff",
+              opacity: visible ? 1 : 0,
+              transitionDelay: "2400ms",
+            }}
+          >
+            <Sparkles className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+            <p className="text-sm text-gray-700">
+              <span className="font-bold text-blue-600">3.2x higher conversion</span> when messaging is personalized from transaction signals vs. generic segment-level campaigns.
+            </p>
           </div>
         </div>
       </div>
