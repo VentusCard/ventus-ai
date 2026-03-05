@@ -20,13 +20,6 @@ const integrationSteps = [
   { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
 ];
 
-const pillars = [
-  { label: "Travel & Exploration", pct: 20.4, color: "#3b82f6" },
-  { label: "Food & Dining", pct: 18.2, color: "#8b5cf6" },
-  { label: "Health & Wellness", pct: 14.1, color: "#14b8a6" },
-  { label: "Shopping & Retail", pct: 12.3, color: "#f59e0b" },
-  { label: "Financial & Aspirational", pct: 9.8, color: "#22c55e" },
-];
 
 const BankWideAnalytics = () => {
   const [integrationVisible, setIntegrationVisible] = useState(false);
