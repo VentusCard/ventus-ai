@@ -1,47 +1,37 @@
 
 
-# Engagement Demo: Right Panel Bank App Mockup
+## Plan: 2-Tab Animated Analytics Demo
 
-## Overview
-Replace the right panel's "Engagement Triggers" list with a mobile banking app mockup styled with browser chrome (traffic light dots + address bar), showing the personalized consumer experience Ventus intelligence powers.
+### Overview
+Replace the static "See It In Action" demo with a 2-tab auto-rotating `AnalyticsDemoPanel`. Tab 1 focuses on **insights and trends** (not just raw metrics), Tab 2 on **deep personalization**.
 
-## Changes (single file)
+### Tab 1 — "Insights & Trends"
+Beyond the current static metrics, this tab tells a story with trend data:
 
-### File: `src/components/technology/demos/VentusEngagementDemo.tsx`
+- **Top row**: 4 key metrics with count-up animations AND trend indicators (e.g., "Travel Spend: $78.4B ↑ 18% QoQ", "Active Users: 75M ↑ 3.2%")
+- **Trend spotlight section**: 3 animated insight cards that stagger in:
+  - "Travel spending surged 18% this quarter — driven by 2.1M users booking international flights, concentrated in 25-44 age group"
+  - "Southeast region showing 22% growth in Dining & Entertainment — outpacing national average by 3x"
+  - "Millennials (25-34) increasing Financial & Aspirational spend by 31% YoY — largest shift across any demographic"
+- **Animated mini bar chart**: Top 5 lifestyle pillars with bars that fill + percentage labels, same as current but with QoQ change arrows (green ↑ / red ↓) next to each
+- **AI summary insight** fades in last: a synthesized takeaway tying the trends together
 
-**Remove**: The `engagementTriggers` data array and the entire right panel rendering (lines 19-25, 148-190).
+This transforms Tab 1 from "here are numbers" to "here is what your data is telling you" — regional trends, demographic shifts, category momentum.
 
-**Add**: A new right panel containing a browser-chrome-framed mobile banking app with:
+### Tab 2 — "Deep Personalization"
+The generic → personalized transformation:
+- **Top**: Single generic product card — "Travel Rewards Card" with bland copy, "One message → 12.3M customers", 0.8% conversion in muted red
+- **Center**: Animated transformation divider — "Same product, powered by transaction intelligence"
+- **Bottom**: 3 profile cards (Sarah/James/Priya) stagger in with personalized messaging and per-card conversion stats (3.8%-4.3% in green)
+- **Footer**: "Personalized messaging drives 3.2x higher conversion vs. generic campaigns"
 
-1. **Browser chrome header** (matching PlatformTabs style):
-   - Three traffic light dots (red, yellow, green)
-   - Mono URL: `metrobank.com/app`
+### Controls & Behavior
+- Tab bar: "Insights & Trends" | "Deep Personalization" with underline active state
+- Auto-rotates every 8s, pauses on hover
+- Replay button resets to Tab 1
+- 200ms fade between tabs, fresh mount triggers entry animations
 
-2. **App header inside the frame**:
-   - "Metro Bank" label
-   - "Good morning, Sarah" greeting
-   - "Your personalized banking experience" subtitle
+### Files
+- **Create** `src/components/analytics/AnalyticsDemoPanel.tsx`
+- **Modify** `src/pages/BankWideAnalytics.tsx` — replace inline demo (lines 138-243) with `<AnalyticsDemoPanel />`, remove `demoRef`/`demoVisible`/`pillars`
 
-3. **Section 1 -- Lifestyle Profile Banner**:
-   - Full-width card with blue-to-purple soft gradient background
-   - Bold "WELLNESS EXPLORER" label in white
-   - Subtext: "You balanced fitness, healthy dining, and travel this quarter"
-   - Small "Powered by Ventus AI" in bottom-right corner, muted
-
-4. **Section 2 -- "FOR YOU" Personalized Offers**:
-   - Small uppercase "FOR YOU" label
-   - Three offer rows with the same card styling as the left panel:
-     - REI Co-op -- "Get 10% back on outdoor gear" with "Outdoor" tag
-     - Sweetgreen -- "$5 off your next order" with "Dining" tag
-     - Equinox -- "First month free" with "Wellness" tag
-   - Each row includes a small match percentage indicator
-
-5. **Section 3 -- Contextual Nudge**:
-   - Small alert-style card with a sparkle icon
-   - Text: "Your Wellness spend is 28% higher this month -- you're on track for your fitness goal"
-
-**Animation**: The right panel fades in when `triggersVisible` becomes true (same trigger as current). Offer rows stagger in with incremental delays.
-
-**Below the split panel** (before the Replay button): A centered italic gray caption: "The bank app experience above is powered entirely by Ventus transaction intelligence -- no manual configuration required."
-
-**Keep unchanged**: Header bar, left panel, animation logic, Replay button, all state management.
