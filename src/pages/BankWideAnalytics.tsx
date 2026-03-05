@@ -36,16 +36,6 @@ const BankWideAnalytics = () => {
     return () => obs.disconnect();
   }, []);
 
-  useEffect(() => {
-    const el = demoRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setDemoVisible(true); obs.disconnect(); } },
-      { threshold: 0.2 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   return (
     <div>
