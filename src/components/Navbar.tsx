@@ -215,8 +215,8 @@ const Navbar = () => {
           </Link>
         </div>
       </div>
-    </nav>
+      </nav>
+    </div>
   );
-};
 
 export default Navbar;
