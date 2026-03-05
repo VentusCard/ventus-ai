@@ -23,9 +23,7 @@ const integrationSteps = [
 
 const BankWideAnalytics = () => {
   const [integrationVisible, setIntegrationVisible] = useState(false);
-  const [demoVisible, setDemoVisible] = useState(false);
   const integrationRef = useRef<HTMLDivElement>(null);
-  const demoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = integrationRef.current;
