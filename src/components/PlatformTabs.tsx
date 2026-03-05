@@ -443,14 +443,11 @@ const PlatformTabs = () => {
                   ))}
                 </ul>
               </div>
-              <div className="flex items-center gap-4 mt-8">
-                <Link to="/contact">
+              <div className="mt-8">
+                <Link to={tab.href}>
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                    Schedule Demo
+                    Learn More
                   </Button>
-                </Link>
-                <Link to={tab.href} className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-                  Learn More →
                 </Link>
               </div>
             </div>
