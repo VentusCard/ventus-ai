@@ -59,7 +59,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
-  
+  const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
   const isTransparent = isDarkHero && !isMobileMenuOpen;
