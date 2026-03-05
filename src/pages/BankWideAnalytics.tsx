@@ -76,7 +76,7 @@ const BankWideAnalytics = () => {
         </section>
 
         {/* SECTION 2 — THE PROBLEM */}
-        <section className="py-24 bg-white">
+        <section id="analytics-problem" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
