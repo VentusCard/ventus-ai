@@ -12,7 +12,7 @@ const Hero = () => {
   const [showContent, setShowContent] = useState(false);
 
   return (
-    <div className="relative bg-white text-gray-900 flex items-start lg:items-center justify-center overflow-hidden pt-40 pb-24 md:py-32 lg:min-h-screen lg:py-0">
+    <div className="relative bg-white text-gray-900 flex items-start lg:items-center justify-center overflow-hidden pt-44 pb-24 md:py-36 lg:min-h-screen lg:py-0 lg:pt-12">
       <div className="hidden lg:block absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[150px] pointer-events-none" />
       <div className="hidden lg:block absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-indigo-300/8 rounded-full blur-[130px] pointer-events-none" />
 
@@ -23,7 +23,7 @@ const Hero = () => {
             <AnimatedHeroTitle onComplete={() => setShowContent(true)} />
 
             <p
-              className={`text-lg md:text-xl text-gray-500 max-w-2xl leading-relaxed transition-all duration-700 ${
+              className={`text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed transition-all duration-700 ${
                 showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
               }`}
             >
