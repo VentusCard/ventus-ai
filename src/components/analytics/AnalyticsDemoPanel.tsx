@@ -10,9 +10,9 @@ const metrics = [
 ];
 
 const trendInsights = [
-  { icon: TrendingUp, accent: "#3b82f6", title: "Travel Surge", text: "Travel spending surged 18% this quarter — driven by 2.1M users booking international flights, concentrated in 25-44 age group." },
+  { icon: TrendingUp, accent: "#3b82f6", title: "Travel Surge", text: "Travel spending surged 18% this quarter — driven by 2.1M users booking international flights." },
   { icon: MapPin, accent: "#8b5cf6", title: "Southeast Growth", text: "Southeast region showing 22% growth in Dining & Entertainment — outpacing national average by 3x." },
-  { icon: Users, accent: "#14b8a6", title: "Millennial Shift", text: "Millennials (25-34) increasing Financial & Aspirational spend by 31% YoY — largest shift across any demographic." },
+  { icon: Users, accent: "#14b8a6", title: "Millennial Shift", text: "Millennials increasing Financial & Aspirational spend by 31% YoY — largest shift across any demographic." },
 ];
 
 const pillars = [
@@ -32,27 +32,13 @@ const profiles = [
 /* ── COMPONENT ── */
 const AnalyticsDemoPanel = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const [visible, setVisible] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [tabKey, setTabKey] = useState(0); // forces re-mount for animations
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [tabKey, setTabKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Intersection observer for initial visibility
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
 
   // Auto-rotate
   useEffect(() => {
-    if (!visible || paused) return;
+    if (paused) return;
     timerRef.current = setInterval(() => {
       setActiveTab(prev => {
         const next = (prev + 1) % 2;
@@ -61,7 +47,7 @@ const AnalyticsDemoPanel = () => {
       });
     }, 8000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [visible, paused]);
+  }, [paused]);
 
   const switchTab = useCallback((idx: number) => {
     setActiveTab(idx);
@@ -76,16 +62,16 @@ const AnalyticsDemoPanel = () => {
 
   return (
     <div
-      ref={containerRef}
-      className="rounded-2xl overflow-hidden border border-gray-200 bg-white"
+      className="rounded-2xl overflow-hidden w-full max-w-lg"
+      style={{ background: "#111827", border: "1px solid #1e2d4a" }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-3 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <h3 className="text-gray-900 text-lg font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Analytics Intelligence</h3>
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200">
+      <div className="flex items-center justify-between px-5 pt-4 pb-2" style={{ borderBottom: "1px solid #1e2d4a" }}>
+        <div className="flex items-center gap-2">
+          <h3 className="text-white text-sm font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>Analytics Intelligence</h3>
+          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold text-emerald-400 border border-emerald-700/50" style={{ background: "rgba(16,185,129,0.1)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live Demo
           </span>
@@ -93,45 +79,45 @@ const AnalyticsDemoPanel = () => {
       </div>
 
       {/* Tab bar */}
-      <div className="flex border-b border-gray-100 px-6 md:px-8">
+      <div className="flex" style={{ borderBottom: "1px solid #1e2d4a" }}>
         {tabs.map((label, i) => (
           <button
             key={label}
             onClick={() => switchTab(i)}
-            className="relative px-4 py-3 text-sm font-medium transition-colors"
-            style={{ color: activeTab === i ? "#1e293b" : "#94a3b8" }}
+            className="relative px-4 py-2.5 text-xs font-medium transition-colors"
+            style={{ color: activeTab === i ? "#e2e8f0" : "#475569" }}
           >
             {label}
             {activeTab === i && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full" />
             )}
           </button>
         ))}
       </div>
 
       {/* Content area */}
-      <div className="p-6 md:p-8 min-h-[420px]">
+      <div className="p-5 min-h-[340px]">
         {activeTab === 0 ? (
-          <InsightsTab key={`insights-${tabKey}`} visible={visible} />
+          <InsightsTab key={`insights-${tabKey}`} />
         ) : (
-          <PersonalizationTab key={`personalize-${tabKey}`} visible={visible} />
+          <PersonalizationTab key={`personalize-${tabKey}`} />
         )}
       </div>
 
       {/* Footer controls */}
-      <div className="flex items-center justify-between px-6 md:px-8 py-3 border-t border-gray-100">
+      <div className="flex items-center justify-between px-5 py-2.5" style={{ borderTop: "1px solid #1e2d4a" }}>
         <button
           onClick={() => setPaused(p => !p)}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
         >
-          {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+          {paused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
           {paused ? "Resume" : "Pause"}
         </button>
         <button
           onClick={replay}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="w-3 h-3" />
           Replay
         </button>
       </div>
@@ -140,85 +126,88 @@ const AnalyticsDemoPanel = () => {
 };
 
 /* ── TAB 1: INSIGHTS & TRENDS ── */
-const InsightsTab = ({ visible }: { visible: boolean }) => (
+const InsightsTab = () => (
   <div>
     {/* Metrics row */}
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div className="grid grid-cols-2 gap-2 mb-4">
       {metrics.map((m, i) => (
         <div
           key={m.label}
-          className="rounded-xl px-3 py-3 border border-gray-200 transition-all duration-700"
+          className="rounded-lg px-2.5 py-2 transition-all duration-700"
           style={{
-            background: "#f8fafc",
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(16px)",
-            transitionDelay: `${i * 100}ms`,
+            background: "#0a0f1e",
+            opacity: 0,
+            transform: "translateY(12px)",
+            animation: `fadeSlideUp 0.5s ease ${i * 80}ms forwards`,
           }}
         >
-          <p className="text-gray-500 text-[11px] mb-0.5">{m.label}</p>
-          <p className="text-gray-900 text-xl font-bold">{m.value}</p>
+          <p className="text-gray-500 text-[9px] mb-0.5">{m.label}</p>
+          <p className="text-white text-base font-bold">{m.value}</p>
           <div className="flex items-center gap-1 mt-0.5">
             {m.up ? (
-              <TrendingUp className="w-3 h-3 text-emerald-500" />
+              <TrendingUp className="w-2.5 h-2.5 text-emerald-400" />
             ) : (
-              <TrendingDown className="w-3 h-3 text-red-500" />
+              <TrendingDown className="w-2.5 h-2.5 text-red-400" />
             )}
-            <span className={`text-[10px] font-semibold ${m.up ? "text-emerald-600" : "text-red-500"}`}>
+            <span className={`text-[9px] font-semibold ${m.up ? "text-emerald-400" : "text-red-400"}`}>
               {m.trend}
             </span>
-            <span className="text-gray-400 text-[10px]">{m.period}</span>
+            <span className="text-gray-600 text-[9px]">{m.period}</span>
           </div>
         </div>
       ))}
     </div>
 
     {/* Trend insight cards */}
-    <div className="space-y-3 mb-6">
+    <div className="space-y-2 mb-4">
       {trendInsights.map((t, i) => (
         <div
           key={t.title}
-          className="flex items-start gap-3 rounded-xl p-4 border border-gray-100 transition-all duration-700"
+          className="flex items-start gap-2.5 rounded-lg p-3 transition-all duration-700"
           style={{
-            background: "#fafbfc",
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateX(0)" : "translateX(-20px)",
-            transitionDelay: `${400 + i * 200}ms`,
+            background: "#0d1424",
+            border: "1px solid #1e2d4a",
+            opacity: 0,
+            transform: "translateX(-16px)",
+            animation: `fadeSlideRight 0.5s ease ${300 + i * 150}ms forwards`,
           }}
         >
-          <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${t.accent}15` }}>
-            <t.icon className="w-4 h-4" style={{ color: t.accent }} />
+          <div className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center" style={{ background: `${t.accent}20` }}>
+            <t.icon className="w-3 h-3" style={{ color: t.accent }} />
           </div>
           <div>
-            <p className="text-gray-900 text-sm font-semibold mb-0.5">{t.title}</p>
-            <p className="text-gray-500 text-xs leading-relaxed">{t.text}</p>
+            <p className="text-gray-200 text-[11px] font-semibold mb-0.5">{t.title}</p>
+            <p className="text-gray-500 text-[10px] leading-relaxed">{t.text}</p>
           </div>
         </div>
       ))}
     </div>
 
     {/* Pillar bars */}
-    <div className="mb-5">
-      <p className="text-gray-900 text-sm font-bold mb-3">Lifestyle Pillar Distribution</p>
-      <div className="space-y-2.5">
+    <div className="mb-4">
+      <p className="text-gray-300 text-[10px] font-bold mb-2">Lifestyle Pillar Distribution</p>
+      <div className="space-y-1.5">
         {pillars.map((p, i) => (
           <div key={p.label}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-gray-700 text-xs">{p.label}</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-gray-500 text-xs font-semibold">{p.pct}%</span>
-                <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${p.up ? "text-emerald-600" : "text-red-500"}`}>
-                  {p.up ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-gray-400 text-[10px]">{p.label}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-gray-500 text-[9px] font-semibold">{p.pct}%</span>
+                <span className={`text-[8px] font-semibold flex items-center gap-0.5 ${p.up ? "text-emerald-400" : "text-red-400"}`}>
+                  {p.up ? <TrendingUp className="w-2 h-2" /> : <TrendingDown className="w-2 h-2" />}
                   {p.change}
                 </span>
               </div>
             </div>
-            <div className="h-2 rounded-full overflow-hidden bg-gray-100">
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#1e2d4a" }}>
               <div
-                className="h-full rounded-full transition-all duration-1000"
+                className="h-full rounded-full"
                 style={{
-                  width: visible ? `${(p.pct / 25) * 100}%` : "0%",
+                  width: "0%",
                   background: p.color,
-                  transitionDelay: `${1000 + i * 120}ms`,
+                  animation: `barFill 0.8s ease ${800 + i * 100}ms forwards`,
+                  // @ts-ignore
+                  "--bar-width": `${(p.pct / 25) * 100}%`,
                 }}
               />
             </div>
@@ -229,118 +218,118 @@ const InsightsTab = ({ visible }: { visible: boolean }) => (
 
     {/* AI summary */}
     <div
-      className="flex items-start gap-2 rounded-lg p-3 transition-all duration-700"
+      className="flex items-start gap-2 rounded-lg p-2.5"
       style={{
-        background: "#eff6ff",
-        opacity: visible ? 1 : 0,
-        transitionDelay: "1600ms",
+        background: "rgba(59,130,246,0.08)",
+        border: "1px solid rgba(59,130,246,0.15)",
+        opacity: 0,
+        animation: "fadeIn 0.5s ease 1400ms forwards",
       }}
     >
-      <Sparkles className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-      <p className="text-gray-600 text-xs leading-relaxed">
-        <span className="font-semibold text-blue-600">AI Insight:</span> Travel & Exploration leads spending growth at 18% QoQ, primarily among 25-44 year olds. Southeast region is your fastest-growing market. Millennials are shifting heavily into Financial & Aspirational categories — a 31% YoY jump signals cross-sell opportunity.
+      <Sparkles className="w-3.5 h-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
+      <p className="text-gray-400 text-[10px] leading-relaxed">
+        <span className="font-semibold text-blue-400">AI Insight:</span> Travel leads growth at 18% QoQ among 25-44 year olds. Southeast is your fastest-growing market. Millennials shifting into Financial & Aspirational — 31% YoY signals cross-sell opportunity.
       </p>
     </div>
   </div>
 );
 
 /* ── TAB 2: DEEP PERSONALIZATION ── */
-const PersonalizationTab = ({ visible }: { visible: boolean }) => (
+const PersonalizationTab = () => (
   <div>
     {/* Generic card */}
     <div
-      className="rounded-xl border border-gray-200 p-5 mb-4 transition-all duration-700"
+      className="rounded-lg p-4 mb-3"
       style={{
-        background: "#f8fafc",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(16px)",
+        background: "#0a0f1e",
+        border: "1px solid #1e2d4a",
+        opacity: 0,
+        animation: "fadeSlideUp 0.5s ease forwards",
       }}
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center">
-            <BarChart3 className="w-4 h-4 text-gray-400" />
+          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "#1e2d4a" }}>
+            <BarChart3 className="w-3 h-3 text-gray-500" />
           </div>
           <div>
-            <p className="text-gray-900 text-sm font-bold">Travel Rewards Card</p>
-            <p className="text-gray-400 text-[10px]">Generic Campaign</p>
+            <p className="text-gray-200 text-xs font-bold">Travel Rewards Card</p>
+            <p className="text-gray-600 text-[9px]">Generic Campaign</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-red-400 text-lg font-bold">0.8%</p>
-          <p className="text-gray-400 text-[10px]">Conversion</p>
+          <p className="text-red-400 text-base font-bold">0.8%</p>
+          <p className="text-gray-600 text-[9px]">Conversion</p>
         </div>
       </div>
-      <p className="text-gray-500 text-xs italic mb-2">
+      <p className="text-gray-500 text-[10px] italic mb-1">
         "Upgrade to our Travel Rewards Card today. Earn points on every purchase."
       </p>
-      <p className="text-gray-400 text-[10px]">One message → 12.3M customers</p>
+      <p className="text-gray-600 text-[9px]">One message → 12.3M customers</p>
     </div>
 
     {/* Transformation divider */}
     <div
-      className="flex items-center gap-3 my-4 transition-all duration-700"
-      style={{
-        opacity: visible ? 1 : 0,
-        transitionDelay: "400ms",
-      }}
+      className="flex items-center gap-2 my-3"
+      style={{ opacity: 0, animation: "fadeIn 0.5s ease 300ms forwards" }}
     >
-      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent" />
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100">
-        <Sparkles className="w-3 h-3 text-blue-500" />
-        <span className="text-[10px] font-semibold text-blue-600">Powered by transaction intelligence</span>
-        <ArrowRight className="w-3 h-3 text-blue-400" />
+      <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, transparent, #1e3a5f, transparent)" }} />
+      <div className="flex items-center gap-1 px-2 py-1 rounded-full" style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
+        <Sparkles className="w-2.5 h-2.5 text-blue-400" />
+        <span className="text-[8px] font-semibold text-blue-400">Powered by transaction intelligence</span>
+        <ArrowRight className="w-2.5 h-2.5 text-blue-500" />
       </div>
-      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent" />
+      <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, transparent, #1e3a5f, transparent)" }} />
     </div>
 
     {/* Profile cards */}
-    <div className="space-y-3 mb-5">
+    <div className="space-y-2 mb-4">
       {profiles.map((p, i) => (
         <div
           key={p.name}
-          className="rounded-xl border border-gray-200 p-4 transition-all duration-700"
+          className="rounded-lg p-3"
           style={{
-            background: "#fff",
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(16px)",
-            transitionDelay: `${600 + i * 200}ms`,
+            background: "#0d1424",
+            border: "1px solid #1e2d4a",
+            opacity: 0,
+            animation: `fadeSlideUp 0.5s ease ${500 + i * 150}ms forwards`,
           }}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: p.tagColor }}>
+              <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold" style={{ background: p.tagColor }}>
                 {p.name.charAt(0)}
               </div>
               <div>
-                <p className="text-gray-900 text-sm font-semibold">{p.name}</p>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: p.tagColor, background: `${p.tagColor}15` }}>
+                <p className="text-gray-200 text-[11px] font-semibold">{p.name}</p>
+                <span className="text-[8px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: p.tagColor, background: `${p.tagColor}18` }}>
                   {p.tag}
                 </span>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-emerald-500 text-lg font-bold">{p.conversion}</p>
-              <p className="text-gray-400 text-[10px]">Conversion</p>
+              <p className="text-emerald-400 text-sm font-bold">{p.conversion}</p>
+              <p className="text-gray-600 text-[8px]">Conversion</p>
             </div>
           </div>
-          <p className="text-gray-600 text-xs leading-relaxed">{p.message}</p>
+          <p className="text-gray-500 text-[10px] leading-relaxed">{p.message}</p>
         </div>
       ))}
     </div>
 
     {/* Footer insight */}
     <div
-      className="flex items-start gap-2 rounded-lg p-3 transition-all duration-700"
+      className="flex items-start gap-2 rounded-lg p-2.5"
       style={{
-        background: "#f0fdf4",
-        opacity: visible ? 1 : 0,
-        transitionDelay: "1200ms",
+        background: "rgba(16,185,129,0.08)",
+        border: "1px solid rgba(16,185,129,0.15)",
+        opacity: 0,
+        animation: "fadeIn 0.5s ease 1000ms forwards",
       }}
     >
-      <TrendingUp className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-      <p className="text-gray-600 text-xs leading-relaxed">
-        <span className="font-semibold text-emerald-600">Result:</span> Personalized messaging drives <span className="font-bold text-gray-800">3.2x higher conversion</span> vs. generic campaigns — without changing the product, only the story.
+      <TrendingUp className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+      <p className="text-gray-400 text-[10px] leading-relaxed">
+        <span className="font-semibold text-emerald-400">Result:</span> Personalized messaging drives <span className="font-bold text-gray-200">3.2x higher conversion</span> vs. generic campaigns.
       </p>
     </div>
   </div>
