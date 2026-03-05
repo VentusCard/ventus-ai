@@ -330,7 +330,7 @@ const TabPreview = ({ index }: { index: number }) => {
   return previews[index] || null;
 };
 
-const ROTATE_INTERVAL = 5000;
+const ROTATE_INTERVAL = 10000;
 
 const PlatformTabs = () => {
   const [activeIndex, setActiveIndex] = useState(0);
