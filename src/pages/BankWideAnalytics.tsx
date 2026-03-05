@@ -5,7 +5,7 @@ import HeroAnalyticsCard from "@/components/hero/HeroAnalyticsCard";
 import CrossSellTargetingSection from "@/components/analytics/CrossSellTargetingSection";
 import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import AnalyticsDemoPanel from "@/components/analytics/AnalyticsDemoPanel";
+
 
 const capabilities = [
   { icon: Layers, title: "Customer Segmentation", desc: "Automatically cluster your entire customer base into dynamic behavioral segments — updated with every transaction, not every quarter." },
@@ -63,7 +63,7 @@ const BankWideAnalytics = () => {
                 <Button
                   variant="outline"
                   className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
-                  onClick={() => document.getElementById("analytics-demo")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() => document.getElementById("analytics-problem")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   See It Work ↓
                 </Button>
@@ -76,7 +76,7 @@ const BankWideAnalytics = () => {
         </section>
 
         {/* SECTION 2 — THE PROBLEM */}
-        <section className="py-24 bg-white">
+        <section id="analytics-problem" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
@@ -105,20 +105,6 @@ const BankWideAnalytics = () => {
           </div>
         </section>
 
-        {/* SECTION 3 — SEE IT IN ACTION */}
-        <section id="analytics-demo" className="py-16 bg-white scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">See It In Action</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Institution-wide intelligence at scale.</h2>
-              <p className="text-gray-500 text-lg mb-6 max-w-2xl">
-                The same enrichment engine that powers individual transaction intelligence — applied across your entire customer base.
-              </p>
-            </ScrollReveal>
-
-            <AnalyticsDemoPanel />
-          </div>
-        </section>
 
         {/* SECTION 3.5 — CROSS-SELL & TARGETING */}
         <CrossSellTargetingSection />
