@@ -203,8 +203,10 @@ const EngagementPreview = () => {
           <p className="text-[8px] text-white/50 mt-0.5 text-right">Powered by Ventus AI</p>
         </div>
         {/* Offer rows */}
+        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase">For You</p>
         {[
-          { brand: "REI Co-op", offer: "10% back", tag: "Outdoor" },
+          { brand: "REI Co-op", offer: "10% back on outdoor gear", tag: "Outdoor" },
+          { brand: "Sweetgreen", offer: "$5 off your next order", tag: "Dining" },
           { brand: "Equinox", offer: "First month free", tag: "Wellness" },
         ].map((o) => (
           <div key={o.brand} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
@@ -215,16 +217,38 @@ const EngagementPreview = () => {
             <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(37,99,235,0.08)", color: "#2563eb" }}>{o.tag}</span>
           </div>
         ))}
-        {/* Spending insight */}
-        <div className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px]">💪</span>
-            <span className="text-[10px] font-medium text-gray-700">Wellness</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] text-gray-500">$320 / $250</span>
-            <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(239,68,68,0.08)", color: "#dc2626" }}>Over Budget</span>
-          </div>
+        {/* Lifestyle Spending Grid */}
+        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase mt-1">Your Lifestyle Spending</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {[
+            { name: "Travel", icon: "✈️", spend: 1240, budget: 1500, status: "near" as const },
+            { name: "Dining", icon: "🍽️", spend: 480, budget: 500, status: "near" as const },
+            { name: "Wellness", icon: "💪", spend: 320, budget: 250, status: "over" as const },
+            { name: "Shopping", icon: "🛍️", spend: 180, budget: 400, status: "under" as const },
+          ].map((p) => {
+            const colors = {
+              near: { bar: "#f59e0b", bg: "rgba(245,158,11,0.08)", text: "#b45309", label: "Near Limit" },
+              over: { bar: "#ef4444", bg: "rgba(239,68,68,0.08)", text: "#dc2626", label: "Over Budget" },
+              under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
+            };
+            const c = colors[p.status];
+            const pct = Math.min((p.spend / p.budget) * 100, 100);
+            return (
+              <div key={p.name} className="rounded-md px-2 py-1.5 border border-gray-100">
+                <div className="flex items-center justify-between mb-0.5">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px]">{p.icon}</span>
+                    <span className="text-[9px] font-semibold text-gray-900">{p.name}</span>
+                  </div>
+                  <span className="text-[6px] font-semibold px-1 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>{c.label}</span>
+                </div>
+                <div className="w-full h-1 rounded-full bg-gray-100 mb-0.5">
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: c.bar }} />
+                </div>
+                <p className="text-[8px] text-gray-500">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
