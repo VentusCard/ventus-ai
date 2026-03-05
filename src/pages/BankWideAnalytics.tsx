@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroAnalyticsCard from "@/components/hero/HeroAnalyticsCard";
+import CrossSellTargetingSection from "@/components/analytics/CrossSellTargetingSection";
 import { Layers, Search, TrendingUp, LayoutDashboard } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -246,6 +247,9 @@ const BankWideAnalytics = () => {
             </div>
           </div>
         </section>
+
+        {/* SECTION 3.5 — CROSS-SELL & TARGETING */}
+        <CrossSellTargetingSection />
 
         {/* SECTION 4 — CAPABILITIES */}
         <section className="py-24 bg-white">
