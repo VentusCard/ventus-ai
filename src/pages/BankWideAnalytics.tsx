@@ -248,6 +248,9 @@ const BankWideAnalytics = () => {
           </div>
         </section>
 
+        {/* SECTION 3.5 — CROSS-SELL & TARGETING */}
+        <CrossSellTargetingSection />
+
         {/* SECTION 4 — CAPABILITIES */}
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
