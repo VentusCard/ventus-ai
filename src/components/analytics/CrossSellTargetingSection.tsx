@@ -290,7 +290,7 @@ const CrossSellTargetingSection = () => {
               Hyper-Personalized Messaging
             </p>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold">
-              <CreditCard className="w-3 h-3" /> Co-Branded Travel Card
+              <CreditCard className="w-3 h-3" /> Example: Travel Card Cross-Sale
             </span>
           </div>
           <p className="text-gray-900 text-lg font-semibold mb-1">
