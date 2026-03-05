@@ -9,10 +9,10 @@ const lifestyleProfile = {
   type: "Wellness Explorer",
   savings: "$325",
   pillars: [
-    { name: "Travel", icon: "✈️", score: 87, detail: "3 cities visited, 2 countries" },
-    { name: "Dining", icon: "🍽️", score: 82, detail: "5 new restaurants, Italian & Asian" },
-    { name: "Wellness", icon: "💪", score: 91, detail: "4 fitness classes, 12 gym visits" },
-    { name: "Pets", icon: "🐾", score: 74, detail: "2 grooming shops visited" },
+    { name: "Travel", icon: "✈️", score: 56, detail: "$1,240 this month" },
+    { name: "Dining", icon: "🍽️", score: 22, detail: "$480 this month" },
+    { name: "Wellness", icon: "💪", score: 14, detail: "$320 this month" },
+    { name: "Shopping", icon: "🛍️", score: 8, detail: "$180 this month" },
   ],
 };
 
