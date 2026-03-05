@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
+import AnnouncementBar from "./AnnouncementBar";
 
 
 const coreProduct = {
@@ -58,7 +59,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
-  
+  const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
   const isTransparent = isDarkHero && !isMobileMenuOpen;
@@ -83,7 +84,9 @@ const Navbar = () => {
   const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
 
   return (
-    <nav className={`absolute top-0 left-0 right-0 z-50 transition-colors duration-300 ${isTransparent ? "bg-[#0a0f1e]" : "bg-white"}`}>
+    <div className="absolute top-0 left-0 right-0 z-50">
+      {showAnnouncement && <AnnouncementBar onDismiss={() => setShowAnnouncement(false)} />}
+      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0a0f1e]" : "bg-white"}`}>
       {/* Desktop navbar */}
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
@@ -212,7 +215,8 @@ const Navbar = () => {
           </Link>
         </div>
       </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 
