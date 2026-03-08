@@ -414,11 +414,7 @@ const TePilot = () => {
     setAnchorZip(dataA.zip);
     setAnchorZipB(dataB.zip);
     setIsFromSampleData(true);
-    setActiveTab("results");
-    Promise.all([
-      startEnrichment(resultA.transactions, dataA.zip),
-      startEnrichmentB(resultB.transactions, dataB.zip),
-    ]);
+    setActiveTab("preview");
   };
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
