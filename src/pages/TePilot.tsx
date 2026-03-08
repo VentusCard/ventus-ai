@@ -393,38 +393,31 @@ const TePilot = () => {
     await startEnrichment(parsedTransactions, anchorZip);
   };
 
-  // Comparison mode: parse and enrich both customers in parallel
-  const handleComparisonSelectA = (csv: string, zip: string, demographics: ClientProfileData) => {
-    setSelectedCompA({ csv, zip, demographics });
-  };
-  const handleComparisonSelectB = (csv: string, zip: string, demographics: ClientProfileData) => {
-    setSelectedCompB({ csv, zip, demographics });
-  };
-  const handleEnrichBoth = async () => {
-    if (!selectedCompA || !selectedCompB) return;
-    
-    // Parse both datasets
-    const resultA = parsePastedText(`# Home ZIP Code: ${selectedCompA.zip}\n${selectedCompA.csv}`);
-    const resultB = parsePastedText(`# Home ZIP Code: ${selectedCompB.zip}\n${selectedCompB.csv}`);
-    
+  // Comparison mode: auto-trigger from multi-select sample data
+  const handleLoadComparisonSamples = (
+    dataA: { csv: string; zip: string; demographics: ClientProfileData },
+    dataB: { csv: string; zip: string; demographics: ClientProfileData }
+  ) => {
+    setSelectedCompA(dataA);
+    setSelectedCompB(dataB);
+    setComparisonMode(true);
+    const resultA = parsePastedText(`# Home ZIP Code: ${dataA.zip}\n${dataA.csv}`);
+    const resultB = parsePastedText(`# Home ZIP Code: ${dataB.zip}\n${dataB.csv}`);
     if (!resultA.transactions || !resultB.transactions) {
       toast.error("Failed to parse comparison datasets");
       return;
     }
-
     setParsedTransactions(resultA.transactions);
     setParsedTransactionsB(resultB.transactions);
-    setUserDemographics(selectedCompA.demographics);
-    setUserDemographicsB(selectedCompB.demographics);
-    setAnchorZip(selectedCompA.zip);
-    setAnchorZipB(selectedCompB.zip);
+    setUserDemographics(dataA.demographics);
+    setUserDemographicsB(dataB.demographics);
+    setAnchorZip(dataA.zip);
+    setAnchorZipB(dataB.zip);
     setIsFromSampleData(true);
     setActiveTab("results");
-    
-    // Enrich both in parallel
-    await Promise.all([
-      startEnrichment(resultA.transactions, selectedCompA.zip),
-      startEnrichmentB(resultB.transactions, selectedCompB.zip),
+    Promise.all([
+      startEnrichment(resultA.transactions, dataA.zip),
+      startEnrichmentB(resultB.transactions, dataB.zip),
     ]);
   };
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
