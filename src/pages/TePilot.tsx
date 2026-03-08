@@ -28,6 +28,8 @@ import { FilterControls } from "@/components/tepilot/FilterControls";
 import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
 
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
+import { DataProfileView } from "@/components/tepilot/insights/DataProfileView";
+import { MobileAppFrame } from "@/components/tepilot/insights/MobileAppFrame";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
