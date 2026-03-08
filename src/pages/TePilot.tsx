@@ -392,6 +392,41 @@ const TePilot = () => {
     setActiveTab("results"); // Switch to results IMMEDIATELY
     await startEnrichment(parsedTransactions, anchorZip);
   };
+
+  // Comparison mode: parse and enrich both customers in parallel
+  const handleComparisonSelectA = (csv: string, zip: string, demographics: ClientProfileData) => {
+    setSelectedCompA({ csv, zip, demographics });
+  };
+  const handleComparisonSelectB = (csv: string, zip: string, demographics: ClientProfileData) => {
+    setSelectedCompB({ csv, zip, demographics });
+  };
+  const handleEnrichBoth = async () => {
+    if (!selectedCompA || !selectedCompB) return;
+    
+    // Parse both datasets
+    const resultA = parsePastedText(`# Home ZIP Code: ${selectedCompA.zip}\n${selectedCompA.csv}`);
+    const resultB = parsePastedText(`# Home ZIP Code: ${selectedCompB.zip}\n${selectedCompB.csv}`);
+    
+    if (!resultA.transactions || !resultB.transactions) {
+      toast.error("Failed to parse comparison datasets");
+      return;
+    }
+
+    setParsedTransactions(resultA.transactions);
+    setParsedTransactionsB(resultB.transactions);
+    setUserDemographics(selectedCompA.demographics);
+    setUserDemographicsB(selectedCompB.demographics);
+    setAnchorZip(selectedCompA.zip);
+    setAnchorZipB(selectedCompB.zip);
+    setIsFromSampleData(true);
+    setActiveTab("results");
+    
+    // Enrich both in parallel
+    await Promise.all([
+      startEnrichment(resultA.transactions, selectedCompA.zip),
+      startEnrichmentB(resultB.transactions, selectedCompB.zip),
+    ]);
+  };
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
     if (!transaction) return;
