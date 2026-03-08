@@ -23,12 +23,12 @@ interface SampleDataset {
 }
 
 const DATASETS: SampleDataset[] = [
-  { label: "Sarah Mitchell (1 mo)", csv: SAMPLE_CSV, zip: "94102", demographics: SAMPLE_CUSTOMER_1 },
-  { label: "James Rodriguez (1 mo)", csv: SAMPLE_CSV_SPORTS_WELLNESS, zip: "78701", demographics: SAMPLE_CUSTOMER_2 },
-  { label: "Emily Chen (1 mo)", csv: SAMPLE_CSV_FOOD_HOME, zip: "60614", demographics: SAMPLE_CUSTOMER_3 },
-  { label: "Michael Thompson (12 mo)", csv: SAMPLE_CSV_TRAVEL_FAMILY_12, zip: "94102", demographics: SAMPLE_CUSTOMER_4 },
-  { label: "Amanda Williams (12 mo)", csv: SAMPLE_CSV_NYC_SPORTS_HOME_12, zip: "10003", demographics: SAMPLE_CUSTOMER_5 },
-  { label: "Robert Garcia (12 mo)", csv: SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12, zip: "60610", demographics: SAMPLE_CUSTOMER_6 },
+  { label: "Dataset 1 (1 month)", csv: SAMPLE_CSV, zip: "94102", demographics: SAMPLE_CUSTOMER_1 },
+  { label: "Dataset 2 (1 month)", csv: SAMPLE_CSV_SPORTS_WELLNESS, zip: "78701", demographics: SAMPLE_CUSTOMER_2 },
+  { label: "Dataset 3 (1 month)", csv: SAMPLE_CSV_FOOD_HOME, zip: "60614", demographics: SAMPLE_CUSTOMER_3 },
+  { label: "Dataset 4 (12 months)", csv: SAMPLE_CSV_TRAVEL_FAMILY_12, zip: "94102", demographics: SAMPLE_CUSTOMER_4 },
+  { label: "Dataset 5 (12 months)", csv: SAMPLE_CSV_NYC_SPORTS_HOME_12, zip: "10003", demographics: SAMPLE_CUSTOMER_5 },
+  { label: "Dataset 6 (12 months)", csv: SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12, zip: "60610", demographics: SAMPLE_CUSTOMER_6 },
 ];
 
 interface UploadOrPasteContainerProps {
