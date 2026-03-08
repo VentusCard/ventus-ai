@@ -27,9 +27,23 @@ export function MobileAppFrame({ children }: MobileAppFrameProps) {
           <p className="text-sm font-semibold">Your Lifestyle Dashboard</p>
         </div>
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto bg-slate-50 px-2 py-3">
-          {children}
+        {/* Scrollable content — scale down desktop components to fit phone width */}
+        <div className="flex-1 overflow-hidden relative shrink-0">
+          <div
+            className="overflow-y-auto absolute inset-0"
+            style={{
+              /* Render at 600px wide then scale to ~363px (phone inner width) → 0.605 scale */
+              width: "600px",
+              transform: "scale(0.605)",
+              transformOrigin: "top left",
+              /* Increase logical height to compensate for scale so scrolling works */
+              height: `${780 / 0.605}px`,
+            }}
+          >
+            <div className="px-3 py-3">
+              {children}
+            </div>
+          </div>
         </div>
 
         {/* Home indicator */}
