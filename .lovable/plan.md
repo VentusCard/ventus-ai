@@ -1,34 +1,42 @@
 
 
-## Understanding
+## Plan: Multi-Select Sample Data for Comparison Mode
 
-The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
+### Concept
+Replace the separate "Compare Two Customers" toggle and `ComparisonSetup` component with a simpler flow: the existing "Load Sample Data" dropdown gets **checkboxes for multi-select**. When exactly two datasets are selected, comparison mode auto-activates and enrichment auto-triggers.
 
-Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
+### Flow
+1. User clicks "Load Sample Data" dropdown
+2. Each item has a checkbox — user can select up to 2
+3. Selecting 1 → works like today (single customer, loads into paste input)
+4. Selecting 2 → automatically enters comparison mode, parses both, and kicks off parallel enrichment
+5. Deselecting back to 1 or 0 → exits comparison mode
 
-## Plan
+### Changes
 
-### Move AnalyticsDemoPanel into the Hero Section
+**1. `src/components/tepilot/UploadOrPasteContainer.tsx`**
+- Add `selectedSamples` state tracking (array of selected dataset indices)
+- Replace `DropdownMenuItem` click behavior with checkbox-based multi-select
+- Show checkmarks next to selected items, allow up to 2
+- Add new prop: `onLoadComparisonSamples(dataA, dataB)` called when 2 are selected
+- Keep dropdown open on selection (don't auto-close)
+- Show a small badge like "2 selected" on the button when in comparison mode
 
-1. **Modify `src/pages/BankWideAnalytics.tsx`**:
-   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
-   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
-   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+**2. `src/pages/TePilot.tsx`**
+- Remove the "Compare Two Customers" Switch toggle from the Setup tab
+- Remove `ComparisonSetup` rendering — no longer needed
+- Add a new handler `handleLoadComparisonSamples(dataA, dataB)` that:
+  - Sets `comparisonMode = true`
+  - Sets demographics, zips, parses both CSVs
+  - Auto-triggers `handleEnrichBoth` logic (switches to results tab, starts parallel enrichment)
+- When a single sample is selected (existing `onLoadSample`), ensure `comparisonMode` is set to `false` and comparison state is reset
 
-2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
-   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
-   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
-   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
-   - Ensure tab bar, controls, and all content use dark-themed colors
+**3. `src/components/tepilot/ComparisonSetup.tsx`**
+- Can be deleted or left unused — no longer rendered
 
-3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
-
-### Key Styling Changes in AnalyticsDemoPanel
-- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
-- Tab bar: dark background with light text, active tab in blue
-- Metric cards: dark cards with white values
-- Insight cards: dark cards with light text
-- Pillar bars: keep colored bars but on dark track
-- Personalization tab: dark cards, same transformation flow
-- Controls bar: dark theme
+### UX Details
+- Dropdown items show: `☐ Sarah Mitchell (1 mo)` → `☑ Sarah Mitchell (1 mo)` when selected
+- When 2nd item is checked, dropdown closes and enrichment begins immediately
+- A small indicator on the "Load Sample Data" button shows selected count
+- Selecting a 3rd item is blocked (max 2) with a toast hint
 
