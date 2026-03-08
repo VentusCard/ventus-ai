@@ -113,6 +113,15 @@ const TePilot = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
   const [userDemographics, setUserDemographics] = useState<ClientProfileData | null>(null);
   const [isFromSampleData, setIsFromSampleData] = useState(false);
+  
+  // Comparison mode state
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedCompA, setSelectedCompA] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
+  const [selectedCompB, setSelectedCompB] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
+  const [parsedTransactionsB, setParsedTransactionsB] = useState<Transaction[]>([]);
+  const [userDemographicsB, setUserDemographicsB] = useState<ClientProfileData | null>(null);
+  const [anchorZipB, setAnchorZipB] = useState("");
+
   const navigate = useNavigate();
   const handleNavigateToAdvisorConsole = async () => {
     // Ensure analysis runs before navigating if not already done
@@ -131,7 +140,7 @@ const TePilot = () => {
     navigate('/tepilot/advisor-console');
   };
 
-  // SSE Enrichment Hook
+  // SSE Enrichment Hook - Customer A (primary)
   const {
     enrichedTransactions,
     isProcessing,
@@ -141,6 +150,16 @@ const TePilot = () => {
     startEnrichment,
     resetEnrichment,
     restoreEnrichedTransactions
+  } = useSSEEnrichment();
+
+  // SSE Enrichment Hook - Customer B (comparison)
+  const {
+    enrichedTransactions: enrichedTransactionsB,
+    isProcessing: isProcessingB,
+    statusMessage: statusMessageB,
+    currentPhase: currentPhaseB,
+    startEnrichment: startEnrichmentB,
+    resetEnrichment: resetEnrichmentB,
   } = useSSEEnrichment();
   const [filters, setFilters] = useState<Filters>({
     dateRange: {
