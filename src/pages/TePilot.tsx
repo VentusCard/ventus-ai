@@ -1007,8 +1007,56 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
-            <PreviewTable transactions={parsedTransactions} />
-            <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
+            {comparisonMode ? (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="bg-white border-slate-200">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500" />
+                        <CardTitle className="text-base">{selectedCompA?.demographics?.name || "Customer A"}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">{parsedTransactions.length} txns</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <PreviewTable transactions={parsedTransactions} />
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-white border-slate-200">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                        <CardTitle className="text-base">{selectedCompB?.demographics?.name || "Customer B"}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">{parsedTransactionsB.length} txns</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <PreviewTable transactions={parsedTransactionsB} />
+                    </CardContent>
+                  </Card>
+                </div>
+                <Button
+                  onClick={() => {
+                    setActiveTab("results");
+                    Promise.all([
+                      startEnrichment(parsedTransactions, anchorZip),
+                      startEnrichmentB(parsedTransactionsB, anchorZipB),
+                    ]);
+                  }}
+                  disabled={isProcessing || isProcessingB}
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  <Zap className="w-4 h-4" />
+                  Enrich Both & Compare
+                </Button>
+              </>
+            ) : (
+              <>
+                <PreviewTable transactions={parsedTransactions} />
+                <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
