@@ -37,6 +37,9 @@ import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorCons
 import { PersonaCard } from "@/components/tepilot/PersonaCard";
 
 import { ColumnMapper } from "@/components/tepilot/ColumnMapper";
+import { ComparisonSetup } from "@/components/tepilot/ComparisonSetup";
+import { ComparisonDashboard } from "@/components/tepilot/ComparisonDashboard";
+import { ComparisonRewardsView } from "@/components/tepilot/ComparisonRewardsView";
 import { parseFile, parseMultipleFiles, parsePastedText, mapColumnsWithMapping, type MappingResult } from "@/lib/parsers";
 import { applyFilters, applyCorrections } from "@/lib/aggregations";
 import { extractLocationContext } from "@/lib/geoLocationUtils";
