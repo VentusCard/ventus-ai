@@ -1192,6 +1192,25 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
+            {comparisonMode ? (
+              <ComparisonRewardsView
+                customerA={{
+                  enrichedTransactions: displayTransactions,
+                  demographics: userDemographics,
+                  anchorZip,
+                  label: "Customer A",
+                  color: "bg-blue-500",
+                }}
+                customerB={{
+                  enrichedTransactions: enrichedTransactionsB,
+                  demographics: userDemographicsB,
+                  anchorZip: anchorZipB,
+                  label: "Customer B",
+                  color: "bg-emerald-500",
+                }}
+              />
+            ) : (
+            <>
             {!insightType && <>
                 {/* Header */}
                 <div className="text-center mb-8 mt-10">
