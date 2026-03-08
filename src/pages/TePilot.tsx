@@ -1112,62 +1112,83 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            {/* View Header */}
-            <Card className="p-6 bg-white border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
-                    {analyticsView === "single" ? "Customer Lifestyle Dashboard" : "Bank-wide Analytics"}
-                  </h2>
-                  <p className="text-sm text-slate-600 mt-1">
-                    {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
-                  </p>
-                </div>
-                {analyticsView === "single" && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-slate-700">Budgeting</span>
-                    <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {analyticsView === "single" ? <>
-                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
-                
-                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
-                
-                
-                
-                <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
-                
-                <Card className="border-blue-200 bg-blue-50">
-                  <CardContent className="pt-6 flex flex-col items-center gap-4">
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to Explore Ventus Insight Tools?</h3>
-                      <p className="text-sm text-slate-600 mb-4">
-                        Access specialized dashboards for Bank Leadership, Rewards Team, or Wealth Management
+            {comparisonMode ? (
+              <ComparisonDashboard
+                customerA={{
+                  parsedTransactions,
+                  enrichedTransactions: displayTransactions,
+                  demographics: userDemographics,
+                  label: "Customer A",
+                  color: "bg-blue-500",
+                }}
+                customerB={{
+                  parsedTransactions: parsedTransactionsB,
+                  enrichedTransactions: enrichedTransactionsB,
+                  demographics: userDemographicsB,
+                  label: "Customer B",
+                  color: "bg-emerald-500",
+                }}
+              />
+            ) : (
+              <>
+                {/* View Header */}
+                <Card className="p-6 bg-white border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-900">
+                        {analyticsView === "single" ? "Customer Lifestyle Dashboard" : "Bank-wide Analytics"}
+                      </h2>
+                      <p className="text-sm text-slate-600 mt-1">
+                        {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
                       </p>
                     </div>
-                    <Button onClick={() => setActiveTab("insights")} size="lg" className="gap-2">
-                      Go to Insight Tools Selection
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </CardContent>
+                    {analyticsView === "single" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-700">Budgeting</span>
+                        <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
+                      </div>
+                    )}
+                  </div>
                 </Card>
-              </> : <Accordion type="single" collapsible defaultValue="bankwide">
-                <AccordionItem value="bankwide" className="border-slate-200">
-                  <AccordionTrigger className="text-lg hover:no-underline text-slate-900">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <span className="font-semibold">🏦 Bank-wide Analytics Dashboard</span>
-                      <span className="text-sm text-slate-500">70M accounts • 45M users • $180B portfolio</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <BankwideView />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>}
+
+                {analyticsView === "single" ? <>
+                    <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
+                    
+                    <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
+                    
+                    
+                    
+                    <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
+                    
+                    <Card className="border-blue-200 bg-blue-50">
+                      <CardContent className="pt-6 flex flex-col items-center gap-4">
+                        <div className="text-center">
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to Explore Ventus Insight Tools?</h3>
+                          <p className="text-sm text-slate-600 mb-4">
+                            Access specialized dashboards for Bank Leadership, Rewards Team, or Wealth Management
+                          </p>
+                        </div>
+                        <Button onClick={() => setActiveTab("insights")} size="lg" className="gap-2">
+                          Go to Insight Tools Selection
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </> : <Accordion type="single" collapsible defaultValue="bankwide">
+                    <AccordionItem value="bankwide" className="border-slate-200">
+                      <AccordionTrigger className="text-lg hover:no-underline text-slate-900">
+                        <div className="flex items-center justify-between w-full pr-4">
+                          <span className="font-semibold">🏦 Bank-wide Analytics Dashboard</span>
+                          <span className="text-sm text-slate-500">70M accounts • 45M users • $180B portfolio</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <BankwideView />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>}
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
