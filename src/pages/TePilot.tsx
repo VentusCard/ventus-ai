@@ -37,7 +37,7 @@ import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorCons
 import { PersonaCard } from "@/components/tepilot/PersonaCard";
 
 import { ColumnMapper } from "@/components/tepilot/ColumnMapper";
-import { ComparisonSetup } from "@/components/tepilot/ComparisonSetup";
+// ComparisonSetup removed — multi-select now handled in UploadOrPasteContainer
 import { ComparisonDashboard } from "@/components/tepilot/ComparisonDashboard";
 import { ComparisonRewardsView } from "@/components/tepilot/ComparisonRewardsView";
 import { parseFile, parseMultipleFiles, parsePastedText, mapColumnsWithMapping, type MappingResult } from "@/lib/parsers";
