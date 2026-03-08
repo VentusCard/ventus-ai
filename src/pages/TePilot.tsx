@@ -1406,6 +1406,8 @@ const TePilot = () => {
                   <AdvisorConsole aiInsights={lifestyleSignals} isLoadingInsights={isLoadingLifestyleSignals} enrichedTransactions={enrichedTransactions} />
                 </div>
               </div>}
+            </>
+            )}
           </TabsContent>
         </Tabs>
       </div>
