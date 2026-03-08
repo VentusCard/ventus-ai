@@ -960,31 +960,67 @@ const TePilot = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
-            <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Preview</TabsTrigger>
-            <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Enrichment</TabsTrigger>
-            <TabsTrigger value="analytics" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Dashboard</TabsTrigger>
-            <TabsTrigger value="insights" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Insight Tools</TabsTrigger>
+            <TabsTrigger value="preview" disabled={comparisonMode ? false : parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Preview (A vs B)" : "Preview"}
+            </TabsTrigger>
+            <TabsTrigger value="results" disabled={comparisonMode ? !(enrichedTransactions.length > 0 || enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Enrichment (A vs B)" : "Enrichment"}
+            </TabsTrigger>
+            <TabsTrigger value="analytics" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Dashboard (A vs B)" : "Dashboard"}
+            </TabsTrigger>
+            <TabsTrigger value="insights" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Rewards (A vs B)" : "Insight Tools"}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
-            {pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
-              mode={inputMode} 
-              onModeChange={(mode) => {
-                setInputMode(mode);
-              }} 
-              onLoadSample={(data, zip, demographics) => {
-                setRawInput(data);
-                setAnchorZip(zip);
-                setUserDemographics(demographics);
-                setIsFromSampleData(true);
-                setInputMode("paste");
-                sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
-              }}
-              activeSelection={activeSelection}
-              onActiveSelectionChange={setActiveSelection}
-            >
-                {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
-              </UploadOrPasteContainer>}
+            {/* Comparison mode toggle */}
+            <div className="flex items-center gap-3 justify-end">
+              <span className="text-sm font-medium text-slate-700">Compare Two Customers</span>
+              <Switch checked={comparisonMode} onCheckedChange={(checked) => {
+                setComparisonMode(checked);
+                if (!checked) {
+                  // Reset comparison state
+                  setSelectedCompA(null);
+                  setSelectedCompB(null);
+                  setParsedTransactionsB([]);
+                  setUserDemographicsB(null);
+                  setAnchorZipB("");
+                  resetEnrichmentB();
+                }
+              }} />
+            </div>
+
+            {comparisonMode ? (
+              <ComparisonSetup
+                selectedA={selectedCompA}
+                selectedB={selectedCompB}
+                onSelectA={handleComparisonSelectA}
+                onSelectB={handleComparisonSelectB}
+                onEnrichBoth={handleEnrichBoth}
+                isProcessing={isProcessing || isProcessingB}
+              />
+            ) : (
+              pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
+                mode={inputMode} 
+                onModeChange={(mode) => {
+                  setInputMode(mode);
+                }} 
+                onLoadSample={(data, zip, demographics) => {
+                  setRawInput(data);
+                  setAnchorZip(zip);
+                  setUserDemographics(demographics);
+                  setIsFromSampleData(true);
+                  setInputMode("paste");
+                  sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
+                }}
+                activeSelection={activeSelection}
+                onActiveSelectionChange={setActiveSelection}
+              >
+                  {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
+                </UploadOrPasteContainer>
+            )}
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
