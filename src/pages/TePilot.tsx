@@ -37,7 +37,7 @@ import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorCons
 import { PersonaCard } from "@/components/tepilot/PersonaCard";
 
 import { ColumnMapper } from "@/components/tepilot/ColumnMapper";
-import { ComparisonSetup } from "@/components/tepilot/ComparisonSetup";
+// ComparisonSetup removed — multi-select now handled in UploadOrPasteContainer
 import { ComparisonDashboard } from "@/components/tepilot/ComparisonDashboard";
 import { ComparisonRewardsView } from "@/components/tepilot/ComparisonRewardsView";
 import { parseFile, parseMultipleFiles, parsePastedText, mapColumnsWithMapping, type MappingResult } from "@/lib/parsers";
@@ -393,38 +393,31 @@ const TePilot = () => {
     await startEnrichment(parsedTransactions, anchorZip);
   };
 
-  // Comparison mode: parse and enrich both customers in parallel
-  const handleComparisonSelectA = (csv: string, zip: string, demographics: ClientProfileData) => {
-    setSelectedCompA({ csv, zip, demographics });
-  };
-  const handleComparisonSelectB = (csv: string, zip: string, demographics: ClientProfileData) => {
-    setSelectedCompB({ csv, zip, demographics });
-  };
-  const handleEnrichBoth = async () => {
-    if (!selectedCompA || !selectedCompB) return;
-    
-    // Parse both datasets
-    const resultA = parsePastedText(`# Home ZIP Code: ${selectedCompA.zip}\n${selectedCompA.csv}`);
-    const resultB = parsePastedText(`# Home ZIP Code: ${selectedCompB.zip}\n${selectedCompB.csv}`);
-    
+  // Comparison mode: auto-trigger from multi-select sample data
+  const handleLoadComparisonSamples = (
+    dataA: { csv: string; zip: string; demographics: ClientProfileData },
+    dataB: { csv: string; zip: string; demographics: ClientProfileData }
+  ) => {
+    setSelectedCompA(dataA);
+    setSelectedCompB(dataB);
+    setComparisonMode(true);
+    const resultA = parsePastedText(`# Home ZIP Code: ${dataA.zip}\n${dataA.csv}`);
+    const resultB = parsePastedText(`# Home ZIP Code: ${dataB.zip}\n${dataB.csv}`);
     if (!resultA.transactions || !resultB.transactions) {
       toast.error("Failed to parse comparison datasets");
       return;
     }
-
     setParsedTransactions(resultA.transactions);
     setParsedTransactionsB(resultB.transactions);
-    setUserDemographics(selectedCompA.demographics);
-    setUserDemographicsB(selectedCompB.demographics);
-    setAnchorZip(selectedCompA.zip);
-    setAnchorZipB(selectedCompB.zip);
+    setUserDemographics(dataA.demographics);
+    setUserDemographicsB(dataB.demographics);
+    setAnchorZip(dataA.zip);
+    setAnchorZipB(dataB.zip);
     setIsFromSampleData(true);
     setActiveTab("results");
-    
-    // Enrich both in parallel
-    await Promise.all([
-      startEnrichment(resultA.transactions, selectedCompA.zip),
-      startEnrichmentB(resultB.transactions, selectedCompB.zip),
+    Promise.all([
+      startEnrichment(resultA.transactions, dataA.zip),
+      startEnrichmentB(resultB.transactions, dataB.zip),
     ]);
   };
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
@@ -975,39 +968,32 @@ const TePilot = () => {
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
-            {/* Comparison mode toggle */}
-            <div className="flex items-center gap-3 justify-end">
-              <span className="text-sm font-medium text-slate-700">Compare Two Customers</span>
-              <Switch checked={comparisonMode} onCheckedChange={(checked) => {
-                setComparisonMode(checked);
-                if (!checked) {
-                  // Reset comparison state
-                  setSelectedCompA(null);
-                  setSelectedCompB(null);
-                  setParsedTransactionsB([]);
-                  setUserDemographicsB(null);
-                  setAnchorZipB("");
-                  resetEnrichmentB();
-                }
-              }} />
-            </div>
-
-            {comparisonMode ? (
-              <ComparisonSetup
-                selectedA={selectedCompA}
-                selectedB={selectedCompB}
-                onSelectA={handleComparisonSelectA}
-                onSelectB={handleComparisonSelectB}
-                onEnrichBoth={handleEnrichBoth}
-                isProcessing={isProcessing || isProcessingB}
-              />
-            ) : (
-              pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
+            {pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
                 mode={inputMode} 
                 onModeChange={(mode) => {
                   setInputMode(mode);
+                  // Reset comparison mode when switching to paste/upload
+                  if (comparisonMode) {
+                    setComparisonMode(false);
+                    setSelectedCompA(null);
+                    setSelectedCompB(null);
+                    setParsedTransactionsB([]);
+                    setUserDemographicsB(null);
+                    setAnchorZipB("");
+                    resetEnrichmentB();
+                  }
                 }} 
                 onLoadSample={(data, zip, demographics) => {
+                  // Reset comparison mode for single selection
+                  if (comparisonMode) {
+                    setComparisonMode(false);
+                    setSelectedCompA(null);
+                    setSelectedCompB(null);
+                    setParsedTransactionsB([]);
+                    setUserDemographicsB(null);
+                    setAnchorZipB("");
+                    resetEnrichmentB();
+                  }
                   setRawInput(data);
                   setAnchorZip(zip);
                   setUserDemographics(demographics);
@@ -1015,12 +1001,13 @@ const TePilot = () => {
                   setInputMode("paste");
                   sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
                 }}
+                onLoadComparisonSamples={handleLoadComparisonSamples}
                 activeSelection={activeSelection}
                 onActiveSelectionChange={setActiveSelection}
               >
                   {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
                 </UploadOrPasteContainer>
-            )}
+            }
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
