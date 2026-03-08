@@ -11,11 +11,12 @@ export function DataProfileView({ transactions }: DataProfileViewProps) {
   const totalSpend = pillars.reduce((s, p) => s + p.totalSpend, 0);
 
   const travelTxns = transactions.filter(t => t.pillar === "Travel & Exploration");
-  const travelCities = [...new Set(travelTxns.map(t => t.city).filter(Boolean))];
+  const travelCities = [...new Set(travelTxns.map(t => t.normalized_merchant).filter(Boolean))].slice(0, 5);
 
   const topMerchants = Object.entries(
     transactions.reduce((acc, t) => {
-      acc[t.merchant] = (acc[t.merchant] || 0) + t.amount;
+      const name = t.normalized_merchant || t.merchant_name;
+      acc[name] = (acc[name] || 0) + t.amount;
       return acc;
     }, {} as Record<string, number>)
   ).sort((a, b) => b[1] - a[1]).slice(0, 5);
