@@ -28,6 +28,8 @@ import { FilterControls } from "@/components/tepilot/FilterControls";
 import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
 
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
+import { DataProfileView } from "@/components/tepilot/insights/DataProfileView";
+import { MobileAppFrame } from "@/components/tepilot/insights/MobileAppFrame";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
@@ -987,11 +989,27 @@ const TePilot = () => {
             </Card>
 
             {analyticsView === "single" ? <>
-                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
-                
-                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
-                
-                
+                {/* Split layout: Data View + Mobile App Preview */}
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Left 30% - Enriched Data Profile */}
+                  <div className="w-full lg:w-[30%] flex flex-col gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Enriched Data Profile</p>
+                    <div className="h-[780px]">
+                      <DataProfileView transactions={displayTransactions} />
+                    </div>
+                  </div>
+
+                  {/* Right 70% - Consumer UX Preview */}
+                  <div className="w-full lg:w-[70%] flex flex-col gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Next-Gen Consumer Experience</p>
+                    <MobileAppFrame>
+                      <div className="space-y-3 [&_.hover-scale]:transform-none">
+                        <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
+                        <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
+                      </div>
+                    </MobileAppFrame>
+                  </div>
+                </div>
                 
                 <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
                 

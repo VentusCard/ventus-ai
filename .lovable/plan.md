@@ -1,56 +1,34 @@
 
 
-## Plan: Split Dashboard Tab into Data View + Mobile App Preview
+## Understanding
 
-Redesign the TEPilot "Dashboard" tab (analytics tab, single view) into a side-by-side layout showcasing how enriched data translates into a next-gen consumer UX.
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-### Layout Structure
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│  Header Card (full width)                               │
-├──────────────────────┬──────────────────────────────────┤
-│  30% - DATA VIEW     │  70% - CONSUMER UX PREVIEW       │
-│                      │                                   │
-│  Code/JSON-style     │  ┌─────────────────────────┐     │
-│  enriched profile    │  │  📱 Mobile Frame         │     │
-│  showing raw         │  │                          │     │
-│  enrichment output:  │  │  PillarExplorer +        │     │
-│  - pillars & scores  │  │  OverviewMetrics         │     │
-│  - subcategories     │  │  inside scrollable       │     │
-│  - lifestyle signals │  │  phone mockup            │     │
-│  - travel patterns   │  │                          │     │
-│  - demographics      │  │                          │     │
-│                      │  └─────────────────────────┘     │
-└──────────────────────┴──────────────────────────────────┘
-│  BeforeAfterTransformation (full width)                  │
-│  CTA Card (full width)                                   │
-└──────────────────────────────────────────────────────────┘
-```
+## Plan
 
-### Changes
+### Move AnalyticsDemoPanel into the Hero Section
 
-**1. Create `src/components/tepilot/insights/DataProfileView.tsx`**
-- New component rendering a dark-themed, code-like view of the user's enriched profile
-- Display pillar breakdown as JSON-like syntax-highlighted data (monospace font, dark bg)
-- Show: pillar names, spend amounts, percentages, subcategory counts, top merchants
-- Include lifestyle signals, travel summary, and demographic data if available
-- Use the existing `displayTransactions` data aggregated via `aggregateByPillar`
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
 
-**2. Create `src/components/tepilot/insights/MobileAppFrame.tsx`**
-- A presentational wrapper that renders a phone-shaped border (rounded corners, notch, status bar)
-- Contains a scrollable inner area for the existing PillarExplorer + OverviewMetrics
-- CSS-only phone frame (no images needed) — rounded-[2.5rem] border, top notch pill, bottom home indicator
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
 
-**3. Update `src/pages/TePilot.tsx` (analytics tab, single view section ~lines 989-1011)**
-- Replace the current stacked layout with a `flex` row: 30% left (DataProfileView) + 70% right (MobileAppFrame wrapping OverviewMetrics + PillarExplorer)
-- Keep BeforeAfterTransformation and CTA card below at full width
-- Add a small label above each panel: "Enriched Data Profile" and "Next-Gen Consumer Experience"
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
 
-### Technical Details
-- Left panel uses `w-[30%]` with `overflow-y-auto`, dark `bg-slate-900` with monospace text
-- Right panel uses `w-[70%]` centered with the mobile frame component
-- Mobile frame: ~375px wide, ~812px tall (iPhone proportions), centered in the 70% space
-- PillarExplorer inside the frame will use compact styling (smaller grid cols, tighter gaps)
-- On screens < 1024px, stack vertically instead of side-by-side
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 
