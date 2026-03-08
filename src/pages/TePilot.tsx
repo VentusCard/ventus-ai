@@ -968,39 +968,32 @@ const TePilot = () => {
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
-            {/* Comparison mode toggle */}
-            <div className="flex items-center gap-3 justify-end">
-              <span className="text-sm font-medium text-slate-700">Compare Two Customers</span>
-              <Switch checked={comparisonMode} onCheckedChange={(checked) => {
-                setComparisonMode(checked);
-                if (!checked) {
-                  // Reset comparison state
-                  setSelectedCompA(null);
-                  setSelectedCompB(null);
-                  setParsedTransactionsB([]);
-                  setUserDemographicsB(null);
-                  setAnchorZipB("");
-                  resetEnrichmentB();
-                }
-              }} />
-            </div>
-
-            {comparisonMode ? (
-              <ComparisonSetup
-                selectedA={selectedCompA}
-                selectedB={selectedCompB}
-                onSelectA={handleComparisonSelectA}
-                onSelectB={handleComparisonSelectB}
-                onEnrichBoth={handleEnrichBoth}
-                isProcessing={isProcessing || isProcessingB}
-              />
-            ) : (
-              pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
+            {pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
                 mode={inputMode} 
                 onModeChange={(mode) => {
                   setInputMode(mode);
+                  // Reset comparison mode when switching to paste/upload
+                  if (comparisonMode) {
+                    setComparisonMode(false);
+                    setSelectedCompA(null);
+                    setSelectedCompB(null);
+                    setParsedTransactionsB([]);
+                    setUserDemographicsB(null);
+                    setAnchorZipB("");
+                    resetEnrichmentB();
+                  }
                 }} 
                 onLoadSample={(data, zip, demographics) => {
+                  // Reset comparison mode for single selection
+                  if (comparisonMode) {
+                    setComparisonMode(false);
+                    setSelectedCompA(null);
+                    setSelectedCompB(null);
+                    setParsedTransactionsB([]);
+                    setUserDemographicsB(null);
+                    setAnchorZipB("");
+                    resetEnrichmentB();
+                  }
                   setRawInput(data);
                   setAnchorZip(zip);
                   setUserDemographics(demographics);
@@ -1008,12 +1001,13 @@ const TePilot = () => {
                   setInputMode("paste");
                   sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
                 }}
+                onLoadComparisonSamples={handleLoadComparisonSamples}
                 activeSelection={activeSelection}
                 onActiveSelectionChange={setActiveSelection}
               >
                   {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
                 </UploadOrPasteContainer>
-            )}
+            }
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
