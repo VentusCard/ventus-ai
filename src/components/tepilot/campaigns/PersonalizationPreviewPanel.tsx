@@ -20,6 +20,7 @@ interface PersonalizationPreviewPanelProps {
   selectedLifeEvents: string[];
   hasSelections: boolean;
   ctaConfig?: CTAConfig;
+  tierProductOverrides?: TierProductMap;
 }
 
 interface PersonalizedMessage {
