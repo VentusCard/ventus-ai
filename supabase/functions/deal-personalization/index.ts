@@ -30,12 +30,24 @@ You will receive ${dealCount} deals. Return EXACTLY ${dealCount} personalized re
 INPUT:
 - deals (id, m=merchant, c=category, r=reward)
 - profile (pillars with spend, signals from transactions)
-- ctx (optional personal context: demo with occ/fam/inc, persona with traits/interests)
+- ctx (optional personal context: demo with occ/fam/inc/tier, persona with traits/interests)
 
 PERSONALIZATION STRATEGY:
 When ctx is available, COMBINE signals naturally to create emotionally resonant messages:
-- Demo (occupation, family status) + Lifestyle signals (activities from transactions) + Merchant benefit
+- Demo (occupation, family status, wealth tier) + Lifestyle signals (activities from transactions) + Merchant benefit
 - Focus on EMOTIONAL BENEFITS, not data exposure
+
+TIER-AWARE DIFFERENTIATION (CRITICAL — each tier MUST have a distinct tone and angle):
+When ctx.demo.tier is provided, adapt tone and value proposition:
+- "Mass Market": Emphasize ACCESSIBILITY, simplicity, getting started, practical everyday benefits. Use approachable language.
+- "Affluent": Emphasize GROWTH, optimization, maximizing returns, strategic advantages. Use confident, aspirational language.
+- "HNW": Emphasize EXCLUSIVITY, legacy, white-glove service, sophisticated planning, premium access. Use refined, elevated language.
+
+Examples of GREAT tier-differentiated personalization for the SAME life event (New Parent):
+| Tier | Product | Message |
+| Mass Market | High-Yield Savings | "Start building your baby's future with a simple, high-yield savings account" |
+| Affluent | 529 Plan | "Maximize your education savings with tax-advantaged 529 contributions" |
+| HNW | Trust Services | "Protect your family's legacy with personalized trust and estate planning" |
 
 Examples of GREAT context-aware personalization:
 | Context | Merchant | Message |
