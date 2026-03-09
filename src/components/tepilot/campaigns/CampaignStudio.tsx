@@ -14,7 +14,7 @@ import {
   ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, Loader2, CreditCard,
   Zap, Megaphone,
 } from "lucide-react";
-import { PersonalizationPreviewPanel, type CTAConfig } from "./PersonalizationPreviewPanel";
+import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { AutomatedFlowsSection } from "./AutomatedFlowsSection";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import { toast } from "sonner";
