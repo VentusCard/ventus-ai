@@ -59,6 +59,7 @@ export function CampaignStudio() {
   const [upsellStrategies, setUpsellStrategies] = useState<string[]>([]);
   const [campaignGoal, setCampaignGoal] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
+  const [campaignCTA, setCampaignCTA] = useState<CTAConfig>({ text: 'Apply Now', link: '/apply', style: 'primary' });
 
   // ─── Segments State ───
   const [savedOpen, setSavedOpen] = useState(false);
