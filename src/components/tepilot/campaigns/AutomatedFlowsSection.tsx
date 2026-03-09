@@ -8,9 +8,11 @@ import {
 } from "lucide-react";
 import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { TierProductSelector, type TierProductMap } from "./TierProductSelector";
+import { AudienceFiltersPanel } from "./AudienceFiltersPanel";
 import { SEGMENT_TEMPLATES } from "@/lib/segmentData";
 import { DEMO_PRODUCTS, LIFE_EVENT_PRODUCT_TIERS } from "@/lib/samplePersonaGenerator";
 import type { SegmentTemplate } from "@/types/segment";
+import type { DemographicFilters } from "@/types/segment";
 import type { WealthTier } from "@/lib/samplePersonaGenerator";
 
 type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell' | 'seasonal';
@@ -68,11 +70,12 @@ export function AutomatedFlowsSection() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [expandedFlowId, setExpandedFlowId] = useState<string | null>(null);
   const [tierSelectorOpenId, setTierSelectorOpenId] = useState<string | null>(null);
+  const [audienceFilterOpenId, setAudienceFilterOpenId] = useState<string | null>(null);
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
   const [flowTierProducts, setFlowTierProducts] = useState<Record<string, TierProductMap>>({});
-
+  const [flowAudienceFilters, setFlowAudienceFilters] = useState<Record<string, DemographicFilters>>({});
   const filteredTemplates = useMemo(() => {
     if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
     return SEGMENT_TEMPLATES.filter(t => t.category === categoryFilter);
@@ -137,6 +140,92 @@ export function AutomatedFlowsSection() {
     if (allProducts.size === 0) return "No products";
     if (allProducts.size === 1) return [...allProducts][0];
     return `${allProducts.size} products`;
+  };
+
+  const SIGNAL_CATEGORIES: Record<string, string> = {
+    'travel-enthusiasts-segment': 'Travel & Hotels',
+    'new-parent-segment': 'Baby & Kids',
+    'pre-retiree-segment': 'Financial & Retirement',
+    'home-buyers-segment': 'Home & Mortgage',
+    'foodies-segment': 'Dining & Restaurants',
+    'pet-parents-segment': 'Pets & Animals',
+    'cashback-high-travel-segment': 'Travel & Airlines',
+    'fitness-wellness-segment': 'Health & Fitness',
+    'holiday-travelers-segment': 'Holiday Travel',
+    'tax-season-financial-segment': 'Tax & Financial',
+    'back-to-school-parents-segment': 'Education & School',
+  };
+
+  const getDefaultAudienceFilters = (template: SegmentTemplate): DemographicFilters => {
+    const defaults: Record<string, DemographicFilters> = {
+      'travel-enthusiasts-segment': {
+        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'all', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1000, lookbackMonths: 24 },
+      },
+      'new-parent-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 500, lookbackMonths: 12 },
+      },
+      'pre-retiree-segment': {
+        ageRanges: ['55-64', '65+'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'loyal', ficoRanges: ['excellent'],
+        signalThreshold: { minAmount: 2000, lookbackMonths: 24 },
+      },
+      'home-buyers-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1500, lookbackMonths: 12 },
+      },
+      'foodies-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'all', ficoRanges: [],
+        signalThreshold: { minAmount: 800, lookbackMonths: 12 },
+      },
+      'pet-parents-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: [],
+        accountTenure: 'all', ficoRanges: [],
+        signalThreshold: { minAmount: 600, lookbackMonths: 12 },
+      },
+      'cashback-high-travel-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1200, lookbackMonths: 24 },
+      },
+      'fitness-wellness-segment': {
+        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'all', ficoRanges: [],
+        signalThreshold: { minAmount: 500, lookbackMonths: 12 },
+      },
+      'holiday-travelers-segment': {
+        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k', 'over_150k'],
+        accountTenure: 'all', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1500, lookbackMonths: 24 },
+      },
+      'tax-season-financial-segment': {
+        ageRanges: ['35-44', '45-54', '55-64'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1000, lookbackMonths: 12 },
+      },
+      'back-to-school-parents-segment': {
+        ageRanges: ['35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'established', ficoRanges: ['good'],
+        signalThreshold: { minAmount: 400, lookbackMonths: 12 },
+      },
+    };
+    return defaults[template.id] || {
+      ageRanges: [], regions: [], incomeBands: [], accountTenure: 'all' as const,
+      ficoRanges: [], signalThreshold: { minAmount: 500, lookbackMonths: 12 },
+    };
+  };
+
+  const getAudienceFilters = (template: SegmentTemplate): DemographicFilters => {
+    return flowAudienceFilters[template.id] || getDefaultAudienceFilters(template);
+  };
+
+  const updateAudienceFilters = (templateId: string, value: DemographicFilters) => {
+    setFlowAudienceFilters(prev => ({ ...prev, [templateId]: value }));
   };
 
   return (
@@ -308,7 +397,12 @@ export function AutomatedFlowsSection() {
                         Signal Detected
                       </Badge>
                       <ArrowRight className="w-3 h-3" />
-                      <Badge variant="outline" className="gap-1 text-xs">
+                      <Badge
+                        className={`gap-1 text-xs cursor-pointer transition-all bg-primary/75 text-primary-foreground border border-primary/80 hover:bg-primary/85 hover:border-primary/90 ${
+                          audienceFilterOpenId === template.id ? 'border-primary bg-primary/80 ring-1 ring-primary/60' : ''
+                        }`}
+                        onClick={() => setAudienceFilterOpenId(audienceFilterOpenId === template.id ? null : template.id)}
+                      >
                         <Users className="w-3 h-3" />
                         Audience Matched
                       </Badge>
@@ -327,6 +421,14 @@ export function AutomatedFlowsSection() {
                         Personalized Message
                       </Badge>
                     </div>
+
+                    {audienceFilterOpenId === template.id && (
+                      <AudienceFiltersPanel
+                        filters={getAudienceFilters(template)}
+                        onChange={(val) => updateAudienceFilters(template.id, val)}
+                        signalCategory={SIGNAL_CATEGORIES[template.id] || 'General Spending'}
+                      />
+                    )}
 
                     {tierSelectorOpenId === template.id && (
                       <TierProductSelector
