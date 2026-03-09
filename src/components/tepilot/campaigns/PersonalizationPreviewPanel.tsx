@@ -48,8 +48,9 @@ export function PersonalizationPreviewPanel({
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
 
-  // Check if personas have per-persona products (tier mode)
-  const hasTierProducts = personas.some(p => p.recommendedProduct);
+  // Check if personas have per-persona products (tier mode) or tier overrides
+  const hasTierOverrides = tierProductOverrides && Object.values(tierProductOverrides).some(arr => arr.length > 0);
+  const hasTierProducts = hasTierOverrides || personas.some(p => p.recommendedProduct);
 
   // Regenerate personas when targeting changes
   useEffect(() => {
