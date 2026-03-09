@@ -202,35 +202,15 @@ export function AutomatedFlowsSection() {
         accountTenure: 'all', ficoRanges: [],
         signalThreshold: { minAmount: 800, lookbackMonths: 12 },
       },
-      'pet-parents-segment': {
-        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: [],
-        accountTenure: 'all', ficoRanges: [],
-        signalThreshold: { minAmount: 600, lookbackMonths: 12 },
-      },
       'cashback-high-travel-segment': {
         ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
         accountTenure: 'established', ficoRanges: ['good', 'excellent'],
         signalThreshold: { minAmount: 1200, lookbackMonths: 24 },
       },
-      'fitness-wellness-segment': {
-        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
-        accountTenure: 'all', ficoRanges: [],
-        signalThreshold: { minAmount: 500, lookbackMonths: 12 },
-      },
       'holiday-travelers-segment': {
         ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k', 'over_150k'],
         accountTenure: 'all', ficoRanges: ['good', 'excellent'],
         signalThreshold: { minAmount: 1500, lookbackMonths: 24 },
-      },
-      'tax-season-financial-segment': {
-        ageRanges: ['35-44', '45-54', '55-64'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
-        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
-        signalThreshold: { minAmount: 1000, lookbackMonths: 12 },
-      },
-      'back-to-school-parents-segment': {
-        ageRanges: ['35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
-        accountTenure: 'established', ficoRanges: ['good'],
-        signalThreshold: { minAmount: 400, lookbackMonths: 12 },
       },
     };
     return defaults[template.id] || {
