@@ -127,6 +127,21 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
     }
   }, [targetingMode, lifeEventCriteria, lifestyleCriteria, productCriteria]);
 
+  // Get selected product for personalization preview
+  const selectedProduct = useMemo(() => {
+    return DEMO_PRODUCTS.find(p => p.id === selectedProductId) || null;
+  }, [selectedProductId]);
+
+  // Get selected pillars for personalization
+  const selectedPillarsForPreview = useMemo(() => {
+    return targetingMode === "lifestyle" ? lifestyleCriteria.pillars : [];
+  }, [targetingMode, lifestyleCriteria.pillars]);
+
+  // Get selected life events for personalization
+  const selectedLifeEventsForPreview = useMemo(() => {
+    return targetingMode === "life_event" ? lifeEventCriteria.eventTypes : [];
+  }, [targetingMode, lifeEventCriteria.eventTypes]);
+
   const handleSaveSegment = () => {
     const segment: Partial<SavedSegment> = {
       targetingMode,
