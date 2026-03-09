@@ -43,6 +43,11 @@ When ctx.demo.tier is provided, adapt tone and value proposition:
 - "Affluent": Emphasize GROWTH, optimization, maximizing returns, strategic advantages. Use confident, aspirational language.
 - "HNW": Emphasize EXCLUSIVITY, legacy, white-glove service, sophisticated planning, premium access. Use refined, elevated language.
 
+TIER-AWARE CTA DIFFERENTIATION (CRITICAL — CTAs must match tier tone):
+- "Mass Market": Simple, approachable CTAs — "Get Started", "Open Now", "Start Saving", "Learn More"
+- "Affluent": Growth-oriented CTAs — "Maximize Returns", "Optimize Now", "Unlock Growth", "Start Optimizing"
+- "HNW": Premium, elevated CTAs — "Schedule Consultation", "Request Access", "Explore Options", "Speak With an Advisor"
+
 Examples of GREAT tier-differentiated personalization for the SAME life event (New Parent):
 | Tier | Product | Message |
 | Mass Market | High-Yield Savings | "Start building your baby's future with a simple, high-yield savings account" |

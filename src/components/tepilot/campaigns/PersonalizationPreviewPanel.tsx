@@ -283,7 +283,7 @@ export function PersonalizationPreviewPanel({
 
                   {/* CTA Button */}
                   {(() => {
-                    const ctaText = ctaConfig?.text || message?.cta || "Learn More";
+                    const ctaText = message?.cta || ctaConfig?.text || "Learn More";
                     const ctaStyle = ctaConfig?.style || 'primary';
                     const ctaClasses =
                       ctaStyle === 'primary'
