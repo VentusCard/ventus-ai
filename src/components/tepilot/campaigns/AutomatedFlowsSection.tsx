@@ -241,7 +241,7 @@ export function AutomatedFlowsSection() {
               {activeFlows.size} active
             </Badge>
             <Badge variant="outline" className="text-xs font-normal">
-              {SEGMENT_TEMPLATES.length} flows
+              {allowedTemplates.length} flows
             </Badge>
           </div>
         </div>
