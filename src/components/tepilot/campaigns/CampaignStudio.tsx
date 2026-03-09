@@ -26,6 +26,7 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { AICampaignPreview } from "./AICampaignPreview";
 import { DemographicFilters } from "./DemographicFilters";
 import { SemanticIntentInput, type ParsedIntent } from "./SemanticIntentInput";
+import { Input } from "@/components/ui/input";
 import { LIFESTYLE_PILLARS, estimateStudioAudienceSize } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import { SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
