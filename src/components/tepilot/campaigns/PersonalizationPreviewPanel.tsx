@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Mail, RefreshCw, Loader2, Plane, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { generateSamplePersonas, type SyntheticPersona } from "@/lib/samplePersonaGenerator";
+import { generateSamplePersonas, type SyntheticPersona, type WealthTier } from "@/lib/samplePersonaGenerator";
+import type { TierProductMap } from "./TierProductSelector";
+
 
 export interface CTAConfig {
   text: string;
@@ -18,6 +20,7 @@ interface PersonalizationPreviewPanelProps {
   selectedLifeEvents: string[];
   hasSelections: boolean;
   ctaConfig?: CTAConfig;
+  tierProductOverrides?: TierProductMap;
 }
 
 interface PersonalizedMessage {
@@ -38,14 +41,16 @@ export function PersonalizationPreviewPanel({
   selectedLifeEvents,
   hasSelections,
   ctaConfig,
+  tierProductOverrides,
 }: PersonalizationPreviewPanelProps) {
   const [personas, setPersonas] = useState<SyntheticPersona[]>([]);
   const [messages, setMessages] = useState<Record<string, PersonalizedMessage>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
 
-  // Check if personas have per-persona products (tier mode)
-  const hasTierProducts = personas.some(p => p.recommendedProduct);
+  // Check if personas have per-persona products (tier mode) or tier overrides
+  const hasTierOverrides = tierProductOverrides && Object.values(tierProductOverrides).some(arr => arr.length > 0);
+  const hasTierProducts = hasTierOverrides || personas.some(p => p.recommendedProduct);
 
   // Regenerate personas when targeting changes
   useEffect(() => {
@@ -67,7 +72,10 @@ export function PersonalizationPreviewPanel({
     try {
       const results = await Promise.all(
         personas.map(async (persona) => {
-          const productForPersona = persona.recommendedProduct || selectedProduct!;
+          // Use tier overrides first, then persona's built-in product, then global product
+          const tierProducts = persona.tier && tierProductOverrides?.[persona.tier];
+          const productForPersona = (tierProducts && tierProducts.length > 0 ? tierProducts[0] : null) 
+            || persona.recommendedProduct || selectedProduct!;
 
           const deal = {
             id: persona.id,
@@ -137,7 +145,7 @@ export function PersonalizationPreviewPanel({
     } finally {
       setIsGenerating(false);
     }
-  }, [selectedProduct, personas, hasTierProducts]);
+  }, [selectedProduct, personas, hasTierProducts, tierProductOverrides]);
 
   // Auto-generate when product changes and we have personas
   useEffect(() => {
