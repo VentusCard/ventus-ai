@@ -46,54 +46,55 @@ export function PersonalizationPreviewPanel({
     setIsGenerating(true);
 
     try {
-      // Build deal representation for the AI
-      const deals = personas.map((persona) => ({
-        id: persona.id,
-        m: selectedProduct.name,
-        c: "cross-sell",
-        r: "Personalized offer",
-      }));
+      // Call edge function per persona with their own profile/context
+      const results = await Promise.all(
+        personas.map(async (persona) => {
+          const deal = {
+            id: persona.id,
+            m: selectedProduct.name,
+            c: "cross-sell",
+            r: "Personalized offer",
+          };
 
-      // Build profile summaries for each persona
-      const profiles = personas.map((persona) => ({
-        pillars: Object.fromEntries(
-          persona.behavioralTags.map((tag) => [tag, { spend: 1500, rank: "high" }])
-        ),
-        signals: persona.transactionSignals,
-      }));
+          const profile = {
+            pillars: Object.fromEntries(
+              persona.behavioralTags.map((tag) => [tag, { spend: 1500, rank: "high" }])
+            ),
+            signals: persona.transactionSignals,
+          };
 
-      // Build context for personalization
-      const ctx = personas.map((persona) => ({
-        demo: {
-          occ: persona.behavioralTags[0] || "professional",
-          fam: persona.behavioralTags.includes("Family") ? "family" : "single",
-        },
-        persona: {
-          traits: persona.behavioralTags,
-          interests: persona.transactionSignals,
-        },
-      }));
+          const ctx = {
+            demo: {
+              occ: persona.behavioralTags[0] || "professional",
+              fam: persona.behavioralTags.some(t => 
+                ["Family", "New Parent", "Growing Family", "Family Expansion", "Parent", "Family Focused", "Caregiver"].includes(t)
+              ) ? "family" : "single",
+            },
+            persona: {
+              traits: persona.behavioralTags,
+              interests: persona.transactionSignals,
+            },
+          };
 
-      // Call the deal-personalization edge function
-      const { data, error } = await supabase.functions.invoke("deal-personalization", {
-        body: {
-          deals,
-          profile: profiles[0], // Use first profile as base
-          ctx: ctx[0],
-          txCount: 50,
-        },
-      });
+          const { data, error } = await supabase.functions.invoke("deal-personalization", {
+            body: {
+              deals: [deal],
+              profile,
+              ctx,
+              txCount: 50,
+            },
+          });
 
-      if (error) throw error;
-
-      // Map responses to personas
-      const recs = data?.recs || [];
+          if (error) throw error;
+          const rec = data?.recs?.[0];
+          return { personaId: persona.id, rec };
+        })
+      );
+      // Map results to messages
       const newMessages: Record<string, PersonalizedMessage> = {};
-      
-      recs.forEach((rec: PersonalizedMessage, index: number) => {
-        const persona = personas[index];
-        if (persona) {
-          newMessages[persona.id] = rec;
+      results.forEach(({ personaId, rec }) => {
+        if (rec) {
+          newMessages[personaId] = rec;
         }
       });
 
