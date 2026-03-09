@@ -6,7 +6,7 @@ import { Sparkles, Mail, RefreshCw, Loader2, Plane, CreditCard } from "lucide-re
 import { supabase } from "@/integrations/supabase/client";
 import { generateSamplePersonas, type SyntheticPersona, type WealthTier } from "@/lib/samplePersonaGenerator";
 import type { TierProductMap } from "./TierProductSelector";
-import { generateSamplePersonas, type SyntheticPersona } from "@/lib/samplePersonaGenerator";
+
 
 export interface CTAConfig {
   text: string;
