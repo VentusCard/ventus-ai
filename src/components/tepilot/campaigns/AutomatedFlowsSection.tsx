@@ -15,15 +15,27 @@ import type { SegmentTemplate } from "@/types/segment";
 import type { DemographicFilters } from "@/types/segment";
 import type { WealthTier } from "@/lib/samplePersonaGenerator";
 
-type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell' | 'seasonal';
+type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell';
 
 const CATEGORY_CONFIG: Record<CategoryFilter, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
   all: { label: 'All Flows', icon: LayoutGrid },
   life_event: { label: 'Life Events', icon: Sparkles },
   lifestyle: { label: 'Lifestyle', icon: Users },
   cross_sell: { label: 'Cross-Sell', icon: ArrowUpRight },
-  seasonal: { label: 'Seasonal', icon: Calendar },
 };
+
+// Only show templates with strong financial product upsell affinity
+const AUTOMATION_TEMPLATE_IDS = new Set([
+  'new-parent-segment',
+  'pre-retiree-segment',
+  'home-buyers-segment',
+  'travel-enthusiasts-segment',
+  'foodies-segment',
+  'cashback-high-travel-segment',
+  'travel-card-no-hotel-segment',
+  'premium-upgrade-eligible-segment',
+  'holiday-travelers-segment',
+]);
 
 const DEFAULT_TIER_PRODUCTS: TierProductMap = {
   "Mass Market": [],
@@ -76,14 +88,25 @@ export function AutomatedFlowsSection() {
   );
   const [flowTierProducts, setFlowTierProducts] = useState<Record<string, TierProductMap>>({});
   const [flowAudienceFilters, setFlowAudienceFilters] = useState<Record<string, DemographicFilters>>({});
+  const allowedTemplates = useMemo(() =>
+    SEGMENT_TEMPLATES.filter(t => AUTOMATION_TEMPLATE_IDS.has(t.id)),
+  []);
+
   const filteredTemplates = useMemo(() => {
-    if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
-    return SEGMENT_TEMPLATES.filter(t => t.category === categoryFilter);
-  }, [categoryFilter]);
+    if (categoryFilter === 'all') return allowedTemplates;
+    // Holiday Travelers is seasonal but we show it under lifestyle
+    return allowedTemplates.filter(t => {
+      const effectiveCategory = t.category === 'seasonal' ? 'lifestyle' : t.category;
+      return effectiveCategory === categoryFilter;
+    });
+  }, [categoryFilter, allowedTemplates]);
 
   const getCategoryCount = (category: CategoryFilter) => {
-    if (category === 'all') return SEGMENT_TEMPLATES.length;
-    return SEGMENT_TEMPLATES.filter(t => t.category === category).length;
+    if (category === 'all') return allowedTemplates.length;
+    return allowedTemplates.filter(t => {
+      const effectiveCategory = t.category === 'seasonal' ? 'lifestyle' : t.category;
+      return effectiveCategory === category;
+    }).length;
   };
 
   const toggleFlowActive = (id: string) => {
@@ -148,12 +171,8 @@ export function AutomatedFlowsSection() {
     'pre-retiree-segment': 'Financial & Retirement',
     'home-buyers-segment': 'Home & Mortgage',
     'foodies-segment': 'Dining & Restaurants',
-    'pet-parents-segment': 'Pets & Animals',
     'cashback-high-travel-segment': 'Travel & Airlines',
-    'fitness-wellness-segment': 'Health & Fitness',
     'holiday-travelers-segment': 'Holiday Travel',
-    'tax-season-financial-segment': 'Tax & Financial',
-    'back-to-school-parents-segment': 'Education & School',
   };
 
   const getDefaultAudienceFilters = (template: SegmentTemplate): DemographicFilters => {
@@ -183,35 +202,15 @@ export function AutomatedFlowsSection() {
         accountTenure: 'all', ficoRanges: [],
         signalThreshold: { minAmount: 800, lookbackMonths: 12 },
       },
-      'pet-parents-segment': {
-        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: [],
-        accountTenure: 'all', ficoRanges: [],
-        signalThreshold: { minAmount: 600, lookbackMonths: 12 },
-      },
       'cashback-high-travel-segment': {
         ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
         accountTenure: 'established', ficoRanges: ['good', 'excellent'],
         signalThreshold: { minAmount: 1200, lookbackMonths: 24 },
       },
-      'fitness-wellness-segment': {
-        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
-        accountTenure: 'all', ficoRanges: [],
-        signalThreshold: { minAmount: 500, lookbackMonths: 12 },
-      },
       'holiday-travelers-segment': {
         ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k', 'over_150k'],
         accountTenure: 'all', ficoRanges: ['good', 'excellent'],
         signalThreshold: { minAmount: 1500, lookbackMonths: 24 },
-      },
-      'tax-season-financial-segment': {
-        ageRanges: ['35-44', '45-54', '55-64'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
-        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
-        signalThreshold: { minAmount: 1000, lookbackMonths: 12 },
-      },
-      'back-to-school-parents-segment': {
-        ageRanges: ['35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
-        accountTenure: 'established', ficoRanges: ['good'],
-        signalThreshold: { minAmount: 400, lookbackMonths: 12 },
       },
     };
     return defaults[template.id] || {
@@ -242,7 +241,7 @@ export function AutomatedFlowsSection() {
               {activeFlows.size} active
             </Badge>
             <Badge variant="outline" className="text-xs font-normal">
-              {SEGMENT_TEMPLATES.length} flows
+              {allowedTemplates.length} flows
             </Badge>
           </div>
         </div>
