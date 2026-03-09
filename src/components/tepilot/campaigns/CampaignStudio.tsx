@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import {
   Sparkles, Heart, Users as UsersIcon, Bookmark, Download, Target,
   ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, Loader2, CreditCard,
-  Zap, Megaphone,
+  Zap, Megaphone, MousePointerClick,
 } from "lucide-react";
-import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
+import { PersonalizationPreviewPanel, type CTAConfig } from "./PersonalizationPreviewPanel";
 import { AutomatedFlowsSection } from "./AutomatedFlowsSection";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { AICampaignPreview } from "./AICampaignPreview";
 import { DemographicFilters } from "./DemographicFilters";
 import { SemanticIntentInput, type ParsedIntent } from "./SemanticIntentInput";
+import { Input } from "@/components/ui/input";
 import { LIFESTYLE_PILLARS, estimateStudioAudienceSize } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import { SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
@@ -58,6 +59,7 @@ export function CampaignStudio() {
   const [upsellStrategies, setUpsellStrategies] = useState<string[]>([]);
   const [campaignGoal, setCampaignGoal] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
+  const [campaignCTA, setCampaignCTA] = useState<CTAConfig>({ text: 'Apply Now', link: '/apply', style: 'primary' });
 
   // ─── Segments State ───
   const [savedOpen, setSavedOpen] = useState(false);
@@ -484,6 +486,7 @@ export function CampaignStudio() {
                 selectedPillars={selectedPillars}
                 selectedLifeEvents={lifeEventCriteria.eventTypes}
                 hasSelections={hasSelections}
+                ctaConfig={campaignCTA}
               />
 
               <AICampaignPreview
@@ -494,6 +497,83 @@ export function CampaignStudio() {
                 hasSelections={hasSelections}
                 onSave={handleSave}
               />
+
+              {/* CTA Customization */}
+              <Card className="bg-card border-border">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MousePointerClick className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-semibold text-foreground">Call-to-Action</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Button Text</label>
+                      <Input
+                        value={campaignCTA.text}
+                        onChange={(e) => setCampaignCTA(prev => ({ ...prev, text: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="Apply Now"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Link / URL</label>
+                      <Input
+                        value={campaignCTA.link}
+                        onChange={(e) => setCampaignCTA(prev => ({ ...prev, link: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="/apply"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">Style</label>
+                    <div className="flex gap-2">
+                      {([
+                        { value: 'primary' as const, label: 'Filled' },
+                        { value: 'outline' as const, label: 'Outline' },
+                        { value: 'soft' as const, label: 'Soft' },
+                      ]).map((opt) => {
+                        const isActive = campaignCTA.style === opt.value;
+                        const styleClasses =
+                          opt.value === 'primary'
+                            ? 'bg-primary text-primary-foreground'
+                            : opt.value === 'outline'
+                            ? 'border border-primary text-primary bg-transparent'
+                            : 'bg-primary/10 text-primary';
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => setCampaignCTA(prev => ({ ...prev, style: opt.value }))}
+                            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${styleClasses} ${
+                              isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : 'opacity-60 hover:opacity-80'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Live Preview */}
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">Preview</label>
+                    {(() => {
+                      const s = campaignCTA.style;
+                      const cls =
+                        s === 'primary'
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : s === 'outline'
+                          ? 'border border-primary text-primary bg-transparent hover:bg-primary/5'
+                          : 'bg-primary/10 text-primary hover:bg-primary/15';
+                      return (
+                        <button className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${cls}`}>
+                          {campaignCTA.text || 'Apply Now'}
+                        </button>
+                      );
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>

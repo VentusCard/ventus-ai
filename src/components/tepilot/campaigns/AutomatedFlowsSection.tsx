@@ -2,13 +2,14 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Zap, ChevronDown, ChevronRight, Users, ArrowRight, Sparkles, Calendar,
-  ArrowUpRight, LayoutGrid, CreditCard, Play, Pause,
+  ArrowUpRight, LayoutGrid, CreditCard, Play, Pause, MousePointerClick,
 } from "lucide-react";
-import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
+import { PersonalizationPreviewPanel, type CTAConfig } from "./PersonalizationPreviewPanel";
 import { SEGMENT_TEMPLATES } from "@/lib/segmentData";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import type { SegmentTemplate } from "@/types/segment";
@@ -29,6 +30,7 @@ export function AutomatedFlowsSection() {
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
+  const [flowCTAs, setFlowCTAs] = useState<Record<string, CTAConfig>>({});
 
   const filteredTemplates = useMemo(() => {
     if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
@@ -51,6 +53,31 @@ export function AutomatedFlowsSection() {
 
   const getProductForTemplate = (template: SegmentTemplate) => {
     return DEMO_PRODUCTS.find(p => p.id === template.recommendedProductId) || null;
+  };
+
+  const DEFAULT_FLOW_CTAS: Record<string, CTAConfig> = {
+    'new-parent-segment': { text: 'Start Saving Today', link: '/savings', style: 'primary' },
+    'pre-retiree-segment': { text: 'Plan Your Retirement', link: '/wealth', style: 'primary' },
+    'home-buyers-segment': { text: 'Get Pre-Approved', link: '/mortgage', style: 'primary' },
+    'back-to-school-parents-segment': { text: 'Open 529 Plan', link: '/education', style: 'primary' },
+    'travel-enthusiasts-segment': { text: 'Explore Travel Cards', link: '/travel', style: 'primary' },
+    'fitness-wellness-segment': { text: 'Earn Wellness Rewards', link: '/rewards', style: 'soft' },
+    'foodies-segment': { text: 'Unlock Dining Perks', link: '/dining', style: 'soft' },
+    'pet-parents-segment': { text: 'Save on Pet Care', link: '/cashback', style: 'outline' },
+    'cashback-high-travel-segment': { text: 'Upgrade Your Card', link: '/travel-card', style: 'primary' },
+    'holiday-travelers-segment': { text: 'Book with Points', link: '/travel', style: 'primary' },
+    'tax-season-financial-segment': { text: 'Maximize Deductions', link: '/planning', style: 'outline' },
+  };
+
+  const getFlowCTA = (templateId: string): CTAConfig => {
+    return flowCTAs[templateId] || DEFAULT_FLOW_CTAS[templateId] || { text: 'Learn More', link: '#', style: 'primary' as const };
+  };
+
+  const updateFlowCTA = (templateId: string, update: Partial<CTAConfig>) => {
+    setFlowCTAs(prev => ({
+      ...prev,
+      [templateId]: { ...getFlowCTA(templateId), ...update },
+    }));
   };
 
   const getPillarsForTemplate = (template: SegmentTemplate): string[] => {
@@ -235,7 +262,63 @@ export function AutomatedFlowsSection() {
                       selectedPillars={getPillarsForTemplate(template)}
                       selectedLifeEvents={getLifeEventsForTemplate(template)}
                       hasSelections={true}
+                      ctaConfig={getFlowCTA(template.id)}
                     />
+
+                    {/* CTA Customization */}
+                    <div className="mt-4 p-4 rounded-lg border border-border bg-background">
+                      <div className="flex items-center gap-2 mb-3">
+                        <MousePointerClick className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">Call-to-Action</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Button Text</label>
+                          <Input
+                            value={getFlowCTA(template.id).text}
+                            onChange={(e) => updateFlowCTA(template.id, { text: e.target.value })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Link / URL</label>
+                          <Input
+                            value={getFlowCTA(template.id).link}
+                            onChange={(e) => updateFlowCTA(template.id, { link: e.target.value })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">Style</label>
+                        <div className="flex gap-2">
+                          {([
+                            { value: 'primary' as const, label: 'Filled' },
+                            { value: 'outline' as const, label: 'Outline' },
+                            { value: 'soft' as const, label: 'Soft' },
+                          ]).map((opt) => {
+                            const isActive = getFlowCTA(template.id).style === opt.value;
+                            const styleClasses =
+                              opt.value === 'primary'
+                                ? 'bg-primary text-primary-foreground'
+                                : opt.value === 'outline'
+                                ? 'border border-primary text-primary bg-transparent'
+                                : 'bg-primary/10 text-primary';
+                            return (
+                              <button
+                                key={opt.value}
+                                onClick={() => updateFlowCTA(template.id, { style: opt.value })}
+                                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${styleClasses} ${
+                                  isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : 'opacity-60 hover:opacity-80'
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
