@@ -32,6 +32,7 @@ const queryClient = new QueryClient();
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
+  const isDemo = location.pathname === "/demo";
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
