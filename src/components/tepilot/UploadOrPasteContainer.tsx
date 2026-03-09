@@ -51,11 +51,18 @@ export function UploadOrPasteContainer({
   onModeChange,
   onLoadSample,
   onLoadComparisonSamples,
+  onExitComparisonMode,
+  comparisonMode,
   children,
   activeSelection,
   onActiveSelectionChange
 }: UploadOrPasteContainerProps) {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+
+  const handleExitComparison = () => {
+    setSelectedIndices([]);
+    onExitComparisonMode?.();
+  };
 
   const handleToggleDataset = (index: number) => {
     setSelectedIndices(prev => {
