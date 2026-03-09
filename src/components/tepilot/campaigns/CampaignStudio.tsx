@@ -593,9 +593,35 @@ export function CampaignStudio() {
 
           <ResizableHandle withHandle />
 
-          {/* Right Column: AI Preview */}
+          {/* Right Column: AI Preview + Personalization */}
           <ResizablePanel defaultSize={60} minSize={35} maxSize={70}>
-            <div className="pl-4">
+            <div className="pl-4 space-y-4">
+              {/* Product Selector */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <CreditCard className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-sm font-semibold text-slate-900 whitespace-nowrap">Promoting:</span>
+                <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                  <SelectTrigger className="w-full max-w-[220px] bg-white h-8 text-sm">
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEMO_PRODUCTS.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Personalization Preview */}
+              <PersonalizationPreviewPanel
+                selectedProduct={DEMO_PRODUCTS.find(p => p.id === selectedProductId) || null}
+                selectedPillars={selectedPillars}
+                selectedLifeEvents={lifeEventCriteria.eventTypes}
+                hasSelections={hasSelections}
+              />
+
               <AICampaignPreview
                 brief={generatedBrief}
                 isGenerating={isGenerating}
