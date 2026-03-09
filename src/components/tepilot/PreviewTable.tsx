@@ -7,6 +7,7 @@ import { getSourceColor } from "@/lib/sampleData";
 
 interface PreviewTableProps {
   transactions: Transaction[];
+  comparisonMode?: boolean;
 }
 
 export function PreviewTable({ transactions }: PreviewTableProps) {
