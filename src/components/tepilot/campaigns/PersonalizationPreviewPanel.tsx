@@ -156,10 +156,22 @@ const PersonalizationPreviewPanelComponent = ({
   // Auto-generate when product changes and we have personas
   useEffect(() => {
     const canGenerate = selectedProduct || hasTierProducts;
+    
+    // Check if products actually changed
+    const productsChanged = 
+      lastProductRef.current?.selectedProduct?.id !== selectedProduct?.id ||
+      JSON.stringify(lastProductRef.current?.tierProductOverrides) !== JSON.stringify(tierProductOverrides);
+    
     if (canGenerate && personas.length > 0 && !hasGenerated && !isGenerating) {
+      lastProductRef.current = { selectedProduct, tierProductOverrides };
+      generatePersonalizedMessages();
+    } else if (productsChanged && canGenerate && personas.length > 0) {
+      // Products changed - regenerate
+      lastProductRef.current = { selectedProduct, tierProductOverrides };
+      setHasGenerated(false);
       generatePersonalizedMessages();
     }
-  }, [selectedProduct, personas, hasGenerated, isGenerating, generatePersonalizedMessages, hasTierProducts]);
+  }, [selectedProduct, personas, hasGenerated, isGenerating, hasTierProducts, tierProductOverrides, generatePersonalizedMessages]);
 
   if (!hasSelections) {
     return null;
