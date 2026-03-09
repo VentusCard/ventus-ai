@@ -26,12 +26,10 @@ import { DemographicFilters } from "./DemographicFilters";
 import { SemanticIntentInput, type ParsedIntent } from "./SemanticIntentInput";
 import { LIFESTYLE_PILLARS, estimateStudioAudienceSize } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
-import { SEGMENT_TEMPLATES, SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
+import { SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
 import type { ProductMode, CampaignBrief } from "@/types/campaign-studio";
-import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, SegmentTemplate, SavedSegment } from "@/types/segment";
+import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, SavedSegment } from "@/types/segment";
 import { supabase } from "@/integrations/supabase/client";
-
-// No preset template categories needed - moved to AutomatedFlowsSection
 
 export function CampaignStudio() {
   // ─── Dimension State ───
