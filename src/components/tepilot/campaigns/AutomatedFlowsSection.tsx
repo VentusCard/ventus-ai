@@ -249,6 +249,43 @@ export function AutomatedFlowsSection() {
                   </div>
                 </div>
 
+                {/* Collapsed tier-product preview */}
+                {!isExpanded && (
+                  <div
+                    className="flex items-center gap-3 px-4 py-2 border-t border-border bg-muted/10 cursor-pointer hover:bg-muted/30 transition-colors overflow-x-auto"
+                    onClick={() => setExpandedFlowId(template.id)}
+                  >
+                    {([
+                      { tier: "Mass Market" as const, color: "hsl(var(--primary))" },
+                      { tier: "Affluent" as const, color: "#f59e0b" },
+                      { tier: "HNW" as const, color: "#8b5cf6" },
+                    ]).map(({ tier, color }) => {
+                      const products = tierProducts[tier];
+                      return (
+                        <div key={tier} className="flex items-center gap-1.5 shrink-0">
+                          <span
+                            className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+                            style={{ background: `${color}15`, color }}
+                          >
+                            {tier}
+                          </span>
+                          {products.length === 0 ? (
+                            <span className="text-[10px] text-muted-foreground italic">None</span>
+                          ) : (
+                            products.map(p => (
+                              <Badge key={p.id} variant="secondary" className="text-[10px] px-1.5 py-0 h-4 gap-0.5">
+                                <CreditCard className="w-2.5 h-2.5" />
+                                {p.name}
+                              </Badge>
+                            ))
+                          )}
+                          <span className="text-muted-foreground/30 last:hidden">|</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {/* Expanded detail */}
                 {isExpanded && (
                   <div className="border-t border-border bg-muted/20 p-4 space-y-4">
