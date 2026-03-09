@@ -254,6 +254,18 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
           />
         </div>
 
+        {/* Personalization Preview Panel */}
+        {hasSelections && (
+          <div className="mt-6">
+            <PersonalizationPreviewPanel
+              selectedProduct={selectedProduct}
+              selectedPillars={selectedPillarsForPreview}
+              selectedLifeEvents={selectedLifeEventsForPreview}
+              hasSelections={hasSelections}
+            />
+          </div>
+        )}
+
         {/* Audience Preview */}
         {hasSelections && (
           <div className="mt-6 pt-6 border-t border-slate-200">
