@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Sparkles, Heart, Users as UsersIcon, Bookmark, Download, Target,
-  ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, LayoutTemplate, Loader2, CreditCard,
+  ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, Loader2, CreditCard,
 } from "lucide-react";
 import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
