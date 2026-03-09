@@ -34,6 +34,9 @@ import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, S
 import { supabase } from "@/integrations/supabase/client";
 
 export function CampaignStudio() {
+  // ─── Mode State ───
+  const [activeMode, setActiveMode] = useState<'campaigns' | 'automations'>('campaigns');
+
   // ─── Dimension State ───
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
