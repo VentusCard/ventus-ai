@@ -306,12 +306,38 @@ export function CampaignStudio() {
         </div>
       </div>
 
+      {/* Mode Switcher */}
+      <div className="grid grid-cols-2 gap-0 rounded-lg border border-border bg-muted/30 p-1 mb-6">
+        <button
+          onClick={() => setActiveMode('automations')}
+          className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+            activeMode === 'automations'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Zap className="w-4 h-4" />
+          Automated Flows
+        </button>
+        <button
+          onClick={() => setActiveMode('campaigns')}
+          className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+            activeMode === 'campaigns'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Megaphone className="w-4 h-4" />
+          Campaigns
+        </button>
+      </div>
+
+      {activeMode === 'automations' ? (
+        <AutomatedFlowsSection />
+      ) : (
+      <>
       {/* Semantic Intent Input */}
       <SemanticIntentInput onIntentParsed={handleIntentParsed} />
-
-      {/* Main Studio Card */}
-      <Card className="bg-card border-border">
-        <CardContent className="p-6">
         <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
           <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
             <div className="space-y-1 pr-4 overflow-y-auto max-h-[80vh]">
