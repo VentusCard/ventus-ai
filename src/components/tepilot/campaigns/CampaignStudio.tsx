@@ -486,6 +486,7 @@ export function CampaignStudio() {
                 selectedPillars={selectedPillars}
                 selectedLifeEvents={lifeEventCriteria.eventTypes}
                 hasSelections={hasSelections}
+                ctaConfig={campaignCTA}
               />
 
               <AICampaignPreview
