@@ -315,7 +315,7 @@ export function AutomatedFlowsSection() {
                       <ArrowRight className="w-3 h-3" />
                       <Badge
                         variant="outline"
-                        className={`gap-1 text-xs cursor-pointer transition-all hover:border-primary/60 hover:bg-primary/5 ${
+                        className={`gap-1 text-xs cursor-pointer transition-all text-foreground hover:border-primary/60 hover:bg-primary/5 ${
                           tierSelectorOpenId === template.id ? 'border-primary bg-primary/10 text-primary' : ''
                         }`}
                         onClick={() => setTierSelectorOpenId(tierSelectorOpenId === template.id ? null : template.id)}
