@@ -1009,32 +1009,15 @@ const TePilot = () => {
           <TabsContent value="preview" className="space-y-6">
             {comparisonMode ? (
               <>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="bg-white border-slate-200">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500" />
-                        <CardTitle className="text-base">{selectedCompA?.demographics?.name || "Customer A"}</CardTitle>
-                        <Badge variant="secondary" className="text-xs">{parsedTransactions.length} txns</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <PreviewTable transactions={parsedTransactions} />
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-white border-slate-200">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        <CardTitle className="text-base">{selectedCompB?.demographics?.name || "Customer B"}</CardTitle>
-                        <Badge variant="secondary" className="text-xs">{parsedTransactionsB.length} txns</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <PreviewTable transactions={parsedTransactionsB} />
-                    </CardContent>
-                  </Card>
-                </div>
+                {(() => {
+                  const nameA = selectedCompA?.demographics?.name || "Customer A";
+                  const nameB = selectedCompB?.demographics?.name || "Customer B";
+                  const mergedPreview = [
+                    ...parsedTransactions.map(t => ({ ...t, _userId: nameA })),
+                    ...parsedTransactionsB.map(t => ({ ...t, _userId: nameB })),
+                  ];
+                  return <PreviewTable transactions={mergedPreview as any} comparisonMode={true} />;
+                })()}
                 <Button
                   onClick={() => {
                     setActiveTab("results");
