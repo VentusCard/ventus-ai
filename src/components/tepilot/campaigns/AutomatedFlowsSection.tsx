@@ -229,9 +229,9 @@ export function AutomatedFlowsSection() {
                       </Badge>
                     </div>
 
-                    {/* Personalization Preview */}
+                    {/* Personalization Preview — life event flows use per-persona products */}
                     <PersonalizationPreviewPanel
-                      selectedProduct={product}
+                      selectedProduct={template.category === 'life_event' ? null : product}
                       selectedPillars={getPillarsForTemplate(template)}
                       selectedLifeEvents={getLifeEventsForTemplate(template)}
                       hasSelections={true}

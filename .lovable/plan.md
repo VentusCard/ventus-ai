@@ -1,49 +1,34 @@
 
 
-## Problem
+## Understanding
 
-Currently each automated flow maps to exactly **one** product (e.g., "New Parents" → High-Yield Savings). In reality, different customers within the same life event need different products based on their financial profile. The 3 persona cards should each demonstrate a different product recommendation, not the same one with different wording.
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-## MECE Segmentation Approach: Income/Wealth Tier
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-The cleanest MECE split for any life event is **wealth tier** — every customer falls into exactly one:
+## Plan
 
-| Tier | Label | Product Logic (New Parents example) |
-|------|-------|-------------------------------------|
-| Mass Market | "Building Foundation" | High-Yield Savings |
-| Affluent | "Growing Wealth" | 529 Education Plan |
-| High Net Worth | "Legacy Planning" | Trust & Estate Services |
+### Move AnalyticsDemoPanel into the Hero Section
 
-This works universally across all life events:
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
 
-- **Pre-Retirees**: Wealth Suite → Annuity → Estate Transfer
-- **Home Buyers**: Mortgage → HELOC → Jumbo Mortgage
-- **Education**: Student Loan → 529 Plan → Education Trust
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
 
-## Changes
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
 
-### 1. Expand `DEMO_PRODUCTS` in `src/lib/samplePersonaGenerator.ts`
-Add missing products: `529_plan`, `trust_services`, `annuity`, `heloc`, `jumbo_mortgage`, `student_loan`, `education_trust`.
-
-### 2. Add `LIFE_EVENT_PRODUCT_TIERS` mapping in `src/lib/samplePersonaGenerator.ts`
-A new constant mapping each life event to 3 tier-specific products:
-```
-family: [
-  { tier: "Mass Market", productId: "high_yield_savings", signals: ["Baby product purchases", "Childcare payments"] },
-  { tier: "Affluent", productId: "529_plan", signals: ["529 plan contributions", "Education savings research"] },
-  { tier: "HNW", productId: "trust_services", signals: ["Estate attorney consultations", "Trust account inquiries"] },
-]
-```
-
-### 3. Update `generateSamplePersonas` to accept and embed tier info
-When in `events` mode, assign each persona a different tier. Add a `tier` label and `recommendedProduct` to the `SyntheticPersona` interface so the preview panel knows which product each persona should receive.
-
-### 4. Update `PersonalizationPreviewPanel` to use per-persona products
-Instead of using one `selectedProduct` for all 3 cards, use each persona's `recommendedProduct` when calling the AI edge function. Show the product name as a small badge on each persona card so the viewer understands *why* different people get different messages.
-
-### 5. Update `AutomatedFlowsSection` 
-Pass `selectedProduct={null}` and let the per-persona product logic drive the preview. The flow header still shows the "primary" product but the expanded preview demonstrates tier-based personalization.
-
-### 6. Add a tier badge to the persona card UI
-Each persona card gets a small subtle badge like "Mass Market", "Affluent", or "HNW" plus the product name, making the MECE logic visible and self-explanatory.
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 

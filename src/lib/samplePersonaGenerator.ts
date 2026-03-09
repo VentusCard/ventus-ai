@@ -3,6 +3,8 @@
  * Used by PersonalizationPreviewPanel to demonstrate AI personalization.
  */
 
+export type WealthTier = "Mass Market" | "Affluent" | "HNW";
+
 export interface SyntheticPersona {
   id: string;
   name: string;
@@ -10,6 +12,8 @@ export interface SyntheticPersona {
   emoji: string;
   behavioralTags: string[];
   transactionSignals: string[];
+  tier?: WealthTier;
+  recommendedProduct?: { id: string; name: string };
 }
 
 // Name pools for different personas
@@ -199,6 +203,53 @@ const LIFE_EVENT_SIGNALS: Record<string, { tags: string[]; signals: string[]; em
   },
 };
 
+// MECE wealth-tier product mapping per life event
+interface TierConfig {
+  tier: WealthTier;
+  tierLabel: string;
+  productId: string;
+  productName: string;
+  signals: string[];
+}
+
+export const LIFE_EVENT_PRODUCT_TIERS: Record<string, TierConfig[]> = {
+  family: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "high_yield_savings", productName: "High-Yield Savings", signals: ["Baby product purchases", "Childcare payments"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "529_plan", productName: "529 Education Plan", signals: ["529 plan contributions", "Education savings research"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "trust_services", productName: "Trust & Estate Services", signals: ["Estate attorney consultations", "Trust account inquiries"] },
+  ],
+  retirement: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "wealth_suite", productName: "Wealth Management Suite", signals: ["401k rollover activity", "Retirement community research"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "annuity", productName: "Annuity Plan", signals: ["Annuity product research", "Fixed income investment activity"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "trust_services", productName: "Estate Transfer Services", signals: ["Estate attorney payments", "Large gift transfers"] },
+  ],
+  home: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "home_mortgage", productName: "Home Mortgage", signals: ["Mortgage research detected", "Home inspection payments"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "heloc", productName: "HELOC", signals: ["Home equity research", "Renovation contractor payments"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "jumbo_mortgage", productName: "Jumbo Mortgage", signals: ["Luxury property searches", "High-value home transactions"] },
+  ],
+  education: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "personal_loan", productName: "Student Loan", signals: ["College application fees", "Student housing searches"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "529_plan", productName: "529 Education Plan", signals: ["529 plan contributions", "Education savings research"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "education_trust", productName: "Education Trust", signals: ["Trust account activity", "Multi-generational education planning"] },
+  ],
+  elder_care: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "high_yield_savings", productName: "High-Yield Savings", signals: ["Healthcare spending increase", "Medical equipment purchases"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "personal_loan", productName: "Care Financing", signals: ["Assisted living research", "Long-term care insurance"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "trust_services", productName: "Family Trust", signals: ["Estate attorney payments", "Care facility endowments"] },
+  ],
+  business: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "personal_loan", productName: "Business Loan", signals: ["Business registration fees", "Vendor payments initiated"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "wealth_suite", productName: "Business Banking Suite", signals: ["Commercial account activity", "Payroll processing"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "trust_services", productName: "Business Trust", signals: ["Business valuation activity", "Succession planning"] },
+  ],
+  wealth_transfer: [
+    { tier: "Mass Market", tierLabel: "Building Foundation", productId: "high_yield_savings", productName: "High-Yield Savings", signals: ["Savings account contributions", "Financial advisory services"] },
+    { tier: "Affluent", tierLabel: "Growing Wealth", productId: "wealth_suite", productName: "Wealth Management Suite", signals: ["Investment platform activity", "Estate attorney payments"] },
+    { tier: "HNW", tierLabel: "Legacy Planning", productId: "trust_services", productName: "Generational Trust", signals: ["Trust account activity", "Large gift transfers"] },
+  ],
+};
+
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -234,6 +285,10 @@ export function generateSamplePersonas(
     ? pillarSources
     : Object.keys(PILLAR_SIGNALS).slice(0, 3);
 
+  // Get tier configs for life event mode
+  const eventKey = eventSources.length > 0 ? eventSources[0] : null;
+  const tierConfigs = eventKey ? LIFE_EVENT_PRODUCT_TIERS[eventKey] : null;
+
   for (let i = 0; i < count; i++) {
     let firstName: string;
     do {
@@ -248,18 +303,28 @@ export function generateSamplePersonas(
     let behavioralTags: string[];
     let transactionSignals: string[];
     let emoji: string;
+    let tier: WealthTier | undefined;
+    let recommendedProduct: { id: string; name: string } | undefined;
 
-    if (mode === 'events') {
-      // Life events are the SOLE source — no random pillar fallback
-      const eventKey = eventSources[i % eventSources.length];
-      const eventData = LIFE_EVENT_SIGNALS[eventKey];
+    if (mode === 'events' && tierConfigs && tierConfigs[i]) {
+      // Life events with MECE tier assignment
+      const tc = tierConfigs[i];
+      const eventData = LIFE_EVENT_SIGNALS[eventKey!];
+      behavioralTags = [pickRandom(eventData.tags, 1)[0], tc.tierLabel];
+      transactionSignals = tc.signals;
+      emoji = pickRandom(eventData.emojis, 1)[0];
+      tier = tc.tier;
+      recommendedProduct = { id: tc.productId, name: tc.productName };
+    } else if (mode === 'events') {
+      // Fallback for events without tier config
+      const ek = eventSources[i % eventSources.length];
+      const eventData = LIFE_EVENT_SIGNALS[ek];
       behavioralTags = pickRandom(eventData.tags, 2);
       transactionSignals = pickRandom(eventData.signals, 2);
       emoji = pickRandom(eventData.emojis, 1)[0];
     } else if (mode === 'both') {
-      // Life event is primary, pillar is secondary
-      const eventKey = eventSources[i % eventSources.length];
-      const eventData = LIFE_EVENT_SIGNALS[eventKey];
+      const ek = eventSources[i % eventSources.length];
+      const eventData = LIFE_EVENT_SIGNALS[ek];
       const pillarKey = effectivePillars[i % effectivePillars.length];
       const pillarData = PILLAR_SIGNALS[pillarKey];
 
@@ -267,7 +332,6 @@ export function generateSamplePersonas(
       transactionSignals = [...pickRandom(eventData.signals, 1), ...pickRandom(pillarData.signals, 1)];
       emoji = pickRandom(eventData.emojis, 1)[0];
     } else {
-      // Pillars only — original behavior
       const pillarKey = effectivePillars[i % effectivePillars.length];
       const pillarData = PILLAR_SIGNALS[pillarKey];
       behavioralTags = pickRandom(pillarData.tags, 2);
@@ -282,6 +346,8 @@ export function generateSamplePersonas(
       emoji,
       behavioralTags: behavioralTags.slice(0, 2),
       transactionSignals: transactionSignals.slice(0, 2),
+      tier,
+      recommendedProduct,
     });
   }
 
@@ -298,4 +364,10 @@ export const DEMO_PRODUCTS = [
   { id: "high_yield_savings", name: "High-Yield Savings", category: "deposit_accounts" },
   { id: "home_mortgage", name: "Home Mortgage", category: "loans" },
   { id: "personal_loan", name: "Personal Loan", category: "loans" },
+  { id: "529_plan", name: "529 Education Plan", category: "investments" },
+  { id: "trust_services", name: "Trust & Estate Services", category: "wealth" },
+  { id: "annuity", name: "Annuity Plan", category: "investments" },
+  { id: "heloc", name: "HELOC", category: "loans" },
+  { id: "jumbo_mortgage", name: "Jumbo Mortgage", category: "loans" },
+  { id: "education_trust", name: "Education Trust", category: "wealth" },
 ];
