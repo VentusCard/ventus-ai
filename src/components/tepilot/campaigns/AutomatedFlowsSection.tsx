@@ -329,11 +329,12 @@ export function AutomatedFlowsSection() {
                       </Badge>
                     </div>
 
-                    {/* Tier Product Selector */}
-                    <TierProductSelector
-                      value={tierProducts}
-                      onChange={(val) => updateTierProducts(template.id, val)}
-                    />
+                    {tierSelectorOpenId === template.id && (
+                      <TierProductSelector
+                        value={tierProducts}
+                        onChange={(val) => updateTierProducts(template.id, val)}
+                      />
+                    )}
 
                     {/* Personalization Preview */}
                     <PersonalizationPreviewPanel
