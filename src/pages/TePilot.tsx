@@ -1013,6 +1013,8 @@ const TePilot = () => {
                   sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
                 }}
                 onLoadComparisonSamples={handleLoadComparisonSamples}
+                onExitComparisonMode={handleExitComparisonMode}
+                comparisonMode={comparisonMode}
                 activeSelection={activeSelection}
                 onActiveSelectionChange={setActiveSelection}
               >

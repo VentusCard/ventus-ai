@@ -153,6 +153,11 @@ export function UploadOrPasteContainer({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          {comparisonMode && (
+            <Button variant="outline" size="sm" onClick={handleExitComparison} className="text-destructive border-destructive/30 hover:bg-destructive/10">
+              Exit Comparison
+            </Button>
+          )}
           <Button variant={activeSelection === "paste" ? "default" : "outline"} size="sm" onClick={() => handleModeChange("paste")} className="flex-1">
             <FileText className="w-4 h-4 mr-2" />
             Paste Text
