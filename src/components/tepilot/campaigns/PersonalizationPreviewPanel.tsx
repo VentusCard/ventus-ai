@@ -41,6 +41,7 @@ export function PersonalizationPreviewPanel({
   selectedLifeEvents,
   hasSelections,
   ctaConfig,
+  tierProductOverrides,
 }: PersonalizationPreviewPanelProps) {
   const [personas, setPersonas] = useState<SyntheticPersona[]>([]);
   const [messages, setMessages] = useState<Record<string, PersonalizedMessage>>({});
