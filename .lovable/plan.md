@@ -1,34 +1,44 @@
 
 
-## Understanding
+## Plan: Add Audience Filters with FICO & Signal Threshold to Automated Flows
 
-The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
+### Overview
+Make the "Audience Matched" badge clickable to toggle an inline audience filter panel per flow. Include FICO score ranges and a **signal spending threshold** (e.g. "at least $1,000 on hotels in last 2 years") instead of channel/engagement filters. Each template gets unique default values.
 
-Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
+### Type Changes (`src/types/segment.ts`)
+- Add to `DemographicFilters`:
+  - `ficoRanges?: string[]` — chip-select from Excellent (750+), Good (700-749), Fair (650-699), Building (<650)
+  - `signalThreshold?: { minAmount: number; lookbackMonths: number }` — minimum spend amount + lookback window
+- Add constants: `FICO_RANGES` array and `LOOKBACK_OPTIONS` (6mo, 12mo, 24mo, 36mo)
 
-## Plan
+### New Inline Component: `AudienceFiltersPanel`
+Built directly inside `AutomatedFlowsSection.tsx` or as a small new component. Renders:
+1. **FICO Score** — multi-select chip row (same style as age ranges)
+2. **Age Ranges** — existing chip row
+3. **Income Bands** — existing chip row  
+4. **Account Tenure** — dropdown
+5. **Signal Threshold** — a row with a dollar input ("Min spend $") and a lookback dropdown ("in the last X months"), with a label showing the template's signal context (e.g. "on Hotels & Travel" for travel templates, "on Baby & Kids" for new parents)
+6. **Regions** — chip row
 
-### Move AnalyticsDemoPanel into the Hero Section
+### Default Filters Per Template (`AutomatedFlowsSection.tsx`)
+Each template gets a `getDefaultAudienceFilters(template)` returning unique values:
 
-1. **Modify `src/pages/BankWideAnalytics.tsx`**:
-   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
-   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
-   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+| Template | FICO | Ages | Income | Tenure | Signal Threshold |
+|----------|------|------|--------|--------|-----------------|
+| Travel Enthusiasts | Good, Excellent | 25-54 | 50k+ | all | $1,000 / 24mo on Travel |
+| New Parents | Good, Excellent | 25-44 | 50k-150k | established | $500 / 12mo on Baby |
+| Pre-Retirees | Excellent | 55-64, 65+ | 100k+ | loyal | $2,000 / 24mo on Financial |
+| Home Buyers | Good, Excellent | 25-44 | 100k+ | established | $1,500 / 12mo on Home |
+| Foodies | All | 25-44 | 50k+ | all | $800 / 12mo on Dining |
+| Pet Parents | All | 25-44 | all | all | $600 / 12mo on Pets |
+| Cashback High Travel | Good+ | 25-44 | 50k+ | established | $1,200 / 24mo on Travel |
+| Others | sensible defaults with varied thresholds |
 
-2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
-   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
-   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
-   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
-   - Ensure tab bar, controls, and all content use dark-themed colors
+### State & Interaction (`AutomatedFlowsSection.tsx`)
+- New state: `audienceFilterOpenId` (string | null), `flowAudienceFilters` (Record<string, extended DemographicFilters>)
+- "Audience Matched" badge gets same clickable styling as "Tier-Matched Product" (bg-primary/50, interactive hover)
+- Clicking toggles the filter panel inline, rendered between flow diagram and tier selector
+- Each template also gets a `signalCategory` label (e.g. "Travel & Hotels", "Baby & Kids") shown next to the threshold input
 
-3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
-
-### Key Styling Changes in AnalyticsDemoPanel
-- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
-- Tab bar: dark background with light text, active tab in blue
-- Metric cards: dark cards with white values
-- Insight cards: dark cards with light text
-- Pillar bars: keep colored bars but on dark track
-- Personalization tab: dark cards, same transformation flow
-- Controls bar: dark theme
+### No new dependencies needed.
 
