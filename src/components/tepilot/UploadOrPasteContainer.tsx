@@ -39,6 +39,8 @@ interface UploadOrPasteContainerProps {
     dataA: { csv: string; zip: string; demographics: ClientProfileData },
     dataB: { csv: string; zip: string; demographics: ClientProfileData }
   ) => void;
+  onExitComparisonMode?: () => void;
+  comparisonMode?: boolean;
   children: React.ReactNode;
   activeSelection: "sample" | "paste" | "upload";
   onActiveSelectionChange: (selection: "sample" | "paste" | "upload") => void;
