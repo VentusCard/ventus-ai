@@ -6,11 +6,18 @@ import { Sparkles, Mail, RefreshCw, Loader2, Plane, CreditCard } from "lucide-re
 import { supabase } from "@/integrations/supabase/client";
 import { generateSamplePersonas, type SyntheticPersona } from "@/lib/samplePersonaGenerator";
 
+export interface CTAConfig {
+  text: string;
+  link: string;
+  style: 'primary' | 'outline' | 'soft';
+}
+
 interface PersonalizationPreviewPanelProps {
   selectedProduct: { id: string; name: string } | null;
   selectedPillars: string[];
   selectedLifeEvents: string[];
   hasSelections: boolean;
+  ctaConfig?: CTAConfig;
 }
 
 interface PersonalizedMessage {
