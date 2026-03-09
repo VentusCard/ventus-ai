@@ -8,9 +8,11 @@ import {
 } from "lucide-react";
 import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { TierProductSelector, type TierProductMap } from "./TierProductSelector";
+import { AudienceFiltersPanel } from "./AudienceFiltersPanel";
 import { SEGMENT_TEMPLATES } from "@/lib/segmentData";
 import { DEMO_PRODUCTS, LIFE_EVENT_PRODUCT_TIERS } from "@/lib/samplePersonaGenerator";
 import type { SegmentTemplate } from "@/types/segment";
+import type { DemographicFilters } from "@/types/segment";
 import type { WealthTier } from "@/lib/samplePersonaGenerator";
 
 type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell' | 'seasonal';
