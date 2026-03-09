@@ -2,13 +2,14 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Zap, ChevronDown, ChevronRight, Users, ArrowRight, Sparkles, Calendar,
-  ArrowUpRight, LayoutGrid, CreditCard, Play, Pause,
+  ArrowUpRight, LayoutGrid, CreditCard, Play, Pause, MousePointerClick,
 } from "lucide-react";
-import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
+import { PersonalizationPreviewPanel, type CTAConfig } from "./PersonalizationPreviewPanel";
 import { SEGMENT_TEMPLATES } from "@/lib/segmentData";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import type { SegmentTemplate } from "@/types/segment";
