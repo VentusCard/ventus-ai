@@ -1,18 +1,17 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Zap, ChevronDown, ChevronRight, Users, ArrowRight, Sparkles, Calendar,
-  ArrowUpRight, LayoutGrid, CreditCard, Play, Pause, MousePointerClick,
+  ArrowUpRight, LayoutGrid, CreditCard, Play,
 } from "lucide-react";
-import { PersonalizationPreviewPanel, type CTAConfig } from "./PersonalizationPreviewPanel";
+import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
+import { TierProductSelector, type TierProductMap } from "./TierProductSelector";
 import { SEGMENT_TEMPLATES } from "@/lib/segmentData";
-import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
+import { DEMO_PRODUCTS, LIFE_EVENT_PRODUCT_TIERS } from "@/lib/samplePersonaGenerator";
 import type { SegmentTemplate } from "@/types/segment";
+import type { WealthTier } from "@/lib/samplePersonaGenerator";
 
 type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell' | 'seasonal';
 
@@ -24,13 +23,54 @@ const CATEGORY_CONFIG: Record<CategoryFilter, { label: string; icon: React.Compo
   seasonal: { label: 'Seasonal', icon: Calendar },
 };
 
+const DEFAULT_TIER_PRODUCTS: TierProductMap = {
+  "Mass Market": [],
+  "Affluent": [],
+  "HNW": [],
+};
+
+function getDefaultTierProducts(template: SegmentTemplate): TierProductMap {
+  // For life event templates, pre-fill from LIFE_EVENT_PRODUCT_TIERS
+  if (template.category === 'life_event') {
+    const eventMap: Record<string, string> = {
+      'new-parent-segment': 'family',
+      'pre-retiree-segment': 'retirement',
+      'home-buyers-segment': 'home',
+      'back-to-school-parents-segment': 'education',
+    };
+    const eventKey = eventMap[template.id];
+    if (eventKey && LIFE_EVENT_PRODUCT_TIERS[eventKey]) {
+      const tiers = LIFE_EVENT_PRODUCT_TIERS[eventKey];
+      const result: TierProductMap = { "Mass Market": [], "Affluent": [], "HNW": [] };
+      tiers.forEach(tc => {
+        result[tc.tier] = [{ id: tc.productId, name: tc.productName }];
+      });
+      return result;
+    }
+  }
+
+  // For non-life-event templates, put the recommended product in all tiers
+  if (template.recommendedProductId) {
+    const product = DEMO_PRODUCTS.find(p => p.id === template.recommendedProductId);
+    if (product) {
+      return {
+        "Mass Market": [{ id: product.id, name: product.name }],
+        "Affluent": [{ id: product.id, name: product.name }],
+        "HNW": [{ id: product.id, name: product.name }],
+      };
+    }
+  }
+
+  return { ...DEFAULT_TIER_PRODUCTS };
+}
+
 export function AutomatedFlowsSection() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [expandedFlowId, setExpandedFlowId] = useState<string | null>(null);
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
-  const [flowCTAs, setFlowCTAs] = useState<Record<string, CTAConfig>>({});
+  const [flowTierProducts, setFlowTierProducts] = useState<Record<string, TierProductMap>>({});
 
   const filteredTemplates = useMemo(() => {
     if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
@@ -51,33 +91,12 @@ export function AutomatedFlowsSection() {
     });
   };
 
-  const getProductForTemplate = (template: SegmentTemplate) => {
-    return DEMO_PRODUCTS.find(p => p.id === template.recommendedProductId) || null;
+  const getTierProducts = (template: SegmentTemplate): TierProductMap => {
+    return flowTierProducts[template.id] || getDefaultTierProducts(template);
   };
 
-  const DEFAULT_FLOW_CTAS: Record<string, CTAConfig> = {
-    'new-parent-segment': { text: 'Start Saving Today', link: '/savings', style: 'primary' },
-    'pre-retiree-segment': { text: 'Plan Your Retirement', link: '/wealth', style: 'primary' },
-    'home-buyers-segment': { text: 'Get Pre-Approved', link: '/mortgage', style: 'primary' },
-    'back-to-school-parents-segment': { text: 'Open 529 Plan', link: '/education', style: 'primary' },
-    'travel-enthusiasts-segment': { text: 'Explore Travel Cards', link: '/travel', style: 'primary' },
-    'fitness-wellness-segment': { text: 'Earn Wellness Rewards', link: '/rewards', style: 'soft' },
-    'foodies-segment': { text: 'Unlock Dining Perks', link: '/dining', style: 'soft' },
-    'pet-parents-segment': { text: 'Save on Pet Care', link: '/cashback', style: 'outline' },
-    'cashback-high-travel-segment': { text: 'Upgrade Your Card', link: '/travel-card', style: 'primary' },
-    'holiday-travelers-segment': { text: 'Book with Points', link: '/travel', style: 'primary' },
-    'tax-season-financial-segment': { text: 'Maximize Deductions', link: '/planning', style: 'outline' },
-  };
-
-  const getFlowCTA = (templateId: string): CTAConfig => {
-    return flowCTAs[templateId] || DEFAULT_FLOW_CTAS[templateId] || { text: 'Learn More', link: '#', style: 'primary' as const };
-  };
-
-  const updateFlowCTA = (templateId: string, update: Partial<CTAConfig>) => {
-    setFlowCTAs(prev => ({
-      ...prev,
-      [templateId]: { ...getFlowCTA(templateId), ...update },
-    }));
+  const updateTierProducts = (templateId: string, value: TierProductMap) => {
+    setFlowTierProducts(prev => ({ ...prev, [templateId]: value }));
   };
 
   const getPillarsForTemplate = (template: SegmentTemplate): string[] => {
@@ -106,6 +125,17 @@ export function AutomatedFlowsSection() {
       return eventMap[template.id] || [];
     }
     return [];
+  };
+
+  // Get a summary of products across all tiers for the header badge
+  const getProductSummary = (tierProducts: TierProductMap): string => {
+    const allProducts = new Set<string>();
+    Object.values(tierProducts).forEach(products => {
+      products.forEach(p => allProducts.add(p.name));
+    });
+    if (allProducts.size === 0) return "No products";
+    if (allProducts.size === 1) return [...allProducts][0];
+    return `${allProducts.size} products`;
   };
 
   return (
@@ -160,7 +190,8 @@ export function AutomatedFlowsSection() {
           {filteredTemplates.map(template => {
             const isActive = activeFlows.has(template.id);
             const isExpanded = expandedFlowId === template.id;
-            const product = getProductForTemplate(template);
+            const tierProducts = getTierProducts(template);
+            const productSummary = getProductSummary(tierProducts);
 
             return (
               <div key={template.id} className="border border-border rounded-lg overflow-hidden">
@@ -197,13 +228,11 @@ export function AutomatedFlowsSection() {
                     </div>
                   </div>
 
-                  {/* Product badge */}
-                  {product && (
-                    <Badge variant="outline" className="text-xs gap-1 shrink-0 bg-background">
-                      <CreditCard className="w-3 h-3" />
-                      {product.name}
-                    </Badge>
-                  )}
+                  {/* Product summary badge */}
+                  <Badge variant="outline" className="text-xs gap-1 shrink-0 bg-background">
+                    <CreditCard className="w-3 h-3" />
+                    {productSummary}
+                  </Badge>
 
                   {/* Audience */}
                   <span className="text-xs text-muted-foreground shrink-0">
@@ -248,7 +277,7 @@ export function AutomatedFlowsSection() {
                       <ArrowRight className="w-3 h-3" />
                       <Badge variant="outline" className="gap-1 text-xs">
                         <CreditCard className="w-3 h-3" />
-                        {product?.name || 'Product'}
+                        Tier-Matched Product
                       </Badge>
                       <ArrowRight className="w-3 h-3" />
                       <Badge className="gap-1 text-xs bg-primary text-primary-foreground">
@@ -256,69 +285,20 @@ export function AutomatedFlowsSection() {
                       </Badge>
                     </div>
 
-                    {/* Personalization Preview — life event flows use per-persona products */}
+                    {/* Tier Product Selector */}
+                    <TierProductSelector
+                      value={tierProducts}
+                      onChange={(val) => updateTierProducts(template.id, val)}
+                    />
+
+                    {/* Personalization Preview */}
                     <PersonalizationPreviewPanel
-                      selectedProduct={template.category === 'life_event' ? null : product}
+                      selectedProduct={null}
                       selectedPillars={getPillarsForTemplate(template)}
                       selectedLifeEvents={getLifeEventsForTemplate(template)}
                       hasSelections={true}
-                      ctaConfig={getFlowCTA(template.id)}
+                      tierProductOverrides={tierProducts}
                     />
-
-                    {/* CTA Customization */}
-                    <div className="mt-4 p-4 rounded-lg border border-border bg-background">
-                      <div className="flex items-center gap-2 mb-3">
-                        <MousePointerClick className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">Call-to-Action</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Button Text</label>
-                          <Input
-                            value={getFlowCTA(template.id).text}
-                            onChange={(e) => updateFlowCTA(template.id, { text: e.target.value })}
-                            className="h-8 text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Link / URL</label>
-                          <Input
-                            value={getFlowCTA(template.id).link}
-                            onChange={(e) => updateFlowCTA(template.id, { link: e.target.value })}
-                            className="h-8 text-sm"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">Style</label>
-                        <div className="flex gap-2">
-                          {([
-                            { value: 'primary' as const, label: 'Filled' },
-                            { value: 'outline' as const, label: 'Outline' },
-                            { value: 'soft' as const, label: 'Soft' },
-                          ]).map((opt) => {
-                            const isActive = getFlowCTA(template.id).style === opt.value;
-                            const styleClasses =
-                              opt.value === 'primary'
-                                ? 'bg-primary text-primary-foreground'
-                                : opt.value === 'outline'
-                                ? 'border border-primary text-primary bg-transparent'
-                                : 'bg-primary/10 text-primary';
-                            return (
-                              <button
-                                key={opt.value}
-                                onClick={() => updateFlowCTA(template.id, { style: opt.value })}
-                                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${styleClasses} ${
-                                  isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : 'opacity-60 hover:opacity-80'
-                                }`}
-                              >
-                                {opt.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>

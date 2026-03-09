@@ -145,7 +145,7 @@ export function PersonalizationPreviewPanel({
     } finally {
       setIsGenerating(false);
     }
-  }, [selectedProduct, personas, hasTierProducts]);
+  }, [selectedProduct, personas, hasTierProducts, tierProductOverrides]);
 
   // Auto-generate when product changes and we have personas
   useEffect(() => {
