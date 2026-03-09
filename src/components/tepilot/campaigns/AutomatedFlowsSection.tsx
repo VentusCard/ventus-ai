@@ -55,6 +55,31 @@ export function AutomatedFlowsSection() {
     return DEMO_PRODUCTS.find(p => p.id === template.recommendedProductId) || null;
   };
 
+  const DEFAULT_FLOW_CTAS: Record<string, CTAConfig> = {
+    'new-parent-segment': { text: 'Start Saving Today', link: '/savings', style: 'primary' },
+    'pre-retiree-segment': { text: 'Plan Your Retirement', link: '/wealth', style: 'primary' },
+    'home-buyers-segment': { text: 'Get Pre-Approved', link: '/mortgage', style: 'primary' },
+    'back-to-school-parents-segment': { text: 'Open 529 Plan', link: '/education', style: 'primary' },
+    'travel-enthusiasts-segment': { text: 'Explore Travel Cards', link: '/travel', style: 'primary' },
+    'fitness-wellness-segment': { text: 'Earn Wellness Rewards', link: '/rewards', style: 'soft' },
+    'foodies-segment': { text: 'Unlock Dining Perks', link: '/dining', style: 'soft' },
+    'pet-parents-segment': { text: 'Save on Pet Care', link: '/cashback', style: 'outline' },
+    'cashback-high-travel-segment': { text: 'Upgrade Your Card', link: '/travel-card', style: 'primary' },
+    'holiday-travelers-segment': { text: 'Book with Points', link: '/travel', style: 'primary' },
+    'tax-season-financial-segment': { text: 'Maximize Deductions', link: '/planning', style: 'outline' },
+  };
+
+  const getFlowCTA = (templateId: string): CTAConfig => {
+    return flowCTAs[templateId] || DEFAULT_FLOW_CTAS[templateId] || { text: 'Learn More', link: '#', style: 'primary' as const };
+  };
+
+  const updateFlowCTA = (templateId: string, update: Partial<CTAConfig>) => {
+    setFlowCTAs(prev => ({
+      ...prev,
+      [templateId]: { ...getFlowCTA(templateId), ...update },
+    }));
+  };
+
   const getPillarsForTemplate = (template: SegmentTemplate): string[] => {
     if (template.category === 'lifestyle') {
       const pillarMap: Record<string, string[]> = {
