@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,18 +35,24 @@ const TIER_COLORS: Record<string, string> = {
   "HNW": "#8b5cf6",
 };
 
-export function PersonalizationPreviewPanel({
+const PersonalizationPreviewPanelComponent = ({
   selectedProduct,
   selectedPillars,
   selectedLifeEvents,
   hasSelections,
   ctaConfig,
   tierProductOverrides,
-}: PersonalizationPreviewPanelProps) {
+}: PersonalizationPreviewPanelProps) => {
   const [personas, setPersonas] = useState<SyntheticPersona[]>([]);
   const [messages, setMessages] = useState<Record<string, PersonalizedMessage>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
+  
+  // Track last product state to prevent unnecessary regeneration
+  const lastProductRef = useRef<{
+    selectedProduct: typeof selectedProduct;
+    tierProductOverrides: typeof tierProductOverrides;
+  } | null>(null);
 
   // Check if personas have per-persona products (tier mode) or tier overrides
   const hasTierOverrides = tierProductOverrides && Object.values(tierProductOverrides).some(arr => arr.length > 0);
@@ -150,10 +156,22 @@ export function PersonalizationPreviewPanel({
   // Auto-generate when product changes and we have personas
   useEffect(() => {
     const canGenerate = selectedProduct || hasTierProducts;
+    
+    // Check if products actually changed
+    const productsChanged = 
+      lastProductRef.current?.selectedProduct?.id !== selectedProduct?.id ||
+      JSON.stringify(lastProductRef.current?.tierProductOverrides) !== JSON.stringify(tierProductOverrides);
+    
     if (canGenerate && personas.length > 0 && !hasGenerated && !isGenerating) {
+      lastProductRef.current = { selectedProduct, tierProductOverrides };
+      generatePersonalizedMessages();
+    } else if (productsChanged && canGenerate && personas.length > 0) {
+      // Products changed - regenerate
+      lastProductRef.current = { selectedProduct, tierProductOverrides };
+      setHasGenerated(false);
       generatePersonalizedMessages();
     }
-  }, [selectedProduct, personas, hasGenerated, isGenerating, generatePersonalizedMessages, hasTierProducts]);
+  }, [selectedProduct, personas, hasGenerated, isGenerating, hasTierProducts, tierProductOverrides, generatePersonalizedMessages]);
 
   if (!hasSelections) {
     return null;
@@ -282,11 +300,15 @@ export function PersonalizationPreviewPanel({
                       <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">Generating...</span>
                     </div>
-                  ) : (
+                  ) : message?.msg ? (
                     <p className="text-xs text-foreground leading-relaxed font-medium">
                       <span className="mr-1">{persona.emoji}</span>
-                      "{message?.msg || `Personalized ${personaProduct?.name || 'offer'} message...`}"
+                      "{message.msg}"
                     </p>
+                  ) : (
+                    <div className="flex items-center gap-2 py-2">
+                      <span className="text-xs text-muted-foreground">Ready to generate...</span>
+                    </div>
                   )}
 
                   {/* CTA Button */}
@@ -327,4 +349,7 @@ export function PersonalizationPreviewPanel({
       </CardContent>
     </Card>
   );
-}
+};
+
+// Memoize to prevent re-renders when audience filters change
+export const PersonalizationPreviewPanel = memo(PersonalizationPreviewPanelComponent);
