@@ -180,10 +180,30 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
           )}
         </div>
         <p className="text-sm text-slate-500">
-          Define your target audience using one of three targeting approaches
+          Preview how personalized campaigns reach different customer profiles
         </p>
       </CardHeader>
       <CardContent>
+        {/* Product Selector */}
+        <div className="mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <div className="flex items-center gap-2 mb-2">
+            <CreditCard className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-slate-900">What product are you promoting?</span>
+          </div>
+          <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+            <SelectTrigger className="w-full max-w-xs bg-white">
+              <SelectValue placeholder="Select a product" />
+            </SelectTrigger>
+            <SelectContent>
+              {DEMO_PRODUCTS.map((product) => (
+                <SelectItem key={product.id} value={product.id}>
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Tabs 
           value={targetingMode} 
           onValueChange={(v) => setTargetingMode(v as TargetingMode)}
