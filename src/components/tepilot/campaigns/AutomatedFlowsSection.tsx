@@ -314,8 +314,8 @@ export function AutomatedFlowsSection() {
                       </Badge>
                       <ArrowRight className="w-3 h-3" />
                       <Badge
-                        className={`gap-1 text-xs cursor-pointer transition-all bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 hover:border-primary/50 ${
-                          tierSelectorOpenId === template.id ? 'border-primary bg-primary/25 ring-1 ring-primary/30' : ''
+                        className={`gap-1 text-xs cursor-pointer transition-all bg-primary/30 text-primary border border-primary/40 hover:bg-primary/40 hover:border-primary/60 ${
+                          tierSelectorOpenId === template.id ? 'border-primary bg-primary/35 ring-1 ring-primary/40' : ''
                         }`}
                         onClick={() => setTierSelectorOpenId(tierSelectorOpenId === template.id ? null : template.id)}
                       >
