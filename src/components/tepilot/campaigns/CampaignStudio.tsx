@@ -56,8 +56,7 @@ export function CampaignStudio() {
   const [campaignGoal, setCampaignGoal] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
 
-  // ─── Presets/Segments State ───
-  const [savedOpen, setSavedOpen] = useState(false);
+  // ─── Segments State ───
   const [savedOpen, setSavedOpen] = useState(false);
 
   // ─── AI Brief State ───
