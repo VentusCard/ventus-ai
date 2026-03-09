@@ -6,11 +6,18 @@ export type SpendingLevel = 'low' | 'medium' | 'high';
 export type AccountTenure = 'new' | 'established' | 'loyal' | 'all';
 export type IncomeBand = 'under_50k' | '50k_100k' | '100k_150k' | 'over_150k';
 
+export interface SignalThreshold {
+  minAmount: number;
+  lookbackMonths: number;
+}
+
 export interface DemographicFilters {
   ageRanges: string[];
   regions: string[];
   incomeBands: string[];
   accountTenure: AccountTenure;
+  ficoRanges?: string[];
+  signalThreshold?: SignalThreshold;
 }
 
 export interface LifeEventCriteria {
