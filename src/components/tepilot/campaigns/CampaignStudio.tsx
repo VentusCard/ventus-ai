@@ -338,6 +338,10 @@ export function CampaignStudio() {
       <>
       {/* Semantic Intent Input */}
       <SemanticIntentInput onIntentParsed={handleIntentParsed} />
+
+      {/* Main Studio Card */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-6">
         <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
           <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
             <div className="space-y-1 pr-4 overflow-y-auto max-h-[80vh]">
@@ -457,11 +461,11 @@ export function CampaignStudio() {
           <ResizablePanel defaultSize={60} minSize={35} maxSize={70}>
             <div className="pl-4 space-y-4">
               {/* Product Selector */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
                 <CreditCard className="w-4 h-4 text-primary shrink-0" />
-                <span className="text-sm font-semibold text-slate-900 whitespace-nowrap">Promoting:</span>
+                <span className="text-sm font-semibold text-foreground whitespace-nowrap">Promoting:</span>
                 <Select value={selectedProductId} onValueChange={setSelectedProductId}>
-                  <SelectTrigger className="w-full max-w-[220px] bg-white h-8 text-sm">
+                  <SelectTrigger className="w-full max-w-[220px] bg-background h-8 text-sm">
                     <SelectValue placeholder="Select a product" />
                   </SelectTrigger>
                   <SelectContent>
@@ -495,6 +499,8 @@ export function CampaignStudio() {
         </ResizablePanelGroup>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }
