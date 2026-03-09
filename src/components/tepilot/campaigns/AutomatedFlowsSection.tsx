@@ -142,6 +142,92 @@ export function AutomatedFlowsSection() {
     return `${allProducts.size} products`;
   };
 
+  const SIGNAL_CATEGORIES: Record<string, string> = {
+    'travel-enthusiasts-segment': 'Travel & Hotels',
+    'new-parent-segment': 'Baby & Kids',
+    'pre-retiree-segment': 'Financial & Retirement',
+    'home-buyers-segment': 'Home & Mortgage',
+    'foodies-segment': 'Dining & Restaurants',
+    'pet-parents-segment': 'Pets & Animals',
+    'cashback-high-travel-segment': 'Travel & Airlines',
+    'fitness-wellness-segment': 'Health & Fitness',
+    'holiday-travelers-segment': 'Holiday Travel',
+    'tax-season-financial-segment': 'Tax & Financial',
+    'back-to-school-parents-segment': 'Education & School',
+  };
+
+  const getDefaultAudienceFilters = (template: SegmentTemplate): DemographicFilters => {
+    const defaults: Record<string, DemographicFilters> = {
+      'travel-enthusiasts-segment': {
+        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'all', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1000, lookbackMonths: 24 },
+      },
+      'new-parent-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 500, lookbackMonths: 12 },
+      },
+      'pre-retiree-segment': {
+        ageRanges: ['55-64', '65+'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'loyal', ficoRanges: ['excellent'],
+        signalThreshold: { minAmount: 2000, lookbackMonths: 24 },
+      },
+      'home-buyers-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1500, lookbackMonths: 12 },
+      },
+      'foodies-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'all', ficoRanges: [],
+        signalThreshold: { minAmount: 800, lookbackMonths: 12 },
+      },
+      'pet-parents-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: [],
+        accountTenure: 'all', ficoRanges: [],
+        signalThreshold: { minAmount: 600, lookbackMonths: 12 },
+      },
+      'cashback-high-travel-segment': {
+        ageRanges: ['25-34', '35-44'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1200, lookbackMonths: 24 },
+      },
+      'fitness-wellness-segment': {
+        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'all', ficoRanges: [],
+        signalThreshold: { minAmount: 500, lookbackMonths: 12 },
+      },
+      'holiday-travelers-segment': {
+        ageRanges: ['25-34', '35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k', 'over_150k'],
+        accountTenure: 'all', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1500, lookbackMonths: 24 },
+      },
+      'tax-season-financial-segment': {
+        ageRanges: ['35-44', '45-54', '55-64'], regions: [], incomeBands: ['100k_150k', 'over_150k'],
+        accountTenure: 'established', ficoRanges: ['good', 'excellent'],
+        signalThreshold: { minAmount: 1000, lookbackMonths: 12 },
+      },
+      'back-to-school-parents-segment': {
+        ageRanges: ['35-44', '45-54'], regions: [], incomeBands: ['50k_100k', '100k_150k'],
+        accountTenure: 'established', ficoRanges: ['good'],
+        signalThreshold: { minAmount: 400, lookbackMonths: 12 },
+      },
+    };
+    return defaults[template.id] || {
+      ageRanges: [], regions: [], incomeBands: [], accountTenure: 'all' as const,
+      ficoRanges: [], signalThreshold: { minAmount: 500, lookbackMonths: 12 },
+    };
+  };
+
+  const getAudienceFilters = (template: SegmentTemplate): DemographicFilters => {
+    return flowAudienceFilters[template.id] || getDefaultAudienceFilters(template);
+  };
+
+  const updateAudienceFilters = (templateId: string, value: DemographicFilters) => {
+    setFlowAudienceFilters(prev => ({ ...prev, [templateId]: value }));
+  };
+
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-4">
