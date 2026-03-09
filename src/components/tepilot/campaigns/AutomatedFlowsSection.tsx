@@ -67,6 +67,7 @@ function getDefaultTierProducts(template: SegmentTemplate): TierProductMap {
 export function AutomatedFlowsSection() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [expandedFlowId, setExpandedFlowId] = useState<string | null>(null);
+  const [tierSelectorOpenId, setTierSelectorOpenId] = useState<string | null>(null);
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
@@ -312,7 +313,13 @@ export function AutomatedFlowsSection() {
                         Audience Matched
                       </Badge>
                       <ArrowRight className="w-3 h-3" />
-                      <Badge variant="outline" className="gap-1 text-xs">
+                      <Badge
+                        variant="outline"
+                        className={`gap-1 text-xs cursor-pointer transition-all hover:border-primary/60 hover:bg-primary/5 ${
+                          tierSelectorOpenId === template.id ? 'border-primary bg-primary/10 text-primary' : ''
+                        }`}
+                        onClick={() => setTierSelectorOpenId(tierSelectorOpenId === template.id ? null : template.id)}
+                      >
                         <CreditCard className="w-3 h-3" />
                         Tier-Matched Product
                       </Badge>
@@ -322,11 +329,12 @@ export function AutomatedFlowsSection() {
                       </Badge>
                     </div>
 
-                    {/* Tier Product Selector */}
-                    <TierProductSelector
-                      value={tierProducts}
-                      onChange={(val) => updateTierProducts(template.id, val)}
-                    />
+                    {tierSelectorOpenId === template.id && (
+                      <TierProductSelector
+                        value={tierProducts}
+                        onChange={(val) => updateTierProducts(template.id, val)}
+                      />
+                    )}
 
                     {/* Personalization Preview */}
                     <PersonalizationPreviewPanel
