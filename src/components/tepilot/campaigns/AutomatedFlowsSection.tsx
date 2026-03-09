@@ -70,11 +70,12 @@ export function AutomatedFlowsSection() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [expandedFlowId, setExpandedFlowId] = useState<string | null>(null);
   const [tierSelectorOpenId, setTierSelectorOpenId] = useState<string | null>(null);
+  const [audienceFilterOpenId, setAudienceFilterOpenId] = useState<string | null>(null);
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
   const [flowTierProducts, setFlowTierProducts] = useState<Record<string, TierProductMap>>({});
-
+  const [flowAudienceFilters, setFlowAudienceFilters] = useState<Record<string, DemographicFilters>>({});
   const filteredTemplates = useMemo(() => {
     if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
     return SEGMENT_TEMPLATES.filter(t => t.category === categoryFilter);
