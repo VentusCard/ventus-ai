@@ -96,15 +96,20 @@ function CustomerSlot({
   );
 }
 
-export function ComparisonSetup({ selectedA, selectedB, onSelectA, onSelectB, onEnrichBoth, isProcessing }: ComparisonSetupProps) {
+export function ComparisonSetup({ selectedA, selectedB, onSelectA, onSelectB, onEnrichBoth, onExitComparison, isProcessing }: ComparisonSetupProps) {
   const bothSelected = selectedA && selectedB;
 
   return (
     <Card className="bg-white border-slate-200">
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-primary" />
-          <CardTitle>Side-by-Side Customer Comparison</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
+            <CardTitle>Side-by-Side Customer Comparison</CardTitle>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onExitComparison} disabled={isProcessing}>
+            Exit Comparison
+          </Button>
         </div>
         <CardDescription>
           Select two different customers to compare how the same deals produce different personalizations
