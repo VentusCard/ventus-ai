@@ -349,4 +349,7 @@ const PersonalizationPreviewPanelComponent = ({
       </CardContent>
     </Card>
   );
-}
+};
+
+// Memoize to prevent re-renders when audience filters change
+export const PersonalizationPreviewPanel = memo(PersonalizationPreviewPanelComponent);
