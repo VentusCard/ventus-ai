@@ -171,12 +171,8 @@ export function AutomatedFlowsSection() {
     'pre-retiree-segment': 'Financial & Retirement',
     'home-buyers-segment': 'Home & Mortgage',
     'foodies-segment': 'Dining & Restaurants',
-    'pet-parents-segment': 'Pets & Animals',
     'cashback-high-travel-segment': 'Travel & Airlines',
-    'fitness-wellness-segment': 'Health & Fitness',
     'holiday-travelers-segment': 'Holiday Travel',
-    'tax-season-financial-segment': 'Tax & Financial',
-    'back-to-school-parents-segment': 'Education & School',
   };
 
   const getDefaultAudienceFilters = (template: SegmentTemplate): DemographicFilters => {
