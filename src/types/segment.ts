@@ -58,6 +58,8 @@ export interface SegmentTemplate {
   priority: 'high' | 'medium' | 'low';
   seasonalWindow?: string;
   suggestedGoal?: string;
+  recommendedProductId?: string;
+  automatedTrigger?: string;
 }
 
 // Constants for filter options
