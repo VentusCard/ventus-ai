@@ -72,7 +72,10 @@ export function PersonalizationPreviewPanel({
     try {
       const results = await Promise.all(
         personas.map(async (persona) => {
-          const productForPersona = persona.recommendedProduct || selectedProduct!;
+          // Use tier overrides first, then persona's built-in product, then global product
+          const tierProducts = persona.tier && tierProductOverrides?.[persona.tier];
+          const productForPersona = (tierProducts && tierProducts.length > 0 ? tierProducts[0] : null) 
+            || persona.recommendedProduct || selectedProduct!;
 
           const deal = {
             id: persona.id,
