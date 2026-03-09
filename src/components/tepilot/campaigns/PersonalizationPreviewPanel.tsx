@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Mail, RefreshCw, Loader2, Plane } from "lucide-react";
+import { Sparkles, Mail, RefreshCw, Loader2, Plane, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateSamplePersonas, type SyntheticPersona } from "@/lib/samplePersonaGenerator";
 
@@ -19,6 +19,12 @@ interface PersonalizedMessage {
   cta: string;
 }
 
+const TIER_COLORS: Record<string, string> = {
+  "Mass Market": "hsl(var(--primary))",
+  "Affluent": "#f59e0b",
+  "HNW": "#8b5cf6",
+};
+
 export function PersonalizationPreviewPanel({
   selectedProduct,
   selectedPillars,
@@ -29,6 +35,9 @@ export function PersonalizationPreviewPanel({
   const [messages, setMessages] = useState<Record<string, PersonalizedMessage>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
+
+  // Check if personas have per-persona products (tier mode)
+  const hasTierProducts = personas.some(p => p.recommendedProduct);
 
   // Regenerate personas when targeting changes
   useEffect(() => {
@@ -41,17 +50,20 @@ export function PersonalizationPreviewPanel({
   }, [selectedPillars, selectedLifeEvents, hasSelections]);
 
   const generatePersonalizedMessages = useCallback(async () => {
-    if (!selectedProduct || personas.length === 0) return;
+    if (personas.length === 0) return;
+    // Need either a global product or per-persona products
+    if (!selectedProduct && !hasTierProducts) return;
 
     setIsGenerating(true);
 
     try {
-      // Call edge function per persona with their own profile/context
       const results = await Promise.all(
         personas.map(async (persona) => {
+          const productForPersona = persona.recommendedProduct || selectedProduct!;
+
           const deal = {
             id: persona.id,
-            m: selectedProduct.name,
+            m: productForPersona.name,
             c: "cross-sell",
             r: "Personalized offer",
           };
@@ -66,7 +78,7 @@ export function PersonalizationPreviewPanel({
           const ctx = {
             demo: {
               occ: persona.behavioralTags[0] || "professional",
-              fam: persona.behavioralTags.some(t => 
+              fam: persona.behavioralTags.some(t =>
                 ["Family", "New Parent", "Growing Family", "Family Expansion", "Parent", "Family Focused", "Caregiver"].includes(t)
               ) ? "family" : "single",
             },
@@ -90,7 +102,7 @@ export function PersonalizationPreviewPanel({
           return { personaId: persona.id, rec };
         })
       );
-      // Map results to messages
+
       const newMessages: Record<string, PersonalizedMessage> = {};
       results.forEach(({ personaId, rec }) => {
         if (rec) {
@@ -102,12 +114,12 @@ export function PersonalizationPreviewPanel({
       setHasGenerated(true);
     } catch (err) {
       console.error("Personalization error:", err);
-      // Generate fallback messages
       const fallbackMessages: Record<string, PersonalizedMessage> = {};
       personas.forEach((persona) => {
+        const pName = persona.recommendedProduct?.name || selectedProduct?.name || "offer";
         fallbackMessages[persona.id] = {
           id: persona.id,
-          msg: `Unlock exclusive ${selectedProduct.name} benefits tailored to your ${persona.behavioralTags[0]} lifestyle.`,
+          msg: `Unlock exclusive ${pName} benefits tailored to your ${persona.behavioralTags[0]} lifestyle.`,
           cta: "Learn More",
         };
       });
@@ -116,32 +128,39 @@ export function PersonalizationPreviewPanel({
     } finally {
       setIsGenerating(false);
     }
-  }, [selectedProduct, personas]);
+  }, [selectedProduct, personas, hasTierProducts]);
 
   // Auto-generate when product changes and we have personas
   useEffect(() => {
-    if (selectedProduct && personas.length > 0 && !hasGenerated && !isGenerating) {
+    const canGenerate = selectedProduct || hasTierProducts;
+    if (canGenerate && personas.length > 0 && !hasGenerated && !isGenerating) {
       generatePersonalizedMessages();
     }
-  }, [selectedProduct, personas, hasGenerated, isGenerating, generatePersonalizedMessages]);
+  }, [selectedProduct, personas, hasGenerated, isGenerating, generatePersonalizedMessages, hasTierProducts]);
 
   if (!hasSelections) {
     return null;
   }
 
+  const headerProduct = hasTierProducts
+    ? "tier-matched products"
+    : selectedProduct?.name || "product";
+
   return (
-    <Card className="bg-white border-slate-200">
+    <Card className="bg-card border-border">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <CardTitle className="text-lg">Same Product, Three Stories</CardTitle>
+            <CardTitle className="text-lg">
+              {hasTierProducts ? "Same Event, Three Products" : "Same Product, Three Stories"}
+            </CardTitle>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={generatePersonalizedMessages}
-            disabled={isGenerating || !selectedProduct}
+            disabled={isGenerating || (!selectedProduct && !hasTierProducts)}
           >
             {isGenerating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -151,23 +170,43 @@ export function PersonalizationPreviewPanel({
             <span className="ml-1.5">Regenerate</span>
           </Button>
         </div>
-        <p className="text-sm text-slate-500">
-          {selectedProduct 
-            ? `AI crafts unique ${selectedProduct.name} messaging for each customer based on their actual spending behavior.`
-            : "Select a product above to see personalized messaging previews."}
+        <p className="text-sm text-muted-foreground">
+          {hasTierProducts
+            ? "AI matches each customer to the right product based on their wealth tier, then personalizes the message from transaction signals."
+            : `AI crafts unique ${headerProduct} messaging for each customer based on their actual spending behavior.`}
         </p>
       </CardHeader>
 
       <CardContent>
         <div className="grid md:grid-cols-3 gap-4">
-          {personas.map((persona, i) => {
+          {personas.map((persona) => {
             const message = messages[persona.id];
-            
+            const tierColor = persona.tier ? TIER_COLORS[persona.tier] : undefined;
+            const personaProduct = persona.recommendedProduct || selectedProduct;
+
             return (
               <div
                 key={persona.id}
-                className="rounded-xl border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-md"
+                className="rounded-xl border border-border overflow-hidden transition-all duration-300 hover:shadow-md"
               >
+                {/* Tier + Product badge */}
+                {persona.tier && persona.recommendedProduct && (
+                  <div
+                    className="px-4 py-2 flex items-center justify-between text-xs font-semibold"
+                    style={{
+                      background: `${tierColor}10`,
+                      borderBottom: `1px solid ${tierColor}25`,
+                      color: tierColor,
+                    }}
+                  >
+                    <span>{persona.tier} · {persona.behavioralTags[1]}</span>
+                    <Badge variant="outline" className="text-[10px] gap-1 px-1.5 py-0" style={{ borderColor: `${tierColor}40`, color: tierColor }}>
+                      <CreditCard className="w-2.5 h-2.5" />
+                      {persona.recommendedProduct.name}
+                    </Badge>
+                  </div>
+                )}
+
                 {/* Profile header */}
                 <div className="px-4 pt-4 pb-3">
                   <div className="flex items-center gap-2.5 mb-2.5">
@@ -178,15 +217,15 @@ export function PersonalizationPreviewPanel({
                       {persona.name.charAt(0)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 truncate">{persona.name}</p>
+                      <p className="text-sm font-bold text-foreground truncate">{persona.name}</p>
                       <div className="flex gap-1.5 mt-0.5 flex-wrap">
                         {persona.behavioralTags.map((tag) => (
                           <span
                             key={tag}
                             className="px-1.5 py-0.5 rounded text-[9px] font-semibold whitespace-nowrap"
-                            style={{ 
-                              background: `${persona.avatarColor}15`, 
-                              color: persona.avatarColor 
+                            style={{
+                              background: `${persona.avatarColor}15`,
+                              color: persona.avatarColor
                             }}
                           >
                             {tag}
@@ -199,8 +238,8 @@ export function PersonalizationPreviewPanel({
                   {/* Behavioral signals */}
                   <div className="space-y-1 mb-3">
                     {persona.transactionSignals.map((signal) => (
-                      <div key={signal} className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                        <Plane className="w-3 h-3 text-slate-400 shrink-0" />
+                      <div key={signal} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <Plane className="w-3 h-3 text-muted-foreground/60 shrink-0" />
                         <span className="truncate">{signal}</span>
                       </div>
                     ))}
@@ -217,19 +256,19 @@ export function PersonalizationPreviewPanel({
                 >
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Mail className="w-3 h-3" style={{ color: persona.avatarColor }} />
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                       AI-Generated Message
                     </span>
                   </div>
                   {isGenerating && !message ? (
                     <div className="flex items-center gap-2 py-2">
-                      <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
-                      <span className="text-xs text-slate-400">Generating...</span>
+                      <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">Generating...</span>
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-800 leading-relaxed font-medium">
+                    <p className="text-xs text-foreground leading-relaxed font-medium">
                       <span className="mr-1">{persona.emoji}</span>
-                      "{message?.msg || `Personalized ${selectedProduct?.name || 'offer'} message...`}"
+                      "{message?.msg || `Personalized ${personaProduct?.name || 'offer'} message...`}"
                     </p>
                   )}
                 </div>
@@ -241,9 +280,11 @@ export function PersonalizationPreviewPanel({
         {/* Conversion insight */}
         <div className="mt-4 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-primary/5">
           <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-foreground/80">
             <span className="font-bold text-primary">3.8x higher conversion</span>{" "}
-            when messaging is personalized from transaction signals vs. generic segment-level campaigns.
+            {hasTierProducts
+              ? "when both product selection and messaging are personalized from transaction signals vs. one-size-fits-all campaigns."
+              : "when messaging is personalized from transaction signals vs. generic segment-level campaigns."}
           </p>
         </div>
       </CardContent>
