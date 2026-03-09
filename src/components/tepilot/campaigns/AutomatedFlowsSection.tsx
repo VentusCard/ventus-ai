@@ -102,8 +102,11 @@ export function AutomatedFlowsSection() {
   }, [categoryFilter, allowedTemplates]);
 
   const getCategoryCount = (category: CategoryFilter) => {
-    if (category === 'all') return SEGMENT_TEMPLATES.length;
-    return SEGMENT_TEMPLATES.filter(t => t.category === category).length;
+    if (category === 'all') return allowedTemplates.length;
+    return allowedTemplates.filter(t => {
+      const effectiveCategory = t.category === 'seasonal' ? 'lifestyle' : t.category;
+      return effectiveCategory === category;
+    }).length;
   };
 
   const toggleFlowActive = (id: string) => {
