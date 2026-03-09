@@ -3,14 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Target, Sparkles, Bookmark } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Target, Sparkles, Bookmark, CreditCard } from "lucide-react";
 import { LifeEventTargeting } from "./LifeEventTargeting";
 import { LifestyleTargeting } from "./LifestyleTargeting";
 import { ProductTargeting } from "./ProductTargeting";
 import { AudiencePreview } from "./AudiencePreview";
 import { DemographicFilters } from "./DemographicFilters";
 import { SegmentExportControls } from "./SegmentExportControls";
+import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { estimateAudienceSize } from "@/lib/segmentData";
+import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import type { 
   SavedSegment, 
   LifeEventCriteria, 
