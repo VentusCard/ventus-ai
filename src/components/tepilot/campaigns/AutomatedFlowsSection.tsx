@@ -88,10 +88,18 @@ export function AutomatedFlowsSection() {
   );
   const [flowTierProducts, setFlowTierProducts] = useState<Record<string, TierProductMap>>({});
   const [flowAudienceFilters, setFlowAudienceFilters] = useState<Record<string, DemographicFilters>>({});
+  const allowedTemplates = useMemo(() =>
+    SEGMENT_TEMPLATES.filter(t => AUTOMATION_TEMPLATE_IDS.has(t.id)),
+  []);
+
   const filteredTemplates = useMemo(() => {
-    if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
-    return SEGMENT_TEMPLATES.filter(t => t.category === categoryFilter);
-  }, [categoryFilter]);
+    if (categoryFilter === 'all') return allowedTemplates;
+    // Holiday Travelers is seasonal but we show it under lifestyle
+    return allowedTemplates.filter(t => {
+      const effectiveCategory = t.category === 'seasonal' ? 'lifestyle' : t.category;
+      return effectiveCategory === categoryFilter;
+    });
+  }, [categoryFilter, allowedTemplates]);
 
   const getCategoryCount = (category: CategoryFilter) => {
     if (category === 'all') return SEGMENT_TEMPLATES.length;
