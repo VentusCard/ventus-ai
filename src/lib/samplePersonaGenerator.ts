@@ -220,43 +220,59 @@ export function generateSamplePersonas(
   const usedNames = new Set<string>();
   const personas: SyntheticPersona[] = [];
 
-  // Combine all available signal sources
-  const pillarSources = selectedPillars.length > 0 
-    ? selectedPillars.filter(p => PILLAR_SIGNALS[p])
+  const pillarSources = selectedPillars.filter(p => PILLAR_SIGNALS[p]);
+  const eventSources = selectedLifeEvents.filter(e => LIFE_EVENT_SIGNALS[e]);
+
+  // Determine primary source mode
+  const mode: 'pillars' | 'events' | 'both' =
+    pillarSources.length > 0 && eventSources.length > 0 ? 'both'
+    : eventSources.length > 0 ? 'events'
+    : 'pillars';
+
+  // If pillars mode but none selected, fall back to first 3 pillar keys
+  const effectivePillars = pillarSources.length > 0
+    ? pillarSources
     : Object.keys(PILLAR_SIGNALS).slice(0, 3);
-  
-  const eventSources = selectedLifeEvents.length > 0
-    ? selectedLifeEvents.filter(e => LIFE_EVENT_SIGNALS[e])
-    : [];
 
   for (let i = 0; i < count; i++) {
-    // Generate unique name
     let firstName: string;
     do {
       firstName = pickRandom(FIRST_NAMES, 1)[0];
     } while (usedNames.has(firstName) && usedNames.size < FIRST_NAMES.length);
     usedNames.add(firstName);
-    
+
     const lastName = pickRandom(LAST_INITIALS, 1)[0];
     const name = `${firstName} ${lastName}`;
     const avatarColor = AVATAR_COLORS[i % AVATAR_COLORS.length];
 
-    // Select which sources to use for this persona
-    const personaPillar = pillarSources[i % pillarSources.length] || pillarSources[0];
-    const pillarData = PILLAR_SIGNALS[personaPillar] || PILLAR_SIGNALS["Travel & Exploration"];
-    
-    // Get tags and signals
-    const behavioralTags = pickRandom(pillarData.tags, 2);
-    const transactionSignals = pickRandom(pillarData.signals, 2);
-    const emoji = pickRandom(pillarData.emojis, 1)[0];
+    let behavioralTags: string[];
+    let transactionSignals: string[];
+    let emoji: string;
 
-    // Mix in life event signals if available
-    if (eventSources.length > 0 && i < eventSources.length) {
-      const eventData = LIFE_EVENT_SIGNALS[eventSources[i]];
-      if (eventData) {
-        behavioralTags.push(pickRandom(eventData.tags, 1)[0]);
-        transactionSignals.push(pickRandom(eventData.signals, 1)[0]);
-      }
+    if (mode === 'events') {
+      // Life events are the SOLE source — no random pillar fallback
+      const eventKey = eventSources[i % eventSources.length];
+      const eventData = LIFE_EVENT_SIGNALS[eventKey];
+      behavioralTags = pickRandom(eventData.tags, 2);
+      transactionSignals = pickRandom(eventData.signals, 2);
+      emoji = pickRandom(eventData.emojis, 1)[0];
+    } else if (mode === 'both') {
+      // Life event is primary, pillar is secondary
+      const eventKey = eventSources[i % eventSources.length];
+      const eventData = LIFE_EVENT_SIGNALS[eventKey];
+      const pillarKey = effectivePillars[i % effectivePillars.length];
+      const pillarData = PILLAR_SIGNALS[pillarKey];
+
+      behavioralTags = [...pickRandom(eventData.tags, 1), ...pickRandom(pillarData.tags, 1)];
+      transactionSignals = [...pickRandom(eventData.signals, 1), ...pickRandom(pillarData.signals, 1)];
+      emoji = pickRandom(eventData.emojis, 1)[0];
+    } else {
+      // Pillars only — original behavior
+      const pillarKey = effectivePillars[i % effectivePillars.length];
+      const pillarData = PILLAR_SIGNALS[pillarKey];
+      behavioralTags = pickRandom(pillarData.tags, 2);
+      transactionSignals = pickRandom(pillarData.signals, 2);
+      emoji = pickRandom(pillarData.emojis, 1)[0];
     }
 
     personas.push({
