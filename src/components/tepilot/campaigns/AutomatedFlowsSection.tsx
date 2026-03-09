@@ -439,6 +439,7 @@ export function AutomatedFlowsSection() {
 
                     {/* Personalization Preview */}
                     <PersonalizationPreviewPanel
+                      key={template.id}
                       selectedProduct={null}
                       selectedPillars={getPillarsForTemplate(template)}
                       selectedLifeEvents={getLifeEventsForTemplate(template)}
