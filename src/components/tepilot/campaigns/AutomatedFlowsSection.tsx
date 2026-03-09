@@ -67,6 +67,7 @@ function getDefaultTierProducts(template: SegmentTemplate): TierProductMap {
 export function AutomatedFlowsSection() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [expandedFlowId, setExpandedFlowId] = useState<string | null>(null);
+  const [tierSelectorOpenId, setTierSelectorOpenId] = useState<string | null>(null);
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
