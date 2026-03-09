@@ -96,6 +96,20 @@ export const RECENCY_OPTIONS = [
   { value: '90_days', label: 'Last 90 days' },
 ] as const;
 
+export const FICO_RANGES = [
+  { value: 'excellent', label: 'Excellent (750+)' },
+  { value: 'good', label: 'Good (700-749)' },
+  { value: 'fair', label: 'Fair (650-699)' },
+  { value: 'building', label: 'Building (<650)' },
+] as const;
+
+export const LOOKBACK_OPTIONS = [
+  { value: 6, label: '6 months' },
+  { value: 12, label: '12 months' },
+  { value: 24, label: '24 months' },
+  { value: 36, label: '36 months' },
+] as const;
+
 // Life event types for targeting
 export const LIFE_EVENTS = [
   { id: 'retirement', name: 'Retirement Planning', detectionRate: 0.042, icon: 'Sunset' },
