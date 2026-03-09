@@ -60,6 +60,7 @@ export function CampaignStudio() {
   const [crossSellStrategies, setCrossSellStrategies] = useState<string[]>([]);
   const [upsellStrategies, setUpsellStrategies] = useState<string[]>([]);
   const [campaignGoal, setCampaignGoal] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
 
   // ─── Presets/Segments State ───
   const [templateCategory, setTemplateCategory] = useState('all');
