@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import {
   Sparkles, Heart, Users as UsersIcon, Bookmark, Download, Target,
   ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, Loader2, CreditCard,
+  Zap, Megaphone,
 } from "lucide-react";
 import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
+import { AutomatedFlowsSection } from "./AutomatedFlowsSection";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import { toast } from "sonner";
 import { DimensionChipCloud } from "./DimensionChipCloud";
@@ -32,6 +34,9 @@ import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, S
 import { supabase } from "@/integrations/supabase/client";
 
 export function CampaignStudio() {
+  // ─── Mode State ───
+  const [activeMode, setActiveMode] = useState<'campaigns' | 'automations'>('campaigns');
+
   // ─── Dimension State ───
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
@@ -301,6 +306,36 @@ export function CampaignStudio() {
         </div>
       </div>
 
+      {/* Mode Switcher */}
+      <div className="grid grid-cols-2 gap-0 rounded-lg border border-border bg-muted/30 p-1 mb-6">
+        <button
+          onClick={() => setActiveMode('automations')}
+          className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+            activeMode === 'automations'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Zap className="w-4 h-4" />
+          Automated Flows
+        </button>
+        <button
+          onClick={() => setActiveMode('campaigns')}
+          className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+            activeMode === 'campaigns'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Megaphone className="w-4 h-4" />
+          Campaigns
+        </button>
+      </div>
+
+      {activeMode === 'automations' ? (
+        <AutomatedFlowsSection />
+      ) : (
+      <>
       {/* Semantic Intent Input */}
       <SemanticIntentInput onIntentParsed={handleIntentParsed} />
 
@@ -426,11 +461,11 @@ export function CampaignStudio() {
           <ResizablePanel defaultSize={60} minSize={35} maxSize={70}>
             <div className="pl-4 space-y-4">
               {/* Product Selector */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
                 <CreditCard className="w-4 h-4 text-primary shrink-0" />
-                <span className="text-sm font-semibold text-slate-900 whitespace-nowrap">Promoting:</span>
+                <span className="text-sm font-semibold text-foreground whitespace-nowrap">Promoting:</span>
                 <Select value={selectedProductId} onValueChange={setSelectedProductId}>
-                  <SelectTrigger className="w-full max-w-[220px] bg-white h-8 text-sm">
+                  <SelectTrigger className="w-full max-w-[220px] bg-background h-8 text-sm">
                     <SelectValue placeholder="Select a product" />
                   </SelectTrigger>
                   <SelectContent>
@@ -464,6 +499,8 @@ export function CampaignStudio() {
         </ResizablePanelGroup>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }

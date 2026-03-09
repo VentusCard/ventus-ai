@@ -1,23 +1,34 @@
 
 
-## Plan: Merge Automated Flows into Campaign Studio with Mode Switcher
+## Understanding
 
-### What
-Add a full-width two-button toggle switcher ("Automated Flows" / "Campaigns") inside `CampaignStudio.tsx`, placed between the header and the semantic intent input. When "Automated Flows" is selected, show the `AutomatedFlowsSection` content. When "Campaigns" is selected, show the current campaign builder (semantic input + resizable panel layout).
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-### Changes
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-**`src/components/tepilot/campaigns/CampaignStudio.tsx`**
-- Add `activeMode` state: `'campaigns' | 'automations'` (default: `'campaigns'`)
-- After the header div (line ~302), insert a full-width two-button switcher using styled `Button` components (one primary/filled for active, one outline/ghost for inactive)
-- Conditionally render:
-  - `'automations'` → `<AutomatedFlowsSection />`
-  - `'campaigns'` → existing semantic input + Card with resizable panels
-- Import `AutomatedFlowsSection`
+## Plan
 
-**`src/components/tepilot/campaigns/SegmentTargetingView.tsx`**
-- Remove `AutomatedFlowsSection` import and rendering — just render `<CampaignStudio />` directly
+### Move AnalyticsDemoPanel into the Hero Section
 
-### Switcher UI
-Two equal-width buttons in a `grid grid-cols-2` container with a subtle border/background. Active button gets `bg-primary text-white`, inactive gets `bg-muted/50 text-muted-foreground hover:bg-muted`. Icons: `Zap` for Automations, `Megaphone` for Campaigns.
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
+
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
+
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 
