@@ -33,6 +33,7 @@ interface ComparisonSetupProps {
   onSelectA: (csv: string, zip: string, demographics: ClientProfileData) => void;
   onSelectB: (csv: string, zip: string, demographics: ClientProfileData) => void;
   onEnrichBoth: () => void;
+  onExitComparison: () => void;
   isProcessing: boolean;
 }
 
