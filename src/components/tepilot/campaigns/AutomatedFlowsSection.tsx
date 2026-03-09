@@ -397,7 +397,12 @@ export function AutomatedFlowsSection() {
                         Signal Detected
                       </Badge>
                       <ArrowRight className="w-3 h-3" />
-                      <Badge variant="outline" className="gap-1 text-xs">
+                      <Badge
+                        className={`gap-1 text-xs cursor-pointer transition-all bg-primary/75 text-primary-foreground border border-primary/80 hover:bg-primary/85 hover:border-primary/90 ${
+                          audienceFilterOpenId === template.id ? 'border-primary bg-primary/80 ring-1 ring-primary/60' : ''
+                        }`}
+                        onClick={() => setAudienceFilterOpenId(audienceFilterOpenId === template.id ? null : template.id)}
+                      >
                         <Users className="w-3 h-3" />
                         Audience Matched
                       </Badge>
@@ -416,6 +421,14 @@ export function AutomatedFlowsSection() {
                         Personalized Message
                       </Badge>
                     </div>
+
+                    {audienceFilterOpenId === template.id && (
+                      <AudienceFiltersPanel
+                        filters={getAudienceFilters(template)}
+                        onChange={(val) => updateAudienceFilters(template.id, val)}
+                        signalCategory={SIGNAL_CATEGORIES[template.id] || 'General Spending'}
+                      />
+                    )}
 
                     {tierSelectorOpenId === template.id && (
                       <TierProductSelector
