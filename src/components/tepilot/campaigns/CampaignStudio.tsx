@@ -105,37 +105,9 @@ export function CampaignStudio() {
   }, [toggleItem]);
 
 
-  // ─── Edit Saved Segment (AI-powered) ───
-  const handleEditSegment = useCallback(async (segment: SavedSegment) => {
-    const intent = `Campaign for: ${segment.name}. Targeting mode: ${segment.targetingMode.replace(/_/g, ' ')}. Segment with ${(segment.estimatedSize / 1_000_000).toFixed(1)}M contacts.`;
-
-    setLoadingTemplateId(segment.id);
-    const toastId = toast.loading(`Interpreting "${segment.name}"…`);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('parse-campaign-intent', {
-        body: { intent },
-      });
-
-      if (error || data?.error) {
-        console.error('Segment intent parse error:', error || data?.error);
-        toast.dismiss(toastId);
-        // Fallback: use hardcoded segment data
-        applySegmentFallback(segment);
-        return;
-      }
-
-      const result = data as ParsedIntent;
-      handleIntentParsed(result);
-      toast.dismiss(toastId);
-      toast.success(`Loaded "${segment.name}"`, { description: result.summary || 'Criteria loaded into studio' });
-    } catch (err) {
-      console.error('Segment intent parse error:', err);
-      toast.dismiss(toastId);
-      applySegmentFallback(segment);
-    } finally {
-      setLoadingTemplateId(null);
-    }
+  // ─── Edit Saved Segment ───
+  const handleEditSegment = useCallback((segment: SavedSegment) => {
+    applySegmentFallback(segment);
   }, []);
 
   // ─── Fallback for saved segments ───
