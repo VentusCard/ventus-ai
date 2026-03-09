@@ -29,6 +29,7 @@ interface SegmentBuilderProps {
 
 export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
   const [targetingMode, setTargetingMode] = useState<TargetingMode>("life_event");
+  const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
   
   // Life event state
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
