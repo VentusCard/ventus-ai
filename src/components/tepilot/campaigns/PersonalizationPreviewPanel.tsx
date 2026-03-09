@@ -35,18 +35,24 @@ const TIER_COLORS: Record<string, string> = {
   "HNW": "#8b5cf6",
 };
 
-export function PersonalizationPreviewPanel({
+const PersonalizationPreviewPanelComponent = ({
   selectedProduct,
   selectedPillars,
   selectedLifeEvents,
   hasSelections,
   ctaConfig,
   tierProductOverrides,
-}: PersonalizationPreviewPanelProps) {
+}: PersonalizationPreviewPanelProps) => {
   const [personas, setPersonas] = useState<SyntheticPersona[]>([]);
   const [messages, setMessages] = useState<Record<string, PersonalizedMessage>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
+  
+  // Track last product state to prevent unnecessary regeneration
+  const lastProductRef = useRef<{
+    selectedProduct: typeof selectedProduct;
+    tierProductOverrides: typeof tierProductOverrides;
+  } | null>(null);
 
   // Check if personas have per-persona products (tier mode) or tier overrides
   const hasTierOverrides = tierProductOverrides && Object.values(tierProductOverrides).some(arr => arr.length > 0);
