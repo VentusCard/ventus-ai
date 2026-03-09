@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
-  Zap, ChevronDown, ChevronRight, Users, ArrowRight, Sparkles, Calendar,
+  Zap, ChevronDown, ChevronRight, Users, ArrowRight, Sparkles,
   ArrowUpRight, LayoutGrid, CreditCard, Play,
 } from "lucide-react";
 import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
