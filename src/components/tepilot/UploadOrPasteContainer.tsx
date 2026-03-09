@@ -39,8 +39,6 @@ interface UploadOrPasteContainerProps {
     dataA: { csv: string; zip: string; demographics: ClientProfileData },
     dataB: { csv: string; zip: string; demographics: ClientProfileData }
   ) => void;
-  onExitComparisonMode?: () => void;
-  comparisonMode?: boolean;
   children: React.ReactNode;
   activeSelection: "sample" | "paste" | "upload";
   onActiveSelectionChange: (selection: "sample" | "paste" | "upload") => void;
@@ -51,18 +49,11 @@ export function UploadOrPasteContainer({
   onModeChange,
   onLoadSample,
   onLoadComparisonSamples,
-  onExitComparisonMode,
-  comparisonMode,
   children,
   activeSelection,
   onActiveSelectionChange
 }: UploadOrPasteContainerProps) {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
-
-  const handleExitComparison = () => {
-    setSelectedIndices([]);
-    onExitComparisonMode?.();
-  };
 
   const handleToggleDataset = (index: number) => {
     setSelectedIndices(prev => {
@@ -153,11 +144,6 @@ export function UploadOrPasteContainer({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {comparisonMode && (
-            <Button variant="outline" size="sm" onClick={handleExitComparison} className="text-destructive border-destructive/30 hover:bg-destructive/10">
-              Exit Comparison
-            </Button>
-          )}
           <Button variant={activeSelection === "paste" ? "default" : "outline"} size="sm" onClick={() => handleModeChange("paste")} className="flex-1">
             <FileText className="w-4 h-4 mr-2" />
             Paste Text

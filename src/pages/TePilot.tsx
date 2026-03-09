@@ -416,21 +416,6 @@ const TePilot = () => {
     setIsFromSampleData(true);
     setActiveTab("preview");
   };
-
-  const handleExitComparisonMode = () => {
-    setComparisonMode(false);
-    setSelectedCompA(null);
-    setSelectedCompB(null);
-    setParsedTransactions([]);
-    setParsedTransactionsB([]);
-    setUserDemographics(null);
-    setUserDemographicsB(null);
-    setAnchorZip("");
-    setAnchorZipB("");
-    resetEnrichment();
-    resetEnrichmentB();
-    setActiveTab("upload");
-  };
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
     if (!transaction) return;
@@ -1013,8 +998,6 @@ const TePilot = () => {
                   sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
                 }}
                 onLoadComparisonSamples={handleLoadComparisonSamples}
-                onExitComparisonMode={handleExitComparisonMode}
-                comparisonMode={comparisonMode}
                 activeSelection={activeSelection}
                 onActiveSelectionChange={setActiveSelection}
               >
