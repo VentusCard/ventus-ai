@@ -155,11 +155,6 @@ export function CampaignStudio() {
 
   const hasSelections = estimatedSize > 0;
 
-  // ─── Filtered Templates ───
-  const filteredTemplates = useMemo(() => {
-    if (templateCategory === 'all') return SEGMENT_TEMPLATES;
-    return SEGMENT_TEMPLATES.filter(t => t.category === templateCategory);
-  }, [templateCategory]);
 
   // ─── AI Brief Generation ───
   const handleGenerate = async () => {
