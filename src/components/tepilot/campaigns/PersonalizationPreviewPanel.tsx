@@ -89,6 +89,7 @@ export function PersonalizationPreviewPanel({
               fam: persona.behavioralTags.some(t =>
                 ["Family", "New Parent", "Growing Family", "Family Expansion", "Parent", "Family Focused", "Caregiver"].includes(t)
               ) ? "family" : "single",
+              tier: persona.tier || null,
             },
             persona: {
               traits: persona.behavioralTags,
