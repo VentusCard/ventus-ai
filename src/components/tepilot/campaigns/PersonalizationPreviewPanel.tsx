@@ -279,6 +279,26 @@ export function PersonalizationPreviewPanel({
                       "{message?.msg || `Personalized ${personaProduct?.name || 'offer'} message...`}"
                     </p>
                   )}
+
+                  {/* CTA Button */}
+                  {(() => {
+                    const ctaText = ctaConfig?.text || message?.cta || "Learn More";
+                    const ctaStyle = ctaConfig?.style || 'primary';
+                    const ctaClasses =
+                      ctaStyle === 'primary'
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        : ctaStyle === 'outline'
+                        ? 'border border-primary text-primary bg-transparent hover:bg-primary/5'
+                        : 'bg-primary/10 text-primary hover:bg-primary/15';
+                    return (
+                      <button
+                        className={`mt-2 w-full rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${ctaClasses}`}
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        {ctaText}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             );
