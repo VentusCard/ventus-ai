@@ -423,64 +423,6 @@ export function CampaignStudio() {
         <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
           <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
             <div className="space-y-1 pr-4 overflow-y-auto max-h-[80vh]">
-              {/* Preset Templates */}
-              <Collapsible open={presetsOpen} onOpenChange={setPresetsOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <LayoutTemplate className="w-4 h-4 text-primary" />
-                    <span className="font-medium text-sm text-foreground">Preset Templates</span>
-                    <span className="text-xs text-muted-foreground">({SEGMENT_TEMPLATES.length})</span>
-                  </div>
-                  {presetsOpen ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="px-3 pb-3 space-y-3">
-                    {/* Category filter chips */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {TEMPLATE_CATEGORIES.map(cat => (
-                        <button
-                          key={cat.id}
-                          onClick={() => setTemplateCategory(cat.id)}
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                            templateCategory === cat.id
-                              ? 'bg-blue-50 border-blue-400 text-blue-700'
-                              : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Template rows */}
-                    <div className="space-y-1.5">
-                      {filteredTemplates.map(template => (
-                        <div
-                          key={template.id}
-                          className={`flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer ${loadingTemplateId === template.id ? 'opacity-70 pointer-events-none' : ''}`}
-                          onClick={() => handleApplyTemplate(template)}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{template.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{template.description}</p>
-                          </div>
-                          {loadingTemplateId === template.id ? (
-                            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin ml-3 shrink-0" />
-                          ) : (
-                            <span className="text-xs text-muted-foreground ml-3 shrink-0">
-                              {(template.estimatedSize / 1_000_000).toFixed(1)}M
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
               {/* Saved Segments */}
               <Collapsible open={savedOpen} onOpenChange={setSavedOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted/50 transition-colors">
