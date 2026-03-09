@@ -25,6 +25,7 @@ import TravelExperience from "./pages/TravelExperience";
 import BankWideAnalytics from "./pages/BankWideAnalytics";
 import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
+import DemoPage from "./pages/DemoPage";
 
 const queryClient = new QueryClient();
 
