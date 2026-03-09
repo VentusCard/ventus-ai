@@ -90,17 +90,11 @@ export function PersonalizationPreviewPanel({
           return { personaId: persona.id, rec };
         })
       );
-
-      if (error) throw error;
-
-      // Map responses to personas
-      const recs = data?.recs || [];
+      // Map results to messages
       const newMessages: Record<string, PersonalizedMessage> = {};
-      
-      recs.forEach((rec: PersonalizedMessage, index: number) => {
-        const persona = personas[index];
-        if (persona) {
-          newMessages[persona.id] = rec;
+      results.forEach(({ personaId, rec }) => {
+        if (rec) {
+          newMessages[personaId] = rec;
         }
       });
 
