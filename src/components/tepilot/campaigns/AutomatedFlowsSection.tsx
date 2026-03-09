@@ -15,15 +15,27 @@ import type { SegmentTemplate } from "@/types/segment";
 import type { DemographicFilters } from "@/types/segment";
 import type { WealthTier } from "@/lib/samplePersonaGenerator";
 
-type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell' | 'seasonal';
+type CategoryFilter = 'all' | 'life_event' | 'lifestyle' | 'cross_sell';
 
 const CATEGORY_CONFIG: Record<CategoryFilter, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
   all: { label: 'All Flows', icon: LayoutGrid },
   life_event: { label: 'Life Events', icon: Sparkles },
   lifestyle: { label: 'Lifestyle', icon: Users },
   cross_sell: { label: 'Cross-Sell', icon: ArrowUpRight },
-  seasonal: { label: 'Seasonal', icon: Calendar },
 };
+
+// Only show templates with strong financial product upsell affinity
+const AUTOMATION_TEMPLATE_IDS = new Set([
+  'new-parent-segment',
+  'pre-retiree-segment',
+  'home-buyers-segment',
+  'travel-enthusiasts-segment',
+  'foodies-segment',
+  'cashback-high-travel-segment',
+  'travel-card-no-hotel-segment',
+  'premium-upgrade-eligible-segment',
+  'holiday-travelers-segment',
+]);
 
 const DEFAULT_TIER_PRODUCTS: TierProductMap = {
   "Mass Market": [],
