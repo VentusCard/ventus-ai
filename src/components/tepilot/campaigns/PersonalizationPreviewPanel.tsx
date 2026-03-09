@@ -300,11 +300,15 @@ const PersonalizationPreviewPanelComponent = ({
                       <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">Generating...</span>
                     </div>
-                  ) : (
+                  ) : message?.msg ? (
                     <p className="text-xs text-foreground leading-relaxed font-medium">
                       <span className="mr-1">{persona.emoji}</span>
-                      "{message?.msg || `Personalized ${personaProduct?.name || 'offer'} message...`}"
+                      "{message.msg}"
                     </p>
+                  ) : (
+                    <div className="flex items-center gap-2 py-2">
+                      <span className="text-xs text-muted-foreground">Ready to generate...</span>
+                    </div>
                   )}
 
                   {/* CTA Button */}
