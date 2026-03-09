@@ -262,7 +262,63 @@ export function AutomatedFlowsSection() {
                       selectedPillars={getPillarsForTemplate(template)}
                       selectedLifeEvents={getLifeEventsForTemplate(template)}
                       hasSelections={true}
+                      ctaConfig={getFlowCTA(template.id)}
                     />
+
+                    {/* CTA Customization */}
+                    <div className="mt-4 p-4 rounded-lg border border-border bg-background">
+                      <div className="flex items-center gap-2 mb-3">
+                        <MousePointerClick className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">Call-to-Action</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Button Text</label>
+                          <Input
+                            value={getFlowCTA(template.id).text}
+                            onChange={(e) => updateFlowCTA(template.id, { text: e.target.value })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-medium text-muted-foreground mb-1 block">Link / URL</label>
+                          <Input
+                            value={getFlowCTA(template.id).link}
+                            onChange={(e) => updateFlowCTA(template.id, { link: e.target.value })}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">Style</label>
+                        <div className="flex gap-2">
+                          {([
+                            { value: 'primary' as const, label: 'Filled' },
+                            { value: 'outline' as const, label: 'Outline' },
+                            { value: 'soft' as const, label: 'Soft' },
+                          ]).map((opt) => {
+                            const isActive = getFlowCTA(template.id).style === opt.value;
+                            const styleClasses =
+                              opt.value === 'primary'
+                                ? 'bg-primary text-primary-foreground'
+                                : opt.value === 'outline'
+                                ? 'border border-primary text-primary bg-transparent'
+                                : 'bg-primary/10 text-primary';
+                            return (
+                              <button
+                                key={opt.value}
+                                onClick={() => updateFlowCTA(template.id, { style: opt.value })}
+                                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${styleClasses} ${
+                                  isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : 'opacity-60 hover:opacity-80'
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
