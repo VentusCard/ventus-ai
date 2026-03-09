@@ -62,7 +62,7 @@ const AppLayout = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      {!isTepilot && <Footer />}
+      {!isTepilot && !isDemo && <Footer />}
     </div>
   );
 };
