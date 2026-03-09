@@ -30,6 +30,7 @@ export function AutomatedFlowsSection() {
   const [activeFlows, setActiveFlows] = useState<Set<string>>(
     () => new Set(['travel-enthusiasts-segment', 'cashback-high-travel-segment', 'new-parent-segment'])
   );
+  const [flowCTAs, setFlowCTAs] = useState<Record<string, CTAConfig>>({});
 
   const filteredTemplates = useMemo(() => {
     if (categoryFilter === 'all') return SEGMENT_TEMPLATES;
