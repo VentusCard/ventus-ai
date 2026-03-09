@@ -31,13 +31,7 @@ import type { ProductMode, CampaignBrief } from "@/types/campaign-studio";
 import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, SegmentTemplate, SavedSegment } from "@/types/segment";
 import { supabase } from "@/integrations/supabase/client";
 
-const TEMPLATE_CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'life_event', label: 'Life Events' },
-  { id: 'lifestyle', label: 'Lifestyle' },
-  { id: 'cross_sell', label: 'Cross-Sell' },
-  { id: 'seasonal', label: 'Seasonal' },
-];
+// No preset template categories needed - moved to AutomatedFlowsSection
 
 export function CampaignStudio() {
   // ─── Dimension State ───
