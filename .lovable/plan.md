@@ -1,19 +1,34 @@
 
 
-## Analysis
+## Understanding
 
-The theme is dark: popover background is `0 0% 5%` (near-black), foreground is `0 0% 95%` (near-white). The fix used `text-slate-900` which is a very dark color — essentially invisible on the dark popover background.
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-## Fix: `src/components/tepilot/campaigns/TierProductSelector.tsx`
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-Line 95: Change selected state styling from `text-slate-900` to a light color that's visible on dark backgrounds. Use `text-white` or `text-foreground` (which maps to near-white in this theme).
+## Plan
 
-The issue is that `text-foreground` was the original value and reportedly didn't work either. Let me check — `--foreground: 0 0% 95%` should render as near-white. If that wasn't working, perhaps the `bg-primary/10` background combined with `text-foreground` was fine all along and the real problem is elsewhere (e.g., a parent overriding color, or the wrong element being styled).
+### Move AnalyticsDemoPanel into the Hero Section
 
-Given the dark theme, the correct fix is:
-- Selected items: `bg-primary/10 text-white font-medium` (explicit white text on dark popover)
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
 
-| File | Change |
-|------|--------|
-| `TierProductSelector.tsx` | Line 95: change `text-slate-900` to `text-white` |
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
+
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
+
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 
