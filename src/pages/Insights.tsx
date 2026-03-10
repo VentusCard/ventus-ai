@@ -30,35 +30,35 @@ const Insights = () => {
   return (
   <main className="bg-white min-h-screen">
     {/* Hero Banner */}
-    <section className="bg-[#0A0F1E] pt-28 pb-14 px-6">
+    <section className="bg-[#0A0F1E] pt-32 pb-20 px-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+        <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
           Insights
         </h1>
-        <p className="mt-3 text-base md:text-lg text-blue-200/70 max-w-3xl leading-relaxed">
+        <p className="mt-4 text-base md:text-lg text-blue-200/70 max-w-3xl leading-relaxed">
           Perspectives on behavioral intelligence, transaction enrichment, and the future of data-driven banking.
         </p>
       </div>
     </section>
 
     {/* Search Bar */}
-    <div className="px-6 -mt-6 relative z-10">
+    <div className="px-6 -mt-7 relative z-10">
       <div className="max-w-2xl mx-auto">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search articles..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white shadow-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition"
+            className="w-full pl-12 pr-5 py-4 rounded-xl border border-gray-200 bg-white shadow-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition"
           />
         </div>
       </div>
     </div>
 
     {/* Grid */}
-    <section className="pt-10 pb-24 px-6">
+    <section className="pt-14 pb-28 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filtered.map((post, i) => (
           <ScrollReveal key={post.slug} delay={i * 0.08}>
