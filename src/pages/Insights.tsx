@@ -30,8 +30,8 @@ const Insights = () => {
   return (
   <main className="bg-white min-h-screen">
     {/* Hero Banner */}
-    <section className="bg-[#0A0F1E] pt-32 pb-20 px-6">
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-[#0A0F1E] pt-36 pb-20 px-8 md:px-12">
+      <div className="max-w-7xl mx-auto pl-2 md:pl-6">
         <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
           Insights
         </h1>
