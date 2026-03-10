@@ -51,7 +51,7 @@ const Insights = () => {
             placeholder="Search articles..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-12 pr-5 py-4 rounded-xl border border-gray-200 bg-white shadow-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition"
+            className="w-full pl-12 pr-5 py-4 rounded-xl border border-gray-200 bg-white shadow-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:border-gray-300 transition"
           />
         </div>
       </div>
