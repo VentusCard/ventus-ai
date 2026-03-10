@@ -37,6 +37,9 @@ import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorCons
 import { PersonaCard } from "@/components/tepilot/PersonaCard";
 
 import { ColumnMapper } from "@/components/tepilot/ColumnMapper";
+// ComparisonSetup removed — multi-select now handled in UploadOrPasteContainer
+import { ComparisonDashboard } from "@/components/tepilot/ComparisonDashboard";
+import { ComparisonRewardsView } from "@/components/tepilot/ComparisonRewardsView";
 import { parseFile, parseMultipleFiles, parsePastedText, mapColumnsWithMapping, type MappingResult } from "@/lib/parsers";
 import { applyFilters, applyCorrections } from "@/lib/aggregations";
 import { extractLocationContext } from "@/lib/geoLocationUtils";
@@ -110,6 +113,15 @@ const TePilot = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
   const [userDemographics, setUserDemographics] = useState<ClientProfileData | null>(null);
   const [isFromSampleData, setIsFromSampleData] = useState(false);
+  
+  // Comparison mode state
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedCompA, setSelectedCompA] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
+  const [selectedCompB, setSelectedCompB] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
+  const [parsedTransactionsB, setParsedTransactionsB] = useState<Transaction[]>([]);
+  const [userDemographicsB, setUserDemographicsB] = useState<ClientProfileData | null>(null);
+  const [anchorZipB, setAnchorZipB] = useState("");
+
   const navigate = useNavigate();
   const handleNavigateToAdvisorConsole = async () => {
     // Ensure analysis runs before navigating if not already done
@@ -128,7 +140,7 @@ const TePilot = () => {
     navigate('/tepilot/advisor-console');
   };
 
-  // SSE Enrichment Hook
+  // SSE Enrichment Hook - Customer A (primary)
   const {
     enrichedTransactions,
     isProcessing,
@@ -138,6 +150,16 @@ const TePilot = () => {
     startEnrichment,
     resetEnrichment,
     restoreEnrichedTransactions
+  } = useSSEEnrichment();
+
+  // SSE Enrichment Hook - Customer B (comparison)
+  const {
+    enrichedTransactions: enrichedTransactionsB,
+    isProcessing: isProcessingB,
+    statusMessage: statusMessageB,
+    currentPhase: currentPhaseB,
+    startEnrichment: startEnrichmentB,
+    resetEnrichment: resetEnrichmentB,
   } = useSSEEnrichment();
   const [filters, setFilters] = useState<Filters>({
     dateRange: {
@@ -369,6 +391,30 @@ const TePilot = () => {
     setRecommendations(null); // Clear old recommendations
     setActiveTab("results"); // Switch to results IMMEDIATELY
     await startEnrichment(parsedTransactions, anchorZip);
+  };
+
+  // Comparison mode: auto-trigger from multi-select sample data
+  const handleLoadComparisonSamples = (
+    dataA: { csv: string; zip: string; demographics: ClientProfileData },
+    dataB: { csv: string; zip: string; demographics: ClientProfileData }
+  ) => {
+    setSelectedCompA(dataA);
+    setSelectedCompB(dataB);
+    setComparisonMode(true);
+    const resultA = parsePastedText(`# Home ZIP Code: ${dataA.zip}\n${dataA.csv}`);
+    const resultB = parsePastedText(`# Home ZIP Code: ${dataB.zip}\n${dataB.csv}`);
+    if (!resultA.transactions || !resultB.transactions) {
+      toast.error("Failed to parse comparison datasets");
+      return;
+    }
+    setParsedTransactions(resultA.transactions);
+    setParsedTransactionsB(resultB.transactions);
+    setUserDemographics(dataA.demographics);
+    setUserDemographicsB(dataB.demographics);
+    setAnchorZip(dataA.zip);
+    setAnchorZipB(dataB.zip);
+    setIsFromSampleData(true);
+    setActiveTab("preview");
   };
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
@@ -903,128 +949,282 @@ const TePilot = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
-            <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Preview</TabsTrigger>
-            <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Enrichment</TabsTrigger>
-            <TabsTrigger value="analytics" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Dashboard</TabsTrigger>
-            <TabsTrigger value="insights" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Insight Tools</TabsTrigger>
+            <TabsTrigger value="preview" disabled={comparisonMode ? false : parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Preview (A vs B)" : "Preview"}
+            </TabsTrigger>
+            <TabsTrigger value="results" disabled={comparisonMode ? !(enrichedTransactions.length > 0 || enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Enrichment (A vs B)" : "Enrichment"}
+            </TabsTrigger>
+            <TabsTrigger value="analytics" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Dashboard (A vs B)" : "Dashboard"}
+            </TabsTrigger>
+            <TabsTrigger value="insights" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              {comparisonMode ? "Rewards (A vs B)" : "Insight Tools"}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
             {pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
-              mode={inputMode} 
-              onModeChange={(mode) => {
-                setInputMode(mode);
-              }} 
-              onLoadSample={(data, zip, demographics) => {
-                setRawInput(data);
-                setAnchorZip(zip);
-                setUserDemographics(demographics);
-                setIsFromSampleData(true);
-                setInputMode("paste");
-                sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
-              }}
-              activeSelection={activeSelection}
-              onActiveSelectionChange={setActiveSelection}
-            >
-                {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
-              </UploadOrPasteContainer>}
+                mode={inputMode} 
+                onModeChange={(mode) => {
+                  setInputMode(mode);
+                  // Reset comparison mode when switching to paste/upload
+                  if (comparisonMode) {
+                    setComparisonMode(false);
+                    setSelectedCompA(null);
+                    setSelectedCompB(null);
+                    setParsedTransactionsB([]);
+                    setUserDemographicsB(null);
+                    setAnchorZipB("");
+                    resetEnrichmentB();
+                  }
+                }} 
+                onLoadSample={(data, zip, demographics) => {
+                  // Reset comparison mode for single selection
+                  if (comparisonMode) {
+                    setComparisonMode(false);
+                    setSelectedCompA(null);
+                    setSelectedCompB(null);
+                    setParsedTransactionsB([]);
+                    setUserDemographicsB(null);
+                    setAnchorZipB("");
+                    resetEnrichmentB();
+                  }
+                  setRawInput(data);
+                  setAnchorZip(zip);
+                  setUserDemographics(demographics);
+                  setIsFromSampleData(true);
+                  setInputMode("paste");
+                  sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
+                }}
+                onLoadComparisonSamples={handleLoadComparisonSamples}
+                activeSelection={activeSelection}
+                onActiveSelectionChange={setActiveSelection}
+              >
+                  {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
+                </UploadOrPasteContainer>
+            }
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
-            <PreviewTable transactions={parsedTransactions} />
-            <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
+            {comparisonMode ? (
+              <>
+                {(() => {
+                  const nameA = selectedCompA?.demographics?.name || "Customer A";
+                  const nameB = selectedCompB?.demographics?.name || "Customer B";
+                  const mergedPreview = [
+                    ...parsedTransactions.map(t => ({ ...t, _userId: nameA })),
+                    ...parsedTransactionsB.map(t => ({ ...t, _userId: nameB })),
+                  ];
+                  return <PreviewTable transactions={mergedPreview as any} comparisonMode={true} />;
+                })()}
+                <Button
+                  onClick={() => {
+                    setActiveTab("results");
+                    Promise.all([
+                      startEnrichment(parsedTransactions, anchorZip),
+                      startEnrichmentB(parsedTransactionsB, anchorZipB),
+                    ]);
+                  }}
+                  disabled={isProcessing || isProcessingB}
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  <Zap className="w-4 h-4" />
+                  Enrich Both & Compare
+                </Button>
+              </>
+            ) : (
+              <>
+                <PreviewTable transactions={parsedTransactions} />
+                <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
-            {currentPhase === "travel" && <Card className="border-yellow-200 bg-yellow-50">
-                <CardContent className="pt-6 flex items-center gap-3">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-yellow-600 border-t-transparent" />
-                  <p className="text-sm font-medium text-yellow-700">
-                    {statusMessage || "Analyzing travel patterns..."}
-                  </p>
-                </CardContent>
-              </Card>}
-            <div className="flex justify-end">
-              <ExportControls transactions={enrichedTransactions} />
-            </div>
-            <ResultsTable transactions={enrichedTransactions} currentPhase={currentPhase} statusMessage={statusMessage} onCorrection={handleCorrection} />
-            
-            {currentPhase === "complete" && enrichedTransactions.length > 0 && <Card className="border-blue-200 bg-blue-50">
-                <CardContent className="pt-6 flex flex-col items-center gap-4">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to explore enriched customer profile dashboard?</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      View aggregated spending patterns, travel analysis, and lifestyle breakdowns
-                    </p>
-                  </div>
-                  <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
-                    View Enriched Customer Dashboard
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>}
+            {comparisonMode ? (
+              <>
+                {/* Dual enrichment progress */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="bg-white border-slate-200">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500" />
+                        <span className="font-semibold text-sm text-slate-900">{selectedCompA?.demographics?.name || "Customer A"}</span>
+                      </div>
+                      {isProcessing && (
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                          <p className="text-xs text-slate-600">{statusMessage || "Processing..."}</p>
+                        </div>
+                      )}
+                      {currentPhase === "complete" && <Badge className="bg-green-100 text-green-700">✓ Complete ({enrichedTransactions.length} transactions)</Badge>}
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-white border-slate-200">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                        <span className="font-semibold text-sm text-slate-900">{selectedCompB?.demographics?.name || "Customer B"}</span>
+                      </div>
+                      {isProcessingB && (
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                          <p className="text-xs text-slate-600">{statusMessageB || "Processing..."}</p>
+                        </div>
+                      )}
+                      {currentPhaseB === "complete" && <Badge className="bg-green-100 text-green-700">✓ Complete ({enrichedTransactionsB.length} transactions)</Badge>}
+                    </CardContent>
+                  </Card>
+                </div>
+                {currentPhase === "complete" && currentPhaseB === "complete" && (
+                  <Card className="border-blue-200 bg-blue-50">
+                    <CardContent className="pt-6 flex flex-col items-center gap-4">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2">Both customers enriched! Ready to compare?</h3>
+                        <p className="text-sm text-slate-600 mb-4">View side-by-side dashboard comparison</p>
+                      </div>
+                      <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
+                        Compare Dashboards <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            ) : (
+              <>
+                {currentPhase === "travel" && <Card className="border-yellow-200 bg-yellow-50">
+                    <CardContent className="pt-6 flex items-center gap-3">
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-yellow-600 border-t-transparent" />
+                      <p className="text-sm font-medium text-yellow-700">
+                        {statusMessage || "Analyzing travel patterns..."}
+                      </p>
+                    </CardContent>
+                  </Card>}
+                <div className="flex justify-end">
+                  <ExportControls transactions={enrichedTransactions} />
+                </div>
+                <ResultsTable transactions={enrichedTransactions} currentPhase={currentPhase} statusMessage={statusMessage} onCorrection={handleCorrection} />
+                
+                {currentPhase === "complete" && enrichedTransactions.length > 0 && <Card className="border-blue-200 bg-blue-50">
+                    <CardContent className="pt-6 flex flex-col items-center gap-4">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to explore enriched customer profile dashboard?</h3>
+                        <p className="text-sm text-slate-600 mb-4">
+                          View aggregated spending patterns, travel analysis, and lifestyle breakdowns
+                        </p>
+                      </div>
+                      <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
+                        View Enriched Customer Dashboard
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>}
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            {/* View Header */}
-            <Card className="p-6 bg-white border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
-                    {analyticsView === "single" ? "Customer Lifestyle Dashboard" : "Bank-wide Analytics"}
-                  </h2>
-                  <p className="text-sm text-slate-600 mt-1">
-                    {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
-                  </p>
-                </div>
-                {analyticsView === "single" && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-slate-700">Budgeting</span>
-                    <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            {analyticsView === "single" ? <>
-                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
-                
-                <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
-                
-                
-                
-                <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
-                
-                <Card className="border-blue-200 bg-blue-50">
-                  <CardContent className="pt-6 flex flex-col items-center gap-4">
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to Explore Ventus Insight Tools?</h3>
-                      <p className="text-sm text-slate-600 mb-4">
-                        Access specialized dashboards for Bank Leadership, Rewards Team, or Wealth Management
+            {comparisonMode ? (
+              <ComparisonDashboard
+                customerA={{
+                  parsedTransactions,
+                  enrichedTransactions: displayTransactions,
+                  demographics: userDemographics,
+                  label: "Customer A",
+                  color: "bg-blue-500",
+                }}
+                customerB={{
+                  parsedTransactions: parsedTransactionsB,
+                  enrichedTransactions: enrichedTransactionsB,
+                  demographics: userDemographicsB,
+                  label: "Customer B",
+                  color: "bg-emerald-500",
+                }}
+              />
+            ) : (
+              <>
+                {/* View Header */}
+                <Card className="p-6 bg-white border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-900">
+                        {analyticsView === "single" ? "Customer Lifestyle Dashboard" : "Bank-wide Analytics"}
+                      </h2>
+                      <p className="text-sm text-slate-600 mt-1">
+                        {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
                       </p>
                     </div>
-                    <Button onClick={() => setActiveTab("insights")} size="lg" className="gap-2">
-                      Go to Insight Tools Selection
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </CardContent>
+                    {analyticsView === "single" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-700">Budgeting</span>
+                        <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
+                      </div>
+                    )}
+                  </div>
                 </Card>
-              </> : <Accordion type="single" collapsible defaultValue="bankwide">
-                <AccordionItem value="bankwide" className="border-slate-200">
-                  <AccordionTrigger className="text-lg hover:no-underline text-slate-900">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <span className="font-semibold">🏦 Bank-wide Analytics Dashboard</span>
-                      <span className="text-sm text-slate-500">70M accounts • 45M users • $180B portfolio</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <BankwideView />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>}
+
+                {analyticsView === "single" ? <>
+                    <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
+                    
+                    <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
+                    
+                    
+                    
+                    <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
+                    
+                    <Card className="border-blue-200 bg-blue-50">
+                      <CardContent className="pt-6 flex flex-col items-center gap-4">
+                        <div className="text-center">
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to Explore Ventus Insight Tools?</h3>
+                          <p className="text-sm text-slate-600 mb-4">
+                            Access specialized dashboards for Bank Leadership, Rewards Team, or Wealth Management
+                          </p>
+                        </div>
+                        <Button onClick={() => setActiveTab("insights")} size="lg" className="gap-2">
+                          Go to Insight Tools Selection
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </> : <Accordion type="single" collapsible defaultValue="bankwide">
+                    <AccordionItem value="bankwide" className="border-slate-200">
+                      <AccordionTrigger className="text-lg hover:no-underline text-slate-900">
+                        <div className="flex items-center justify-between w-full pr-4">
+                          <span className="font-semibold">🏦 Bank-wide Analytics Dashboard</span>
+                          <span className="text-sm text-slate-500">70M accounts • 45M users • $180B portfolio</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <BankwideView />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>}
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
+            {comparisonMode ? (
+              <ComparisonRewardsView
+                customerA={{
+                  enrichedTransactions: displayTransactions,
+                  demographics: userDemographics,
+                  anchorZip,
+                  label: "Customer A",
+                  color: "bg-blue-500",
+                }}
+                customerB={{
+                  enrichedTransactions: enrichedTransactionsB,
+                  demographics: userDemographicsB,
+                  anchorZip: anchorZipB,
+                  label: "Customer B",
+                  color: "bg-emerald-500",
+                }}
+              />
+            ) : (
+            <>
             {!insightType && <>
                 {/* Header */}
                 <div className="text-center mb-8 mt-10">
@@ -1220,6 +1420,8 @@ const TePilot = () => {
                   <AdvisorConsole aiInsights={lifestyleSignals} isLoadingInsights={isLoadingLifestyleSignals} enrichedTransactions={enrichedTransactions} />
                 </div>
               </div>}
+            </>
+            )}
           </TabsContent>
         </Tabs>
       </div>

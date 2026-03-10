@@ -25,16 +25,18 @@ import TravelExperience from "./pages/TravelExperience";
 import BankWideAnalytics from "./pages/BankWideAnalytics";
 import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
+import DemoPage from "./pages/DemoPage";
 
 const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
+  const isDemo = location.pathname === "/demo";
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {!isTepilot && <Navbar />}
+      {!isTepilot && !isDemo && <Navbar />}
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />
@@ -55,11 +57,12 @@ const AppLayout = () => {
           <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
           <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
           <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
+          <Route path="/demo" element={<DemoPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      {!isTepilot && <Footer />}
+      {!isTepilot && !isDemo && <Footer />}
     </div>
   );
 };

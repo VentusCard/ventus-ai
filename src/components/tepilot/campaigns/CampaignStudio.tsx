@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -10,8 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Sparkles, Heart, Users as UsersIcon, Bookmark, Download, Target,
-  ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, LayoutTemplate, Loader2,
+  ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, Loader2, CreditCard,
+  Zap, Megaphone,
 } from "lucide-react";
+import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
+import { AutomatedFlowsSection } from "./AutomatedFlowsSection";
+import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import { toast } from "sonner";
 import { DimensionChipCloud } from "./DimensionChipCloud";
 import { ProductDimensionGroup } from "./ProductDimensionGroup";
@@ -21,22 +26,18 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { AICampaignPreview } from "./AICampaignPreview";
 import { DemographicFilters } from "./DemographicFilters";
 import { SemanticIntentInput, type ParsedIntent } from "./SemanticIntentInput";
+import { Input } from "@/components/ui/input";
 import { LIFESTYLE_PILLARS, estimateStudioAudienceSize } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
-import { SEGMENT_TEMPLATES, SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
+import { SAVED_SEGMENTS, getSegmentMetricsSummary } from "@/lib/segmentData";
 import type { ProductMode, CampaignBrief } from "@/types/campaign-studio";
-import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, SegmentTemplate, SavedSegment } from "@/types/segment";
+import type { LifeEventCriteria, DemographicFilters as DemographicFiltersType, SavedSegment } from "@/types/segment";
 import { supabase } from "@/integrations/supabase/client";
 
-const TEMPLATE_CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'life_event', label: 'Life Events' },
-  { id: 'lifestyle', label: 'Lifestyle' },
-  { id: 'cross_sell', label: 'Cross-Sell' },
-  { id: 'seasonal', label: 'Seasonal' },
-];
-
 export function CampaignStudio() {
+  // ─── Mode State ───
+  const [activeMode, setActiveMode] = useState<'campaigns' | 'automations'>('campaigns');
+
   // ─── Dimension State ───
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
@@ -57,10 +58,10 @@ export function CampaignStudio() {
   const [crossSellStrategies, setCrossSellStrategies] = useState<string[]>([]);
   const [upsellStrategies, setUpsellStrategies] = useState<string[]>([]);
   const [campaignGoal, setCampaignGoal] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
+  
 
-  // ─── Presets/Segments State ───
-  const [templateCategory, setTemplateCategory] = useState('all');
-  const [presetsOpen, setPresetsOpen] = useState(false);
+  // ─── Segments State ───
   const [savedOpen, setSavedOpen] = useState(false);
 
   // ─── AI Brief State ───
@@ -108,108 +109,10 @@ export function CampaignStudio() {
     setUpsellStrategies(prev => toggleItem(prev, id));
   }, [toggleItem]);
 
-  // ─── Loading state for AI-powered presets ───
-  const [loadingTemplateId, setLoadingTemplateId] = useState<string | null>(null);
 
-  // ─── Apply Preset Template (AI-powered) ───
-  const handleApplyTemplate = useCallback(async (template: SegmentTemplate) => {
-    // Build a natural language prompt from the template metadata
-    const intent = `Campaign for: ${template.name}. Category: ${template.category.replace(/_/g, ' ')}. Description: ${template.description}. ${template.suggestedGoal ? `Goal: ${template.suggestedGoal.replace(/_/g, ' ')}.` : ''}`;
-
-    setLoadingTemplateId(template.id);
-    const toastId = toast.loading(`Interpreting "${template.name}"…`);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('parse-campaign-intent', {
-        body: { intent },
-      });
-
-      if (error || data?.error) {
-        console.error('Template intent parse error:', error || data?.error);
-        toast.dismiss(toastId);
-        // Fallback: use whatever hardcoded data exists
-        applyTemplateFallback(template);
-        return;
-      }
-
-      const result = data as ParsedIntent;
-      handleIntentParsed(result);
-      toast.dismiss(toastId);
-      toast.success(`Applied "${template.name}" preset`, {
-        description: result.summary || `${(template.estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`,
-      });
-    } catch (err) {
-      console.error('Template intent parse error:', err);
-      toast.dismiss(toastId);
-      applyTemplateFallback(template);
-    } finally {
-      setLoadingTemplateId(null);
-    }
-  }, []);
-
-  // ─── Fallback: apply hardcoded template data if AI fails ───
-  const applyTemplateFallback = useCallback((template: SegmentTemplate) => {
-    setSelectedPillars([]);
-    setLifeEventCriteria({ eventTypes: [], minConfidence: 0.6, timingWindow: '6-12_months' });
-    setSelectedProducts({});
-    setCrossSellStrategies([]);
-    setUpsellStrategies([]);
-    setCampaignGoal('');
-
-    const audience = template.suggestedAudience;
-    if (audience.lifeEventCriteria) {
-      setLifeEventCriteria(audience.lifeEventCriteria as LifeEventCriteria);
-    }
-    if (audience.lifestyleCriteria?.pillars) {
-      setSelectedPillars(audience.lifestyleCriteria.pillars);
-    }
-    if (audience.productCriteria) {
-      const products: Record<string, ProductMode> = {};
-      audience.productCriteria.hasProducts?.forEach(p => { products[p] = 'has'; });
-      audience.productCriteria.lacksProducts?.forEach(p => { products[p] = 'lacks'; });
-      setSelectedProducts(products);
-    }
-    if (template.suggestedGoal) {
-      setCampaignGoal(template.suggestedGoal);
-    }
-
-    pendingGenerateRef.current = true;
-    toast.warning(`Applied "${template.name}" (offline mode)`, {
-      description: 'AI interpretation unavailable, using preset defaults',
-    });
-  }, []);
-
-  // ─── Edit Saved Segment (AI-powered) ───
-  const handleEditSegment = useCallback(async (segment: SavedSegment) => {
-    const intent = `Campaign for: ${segment.name}. Targeting mode: ${segment.targetingMode.replace(/_/g, ' ')}. Segment with ${(segment.estimatedSize / 1_000_000).toFixed(1)}M contacts.`;
-
-    setLoadingTemplateId(segment.id);
-    const toastId = toast.loading(`Interpreting "${segment.name}"…`);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('parse-campaign-intent', {
-        body: { intent },
-      });
-
-      if (error || data?.error) {
-        console.error('Segment intent parse error:', error || data?.error);
-        toast.dismiss(toastId);
-        // Fallback: use hardcoded segment data
-        applySegmentFallback(segment);
-        return;
-      }
-
-      const result = data as ParsedIntent;
-      handleIntentParsed(result);
-      toast.dismiss(toastId);
-      toast.success(`Loaded "${segment.name}"`, { description: result.summary || 'Criteria loaded into studio' });
-    } catch (err) {
-      console.error('Segment intent parse error:', err);
-      toast.dismiss(toastId);
-      applySegmentFallback(segment);
-    } finally {
-      setLoadingTemplateId(null);
-    }
+  // ─── Edit Saved Segment ───
+  const handleEditSegment = useCallback((segment: SavedSegment) => {
+    applySegmentFallback(segment);
   }, []);
 
   // ─── Fallback for saved segments ───
@@ -257,11 +160,6 @@ export function CampaignStudio() {
 
   const hasSelections = estimatedSize > 0;
 
-  // ─── Filtered Templates ───
-  const filteredTemplates = useMemo(() => {
-    if (templateCategory === 'all') return SEGMENT_TEMPLATES;
-    return SEGMENT_TEMPLATES.filter(t => t.category === templateCategory);
-  }, [templateCategory]);
 
   // ─── AI Brief Generation ───
   const handleGenerate = async () => {
@@ -410,6 +308,36 @@ export function CampaignStudio() {
         </div>
       </div>
 
+      {/* Mode Switcher */}
+      <div className="grid grid-cols-2 gap-0 rounded-lg border border-border bg-muted/30 p-1 mb-6">
+        <button
+          onClick={() => setActiveMode('automations')}
+          className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+            activeMode === 'automations'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Zap className="w-4 h-4" />
+          Automated Flows
+        </button>
+        <button
+          onClick={() => setActiveMode('campaigns')}
+          className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+            activeMode === 'campaigns'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          }`}
+        >
+          <Megaphone className="w-4 h-4" />
+          Campaigns
+        </button>
+      </div>
+
+      {activeMode === 'automations' ? (
+        <AutomatedFlowsSection />
+      ) : (
+      <>
       {/* Semantic Intent Input */}
       <SemanticIntentInput onIntentParsed={handleIntentParsed} />
 
@@ -419,64 +347,6 @@ export function CampaignStudio() {
         <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
           <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
             <div className="space-y-1 pr-4 overflow-y-auto max-h-[80vh]">
-              {/* Preset Templates */}
-              <Collapsible open={presetsOpen} onOpenChange={setPresetsOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <LayoutTemplate className="w-4 h-4 text-primary" />
-                    <span className="font-medium text-sm text-foreground">Preset Templates</span>
-                    <span className="text-xs text-muted-foreground">({SEGMENT_TEMPLATES.length})</span>
-                  </div>
-                  {presetsOpen ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="px-3 pb-3 space-y-3">
-                    {/* Category filter chips */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {TEMPLATE_CATEGORIES.map(cat => (
-                        <button
-                          key={cat.id}
-                          onClick={() => setTemplateCategory(cat.id)}
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                            templateCategory === cat.id
-                              ? 'bg-blue-50 border-blue-400 text-blue-700'
-                              : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Template rows */}
-                    <div className="space-y-1.5">
-                      {filteredTemplates.map(template => (
-                        <div
-                          key={template.id}
-                          className={`flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer ${loadingTemplateId === template.id ? 'opacity-70 pointer-events-none' : ''}`}
-                          onClick={() => handleApplyTemplate(template)}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{template.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{template.description}</p>
-                          </div>
-                          {loadingTemplateId === template.id ? (
-                            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin ml-3 shrink-0" />
-                          ) : (
-                            <span className="text-xs text-muted-foreground ml-3 shrink-0">
-                              {(template.estimatedSize / 1_000_000).toFixed(1)}M
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
               {/* Saved Segments */}
               <Collapsible open={savedOpen} onOpenChange={setSavedOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted/50 transition-colors">
@@ -589,9 +459,36 @@ export function CampaignStudio() {
 
           <ResizableHandle withHandle />
 
-          {/* Right Column: AI Preview */}
+          {/* Right Column: AI Preview + Personalization */}
           <ResizablePanel defaultSize={60} minSize={35} maxSize={70}>
-            <div className="pl-4">
+            <div className="pl-4 space-y-4">
+              {/* Product Selector */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                <CreditCard className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-sm font-semibold text-foreground whitespace-nowrap">Promoting:</span>
+                <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                  <SelectTrigger className="w-full max-w-[220px] bg-background h-8 text-sm">
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEMO_PRODUCTS.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Personalization Preview */}
+              <PersonalizationPreviewPanel
+                selectedProduct={DEMO_PRODUCTS.find(p => p.id === selectedProductId) || null}
+                selectedPillars={selectedPillars}
+                selectedLifeEvents={lifeEventCriteria.eventTypes}
+                hasSelections={hasSelections}
+                
+              />
+
               <AICampaignPreview
                 brief={generatedBrief}
                 isGenerating={isGenerating}
@@ -600,11 +497,14 @@ export function CampaignStudio() {
                 hasSelections={hasSelections}
                 onSave={handleSave}
               />
+
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   );
 }

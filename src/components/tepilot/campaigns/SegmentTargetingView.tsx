@@ -1,5 +1,9 @@
 import { CampaignStudio } from "./CampaignStudio";
 
 export function SegmentTargetingView() {
-  return <CampaignStudio />;
+  return (
+    <div className="space-y-6">
+      <CampaignStudio />
+    </div>
+  );
 }
