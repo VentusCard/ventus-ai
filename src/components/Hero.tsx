@@ -24,17 +24,16 @@ const Hero = () => {
 
             <p
               className={`text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed transition-all duration-700 ${
-                showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
-              }`}
-            >
-              A modular AI layer that reveals dynamic behavioral insights and orchestrates action across banking teams — without changing core infrastructure.
+              showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`
+              }>
+              A modular, autonomous AI layer that reveals behavioral insights and drives action across banking teams — without changing core infrastructure.
             </p>
 
             <div
               className={`flex items-center gap-3 mt-4 transition-all duration-700 delay-200 ${
-                showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
-              }`}
-            >
+              showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`
+              }>
+              
               <Link to="/contact">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                   Schedule Demo
@@ -52,8 +51,8 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Hero;

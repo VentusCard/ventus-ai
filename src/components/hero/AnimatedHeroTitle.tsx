@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 
 const PREFIX = "Turn transaction data into ";
-const KEYWORD = "Autonomous Intelligence";
+const KEYWORD = "customer intelligence";
 
 const AnimatedHeroTitle = ({ onComplete }: { onComplete?: () => void }) => {
   const [prefixLen, setPrefixLen] = useState(0);
