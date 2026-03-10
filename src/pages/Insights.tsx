@@ -60,13 +60,12 @@ const Insights = () => {
     {/* Grid */}
     <section className="pt-10 pb-24 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {insightsPosts.map((post, i) => (
+        {filtered.map((post, i) => (
           <ScrollReveal key={post.slug} delay={i * 0.08}>
             <Link
               to={`/insights/${post.slug}`}
               className="group flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full"
             >
-              {/* Placeholder image area */}
               <div className="h-44 overflow-hidden">
                 <img src={insightsCover} alt="Ventus AI Insights" className="w-full h-full object-cover" />
               </div>
@@ -98,6 +97,7 @@ const Insights = () => {
       </div>
     </section>
   </main>
-);
+  );
+};
 
 export default Insights;
