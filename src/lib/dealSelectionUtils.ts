@@ -19,9 +19,10 @@ export interface BankDeal {
 }
 
 export interface DerivedCustomerProfile {
-  topPillars: Array<{ pillar: string; annualSpend: number; topMerchant: string; transactionCount: number }>;
+  topPillars: Array<{ pillar: string; annualSpend: number; topMerchant: string; transactionCount: number; dominantTier?: string }>;
   topMerchants: Array<{ merchant: string; totalSpend: number; visits: number; pillar: string }>;
   lifestyleSignals: string[];
+  pillarTiers: Record<string, string>;
   locationContext: { homeCity?: string; homeState?: string; travelDestinations: string[] };
   totalSpend: number;
   avgTransactionSize: number;
