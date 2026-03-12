@@ -24,6 +24,7 @@ const INITIAL_READINESS: NodeReadiness = {
   travel: "idle",
   lifeEvents: "idle",
   wealth: "idle",
+  engine: "ready",
 };
 
 interface DemoEnrichmentResult {
