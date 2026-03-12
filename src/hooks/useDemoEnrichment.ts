@@ -18,10 +18,11 @@ export interface LocalExperiencesData {
 }
 
 const INITIAL_READINESS: NodeReadiness = {
+  engagement: "idle",
   analytics: "idle",
   rewards: "idle",
-  engagement: "idle",
   travel: "idle",
+  lifeEvents: "idle",
   wealth: "idle",
 };
 

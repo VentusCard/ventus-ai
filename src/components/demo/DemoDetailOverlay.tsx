@@ -8,6 +8,7 @@ import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
 import DemoTravelView from "./DemoTravelView";
 import DemoWealthView from "./DemoWealthView";
+import DemoLifeEventsView from "./DemoLifeEventsView";
 
 interface Props {
   node: DemoNodeType;
@@ -20,17 +21,19 @@ interface Props {
 }
 
 const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
+  engagement: { title: "Customer Engagement", color: "#f59e0b" },
   analytics: { title: "Bank-Wide Analytics", color: "#3b82f6" },
   rewards: { title: "Consumer Rewards", color: "#22c55e" },
-  engagement: { title: "Customer Engagement", color: "#f59e0b" },
-  travel: { title: "Travel Experience", color: "#06b6d4" },
-  wealth: { title: "Wealth Management", color: "#a855f7" },
+  travel: { title: "Travel Experiences", color: "#06b6d4" },
+  lifeEvents: { title: "Life Event Detection Dashboard", color: "#ec4899" },
+  wealth: { title: "Wealth Management Copilot", color: "#a855f7" },
 };
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
   analytics: DemoAnalyticsView,
   engagement: DemoEngagementView,
   wealth: DemoWealthView,
+  lifeEvents: DemoLifeEventsView,
 };
 
 export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, onClose }: Props) {

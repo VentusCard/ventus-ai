@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "analytics" | "rewards" | "engagement" | "travel" | "wealth";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth";
 
 interface Props {
   customerA: DemoCustomer;
@@ -14,13 +14,43 @@ interface Props {
   inputReady: boolean;
 }
 
-const NODES: { id: DemoNodeType; label: string; icon: typeof BarChart3; color: string }[] = [
-  { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
-  { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
-  { id: "engagement", label: "Customer Engagement", icon: Smartphone, color: "#f59e0b" },
-  { id: "travel", label: "Travel Experience", icon: Plane, color: "#06b6d4" },
-  { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
+interface NodeDef {
+  id: DemoNodeType;
+  label: string;
+  icon: typeof BarChart3;
+  color: string;
+}
+
+interface SectionDef {
+  label: string;
+  nodes: NodeDef[];
+}
+
+const SECTIONS: SectionDef[] = [
+  {
+    label: "UX & Analytics",
+    nodes: [
+      { id: "engagement", label: "Customer Engagement", icon: Smartphone, color: "#f59e0b" },
+      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
+    ],
+  },
+  {
+    label: "Personalized Rewards",
+    nodes: [
+      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
+      { id: "travel", label: "Travel Experiences", icon: Plane, color: "#06b6d4" },
+    ],
+  },
+  {
+    label: "Life Cycle Intelligence",
+    nodes: [
+      { id: "lifeEvents", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899" },
+      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
+    ],
+  },
 ];
+
+const ALL_NODES = SECTIONS.flatMap(s => s.nodes);
 
 const ENGINE_FEATURES = [
   "Semantic Enrichment",
@@ -54,11 +84,27 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  const nodeSpacing = dims.h / (NODES.length + 1);
+  // 3 sections × (section header + 2 nodes) = 9 visual slots
+  // Layout: each section takes ~1/3 of height with header + 2 nodes
+  const sectionHeight = dims.h / 3;
+  const getNodeY = (sectionIdx: number, nodeIdx: number) => {
+    const sectionTop = sectionIdx * sectionHeight;
+    // header takes top portion, then 2 nodes evenly spaced
+    return sectionTop + 28 + (nodeIdx + 0.5) * ((sectionHeight - 28) / 2);
+  };
 
-  // Determine if any node is processing (enrichment has started)
   const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
   const inputState: "idle" | "processing" | "ready" = inputReady ? "ready" : anyProcessing ? "processing" : "idle";
+
+  // Flatten for SVG line rendering
+  let nodeIndex = 0;
+  const nodePositions: { node: NodeDef; y: number }[] = [];
+  SECTIONS.forEach((section, si) => {
+    section.nodes.forEach((node, ni) => {
+      nodePositions.push({ node, y: getNodeY(si, ni) });
+      nodeIndex++;
+    });
+  });
 
   return (
     <div className="relative w-full h-full">
@@ -108,9 +154,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             })}
 
             {/* Output lines (engine → right nodes) */}
-            {NODES.map((node, i) => {
-              const nodeY = nodeSpacing * (i + 1);
-              const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${nodeY}, ${colRight - 50} ${nodeY}`;
+            {nodePositions.map(({ node, y }, i) => {
+              const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${y}, ${colRight - 50} ${y}`;
               const state = nodeReadiness[node.id];
               const isReady = state === "ready";
               const isProcessingNode = state === "processing";
@@ -179,59 +224,81 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         </div>
       </div>
 
-      {/* Output Nodes — Right */}
-      {NODES.map((node, i) => {
-        const nodeY = nodeSpacing * (i + 1);
-        const Icon = node.icon;
-        const isActive = activeNode === node.id;
-        const state = nodeReadiness[node.id];
-        const isReady = state === "ready";
-
+      {/* Output Nodes — Right, grouped by section */}
+      {SECTIONS.map((section, si) => {
+        const sectionTop = si * sectionHeight;
         return (
-          <button
-            key={node.id}
-            onClick={() => onNodeClick(node.id)}
-            className="absolute flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer group"
-            style={{
-              left: colRight - 50,
-              top: nodeY - 24,
-              minWidth: 180,
-              background: isReady
-                ? `${node.color}15`
-                : isActive
-                  ? `${node.color}10`
-                  : "#ffffff",
-              borderColor: isReady
-                ? `${node.color}80`
-                : isActive
-                  ? `${node.color}60`
-                  : "#e2e8f0",
-              boxShadow: isReady
-                ? `0 0 24px ${node.color}20`
-                : isActive
-                  ? `0 0 20px ${node.color}15`
-                  : "0 1px 3px rgba(0,0,0,0.06)",
-              zIndex: 2,
-              transition: "all 0.5s ease",
-            }}
-          >
+          <div key={section.label}>
+            {/* Section header */}
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+              className="absolute"
               style={{
-                background: isReady ? `${node.color}20` : `${node.color}12`,
-                border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
-                transition: "all 0.4s ease",
+                left: colRight - 50,
+                top: sectionTop + 4,
+                zIndex: 2,
               }}
             >
-              <Icon className="w-4 h-4" style={{ color: node.color }} />
-            </div>
-            <div className="text-left">
-              <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-              <p className="text-[9px] text-slate-400">
-                {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+              <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600">
+                {section.label}
               </p>
             </div>
-          </button>
+
+            {/* Section nodes */}
+            {section.nodes.map((node, ni) => {
+              const nodeY = getNodeY(si, ni);
+              const Icon = node.icon;
+              const isActive = activeNode === node.id;
+              const state = nodeReadiness[node.id];
+              const isReady = state === "ready";
+
+              return (
+                <button
+                  key={node.id}
+                  onClick={() => onNodeClick(node.id)}
+                  className="absolute flex items-center gap-2.5 rounded-xl border px-4 py-2.5 cursor-pointer group"
+                  style={{
+                    left: colRight - 50,
+                    top: nodeY - 20,
+                    minWidth: 180,
+                    background: isReady
+                      ? `${node.color}15`
+                      : isActive
+                        ? `${node.color}10`
+                        : "#ffffff",
+                    borderColor: isReady
+                      ? `${node.color}80`
+                      : isActive
+                        ? `${node.color}60`
+                        : "#e2e8f0",
+                    boxShadow: isReady
+                      ? `0 0 24px ${node.color}20`
+                      : isActive
+                        ? `0 0 20px ${node.color}15`
+                        : "0 1px 3px rgba(0,0,0,0.06)",
+                    zIndex: 2,
+                    transition: "all 0.5s ease",
+                  }}
+                >
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                    style={{
+                      background: isReady ? `${node.color}20` : `${node.color}12`,
+                      border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
+                      transition: "all 0.4s ease",
+                    }}
+                  >
+                    <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+                    <p className="text-[8px] text-slate-400">
+                      {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         );
       })}
     </div>
