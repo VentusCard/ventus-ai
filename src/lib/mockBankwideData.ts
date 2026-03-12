@@ -11,6 +11,8 @@ import type {
   StateSpendingData,
   SpendingTimingHighlight,
   RevenueOpportunity,
+  GamificationMetrics,
+  ManagedAchievement,
 } from '@/types/bankwide';
 import { PILLAR_COLORS, LIFESTYLE_PILLARS } from '@/lib/sampleData';
 
