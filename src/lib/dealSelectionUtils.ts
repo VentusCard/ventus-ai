@@ -67,10 +67,13 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
     }
   });
 
+  const pillarTiers: Record<string, string> = {};
   const topPillars = Object.entries(pillarData)
     .map(([pillar, data]) => {
       const topMerchant = Object.entries(data.merchants).sort((a, b) => b[1] - a[1])[0]?.[0] || "Various";
-      return { pillar, annualSpend: data.spend, topMerchant, transactionCount: data.count };
+      const dominantTier = Object.entries(data.tiers).sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (dominantTier) pillarTiers[pillar] = dominantTier;
+      return { pillar, annualSpend: data.spend, topMerchant, transactionCount: data.count, dominantTier };
     })
     .sort((a, b) => b.annualSpend - a.annualSpend)
     .slice(0, 5);
