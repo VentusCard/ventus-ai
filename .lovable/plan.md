@@ -1,21 +1,34 @@
 
 
-## Group Section Nodes with Border Containers
+## Understanding
 
-**File: `src/components/demo/DemoNetworkDiagram.tsx`**
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-Replace the current rendering of section headers + individual absolutely-positioned node buttons with a single absolutely-positioned **container `div`** per section that:
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-1. Has a light border (`border border-slate-200`), rounded corners (`rounded-xl`), and subtle background (`bg-slate-50/50`)
-2. Contains the section title as a small uppercase label at the top (inside the container, not floating separately)
-3. Contains both node buttons stacked vertically with a small gap (`gap-2`), rendered as **relative** elements inside the container (no longer absolutely positioned individually)
-4. The container itself is absolutely positioned using the same `colRight` x-coordinate and `sectionTop` y-coordinate
+## Plan
 
-**Layout change:**
-- Remove individual absolute positioning from each node button — they become flex children inside the section container
-- The section container is `absolute`, positioned at `left: colRight - 58`, `top: sectionTop + 4`, with fixed width ~200px
-- Inside: `flex flex-col gap-2 p-3 pt-2` with the section label as the first child
-- SVG connector lines target the vertical center of each node button — compute `nodeY` from the container's top + offset for each button within the flex layout (approximately `sectionTop + 4 + 28 + nodeIdx * 48` for tight spacing)
+### Move AnalyticsDemoPanel into the Hero Section
 
-This is a single-file change to `DemoNetworkDiagram.tsx`, restructuring lines 227–303.
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
+
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
+
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 
