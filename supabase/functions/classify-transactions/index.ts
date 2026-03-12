@@ -252,7 +252,15 @@ Classify each transaction's spending tier based on the merchant's market positio
 - "Premium": Luxury brands, fine dining, first-class travel, high-end retailers (Equinox, Tiffany, Nordstrom, Four Seasons, Whole Foods, Lululemon)
 - "Standard": Mid-range, mainstream brands, casual dining (Target, Chipotle, Marriott, Nike, Safeway, Hilton)
 - "Budget": Discount stores, fast food, budget options, dollar stores (McDonald's, Dollar Tree, Walmart, Spirit Airlines, Aldi, Planet Fitness)
-- "N/A": Utilities, insurance, medical, financial services, rent — where tier doesn't meaningfully apply`;
+- "N/A": Utilities, insurance, medical, financial services, rent — where tier doesn't meaningfully apply
+
+PURCHASE FREQUENCY:
+Infer how often a typical customer would transact with this type of merchant:
+- "Weekly": Habitual, multiple times per month — coffee shops, gas stations, grocery stores, fast food, transit, gym visits
+- "Monthly": Regular monthly cadence — subscriptions, streaming, rent, utilities, phone bills, insurance, meal kits, memberships
+- "Occasional": A few times per year, irregular — haircuts, clothing stores, dentist, seasonal dining, oil changes, home improvement
+- "Annually": Once-a-year predictable cycle — insurance renewals, tax prep, annual memberships, holiday travel, back-to-school
+- "One-Time": Unlikely to repeat — furniture, jewelry, electronics, event tickets, medical procedures, large one-off retail`;
 
 // Classification Tool Schema
 const CLASSIFICATION_TOOL = [
