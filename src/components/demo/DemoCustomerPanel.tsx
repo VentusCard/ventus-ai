@@ -24,7 +24,7 @@ export default function DemoCustomerPanel({
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
 }: Props) {
   return (
-    <div className="h-full flex flex-col p-5 overflow-y-auto">
+    <div className="h-full flex flex-col p-5 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: "none" }}>
       {/* Logo */}
       <div className="mb-6">
         <h2 className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
