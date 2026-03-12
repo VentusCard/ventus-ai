@@ -6,6 +6,7 @@ import { BankwidePillarExplorer } from "./BankwidePillarExplorer";
 import { DemographicBreakdown } from "./DemographicBreakdown";
 import { RevenueOpportunitiesCard } from "./RevenueOpportunitiesCard";
 import { CrossSellMatrix } from "./CrossSellMatrix";
+import { GamificationManagement } from "./GamificationManagement";
 
 import {
   getBankwideMetrics,
