@@ -202,8 +202,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </div>
 
       {/* Engine Node — Center */}
-      <div
-        className="absolute flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white"
+      <button
+        onClick={() => onNodeClick("engine")}
+        className="absolute flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-indigo-300 hover:scale-[1.02] group"
         style={{
           left: colCenter - 70,
           top: midY - 100,
@@ -215,10 +216,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               ? "0 0 20px rgba(34, 197, 94, 0.15)"
               : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
-          transition: "box-shadow 0.6s ease",
+          transition: "all 0.3s ease",
         }}
       >
-        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 ${anyProcessing && !inputReady ? "animate-pulse" : ""}`}>
+        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${anyProcessing && !inputReady ? "animate-pulse" : ""}`}>
           <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
         <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
@@ -227,7 +228,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             <p key={f} className="text-[8px] text-slate-500 text-center leading-tight">{f}</p>
           ))}
         </div>
-      </div>
+        <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
+      </button>
 
       {/* Output Nodes — Right, grouped by section */}
       {SECTIONS.map((section, si) => {

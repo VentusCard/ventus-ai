@@ -42,6 +42,9 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
   const { title, color } = NODE_TITLES[node];
 
   const renderContent = () => {
+    if (node === "engine") {
+      return <DemoEngineProfileView customerA={customerA} customerB={customerB} />;
+    }
     if (node === "travel") {
       return (
         <DemoTravelView
