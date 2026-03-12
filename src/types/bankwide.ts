@@ -158,6 +158,46 @@ export interface SpendingTimingHighlight {
 }
 
 // Pipeline Status Types for Consumer Rewards Dashboard
+// Gamification Management Types
+export interface RewardConfig {
+  type: 'points' | 'gift_card' | 'cashback' | 'custom';
+  value: number;
+  currency?: string;
+  merchantName?: string;
+  fulfillment: 'automatic' | 'manual_approval';
+  monthlyBudgetCap?: number;
+}
+
+export interface ManagedAchievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: string;
+  targetValue: number;
+  triggerLogic: string;
+  isActive: boolean;
+  completionRate: number;
+  inProgressRate: number;
+  reward?: RewardConfig;
+}
+
+export interface GamificationMetrics {
+  enrolledUsers: number;
+  enrollmentRate: number;
+  avgHealthScore: number;
+  totalUnlocks: number;
+  avgUnlocksPerUser: number;
+  engagementLift: number;
+  achievements: ManagedAchievement[];
+  recommendations: Array<{
+    title: string;
+    description: string;
+    impact: string;
+    priority: 'high' | 'medium';
+  }>;
+}
+
 export type PipelineStage = 'not_started' | 'contacted' | 'negotiating' | 'contract_sent' | 'live';
 
 export interface ContactLogEntry {
