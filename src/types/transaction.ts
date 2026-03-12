@@ -16,6 +16,7 @@ export interface EnrichedTransaction extends Transaction {
   subcategory: string;
   confidence: number;
   spending_tier: "Budget" | "Standard" | "Premium" | "N/A";
+  purchase_frequency: "Weekly" | "Monthly" | "Occasional" | "Annually" | "One-Time";
   explanation: string;
   enriched_at: string;
   travel_context?: {

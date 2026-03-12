@@ -636,6 +636,7 @@ Deno.serve(async (req) => {
               subcategory: classification.subcategory || "General",
               confidence: classification.confidence || 0.8,
               spending_tier: classification.spending_tier || "N/A",
+              purchase_frequency: classification.purchase_frequency || "One-Time",
               explanation: classification.explanation || "",
               enriched_at: new Date().toISOString(),
             };
