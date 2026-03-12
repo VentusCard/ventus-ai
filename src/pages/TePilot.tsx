@@ -1172,7 +1172,10 @@ const TePilot = () => {
                     
                     <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
                     
-                    <FinancialAchievements enrichedTransactions={displayTransactions} />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <FinancialAchievements enrichedTransactions={displayTransactions} />
+                      <FinancialTipCard enrichedTransactions={displayTransactions} />
+                    </div>
                     
                     <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
                     
