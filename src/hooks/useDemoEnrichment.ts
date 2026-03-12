@@ -166,7 +166,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         lifestylePromise
           .then(data => {
             console.log("[Phase2] Lifestyle signals:", data);
-            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
+            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready", lifeEvents: "ready" }));
           })
           .catch(err => {
             console.warn("[Phase2] Lifestyle failed:", err);
