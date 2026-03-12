@@ -32,6 +32,15 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
     return "bg-red-500/10 text-red-700 border-red-500/20";
   };
 
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case "Premium": return "bg-amber-500/10 text-amber-700 border-amber-500/20";
+      case "Standard": return "bg-blue-500/10 text-blue-700 border-blue-500/20";
+      case "Budget": return "bg-teal-500/10 text-teal-700 border-teal-500/20";
+      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
   return (
     <>
       <Card className="bg-white border-slate-200">
@@ -71,6 +80,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     </TableHead>
                     <TableHead className="text-slate-700">Pillar</TableHead>
                     <TableHead className="text-slate-700">Subcategory</TableHead>
+                    <TableHead className="text-slate-700">Tier</TableHead>
                     {transactions.some(t => t.source) && (
                       <TableHead className="text-slate-700">Source</TableHead>
                     )}
@@ -172,6 +182,14 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getTierColor(transaction.spending_tier)} whitespace-nowrap`}
+                        >
+                          {transaction.spending_tier}
+                        </Badge>
+                      </TableCell>
                       {transactions.some(t => t.source) && (
                         <TableCell>
                           {transaction.source ? (

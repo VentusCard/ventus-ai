@@ -15,6 +15,7 @@ export interface EnrichedTransaction extends Transaction {
   pillar: string;
   subcategory: string;
   confidence: number;
+  spending_tier: "Budget" | "Standard" | "Premium" | "N/A";
   explanation: string;
   enriched_at: string;
   travel_context?: {
