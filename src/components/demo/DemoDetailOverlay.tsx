@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
+import type { LocalExperiencesData } from "@/hooks/useDemoEnrichment";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
@@ -11,6 +12,7 @@ interface Props {
   node: DemoNodeType;
   customerA: DemoCustomer;
   customerB: DemoCustomer;
+  localExperiences?: LocalExperiencesData;
   onClose: () => void;
 }
 
