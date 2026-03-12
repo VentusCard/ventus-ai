@@ -8,6 +8,15 @@ import { toast } from "sonner";
 
 export type NodeReadiness = Record<DemoNodeType, "idle" | "processing" | "ready">;
 
+export interface LocalExperienceDeal {
+  type: string;
+  merchantExample: string;
+}
+
+export interface LocalExperiencesData {
+  [customerId: string]: { destination: string; deals: LocalExperienceDeal[] }[];
+}
+
 const INITIAL_READINESS: NodeReadiness = {
   analytics: "idle",
   rewards: "idle",
@@ -23,6 +32,7 @@ interface DemoEnrichmentResult {
   statusMessage: string;
   enrichedA: EnrichedTransaction[];
   enrichedB: EnrichedTransaction[];
+  localExperiences: LocalExperiencesData;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
@@ -54,6 +64,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [inputReady, setInputReady] = useState(false);
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
+  const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
   const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
   const enrichA = useSSEEnrichment();
@@ -89,6 +100,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setInputReady(false);
     setPhase2Processing(false);
     setPhase2Status("");
+    setLocalExperiences({});
 
     // Set all to processing
     setTimeout(() => {
@@ -171,9 +183,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // 1. Classify + travel for A & B — onClassified fires after classification, before travel
-      const promiseA = enrichA.startEnrichment(txnsA, customerA.zip, onClassified);
-      const promiseB = enrichB.startEnrichment(txnsB, customerB.zip, onClassified);
+      // 1. Classify only (no travel-detection) — pass undefined for homeZip
+      const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassified);
+      const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassified);
 
       // 2. Deal personalization — NO dependency on classification, fire at t=0
       const deals = customerA.deals.map((d, i) => ({
@@ -211,10 +223,44 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
       }
 
-      // 3. Travel node becomes ready when useSSEEnrichment fully completes
-      Promise.all([promiseA, promiseB]).then(() => {
-        setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
-      });
+      // 3. Local experiences — fire at t=0 for each customer's first trip destination
+      const CATEGORIES = ["dining", "entertainment", "shopping"];
+      const fetchLocalExperiences = async (customer: DemoCustomer) => {
+        const trip = customer.trips[0];
+        if (!trip) return { customerId: customer.id, results: [] };
+
+        const city = trip.destination.split(",")[0].trim();
+        const results: { destination: string; deals: LocalExperienceDeal[] }[] = [];
+
+        try {
+          const responses = await Promise.all(
+            CATEGORIES.map(cat =>
+              fetch(`${supabaseUrl}/functions/v1/local-experiences`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ city, category: cat }),
+              }).then(r => r.ok ? r.json() : { deals: [] })
+            )
+          );
+          const allDeals = responses.flatMap(r => r.deals || []);
+          results.push({ destination: city, deals: allDeals });
+        } catch (err) {
+          console.warn(`[LocalExp] Failed for ${city}:`, err);
+        }
+        return { customerId: customer.id, results };
+      };
+
+      Promise.all([fetchLocalExperiences(customerA), fetchLocalExperiences(customerB)])
+        .then(([resA, resB]) => {
+          setLocalExperiences({
+            [resA.customerId]: resA.results,
+            [resB.customerId]: resB.results,
+          });
+          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+        })
+        .catch(() => {
+          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+        });
 
     } catch (err: any) {
       toast.error(err.message);
@@ -228,6 +274,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     statusMessage,
     enrichedA: enrichA.enrichedTransactions,
     enrichedB: enrichB.enrichedTransactions,
+    localExperiences,
     startEnrichment,
   };
 }

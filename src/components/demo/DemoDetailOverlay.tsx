@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
+import type { LocalExperiencesData } from "@/hooks/useDemoEnrichment";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
@@ -11,6 +12,7 @@ interface Props {
   node: DemoNodeType;
   customerA: DemoCustomer;
   customerB: DemoCustomer;
+  localExperiences?: LocalExperiencesData;
   onClose: () => void;
 }
 
@@ -30,9 +32,8 @@ const VIEW_MAP: Record<DemoNodeType, React.FC<{ customerA: DemoCustomer; custome
   wealth: DemoWealthView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, localExperiences, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
-  const ViewComponent = VIEW_MAP[node];
 
   return (
     <div className="absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
@@ -71,7 +72,16 @@ export default function DemoDetailOverlay({ node, customerA, customerB, onClose 
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2">
-        <ViewComponent customerA={customerA} customerB={customerB} />
+        {node === "travel" ? (
+          <DemoTravelView
+            customerA={customerA}
+            customerB={customerB}
+            localExperiencesA={localExperiences?.[customerA.id]}
+            localExperiencesB={localExperiences?.[customerB.id]}
+          />
+        ) : (
+          (() => { const ViewComponent = VIEW_MAP[node]; return <ViewComponent customerA={customerA} customerB={customerB} />; })()
+        )}
       </div>
     </div>
   );
