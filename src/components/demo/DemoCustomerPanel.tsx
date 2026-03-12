@@ -2,10 +2,13 @@ import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, CheckCircle2 } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
+import type { Transaction } from "@/types/transaction";
 
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
+  parsedTransactionsA: Transaction[];
+  parsedTransactionsB: Transaction[];
   onSelectA: (c: DemoCustomer) => void;
   onSelectB: (c: DemoCustomer) => void;
   onEnrich: () => void;
@@ -16,7 +19,8 @@ interface Props {
 }
 
 export default function DemoCustomerPanel({
-  customerA, customerB, onSelectA, onSelectB,
+  customerA, customerB, parsedTransactionsA, parsedTransactionsB,
+  onSelectA, onSelectB,
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
 }: Props) {
   return (
@@ -36,6 +40,7 @@ export default function DemoCustomerPanel({
         selected={customerA}
         onSelect={onSelectA}
         excludeId={customerB.id}
+        transactions={parsedTransactionsA}
       />
 
       <div className="my-4 border-t border-slate-200" />
@@ -47,6 +52,7 @@ export default function DemoCustomerPanel({
         selected={customerB}
         onSelect={onSelectB}
         excludeId={customerA.id}
+        transactions={parsedTransactionsB}
       />
 
       {/* Enrich button */}
@@ -113,15 +119,20 @@ function CustomerSlot({
   selected,
   onSelect,
   excludeId,
+  transactions,
 }: {
   label: string;
   color: string;
   selected: DemoCustomer;
   onSelect: (c: DemoCustomer) => void;
   excludeId: string;
+  transactions: Transaction[];
 }) {
-  const p = selected.profile;
-  const initials = p.name.split(" ").map((w) => w[0]).join("");
+  const totalSpend = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const dates = transactions.map(t => t.date).sort();
+  const dateRange = dates.length > 0
+    ? `${formatShortDate(dates[0])} – ${formatShortDate(dates[dates.length - 1])}`
+    : "";
 
   return (
     <div>
@@ -140,48 +151,48 @@ function CustomerSlot({
         ))}
       </select>
 
-      {/* Mini profile card */}
-      <div className="rounded-lg p-3 border border-slate-200 bg-white">
-        <div className="flex items-center gap-2.5 mb-2">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-            style={{ background: `${color}30`, border: `1px solid ${color}60` }}
-          >
-            {initials}
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">{p.name}</p>
-            <p className="text-[10px] text-slate-500">{p.segment} · {p.aum}</p>
-          </div>
-        </div>
+      {/* Summary stats */}
+      <div className="flex items-center gap-2 mb-2 text-[11px] text-slate-500">
+        <span className="font-semibold text-slate-700">{transactions.length}</span> txns
+        <span className="text-slate-300">·</span>
+        <span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total
+      </div>
+      {dateRange && (
+        <p className="text-[10px] text-slate-400 mb-2">{dateRange}</p>
+      )}
 
-        <div className="space-y-1 text-[11px] text-slate-500">
-          <div className="flex justify-between">
-            <span>Age</span>
-            <span className="text-slate-700">{p.demographics.age}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Occupation</span>
-            <span className="text-slate-700">{p.demographics.occupation}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Family</span>
-            <span className="text-slate-700">{p.demographics.familyStatus}</span>
-          </div>
-        </div>
-
-        {/* Lifestyle type */}
-        <div className="mt-2.5 rounded px-2 py-1.5" style={{ background: `${color}10`, border: `1px solid ${color}25` }}>
-          <p className="text-[10px] font-semibold" style={{ color }}>{selected.lifestyleType}</p>
-          <div className="flex gap-1 mt-1">
-            {selected.topPillars.slice(0, 3).map((pil) => (
-              <span key={pil.name} className="text-[9px] text-slate-600 bg-slate-100 rounded px-1.5 py-0.5">
-                {pil.icon} {pil.name}
-              </span>
-            ))}
-          </div>
+      {/* Compact transaction table */}
+      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+        <div className="max-h-[180px] overflow-y-auto">
+          <table className="w-full text-[11px]">
+            <thead className="sticky top-0 bg-slate-50">
+              <tr className="border-b border-slate-100">
+                <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
+                <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
+                <th className="text-right px-2 py-1.5 font-medium text-slate-500">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((t, i) => (
+                <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
+                  <td className="px-2 py-1 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                  <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
+                  <td className="px-2 py-1 text-right text-slate-400">{formatShortDate(t.date)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
+}
+
+function formatShortDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  } catch {
+    return dateStr;
+  }
 }
