@@ -64,6 +64,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [inputReady, setInputReady] = useState(false);
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
+  const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
   const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
   const enrichA = useSSEEnrichment();
