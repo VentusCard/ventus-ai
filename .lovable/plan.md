@@ -1,34 +1,60 @@
 
 
-## Understanding
+## Restructure Demo Diagram: 5 Nodes → 6 Nodes in 3 Sections
 
-The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
+The user wants exactly 6 nodes, grouped into 3 labeled sections of 2 each:
 
-Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
+```text
+Section 1: UX & Analytics
+  ├── Customer Engagement
+  └── Bank-Wide Analytics
 
-## Plan
+Section 2: Personalized Rewards
+  ├── Consumer Rewards
+  └── Travel Experiences
 
-### Move AnalyticsDemoPanel into the Hero Section
+Section 3: Life Cycle Intelligence
+  ├── Life Event Detection Dashboard  (NEW)
+  └── Wealth Management Copilot
+```
 
-1. **Modify `src/pages/BankWideAnalytics.tsx`**:
-   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
-   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
-   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+### Files to Modify
 
-2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
-   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
-   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
-   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
-   - Ensure tab bar, controls, and all content use dark-themed colors
+**1. `src/components/demo/DemoNetworkDiagram.tsx`**
+- Update `DemoNodeType` to 6 values: `"engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth"`
+- Restructure `NODES` array into 3 sections with 2 nodes each, adding section header labels and a new `lifeEvents` node (icon: `CalendarHeart` or `Activity`)
+- Add section group labels rendered as small uppercase text above each pair of nodes on the right side
+- Adjust vertical spacing for 6 nodes + 3 section headers
+- Update connector line rendering for 6 output paths
 
-3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
+**2. `src/hooks/useDemoEnrichment.ts`**
+- Add `lifeEvents` to `INITIAL_READINESS` and `NodeReadiness` type
+- Mark `lifeEvents` as processing/ready alongside the lifestyle signals phase (it maps to the same enrichment data)
 
-### Key Styling Changes in AnalyticsDemoPanel
-- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
-- Tab bar: dark background with light text, active tab in blue
-- Metric cards: dark cards with white values
-- Insight cards: dark cards with light text
-- Pillar bars: keep colored bars but on dark track
-- Personalization tab: dark cards, same transformation flow
-- Controls bar: dark theme
+**3. `src/components/demo/DemoDetailOverlay.tsx`**
+- Add `lifeEvents` entry to `NODE_TITLES` and routing logic
+- Create or import a `DemoLifeEventsView` component for the overlay content
+
+**4. New file: `src/components/demo/DemoLifeEventsView.tsx`**
+- Side-by-side view showing detected life events per customer (derived from enriched transaction patterns — e.g., "New Home", "New Baby", "Career Change")
+- Use existing lifestyle signal data from enrichment to populate event cards
+- Follow the same A/B comparison layout as other demo views
+
+### Visual Layout (Right Side of Diagram)
+
+```text
+  UX & ANALYTICS ──────────────
+  [📱 Customer Engagement     ]
+  [📊 Bank-Wide Analytics     ]
+
+  PERSONALIZED REWARDS ────────
+  [🎁 Consumer Rewards        ]
+  [✈️ Travel Experiences      ]
+
+  LIFE CYCLE INTELLIGENCE ─────
+  [📅 Life Event Detection    ]
+  [📈 Wealth Management       ]
+```
+
+Each section header is a small blue uppercase label. Node buttons remain clickable with the same readiness states.
 
