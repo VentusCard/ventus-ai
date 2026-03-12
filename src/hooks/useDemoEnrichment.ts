@@ -8,6 +8,15 @@ import { toast } from "sonner";
 
 export type NodeReadiness = Record<DemoNodeType, "idle" | "processing" | "ready">;
 
+export interface LocalExperienceDeal {
+  type: string;
+  merchantExample: string;
+}
+
+export interface LocalExperiencesData {
+  [customerId: string]: { destination: string; deals: LocalExperienceDeal[] }[];
+}
+
 const INITIAL_READINESS: NodeReadiness = {
   analytics: "idle",
   rewards: "idle",
@@ -23,6 +32,7 @@ interface DemoEnrichmentResult {
   statusMessage: string;
   enrichedA: EnrichedTransaction[];
   enrichedB: EnrichedTransaction[];
+  localExperiences: LocalExperiencesData;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
