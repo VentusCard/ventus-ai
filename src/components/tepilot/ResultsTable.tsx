@@ -41,6 +41,17 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
     }
   };
 
+  const getFrequencyColor = (frequency: string) => {
+    switch (frequency) {
+      case "Weekly": return "bg-indigo-500/10 text-indigo-700 border-indigo-500/20";
+      case "Monthly": return "bg-violet-500/10 text-violet-700 border-violet-500/20";
+      case "Occasional": return "bg-cyan-500/10 text-cyan-700 border-cyan-500/20";
+      case "Annually": return "bg-orange-500/10 text-orange-700 border-orange-500/20";
+      case "One-Time": return "bg-slate-500/10 text-slate-600 border-slate-500/20";
+      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
   return (
     <>
       <Card className="bg-white border-slate-200">
