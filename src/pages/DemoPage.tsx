@@ -3,6 +3,7 @@ import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import DemoCustomerPanel from "@/components/demo/DemoCustomerPanel";
 import DemoNetworkDiagram, { type DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import DemoDetailOverlay from "@/components/demo/DemoDetailOverlay";
+import DemoPasswordGate from "@/components/demo/DemoPasswordGate";
 import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
