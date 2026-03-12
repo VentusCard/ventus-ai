@@ -254,25 +254,23 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
 
   // Derive lifestyle signals from pillars and merchants
   const lifestyleSignals: string[] = [];
+  const PILLAR_SHORT: Record<string, string> = {
+    "Travel & Exploration": "traveler", "Sports & Active Living": "athlete",
+    "Food & Dining": "diner", "Entertainment & Culture": "culture seeker",
+    "Style & Beauty": "fashion spender", "Health & Wellness": "wellness spender",
+    "Technology & Digital Life": "tech buyer", "Pets": "pet owner",
+    "Home & Living": "home spender", "Family & Community": "family spender",
+  };
   topPillars.forEach(p => {
-    if (p.pillar === 'Travel & Exploration' && p.annualSpend > 2000) {
-      lifestyleSignals.push('frequent traveler');
+    if (p.dominantTier && p.dominantTier !== "N/A" && PILLAR_SHORT[p.pillar]) {
+      lifestyleSignals.push(`${p.dominantTier.toLowerCase()} ${PILLAR_SHORT[p.pillar]}`);
     }
-    if (p.pillar === 'Sports & Active Living' && p.annualSpend > 1000) {
-      lifestyleSignals.push('fitness enthusiast');
-    }
-    if (p.pillar === 'Food & Dining' && p.annualSpend > 3000) {
-      lifestyleSignals.push('food connoisseur');
-    }
-    if (p.pillar === 'Entertainment & Culture' && p.annualSpend > 1500) {
-      lifestyleSignals.push('experience seeker');
-    }
-    if (p.pillar === 'Style & Beauty' && p.annualSpend > 2000) {
-      lifestyleSignals.push('style-conscious');
-    }
-    if (p.pillar === 'Health & Wellness' && p.annualSpend > 1500) {
-      lifestyleSignals.push('health-focused');
-    }
+    if (p.pillar === 'Travel & Exploration' && p.annualSpend > 2000) lifestyleSignals.push('frequent traveler');
+    if (p.pillar === 'Sports & Active Living' && p.annualSpend > 1000) lifestyleSignals.push('fitness enthusiast');
+    if (p.pillar === 'Food & Dining' && p.annualSpend > 3000) lifestyleSignals.push('food connoisseur');
+    if (p.pillar === 'Entertainment & Culture' && p.annualSpend > 1500) lifestyleSignals.push('experience seeker');
+    if (p.pillar === 'Style & Beauty' && p.annualSpend > 2000) lifestyleSignals.push('style-conscious');
+    if (p.pillar === 'Health & Wellness' && p.annualSpend > 1500) lifestyleSignals.push('health-focused');
   });
 
   // Extract location context
