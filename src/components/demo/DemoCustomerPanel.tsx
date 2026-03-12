@@ -1,13 +1,22 @@
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
+import { Button } from "@/components/ui/button";
+import { Loader2, Sparkles, CheckCircle2 } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
   onSelectA: (c: DemoCustomer) => void;
   onSelectB: (c: DemoCustomer) => void;
+  onEnrich: () => void;
+  isProcessing: boolean;
+  statusMessage: string;
+  currentPhase: "idle" | "classification" | "travel" | "complete";
 }
 
-export default function DemoCustomerPanel({ customerA, customerB, onSelectA, onSelectB }: Props) {
+export default function DemoCustomerPanel({
+  customerA, customerB, onSelectA, onSelectB,
+  onEnrich, isProcessing, statusMessage, currentPhase,
+}: Props) {
   return (
     <div className="h-full flex flex-col p-5 overflow-y-auto">
       {/* Logo */}
@@ -38,10 +47,59 @@ export default function DemoCustomerPanel({ customerA, customerB, onSelectA, onS
         excludeId={customerA.id}
       />
 
-      <div className="mt-auto pt-6">
-        <p className="text-[10px] text-slate-400 text-center">Select two customers to compare personalized outputs</p>
+      {/* Enrich button */}
+      <div className="mt-auto pt-6 space-y-3">
+        <Button
+          onClick={onEnrich}
+          disabled={isProcessing}
+          variant="ai"
+          size="sm"
+          className="w-full"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Enriching…
+            </>
+          ) : currentPhase === "complete" ? (
+            <>
+              <CheckCircle2 className="h-4 w-4" />
+              Re-Enrich Both
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              Enrich Both Customers
+            </>
+          )}
+        </Button>
+
+        {/* Status line */}
+        {(isProcessing || currentPhase === "complete") && (
+          <div className="text-center">
+            <p className="text-[10px] text-slate-500 truncate">{statusMessage}</p>
+            {isProcessing && (
+              <div className="mt-1.5 flex gap-1 justify-center">
+                <PhaseDot label="Classify" active={currentPhase === "classification"} done={currentPhase === "travel" || currentPhase === "complete"} />
+                <PhaseDot label="Travel" active={currentPhase === "travel"} done={currentPhase === "complete"} />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+function PhaseDot({ label, active, done }: { label: string; active: boolean; done: boolean }) {
+  return (
+    <span className={`text-[9px] px-2 py-0.5 rounded-full font-medium ${
+      done ? "bg-emerald-100 text-emerald-700" :
+      active ? "bg-blue-100 text-blue-700 animate-pulse" :
+      "bg-slate-100 text-slate-400"
+    }`}>
+      {done ? "✓ " : ""}{label}
+    </span>
   );
 }
 

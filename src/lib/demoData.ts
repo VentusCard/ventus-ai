@@ -5,12 +5,20 @@ import {
   SAMPLE_CUSTOMER_4,
   SAMPLE_CUSTOMER_5,
   SAMPLE_CUSTOMER_6,
+  SAMPLE_CSV,
+  SAMPLE_CSV_SPORTS_WELLNESS,
+  SAMPLE_CSV_FOOD_HOME,
+  SAMPLE_CSV_TRAVEL_FAMILY_12,
+  SAMPLE_CSV_NYC_SPORTS_HOME_12,
+  SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
 } from "./sampleData";
 import type { ClientProfileData } from "@/types/clientProfile";
 
 export interface DemoCustomer {
   id: string;
   profile: ClientProfileData;
+  csv: string;
+  zip: string;
   lifestyleType: string;
   topPillars: { name: string; icon: string; pct: number; spend: string }[];
   sampleTransactions: { merchant: string; amount: string; date: string; category: string }[];
@@ -24,6 +32,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c1",
     profile: SAMPLE_CUSTOMER_1,
+    csv: SAMPLE_CSV,
+    zip: "94102",
     lifestyleType: "Wellness Explorer",
     topPillars: [
       { name: "Travel", icon: "✈️", pct: 34, spend: "$4,120" },
@@ -61,6 +71,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c2",
     profile: SAMPLE_CUSTOMER_2,
+    csv: SAMPLE_CSV_SPORTS_WELLNESS,
+    zip: "78701",
     lifestyleType: "Tech Enthusiast",
     topPillars: [
       { name: "Technology", icon: "💻", pct: 28, spend: "$3,360" },
@@ -98,6 +110,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c3",
     profile: SAMPLE_CUSTOMER_3,
+    csv: SAMPLE_CSV_FOOD_HOME,
+    zip: "60614",
     lifestyleType: "Family Planner",
     topPillars: [
       { name: "Family", icon: "👨‍👩‍👧‍👦", pct: 30, spend: "$5,400" },
@@ -135,6 +149,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c4",
     profile: SAMPLE_CUSTOMER_4,
+    csv: SAMPLE_CSV_TRAVEL_FAMILY_12,
+    zip: "94102",
     lifestyleType: "Golf & Leisure",
     topPillars: [
       { name: "Golf", icon: "⛳", pct: 32, spend: "$8,960" },
@@ -172,6 +188,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c5",
     profile: SAMPLE_CUSTOMER_5,
+    csv: SAMPLE_CSV_NYC_SPORTS_HOME_12,
+    zip: "10003",
     lifestyleType: "Urban Professional",
     topPillars: [
       { name: "Dining", icon: "🍽️", pct: 28, spend: "$5,040" },
@@ -209,6 +227,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c6",
     profile: SAMPLE_CUSTOMER_6,
+    csv: SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
+    zip: "60610",
     lifestyleType: "Adventurer & Investor",
     topPillars: [
       { name: "Travel", icon: "✈️", pct: 30, spend: "$9,600" },
