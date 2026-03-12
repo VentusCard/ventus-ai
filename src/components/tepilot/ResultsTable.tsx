@@ -182,6 +182,14 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getTierColor(transaction.spending_tier)} whitespace-nowrap`}
+                        >
+                          {transaction.spending_tier}
+                        </Badge>
+                      </TableCell>
                       {transactions.some(t => t.source) && (
                         <TableCell>
                           {transaction.source ? (

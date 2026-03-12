@@ -621,6 +621,7 @@ Deno.serve(async (req) => {
               pillar: classification.pillar,
               subcategory: classification.subcategory || "General",
               confidence: classification.confidence || 0.8,
+              spending_tier: classification.spending_tier || "N/A",
               explanation: classification.explanation || "",
               enriched_at: new Date().toISOString(),
             };
