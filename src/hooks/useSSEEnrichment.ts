@@ -330,7 +330,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     }
   }, []);
 
-  const startEnrichment = useCallback(async (transactions: Transaction[], homeZip?: string) => {
+  const startEnrichment = useCallback(async (transactions: Transaction[], homeZip?: string): Promise<EnrichedTransaction[]> => {
     setIsProcessing(true);
     setError(null);
     setEnrichedTransactions([]);
@@ -359,12 +359,14 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
         toast.success(`${classifiedTransactions.length} transactions classified!`);
       }
 
+      return classifiedTransactions;
     } catch (err: any) {
       setError(err.message);
       setIsProcessing(false);
       setCurrentPhase('idle');
       toast.error(`Enrichment failed: ${err.message}`);
       console.error('[Enrichment Error]', err);
+      return [];
     }
   }, [callClassifyTransactions, callEnrichTransactions]);
 
