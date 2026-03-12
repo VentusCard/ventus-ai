@@ -229,22 +229,13 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedTransaction(transaction)}
-                          >
-                            <Eye className="w-4 h-4 text-slate-700" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setCorrectionTransaction(transaction)}
-                          >
-                            <Edit className="w-4 h-4 text-slate-700" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedTransaction(transaction)}
+                        >
+                          <Eye className="w-4 h-4 text-slate-700" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
