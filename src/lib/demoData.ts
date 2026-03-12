@@ -188,6 +188,8 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c5",
     profile: SAMPLE_CUSTOMER_5,
+    csv: SAMPLE_CSV_NYC_SPORTS_HOME_12,
+    zip: "10003",
     lifestyleType: "Urban Professional",
     topPillars: [
       { name: "Dining", icon: "🍽️", pct: 28, spend: "$5,040" },
