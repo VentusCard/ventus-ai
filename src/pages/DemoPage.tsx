@@ -10,12 +10,9 @@ export default function DemoPage() {
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden" style={{ background: "#0a0f1e", fontFamily: "Manrope, sans-serif" }}>
+    <div className="h-screen w-screen flex overflow-hidden bg-white" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Left Panel — 30% */}
-      <div
-        className="w-[30%] min-w-[280px] max-w-[380px] shrink-0 border-r border-slate-800"
-        style={{ background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(12px)" }}
-      >
+      <div className="w-[30%] min-w-[280px] max-w-[380px] shrink-0 border-r border-slate-200 bg-slate-50">
         <DemoCustomerPanel
           customerA={customerA}
           customerB={customerB}
