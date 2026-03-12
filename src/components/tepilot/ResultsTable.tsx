@@ -86,8 +86,8 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     <TableHead className="text-slate-700">Merchant</TableHead>
                     <TableHead className="text-slate-700">Amount</TableHead>
                     <TableHead className="text-slate-700">Date</TableHead>
-                    <TableHead>
-                      <ArrowRight className="w-4 h-4 mx-auto" />
+                    <TableHead className="w-8">
+                      <span className="sr-only">Arrow</span>
                     </TableHead>
                     <TableHead className="text-slate-700">Pillar</TableHead>
                     <TableHead className="text-slate-700">Subcategory</TableHead>
