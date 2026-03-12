@@ -27,6 +27,8 @@ export default function DemoPage() {
     inputReady,
     isProcessing,
     statusMessage,
+    enrichedA,
+    enrichedB,
     localExperiences,
     startEnrichment,
   } = useDemoEnrichment();
