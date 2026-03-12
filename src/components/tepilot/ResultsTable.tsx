@@ -202,6 +202,14 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           {transaction.spending_tier}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getFrequencyColor(transaction.purchase_frequency)} whitespace-nowrap`}
+                        >
+                          {transaction.purchase_frequency}
+                        </Badge>
+                      </TableCell>
                       {transactions.some(t => t.source) && (
                         <TableCell>
                           {transaction.source ? (
