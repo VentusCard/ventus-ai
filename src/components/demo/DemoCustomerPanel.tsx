@@ -250,7 +250,7 @@ function CustomerSlot({
                     <HelpCircle className="h-3.5 w-3.5" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-72 p-3" side="left">
+                <PopoverContent className="w-72 p-3 bg-white border-slate-200" side="left">
                   <p className="text-[11px] font-medium text-slate-700 mb-2">
                     Paste this into ChatGPT / Claude to generate sample data:
                   </p>
