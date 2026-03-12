@@ -231,78 +231,75 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Output Nodes — Right, grouped by section */}
       {SECTIONS.map((section, si) => {
-        const sectionTop = si * sectionHeight;
+        const sectionTop = getSectionTop(si);
         return (
-          <div key={section.label}>
-            {/* Section header */}
-            <div
-              className="absolute"
-              style={{
-                left: colRight - 50,
-                top: sectionTop + 4,
-                zIndex: 2,
-              }}
-            >
-              <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600">
-                {section.label}
-              </p>
-            </div>
+          <div
+            key={section.label}
+            className="absolute rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col p-3 pt-2"
+            style={{
+              left: colRight - 58,
+              top: sectionTop,
+              width: 210,
+              height: sectionContentHeight,
+              zIndex: 2,
+            }}
+          >
+            <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600 mb-2">
+              {section.label}
+            </p>
 
-            {/* Section nodes */}
-            {section.nodes.map((node, ni) => {
-              const nodeY = getNodeY(si, ni);
-              const Icon = node.icon;
-              const isActive = activeNode === node.id;
-              const state = nodeReadiness[node.id];
-              const isReady = state === "ready";
+            <div className="flex flex-col gap-2">
+              {section.nodes.map((node) => {
+                const Icon = node.icon;
+                const isActive = activeNode === node.id;
+                const state = nodeReadiness[node.id];
+                const isReady = state === "ready";
 
-              return (
-                <button
-                  key={node.id}
-                  onClick={() => onNodeClick(node.id)}
-                  className="absolute flex items-center gap-2.5 rounded-xl border px-4 py-2.5 cursor-pointer group"
-                  style={{
-                    left: colRight - 50,
-                    top: nodeY - 20,
-                    minWidth: 180,
-                    background: isReady
-                      ? `${node.color}15`
-                      : isActive
-                        ? `${node.color}10`
-                        : "#ffffff",
-                    borderColor: isReady
-                      ? `${node.color}80`
-                      : isActive
-                        ? `${node.color}60`
-                        : "#e2e8f0",
-                    boxShadow: isReady
-                      ? `0 0 24px ${node.color}20`
-                      : isActive
-                        ? `0 0 20px ${node.color}15`
-                        : "0 1px 3px rgba(0,0,0,0.06)",
-                    zIndex: 2,
-                    transition: "all 0.5s ease",
-                  }}
-                >
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => onNodeClick(node.id)}
+                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 cursor-pointer group"
                     style={{
-                      background: isReady ? `${node.color}20` : `${node.color}12`,
-                      border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
-                      transition: "all 0.4s ease",
+                      height: nodeHeight,
+                      background: isReady
+                        ? `${node.color}15`
+                        : isActive
+                          ? `${node.color}10`
+                          : "#ffffff",
+                      borderColor: isReady
+                        ? `${node.color}80`
+                        : isActive
+                          ? `${node.color}60`
+                          : "#e2e8f0",
+                      boxShadow: isReady
+                        ? `0 0 16px ${node.color}20`
+                        : isActive
+                          ? `0 0 12px ${node.color}15`
+                          : "0 1px 3px rgba(0,0,0,0.06)",
+                      transition: "all 0.5s ease",
                     }}
                   >
-                    <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-                    <p className="text-[8px] text-slate-400">
-                      {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{
+                        background: isReady ? `${node.color}20` : `${node.color}12`,
+                        border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
+                        transition: "all 0.4s ease",
+                      }}
+                    >
+                      <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+                      <p className="text-[8px] text-slate-400">
+                        {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         );
       })}
