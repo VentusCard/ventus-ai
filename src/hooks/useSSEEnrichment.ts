@@ -9,7 +9,7 @@ interface UseSSEEnrichmentReturn {
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
   error: string | null;
-  startEnrichment: (transactions: Transaction[], homeZip?: string) => Promise<void>;
+  startEnrichment: (transactions: Transaction[], homeZip?: string) => Promise<EnrichedTransaction[]>;
   resetEnrichment: () => void;
   restoreEnrichedTransactions: (transactions: EnrichedTransaction[]) => void;
 }
