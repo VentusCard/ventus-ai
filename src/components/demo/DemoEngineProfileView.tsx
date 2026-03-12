@@ -1,17 +1,43 @@
 import { useState, useEffect } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import type { EnrichedTransaction } from "@/types/transaction";
+import { ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
+  enrichedA?: EnrichedTransaction[];
+  enrichedB?: EnrichedTransaction[];
 }
 
-function buildProfile(customer: DemoCustomer) {
-  const txs = customer.sampleTransactions;
-  const totalSpend = txs.reduce((s, t) => s + parseFloat(t.amount.replace(/[^0-9.-]/g, "")), 0);
-  const merchants = [...new Set(txs.map(t => t.merchant))];
-  const categories = [...new Set(txs.map(t => t.category))];
+function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransaction[]) {
+  const totalSpend = enriched.reduce((s, t) => s + Math.abs(t.amount || 0), 0);
+
+  // Pillar breakdown from enriched data
+  const pillarMap: Record<string, { spend: number; count: number; confSum: number }> = {};
+  const merchantMap: Record<string, number> = {};
+  const subcatMap: Record<string, number> = {};
+
+  for (const t of enriched) {
+    const pillar = t.pillar || "Unknown";
+    if (!pillarMap[pillar]) pillarMap[pillar] = { spend: 0, count: 0, confSum: 0 };
+    pillarMap[pillar].spend += Math.abs(t.amount || 0);
+    pillarMap[pillar].count += 1;
+    pillarMap[pillar].confSum += t.confidence || 0;
+
+    const merchant = t.normalized_merchant || t.merchant_name;
+    merchantMap[merchant] = (merchantMap[merchant] || 0) + Math.abs(t.amount || 0);
+
+    const subcat = t.subcategory || "Other";
+    subcatMap[subcat] = (subcatMap[subcat] || 0) + Math.abs(t.amount || 0);
+  }
+
+  const pillarEntries = Object.entries(pillarMap).sort((a, b) => b[1].spend - a[1].spend);
+  const topMerchants = Object.entries(merchantMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const topSubcats = Object.entries(subcatMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const avgConfidence = enriched.length > 0
+    ? enriched.reduce((s, t) => s + (t.confidence || 0), 0) / enriched.length
+    : 0;
 
   return {
     customer_id: customer.id,
@@ -23,25 +49,35 @@ function buildProfile(customer: DemoCustomer) {
       income_level: customer.profile.demographics.incomeLevel,
       segment: customer.profile.segment,
     },
+    enrichment_metadata: {
+      total_transactions_classified: enriched.length,
+      avg_confidence: `${(avgConfidence * 100).toFixed(1)}%`,
+      enriched_at: new Date().toISOString(),
+    },
     spending_summary: {
-      total_analyzed: `$${Math.abs(totalSpend).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      transaction_count: txs.length,
-      top_pillars: customer.topPillars.map(p => ({
-        pillar: p.name,
-        share: `${p.pct}%`,
-        spend: p.spend,
+      total_analyzed: `$${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      transaction_count: enriched.length,
+      pillar_breakdown: pillarEntries.map(([name, data]) => ({
+        pillar: name,
+        spend: `$${data.spend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+        share: `${((data.spend / totalSpend) * 100).toFixed(1)}%`,
+        avg_confidence: `${((data.confSum / data.count) * 100).toFixed(0)}%`,
+        tx_count: data.count,
       })),
     },
     behavioral_patterns: {
-      unique_merchants: merchants.length,
-      top_merchants: merchants.slice(0, 5),
-      category_diversity: categories.length,
+      unique_merchants: Object.keys(merchantMap).length,
+      top_merchants_by_spend: topMerchants.map(([name, spend]) => ({
+        merchant: name,
+        total_spend: `$${spend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      })),
+      top_subcategories: topSubcats.map(([name, spend]) => ({
+        subcategory: name,
+        spend: `$${spend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      })),
+      category_diversity: Object.keys(pillarMap).length,
       lifestyle_type: customer.lifestyleType,
     },
-    pillar_breakdown: customer.pillarBreakdown.map(p => ({
-      pillar: p.pillar,
-      percentage: `${p.pct}%`,
-    })),
     life_events_detected: customer.lifeEvents.map(e => ({
       event: e.name,
       confidence: `${e.confidence}%`,
@@ -50,10 +86,11 @@ function buildProfile(customer: DemoCustomer) {
       evidence: e.evidence,
     })),
     opportunity_flags: [
-      customer.topPillars.length > 3 && "diversified_spender",
+      pillarEntries.length > 3 && "diversified_spender",
       customer.lifeEvents.some(e => e.urgency === "Urgent") && "urgent_life_event",
       customer.trips.length > 0 && "active_traveler",
       customer.deals.some(d => d.match >= 90) && "high_match_rewards",
+      avgConfidence > 0.85 && "high_confidence_profile",
     ].filter(Boolean),
   };
 }
@@ -136,8 +173,23 @@ function ArrayNode({ data, depth, staggerBase }: { data: JsonValue[]; depth: num
   );
 }
 
-function ProfilePanel({ customer, accentColor }: { customer: DemoCustomer; accentColor: string }) {
-  const profile = buildProfile(customer);
+function ProfilePanel({ customer, enriched, accentColor }: { customer: DemoCustomer; enriched?: EnrichedTransaction[]; accentColor: string }) {
+  if (!enriched || enriched.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-slate-950 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ background: accentColor }} />
+          <span className="text-xs font-mono font-semibold text-slate-300">{customer.profile.name}</span>
+        </div>
+        <div className="p-8 flex flex-col items-center justify-center gap-3 text-slate-500">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+          <p className="text-xs font-mono">Run enrichment to generate profile</p>
+        </div>
+      </div>
+    );
+  }
+
+  const profile = buildEnrichedProfile(customer, enriched);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-950 overflow-hidden">
@@ -153,11 +205,11 @@ function ProfilePanel({ customer, accentColor }: { customer: DemoCustomer; accen
   );
 }
 
-export default function DemoEngineProfileView({ customerA, customerB }: Props) {
+export default function DemoEngineProfileView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <ProfilePanel customer={customerA} accentColor="#3b82f6" />
-      <ProfilePanel customer={customerB} accentColor="#10b981" />
+      <ProfilePanel customer={customerA} enriched={enrichedA} accentColor="#3b82f6" />
+      <ProfilePanel customer={customerB} enriched={enrichedB} accentColor="#10b981" />
     </div>
   );
 }

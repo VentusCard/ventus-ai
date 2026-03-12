@@ -101,6 +101,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   };
 
   const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
+  const allNodesReady = ALL_NODES.every(n => nodeReadiness[n.id] === "ready");
   const inputState: "idle" | "processing" | "ready" = inputReady ? "ready" : anyProcessing ? "processing" : "idle";
 
   // Flatten for SVG line rendering
