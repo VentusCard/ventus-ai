@@ -23,7 +23,7 @@ interface ResultsTableProps {
 
 export function ResultsTable({ transactions, currentPhase = "idle", statusMessage = "", onCorrection }: ResultsTableProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
-  const [correctionTransaction, setCorrectionTransaction] = useState<EnrichedTransaction | null>(null);
+  
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
