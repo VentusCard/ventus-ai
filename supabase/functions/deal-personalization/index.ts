@@ -29,13 +29,14 @@ You will receive ${dealCount} deals. Return EXACTLY ${dealCount} personalized re
 
 INPUT:
 - deals (id, m=merchant, c=category, r=reward)
-- profile (pillars with spend, signals from transactions)
+- profile (pillars with spend, signals from transactions, pillarTiers mapping pillar→dominant spending tier)
 - ctx (optional personal context: demo with occ/fam/inc/tier, persona with traits/interests)
 
 PERSONALIZATION STRATEGY:
 When ctx is available, COMBINE signals naturally to create emotionally resonant messages:
 - Demo (occupation, family status, wealth tier) + Lifestyle signals (activities from transactions) + Merchant benefit
 - Focus on EMOTIONAL BENEFITS, not data exposure
+- Lifestyle signals may include tier-qualified descriptors like "premium diner", "budget traveler", "standard athlete" — use these to match tone to the customer's spending level in that specific category
 
 TIER-AWARE DIFFERENTIATION (CRITICAL — each tier MUST have a distinct tone and angle):
 When ctx.demo.tier is provided, adapt tone and value proposition:

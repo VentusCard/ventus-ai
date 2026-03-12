@@ -633,7 +633,8 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
             .map(([name, spend]) => ({ n: name, s: Math.round(spend) }))
             .sort((a, b) => b.s - a.s)
             .slice(0, 3),
-          signals: customerProfile.lifestyleSignals?.slice(0, 3) || []
+          signals: customerProfile.lifestyleSignals?.slice(0, 5) || [],
+          pillarTiers: customerProfile.pillarTiers || {},
         };
         
         // Build slim personal context for AI personalization
