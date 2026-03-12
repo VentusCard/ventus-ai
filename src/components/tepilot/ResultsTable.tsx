@@ -4,10 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, Edit, Loader2, Plane, MapPin } from "lucide-react";
+import { ArrowRight, Eye, Loader2, Plane, MapPin } from "lucide-react";
 import { PILLAR_COLORS, getSourceColor } from "@/lib/sampleData";
 import { TransactionDetailModal } from "./TransactionDetailModal";
-import { CorrectionModal } from "./CorrectionModal";
 import {
   Tooltip,
   TooltipContent,
@@ -24,7 +23,7 @@ interface ResultsTableProps {
 
 export function ResultsTable({ transactions, currentPhase = "idle", statusMessage = "", onCorrection }: ResultsTableProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
-  const [correctionTransaction, setCorrectionTransaction] = useState<EnrichedTransaction | null>(null);
+  
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
@@ -230,22 +229,13 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedTransaction(transaction)}
-                          >
-                            <Eye className="w-4 h-4 text-slate-700" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setCorrectionTransaction(transaction)}
-                          >
-                            <Edit className="w-4 h-4 text-slate-700" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedTransaction(transaction)}
+                        >
+                          <Eye className="w-4 h-4 text-slate-700" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -262,18 +252,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
           transaction={selectedTransaction}
           isOpen={!!selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
-        />
-      )}
-
-      {correctionTransaction && (
-        <CorrectionModal
-          transaction={correctionTransaction}
-          isOpen={!!correctionTransaction}
-          onClose={() => setCorrectionTransaction(null)}
-          onSave={(correctedPillar, correctedSubcategory, reason) => {
-            onCorrection(correctionTransaction.transaction_id, correctedPillar, correctedSubcategory, reason);
-            setCorrectionTransaction(null);
-          }}
+          onCorrection={onCorrection}
         />
       )}
     </>
