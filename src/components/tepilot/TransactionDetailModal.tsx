@@ -41,7 +41,7 @@ export function TransactionDetailModal({ transaction, isOpen, onClose, onCorrect
   const cancelEditing = () => setIsEditing(false);
 
   const saveCorrection = () => {
-    onCorrection(transaction.transaction_id, editPillar, editSubcategory, editReason);
+    onCorrection?.(transaction.transaction_id, editPillar, editSubcategory, editReason);
     setIsEditing(false);
     onClose();
   };
