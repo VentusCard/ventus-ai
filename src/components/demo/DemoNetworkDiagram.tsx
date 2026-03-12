@@ -48,50 +48,41 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const colRight = dims.w * 0.85;
   const midY = dims.h * 0.5;
 
-  // Input card positions
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  // Output node positions — evenly spaced
   const nodeSpacing = dims.h / (NODES.length + 1);
 
   return (
     <div className="relative w-full h-full">
-      {/* SVG animated lines */}
       <svg ref={svgRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.5" />
           </linearGradient>
-          {/* Animated dot */}
-          <circle id="flowDot" r="3" fill="#60a5fa">
-            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
-          </circle>
         </defs>
 
         {dims.w > 0 && (
           <>
-            {/* Left → Center lines */}
             {[inputAY, inputBY].map((y, i) => {
               const path = `M ${colLeft + 80} ${y} C ${colCenter - 60} ${y}, ${colCenter - 60} ${midY}, ${colCenter - 40} ${midY}`;
               return (
                 <g key={`in-${i}`}>
-                  <path d={path} stroke="url(#lineGrad)" strokeWidth="1.5" fill="none" opacity="0.4" />
-                  <circle r="2.5" fill="#60a5fa">
+                  <path d={path} stroke="url(#lineGrad)" strokeWidth="1.5" fill="none" opacity="0.35" />
+                  <circle r="2.5" fill="#3b82f6">
                     <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
                   </circle>
                 </g>
               );
             })}
 
-            {/* Center → Right lines */}
             {NODES.map((node, i) => {
               const nodeY = nodeSpacing * (i + 1);
               const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${nodeY}, ${colRight - 50} ${nodeY}`;
               return (
                 <g key={`out-${i}`}>
-                  <path d={path} stroke={node.color} strokeWidth="1.5" fill="none" opacity={activeNode === node.id ? 0.8 : 0.3} />
+                  <path d={path} stroke={node.color} strokeWidth="1.5" fill="none" opacity={activeNode === node.id ? 0.7 : 0.25} />
                   <circle r="2.5" fill={node.color}>
                     <animateMotion dur={`${2 + i * 0.4}s`} repeatCount="indefinite" path={path} />
                   </circle>
@@ -112,26 +103,23 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Engine Node — Center */}
       <div
-        className="absolute flex flex-col items-center justify-center rounded-2xl border"
+        className="absolute flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white"
         style={{
           left: colCenter - 70,
           top: midY - 100,
           width: 160,
           height: 200,
-          background: "rgba(15, 23, 42, 0.8)",
-          borderColor: "rgba(99, 102, 241, 0.3)",
-          backdropFilter: "blur(12px)",
-          boxShadow: "0 0 40px rgba(99, 102, 241, 0.15)",
+          boxShadow: "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
         }}
       >
-        <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center mb-2 border border-indigo-500/30">
-          <span className="text-indigo-400 text-lg font-bold">V</span>
+        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200">
+          <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
-        <p className="text-[11px] font-bold text-white text-center mb-2">Ventus AI Engine</p>
+        <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
         <div className="space-y-1 px-3">
           {ENGINE_FEATURES.map((f) => (
-            <p key={f} className="text-[8px] text-slate-400 text-center leading-tight">{f}</p>
+            <p key={f} className="text-[8px] text-slate-500 text-center leading-tight">{f}</p>
           ))}
         </div>
       </div>
@@ -151,22 +139,21 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               left: colRight - 50,
               top: nodeY - 24,
               minWidth: 180,
-              background: isActive ? `${node.color}15` : "rgba(15, 23, 42, 0.7)",
-              borderColor: isActive ? `${node.color}80` : "rgba(255,255,255,0.08)",
-              boxShadow: isActive ? `0 0 20px ${node.color}30` : "none",
-              backdropFilter: "blur(8px)",
+              background: isActive ? `${node.color}10` : "#ffffff",
+              borderColor: isActive ? `${node.color}60` : "#e2e8f0",
+              boxShadow: isActive ? `0 0 20px ${node.color}15` : "0 1px 3px rgba(0,0,0,0.06)",
               zIndex: 2,
             }}
           >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: `${node.color}20`, border: `1px solid ${node.color}40` }}
+              style={{ background: `${node.color}12`, border: `1px solid ${node.color}30` }}
             >
               <Icon className="w-4 h-4" style={{ color: node.color }} />
             </div>
             <div className="text-left">
-              <p className="text-[11px] font-semibold text-white group-hover:text-white/90">{node.label}</p>
-              <p className="text-[9px] text-slate-500">Click to explore →</p>
+              <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+              <p className="text-[9px] text-slate-400">Click to explore →</p>
             </div>
           </button>
         );
@@ -179,12 +166,8 @@ function TxCard({ customer, color }: { customer: DemoCustomer; color: string }) 
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
-      className="rounded-lg border p-2.5"
-      style={{
-        background: "rgba(15, 23, 42, 0.8)",
-        borderColor: `${color}30`,
-        backdropFilter: "blur(8px)",
-      }}
+      className="rounded-lg border p-2.5 bg-white"
+      style={{ borderColor: `${color}25`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
     >
       <div className="flex items-center gap-2 mb-2">
         <div
@@ -193,13 +176,13 @@ function TxCard({ customer, color }: { customer: DemoCustomer; color: string }) 
         >
           {initials}
         </div>
-        <p className="text-[10px] font-semibold text-white truncate">{customer.profile.name}</p>
+        <p className="text-[10px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
       </div>
       <div className="space-y-1">
         {customer.sampleTransactions.slice(0, 3).map((tx, i) => (
           <div key={i} className="flex justify-between text-[8px]">
-            <span className="text-slate-400 truncate mr-1">{tx.merchant}</span>
-            <span className="text-slate-300 shrink-0">{tx.amount}</span>
+            <span className="text-slate-500 truncate mr-1">{tx.merchant}</span>
+            <span className="text-slate-700 shrink-0">{tx.amount}</span>
           </div>
         ))}
       </div>
