@@ -358,3 +358,27 @@
 .advisor-console-panel::-webkit-scrollbar-thumb:hover {
   background: hsl(220 10% 70%);
 }
+
+/* Demo page light scrollbars */
+.demo-page *::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.demo-page *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.demo-page *::-webkit-scrollbar-thumb {
+  background: hsl(215 15% 82%);
+  border-radius: 4px;
+}
+
+.demo-page *::-webkit-scrollbar-thumb:hover {
+  background: hsl(215 15% 70%);
+}
+
+.demo-page * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(215 15% 82%) transparent;
+}

@@ -43,7 +43,7 @@ export default function DemoPage() {
           : "idle";
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-white" style={{ fontFamily: "Manrope, sans-serif" }}>
+    <div className="demo-page h-screen w-screen flex overflow-hidden bg-white" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Left Panel — 30% */}
       <div className="w-[30%] min-w-[280px] max-w-[380px] shrink-0 border-r border-slate-200 bg-slate-50">
         <DemoCustomerPanel
