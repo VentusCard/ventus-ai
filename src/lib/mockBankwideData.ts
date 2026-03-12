@@ -1672,3 +1672,31 @@ export function getOutflowByCategory(): Array<{ category: string; volume: number
     { category: 'Insurance', volume: 1_200_000_000, color: 'hsl(48, 96%, 53%)' },
   ];
 }
+
+export function getGamificationMetrics(): GamificationMetrics {
+  const achievements: ManagedAchievement[] = [
+    { id: "a1", title: "Diversified Spender", description: "Spend in 5+ lifestyle pillars within 90 days", icon: "Trophy", category: "Spending Diversity", targetValue: 5, triggerLogic: "Unique pillar count ≥ 5 in rolling 90d", isActive: true, completionRate: 72, inProgressRate: 18, reward: { type: "points", value: 500, fulfillment: "automatic", monthlyBudgetCap: 200000 } },
+    { id: "a2", title: "Wellness Investor", description: "Spend $200+ on health & wellness in a month", icon: "Heart", category: "Wellness", targetValue: 200, triggerLogic: "Health & Wellness pillar monthly spend ≥ $200", isActive: true, completionRate: 23, inProgressRate: 34, reward: { type: "gift_card", value: 10, merchantName: "Target", fulfillment: "automatic", monthlyBudgetCap: 80000 } },
+    { id: "a3", title: "Travel Planner", description: "Book 2+ trips with advance booking (30+ days out)", icon: "Plane", category: "Travel", targetValue: 2, triggerLogic: "Travel bookings ≥ 2 with lead time > 30 days", isActive: true, completionRate: 14, inProgressRate: 22, reward: { type: "cashback", value: 3, fulfillment: "automatic", monthlyBudgetCap: 150000 } },
+    { id: "a4", title: "Foodie Explorer", description: "Try 10+ unique restaurant merchants in 60 days", icon: "Utensils", category: "Dining", targetValue: 10, triggerLogic: "Unique restaurant MCCs ≥ 10 in 60d", isActive: true, completionRate: 45, inProgressRate: 28, reward: { type: "points", value: 300, fulfillment: "automatic", monthlyBudgetCap: 120000 } },
+    { id: "a5", title: "Home Builder", description: "Spend $500+ on home improvement in a quarter", icon: "Home", category: "Home", targetValue: 500, triggerLogic: "Home & Living pillar quarterly spend ≥ $500", isActive: true, completionRate: 31, inProgressRate: 19, reward: { type: "gift_card", value: 15, merchantName: "Amazon", fulfillment: "manual_approval", monthlyBudgetCap: 60000 } },
+    { id: "a6", title: "Savings Streak", description: "Maintain positive savings flow for 3 consecutive months", icon: "TrendingUp", category: "Savings", targetValue: 3, triggerLogic: "Net savings positive for 3 consecutive months", isActive: true, completionRate: 38, inProgressRate: 25, reward: { type: "points", value: 1000, fulfillment: "automatic", monthlyBudgetCap: 100000 } },
+    { id: "a7", title: "Active Lifestyle", description: "Spend across Sports & Active Living 4+ times/month", icon: "Dumbbell", category: "Engagement", targetValue: 4, triggerLogic: "Sports & Active Living txn count ≥ 4/month", isActive: true, completionRate: 29, inProgressRate: 31, reward: { type: "cashback", value: 2, fulfillment: "automatic", monthlyBudgetCap: 90000 } },
+    { id: "a8", title: "Community Champion", description: "Make 3+ donations or community purchases in a quarter", icon: "Users", category: "Community", targetValue: 3, triggerLogic: "Family & Community pillar txn count ≥ 3/quarter", isActive: false, completionRate: 12, inProgressRate: 15 },
+  ];
+
+  return {
+    enrolledUsers: 28_400_000,
+    enrollmentRate: 63,
+    avgHealthScore: 47,
+    totalUnlocks: 89_200_000,
+    avgUnlocksPerUser: 3.1,
+    engagementLift: 18.7,
+    achievements,
+    recommendations: [
+      { title: "Launch 'Wellness Week' Campaign", description: "Only 23% have Wellness Investor badge. Pair with health merchant deals to boost adoption by an estimated 12%.", impact: "+$4.2M annual revenue", priority: "high" },
+      { title: "Travel Planner Incentive", description: "At 14% completion, add advance-booking cashback incentive. Travel planners have 2.3x higher CLV.", impact: "+$8.1M annual revenue", priority: "high" },
+      { title: "Reactivate Community Champion", description: "Currently paused — 15% in progress. Re-enable with $5 donation match to drive engagement in underserved segment.", impact: "+1.2M engaged users", priority: "medium" },
+    ],
+  };
+}

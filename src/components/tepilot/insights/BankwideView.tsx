@@ -57,6 +57,9 @@ export function BankwideView() {
       {/* Demographic Breakdown */}
       <DemographicBreakdown ageRanges={ageRanges} />
 
+      {/* Gamification Program Manager */}
+      <GamificationManagement />
+
       {/* Revenue Opportunities with Merchant Partnership Insights */}
       <RevenueOpportunitiesCard opportunities={revenueOpportunities} />
 
