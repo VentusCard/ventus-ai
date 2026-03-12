@@ -9,6 +9,7 @@ import DemoEngagementView from "./DemoEngagementView";
 import DemoTravelView from "./DemoTravelView";
 import DemoWealthView from "./DemoWealthView";
 import DemoLifeEventsView from "./DemoLifeEventsView";
+import DemoEngineProfileView from "./DemoEngineProfileView";
 
 interface Props {
   node: DemoNodeType;
