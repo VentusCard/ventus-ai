@@ -1,34 +1,67 @@
 
 
-## Understanding
+## Plan: Convert Demo Page to Light Theme
 
-The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
+The demo page and all its sub-components currently use a dark theme (dark navy backgrounds `#0a0f1e`, `rgba(15, 23, 42, ...)`, white text, `slate-700/800` borders). This plan converts everything to a light, enterprise-grade theme consistent with the rest of the site.
 
-Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
+### Files to Edit (7 files)
 
-## Plan
+**1. `src/pages/DemoPage.tsx`**
+- Change root background from `#0a0f1e` to `#ffffff`
+- Left panel: white/light gray background, light border instead of `border-slate-800`
 
-### Move AnalyticsDemoPanel into the Hero Section
+**2. `src/components/demo/DemoCustomerPanel.tsx`**
+- Title text: dark (`text-slate-900`) instead of `text-white`
+- Subtitle: `text-slate-500` instead of `text-slate-400`
+- Select dropdown: white bg, dark text, light border
+- Profile card: white bg, light border, dark text for names/values
+- Pillar chips: light gray bg instead of `bg-slate-800`
+- Divider: light border color
 
-1. **Modify `src/pages/BankWideAnalytics.tsx`**:
-   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
-   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
-   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+**3. `src/components/demo/DemoNetworkDiagram.tsx`**
+- Engine node center box: white bg, light border, dark text
+- Transaction cards (TxCard): white bg, light border, dark text
+- Output node buttons: white bg, light border, dark text labels
+- SVG line gradients: keep colors but adjust opacity for light bg
+- Feature list text: `text-slate-500` instead of `text-slate-400`
 
-2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
-   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
-   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
-   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
-   - Ensure tab bar, controls, and all content use dark-themed colors
+**4. `src/components/demo/DemoDetailOverlay.tsx`**
+- Overlay background: white (`rgba(255,255,255,0.97)`) instead of dark
+- Header border: light gray
+- Title/text: dark colors
+- Close button: dark icon, light hover bg
 
-3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
+**5. `src/components/demo/DemoAnalyticsView.tsx`**
+- Metric cards: white bg, light border, dark text
+- Progress bars: light gray track instead of `bg-slate-800`
+- Pillar chips: light gray bg, dark text
 
-### Key Styling Changes in AnalyticsDemoPanel
-- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
-- Tab bar: dark background with light text, active tab in blue
-- Metric cards: dark cards with white values
-- Insight cards: dark cards with light text
-- Pillar bars: keep colored bars but on dark track
-- Personalization tab: dark cards, same transformation flow
-- Controls bar: dark theme
+**6. `src/components/demo/DemoRewardsView.tsx`**
+- Deal cards: white bg, light border, dark text
+- Match bar track: light gray
+- "Why these deals" box: light tinted bg
+
+**7. `src/components/demo/DemoEngagementView.tsx`**
+- Phone frame: light gray border, white bg
+- Browser bar: light gray
+- App content: white bg, dark text
+- Deal rows & spending grid: light gray bg/border
+
+**8. `src/components/demo/DemoWealthView.tsx`**
+- Event cards: white bg, light border, dark text
+- Confidence bar track: light gray
+- Evidence box: light blue tint
+- Client profile box: light tinted bg
+
+**9. `src/components/demo/DemoTravelView.tsx`**
+- Trip cards: white bg, light border, dark text
+- Highlight chips: light gray bg
+- Travel affinity/deals: light tinted bg, dark text
+
+### Design Approach
+- White backgrounds (`#ffffff` or `#f8fafc`)
+- Dark text (`#0F172A` / `text-slate-900`)
+- Light borders (`#E2E8F0` / `border-slate-200`)
+- Keep accent colors (blue, green, purple, etc.) unchanged
+- Consistent with the site's enterprise light theme
 
