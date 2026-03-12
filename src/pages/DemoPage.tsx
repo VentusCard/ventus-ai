@@ -27,6 +27,8 @@ export default function DemoPage() {
     inputReady,
     isProcessing,
     statusMessage,
+    enrichedA,
+    enrichedB,
     localExperiences,
     startEnrichment,
   } = useDemoEnrichment();
@@ -77,6 +79,8 @@ export default function DemoPage() {
             node={activeNode}
             customerA={customerA}
             customerB={customerB}
+            enrichedA={enrichedA}
+            enrichedB={enrichedB}
             localExperiences={localExperiences}
             onClose={() => setActiveNode(null)}
           />
