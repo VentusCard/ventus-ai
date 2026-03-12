@@ -113,27 +113,38 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
 }
 
 // ─── Select relevant deals from the library ─────────────────────────────
-export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 8): BankDeal[] {
+export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 10): BankDeal[] {
   const customerPillars = profile.topPillars.map(p => p.pillar);
 
   if (customerPillars.length === 0) {
     return AVAILABLE_DEALS.filter(d => d.popularity === "featured" || d.popularity === "trending").slice(0, maxDeals).map(convertToBankDeal);
   }
 
-  const topPillarNames = customerPillars.slice(0, 3);
   const popularityOrder: Record<string, number> = { trending: 0, featured: 1, popular: 2, new: 3 };
+  const sortByPopularity = (a: typeof AVAILABLE_DEALS[0], b: typeof AVAILABLE_DEALS[0]) =>
+    (popularityOrder[a.popularity] ?? 4) - (popularityOrder[b.popularity] ?? 4);
 
-  const relevantDeals = AVAILABLE_DEALS
-    .filter(deal => topPillarNames.includes(deal.category))
-    .sort((a, b) => (popularityOrder[a.popularity] ?? 4) - (popularityOrder[b.popularity] ?? 4))
-    .slice(0, maxDeals - 2)
-    .map(convertToBankDeal);
+  // Proportional slots by pillar rank: 4 / 3 / 1
+  const slotAllocation = [4, 3, 1];
+  const pillarDeals: BankDeal[] = [];
+  const usedIds = new Set<string>();
 
-  // Add a couple of discovery deals from outside their pillars
+  customerPillars.slice(0, 3).forEach((pillar, idx) => {
+    const slots = slotAllocation[idx] ?? 1;
+    const picked = AVAILABLE_DEALS
+      .filter(d => d.category === pillar && !usedIds.has(d.id))
+      .sort(sortByPopularity)
+      .slice(0, slots);
+    picked.forEach(d => { usedIds.add(d.id); pillarDeals.push(convertToBankDeal(d)); });
+  });
+
+  // 2 discovery deals from outside top pillars
+  const topPillarNames = customerPillars.slice(0, 3);
   const discoveryDeals = AVAILABLE_DEALS
-    .filter(deal => !topPillarNames.includes(deal.category) && (deal.popularity === "trending" || deal.popularity === "featured"))
+    .filter(d => !topPillarNames.includes(d.category) && !usedIds.has(d.id) && (d.popularity === "trending" || d.popularity === "featured"))
+    .sort(sortByPopularity)
     .slice(0, 2)
     .map(convertToBankDeal);
 
-  return [...relevantDeals, ...discoveryDeals].slice(0, maxDeals);
+  return [...pillarDeals, ...discoveryDeals].slice(0, maxDeals);
 }

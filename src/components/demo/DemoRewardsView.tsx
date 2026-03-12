@@ -67,8 +67,8 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
   const profileB = useMemo(() => hasEnriched && enrichedB ? deriveCustomerProfile(enrichedB) : null, [enrichedB, hasEnriched]);
 
   // Select deals from library based on profiles
-  const dealsA = useMemo(() => profileA ? getRelevantDeals(profileA, 6) : [], [profileA]);
-  const dealsB = useMemo(() => profileB ? getRelevantDeals(profileB, 6) : [], [profileB]);
+  const dealsA = useMemo(() => profileA ? getRelevantDeals(profileA, 10) : [], [profileA]);
+  const dealsB = useMemo(() => profileB ? getRelevantDeals(profileB, 10) : [], [profileB]);
 
   // AI personalization state
   const [personalizedA, setPersonalizedA] = useState<Record<string, { msg: string; cta: string }>>({});
