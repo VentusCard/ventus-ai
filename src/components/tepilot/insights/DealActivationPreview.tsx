@@ -189,6 +189,7 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
       topPillars: [],
       topMerchants: [],
       lifestyleSignals: [],
+      pillarTiers: {},
       locationContext: { travelDestinations: [] },
       totalSpend: 0,
       avgTransactionSize: 0
