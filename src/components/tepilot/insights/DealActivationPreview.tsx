@@ -197,27 +197,35 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
   }
 
   // Calculate pillar spending
-  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number }> = {};
+  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number; tiers: Record<string, number> }> = {};
   transactions.forEach(t => {
     const pillar = t.pillar || 'Other';
     if (!pillarData[pillar]) {
-      pillarData[pillar] = { spend: 0, merchants: {}, count: 0 };
+      pillarData[pillar] = { spend: 0, merchants: {}, count: 0, tiers: {} };
     }
     pillarData[pillar].spend += t.amount;
     pillarData[pillar].count += 1;
     const merchant = t.merchant_name || 'Unknown';
     pillarData[pillar].merchants[merchant] = (pillarData[pillar].merchants[merchant] || 0) + t.amount;
+    const tier = t.spending_tier || "N/A";
+    if (tier !== "N/A") {
+      pillarData[pillar].tiers[tier] = (pillarData[pillar].tiers[tier] || 0) + 1;
+    }
   });
 
+  const pillarTiers: Record<string, string> = {};
   const topPillars = Object.entries(pillarData)
     .map(([pillar, data]) => {
       const topMerchant = Object.entries(data.merchants)
         .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Various';
+      const dominantTier = Object.entries(data.tiers).sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (dominantTier) pillarTiers[pillar] = dominantTier;
       return {
         pillar,
         annualSpend: data.spend,
         topMerchant,
-        transactionCount: data.count
+        transactionCount: data.count,
+        dominantTier
       };
     })
     .sort((a, b) => b.annualSpend - a.annualSpend)
