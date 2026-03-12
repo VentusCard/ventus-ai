@@ -92,7 +92,18 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
     .slice(0, 10);
 
   const lifestyleSignals: string[] = [];
+  const PILLAR_SHORT: Record<string, string> = {
+    "Travel & Exploration": "traveler", "Sports & Active Living": "athlete",
+    "Food & Dining": "diner", "Entertainment & Culture": "culture seeker",
+    "Style & Beauty": "fashion spender", "Health & Wellness": "wellness spender",
+    "Technology & Digital Life": "tech buyer", "Pets": "pet owner",
+    "Home & Living": "home spender", "Family & Community": "family spender",
+  };
   topPillars.forEach(p => {
+    // Add tier-qualified signals (e.g., "premium diner", "budget traveler")
+    if (p.dominantTier && p.dominantTier !== "N/A" && PILLAR_SHORT[p.pillar]) {
+      lifestyleSignals.push(`${p.dominantTier.toLowerCase()} ${PILLAR_SHORT[p.pillar]}`);
+    }
     if (p.pillar === "Travel & Exploration" && p.annualSpend > 2000) lifestyleSignals.push("frequent traveler");
     if (p.pillar === "Sports & Active Living" && p.annualSpend > 1000) lifestyleSignals.push("fitness enthusiast");
     if (p.pillar === "Food & Dining" && p.annualSpend > 3000) lifestyleSignals.push("food connoisseur");
