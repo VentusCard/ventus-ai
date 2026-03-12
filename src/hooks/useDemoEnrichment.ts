@@ -106,10 +106,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     // Set all to processing
     setTimeout(() => {
       setNodeReadiness({
+        engagement: "processing",
         analytics: "processing",
         rewards: "processing",
-        engagement: "processing",
         travel: "processing",
+        lifeEvents: "processing",
         wealth: "processing",
       });
     }, 100);
