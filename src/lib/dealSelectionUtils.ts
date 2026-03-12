@@ -53,14 +53,18 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
     return { topPillars: [], topMerchants: [], lifestyleSignals: [], pillarTiers: {}, locationContext: { travelDestinations: [] }, totalSpend: 0, avgTransactionSize: 0 };
   }
 
-  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number }> = {};
+  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number; tiers: Record<string, number> }> = {};
   transactions.forEach(t => {
     const pillar = t.pillar || "Other";
-    if (!pillarData[pillar]) pillarData[pillar] = { spend: 0, merchants: {}, count: 0 };
+    if (!pillarData[pillar]) pillarData[pillar] = { spend: 0, merchants: {}, count: 0, tiers: {} };
     pillarData[pillar].spend += t.amount;
     pillarData[pillar].count += 1;
     const merchant = t.merchant_name || "Unknown";
     pillarData[pillar].merchants[merchant] = (pillarData[pillar].merchants[merchant] || 0) + t.amount;
+    const tier = t.spending_tier || "N/A";
+    if (tier !== "N/A") {
+      pillarData[pillar].tiers[tier] = (pillarData[pillar].tiers[tier] || 0) + 1;
+    }
   });
 
   const topPillars = Object.entries(pillarData)
