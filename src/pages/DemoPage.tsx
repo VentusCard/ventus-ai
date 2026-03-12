@@ -3,6 +3,7 @@ import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import DemoCustomerPanel from "@/components/demo/DemoCustomerPanel";
 import DemoNetworkDiagram, { type DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import DemoDetailOverlay from "@/components/demo/DemoDetailOverlay";
+import DemoPasswordGate from "@/components/demo/DemoPasswordGate";
 import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
@@ -45,6 +46,7 @@ export default function DemoPage() {
           : "idle";
 
   return (
+    <DemoPasswordGate>
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Left Panel — 30% */}
       <div className="w-[30%] min-w-[280px] max-w-[380px] shrink-0 border-r border-slate-200 bg-slate-50">
@@ -87,5 +89,6 @@ export default function DemoPage() {
         )}
       </div>
     </div>
+    </DemoPasswordGate>
   );
 }
