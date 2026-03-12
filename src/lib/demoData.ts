@@ -5,12 +5,20 @@ import {
   SAMPLE_CUSTOMER_4,
   SAMPLE_CUSTOMER_5,
   SAMPLE_CUSTOMER_6,
+  SAMPLE_CSV,
+  SAMPLE_CSV_SPORTS_WELLNESS,
+  SAMPLE_CSV_FOOD_HOME,
+  SAMPLE_CSV_TRAVEL_FAMILY_12,
+  SAMPLE_CSV_NYC_SPORTS_HOME_12,
+  SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
 } from "./sampleData";
 import type { ClientProfileData } from "@/types/clientProfile";
 
 export interface DemoCustomer {
   id: string;
   profile: ClientProfileData;
+  csv: string;
+  zip: string;
   lifestyleType: string;
   topPillars: { name: string; icon: string; pct: number; spend: string }[];
   sampleTransactions: { merchant: string; amount: string; date: string; category: string }[];
