@@ -62,7 +62,7 @@ export function TransactionDetailModal({ transaction, isOpen, onClose, onCorrect
                 AI classification details and explanation
               </DialogDescription>
             </div>
-            {!isEditing && (
+            {!isEditing && onCorrection && (
               <Button variant="outline" size="sm" onClick={startEditing} className="gap-1.5">
                 <Pencil className="w-3.5 h-3.5" />
                 Edit
