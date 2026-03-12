@@ -171,14 +171,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // 1. Classify + travel for A (travel runs after classify inside useSSEEnrichment)
-      //    onClassified fires RIGHT AFTER classification, before travel starts
-      enrichA.startEnrichment(txnsA, customerA.zip, onClassified);
+      // 1. Classify + travel for A & B — onClassified fires after classification, before travel
+      const promiseA = enrichA.startEnrichment(txnsA, customerA.zip, onClassified);
+      const promiseB = enrichB.startEnrichment(txnsB, customerB.zip, onClassified);
 
-      // 2. Classify + travel for B
-      enrichB.startEnrichment(txnsB, customerB.zip, onClassified);
-
-      // 3. Deal personalization — NO dependency on classification, fire at t=0
+      // 2. Deal personalization — NO dependency on classification, fire at t=0
       const deals = customerA.deals.map((d, i) => ({
         id: `deal_${i}`, m: d.brand, c: d.tag, r: d.offer,
       }));
@@ -214,11 +211,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
       }
 
-      // 4. Travel node becomes ready when useSSEEnrichment completes (promise resolves)
-      Promise.all([
-        enrichA.startEnrichment(txnsA, customerA.zip, onClassified),
-        enrichB.startEnrichment(txnsB, customerB.zip, onClassified),
-      ]).then(() => {
+      // 3. Travel node becomes ready when useSSEEnrichment fully completes
+      Promise.all([promiseA, promiseB]).then(() => {
         setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
       });
 
