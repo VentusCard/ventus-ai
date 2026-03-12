@@ -203,8 +203,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Engine Node — Center */}
       <button
-        onClick={() => onNodeClick("engine")}
-        className="absolute flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white cursor-pointer hover:border-indigo-300 hover:scale-[1.02] group"
+        onClick={() => { if (allNodesReady) onNodeClick("engine"); }}
+        disabled={!allNodesReady}
+        title={allNodesReady ? "View deep customer profile" : "Run enrichment first"}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group ${allNodesReady ? "cursor-pointer hover:border-indigo-300 hover:scale-[1.02] border-slate-200" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: colCenter - 70,
           top: midY - 100,
