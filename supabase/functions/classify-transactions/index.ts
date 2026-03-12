@@ -609,6 +609,7 @@ Deno.serve(async (req) => {
                 pillar: "Miscellaneous & Unclassified",
                 subcategory: "General",
                 confidence: 0.1,
+                spending_tier: "N/A",
                 explanation: "Classification failed after all retries",
                 enriched_at: new Date().toISOString(),
               };
