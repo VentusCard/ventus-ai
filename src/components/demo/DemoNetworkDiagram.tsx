@@ -84,7 +84,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  // Section container layout constants
+  // Section container layout constants (grouped)
   const sectionGap = 12;
   const sectionPadTop = 28; // space for label
   const nodeHeight = 44;
