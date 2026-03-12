@@ -174,3 +174,44 @@ export interface PipelineStatus {
   lastUpdated: string;
   contactLog: ContactLogEntry[];
 }
+
+// Wallet Share Intelligence Types
+export interface CompetitorOutflow {
+  institution: string;
+  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto';
+  productCategory: string;
+  estimatedOutflow: number;
+  affectedCustomers: number;
+  trend: 'growing' | 'stable' | 'declining';
+  detectionMethod: string;
+  avgTransferAmount: number;
+  riskLevel: 'high' | 'medium' | 'low';
+}
+
+export interface WalletShareMetricsData {
+  depositFlightRate: number;
+  annualOutflowVolume: number;
+  topCompetitor: string;
+  winBackOpportunity: number;
+  depositFlightTrend: number;
+  outflowTrend: number;
+}
+
+export interface WinBackRecommendation {
+  id: string;
+  outflowPattern: string;
+  competitor: string;
+  affectedCustomers: number;
+  behavioralContext: string;
+  recommendedAction: string;
+  estimatedRecapture: number;
+  confidence: number;
+  segmentTags: string[];
+}
+
+export interface WalletShareTrendPoint {
+  month: string;
+  outflowVolume: number;
+  flightRate: number;
+  winBackRate: number;
+}

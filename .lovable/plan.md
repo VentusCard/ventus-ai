@@ -1,71 +1,34 @@
 
 
-# Competitive Intelligence / Wallet Share Analytics — New Tab in Bank-Wide Analytics
+## Understanding
 
-## Concept
+The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
 
-Add a third tab to `AnalyticsContainer` called **"Wallet Share Intelligence"** that shows where customer money is flowing to competitors — inspired by Revio Insight's approach but differentiated by pairing detection with TEpilot's behavioral context and actionable win-back recommendations.
+Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
 
-The key narrative: *Revio tells you money is leaving. Ventus tells you why it's leaving, where it's going, and what to offer to win it back.*
+## Plan
 
-## What Gets Built
+### Move AnalyticsDemoPanel into the Hero Section
 
-### 1. New Tab: "Wallet Share Intelligence"
-Added to `AnalyticsContainer.tsx` alongside "Analytics Dashboard" and "Segment Targeting."
+1. **Modify `src/pages/BankWideAnalytics.tsx`**:
+   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
+   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
+   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
 
-### 2. Dashboard Sections (top to bottom)
+2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
+   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
+   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
+   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
+   - Ensure tab bar, controls, and all content use dark-themed colors
 
-**A. Headline Metrics Row** (4 cards)
-- **Deposit Flight Rate**: % of customers with detected outflows to competitors (e.g., 23.4%)
-- **Annual Outflow Volume**: Total estimated $ leaving (e.g., $18.2B)
-- **Top Competitor**: Institution capturing most outflows (e.g., Marcus by Goldman Sachs)
-- **Win-Back Opportunity**: Estimated recapturable revenue (e.g., $4.1B)
+3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
 
-**B. Competitor Outflow Table**
-A ranked table of competitor institutions showing:
-- Institution name + type (neobank, brokerage, BNPL, etc.)
-- Product category (savings, mortgage, credit card, investment)
-- Estimated outflow volume
-- Affected customer count
-- Trend arrow (growing/stable/declining)
-- Detection method (ACH pattern, payee name, routing number)
-
-Mock competitors: Marcus, Ally, SoFi, Rocket Mortgage, Wealthfront, Robinhood, Affirm, Apple Card
-
-**C. Outflow by Product Category** (horizontal bar chart)
-Categories: High-Yield Savings, Mortgage Refinance, Investment/Brokerage, Credit Cards, BNPL/Lending, Insurance
-Shows volume flowing out per category with competitor breakdown.
-
-**D. Win-Back Recommendations** (cards with actions)
-Each card pairs a detected outflow pattern with a TEpilot-powered recommendation:
-- Outflow pattern detected (e.g., "12,400 customers sending monthly ACH to Marcus")
-- Why they're leaving (behavioral context from TEpilot personas — e.g., "Rate-sensitive savers, avg age 34, recent income increase detected")
-- Recommended action (e.g., "Launch competitive 4.75% APY savings campaign targeting this segment")
-- Estimated recapture amount
-- Link concept to Segment Targeting tab
-
-**E. Wallet Share Trend Chart** (line chart over 12 months)
-Shows deposit flight trend over time — are outflows accelerating or stabilizing?
-
-### 3. Files to Create/Edit
-
-| File | Action |
-|------|--------|
-| `src/types/bankwide.ts` | Add `CompetitorOutflow`, `WalletShareMetrics`, `WinBackRecommendation` interfaces |
-| `src/lib/mockBankwideData.ts` | Add mock data functions for wallet share analytics |
-| `src/components/tepilot/insights/WalletShareView.tsx` | New — main container component |
-| `src/components/tepilot/insights/WalletShareMetrics.tsx` | New — headline metric cards |
-| `src/components/tepilot/insights/CompetitorOutflowTable.tsx` | New — ranked competitor table |
-| `src/components/tepilot/insights/OutflowByCategoryChart.tsx` | New — horizontal bar chart (recharts) |
-| `src/components/tepilot/insights/WinBackRecommendations.tsx` | New — actionable recommendation cards |
-| `src/components/tepilot/insights/WalletShareTrendChart.tsx` | New — 12-month trend line chart |
-| `src/components/tepilot/insights/AnalyticsContainer.tsx` | Edit — add third "Wallet Share" tab |
-
-### 4. Differentiator Messaging
-
-The intro banner for this tab will emphasize the Ventus advantage over pure competitive-intel tools:
-
-> *"Other platforms detect where money is leaving. Ventus AI tells you why — connecting outflow patterns to customer personas, life events, and behavioral signals to power precision win-back campaigns."*
-
-All mock data uses realistic institution names and product categories to make the demo compelling for conference attendees.
+### Key Styling Changes in AnalyticsDemoPanel
+- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
+- Tab bar: dark background with light text, active tab in blue
+- Metric cards: dark cards with white values
+- Insight cards: dark cards with light text
+- Pillar bars: keep colored bars but on dark track
+- Personalization tab: dark cards, same transformation flow
+- Controls bar: dark theme
 

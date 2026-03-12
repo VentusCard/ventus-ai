@@ -1,10 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BankwideView } from "./BankwideView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
-import { BarChart3, Target } from "lucide-react";
+import { WalletShareView } from "./WalletShareView";
+import { BarChart3, Target, Wallet } from "lucide-react";
 
 interface AnalyticsContainerProps {
-  defaultTab?: 'dashboard' | 'targeting';
+  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share';
 }
 
 export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
@@ -19,6 +20,10 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
           <Target className="w-4 h-4" />
           Segment Targeting
         </TabsTrigger>
+        <TabsTrigger value="wallet-share" className="flex items-center gap-2 data-[state=active]:bg-white">
+          <Wallet className="w-4 h-4" />
+          Wallet Share Intelligence
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="dashboard" className="mt-0">
@@ -27,6 +32,10 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
 
       <TabsContent value="targeting" className="mt-0">
         <SegmentTargetingView />
+      </TabsContent>
+
+      <TabsContent value="wallet-share" className="mt-0">
+        <WalletShareView />
       </TabsContent>
     </Tabs>
   );

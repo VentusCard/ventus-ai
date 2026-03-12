@@ -1565,3 +1565,108 @@ export function getRevenueOpportunities(filters: BankwideFilters): RevenueOpport
 
   return opportunities.sort((a, b) => b.totalOpportunityAmount - a.totalOpportunityAmount);
 }
+
+// ─── Wallet Share Intelligence Mock Data ────────────────────────────────
+
+import type { CompetitorOutflow, WalletShareMetricsData, WinBackRecommendation, WalletShareTrendPoint } from '@/types/bankwide';
+
+export function getWalletShareMetrics(): WalletShareMetricsData {
+  return {
+    depositFlightRate: 23.4,
+    annualOutflowVolume: 18_200_000_000,
+    topCompetitor: 'Marcus by Goldman Sachs',
+    winBackOpportunity: 4_100_000_000,
+    depositFlightTrend: 2.1,
+    outflowTrend: 8.3,
+  };
+}
+
+export function getCompetitorOutflows(): CompetitorOutflow[] {
+  return [
+    { institution: 'Marcus by Goldman Sachs', type: 'neobank', productCategory: 'High-Yield Savings', estimatedOutflow: 4_800_000_000, affectedCustomers: 1_240_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 3_870, riskLevel: 'high' },
+    { institution: 'Ally Bank', type: 'neobank', productCategory: 'High-Yield Savings', estimatedOutflow: 3_200_000_000, affectedCustomers: 980_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 3_265, riskLevel: 'high' },
+    { institution: 'Rocket Mortgage', type: 'fintech', productCategory: 'Mortgage Refinance', estimatedOutflow: 2_900_000_000, affectedCustomers: 145_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 1_680, riskLevel: 'high' },
+    { institution: 'SoFi', type: 'fintech', productCategory: 'Personal Loans', estimatedOutflow: 1_800_000_000, affectedCustomers: 620_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 2_903, riskLevel: 'medium' },
+    { institution: 'Wealthfront', type: 'brokerage', productCategory: 'Investment', estimatedOutflow: 1_600_000_000, affectedCustomers: 340_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 4_706, riskLevel: 'medium' },
+    { institution: 'Robinhood', type: 'brokerage', productCategory: 'Investment', estimatedOutflow: 1_400_000_000, affectedCustomers: 890_000, trend: 'stable', detectionMethod: 'ACH pattern analysis', avgTransferAmount: 1_573, riskLevel: 'medium' },
+    { institution: 'Apple Card', type: 'fintech', productCategory: 'Credit Cards', estimatedOutflow: 1_300_000_000, affectedCustomers: 760_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_711, riskLevel: 'medium' },
+    { institution: 'Affirm', type: 'bnpl', productCategory: 'BNPL / Lending', estimatedOutflow: 1_200_000_000, affectedCustomers: 1_100_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_091, riskLevel: 'low' },
+  ];
+}
+
+export function getWinBackRecommendations(): WinBackRecommendation[] {
+  return [
+    {
+      id: 'wb-1',
+      outflowPattern: '1.24M customers sending monthly ACH to Marcus',
+      competitor: 'Marcus by Goldman Sachs',
+      affectedCustomers: 1_240_000,
+      behavioralContext: 'Rate-sensitive savers, avg age 34, 68% detected recent income increase. TEpilot personas show "Financial Optimizer" archetype — they chase yield.',
+      recommendedAction: 'Launch competitive 4.75% APY savings campaign targeting this segment. Bundle with cashback bonus on debit purchases to increase stickiness.',
+      estimatedRecapture: 1_440_000_000,
+      confidence: 87,
+      segmentTags: ['Rate Shoppers', 'Income Growth', 'Age 25-40'],
+    },
+    {
+      id: 'wb-2',
+      outflowPattern: '145K customers with new mortgage payments to Rocket Mortgage',
+      competitor: 'Rocket Mortgage',
+      affectedCustomers: 145_000,
+      behavioralContext: 'Home buyers aged 28-42 who started home improvement spending 3-6 months before mortgage application. Life event: "Home Purchase" detected by TEpilot.',
+      recommendedAction: 'Deploy pre-emptive mortgage offer to customers showing home-buying signals (Zillow visits, furniture spending spikes) before they reach Rocket.',
+      estimatedRecapture: 870_000_000,
+      confidence: 79,
+      segmentTags: ['Home Buyers', 'Life Event', 'Pre-emptive'],
+    },
+    {
+      id: 'wb-3',
+      outflowPattern: '890K customers funding Robinhood & Wealthfront accounts',
+      competitor: 'Robinhood / Wealthfront',
+      affectedCustomers: 890_000,
+      behavioralContext: 'Young investors (avg age 29), 72% have subscription spending in fintech/tech. TEpilot detects "Wealth Builder" persona with growing discretionary income.',
+      recommendedAction: 'Partner with in-house wealth management to offer zero-fee ETF portfolio with automated investing. Cross-sell from checking to investment account.',
+      estimatedRecapture: 920_000_000,
+      confidence: 74,
+      segmentTags: ['Young Investors', 'Tech-Forward', 'Cross-Sell'],
+    },
+    {
+      id: 'wb-4',
+      outflowPattern: '1.1M customers with recurring Affirm payments',
+      competitor: 'Affirm',
+      affectedCustomers: 1_100_000,
+      behavioralContext: 'BNPL users skewing younger (avg age 27), heavy e-commerce spenders. TEpilot shows high purchase frequency but lower credit utilization — prefer installments over revolving credit.',
+      recommendedAction: 'Launch card-linked installment plan feature (Pay-in-4) to capture BNPL demand within existing card products. No new app required.',
+      estimatedRecapture: 680_000_000,
+      confidence: 82,
+      segmentTags: ['BNPL Users', 'E-Commerce', 'Gen Z'],
+    },
+  ];
+}
+
+export function getWalletShareTrend(): WalletShareTrendPoint[] {
+  return [
+    { month: 'Apr 2025', outflowVolume: 1_320, flightRate: 19.8, winBackRate: 4.2 },
+    { month: 'May 2025', outflowVolume: 1_380, flightRate: 20.1, winBackRate: 4.5 },
+    { month: 'Jun 2025', outflowVolume: 1_410, flightRate: 20.6, winBackRate: 4.3 },
+    { month: 'Jul 2025', outflowVolume: 1_450, flightRate: 21.0, winBackRate: 4.8 },
+    { month: 'Aug 2025', outflowVolume: 1_520, flightRate: 21.4, winBackRate: 5.1 },
+    { month: 'Sep 2025', outflowVolume: 1_490, flightRate: 21.2, winBackRate: 5.4 },
+    { month: 'Oct 2025', outflowVolume: 1_540, flightRate: 21.8, winBackRate: 5.2 },
+    { month: 'Nov 2025', outflowVolume: 1_580, flightRate: 22.1, winBackRate: 5.6 },
+    { month: 'Dec 2025', outflowVolume: 1_620, flightRate: 22.5, winBackRate: 5.9 },
+    { month: 'Jan 2026', outflowVolume: 1_680, flightRate: 22.9, winBackRate: 6.1 },
+    { month: 'Feb 2026', outflowVolume: 1_710, flightRate: 23.1, winBackRate: 6.4 },
+    { month: 'Mar 2026', outflowVolume: 1_750, flightRate: 23.4, winBackRate: 6.7 },
+  ];
+}
+
+export function getOutflowByCategory(): Array<{ category: string; volume: number; color: string }> {
+  return [
+    { category: 'High-Yield Savings', volume: 8_000_000_000, color: 'hsl(217, 91%, 60%)' },
+    { category: 'Mortgage Refinance', volume: 2_900_000_000, color: 'hsl(142, 71%, 45%)' },
+    { category: 'Investment / Brokerage', volume: 3_000_000_000, color: 'hsl(262, 83%, 58%)' },
+    { category: 'Credit Cards', volume: 1_300_000_000, color: 'hsl(25, 95%, 53%)' },
+    { category: 'BNPL / Lending', volume: 1_800_000_000, color: 'hsl(340, 82%, 52%)' },
+    { category: 'Insurance', volume: 1_200_000_000, color: 'hsl(48, 96%, 53%)' },
+  ];
+}
