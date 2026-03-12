@@ -4,10 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, Edit, Loader2, Plane, MapPin } from "lucide-react";
+import { ArrowRight, Eye, Loader2, Plane, MapPin } from "lucide-react";
 import { PILLAR_COLORS, getSourceColor } from "@/lib/sampleData";
 import { TransactionDetailModal } from "./TransactionDetailModal";
-import { CorrectionModal } from "./CorrectionModal";
 import {
   Tooltip,
   TooltipContent,
