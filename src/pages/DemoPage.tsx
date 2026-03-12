@@ -77,6 +77,7 @@ export default function DemoPage() {
             node={activeNode}
             customerA={customerA}
             customerB={customerB}
+            localExperiences={localExperiences}
             onClose={() => setActiveNode(null)}
           />
         )}

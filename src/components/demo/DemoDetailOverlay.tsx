@@ -72,7 +72,16 @@ export default function DemoDetailOverlay({ node, customerA, customerB, localExp
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2">
-        <ViewComponent customerA={customerA} customerB={customerB} />
+        {node === "travel" ? (
+          <DemoTravelView
+            customerA={customerA}
+            customerB={customerB}
+            localExperiencesA={localExperiences?.[customerA.id]}
+            localExperiencesB={localExperiences?.[customerB.id]}
+          />
+        ) : (
+          (() => { const ViewComponent = VIEW_MAP[node]; return <ViewComponent customerA={customerA} customerB={customerB} />; })()
+        )}
       </div>
     </div>
   );

@@ -274,6 +274,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     statusMessage,
     enrichedA: enrichA.enrichedTransactions,
     enrichedB: enrichB.enrichedTransactions,
+    localExperiences,
     startEnrichment,
   };
 }
