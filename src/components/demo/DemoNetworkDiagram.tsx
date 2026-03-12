@@ -1,23 +1,56 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart } from "lucide-react";
+import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "analytics" | "rewards" | "engagement" | "travel" | "wealth";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
 
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
   activeNode: DemoNodeType | null;
   onNodeClick: (node: DemoNodeType) => void;
+  nodeReadiness: NodeReadiness;
+  inputReady: boolean;
 }
 
-const NODES: { id: DemoNodeType; label: string; icon: typeof BarChart3; color: string }[] = [
-  { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
-  { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
-  { id: "engagement", label: "Customer Engagement", icon: Smartphone, color: "#f59e0b" },
-  { id: "travel", label: "Travel Experience", icon: Plane, color: "#06b6d4" },
-  { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
+interface NodeDef {
+  id: DemoNodeType;
+  label: string;
+  icon: typeof BarChart3;
+  color: string;
+}
+
+interface SectionDef {
+  label: string;
+  nodes: NodeDef[];
+}
+
+const SECTIONS: SectionDef[] = [
+  {
+    label: "UX & Analytics",
+    nodes: [
+      { id: "engagement", label: "Customer Engagement", icon: Smartphone, color: "#f59e0b" },
+      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
+    ],
+  },
+  {
+    label: "Personalized Rewards",
+    nodes: [
+      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
+      { id: "travel", label: "Travel Experiences", icon: Plane, color: "#06b6d4" },
+    ],
+  },
+  {
+    label: "Life Cycle Intelligence",
+    nodes: [
+      { id: "lifeEvents", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899" },
+      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
+    ],
+  },
 ];
+
+const ALL_NODES = SECTIONS.flatMap(s => s.nodes);
 
 const ENGINE_FEATURES = [
   "Semantic Enrichment",
@@ -27,7 +60,7 @@ const ENGINE_FEATURES = [
   "Life Event Detection",
 ];
 
-export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick }: Props) {
+export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -48,53 +81,112 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const colRight = dims.w * 0.85;
   const midY = dims.h * 0.5;
 
-  // Input card positions
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  // Output node positions — evenly spaced
-  const nodeSpacing = dims.h / (NODES.length + 1);
+  // Section container layout constants (grouped)
+  const sectionGap = 12;
+  const sectionPadTop = 28; // space for label
+  const nodeHeight = 44;
+  const nodeGap = 8;
+  const sectionPadBottom = 12;
+  const sectionContentHeight = sectionPadTop + nodeHeight * 2 + nodeGap + sectionPadBottom;
+  const totalSectionsHeight = sectionContentHeight * 3 + sectionGap * 2;
+  const sectionsStartY = (dims.h - totalSectionsHeight) / 2;
+
+  const getSectionTop = (si: number) => sectionsStartY + si * (sectionContentHeight + sectionGap);
+  const getNodeY = (sectionIdx: number, nodeIdx: number) => {
+    const sectionTop = getSectionTop(sectionIdx);
+    return sectionTop + sectionPadTop + nodeIdx * (nodeHeight + nodeGap) + nodeHeight / 2;
+  };
+
+  const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
+  const allNodesReady = ALL_NODES.every(n => nodeReadiness[n.id] === "ready");
+  const inputState: "idle" | "processing" | "ready" = inputReady ? "ready" : anyProcessing ? "processing" : "idle";
+
+  // Flatten for SVG line rendering
+  const nodePositions: { node: NodeDef; y: number }[] = [];
+  SECTIONS.forEach((section, si) => {
+    section.nodes.forEach((node, ni) => {
+      nodePositions.push({ node, y: getNodeY(si, ni) });
+    });
+  });
 
   return (
     <div className="relative w-full h-full">
-      {/* SVG animated lines */}
       <svg ref={svgRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.5" />
           </linearGradient>
-          {/* Animated dot */}
-          <circle id="flowDot" r="3" fill="#60a5fa">
-            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
-          </circle>
+          <linearGradient id="lineGradSolid" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.8" />
+          </linearGradient>
         </defs>
+
+        <style>{`
+          .line-transition {
+            transition: stroke-dasharray 0.6s ease, opacity 0.4s ease, stroke-width 0.3s ease;
+          }
+        `}</style>
 
         {dims.w > 0 && (
           <>
-            {/* Left → Center lines */}
+            {/* Input lines (left cards → engine) */}
             {[inputAY, inputBY].map((y, i) => {
               const path = `M ${colLeft + 80} ${y} C ${colCenter - 60} ${y}, ${colCenter - 60} ${midY}, ${colCenter - 40} ${midY}`;
+              const isReady = inputState === "ready";
+              const isProcessingLine = inputState === "processing";
               return (
                 <g key={`in-${i}`}>
-                  <path d={path} stroke="url(#lineGrad)" strokeWidth="1.5" fill="none" opacity="0.4" />
-                  <circle r="2.5" fill="#60a5fa">
-                    <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
-                  </circle>
+                  <path
+                    d={path}
+                    stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"}
+                    strokeWidth={isReady ? 2 : 1.5}
+                    fill="none"
+                    opacity={isReady ? 0.7 : 0.25}
+                    strokeDasharray={isReady ? "none" : "6 4"}
+                    className="line-transition"
+                  />
+                  {isProcessingLine && (
+                    <circle r="2.5" fill="#3b82f6">
+                      <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
                 </g>
               );
             })}
 
-            {/* Center → Right lines */}
-            {NODES.map((node, i) => {
-              const nodeY = nodeSpacing * (i + 1);
-              const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${nodeY}, ${colRight - 50} ${nodeY}`;
+            {/* Output lines (engine → right nodes) */}
+            {nodePositions.map(({ node, y }, i) => {
+              const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${y}, ${colRight - 50} ${y}`;
+              const state = nodeReadiness[node.id];
+              const isReady = state === "ready";
+              const isProcessingNode = state === "processing";
+
               return (
                 <g key={`out-${i}`}>
-                  <path d={path} stroke={node.color} strokeWidth="1.5" fill="none" opacity={activeNode === node.id ? 0.8 : 0.3} />
-                  <circle r="2.5" fill={node.color}>
-                    <animateMotion dur={`${2 + i * 0.4}s`} repeatCount="indefinite" path={path} />
-                  </circle>
+                  <path
+                    d={path}
+                    stroke={node.color}
+                    strokeWidth={isReady ? 2.5 : 1.5}
+                    fill="none"
+                    opacity={isReady ? 0.75 : activeNode === node.id ? 0.5 : 0.2}
+                    strokeDasharray={isReady ? "none" : "6 4"}
+                    className="line-transition"
+                  />
+                  {isProcessingNode && (
+                    <circle r="2.5" fill={node.color}>
+                      <animateMotion dur={`${2 + i * 0.4}s`} repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
+                  {isReady && (
+                    <circle r="3" fill={node.color} opacity="0.6">
+                      <animateMotion dur={`${3 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
                 </g>
               );
             })}
@@ -111,64 +203,109 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </div>
 
       {/* Engine Node — Center */}
-      <div
-        className="absolute flex flex-col items-center justify-center rounded-2xl border"
+      <button
+        onClick={() => { if (allNodesReady) onNodeClick("engine"); }}
+        disabled={!allNodesReady}
+        title={allNodesReady ? "View deep customer profile" : "Run enrichment first"}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group ${allNodesReady ? "cursor-pointer hover:border-indigo-300 hover:scale-[1.02] border-slate-200" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: colCenter - 70,
           top: midY - 100,
           width: 160,
           height: 200,
-          background: "rgba(15, 23, 42, 0.8)",
-          borderColor: "rgba(99, 102, 241, 0.3)",
-          backdropFilter: "blur(12px)",
-          boxShadow: "0 0 40px rgba(99, 102, 241, 0.15)",
+          boxShadow: anyProcessing && !inputReady
+            ? "0 0 30px rgba(99, 102, 241, 0.25)"
+            : inputReady
+              ? "0 0 20px rgba(34, 197, 94, 0.15)"
+              : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
+          transition: "all 0.3s ease",
         }}
       >
-        <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center mb-2 border border-indigo-500/30">
-          <span className="text-indigo-400 text-lg font-bold">V</span>
+        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${anyProcessing && !inputReady ? "animate-pulse" : ""}`}>
+          <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
-        <p className="text-[11px] font-bold text-white text-center mb-2">Ventus AI Engine</p>
+        <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
         <div className="space-y-1 px-3">
           {ENGINE_FEATURES.map((f) => (
-            <p key={f} className="text-[8px] text-slate-400 text-center leading-tight">{f}</p>
+            <p key={f} className="text-[8px] text-slate-500 text-center leading-tight">{f}</p>
           ))}
         </div>
-      </div>
+        <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
+      </button>
 
-      {/* Output Nodes — Right */}
-      {NODES.map((node, i) => {
-        const nodeY = nodeSpacing * (i + 1);
-        const Icon = node.icon;
-        const isActive = activeNode === node.id;
-
+      {/* Output Nodes — Right, grouped by section */}
+      {SECTIONS.map((section, si) => {
+        const sectionTop = getSectionTop(si);
         return (
-          <button
-            key={node.id}
-            onClick={() => onNodeClick(node.id)}
-            className="absolute flex items-center gap-2.5 rounded-xl border px-4 py-3 transition-all duration-300 cursor-pointer group"
+          <div
+            key={section.label}
+            className="absolute rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col p-3 pt-2"
             style={{
-              left: colRight - 50,
-              top: nodeY - 24,
-              minWidth: 180,
-              background: isActive ? `${node.color}15` : "rgba(15, 23, 42, 0.7)",
-              borderColor: isActive ? `${node.color}80` : "rgba(255,255,255,0.08)",
-              boxShadow: isActive ? `0 0 20px ${node.color}30` : "none",
-              backdropFilter: "blur(8px)",
+              left: colRight - 58,
+              top: sectionTop,
+              width: 210,
+              height: sectionContentHeight,
               zIndex: 2,
             }}
           >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: `${node.color}20`, border: `1px solid ${node.color}40` }}
-            >
-              <Icon className="w-4 h-4" style={{ color: node.color }} />
+            <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600 mb-2">
+              {section.label}
+            </p>
+
+            <div className="flex flex-col gap-2">
+              {section.nodes.map((node) => {
+                const Icon = node.icon;
+                const isActive = activeNode === node.id;
+                const state = nodeReadiness[node.id];
+                const isReady = state === "ready";
+
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => onNodeClick(node.id)}
+                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 cursor-pointer group"
+                    style={{
+                      height: nodeHeight,
+                      background: isReady
+                        ? `${node.color}15`
+                        : isActive
+                          ? `${node.color}10`
+                          : "#ffffff",
+                      borderColor: isReady
+                        ? `${node.color}80`
+                        : isActive
+                          ? `${node.color}60`
+                          : "#e2e8f0",
+                      boxShadow: isReady
+                        ? `0 0 16px ${node.color}20`
+                        : isActive
+                          ? `0 0 12px ${node.color}15`
+                          : "0 1px 3px rgba(0,0,0,0.06)",
+                      transition: "all 0.5s ease",
+                    }}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{
+                        background: isReady ? `${node.color}20` : `${node.color}12`,
+                        border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
+                        transition: "all 0.4s ease",
+                      }}
+                    >
+                      <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+                      <p className="text-[8px] text-slate-400">
+                        {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-            <div className="text-left">
-              <p className="text-[11px] font-semibold text-white group-hover:text-white/90">{node.label}</p>
-              <p className="text-[9px] text-slate-500">Click to explore →</p>
-            </div>
-          </button>
+          </div>
         );
       })}
     </div>
@@ -179,12 +316,8 @@ function TxCard({ customer, color }: { customer: DemoCustomer; color: string }) 
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
-      className="rounded-lg border p-2.5"
-      style={{
-        background: "rgba(15, 23, 42, 0.8)",
-        borderColor: `${color}30`,
-        backdropFilter: "blur(8px)",
-      }}
+      className="rounded-lg border p-2.5 bg-white"
+      style={{ borderColor: `${color}25`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
     >
       <div className="flex items-center gap-2 mb-2">
         <div
@@ -193,13 +326,13 @@ function TxCard({ customer, color }: { customer: DemoCustomer; color: string }) 
         >
           {initials}
         </div>
-        <p className="text-[10px] font-semibold text-white truncate">{customer.profile.name}</p>
+        <p className="text-[10px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
       </div>
       <div className="space-y-1">
         {customer.sampleTransactions.slice(0, 3).map((tx, i) => (
           <div key={i} className="flex justify-between text-[8px]">
-            <span className="text-slate-400 truncate mr-1">{tx.merchant}</span>
-            <span className="text-slate-300 shrink-0">{tx.amount}</span>
+            <span className="text-slate-500 truncate mr-1">{tx.merchant}</span>
+            <span className="text-slate-700 shrink-0">{tx.amount}</span>
           </div>
         ))}
       </div>

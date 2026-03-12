@@ -9,8 +9,8 @@ const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
 
 // Models
-const PRIMARY_MODEL = "openai/gpt-5-mini";
-const FALLBACK_MODEL = "openai/gpt-5";
+const PRIMARY_MODEL = "google/gemini-2.5-flash";
+const FALLBACK_MODEL = "google/gemini-2.5-pro";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [

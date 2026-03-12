@@ -4,10 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, Edit, Loader2, Plane, MapPin } from "lucide-react";
+import { ArrowRight, Eye, Loader2, Plane, MapPin } from "lucide-react";
 import { PILLAR_COLORS, getSourceColor } from "@/lib/sampleData";
 import { TransactionDetailModal } from "./TransactionDetailModal";
-import { CorrectionModal } from "./CorrectionModal";
 import {
   Tooltip,
   TooltipContent,
@@ -24,12 +23,32 @@ interface ResultsTableProps {
 
 export function ResultsTable({ transactions, currentPhase = "idle", statusMessage = "", onCorrection }: ResultsTableProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
-  const [correctionTransaction, setCorrectionTransaction] = useState<EnrichedTransaction | null>(null);
+  
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
     if (confidence >= 0.5) return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20";
     return "bg-red-500/10 text-red-700 border-red-500/20";
+  };
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case "Premium": return "bg-amber-500/10 text-amber-700 border-amber-500/20";
+      case "Standard": return "bg-blue-500/10 text-blue-700 border-blue-500/20";
+      case "Budget": return "bg-teal-500/10 text-teal-700 border-teal-500/20";
+      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
+  const getFrequencyColor = (frequency: string) => {
+    switch (frequency) {
+      case "Weekly": return "bg-indigo-500/10 text-indigo-700 border-indigo-500/20";
+      case "Monthly": return "bg-violet-500/10 text-violet-700 border-violet-500/20";
+      case "Occasional": return "bg-cyan-500/10 text-cyan-700 border-cyan-500/20";
+      case "Annually": return "bg-orange-500/10 text-orange-700 border-orange-500/20";
+      case "One-Time": return "bg-slate-500/10 text-slate-600 border-slate-500/20";
+      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
   };
 
   return (
@@ -66,11 +85,13 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     <TableHead className="text-slate-700">Merchant</TableHead>
                     <TableHead className="text-slate-700">Amount</TableHead>
                     <TableHead className="text-slate-700">Date</TableHead>
-                    <TableHead>
-                      <ArrowRight className="w-4 h-4 mx-auto" />
+                    <TableHead className="w-8">
+                      <span className="sr-only">Arrow</span>
                     </TableHead>
                     <TableHead className="text-slate-700">Pillar</TableHead>
                     <TableHead className="text-slate-700">Subcategory</TableHead>
+                    <TableHead className="text-slate-700">Tier</TableHead>
+                    <TableHead className="text-slate-700">Frequency</TableHead>
                     {transactions.some(t => t.source) && (
                       <TableHead className="text-slate-700">Source</TableHead>
                     )}
@@ -172,6 +193,22 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getTierColor(transaction.spending_tier)} whitespace-nowrap`}
+                        >
+                          {transaction.spending_tier}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getFrequencyColor(transaction.purchase_frequency)} whitespace-nowrap`}
+                        >
+                          {transaction.purchase_frequency}
+                        </Badge>
+                      </TableCell>
                       {transactions.some(t => t.source) && (
                         <TableCell>
                           {transaction.source ? (
@@ -192,22 +229,13 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedTransaction(transaction)}
-                          >
-                            <Eye className="w-4 h-4 text-slate-700" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setCorrectionTransaction(transaction)}
-                          >
-                            <Edit className="w-4 h-4 text-slate-700" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedTransaction(transaction)}
+                        >
+                          <Eye className="w-4 h-4 text-slate-700" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -224,18 +252,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
           transaction={selectedTransaction}
           isOpen={!!selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
-        />
-      )}
-
-      {correctionTransaction && (
-        <CorrectionModal
-          transaction={correctionTransaction}
-          isOpen={!!correctionTransaction}
-          onClose={() => setCorrectionTransaction(null)}
-          onSave={(correctedPillar, correctedSubcategory, reason) => {
-            onCorrection(correctionTransaction.transaction_id, correctedPillar, correctedSubcategory, reason);
-            setCorrectionTransaction(null);
-          }}
+          onCorrection={onCorrection}
         />
       )}
     </>

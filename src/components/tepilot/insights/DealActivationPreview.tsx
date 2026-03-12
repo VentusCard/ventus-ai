@@ -36,9 +36,10 @@ export interface BankDeal {
 
 // Customer profile derived from transactions
 interface DerivedCustomerProfile {
-  topPillars: Array<{ pillar: string; annualSpend: number; topMerchant: string; transactionCount: number }>;
+  topPillars: Array<{ pillar: string; annualSpend: number; topMerchant: string; transactionCount: number; dominantTier?: string }>;
   topMerchants: Array<{ merchant: string; totalSpend: number; visits: number; pillar: string }>;
   lifestyleSignals: string[];
+  pillarTiers: Record<string, string>;
   locationContext: {
     homeCity?: string;
     homeState?: string;
@@ -188,6 +189,7 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
       topPillars: [],
       topMerchants: [],
       lifestyleSignals: [],
+      pillarTiers: {},
       locationContext: { travelDestinations: [] },
       totalSpend: 0,
       avgTransactionSize: 0
@@ -195,27 +197,35 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
   }
 
   // Calculate pillar spending
-  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number }> = {};
+  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number; tiers: Record<string, number> }> = {};
   transactions.forEach(t => {
     const pillar = t.pillar || 'Other';
     if (!pillarData[pillar]) {
-      pillarData[pillar] = { spend: 0, merchants: {}, count: 0 };
+      pillarData[pillar] = { spend: 0, merchants: {}, count: 0, tiers: {} };
     }
     pillarData[pillar].spend += t.amount;
     pillarData[pillar].count += 1;
     const merchant = t.merchant_name || 'Unknown';
     pillarData[pillar].merchants[merchant] = (pillarData[pillar].merchants[merchant] || 0) + t.amount;
+    const tier = t.spending_tier || "N/A";
+    if (tier !== "N/A") {
+      pillarData[pillar].tiers[tier] = (pillarData[pillar].tiers[tier] || 0) + 1;
+    }
   });
 
+  const pillarTiers: Record<string, string> = {};
   const topPillars = Object.entries(pillarData)
     .map(([pillar, data]) => {
       const topMerchant = Object.entries(data.merchants)
         .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Various';
+      const dominantTier = Object.entries(data.tiers).sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (dominantTier) pillarTiers[pillar] = dominantTier;
       return {
         pillar,
         annualSpend: data.spend,
         topMerchant,
-        transactionCount: data.count
+        transactionCount: data.count,
+        dominantTier
       };
     })
     .sort((a, b) => b.annualSpend - a.annualSpend)
@@ -244,25 +254,23 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
 
   // Derive lifestyle signals from pillars and merchants
   const lifestyleSignals: string[] = [];
+  const PILLAR_SHORT: Record<string, string> = {
+    "Travel & Exploration": "traveler", "Sports & Active Living": "athlete",
+    "Food & Dining": "diner", "Entertainment & Culture": "culture seeker",
+    "Style & Beauty": "fashion spender", "Health & Wellness": "wellness spender",
+    "Technology & Digital Life": "tech buyer", "Pets": "pet owner",
+    "Home & Living": "home spender", "Family & Community": "family spender",
+  };
   topPillars.forEach(p => {
-    if (p.pillar === 'Travel & Exploration' && p.annualSpend > 2000) {
-      lifestyleSignals.push('frequent traveler');
+    if (p.dominantTier && p.dominantTier !== "N/A" && PILLAR_SHORT[p.pillar]) {
+      lifestyleSignals.push(`${p.dominantTier.toLowerCase()} ${PILLAR_SHORT[p.pillar]}`);
     }
-    if (p.pillar === 'Sports & Active Living' && p.annualSpend > 1000) {
-      lifestyleSignals.push('fitness enthusiast');
-    }
-    if (p.pillar === 'Food & Dining' && p.annualSpend > 3000) {
-      lifestyleSignals.push('food connoisseur');
-    }
-    if (p.pillar === 'Entertainment & Culture' && p.annualSpend > 1500) {
-      lifestyleSignals.push('experience seeker');
-    }
-    if (p.pillar === 'Style & Beauty' && p.annualSpend > 2000) {
-      lifestyleSignals.push('style-conscious');
-    }
-    if (p.pillar === 'Health & Wellness' && p.annualSpend > 1500) {
-      lifestyleSignals.push('health-focused');
-    }
+    if (p.pillar === 'Travel & Exploration' && p.annualSpend > 2000) lifestyleSignals.push('frequent traveler');
+    if (p.pillar === 'Sports & Active Living' && p.annualSpend > 1000) lifestyleSignals.push('fitness enthusiast');
+    if (p.pillar === 'Food & Dining' && p.annualSpend > 3000) lifestyleSignals.push('food connoisseur');
+    if (p.pillar === 'Entertainment & Culture' && p.annualSpend > 1500) lifestyleSignals.push('experience seeker');
+    if (p.pillar === 'Style & Beauty' && p.annualSpend > 2000) lifestyleSignals.push('style-conscious');
+    if (p.pillar === 'Health & Wellness' && p.annualSpend > 1500) lifestyleSignals.push('health-focused');
   });
 
   // Extract location context
@@ -290,6 +298,7 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
     topPillars,
     topMerchants,
     lifestyleSignals: lifestyleSignals.length > 0 ? lifestyleSignals : ['active spender'],
+    pillarTiers,
     locationContext: {
       homeCity: homeZip ? `ZIP ${homeZip}` : undefined,
       travelDestinations: travelDestinations.slice(0, 5)
@@ -633,7 +642,8 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
             .map(([name, spend]) => ({ n: name, s: Math.round(spend) }))
             .sort((a, b) => b.s - a.s)
             .slice(0, 3),
-          signals: customerProfile.lifestyleSignals?.slice(0, 3) || []
+          signals: customerProfile.lifestyleSignals?.slice(0, 5) || [],
+          pillarTiers: customerProfile.pillarTiers || {},
         };
         
         // Build slim personal context for AI personalization
