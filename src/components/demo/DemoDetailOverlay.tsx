@@ -28,6 +28,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   travel: { title: "Travel Experiences", color: "#06b6d4" },
   lifeEvents: { title: "Life Event Detection Dashboard", color: "#ec4899" },
   wealth: { title: "Wealth Management Copilot", color: "#a855f7" },
+  engine: { title: "Deep Customer Intelligence Profile", color: "#6366f1" },
 };
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
