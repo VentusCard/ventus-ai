@@ -32,9 +32,8 @@ const VIEW_MAP: Record<DemoNodeType, React.FC<{ customerA: DemoCustomer; custome
   wealth: DemoWealthView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, localExperiences, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
-  const ViewComponent = VIEW_MAP[node];
 
   return (
     <div className="absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
