@@ -100,9 +100,17 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
             )}
           </div>
 
-          <div>
-            <p className="text-sm text-slate-500 mb-2">Subcategory</p>
-            <p className="font-medium text-slate-900">{transaction.subcategory}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-slate-500 mb-2">Subcategory</p>
+              <p className="font-medium text-slate-900">{transaction.subcategory}</p>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 mb-2">Purchase Frequency</p>
+              <Badge variant="outline" className="text-base px-3 py-1">
+                {transaction.purchase_frequency}
+              </Badge>
+            </div>
           </div>
 
           <div>
