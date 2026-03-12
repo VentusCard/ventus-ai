@@ -183,9 +183,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // 1. Classify + travel for A & B — onClassified fires after classification, before travel
-      const promiseA = enrichA.startEnrichment(txnsA, customerA.zip, onClassified);
-      const promiseB = enrichB.startEnrichment(txnsB, customerB.zip, onClassified);
+      // 1. Classify only (no travel-detection) — pass undefined for homeZip
+      const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassified);
+      const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassified);
 
       // 2. Deal personalization — NO dependency on classification, fire at t=0
       const deals = customerA.deals.map((d, i) => ({
