@@ -245,7 +245,14 @@ CONFIDENCE LEVELS:
   
 • Low (0.4): 
   - Completely ambiguous merchant names (abbreviations, unclear)
-  - Use "General" subcategory within best-guess pillar`;
+  - Use "General" subcategory within best-guess pillar
+
+SPENDING TIER:
+Classify each transaction's spending tier based on the merchant's market positioning:
+- "Premium": Luxury brands, fine dining, first-class travel, high-end retailers (Equinox, Tiffany, Nordstrom, Four Seasons, Whole Foods, Lululemon)
+- "Standard": Mid-range, mainstream brands, casual dining (Target, Chipotle, Marriott, Nike, Safeway, Hilton)
+- "Budget": Discount stores, fast food, budget options, dollar stores (McDonald's, Dollar Tree, Walmart, Spirit Airlines, Aldi, Planet Fitness)
+- "N/A": Utilities, insurance, medical, financial services, rent — where tier doesn't meaningfully apply`;
 
 // Classification Tool Schema
 const CLASSIFICATION_TOOL = [
