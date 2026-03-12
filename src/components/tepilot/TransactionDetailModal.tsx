@@ -20,7 +20,7 @@ interface TransactionDetailModalProps {
   transaction: EnrichedTransaction | null;
   isOpen: boolean;
   onClose: () => void;
-  onCorrection: (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => void;
+  onCorrection?: (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => void;
 }
 
 export function TransactionDetailModal({ transaction, isOpen, onClose, onCorrection }: TransactionDetailModalProps) {
