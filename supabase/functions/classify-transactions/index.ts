@@ -623,6 +623,7 @@ Deno.serve(async (req) => {
                 subcategory: "General",
                 confidence: 0.1,
                 spending_tier: "N/A",
+                purchase_frequency: "One-Time",
                 explanation: "Classification failed after all retries",
                 enriched_at: new Date().toISOString(),
               };
