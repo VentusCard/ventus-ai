@@ -298,6 +298,7 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
     topPillars,
     topMerchants,
     lifestyleSignals: lifestyleSignals.length > 0 ? lifestyleSignals : ['active spender'],
+    pillarTiers,
     locationContext: {
       homeCity: homeZip ? `ZIP ${homeZip}` : undefined,
       travelDestinations: travelDestinations.slice(0, 5)
