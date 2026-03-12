@@ -28,6 +28,44 @@ export interface DemoCustomer {
   pillarBreakdown: { pillar: string; pct: number; color: string }[];
 }
 
+export interface CustomDemographics {
+  name: string;
+  age: string;
+  occupation: string;
+  familyStatus: string;
+}
+
+export function buildCustomDemoCustomer(
+  id: string,
+  csv: string,
+  demographics: CustomDemographics,
+  zip: string
+): DemoCustomer {
+  return {
+    id,
+    profile: {
+      name: demographics.name || "Custom Customer",
+      age: parseInt(demographics.age) || 35,
+      occupation: demographics.occupation || "Professional",
+      family_status: demographics.familyStatus || "Single",
+      location: `ZIP ${zip || "00000"}`,
+      annual_income: "$100,000",
+      account_type: "Premium Checking",
+      member_since: "2023",
+      credit_score: 750,
+    } as ClientProfileData,
+    csv,
+    zip: zip || "10001",
+    lifestyleType: "Custom Profile",
+    topPillars: [],
+    sampleTransactions: [],
+    deals: [],
+    lifeEvents: [],
+    trips: [],
+    pillarBreakdown: [],
+  };
+}
+
 export const DEMO_CUSTOMERS: DemoCustomer[] = [
   {
     id: "c1",

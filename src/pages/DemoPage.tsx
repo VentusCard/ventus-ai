@@ -15,12 +15,12 @@ export default function DemoPage() {
   const parsedA = useMemo<Transaction[]>(() => {
     const result = parsePastedText(customerA.csv);
     return result.transactions ?? [];
-  }, [customerA.id]);
+  }, [customerA.csv]);
 
   const parsedB = useMemo<Transaction[]>(() => {
     const result = parsePastedText(customerB.csv);
     return result.transactions ?? [];
-  }, [customerB.id]);
+  }, [customerB.csv]);
 
   const {
     nodeReadiness,

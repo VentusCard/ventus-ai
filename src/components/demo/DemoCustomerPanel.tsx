@@ -1,8 +1,21 @@
-import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
+import { useState } from "react";
+import { DEMO_CUSTOMERS, buildCustomDemoCustomer, type DemoCustomer, type CustomDemographics } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, CheckCircle2, HelpCircle, Copy, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import type { Transaction } from "@/types/transaction";
+
+const LLM_PROMPT = `Generate 30 rows of realistic bank transaction CSV data with these exact columns:
+date,merchant_name,amount,mcc,merchant_zip
+
+Rules:
+- Dates in the last 3 months (YYYY-MM-DD format)
+- Amounts from $5-$2000
+- Include varied merchants across travel, dining, grocery, shopping, wellness, and entertainment
+- Use realistic MCC codes (5411=grocery, 5812=dining, 3000-3299=airlines, 5977=cosmetics, 7941=sports, etc.)
+- Use realistic US zip codes
+- Output ONLY the CSV with header row, no explanation`;
 
 interface Props {
   customerA: DemoCustomer;
@@ -37,6 +50,7 @@ export default function DemoCustomerPanel({
       <CustomerSlot
         label="Customer A"
         color="#3b82f6"
+        customId="custom-a"
         selected={customerA}
         onSelect={onSelectA}
         excludeId={customerB.id}
@@ -49,6 +63,7 @@ export default function DemoCustomerPanel({
       <CustomerSlot
         label="Customer B"
         color="#10b981"
+        customId="custom-b"
         selected={customerB}
         onSelect={onSelectB}
         excludeId={customerA.id}
@@ -116,6 +131,7 @@ function PhaseDot({ label, active, done }: { label: string; active: boolean; don
 function CustomerSlot({
   label,
   color,
+  customId,
   selected,
   onSelect,
   excludeId,
@@ -123,11 +139,43 @@ function CustomerSlot({
 }: {
   label: string;
   color: string;
+  customId: string;
   selected: DemoCustomer;
   onSelect: (c: DemoCustomer) => void;
   excludeId: string;
   transactions: Transaction[];
 }) {
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [csvText, setCsvText] = useState("");
+  const [demographics, setDemographics] = useState<CustomDemographics>({
+    name: "", age: "", occupation: "", familyStatus: "Single",
+  });
+  const [zipCode, setZipCode] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleDropdownChange = (value: string) => {
+    if (value === "custom") {
+      setIsCustomMode(true);
+    } else {
+      setIsCustomMode(false);
+      const c = DEMO_CUSTOMERS.find((d) => d.id === value);
+      if (c) onSelect(c);
+    }
+  };
+
+  const handleLoad = () => {
+    if (!csvText.trim()) return;
+    const customer = buildCustomDemoCustomer(customId, csvText.trim(), demographics, zipCode);
+    onSelect(customer);
+    setIsCustomMode(false);
+  };
+
+  const handleCopyPrompt = async () => {
+    await navigator.clipboard.writeText(LLM_PROMPT);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const totalSpend = transactions.reduce((sum, t) => sum + t.amount, 0);
   const dates = transactions.map(t => t.date).sort();
   const dateRange = dates.length > 0
@@ -140,50 +188,132 @@ function CustomerSlot({
 
       <select
         className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 mb-3"
-        value={selected.id}
-        onChange={(e) => {
-          const c = DEMO_CUSTOMERS.find((d) => d.id === e.target.value);
-          if (c) onSelect(c);
-        }}
+        value={isCustomMode ? "custom" : selected.id}
+        onChange={(e) => handleDropdownChange(e.target.value)}
       >
         {DEMO_CUSTOMERS.filter((d) => d.id !== excludeId).map((d) => (
           <option key={d.id} value={d.id}>{d.profile.name}</option>
         ))}
+        <option value="custom">✏️ Custom</option>
       </select>
 
-      {/* Summary stats */}
-      <div className="flex items-center gap-2 mb-2 text-[11px] text-slate-500">
-        <span className="font-semibold text-slate-700">{transactions.length}</span> txns
-        <span className="text-slate-300">·</span>
-        <span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total
-      </div>
-      {dateRange && (
-        <p className="text-[10px] text-slate-400 mb-2">{dateRange}</p>
-      )}
+      {isCustomMode ? (
+        <div className="space-y-2">
+          {/* Demographics */}
+          <div className="grid grid-cols-2 gap-1.5">
+            <input
+              className="col-span-1 bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
+              placeholder="Name"
+              value={demographics.name}
+              onChange={(e) => setDemographics(d => ({ ...d, name: e.target.value }))}
+            />
+            <input
+              className="col-span-1 bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
+              placeholder="Age"
+              type="number"
+              value={demographics.age}
+              onChange={(e) => setDemographics(d => ({ ...d, age: e.target.value }))}
+            />
+          </div>
+          <input
+            className="w-full bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
+            placeholder="Occupation"
+            value={demographics.occupation}
+            onChange={(e) => setDemographics(d => ({ ...d, occupation: e.target.value }))}
+          />
+          <div className="grid grid-cols-2 gap-1.5">
+            <select
+              className="bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
+              value={demographics.familyStatus}
+              onChange={(e) => setDemographics(d => ({ ...d, familyStatus: e.target.value }))}
+            >
+              <option>Single</option>
+              <option>Married</option>
+              <option>Married with Kids</option>
+              <option>Divorced</option>
+            </select>
+            <input
+              className="bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
+              placeholder="Zip Code"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+            />
+          </div>
 
-      {/* Compact transaction table */}
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-        <div className="max-h-[180px] overflow-y-auto">
-          <table className="w-full text-[11px]">
-            <thead className="sticky top-0 bg-slate-50">
-              <tr className="border-b border-slate-100">
-                <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
-                <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
-                <th className="text-right px-2 py-1.5 font-medium text-slate-500">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((t, i) => (
-                <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
-                  <td className="px-2 py-1 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
-                  <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
-                  <td className="px-2 py-1 text-right text-slate-400">{formatShortDate(t.date)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* CSV textarea with LLM prompt helper */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-medium text-slate-500">Transactions CSV</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="text-slate-400 hover:text-blue-500 transition-colors">
+                    <HelpCircle className="h-3.5 w-3.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-3" side="left">
+                  <p className="text-[11px] font-medium text-slate-700 mb-2">
+                    Paste this into ChatGPT / Claude to generate sample data:
+                  </p>
+                  <pre className="text-[9px] bg-slate-50 border border-slate-200 rounded-md p-2 whitespace-pre-wrap text-slate-600 max-h-32 overflow-y-auto mb-2">
+                    {LLM_PROMPT}
+                  </pre>
+                  <Button size="sm" variant="outline" className="w-full h-7 text-[11px]" onClick={handleCopyPrompt}>
+                    {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                    {copied ? "Copied!" : "Copy Prompt"}
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <textarea
+              className="w-full bg-white text-slate-900 text-[10px] font-mono rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+              rows={5}
+              placeholder={"date,merchant_name,amount,mcc,merchant_zip\n2025-01-15,Whole Foods,87.50,5411,94102\n..."}
+              value={csvText}
+              onChange={(e) => setCsvText(e.target.value)}
+            />
+          </div>
+
+          <Button size="sm" className="w-full h-7 text-[11px]" onClick={handleLoad} disabled={!csvText.trim()}>
+            Load Data
+          </Button>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Summary stats */}
+          <div className="flex items-center gap-2 mb-2 text-[11px] text-slate-500">
+            <span className="font-semibold text-slate-700">{transactions.length}</span> txns
+            <span className="text-slate-300">·</span>
+            <span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total
+          </div>
+          {dateRange && (
+            <p className="text-[10px] text-slate-400 mb-2">{dateRange}</p>
+          )}
+
+          {/* Compact transaction table */}
+          <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+            <div className="max-h-[180px] overflow-y-auto">
+              <table className="w-full text-[11px]">
+                <thead className="sticky top-0 bg-slate-50">
+                  <tr className="border-b border-slate-100">
+                    <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
+                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
+                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((t, i) => (
+                    <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
+                      <td className="px-2 py-1 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                      <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
+                      <td className="px-2 py-1 text-right text-slate-400">{formatShortDate(t.date)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
