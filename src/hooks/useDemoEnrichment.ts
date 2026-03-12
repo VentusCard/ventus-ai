@@ -100,6 +100,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setInputReady(false);
     setPhase2Processing(false);
     setPhase2Status("");
+    setLocalExperiences({});
 
     // Set all to processing
     setTimeout(() => {
