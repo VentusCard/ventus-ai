@@ -1,79 +1,34 @@
-import { useState, useCallback, useRef } from "react";
+import { useState } from "react";
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import DemoCustomerPanel from "@/components/demo/DemoCustomerPanel";
 import DemoNetworkDiagram, { type DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import DemoDetailOverlay from "@/components/demo/DemoDetailOverlay";
-import { useSSEEnrichment } from "@/hooks/useSSEEnrichment";
-import { parsePastedText } from "@/lib/parsers";
-import { toast } from "sonner";
+import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 
 export default function DemoPage() {
   const [customerA, setCustomerA] = useState<DemoCustomer>(DEMO_CUSTOMERS[0]);
   const [customerB, setCustomerB] = useState<DemoCustomer>(DEMO_CUSTOMERS[1]);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
 
-  const enrichA = useSSEEnrichment();
-  const enrichB = useSSEEnrichment();
+  const {
+    nodeReadiness,
+    inputReady,
+    isProcessing,
+    statusMessage,
+    startEnrichment,
+  } = useDemoEnrichment();
 
-  // Cache: track which customer IDs were last enriched
-  const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
+  const handleEnrich = () => startEnrichment(customerA, customerB);
 
-  // Derive combined status for the panel
-  const isProcessing = enrichA.isProcessing || enrichB.isProcessing;
+  // Derive phase for panel dots
   const currentPhase: "idle" | "classification" | "travel" | "complete" =
-    enrichA.currentPhase === "complete" && enrichB.currentPhase === "complete"
+    nodeReadiness.analytics === "ready" && nodeReadiness.travel === "ready" && nodeReadiness.rewards === "ready"
       ? "complete"
-      : enrichA.currentPhase === "travel" || enrichB.currentPhase === "travel"
+      : nodeReadiness.analytics === "ready"
         ? "travel"
-        : enrichA.currentPhase === "classification" || enrichB.currentPhase === "classification"
+        : Object.values(nodeReadiness).some(s => s === "processing")
           ? "classification"
-          : enrichA.currentPhase === "complete" || enrichB.currentPhase === "complete"
-            ? enrichA.isProcessing || enrichB.isProcessing ? "classification" : "complete"
-            : "idle";
-
-  const statusMessage =
-    enrichA.isProcessing && enrichB.isProcessing
-      ? `A: ${enrichA.statusMessage} | B: ${enrichB.statusMessage}`
-      : enrichA.isProcessing
-        ? `A: ${enrichA.statusMessage}`
-        : enrichB.isProcessing
-          ? `B: ${enrichB.statusMessage}`
-          : enrichA.statusMessage || enrichB.statusMessage || "";
-
-  const handleEnrich = useCallback(() => {
-    // Skip if same customers already enriched
-    if (
-      lastEnrichedRef.current?.a === customerA.id &&
-      lastEnrichedRef.current?.b === customerB.id &&
-      enrichA.currentPhase === "complete" &&
-      enrichB.currentPhase === "complete"
-    ) {
-      toast.info("These customers are already enriched. Change a customer to re-enrich.");
-      return;
-    }
-
-    lastEnrichedRef.current = { a: customerA.id, b: customerB.id };
-
-    // Parse CSVs into Transaction[]
-    const parseCustomerCsv = (customer: DemoCustomer) => {
-      const result = parsePastedText(customer.csv);
-      if (result.needsMapping || !result.transactions) {
-        throw new Error(`Failed to parse CSV for ${customer.profile.name}`);
-      }
-      return result.transactions;
-    };
-
-    try {
-      const txnsA = parseCustomerCsv(customerA);
-      const txnsB = parseCustomerCsv(customerB);
-
-      // Fire both in parallel
-      enrichA.startEnrichment(txnsA, customerA.zip);
-      enrichB.startEnrichment(txnsB, customerB.zip);
-    } catch (err: any) {
-      toast.error(err.message);
-    }
-  }, [customerA, customerB, enrichA, enrichB]);
+          : "idle";
 
   return (
     <div className="h-screen w-screen flex overflow-hidden bg-white" style={{ fontFamily: "Manrope, sans-serif" }}>
@@ -88,6 +43,7 @@ export default function DemoPage() {
           isProcessing={isProcessing}
           statusMessage={statusMessage}
           currentPhase={currentPhase}
+          nodeReadiness={nodeReadiness}
         />
       </div>
 
@@ -98,9 +54,10 @@ export default function DemoPage() {
           customerB={customerB}
           activeNode={activeNode}
           onNodeClick={(node) => setActiveNode(node)}
+          nodeReadiness={nodeReadiness}
+          inputReady={inputReady}
         />
 
-        {/* Detail overlay */}
         {activeNode && (
           <DemoDetailOverlay
             node={activeNode}

@@ -1,6 +1,7 @@
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
 interface Props {
   customerA: DemoCustomer;
@@ -11,11 +12,12 @@ interface Props {
   isProcessing: boolean;
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
+  nodeReadiness: NodeReadiness;
 }
 
 export default function DemoCustomerPanel({
   customerA, customerB, onSelectA, onSelectB,
-  onEnrich, isProcessing, statusMessage, currentPhase,
+  onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
 }: Props) {
   return (
     <div className="h-full flex flex-col p-5 overflow-y-auto">
@@ -79,9 +81,11 @@ export default function DemoCustomerPanel({
           <div className="text-center">
             <p className="text-[10px] text-slate-500 truncate">{statusMessage}</p>
             {isProcessing && (
-              <div className="mt-1.5 flex gap-1 justify-center">
-                <PhaseDot label="Classify" active={currentPhase === "classification"} done={currentPhase === "travel" || currentPhase === "complete"} />
-                <PhaseDot label="Travel" active={currentPhase === "travel"} done={currentPhase === "complete"} />
+              <div className="mt-1.5 flex gap-1 justify-center flex-wrap">
+                <PhaseDot label="Classify" active={nodeReadiness.analytics === "processing"} done={nodeReadiness.analytics === "ready"} />
+                <PhaseDot label="Travel" active={nodeReadiness.travel === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.travel === "ready"} />
+                <PhaseDot label="Lifestyle" active={nodeReadiness.wealth === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.wealth === "ready"} />
+                <PhaseDot label="Deals" active={nodeReadiness.rewards === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.rewards === "ready"} />
               </div>
             )}
           </div>

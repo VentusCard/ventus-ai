@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp } from "lucide-react";
+import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
 export type DemoNodeType = "analytics" | "rewards" | "engagement" | "travel" | "wealth";
 
@@ -9,6 +10,8 @@ interface Props {
   customerB: DemoCustomer;
   activeNode: DemoNodeType | null;
   onNodeClick: (node: DemoNodeType) => void;
+  nodeReadiness: NodeReadiness;
+  inputReady: boolean;
 }
 
 const NODES: { id: DemoNodeType; label: string; icon: typeof BarChart3; color: string }[] = [
@@ -27,7 +30,7 @@ const ENGINE_FEATURES = [
   "Life Event Detection",
 ];
 
-export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick }: Props) {
+export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -53,6 +56,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
   const nodeSpacing = dims.h / (NODES.length + 1);
 
+  // Determine if any node is processing (enrichment has started)
+  const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
+  const inputState: "idle" | "processing" | "ready" = inputReady ? "ready" : anyProcessing ? "processing" : "idle";
+
   return (
     <div className="relative w-full h-full">
       <svg ref={svgRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
@@ -61,31 +68,74 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
             <stop offset="100%" stopColor="#a855f7" stopOpacity="0.5" />
           </linearGradient>
+          <linearGradient id="lineGradSolid" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.8" />
+          </linearGradient>
         </defs>
+
+        <style>{`
+          .line-transition {
+            transition: stroke-dasharray 0.6s ease, opacity 0.4s ease, stroke-width 0.3s ease;
+          }
+        `}</style>
 
         {dims.w > 0 && (
           <>
+            {/* Input lines (left cards → engine) */}
             {[inputAY, inputBY].map((y, i) => {
               const path = `M ${colLeft + 80} ${y} C ${colCenter - 60} ${y}, ${colCenter - 60} ${midY}, ${colCenter - 40} ${midY}`;
+              const isReady = inputState === "ready";
+              const isProcessingLine = inputState === "processing";
               return (
                 <g key={`in-${i}`}>
-                  <path d={path} stroke="url(#lineGrad)" strokeWidth="1.5" fill="none" opacity="0.35" />
-                  <circle r="2.5" fill="#3b82f6">
-                    <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
-                  </circle>
+                  <path
+                    d={path}
+                    stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"}
+                    strokeWidth={isReady ? 2 : 1.5}
+                    fill="none"
+                    opacity={isReady ? 0.7 : 0.25}
+                    strokeDasharray={isReady ? "none" : "6 4"}
+                    className="line-transition"
+                  />
+                  {isProcessingLine && (
+                    <circle r="2.5" fill="#3b82f6">
+                      <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
                 </g>
               );
             })}
 
+            {/* Output lines (engine → right nodes) */}
             {NODES.map((node, i) => {
               const nodeY = nodeSpacing * (i + 1);
               const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${nodeY}, ${colRight - 50} ${nodeY}`;
+              const state = nodeReadiness[node.id];
+              const isReady = state === "ready";
+              const isProcessingNode = state === "processing";
+
               return (
                 <g key={`out-${i}`}>
-                  <path d={path} stroke={node.color} strokeWidth="1.5" fill="none" opacity={activeNode === node.id ? 0.7 : 0.25} />
-                  <circle r="2.5" fill={node.color}>
-                    <animateMotion dur={`${2 + i * 0.4}s`} repeatCount="indefinite" path={path} />
-                  </circle>
+                  <path
+                    d={path}
+                    stroke={node.color}
+                    strokeWidth={isReady ? 2.5 : 1.5}
+                    fill="none"
+                    opacity={isReady ? 0.75 : activeNode === node.id ? 0.5 : 0.2}
+                    strokeDasharray={isReady ? "none" : "6 4"}
+                    className="line-transition"
+                  />
+                  {isProcessingNode && (
+                    <circle r="2.5" fill={node.color}>
+                      <animateMotion dur={`${2 + i * 0.4}s`} repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
+                  {isReady && (
+                    <circle r="3" fill={node.color} opacity="0.6">
+                      <animateMotion dur={`${3 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
                 </g>
               );
             })}
@@ -109,11 +159,16 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           top: midY - 100,
           width: 160,
           height: 200,
-          boxShadow: "0 4px 24px rgba(99, 102, 241, 0.1)",
+          boxShadow: anyProcessing && !inputReady
+            ? "0 0 30px rgba(99, 102, 241, 0.25)"
+            : inputReady
+              ? "0 0 20px rgba(34, 197, 94, 0.15)"
+              : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
+          transition: "box-shadow 0.6s ease",
         }}
       >
-        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200">
+        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 ${anyProcessing && !inputReady ? "animate-pulse" : ""}`}>
           <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
         <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
@@ -129,31 +184,52 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         const nodeY = nodeSpacing * (i + 1);
         const Icon = node.icon;
         const isActive = activeNode === node.id;
+        const state = nodeReadiness[node.id];
+        const isReady = state === "ready";
 
         return (
           <button
             key={node.id}
             onClick={() => onNodeClick(node.id)}
-            className="absolute flex items-center gap-2.5 rounded-xl border px-4 py-3 transition-all duration-300 cursor-pointer group"
+            className="absolute flex items-center gap-2.5 rounded-xl border px-4 py-3 cursor-pointer group"
             style={{
               left: colRight - 50,
               top: nodeY - 24,
               minWidth: 180,
-              background: isActive ? `${node.color}10` : "#ffffff",
-              borderColor: isActive ? `${node.color}60` : "#e2e8f0",
-              boxShadow: isActive ? `0 0 20px ${node.color}15` : "0 1px 3px rgba(0,0,0,0.06)",
+              background: isReady
+                ? `${node.color}15`
+                : isActive
+                  ? `${node.color}10`
+                  : "#ffffff",
+              borderColor: isReady
+                ? `${node.color}80`
+                : isActive
+                  ? `${node.color}60`
+                  : "#e2e8f0",
+              boxShadow: isReady
+                ? `0 0 24px ${node.color}20`
+                : isActive
+                  ? `0 0 20px ${node.color}15`
+                  : "0 1px 3px rgba(0,0,0,0.06)",
               zIndex: 2,
+              transition: "all 0.5s ease",
             }}
           >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: `${node.color}12`, border: `1px solid ${node.color}30` }}
+              style={{
+                background: isReady ? `${node.color}20` : `${node.color}12`,
+                border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
+                transition: "all 0.4s ease",
+              }}
             >
               <Icon className="w-4 h-4" style={{ color: node.color }} />
             </div>
             <div className="text-left">
               <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-              <p className="text-[9px] text-slate-400">Click to explore →</p>
+              <p className="text-[9px] text-slate-400">
+                {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+              </p>
             </div>
           </button>
         );
