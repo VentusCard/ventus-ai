@@ -50,7 +50,7 @@ export function convertToBankDeal(deal: AvailableDeal): BankDeal {
 // ─── Derive customer profile from enriched transactions ─────────────────
 export function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCustomerProfile {
   if (transactions.length === 0) {
-    return { topPillars: [], topMerchants: [], lifestyleSignals: [], locationContext: { travelDestinations: [] }, totalSpend: 0, avgTransactionSize: 0 };
+    return { topPillars: [], topMerchants: [], lifestyleSignals: [], pillarTiers: {}, locationContext: { travelDestinations: [] }, totalSpend: 0, avgTransactionSize: 0 };
   }
 
   const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number }> = {};
