@@ -254,7 +254,7 @@ function CustomerSlot({
                   <p className="text-[11px] font-medium text-slate-700 mb-2">
                     Paste this into ChatGPT / Claude to generate sample data:
                   </p>
-                  <pre className="text-[9px] bg-slate-50 border border-slate-200 rounded-md p-2 whitespace-pre-wrap text-slate-600 max-h-32 overflow-y-auto mb-2">
+                  <pre className="text-[9px] bg-slate-50 border border-slate-200 rounded-md p-2 whitespace-pre-wrap text-slate-600 max-h-32 overflow-y-auto mb-2" style={{ scrollbarWidth: "thin", scrollbarColor: "hsl(215 15% 82%) transparent" }}>
                     {LLM_PROMPT}
                   </pre>
                   <Button size="sm" variant="outline" className="w-full h-7 text-[11px]" onClick={handleCopyPrompt}>
