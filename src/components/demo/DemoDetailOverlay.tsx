@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData } from "@/hooks/useDemoEnrichment";
+import type { EnrichedTransaction } from "@/types/transaction";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
@@ -12,6 +13,8 @@ interface Props {
   node: DemoNodeType;
   customerA: DemoCustomer;
   customerB: DemoCustomer;
+  enrichedA?: EnrichedTransaction[];
+  enrichedB?: EnrichedTransaction[];
   localExperiences?: LocalExperiencesData;
   onClose: () => void;
 }
@@ -24,16 +27,40 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   wealth: { title: "Wealth Management", color: "#a855f7" },
 };
 
-const VIEW_MAP: Record<DemoNodeType, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
+const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
   analytics: DemoAnalyticsView,
-  rewards: DemoRewardsView,
   engagement: DemoEngagementView,
-  travel: DemoTravelView,
   wealth: DemoWealthView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, localExperiences, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
+
+  const renderContent = () => {
+    if (node === "travel") {
+      return (
+        <DemoTravelView
+          customerA={customerA}
+          customerB={customerB}
+          localExperiencesA={localExperiences?.[customerA.id]}
+          localExperiencesB={localExperiences?.[customerB.id]}
+        />
+      );
+    }
+    if (node === "rewards") {
+      return (
+        <DemoRewardsView
+          customerA={customerA}
+          customerB={customerB}
+          enrichedA={enrichedA}
+          enrichedB={enrichedB}
+        />
+      );
+    }
+    const ViewComponent = SIMPLE_VIEW_MAP[node];
+    if (ViewComponent) return <ViewComponent customerA={customerA} customerB={customerB} />;
+    return null;
+  };
 
   return (
     <div className="absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
@@ -72,16 +99,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, localExp
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2">
-        {node === "travel" ? (
-          <DemoTravelView
-            customerA={customerA}
-            customerB={customerB}
-            localExperiencesA={localExperiences?.[customerA.id]}
-            localExperiencesB={localExperiences?.[customerB.id]}
-          />
-        ) : (
-          (() => { const ViewComponent = VIEW_MAP[node]; return <ViewComponent customerA={customerA} customerB={customerB} />; })()
-        )}
+        {renderContent()}
       </div>
     </div>
   );
