@@ -1,14 +1,26 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import DemoCustomerPanel from "@/components/demo/DemoCustomerPanel";
 import DemoNetworkDiagram, { type DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import DemoDetailOverlay from "@/components/demo/DemoDetailOverlay";
 import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
+import { parsePastedText } from "@/lib/parsers";
+import type { Transaction } from "@/types/transaction";
 
 export default function DemoPage() {
   const [customerA, setCustomerA] = useState<DemoCustomer>(DEMO_CUSTOMERS[0]);
   const [customerB, setCustomerB] = useState<DemoCustomer>(DEMO_CUSTOMERS[1]);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
+
+  const parsedA = useMemo<Transaction[]>(() => {
+    const result = parsePastedText(customerA.csv);
+    return result.transactions ?? [];
+  }, [customerA.id]);
+
+  const parsedB = useMemo<Transaction[]>(() => {
+    const result = parsePastedText(customerB.csv);
+    return result.transactions ?? [];
+  }, [customerB.id]);
 
   const {
     nodeReadiness,
@@ -20,7 +32,6 @@ export default function DemoPage() {
 
   const handleEnrich = () => startEnrichment(customerA, customerB);
 
-  // Derive phase for panel dots
   const currentPhase: "idle" | "classification" | "travel" | "complete" =
     nodeReadiness.analytics === "ready" && nodeReadiness.travel === "ready" && nodeReadiness.rewards === "ready"
       ? "complete"
@@ -37,6 +48,8 @@ export default function DemoPage() {
         <DemoCustomerPanel
           customerA={customerA}
           customerB={customerB}
+          parsedTransactionsA={parsedA}
+          parsedTransactionsB={parsedB}
           onSelectA={setCustomerA}
           onSelectB={setCustomerB}
           onEnrich={handleEnrich}
