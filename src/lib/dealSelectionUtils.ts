@@ -125,6 +125,7 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
     topPillars,
     topMerchants,
     lifestyleSignals: lifestyleSignals.length > 0 ? lifestyleSignals : ["active spender"],
+    pillarTiers,
     locationContext: { travelDestinations: travelDestinations.slice(0, 5) },
     totalSpend,
     avgTransactionSize: totalSpend / transactions.length,
