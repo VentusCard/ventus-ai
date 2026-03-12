@@ -26,9 +26,6 @@ interface DemoEnrichmentResult {
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
-/**
- * Build a spending summary from enriched transactions for the lifestyle signals edge function.
- */
 function buildSpendingSummary(txns: EnrichedTransaction[]) {
   const total = txns.reduce((s, t) => s + (t.amount || 0), 0);
   const catMap: Record<string, number> = {};
@@ -41,6 +38,15 @@ function buildSpendingSummary(txns: EnrichedTransaction[]) {
     .slice(0, 5)
     .map(([name]) => name);
   return { total_spend: Math.round(total), top_categories: topCategories };
+}
+
+function getHeaders() {
+  const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${anonKey}`,
+    apikey: anonKey,
+  };
 }
 
 export function useDemoEnrichment(): DemoEnrichmentResult {
@@ -65,95 +71,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           ? `B: ${enrichB.statusMessage}`
           : enrichA.statusMessage || enrichB.statusMessage || phase2Status || "";
 
-  const runPhase2 = useCallback(async (
-    txnsA: EnrichedTransaction[],
-    txnsB: EnrichedTransaction[],
-    customerA: DemoCustomer,
-    customerB: DemoCustomer,
-  ) => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${anonKey}`,
-      apikey: anonKey,
-    };
-
-    const allTxns = [...txnsA, ...txnsB];
-    const spendingSummary = buildSpendingSummary(allTxns);
-
-    // 1. Lifestyle signals — expects { client, transactions, spending_summary }
-    const lifestylePromise = fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        client: {
-          name: customerA.profile.name,
-          age: customerA.profile.demographics.age,
-          occupation: customerA.profile.demographics.occupation,
-          family_status: customerA.profile.demographics.familyStatus,
-        },
-        transactions: allTxns.slice(0, 75),
-        spending_summary: spendingSummary,
-      }),
-    }).then(r => r.ok ? r.json() : Promise.reject(new Error(`lifestyle: ${r.status}`)));
-
-    // 2. Deal personalization — expects { deals, profile, ctx }
-    const profile = {
-      pillars: customerA.topPillars.map(p => ({ name: p.name, spend: p.spend, pct: p.pct })),
-      signals: allTxns.slice(0, 20).map(t => t.normalized_merchant || t.merchant_name),
-    };
-    const deals = customerA.deals.map((d, i) => ({
-      id: `deal_${i}`,
-      m: d.brand,
-      c: d.tag,
-      r: d.offer,
-    }));
-    const ctx = {
-      demo: {
-        occ: customerA.profile.demographics.occupation,
-        fam: customerA.profile.demographics.familyStatus,
-        inc: customerA.profile.aum,
-        tier: customerA.profile.segment,
-      },
-    };
-
-    const dealsPromise = deals.length > 0
-      ? fetch(`${supabaseUrl}/functions/v1/deal-personalization`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ deals, profile, ctx, txCount: allTxns.length }),
-        }).then(r => r.ok ? r.json() : Promise.reject(new Error(`deals: ${r.status}`)))
-      : Promise.resolve({ recs: [] });
-
-    const results = await Promise.allSettled([lifestylePromise, dealsPromise]);
-
-    // Travel is already handled by useSSEEnrichment phase 1+2, mark ready
-    setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
-
-    // Lifestyle → wealth + engagement nodes
-    if (results[0].status === "fulfilled") {
-      console.log("[Phase2] Lifestyle signals:", results[0].value);
-      setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
-      setPhase2Status("Lifestyle signals analyzed");
-    } else {
-      console.warn("[Phase2] Lifestyle failed:", results[0].reason);
-      setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
-    }
-
-    // Deals → rewards node
-    if (results[1].status === "fulfilled") {
-      console.log("[Phase2] Deals:", results[1].value);
-      setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
-      setPhase2Status("Deal personalization complete");
-    } else {
-      console.warn("[Phase2] Deals failed:", results[1].reason);
-      setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
-    }
-  }, []);
-
   const startEnrichment = useCallback((customerA: DemoCustomer, customerB: DemoCustomer) => {
-    // Skip if same pair already enriched
     if (
       lastEnrichedRef.current?.a === customerA.id &&
       lastEnrichedRef.current?.b === customerB.id &&
@@ -183,7 +101,6 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       });
     }, 100);
 
-    // Parse CSVs
     const parseCSV = (customer: DemoCustomer) => {
       const result = parsePastedText(customer.csv);
       if (result.needsMapping || !result.transactions) {
@@ -195,31 +112,114 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     try {
       const txnsA = parseCSV(customerA);
       const txnsB = parseCSV(customerB);
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const headers = getHeaders();
 
-      // Phase 1: classify + travel for both in parallel (returns classified txns)
-      const phaseOneA = enrichA.startEnrichment(txnsA, customerA.zip);
-      const phaseOneB = enrichB.startEnrichment(txnsB, customerB.zip);
+      // Track whether phase2 already started (from whichever classification finishes first)
+      let classifiedResults: EnrichedTransaction[][] = [];
+      let phase2Started = false;
 
-      // When both complete, use RETURNED values (not stale state)
-      Promise.all([phaseOneA, phaseOneB]).then(([classifiedA, classifiedB]) => {
-        // Input lines go solid, analytics goes ready
+      const maybeStartPhase2 = () => {
+        // Need both classifications to start lifestyle signals
+        if (classifiedResults.length < 2 || phase2Started) return;
+        phase2Started = true;
+
+        const allClassified = [...classifiedResults[0], ...classifiedResults[1]];
+
+        // Mark input lines solid + analytics ready
         setInputReady(true);
         setNodeReadiness(prev => ({ ...prev, analytics: "ready" }));
         setPhase2Processing(true);
-        setPhase2Status("Running lifestyle & deal analysis...");
+        setPhase2Status("Running lifestyle analysis...");
 
-        // Phase 2: use the returned classified transactions directly
-        runPhase2(classifiedA, classifiedB, customerA, customerB)
+        // Fire lifestyle signals (needs classified txns)
+        const spendingSummary = buildSpendingSummary(allClassified);
+        const lifestylePromise = fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            client: {
+              name: customerA.profile.name,
+              age: customerA.profile.demographics.age,
+              occupation: customerA.profile.demographics.occupation,
+              family_status: customerA.profile.demographics.familyStatus,
+            },
+            transactions: allClassified.slice(0, 75),
+            spending_summary: spendingSummary,
+          }),
+        }).then(r => r.ok ? r.json() : Promise.reject(new Error(`lifestyle: ${r.status}`)));
+
+        lifestylePromise
+          .then(data => {
+            console.log("[Phase2] Lifestyle signals:", data);
+            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
+          })
+          .catch(err => {
+            console.warn("[Phase2] Lifestyle failed:", err);
+            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
+          })
           .finally(() => {
             setPhase2Processing(false);
             setPhase2Status("All enrichment complete");
-            toast.success("Full enrichment pipeline complete!");
           });
+      };
+
+      const onClassified = (classified: EnrichedTransaction[]) => {
+        classifiedResults.push(classified);
+        maybeStartPhase2();
+      };
+
+      // === FIRE EVERYTHING IN PARALLEL ===
+
+      // 1. Classify + travel for A & B — onClassified fires after classification, before travel
+      const promiseA = enrichA.startEnrichment(txnsA, customerA.zip, onClassified);
+      const promiseB = enrichB.startEnrichment(txnsB, customerB.zip, onClassified);
+
+      // 2. Deal personalization — NO dependency on classification, fire at t=0
+      const deals = customerA.deals.map((d, i) => ({
+        id: `deal_${i}`, m: d.brand, c: d.tag, r: d.offer,
+      }));
+      const profile = {
+        pillars: customerA.topPillars.map(p => ({ name: p.name, spend: p.spend, pct: p.pct })),
+        signals: [],
+      };
+      const ctx = {
+        demo: {
+          occ: customerA.profile.demographics.occupation,
+          fam: customerA.profile.demographics.familyStatus,
+          inc: customerA.profile.aum,
+          tier: customerA.profile.segment,
+        },
+      };
+
+      if (deals.length > 0) {
+        fetch(`${supabaseUrl}/functions/v1/deal-personalization`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ deals, profile, ctx, txCount: txnsA.length + txnsB.length }),
+        })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error(`deals: ${r.status}`)))
+          .then(data => {
+            console.log("[Phase2] Deals:", data);
+            setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+          })
+          .catch(err => {
+            console.warn("[Phase2] Deals failed:", err);
+            setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+          });
+      } else {
+        setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+      }
+
+      // 3. Travel node becomes ready when useSSEEnrichment fully completes
+      Promise.all([promiseA, promiseB]).then(() => {
+        setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
       });
+
     } catch (err: any) {
       toast.error(err.message);
     }
-  }, [enrichA, enrichB, nodeReadiness, runPhase2]);
+  }, [enrichA, enrichB, nodeReadiness]);
 
   return {
     nodeReadiness,

@@ -9,7 +9,7 @@ interface UseSSEEnrichmentReturn {
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
   error: string | null;
-  startEnrichment: (transactions: Transaction[], homeZip?: string) => Promise<EnrichedTransaction[]>;
+  startEnrichment: (transactions: Transaction[], homeZip?: string, onClassified?: (classified: EnrichedTransaction[]) => void) => Promise<EnrichedTransaction[]>;
   resetEnrichment: () => void;
   restoreEnrichedTransactions: (transactions: EnrichedTransaction[]) => void;
 }
@@ -330,7 +330,11 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     }
   }, []);
 
-  const startEnrichment = useCallback(async (transactions: Transaction[], homeZip?: string): Promise<EnrichedTransaction[]> => {
+  const startEnrichment = useCallback(async (
+    transactions: Transaction[],
+    homeZip?: string,
+    onClassified?: (classified: EnrichedTransaction[]) => void,
+  ): Promise<EnrichedTransaction[]> => {
     setIsProcessing(true);
     setError(null);
     setEnrichedTransactions([]);
@@ -340,6 +344,9 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       // Step 1: Classify transactions with flash-lite
       console.log('[Enrichment] Starting classification...');
       const classifiedTransactions = await callClassifyTransactions(transactions);
+
+      // Fire callback immediately so callers can start parallel work
+      onClassified?.(classifiedTransactions);
 
       // Step 2: Check if we have a valid home ZIP before running travel detection
       const hasValidHomeZip = homeZip && homeZip.trim() !== "" && homeZip.trim() !== "N/A";
