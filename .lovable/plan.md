@@ -1,34 +1,110 @@
 
 
-## Understanding
+## Plan: Animated Enrichment Flow with Dotted-to-Solid Line Transitions
 
-The user wants the 2-tab animated demo (`AnalyticsDemoPanel`) to replace the **hero section's right-side card** (`HeroAnalyticsCard`) — the dark background first section — not the white "See It In Action" section further down the page.
+### Concept
 
-Currently, the hero (Section 1, dark `#0a0f1e` background) shows `HeroAnalyticsCard` on the right side. The `AnalyticsDemoPanel` was placed in Section 3 ("See It In Action") instead.
+When the user hits "Enrich", all SVG connector lines start **dotted**. As each edge function completes, the corresponding lines transition to **solid** with a smooth animation — giving a live visual of data flowing through the pipeline.
 
-## Plan
+### Pipeline Mapping (Edge Functions → Nodes)
 
-### Move AnalyticsDemoPanel into the Hero Section
+```text
+classify-transactions  ──► input lines (left cards → engine) go solid
+                        ──► "analytics" node line goes solid (pillars come from classification)
+travel-detection       ──► "travel" node line goes solid
+analyze-lifestyle-signals ──► "wealth" node line goes solid (life events)
+                          ──► "engagement" node line goes solid (lifestyle signals)
+deal-personalization   ──► "rewards" node line goes solid
+```
 
-1. **Modify `src/pages/BankWideAnalytics.tsx`**:
-   - Replace `<HeroAnalyticsCard />` (line 73) with `<AnalyticsDemoPanel />` in the hero section
-   - Remove or repurpose the "See It In Action" section (Section 3) since the demo now lives in the hero
-   - Update the "See It Work ↓" button to scroll to the next relevant section (e.g., "The Problem" or capabilities)
+### State Model
 
-2. **Modify `src/components/analytics/AnalyticsDemoPanel.tsx`**:
-   - Adapt styling for dark background context — the current panel has a white background with light borders; it needs to switch to dark theme (`#111827` background, `#1e2d4a` borders, white/gray text) to match the hero's `#0a0f1e`
-   - Adjust sizing to fit the right column of a 2-column hero grid (currently it's full-width in a single-column section)
-   - Remove the intersection observer since the hero is visible on load — trigger animations immediately
-   - Ensure tab bar, controls, and all content use dark-themed colors
+Track per-node readiness in `DemoPage.tsx`:
 
-3. **Remove `HeroAnalyticsCard` import** from the page since it's no longer used.
+```typescript
+type NodeReadiness = Record<DemoNodeType, "idle" | "processing" | "ready">;
+```
 
-### Key Styling Changes in AnalyticsDemoPanel
-- Container: `bg-[#111827]` with `border-[#1e2d4a]` instead of white/light borders
-- Tab bar: dark background with light text, active tab in blue
-- Metric cards: dark cards with white values
-- Insight cards: dark cards with light text
-- Pillar bars: keep colored bars but on dark track
-- Personalization tab: dark cards, same transformation flow
-- Controls bar: dark theme
+- **idle**: dotted line, muted node
+- **processing**: dotted line with animated traveling dot (current behavior)
+- **ready**: solid line, full opacity, brief glow transition
+
+### Files to Edit
+
+**1. `src/hooks/useSSEEnrichment.ts`** — No changes needed (already exposes `currentPhase` and `enrichedTransactions`)
+
+**2. `src/pages/DemoPage.tsx`**
+- Add `nodeReadiness` state: `Record<DemoNodeType, "idle" | "processing" | "ready">`
+- On enrich click: set all nodes to `"processing"`
+- After `classify-transactions` completes (enrichA/B `currentPhase` transitions past classification): set `analytics` → `"ready"`
+- Fire three parallel calls post-classification: `analyze-lifestyle-signals`, `travel-detection`, `deal-personalization`
+- As each resolves, flip its corresponding node(s) to `"ready"`
+- Pass `nodeReadiness` to `DemoNetworkDiagram`
+
+**3. New: `src/hooks/useDemoEnrichment.ts`**
+- Wraps `useSSEEnrichment` for Phase 1 (classify-transactions)
+- Adds Phase 2: fires `analyze-lifestyle-signals`, `travel-detection`, `deal-personalization` in parallel via direct fetch calls
+- Exposes: `nodeReadiness`, `isProcessing`, `enrichedData` (classification results + lifestyle signals + travel + deals), `startEnrichment(customer)`
+- Caches results per customer ID
+
+**4. `src/components/demo/DemoNetworkDiagram.tsx`**
+- Accept new prop: `nodeReadiness: Record<DemoNodeType, "idle" | "processing" | "ready">`
+- **Input lines** (left cards → engine):
+  - `idle`: `strokeDasharray="6 4"`, low opacity, no traveling dot
+  - `processing`: `strokeDasharray="6 4"`, traveling dot animates
+  - `ready`: `strokeDasharray` removed (solid), higher opacity, CSS transition on stroke-dasharray
+- **Output lines** (engine → right nodes):
+  - Same three states per node
+  - When `ready`: line transitions to solid, opacity increases to 0.7, node border gets a brief glow (`boxShadow` pulse)
+- Add SVG `<style>` block for `transition: stroke-dasharray 0.6s ease, opacity 0.4s ease`
+- Input lines become solid when classification completes (all output nodes at least processing)
+
+**5. `src/components/demo/DemoCustomerPanel.tsx`**
+- Add more phase dots: Classify → Travel → Lifestyle → Deals → Complete
+- Map to the actual edge function phases
+
+### Visual Behavior Timeline
+
+```text
+t=0   User clicks "Enrich Both"
+      → All lines become dotted + traveling dots start
+      → Engine node gets subtle pulse border
+
+t=5s  classify-transactions completes
+      → Input lines (cards → engine) transition to SOLID
+      → "analytics" output line transitions to SOLID
+      → analytics node gets green check glow
+      → Phase 2 fires: travel-detection, analyze-lifestyle-signals, deal-personalization
+
+t=8s  travel-detection completes
+      → "travel" output line → SOLID
+
+t=10s analyze-lifestyle-signals completes
+      → "wealth" + "engagement" output lines → SOLID
+
+t=12s deal-personalization completes
+      → "rewards" output line → SOLID
+      → All lines solid, processing complete
+```
+
+### Edge Function Calls (Phase 2)
+
+Use direct `fetch` calls (not SSE) since `analyze-lifestyle-signals` and `deal-personalization` return standard JSON:
+
+```typescript
+// All three fire in parallel after classification
+const [lifestyleRes, travelRes, dealsRes] = await Promise.allSettled([
+  fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, { ... }),
+  fetch(`${supabaseUrl}/functions/v1/travel-detection`, { ... }),  // SSE
+  fetch(`${supabaseUrl}/functions/v1/deal-personalization`, { ... }),
+]);
+```
+
+Each resolved promise flips its node to `"ready"`.
+
+### Files Summary
+- Create `src/hooks/useDemoEnrichment.ts` — orchestrates all 4 edge functions, exposes `nodeReadiness`
+- Edit `src/pages/DemoPage.tsx` — use new hook, pass readiness state down
+- Edit `src/components/demo/DemoNetworkDiagram.tsx` — dotted/solid line transitions based on `nodeReadiness`
+- Edit `src/components/demo/DemoCustomerPanel.tsx` — more granular phase dots
 
