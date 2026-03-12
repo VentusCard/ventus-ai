@@ -252,18 +252,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
           transaction={selectedTransaction}
           isOpen={!!selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
-        />
-      )}
-
-      {correctionTransaction && (
-        <CorrectionModal
-          transaction={correctionTransaction}
-          isOpen={!!correctionTransaction}
-          onClose={() => setCorrectionTransaction(null)}
-          onSave={(correctedPillar, correctedSubcategory, reason) => {
-            onCorrection(correctionTransaction.transaction_id, correctedPillar, correctedSubcategory, reason);
-            setCorrectionTransaction(null);
-          }}
+          onCorrection={onCorrection}
         />
       )}
     </>
