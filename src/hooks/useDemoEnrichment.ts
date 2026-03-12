@@ -18,10 +18,11 @@ export interface LocalExperiencesData {
 }
 
 const INITIAL_READINESS: NodeReadiness = {
+  engagement: "idle",
   analytics: "idle",
   rewards: "idle",
-  engagement: "idle",
   travel: "idle",
+  lifeEvents: "idle",
   wealth: "idle",
 };
 
@@ -105,10 +106,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     // Set all to processing
     setTimeout(() => {
       setNodeReadiness({
+        engagement: "processing",
         analytics: "processing",
         rewards: "processing",
-        engagement: "processing",
         travel: "processing",
+        lifeEvents: "processing",
         wealth: "processing",
       });
     }, 100);
@@ -164,11 +166,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         lifestylePromise
           .then(data => {
             console.log("[Phase2] Lifestyle signals:", data);
-            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
+            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready", lifeEvents: "ready" }));
           })
           .catch(err => {
             console.warn("[Phase2] Lifestyle failed:", err);
-            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready" }));
+            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready", lifeEvents: "ready" }));
           })
           .finally(() => {
             setPhase2Processing(false);

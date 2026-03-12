@@ -1,5 +1,5 @@
 import type { DemoCustomer } from "@/lib/demoData";
-import { AlertTriangle, Clock, Calendar } from "lucide-react";
+import { TrendingUp, Shield, DollarSign, PieChart } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
@@ -16,82 +16,101 @@ export default function DemoWealthView({ customerA, customerB }: Props) {
 }
 
 function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: string }) {
-  const urgencyConfig = {
-    Urgent: { icon: AlertTriangle, bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.2)", text: "#ef4444" },
-    Soon: { icon: Clock, bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.2)", text: "#f59e0b" },
-    Upcoming: { icon: Calendar, bg: "rgba(59,130,246,0.06)", border: "rgba(59,130,246,0.2)", text: "#3b82f6" },
-  };
+  const holdings = customer.profile.holdings;
+  const compliance = customer.profile.compliance;
+
+  const holdingItems = [
+    { label: "Deposits", value: holdings.deposit, icon: DollarSign },
+    { label: "Credit", value: holdings.credit, icon: DollarSign },
+    { label: "Mortgage", value: holdings.mortgage, icon: DollarSign },
+    { label: "Investments", value: holdings.investments, icon: TrendingUp },
+  ];
+
+  // Derive advisor actions from life events
+  const advisorActions = customer.lifeEvents.slice(0, 2).map(event => ({
+    action: `Review ${event.name.toLowerCase()} implications`,
+    timing: event.timing,
+    priority: event.urgency,
+  }));
 
   return (
     <div className="space-y-3">
-      <p className="text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color }}>Detected Life Events</p>
+      <p className="text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color }}>Wealth Management Copilot</p>
 
-      {customer.lifeEvents.map((event) => {
-        const config = urgencyConfig[event.urgency];
-        const Icon = config.icon;
-
-        return (
-          <div
-            key={event.name}
-            className="rounded-lg border border-slate-200 overflow-hidden bg-white"
-          >
-            <div className="px-4 py-3 flex items-start gap-3">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                style={{ background: config.bg, border: `1px solid ${config.border}` }}
-              >
-                <Icon className="w-4 h-4" style={{ color: config.text }} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-slate-900">{event.name}</p>
-                  <span
-                    className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
-                    style={{ background: config.bg, color: config.text, border: `1px solid ${config.border}` }}
-                  >
-                    {event.urgency}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">Target: {event.timing}</p>
-              </div>
-            </div>
-
-            <div className="px-4 pb-3 space-y-2">
-              <div>
-                <div className="flex items-center justify-between text-[10px] mb-1">
-                  <span className="text-slate-400">Confidence</span>
-                  <span className="font-semibold text-slate-900">{event.confidence}%</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${event.confidence}%`, background: event.color }}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded p-2.5" style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.12)" }}>
-                <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">Evidence</p>
-                <p className="text-[10px] text-slate-600 leading-relaxed">{event.evidence}</p>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      <div className="rounded-lg p-3 border" style={{ background: `${color}04`, borderColor: `${color}20` }}>
-        <p className="text-[10px] font-semibold" style={{ color }}>Client Profile</p>
-        <div className="grid grid-cols-2 gap-2 mt-2 text-[10px]">
+      {/* Client Snapshot */}
+      <div className="rounded-lg border border-slate-200 p-3 bg-white">
+        <div className="flex items-center gap-2 mb-2">
+          <PieChart className="w-3.5 h-3.5 text-slate-400" />
+          <p className="text-[10px] font-semibold text-slate-700">Client Snapshot</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <span className="text-slate-400">AUM</span>
-            <p className="text-slate-900 font-semibold">{customer.profile.aum}</p>
+            <span className="text-[9px] text-slate-400">AUM</span>
+            <p className="text-xs font-semibold text-slate-900">{customer.profile.aum}</p>
           </div>
           <div>
-            <span className="text-slate-400">Risk Profile</span>
-            <p className="text-slate-900 font-semibold">{customer.profile.compliance.riskProfile}</p>
+            <span className="text-[9px] text-slate-400">Segment</span>
+            <p className="text-xs font-semibold text-slate-900">{customer.profile.segment}</p>
           </div>
         </div>
       </div>
+
+      {/* Holdings */}
+      <div className="rounded-lg border border-slate-200 p-3 bg-white">
+        <div className="flex items-center gap-2 mb-2">
+          <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+          <p className="text-[10px] font-semibold text-slate-700">Portfolio Holdings</p>
+        </div>
+        <div className="space-y-1.5">
+          {holdingItems.map(item => (
+            <div key={item.label} className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-500">{item.label}</span>
+              <span className="text-[10px] font-semibold text-slate-900">{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Risk & Compliance */}
+      <div className="rounded-lg border border-slate-200 p-3 bg-white">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="w-3.5 h-3.5 text-slate-400" />
+          <p className="text-[10px] font-semibold text-slate-700">Risk & Compliance</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-[10px]">
+          <div>
+            <span className="text-slate-400">Risk Profile</span>
+            <p className="text-slate-900 font-semibold">{compliance.riskProfile}</p>
+          </div>
+          <div>
+            <span className="text-slate-400">KYC Status</span>
+            <p className="text-slate-900 font-semibold">{compliance.kycStatus}</p>
+          </div>
+          <div>
+            <span className="text-slate-400">Last Review</span>
+            <p className="text-slate-900 font-semibold">{compliance.lastReview}</p>
+          </div>
+          <div>
+            <span className="text-slate-400">Next Review</span>
+            <p className="text-slate-900 font-semibold">{compliance.nextReview}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Advisor Actions */}
+      {advisorActions.length > 0 && (
+        <div className="rounded-lg p-3 border" style={{ background: `${color}04`, borderColor: `${color}20` }}>
+          <p className="text-[10px] font-semibold mb-2" style={{ color }}>Recommended Actions</p>
+          <div className="space-y-1.5">
+            {advisorActions.map((a, i) => (
+              <div key={i} className="flex items-center justify-between text-[10px]">
+                <span className="text-slate-700">{a.action}</span>
+                <span className="text-slate-400 text-[9px]">{a.timing}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
