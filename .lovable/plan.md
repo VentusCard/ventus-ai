@@ -1,28 +1,17 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Move Gamification Program Manager to Its Own Analytics Tab
 
-### Implemented
+## Changes
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### 1. `src/components/tepilot/insights/AnalyticsContainer.tsx`
+- Import `GamificationManagement` and `Gamepad2` icon
+- Add new tab trigger "Gamification" with `Gamepad2` icon
+- Add new `TabsContent` rendering `<GamificationManagement />`
+- Update `defaultTab` type to include `'gamification'`
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+### 2. `src/components/tepilot/insights/BankwideView.tsx`
+- Remove `GamificationManagement` import and its usage (lines 9, 60-61)
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+Two files edited, no new files.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
