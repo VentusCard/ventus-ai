@@ -43,7 +43,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
 
   const renderContent = () => {
     if (node === "engine") {
-      return <DemoEngineProfileView customerA={customerA} customerB={customerB} />;
+      return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
     }
     if (node === "travel") {
       return (
