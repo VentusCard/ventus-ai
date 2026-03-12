@@ -29,6 +29,7 @@ import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
 
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
+import { FinancialAchievements } from "@/components/tepilot/insights/FinancialAchievements";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
 
