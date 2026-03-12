@@ -223,10 +223,44 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
       }
 
-      // 3. Travel node becomes ready when useSSEEnrichment fully completes
-      Promise.all([promiseA, promiseB]).then(() => {
-        setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
-      });
+      // 3. Local experiences — fire at t=0 for each customer's first trip destination
+      const CATEGORIES = ["dining", "entertainment", "shopping"];
+      const fetchLocalExperiences = async (customer: DemoCustomer) => {
+        const trip = customer.trips[0];
+        if (!trip) return { customerId: customer.id, results: [] };
+
+        const city = trip.destination.split(",")[0].trim();
+        const results: { destination: string; deals: LocalExperienceDeal[] }[] = [];
+
+        try {
+          const responses = await Promise.all(
+            CATEGORIES.map(cat =>
+              fetch(`${supabaseUrl}/functions/v1/local-experiences`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ city, category: cat }),
+              }).then(r => r.ok ? r.json() : { deals: [] })
+            )
+          );
+          const allDeals = responses.flatMap(r => r.deals || []);
+          results.push({ destination: city, deals: allDeals });
+        } catch (err) {
+          console.warn(`[LocalExp] Failed for ${city}:`, err);
+        }
+        return { customerId: customer.id, results };
+      };
+
+      Promise.all([fetchLocalExperiences(customerA), fetchLocalExperiences(customerB)])
+        .then(([resA, resB]) => {
+          setLocalExperiences({
+            [resA.customerId]: resA.results,
+            [resB.customerId]: resB.results,
+          });
+          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+        })
+        .catch(() => {
+          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+        });
 
     } catch (err: any) {
       toast.error(err.message);
