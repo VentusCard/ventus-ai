@@ -84,25 +84,30 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  // 3 sections × (section header + 2 nodes) = 9 visual slots
-  // Layout: each section takes ~1/3 of height with header + 2 nodes
-  const sectionHeight = dims.h / 3;
+  // Section container layout constants
+  const sectionGap = 12;
+  const sectionPadTop = 28; // space for label
+  const nodeHeight = 44;
+  const nodeGap = 8;
+  const sectionPadBottom = 12;
+  const sectionContentHeight = sectionPadTop + nodeHeight * 2 + nodeGap + sectionPadBottom;
+  const totalSectionsHeight = sectionContentHeight * 3 + sectionGap * 2;
+  const sectionsStartY = (dims.h - totalSectionsHeight) / 2;
+
+  const getSectionTop = (si: number) => sectionsStartY + si * (sectionContentHeight + sectionGap);
   const getNodeY = (sectionIdx: number, nodeIdx: number) => {
-    const sectionTop = sectionIdx * sectionHeight;
-    // header takes top portion, then 2 nodes evenly spaced
-    return sectionTop + 28 + (nodeIdx + 0.5) * ((sectionHeight - 28) / 2);
+    const sectionTop = getSectionTop(sectionIdx);
+    return sectionTop + sectionPadTop + nodeIdx * (nodeHeight + nodeGap) + nodeHeight / 2;
   };
 
   const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
   const inputState: "idle" | "processing" | "ready" = inputReady ? "ready" : anyProcessing ? "processing" : "idle";
 
   // Flatten for SVG line rendering
-  let nodeIndex = 0;
   const nodePositions: { node: NodeDef; y: number }[] = [];
   SECTIONS.forEach((section, si) => {
     section.nodes.forEach((node, ni) => {
       nodePositions.push({ node, y: getNodeY(si, ni) });
-      nodeIndex++;
     });
   });
 
