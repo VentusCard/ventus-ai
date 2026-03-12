@@ -3,10 +3,11 @@ import { BankwideView } from "./BankwideView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
-import { BarChart3, Target, Wallet, Heart } from "lucide-react";
+import { GamificationManagement } from "./GamificationManagement";
+import { BarChart3, Target, Wallet, Heart, Gamepad2 } from "lucide-react";
 
 interface AnalyticsContainerProps {
-  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights';
+  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification';
 }
 
 export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
@@ -29,6 +30,10 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
           <Heart className="w-4 h-4" />
           Customer Insights
         </TabsTrigger>
+        <TabsTrigger value="gamification" className="flex items-center gap-2 data-[state=active]:bg-white">
+          <Gamepad2 className="w-4 h-4" />
+          Gamification
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="dashboard" className="mt-0">
@@ -45,6 +50,10 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
 
       <TabsContent value="customer-insights" className="mt-0">
         <WellnessAlertsDashboard />
+      </TabsContent>
+
+      <TabsContent value="gamification" className="mt-0">
+        <GamificationManagement />
       </TabsContent>
     </Tabs>
   );
