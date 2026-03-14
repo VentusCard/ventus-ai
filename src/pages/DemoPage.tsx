@@ -9,19 +9,21 @@ import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
 
 export default function DemoPage() {
-  const [customerA, setCustomerA] = useState<DemoCustomer>(DEMO_CUSTOMERS[0]);
-  const [customerB, setCustomerB] = useState<DemoCustomer>(DEMO_CUSTOMERS[1]);
+  const [customerA, setCustomerA] = useState<DemoCustomer | null>(null);
+  const [customerB, setCustomerB] = useState<DemoCustomer | null>(null);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
 
   const parsedA = useMemo<Transaction[]>(() => {
+    if (!customerA) return [];
     const result = parsePastedText(customerA.csv);
     return result.transactions ?? [];
-  }, [customerA.csv]);
+  }, [customerA?.csv]);
 
   const parsedB = useMemo<Transaction[]>(() => {
+    if (!customerB) return [];
     const result = parsePastedText(customerB.csv);
     return result.transactions ?? [];
-  }, [customerB.csv]);
+  }, [customerB?.csv]);
 
   const {
     nodeReadiness,
@@ -34,7 +36,9 @@ export default function DemoPage() {
     startEnrichment,
   } = useDemoEnrichment();
 
-  const handleEnrich = () => startEnrichment(customerA, customerB);
+  const handleEnrich = () => {
+    if (customerA && customerB) startEnrichment(customerA, customerB);
+  };
 
   const currentPhase: "idle" | "classification" | "travel" | "complete" =
     nodeReadiness.analytics === "ready" && nodeReadiness.travel === "ready" && nodeReadiness.rewards === "ready"
@@ -77,16 +81,23 @@ export default function DemoPage() {
 
       {/* Right Panel — 70% */}
       <div className="flex-1 relative">
-        <DemoNetworkDiagram
-          customerA={customerA}
-          customerB={customerB}
-          activeNode={activeNode}
-          onNodeClick={(node) => setActiveNode(node)}
-          nodeReadiness={nodeReadiness}
-          inputReady={inputReady}
-        />
+        {customerA && customerB && (
+          <DemoNetworkDiagram
+            customerA={customerA}
+            customerB={customerB}
+            activeNode={activeNode}
+            onNodeClick={(node) => setActiveNode(node)}
+            nodeReadiness={nodeReadiness}
+            inputReady={inputReady}
+          />
+        )}
+        {!customerA || !customerB ? (
+          <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+            Select two customers to begin
+          </div>
+        ) : null}
 
-        {activeNode && (
+        {activeNode && customerA && customerB && (
           <DemoDetailOverlay
             node={activeNode}
             customerA={customerA}

@@ -18,8 +18,8 @@ Rules:
 - Output ONLY the CSV with header row, no explanation`;
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   parsedTransactionsA: Transaction[];
   parsedTransactionsB: Transaction[];
   onSelectA: (c: DemoCustomer) => void;
@@ -53,7 +53,7 @@ export default function DemoCustomerPanel({
         customId="custom-a"
         selected={customerA}
         onSelect={onSelectA}
-        excludeId={customerB.id}
+        excludeId={customerB?.id}
         transactions={parsedTransactionsA}
       />
 
@@ -66,7 +66,7 @@ export default function DemoCustomerPanel({
         customId="custom-b"
         selected={customerB}
         onSelect={onSelectB}
-        excludeId={customerA.id}
+        excludeId={customerA?.id}
         transactions={parsedTransactionsB}
       />
 
@@ -74,7 +74,7 @@ export default function DemoCustomerPanel({
       <div className="mt-auto pt-6 space-y-3">
         <Button
           onClick={onEnrich}
-          disabled={isProcessing}
+          disabled={isProcessing || !customerA || !customerB}
           variant="ai"
           size="sm"
           className="w-full"
@@ -140,9 +140,9 @@ function CustomerSlot({
   label: string;
   color: string;
   customId: string;
-  selected: DemoCustomer;
+  selected: DemoCustomer | null;
   onSelect: (c: DemoCustomer) => void;
-  excludeId: string;
+  excludeId: string | undefined;
   transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -188,9 +188,10 @@ function CustomerSlot({
 
       <select
         className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 mb-3"
-        value={isCustomMode ? "custom" : selected.id}
+        value={isCustomMode ? "custom" : (selected?.id ?? "")}
         onChange={(e) => handleDropdownChange(e.target.value)}
       >
+        {!selected && !isCustomMode && <option value="" disabled>Select a customer…</option>}
         {DEMO_CUSTOMERS.filter((d) => d.id !== excludeId).map((d) => (
           <option key={d.id} value={d.id}>{d.profile.name}</option>
         ))}
@@ -277,6 +278,8 @@ function CustomerSlot({
             Load Data
           </Button>
         </div>
+      ) : !selected ? (
+        <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
       ) : (
         <>
           {/* Summary stats */}
