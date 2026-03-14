@@ -228,7 +228,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
           {/* Active beat card */}
           <div
-            key={`beat-${displayStep}-${beat4Phase}-${beat5Phase}`}
+            key={`beat-${displayStep}-${beat5Phase}`}
             className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
             style={{
               ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
