@@ -359,7 +359,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           {/* Beat 5 */}
           {step === 4 &&
           <div className="animate-fade-slide">
-              <div className="border rounded-xl p-8 sm:p-10" style={{ borderColor: "#E2E8F0", backgroundColor: "rgba(255,255,255,0.7)" }}>
+              <div className="border rounded-xl p-10 sm:p-12" style={{ borderColor: "#E2E8F0", backgroundColor: "rgba(255,255,255,0.7)" }}>
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                   <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
@@ -376,22 +376,22 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                 {/* Horizontal flow diagram */}
                 <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6">
-                    <p className="text-xs font-bold tracking-widest uppercase text-center transition-all duration-500" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 max-w-[220px]" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
                       {beat5Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
                     </p>
                     <div style={{ width: 44 }} />
-                    <p className="text-xs font-bold tracking-widest uppercase text-center transition-all duration-500" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 max-w-[220px]" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
                       {beat5Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
                     </p>
                   </div>
-                <div className={`${beat5Phase >= 1 ? 'mt-4' : 'mt-10'} flex items-center justify-center gap-4 sm:gap-6`}>
+                <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6">
 
                   {/* LEFT — Input boxes */}
-                  <div className="flex flex-col items-stretch gap-3 relative" style={{ minWidth: 260, width: 260 }}>
+                  <div className="flex flex-col items-stretch gap-4 relative" style={{ minWidth: 260, width: 260 }}>
                     {/* Intent Data bracket — phase 1 only */}
                     {beat5Phase >= 1 && (
                       <div
-                        className="absolute -inset-3 rounded-xl border-2 animate-fade-slide"
+                        className="absolute -inset-4 rounded-xl border-2 animate-fade-slide"
                         style={{
                           borderColor: "#3B82F6",
                           backgroundColor: "rgba(59,130,246,0.04)",
@@ -405,7 +405,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       </div>
                     )}
                     <div
-                      className="px-5 py-3 rounded-lg border text-center transition-all duration-500"
+                      className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
                       style={{
                         borderColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1",
                         borderStyle: beat5Phase >= 1 ? "solid" : "dashed",
@@ -417,7 +417,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       </span>
                     </div>
                     <div
-                      className="px-5 py-3 rounded-lg border text-center transition-all duration-500"
+                      className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
                       style={{
                         borderColor: beat5Phase >= 1 ? "#3B82F6" : "#E2E8F0",
                         backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
@@ -431,8 +431,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                   {/* MIDDLE — Arrow */}
                   <div className="flex items-center">
-                    <div className="h-px w-8 sm:w-14" style={{ backgroundColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1" }} />
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <div className="h-px w-10 sm:w-16" style={{ backgroundColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1" }} />
+                    <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
                       <path d="M0 6H10M10 6L6 2M10 6L6 10" stroke={beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="1.5" />
                     </svg>
                   </div>
@@ -455,7 +455,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     ).map((item, i) => (
                       <div
                         key={item.label}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-500"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all duration-500"
                         style={{
                           borderColor: beat5Phase >= 1 ? "#BFDBFE" : "#E2E8F0",
                           backgroundColor: beat5Phase >= 1 ? "#F8FAFF" : "#FAFBFC",
