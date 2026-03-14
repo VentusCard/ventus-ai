@@ -375,17 +375,15 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </p>
 
                 {/* Horizontal flow diagram */}
-                {beat5Phase >= 1 && (
-                  <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 animate-fade-slide" style={{ animationFillMode: "both" }}>
-                    <p className="text-xs font-bold tracking-widest uppercase text-center" style={{ color: "#2563EB", minWidth: 160, letterSpacing: "0.1em" }}>
-                      If we truly understand our customers
+                <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6">
+                    <p className="text-xs font-bold tracking-widest uppercase text-center transition-all duration-500" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                      {beat5Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
                     </p>
                     <div style={{ width: 44 }} />
-                    <p className="text-xs font-bold tracking-widest uppercase text-center" style={{ color: "#2563EB", letterSpacing: "0.1em" }}>
-                      We can then provide a deeply personalized experience
+                    <p className="text-xs font-bold tracking-widest uppercase text-center transition-all duration-500" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                      {beat5Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
                     </p>
                   </div>
-                )}
                 <div className={`${beat5Phase >= 1 ? 'mt-4' : 'mt-10'} flex items-center justify-center gap-4 sm:gap-6`}>
 
                   {/* LEFT — Input boxes */}
