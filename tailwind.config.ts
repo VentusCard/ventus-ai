@@ -327,7 +327,8 @@ export default {
 		'icon-pulse': 'icon-pulse 0.6s ease-in-out',
 		'icon-bounce': 'icon-bounce 0.5s ease-in-out',
 		'icon-tilt': 'icon-tilt 0.4s ease-in-out',
-		'icon-wave': 'icon-wave 0.5s ease-in-out'
+		'icon-wave': 'icon-wave 0.5s ease-in-out',
+		'scroll-up': 'scroll-up 16s linear infinite'
 		}
 	}
 },
