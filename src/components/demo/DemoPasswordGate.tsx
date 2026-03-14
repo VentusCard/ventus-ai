@@ -512,7 +512,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 6 — Reveal */}
-              {step === 5 && (
+              {displayStep === 5 && (
                 <div className="text-center py-8">
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     You can't patch this. You need a new layer.
