@@ -419,7 +419,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
                     {beat5Phase === 0
                       ? "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals."
-                      : "Intent Data brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
+                      : "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
                     }
                   </p>
 
@@ -448,7 +448,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span
                           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide"
                           style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
-                          Intent Data
+                          Dynamic Personas & Behavioral Insights
                         </span>
                       </div>
                       <div
