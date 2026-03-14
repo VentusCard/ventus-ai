@@ -135,7 +135,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
       {/* ── Collapsed stack of previous beats ── */}
       {step > 0 &&
-      <div className="pt-20 px-8 flex flex-col items-center z-10">
+      <div className="pt-16 px-8 flex flex-col items-center z-10">
           {Array.from({ length: Math.min(step, 5) }).map((_, i) => {
           const distance = step - 1 - i;
           const opacity = distance === 0 ? 0.7 : Math.max(0.3, 0.5 - distance * 0.1);
