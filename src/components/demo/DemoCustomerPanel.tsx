@@ -18,8 +18,8 @@ Rules:
 - Output ONLY the CSV with header row, no explanation`;
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   parsedTransactionsA: Transaction[];
   parsedTransactionsB: Transaction[];
   onSelectA: (c: DemoCustomer) => void;
