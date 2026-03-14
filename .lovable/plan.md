@@ -1,23 +1,28 @@
 
 
-# Fix: Beat 5 Card Refresh on Phase Change
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-The active card's `key` on line 231 includes `beat5Phase`, causing React to re-mount the entire card when Beat 5 transitions from "Patterns can't be extended" to "Until they're connected." This triggers the fade-slide animation again instead of smoothly transitioning content in place.
+### Implemented
 
-## Fix
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-### 1. Remove `beat5Phase` from the card key (line 231)
-Change `key={`beat-${displayStep}-${beat5Phase}`}` to `key={`beat-${displayStep}`}`.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-This was already done for `beat4Phase` — same fix applies here.
-
-### 2. Use CSS transitions instead of conditional rendering for Beat 5 phase changes
-The Beat 5 content already uses `transition-all duration-500` for colors/borders on the boxes (good). But the "Intent Data" overlay on line 440 uses conditional rendering (`{beat5Phase >= 1 && ...}`) with `animate-fade-slide`. Change this to always-rendered with opacity/transform transitions, matching the Beat 4 pattern:
-
-- **Intent Data border overlay** (line 440-454): Always render, control with `opacity` and `transform` style transitions.
-- **Title/description** (lines 417-423): These swap text via ternary — already fine since the element stays mounted.
-- **Output labels** (lines 490-510): These swap via ternary array — the items re-render but the container stays stable. Use CSS transitions on label text changes.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

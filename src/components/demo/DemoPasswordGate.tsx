@@ -228,7 +228,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
           {/* Active beat card */}
           <div
-            key={`beat-${displayStep}-${beat5Phase}`}
+            key={`beat-${displayStep}`}
             className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
             style={{
               ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
@@ -437,21 +437,20 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                     {/* LEFT — Input boxes */}
                     <div className="flex flex-col items-stretch gap-4 relative" style={{ minWidth: 260, width: 260 }}>
-                      {beat5Phase >= 1 && (
-                        <div
-                          className="absolute -inset-4 rounded-xl border-2 animate-fade-slide"
-                          style={{
-                            borderColor: "#3B82F6",
-                            backgroundColor: "rgba(59,130,246,0.04)",
-                            animationFillMode: "both"
-                          }}>
-                          <span
-                            className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide"
-                            style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
-                            Intent Data
-                          </span>
-                        </div>
-                      )}
+                      <div
+                        className="absolute -inset-4 rounded-xl border-2 transition-all duration-500"
+                        style={{
+                          borderColor: "#3B82F6",
+                          backgroundColor: "rgba(59,130,246,0.04)",
+                          opacity: beat5Phase >= 1 ? 1 : 0,
+                          transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(8px)",
+                        }}>
+                        <span
+                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide"
+                          style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
+                          Intent Data
+                        </span>
+                      </div>
                       <div
                         className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
                         style={{
