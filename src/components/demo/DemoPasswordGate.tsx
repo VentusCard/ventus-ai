@@ -204,12 +204,12 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
                 <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
-                  MCC 7922 — "Entertainment." Three customers. Three purchases: Symphony Orchestra, Celtics tickets, Monster Jam.
+                  MCC 7922 — "Sports and Entertainment." Three customers. Three purchases: Symphony Orchestra, Celtics tickets, Monster Jam.
                   Three completely different people — invisible to the bank.
                 </p>
                 <div className="mt-8 flex flex-col items-center gap-6">
-                  <div className="flex items-center justify-center gap-8 sm:gap-16">
-                    <div className="flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+                  <div className="flex justify-center w-full max-w-md mx-auto">
+                    <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
                       <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                           <path d="M16 4C16 4 20 8 20 14C20 18 18 22 16 24C14 22 12 18 12 14C12 8 16 4 16 4Z" fill="#94A3B8" />
@@ -217,9 +217,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           <circle cx="16" cy="9" r="2" fill="#CBD5E1" />
                         </svg>
                       </div>
-                      <span className="text-xs font-medium" style={{ color: "#64748B" }}>Symphony Orchestra</span>
+                      <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br/>Orchestra</span>
                     </div>
-                    <div className="flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
+                    <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
                       <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                           <circle cx="16" cy="16" r="10" stroke="#94A3B8" strokeWidth="2" fill="none" />
@@ -228,9 +228,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
                         </svg>
                       </div>
-                      <span className="text-xs font-medium" style={{ color: "#64748B" }}>Celtics Tickets</span>
+                      <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Celtics<br/>Tickets</span>
                     </div>
-                    <div className="flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
+                    <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
                       <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                           <rect x="8" y="14" width="16" height="10" rx="3" fill="#94A3B8" />
@@ -239,17 +239,17 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           <path d="M10 14L14 6H18L22 14" fill="#94A3B8" />
                         </svg>
                       </div>
-                      <span className="text-xs font-medium" style={{ color: "#64748B" }}>Monster Jam</span>
+                      <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br/>Jam</span>
                     </div>
                   </div>
-                  <svg width="200" height="40" viewBox="0 0 200 40" className="animate-fade-slide" style={{ animationDelay: "1.0s", animationFillMode: "both" }}>
-                    <line x1="30" y1="0" x2="100" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                    <line x1="100" y1="0" x2="100" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                    <line x1="170" y1="0" x2="100" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                  <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none" className="max-w-md animate-fade-slide" style={{ animationDelay: "1.0s", animationFillMode: "both" }}>
+                    <line x1="50" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1="150" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1="250" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                   </svg>
                   <div className="flex flex-col items-center gap-2 animate-fade-slide" style={{ animationDelay: "1.2s", animationFillMode: "both" }}>
                     <div className="px-5 py-2.5 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
-                      <span className="text-sm font-bold tracking-wider">MCC 7922</span>
+                      <span className="text-sm font-bold tracking-wider">MCC 7922 · Sports and Entertainment</span>
                     </div>
                     <span className="text-xs" style={{ color: "#94A3B8" }}>Same code for all three</span>
                   </div>
