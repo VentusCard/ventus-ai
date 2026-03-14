@@ -74,7 +74,7 @@ export default function DemoCustomerPanel({
       <div className="mt-auto pt-6 space-y-3">
         <Button
           onClick={onEnrich}
-          disabled={isProcessing}
+          disabled={isProcessing || !customerA || !customerB}
           variant="ai"
           size="sm"
           className="w-full"
