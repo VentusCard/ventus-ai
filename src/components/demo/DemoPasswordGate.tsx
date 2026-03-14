@@ -193,7 +193,16 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
             return (
               <div
                 key={`stack-${i}`}
-                className="absolute top-0 left-0 right-0 rounded-2xl border bg-white overflow-hidden transition-all duration-500 ease-out"
+                className="absolute top-0 left-0 right-0 rounded-2xl border bg-white overflow-hidden"
+                style={{
+                  borderColor: "#E2E8F0",
+                  boxShadow: `0 ${4 - distance}px ${12 - distance * 2}px rgba(0,0,0,${0.06 - distance * 0.01})`,
+                  transform: `translateY(${yOffset}px) scale(${scaleVal})`,
+                  opacity: opacityVal,
+                  zIndex: i,
+                  height: 80,
+                  transformOrigin: "top center",
+                  transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
                 style={{
                   borderColor: "#E2E8F0",
                   boxShadow: `0 ${4 - distance}px ${12 - distance * 2}px rgba(0,0,0,${0.06 - distance * 0.01})`,
