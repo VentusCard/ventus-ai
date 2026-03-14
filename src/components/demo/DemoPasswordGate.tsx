@@ -446,7 +446,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(8px)",
                         }}>
                         <span
-                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide"
+                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
                           style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
                           Dynamic Personas & Behavioral Insights
                         </span>
