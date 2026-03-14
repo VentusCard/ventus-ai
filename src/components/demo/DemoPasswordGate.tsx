@@ -281,7 +281,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           {/* Beat 4 */}
           {step === 3 &&
           <div className="animate-fade-slide">
-              <div className="border rounded-xl p-8 sm:p-10 flex flex-col" style={{ borderColor: "#E2E8F0", backgroundColor: "rgba(255,255,255,0.7)", minHeight: '50vh' }}>
+              <div className="border rounded-xl p-8 sm:p-10 flex flex-col" style={{ borderColor: "#E2E8F0", backgroundColor: "rgba(255,255,255,0.7)", minHeight: '58vh' }}>
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
                   <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
@@ -322,7 +322,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </div>
                 {beat4Phase >= 2 && (
                 <div
-                className="flex-1 flex items-center justify-center animate-fade-slide"
+                className="mt-8 min-h-[180px] sm:min-h-[220px] flex items-center justify-center animate-fade-slide"
                 style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
                 
                   <div className="flex items-center gap-3">
