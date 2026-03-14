@@ -485,7 +485,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
 
                     {/* RIGHT — Output items */}
-                    <div style={{ minWidth: 260, width: 260, position: 'relative' }}>
+                    <div className="flex-1 min-w-0 relative">
                       {/* Phase 0: static labels */}
                       <div
                         className="flex flex-col gap-2.5 transition-all duration-500"
