@@ -389,7 +389,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 <div className={`${beat5Phase >= 1 ? 'mt-4' : 'mt-10'} flex items-center justify-center gap-4 sm:gap-6`}>
 
                   {/* LEFT — Input boxes */}
-                  <div className="flex flex-col items-stretch gap-3 relative">
+                  <div className="flex flex-col items-stretch gap-3 relative" style={{ minWidth: 260, width: 260 }}>
                     {/* Intent Data bracket — phase 1 only */}
                     {beat5Phase >= 1 && (
                       <div
