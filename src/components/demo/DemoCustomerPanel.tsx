@@ -140,9 +140,9 @@ function CustomerSlot({
   label: string;
   color: string;
   customId: string;
-  selected: DemoCustomer;
+  selected: DemoCustomer | null;
   onSelect: (c: DemoCustomer) => void;
-  excludeId: string;
+  excludeId: string | undefined;
   transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
