@@ -251,7 +251,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 2 */}
-              {step === 1 && (
+              {displayStep === 1 && (
                 <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     The answer is three letters:{" "}
