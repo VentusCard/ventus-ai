@@ -276,6 +276,10 @@ export default {
 				'0%, 100%': { transform: 'translateX(0)' },
 				'25%': { transform: 'translateX(-2px)' },
 				'75%': { transform: 'translateX(2px)' }
+			},
+			'scroll-up': {
+				'0%': { transform: 'translateY(0)' },
+				'100%': { transform: 'translateY(-50%)' }
 			}
 		},
 
