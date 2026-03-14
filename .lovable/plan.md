@@ -1,28 +1,39 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Redesign Beat 5 Card — Spacing and Typography
 
-### Implemented
+## Issues Identified
+From the screenshots and code:
+1. **Column headers are cramped** — the uppercase text at `text-xs` is too small and dense for two-line headers
+2. **Inconsistent vertical spacing** — the gap between headers and cards changes awkwardly between phases (`mt-10` vs `mt-4`)
+3. **Arrow is too thin and small** — the connecting arrow between left/right columns gets lost
+4. **Left column cards feel flat** — Demographics/Transactions boxes are thin with minimal padding
+5. **Right column items are uniform** — no visual hierarchy between the four output items
+6. **Overall card padding is tight** — the `p-8` outer container doesn't give enough breathing room for the diagram
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+## Proposed Changes
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+**File**: `src/components/demo/DemoPasswordGate.tsx` (lines ~378-473)
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+### 1. Column Headers
+- Bump to `text-[11px]` with `leading-relaxed` for better readability on two-line headers
+- Add `max-w-[220px]` so text wraps naturally and consistently in both phases
+- Use consistent `mt-8 mb-5` spacing (no phase-dependent margin change)
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+### 2. Left Column (Demographics / Transactions)
+- Increase vertical padding from `py-3` to `py-4`
+- Widen the gap between the two cards from `gap-3` to `gap-4`
+- Make the Intent Data bracket padding slightly larger (`-inset-4`) for better framing
+
+### 3. Arrow / Connector
+- Widen the line from `w-8 sm:w-14` to `w-10 sm:w-16`
+- Increase arrowhead SVG from 12×12 to 14×14
+
+### 4. Right Column (Analytics / UX / Rewards / Relationship)
+- Increase padding from `px-4 py-2` to `px-4 py-2.5`
+- Keep consistent `gap-2.5`
+
+### 5. Outer Container
+- Bump padding from `p-8 sm:p-10` to `p-10 sm:p-12` for more breathing room
+- Consistent `mt-8` before the diagram section regardless of phase
+
