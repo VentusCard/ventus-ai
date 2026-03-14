@@ -1,28 +1,21 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Glassmorphism Stacked Cards — Vertical Offset Only
 
-### Implemented
+## Summary
+Redesign the Demographics and Transactions input boxes in Beat 5 as glassmorphism stacked cards. Each box gets 2 "ghost" cards behind it, offset **vertically only** (no horizontal shift).
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+## Changes
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+**File**: `src/components/demo/DemoPasswordGate.tsx` (lines 398-420)
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+Replace each flat input box with a `relative` wrapper containing:
+- **2 ghost cards** (absolute positioned behind), using:
+  - Card 1: `transform: translateY(-8px) scale(0.97)`, opacity 0.5
+  - Card 2: `transform: translateY(-16px) scale(0.94)`, opacity 0.3
+  - No `translateX` — purely vertical stacking
+- **Front card**: `backdrop-filter: blur(16px)`, semi-transparent white bg (`rgba(255,255,255,0.7)`), subtle border (`rgba(255,255,255,0.4)`), soft shadow, `position: relative; z-index: 2`
+- Ghost cards share the glass style but more transparent
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+Phase transitions remain the same — neutral glass in phase 0, blue-tinted in phase 1.
+
