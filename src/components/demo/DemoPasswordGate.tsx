@@ -211,7 +211,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   zIndex: i,
                   height: 80,
                   transformOrigin: "top center",
-                  transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
+                  transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)"
                 }}>
                 <div className="px-8 py-5 flex items-center gap-3">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
@@ -222,8 +222,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     {BEAT_SUMMARIES[i]}
                   </span>
                 </div>
-              </div>
-            );
+              </div>);
+
           })}
 
           {/* Active beat card */}
@@ -233,13 +233,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
             style={{
               ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
               zIndex: step + 1,
-              marginTop: displayStep >= 2 ? Math.min(displayStep - 1, 4) * 4 : 0,
+              marginTop: displayStep >= 2 ? Math.min(displayStep - 1, 4) * 4 : 0
             }}>
             <div className={displayStep >= 2 ? "p-8 sm:p-10" : ""}>
 
               {/* Beat 1 */}
-              {displayStep === 0 && (
-                <div className="text-center py-8">
+              {displayStep === 0 &&
+              <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't work.
                   </h1>
@@ -248,11 +248,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     Everyone knows this. The question is <span className="font-semibold" style={{ color: "#0F172A" }}>why</span>.
                   </p>
                 </div>
-              )}
+              }
 
               {/* Beat 2 */}
-              {displayStep === 1 && (
-                <div className="text-center py-8">
+              {displayStep === 1 &&
+              <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     The answer is three letters:{" "}
                     <span style={{ color: "#3B82F6" }}>MCC</span>.
@@ -263,11 +263,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     designed for interchange routing, not customer understanding.
                   </p>
                 </div>
-              )}
+              }
 
               {/* Beat 3 */}
-              {displayStep === 2 && (
-                <div>
+              {displayStep === 2 &&
+              <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>01</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
@@ -289,7 +289,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br/>Orchestra</span>
+                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
                       </div>
                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
                         <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
@@ -300,7 +300,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Celtics<br/>Tickets</span>
+                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
                       </div>
                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
                         <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
@@ -314,7 +314,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br/>Jam</span>
+                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
                       </div>
                     </div>
                     <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none" className="max-w-md animate-fade-slide" style={{ animationDelay: "1.0s", animationFillMode: "both" }}>
@@ -330,11 +330,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
                   </div>
                 </div>
-              )}
+              }
 
               {/* Beat 4 */}
-              {displayStep === 3 && (
-                <div className="flex flex-col" style={{ minHeight: '40vh' }}>
+              {displayStep === 3 &&
+              <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
@@ -347,49 +347,49 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="mt-8">
                       <div className="space-y-3">
                         {[
-                          { merchant: "Vail Resorts — EPIC Pass", mcc: "7941", mccLabel: "Sports & Entertainment", amount: "$979.00", delay: "0.2s" },
-                          { merchant: "Burton Snowboards", mcc: "5941", mccLabel: "Sporting Goods", amount: "$649.00", delay: "0.5s" },
-                          { merchant: "The North Face", mcc: "5699", mccLabel: "Apparel", amount: "$389.00", delay: "0.8s" }
-                        ].map((tx, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between px-5 py-3 rounded-lg border animate-fade-slide"
-                            style={{
-                              borderColor: "#E2E8F0",
-                              backgroundColor: "#FAFBFC",
-                              animationDelay: tx.delay,
-                              animationFillMode: "both"
-                            }}>
+                      { merchant: "Vail Resorts — EPIC Pass", mcc: "7941", mccLabel: "Sports & Entertainment", amount: "$979.00", delay: "0.2s" },
+                      { merchant: "Burton Snowboards", mcc: "5941", mccLabel: "Sporting Goods", amount: "$649.00", delay: "0.5s" },
+                      { merchant: "The North Face", mcc: "5699", mccLabel: "Apparel", amount: "$389.00", delay: "0.8s" }].
+                      map((tx, i) =>
+                      <div
+                        key={i}
+                        className="flex items-center justify-between px-5 py-3 rounded-lg border animate-fade-slide"
+                        style={{
+                          borderColor: "#E2E8F0",
+                          backgroundColor: "#FAFBFC",
+                          animationDelay: tx.delay,
+                          animationFillMode: "both"
+                        }}>
                             <div className="flex items-center gap-4">
                               <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
                                 MCC {tx.mcc} · {tx.mccLabel}
                               </span>
                               <span
-                                className="text-sm font-medium transition-all duration-500"
-                                style={{
-                                  color: "#0F172A",
-                                  opacity: beat4Phase >= 1 ? 1 : 0,
-                                  width: beat4Phase >= 1 ? 'auto' : 0,
-                                  transform: beat4Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
-                                  overflow: 'hidden',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
+                            className="text-sm font-medium transition-all duration-500"
+                            style={{
+                              color: "#0F172A",
+                              opacity: beat4Phase >= 1 ? 1 : 0,
+                              width: beat4Phase >= 1 ? 'auto' : 0,
+                              transform: beat4Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap'
+                            }}>
+                            
                                 {tx.merchant}
                               </span>
                             </div>
                             <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                           </div>
-                        ))}
+                      )}
                       </div>
                     </div>
                   </div>
                   <div
-                    className="flex items-center justify-center transition-all duration-500 pt-1"
-                    style={{
-                      opacity: beat4Phase >= 2 ? 1 : 0,
-                      transform: beat4Phase >= 2 ? 'translateY(0)' : 'translateY(8px)',
-                    }}>
+                  className="flex items-center justify-center transition-all duration-500 pt-1"
+                  style={{
+                    opacity: beat4Phase >= 2 ? 1 : 0,
+                    transform: beat4Phase >= 2 ? 'translateY(0)' : 'translateY(8px)'
+                  }}>
                     <div className="flex items-center gap-3">
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                       <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
@@ -404,11 +404,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
                   </div>
                 </div>
-              )}
+              }
 
               {/* Beat 5 */}
-              {displayStep === 4 && (
-                <div>
+              {displayStep === 4 &&
+              <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
@@ -417,10 +417,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     {beat5Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
                   </h2>
                   <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
-                    {beat5Phase === 0
-                      ? "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals."
-                      : "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
-                    }
+                    {beat5Phase === 0 ?
+                  "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals." :
+                  "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
+                  }
                   </p>
 
                   {/* Horizontal flow diagram */}
@@ -438,38 +438,38 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     {/* LEFT — Input boxes */}
                     <div className="flex flex-col items-stretch gap-4 relative flex-1 min-w-0">
                       <div
-                        className="absolute -inset-4 rounded-xl border-2 transition-all duration-500"
-                        style={{
-                          borderColor: "#3B82F6",
-                          backgroundColor: "rgba(59,130,246,0.04)",
-                          opacity: beat5Phase >= 1 ? 1 : 0,
-                          transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(8px)",
-                        }}>
+                      className="absolute -inset-4 rounded-xl border-2 transition-all duration-500"
+                      style={{
+                        borderColor: "#3B82F6",
+                        backgroundColor: "rgba(59,130,246,0.04)",
+                        opacity: beat5Phase >= 1 ? 1 : 0,
+                        transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(8px)"
+                      }}>
                         <span
-                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
-                          style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
+                        className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
+                        style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
                           Dynamic Personas & Behavioral Insights
                         </span>
                       </div>
                       <div
-                        className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
-                        style={{
-                          borderColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1",
-                          borderStyle: beat5Phase >= 1 ? "solid" : "dashed",
-                          backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
-                          minWidth: 160
-                        }}>
+                      className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
+                      style={{
+                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1",
+                        borderStyle: beat5Phase >= 1 ? "solid" : "dashed",
+                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
+                        minWidth: 160
+                      }}>
                         <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
                           Demographics
                         </span>
                       </div>
                       <div
-                        className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
-                        style={{
-                          borderColor: beat5Phase >= 1 ? "#3B82F6" : "#E2E8F0",
-                          backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
-                          minWidth: 160
-                        }}>
+                      className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
+                      style={{
+                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#E2E8F0",
+                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
+                        minWidth: 160
+                      }}>
                         <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#64748B" }}>
                           Transactions
                         </span>
@@ -488,116 +488,116 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="flex-1 min-w-0 relative">
                       {/* Phase 0: static labels */}
                       <div
-                        className="flex flex-col gap-2.5 transition-all duration-500"
-                        style={{
-                          opacity: beat5Phase === 0 ? 1 : 0,
-                          transform: beat5Phase === 0 ? 'translateY(0)' : 'translateY(-10px)',
-                          position: beat5Phase === 0 ? 'relative' : 'absolute',
-                          inset: 0,
-                          pointerEvents: beat5Phase === 0 ? 'auto' : 'none',
-                        }}>
+                      className="flex flex-col gap-2.5 transition-all duration-500"
+                      style={{
+                        opacity: beat5Phase === 0 ? 1 : 0,
+                        transform: beat5Phase === 0 ? 'translateY(0)' : 'translateY(-10px)',
+                        position: beat5Phase === 0 ? 'relative' : 'absolute',
+                        inset: 0,
+                        pointerEvents: beat5Phase === 0 ? 'auto' : 'none'
+                      }}>
                         {[
-                          { label: "Analytics", icon: "📊" },
-                          { label: "UX", icon: "🖥️" },
-                          { label: "Rewards", icon: "🎁" },
-                          { label: "Relationship", icon: "🤝" },
-                        ].map((item) => (
-                          <div
-                            key={item.label}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
-                            style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}>
+                      { label: "Analytics", icon: "📊" },
+                      { label: "UX", icon: "🖥️" },
+                      { label: "Rewards", icon: "🎁" },
+                      { label: "Relationship", icon: "🤝" }].
+                      map((item) =>
+                      <div
+                        key={item.label}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                        style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}>
                             <span className="text-base">{item.icon}</span>
                             <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#64748B" }}>{item.label}</span>
                           </div>
-                        ))}
+                      )}
                       </div>
 
                       {/* Phase 1: rolling carousel */}
                       <div
-                        className="transition-all duration-700"
-                        style={{
-                          opacity: beat5Phase >= 1 ? 1 : 0,
-                          transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(10px)',
-                          position: beat5Phase >= 1 ? 'relative' : 'absolute',
-                          inset: 0,
-                          pointerEvents: beat5Phase >= 1 ? 'auto' : 'none',
-                          height: 200,
-                          overflow: 'hidden',
-                          maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
-                          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
-                        }}>
+                      className="transition-all duration-700"
+                      style={{
+                        opacity: beat5Phase >= 1 ? 1 : 0,
+                        transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(10px)',
+                        position: beat5Phase >= 1 ? 'relative' : 'absolute',
+                        inset: 0,
+                        pointerEvents: beat5Phase >= 1 ? 'auto' : 'none',
+                        height: 200,
+                        overflow: 'hidden',
+                        maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)'
+                      }}>
                         <div className="animate-scroll-up flex flex-col gap-2.5">
                           {[...Array(2)].map((_, dupeIdx) =>
-                            [
-                              { label: "Smart Rewards with Personalized Offers", icon: "🎁" },
-                              { label: "Life Event Detection & Anticipation", icon: "💫" },
-                              { label: "AI-Powered Campaign Targeting", icon: "📣" },
-                              { label: "Behavioral Segment Builder", icon: "👥" },
-                              { label: "Travel Detection & Local Deals", icon: "✈️" },
-                              { label: "Wealth Copilot for Advisors", icon: "📈" },
-                              { label: "Personalized Customer Engagement", icon: "💎" },
-                              { label: "Bank-Wide Behavioral Analytics", icon: "📊" },
-                              { label: "Automated Relationship Intelligence", icon: "🤝" },
-                              { label: "Financial Wellness Coaching", icon: "🌱" },
-                              { label: "Cross-Sell Opportunity Matrix", icon: "🔗" },
-                              { label: "Geo-Targeted Merchant Partnerships", icon: "📍" },
-                            ].map((item, i) => (
-                              <div
-                                key={`${dupeIdx}-${i}`}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
-                                style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}>
+                        [
+                        { label: "Smart Rewards with Personalized Offers", icon: "🎁" },
+                        { label: "Life Event Detection & Anticipation", icon: "💫" },
+                        { label: "AI-Powered Campaign Targeting", icon: "📣" },
+                        { label: "Behavioral Segment Builder", icon: "👥" },
+                        { label: "Travel Detection & Local Deals", icon: "✈️" },
+                        { label: "Wealth Copilot for Advisors", icon: "📈" },
+                        { label: "Personalized Customer Engagement", icon: "💎" },
+                        { label: "Bank-Wide Behavioral Analytics", icon: "📊" },
+                        { label: "Automated Relationship Intelligence", icon: "🤝" },
+                        { label: "Financial Wellness Coaching", icon: "🌱" },
+                        { label: "Cross-Sell Opportunity Matrix", icon: "🔗" },
+                        { label: "Geo-Targeted Merchant Partnerships", icon: "📍" }].
+                        map((item, i) =>
+                        <div
+                          key={`${dupeIdx}-${i}`}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                          style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}>
                                 <span className="text-base flex-shrink-0">{item.icon}</span>
                                 <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>{item.label}</span>
                               </div>
-                            ))
-                          )}
+                        )
+                        )}
                         </div>
                       </div>
                     </div>
 
                   </div>
                 </div>
-              )}
+              }
 
               {/* Beat 6 — Reveal */}
-              {displayStep === 5 && (
-                <div className="text-center py-8">
+              {displayStep === 5 &&
+              <div className="text-center py-8">
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     One AI-Native layer that enables personalized banking across functions.
                   </h1>
                   <div
-                    className="mt-12 transition-all duration-700 ease-out flex flex-col items-center"
-                    style={{ opacity: revealLogo ? 1 : 0, transform: revealLogo ? "translateY(0)" : "translateY(20px)" }}>
-                    <img src={ventusLogo} alt="VentusAI" className="h-12 mb-3" />
+                  className="mt-12 transition-all duration-700 ease-out flex flex-col items-center"
+                  style={{ opacity: revealLogo ? 1 : 0, transform: revealLogo ? "translateY(0)" : "translateY(20px)" }}>
+                    
                     <p className="mt-2 text-base" style={{ color: "#64748B" }}>
                       Transform banking experiences — no core overhaul required.
                     </p>
                   </div>
                   <div
-                    className="mt-10 transition-all duration-500 ease-out"
-                    style={{ opacity: revealInput ? 1 : 0, transform: revealInput ? "translateY(0)" : "translateY(12px)" }}
-                    onClick={(e) => e.stopPropagation()}>
+                  className="mt-10 transition-all duration-500 ease-out"
+                  style={{ opacity: revealInput ? 1 : 0, transform: revealInput ? "translateY(0)" : "translateY(12px)" }}
+                  onClick={(e) => e.stopPropagation()}>
                     <form onSubmit={handleSubmit} className="flex flex-col items-center gap-3">
                       <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); setError(false); }}
-                        placeholder="Enter access code"
-                        className="h-11 w-64 rounded-lg border bg-white px-4 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        style={{ borderColor: error ? "#EF4444" : "#E2E8F0", color: "#0F172A" }} />
+                      type="password"
+                      value={password}
+                      onChange={(e) => {setPassword(e.target.value);setError(false);}}
+                      placeholder="Enter access code"
+                      className="h-11 w-64 rounded-lg border bg-white px-4 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{ borderColor: error ? "#EF4444" : "#E2E8F0", color: "#0F172A" }} />
                       {error && <p className="text-sm" style={{ color: "#EF4444" }}>Incorrect access code</p>}
                       <button
-                        type="submit"
-                        className="h-10 px-8 rounded-full text-sm font-semibold text-white transition-colors"
-                        style={{ backgroundColor: "#3B82F6" }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#2563EB"}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3B82F6"}>
+                      type="submit"
+                      className="h-10 px-8 rounded-full text-sm font-semibold text-white transition-colors"
+                      style={{ backgroundColor: "#3B82F6" }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#2563EB"}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3B82F6"}>
                         Enter Demo
                       </button>
                     </form>
                   </div>
                 </div>
-              )}
+              }
 
             </div>
           </div>
