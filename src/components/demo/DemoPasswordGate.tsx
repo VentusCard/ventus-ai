@@ -385,7 +385,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
                   </div>
                   <div
-                    className="flex-1 flex items-center justify-center transition-all duration-500"
+                    className="flex-1 flex items-center justify-center transition-all duration-500 pt-1"
                     style={{
                       opacity: beat4Phase >= 2 ? 1 : 0,
                       transform: beat4Phase >= 2 ? 'translateY(0)' : 'translateY(8px)',
