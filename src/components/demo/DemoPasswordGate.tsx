@@ -24,6 +24,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [beat5Phase, setBeat5Phase] = useState(0);
 
   const advance = useCallback(() => {
+    if (isTransitioning) return;
     setStep((s) => {
       if (s === 3) {
         if (beat4Phase < 2) {
@@ -39,9 +40,17 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         }
         setBeat5Phase(0);
       }
-      return s < TOTAL_BEATS - 1 ? s + 1 : s;
+      const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
+      if (next !== s) {
+        setIsTransitioning(true);
+        setTimeout(() => {
+          setDisplayStep(next);
+          setIsTransitioning(false);
+        }, 150);
+      }
+      return next;
     });
-  }, [beat4Phase, beat5Phase]);
+  }, [beat4Phase, beat5Phase, isTransitioning]);
 
   const goBack = useCallback(() => {
     if (step === 3 && beat4Phase > 0) {
