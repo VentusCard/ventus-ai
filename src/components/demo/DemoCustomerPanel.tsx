@@ -66,7 +66,7 @@ export default function DemoCustomerPanel({
         customId="custom-b"
         selected={customerB}
         onSelect={onSelectB}
-        excludeId={customerA.id}
+        excludeId={customerA?.id}
         transactions={parsedTransactionsB}
       />
 
