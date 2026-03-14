@@ -334,7 +334,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <path d="M5 8L9 12L13 8" stroke="#3B82F6" strokeWidth="1.5" fill="none" />
                       <line x1="9" y1="12" x2="9" y2="16" stroke="#3B82F6" strokeWidth="1.5" />
                     </svg>
-                    <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Pattern: Skiing</span>
+                    <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Intent: Skiing</span>
                   </div>
                   <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                 </div>
