@@ -440,7 +440,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </div>
 
                   {/* RIGHT — Output items */}
-                  <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-col gap-2.5" style={{ minWidth: 260, width: 260 }}>
                     {(beat5Phase === 0
                       ? [
                           { label: "Analytics", icon: "📊" },
