@@ -1,22 +1,28 @@
 
 
-# Make Beats 1 & 2 Cardless
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## What
-Beats 1 and 2 (the two full-screen text statements) should render without the white card wrapper — just centered text on the dark background, as they were before the stacked card redesign. Beats 3–6 keep the card treatment and stacking behavior.
+### Implemented
 
-## Changes
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-### 1. Active beat card wrapper (lines ~200-209)
-- Make the `rounded-2xl border bg-white shadow-lg` wrapper **conditional** — only apply it when `step >= 2`
-- For steps 0 and 1, render the content directly without the card container (no border, no bg-white, no shadow, no padding from the card wrapper)
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-### 2. Stacked previous cards (lines ~168-198)
-- Only render stacked background cards for beats index `>= 2` (skip beats 0 and 1 from the stack)
-- Adjust the `distance` calculation to only count card-based beats
-
-### 3. Margin adjustment (line ~207)
-- Only apply the `marginTop` offset when `step >= 2` since there are no stacked cards behind beats 0–1
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
