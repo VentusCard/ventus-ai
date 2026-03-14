@@ -1,40 +1,28 @@
 
 
-# Beat 4: Reveal Merchant Names Without Card Refresh
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-When clicking to advance Beat 4 from phase 0 to phase 1 (revealing merchant names), the card visually "refreshes" — the transaction rows re-animate even though only the merchant names should appear. The existing card content should stay stable and the merchant names should simply fade in on top.
+### Implemented
 
-## Root Cause
-The transaction row `div`s have `animate-fade-slide` with staggered delays. While React doesn't technically re-mount them (same key/parent), the conditional rendering of the merchant name `span` inside each row can cause layout shifts that make it feel like a refresh.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-## Changes
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-### 1. Keep transaction rows stable across phases
-- Remove `animate-fade-slide` from the transaction row `div`s and instead only apply it on initial mount (when `beat4Phase === 0`). Use a ref or conditional class to prevent re-animation on phase changes.
-- Simpler approach: always render the merchant name `span` but control its visibility with `opacity` and a CSS transition, rather than conditional rendering with `{beat4Phase >= 1 && ...}`.
-
-### 2. Smooth reveal for merchant names
-Replace the conditional render:
-```tsx
-{beat4Phase >= 1 && (
-  <span className="animate-fade-slide" ...>{tx.merchant}</span>
-)}
-```
-With an always-rendered span that transitions opacity:
-```tsx
-<span 
-  className="transition-all duration-500"
-  style={{ 
-    opacity: beat4Phase >= 1 ? 1 : 0,
-    transform: beat4Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
-  }}
->
-  {tx.merchant}
-</span>
-```
-
-This keeps the DOM structure stable across phases — no layout shift, no re-mount, just a smooth reveal.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
