@@ -178,7 +178,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       }
 
       {/* ── Active beat — centered in remaining space ── */}
-      <div className="flex-1 flex items-start justify-center px-8 pt-24 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center px-8 overflow-y-auto">
         <div className="w-full max-w-4xl">
 
           {/* Beat 1 */}
