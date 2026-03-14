@@ -1,18 +1,28 @@
 
 
-# Fix: Vertical Padding Above Intent Badge
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-`pt-1` on the flex-1 container has no visible effect because the element fills all remaining vertical space and centers its children. The 4px gap above the badge content is lost.
+### Implemented
 
-## Fix
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**File**: `src/components/demo/DemoPasswordGate.tsx` (line 388)
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-Remove `pt-1` from the outer div and add `mt-1` to the inner badge row (line 393), so the margin is on the content itself rather than a flex-expanded container:
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-- Line 388: Remove `pt-1` from className
-- Line 393: Add `mt-1` to the inner `div` className
-
-Alternatively, replace `flex-1` with just `flex` so the container doesn't expand to fill space, allowing `pt-1` to work as intended. This is the cleaner fix since it keeps the padding where you originally placed it and stops the container from stretching.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
