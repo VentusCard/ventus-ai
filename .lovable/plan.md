@@ -1,28 +1,20 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Center Initial Content Vertically
 
-### Implemented
+## Problem
+The active beat content starts with `pt-8` top padding, which positions it too high on the screen at Beat 1. This creates excessive empty space below and makes the content feel off-center.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+## Solution
+Increase the top padding on the active beat container to vertically center the content better, especially for Beat 1 which has no collapsed cards above it.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+## Changes
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**File**: `src/components/demo/DemoPasswordGate.tsx`
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+**Line 181** — Change the active beat container padding from `pt-8` to `pt-24`:
+- From: `className="flex-1 flex items-start justify-center px-8 pt-8 overflow-y-auto"`
+- To: `className="flex-1 flex items-start justify-center px-8 pt-24 overflow-y-auto"`
+
+This adds more top spacing to vertically center the content, making Beat 1 appear in a more central location on the screen while still preserving the `items-start` alignment that prevents content from shifting down as beats accumulate above.
+
