@@ -18,16 +18,31 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
   const [revealInput, setRevealInput] = useState(false);
+  const [beat4Phase, setBeat4Phase] = useState(0);
 
   const advance = useCallback(() => {
-    setStep((s) => s < TOTAL_BEATS - 1 ? s + 1 : s);
-  }, []);
+    setStep((s) => {
+      if (s === 3) {
+        if (beat4Phase < 2) {
+          setBeat4Phase((p) => p + 1);
+          return s;
+        }
+        setBeat4Phase(0);
+      }
+      return s < TOTAL_BEATS - 1 ? s + 1 : s;
+    });
+  }, [beat4Phase]);
 
   const goBack = useCallback(() => {
+    if (step === 3 && beat4Phase > 0) {
+      setBeat4Phase((p) => p - 1);
+      return;
+    }
     setStep((s) => s > 0 ? s - 1 : s);
     setRevealLogo(false);
     setRevealInput(false);
-  }, []);
+    setBeat4Phase(0);
+  }, [step, beat4Phase]);
 
   useEffect(() => {
     if (step === 5) {
