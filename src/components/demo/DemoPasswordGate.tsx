@@ -485,36 +485,74 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
 
                     {/* RIGHT — Output items */}
-                    <div className="flex flex-col gap-2.5" style={{ minWidth: 260, width: 260 }}>
-                      {(beat5Phase === 0
-                        ? [
-                            { label: "Analytics", icon: "📊" },
-                            { label: "UX", icon: "🖥️" },
-                            { label: "Rewards", icon: "🎁" },
-                            { label: "Relationship", icon: "🤝" },
-                          ]
-                        : [
-                            { label: "Analytics", icon: "📊" },
-                            { label: "UX", icon: "🖥️" },
-                            { label: "Personalized Rewards", icon: "🎁" },
-                            { label: "Automated Relationship Intelligence", icon: "🤝" },
-                          ]
-                      ).map((item) => (
-                        <div
-                          key={item.label}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all duration-500"
-                          style={{
-                            borderColor: beat5Phase >= 1 ? "#BFDBFE" : "#E2E8F0",
-                            backgroundColor: beat5Phase >= 1 ? "#F8FAFF" : "#FAFBFC",
-                          }}>
-                          <span className="text-base">{item.icon}</span>
-                          <span
-                            className="text-sm font-medium transition-colors duration-500"
-                            style={{ color: beat5Phase >= 1 ? "#1E40AF" : "#64748B" }}>
-                            {item.label}
-                          </span>
+                    <div style={{ minWidth: 260, width: 260, position: 'relative' }}>
+                      {/* Phase 0: static labels */}
+                      <div
+                        className="flex flex-col gap-2.5 transition-all duration-500"
+                        style={{
+                          opacity: beat5Phase === 0 ? 1 : 0,
+                          transform: beat5Phase === 0 ? 'translateY(0)' : 'translateY(-10px)',
+                          position: beat5Phase === 0 ? 'relative' : 'absolute',
+                          inset: 0,
+                          pointerEvents: beat5Phase === 0 ? 'auto' : 'none',
+                        }}>
+                        {[
+                          { label: "Analytics", icon: "📊" },
+                          { label: "UX", icon: "🖥️" },
+                          { label: "Rewards", icon: "🎁" },
+                          { label: "Relationship", icon: "🤝" },
+                        ].map((item) => (
+                          <div
+                            key={item.label}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                            style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}>
+                            <span className="text-base">{item.icon}</span>
+                            <span className="text-sm font-medium" style={{ color: "#64748B" }}>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Phase 1: rolling carousel */}
+                      <div
+                        className="transition-all duration-700"
+                        style={{
+                          opacity: beat5Phase >= 1 ? 1 : 0,
+                          transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(10px)',
+                          position: beat5Phase >= 1 ? 'relative' : 'absolute',
+                          inset: 0,
+                          pointerEvents: beat5Phase >= 1 ? 'auto' : 'none',
+                          height: 200,
+                          overflow: 'hidden',
+                          maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+                          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+                        }}>
+                        <div className="animate-scroll-up flex flex-col gap-2.5">
+                          {[...Array(2)].map((_, dupeIdx) =>
+                            [
+                              { label: "Smart Rewards with Personalized Offers", icon: "🎁" },
+                              { label: "Life Event Detection & Anticipation", icon: "💫" },
+                              { label: "AI-Powered Campaign Targeting", icon: "📣" },
+                              { label: "Behavioral Segment Builder", icon: "👥" },
+                              { label: "Travel Detection & Local Deals", icon: "✈️" },
+                              { label: "Wealth Copilot for Advisors", icon: "📈" },
+                              { label: "Personalized Customer Engagement", icon: "💎" },
+                              { label: "Bank-Wide Behavioral Analytics", icon: "📊" },
+                              { label: "Automated Relationship Intelligence", icon: "🤝" },
+                              { label: "Financial Wellness Coaching", icon: "🌱" },
+                              { label: "Cross-Sell Opportunity Matrix", icon: "🔗" },
+                              { label: "Geo-Targeted Merchant Partnerships", icon: "📍" },
+                            ].map((item, i) => (
+                              <div
+                                key={`${dupeIdx}-${i}`}
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                                style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}>
+                                <span className="text-base flex-shrink-0">{item.icon}</span>
+                                <span className="text-sm font-medium" style={{ color: "#1E40AF" }}>{item.label}</span>
+                              </div>
+                            ))
+                          )}
                         </div>
-                      ))}
+                      </div>
                     </div>
 
                   </div>
