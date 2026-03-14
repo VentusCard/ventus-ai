@@ -47,7 +47,17 @@ export default function DemoPage() {
 
   return (
     <DemoPasswordGate>
-    <div className="demo-page h-screen w-screen flex overflow-hidden bg-white" style={{ fontFamily: "Manrope, sans-serif" }}>
+    <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
+      {/* Exit to keynote button */}
+      <button
+        onClick={() => {
+          sessionStorage.removeItem("demo_access");
+          window.location.reload();
+        }}
+        className="absolute top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+      >
+        ✕ Exit Demo
+      </button>
       {/* Left Panel — 30% */}
       <div className="w-[30%] min-w-[280px] max-w-[380px] shrink-0 border-r border-slate-200 bg-slate-50">
         <DemoCustomerPanel
