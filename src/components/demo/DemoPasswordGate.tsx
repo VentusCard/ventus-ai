@@ -15,6 +15,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     setStep((s) => (s < TOTAL_BEATS - 1 ? s + 1 : s));
   }, []);
 
+  const goBack = useCallback(() => {
+    setStep((s) => (s > 0 ? s - 1 : s));
+    setRevealLogo(false);
+    setRevealInput(false);
+  }, []);
+
   // Reveal logo and input on beat 6 with staggered delays
   useEffect(() => {
     if (step === 5) {
@@ -27,7 +33,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (step === 5) return; // don't advance on final beat
+      if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        goBack();
+        return;
+      }
+      if (step === 5) return;
       if (e.code === "Space" || e.code === "ArrowRight" || e.code === "Enter") {
         e.preventDefault();
         advance();
@@ -35,7 +46,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [step, advance]);
+  }, [step, advance, goBack]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
