@@ -235,10 +235,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
                       <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                          <rect x="8" y="14" width="16" height="10" rx="3" fill="#94A3B8" />
-                          <circle cx="12" cy="24" r="3" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1" />
-                          <circle cx="20" cy="24" r="3" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1" />
-                          <path d="M10 14L14 6H18L22 14" fill="#94A3B8" />
+                          <rect x="6" y="12" width="20" height="8" rx="2" fill="#94A3B8" />
+                          <path d="M8 12L12 6H20L24 12" fill="#94A3B8" />
+                          <rect x="13" y="7" width="6" height="4" rx="1" fill="#CBD5E1" />
+                          <circle cx="10" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
+                          <circle cx="10" cy="22" r="1.5" fill="#94A3B8" />
+                          <circle cx="22" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
+                          <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
                         </svg>
                       </div>
                       <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br/>Jam</span>
