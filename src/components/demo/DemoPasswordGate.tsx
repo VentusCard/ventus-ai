@@ -321,7 +321,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </div>
                   {beat4Phase >= 2 && (
                   <div
-                  className="mt-6 flex items-center justify-center gap-3 animate-fade-slide"
+                  className="mt-12 flex items-center justify-center gap-3 animate-fade-slide"
                   style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
                   
                     <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
