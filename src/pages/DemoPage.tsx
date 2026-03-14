@@ -81,16 +81,23 @@ export default function DemoPage() {
 
       {/* Right Panel — 70% */}
       <div className="flex-1 relative">
-        <DemoNetworkDiagram
-          customerA={customerA}
-          customerB={customerB}
-          activeNode={activeNode}
-          onNodeClick={(node) => setActiveNode(node)}
-          nodeReadiness={nodeReadiness}
-          inputReady={inputReady}
-        />
+        {customerA && customerB && (
+          <DemoNetworkDiagram
+            customerA={customerA}
+            customerB={customerB}
+            activeNode={activeNode}
+            onNodeClick={(node) => setActiveNode(node)}
+            nodeReadiness={nodeReadiness}
+            inputReady={inputReady}
+          />
+        )}
+        {!customerA || !customerB ? (
+          <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+            Select two customers to begin
+          </div>
+        ) : null}
 
-        {activeNode && (
+        {activeNode && customerA && customerB && (
           <DemoDetailOverlay
             node={activeNode}
             customerA={customerA}
