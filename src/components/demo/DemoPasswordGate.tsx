@@ -361,18 +361,21 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                               animationFillMode: "both"
                             }}>
                             <div className="flex items-center gap-4">
+                              <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
+                                MCC {tx.mcc} · {tx.mccLabel}
+                              </span>
                               <span
                                 className="text-sm font-medium transition-all duration-500"
                                 style={{
                                   color: "#0F172A",
                                   opacity: beat4Phase >= 1 ? 1 : 0,
+                                  width: beat4Phase >= 1 ? 'auto' : 0,
                                   transform: beat4Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
                                 }}
                               >
                                 {tx.merchant}
-                              </span>
-                              <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
-                                MCC {tx.mcc} · {tx.mccLabel}
                               </span>
                             </div>
                             <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
