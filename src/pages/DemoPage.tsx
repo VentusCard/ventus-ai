@@ -36,7 +36,9 @@ export default function DemoPage() {
     startEnrichment,
   } = useDemoEnrichment();
 
-  const handleEnrich = () => startEnrichment(customerA, customerB);
+  const handleEnrich = () => {
+    if (customerA && customerB) startEnrichment(customerA, customerB);
+  };
 
   const currentPhase: "idle" | "classification" | "travel" | "complete" =
     nodeReadiness.analytics === "ready" && nodeReadiness.travel === "ready" && nodeReadiness.rewards === "ready"
