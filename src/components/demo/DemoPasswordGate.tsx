@@ -18,16 +18,31 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
   const [revealInput, setRevealInput] = useState(false);
+  const [beat4Phase, setBeat4Phase] = useState(0);
 
   const advance = useCallback(() => {
-    setStep((s) => s < TOTAL_BEATS - 1 ? s + 1 : s);
-  }, []);
+    setStep((s) => {
+      if (s === 3) {
+        if (beat4Phase < 2) {
+          setBeat4Phase((p) => p + 1);
+          return s;
+        }
+        setBeat4Phase(0);
+      }
+      return s < TOTAL_BEATS - 1 ? s + 1 : s;
+    });
+  }, [beat4Phase]);
 
   const goBack = useCallback(() => {
+    if (step === 3 && beat4Phase > 0) {
+      setBeat4Phase((p) => p - 1);
+      return;
+    }
     setStep((s) => s > 0 ? s - 1 : s);
     setRevealLogo(false);
     setRevealInput(false);
-  }, []);
+    setBeat4Phase(0);
+  }, [step, beat4Phase]);
 
   useEffect(() => {
     if (step === 5) {
@@ -273,17 +288,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>MCCs can't identify patterns.</h2>
                 <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
-                  MCC 5941 — "Sporting Goods." A customer buys an EPIC Pass. Then Burton gear. Then a North Face jacket.
-                  Three transactions. Three generic codes. But the pattern is obvious:{" "}
-                  <span className="font-semibold" style={{ color: "#0F172A" }}>someone is going skiing.</span>{" "}
-                  The bank can't see it.
+                  Three transactions across three different MCC codes. To the bank, these are completely unrelated purchases.
                 </p>
                 <div className="mt-8 space-y-0">
                   <div className="space-y-3">
                     {[
-                  { merchant: "Vail Resorts — EPIC Pass", mcc: "7941", amount: "$979.00", delay: "0.2s" },
-                  { merchant: "Burton Snowboards", mcc: "5941", amount: "$649.00", delay: "0.5s" },
-                  { merchant: "The North Face", mcc: "5699", amount: "$389.00", delay: "0.8s" }].
+                  { merchant: "Vail Resorts — EPIC Pass", mcc: "7941", mccLabel: "Sports & Entertainment", amount: "$979.00", delay: "0.2s" },
+                  { merchant: "Burton Snowboards", mcc: "5941", mccLabel: "Sporting Goods", amount: "$649.00", delay: "0.5s" },
+                  { merchant: "The North Face", mcc: "5699", mccLabel: "Apparel", amount: "$389.00", delay: "0.8s" }].
                   map((tx, i) =>
                   <div
                     key={i}
@@ -296,18 +308,21 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     }}>
                     
                         <div className="flex items-center gap-4">
-                          <span className="text-sm font-medium" style={{ color: "#0F172A" }}>{tx.merchant}</span>
+                          {beat4Phase >= 1 && (
+                            <span className="text-sm font-medium animate-fade-slide" style={{ color: "#0F172A" }}>{tx.merchant}</span>
+                          )}
                           <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
-                            MCC {tx.mcc}
+                            MCC {tx.mcc} · {tx.mccLabel}
                           </span>
                         </div>
                         <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                       </div>
                   )}
                   </div>
+                  {beat4Phase >= 2 && (
                   <div
                   className="mt-6 flex items-center justify-center gap-3 animate-fade-slide"
-                  style={{ animationDelay: "1.3s", animationFillMode: "both" }}>
+                  style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
                   
                     <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
@@ -320,6 +335,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
                     <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                   </div>
+                  )}
                 </div>
               </div>
             </div>
