@@ -184,7 +184,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         className="fixed bottom-20 left-1/2 -translate-x-1/2 text-xs tracking-wide z-20"
         style={{ color: "#94A3B8", animation: "subtlePulse 2.5s ease infinite" }}>
         
-          tap or press space to continue
+          press left/right or space to navigate
         </div>
       }
 
