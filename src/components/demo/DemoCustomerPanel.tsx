@@ -188,9 +188,10 @@ function CustomerSlot({
 
       <select
         className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 mb-3"
-        value={isCustomMode ? "custom" : selected.id}
+        value={isCustomMode ? "custom" : (selected?.id ?? "")}
         onChange={(e) => handleDropdownChange(e.target.value)}
       >
+        {!selected && !isCustomMode && <option value="" disabled>Select a customer…</option>}
         {DEMO_CUSTOMERS.filter((d) => d.id !== excludeId).map((d) => (
           <option key={d.id} value={d.id}>{d.profile.name}</option>
         ))}
