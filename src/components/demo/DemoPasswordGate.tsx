@@ -229,13 +229,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           {/* Active beat card */}
           <div
             key={`beat-${displayStep}`}
-            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
+            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 && displayStep !== 5 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
             style={{
-              ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
+              ...(displayStep >= 2 && displayStep !== 5 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
               zIndex: step + 1,
-              marginTop: displayStep >= 2 ? Math.min(displayStep - 1, 4) * 4 : 0,
+              marginTop: displayStep >= 2 && displayStep !== 5 ? Math.min(displayStep - 1, 4) * 4 : 0,
             }}>
-            <div className={displayStep >= 2 ? "p-8 sm:p-10" : ""}>
+            <div className={displayStep >= 2 && displayStep !== 5 ? "p-8 sm:p-10" : ""}>
 
               {/* Beat 1 */}
               {displayStep === 0 && (
