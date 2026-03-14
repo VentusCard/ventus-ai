@@ -116,18 +116,25 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           50% { opacity: 1; }
         }
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(18px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes fadeSlideOut {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to { opacity: 0; transform: translateY(-12px) scale(0.98); }
         }
         @keyframes branchOut {
-          from { opacity: 0; transform: scale(0.8); }
+          from { opacity: 0; transform: scale(0.92); }
           to { opacity: 1; transform: scale(1); }
         }
         .animate-fade-slide {
-          animation: fadeSlideIn 0.5s ease forwards;
+          animation: fadeSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-slide-out {
+          animation: fadeSlideOut 0.15s ease-out forwards;
         }
         .animate-branch {
-          animation: branchOut 0.4s ease forwards;
+          animation: branchOut 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
 
