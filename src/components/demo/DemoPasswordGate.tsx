@@ -212,9 +212,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
                       <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                          <path d="M16 4C16 4 20 8 20 14C20 18 18 22 16 24C14 22 12 18 12 14C12 8 16 4 16 4Z" fill="#94A3B8" />
-                          <path d="M10 20L16 28L22 20" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
-                          <circle cx="16" cy="9" r="2" fill="#CBD5E1" />
+                          <ellipse cx="11" cy="23" rx="3.5" ry="2.5" fill="#94A3B8" />
+                          <line x1="14.5" y1="23" x2="14.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
+                          <ellipse cx="21" cy="19" rx="3.5" ry="2.5" fill="#94A3B8" />
+                          <line x1="24.5" y1="19" x2="24.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
+                          <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
                         </svg>
                       </div>
                       <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br/>Orchestra</span>
