@@ -364,60 +364,103 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                   <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>Patterns can't be extended.</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>
+                  {beat5Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
+                </h2>
                 <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
-                  Now layer in demographics. This is a family of four. That skiing pattern becomes actionable — 
-                  surface a GoPro offer, a family resort deal, gear for the kids. And log the entire ski trip as one 
-                  consolidated expense item for their wealth advisor.
+                  {beat5Phase === 0
+                    ? "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals."
+                    : "Intent Data brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
+                  }
                 </p>
-                <div className="mt-8 flex flex-col items-center">
-                  <div
-                  className="flex items-center gap-2 px-4 py-2 rounded-full animate-fade-slide"
-                  style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE", animationDelay: "0.2s", animationFillMode: "both" }}>
-                  
-                    <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>🎿 Skiing · Family of 4</span>
+
+                {/* Horizontal flow diagram */}
+                <div className="mt-10 flex items-center justify-center gap-4 sm:gap-6">
+
+                  {/* LEFT — Input boxes */}
+                  <div className="flex flex-col items-stretch gap-3 relative">
+                    {/* Intent Data bracket — phase 1 only */}
+                    {beat5Phase >= 1 && (
+                      <div
+                        className="absolute -inset-3 rounded-xl border-2 animate-fade-slide"
+                        style={{
+                          borderColor: "#3B82F6",
+                          backgroundColor: "rgba(59,130,246,0.04)",
+                          animationFillMode: "both"
+                        }}>
+                        <span
+                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide"
+                          style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
+                          Intent Data
+                        </span>
+                      </div>
+                    )}
+                    <div
+                      className="px-5 py-3 rounded-lg border text-center transition-all duration-500"
+                      style={{
+                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1",
+                        borderStyle: beat5Phase >= 1 ? "solid" : "dashed",
+                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
+                        minWidth: 160
+                      }}>
+                      <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
+                        Demographics
+                      </span>
+                    </div>
+                    <div
+                      className="px-5 py-3 rounded-lg border text-center transition-all duration-500"
+                      style={{
+                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#E2E8F0",
+                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
+                        minWidth: 160
+                      }}>
+                      <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#64748B" }}>
+                        Transactions
+                      </span>
+                    </div>
                   </div>
-                  <div className="relative w-full max-w-lg mt-4 mb-4">
-                    <svg width="100%" height="40" viewBox="0 0 400 40" preserveAspectRatio="none" className="animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
-                      <line x1="200" y1="0" x2="66" y2="40" stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 3" />
-                      <line x1="200" y1="0" x2="200" y2="40" stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 3" />
-                      <line x1="200" y1="0" x2="334" y2="40" stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 3" />
+
+                  {/* MIDDLE — Arrow */}
+                  <div className="flex items-center">
+                    <div className="h-px w-8 sm:w-14" style={{ backgroundColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1" }} />
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M0 6H10M10 6L6 2M10 6L6 10" stroke={beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="1.5" />
                     </svg>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-lg">
-                    {[
-                  { icon: "📷", title: "GoPro Hero12", subtitle: "Electronics cross-sell", delay: "0.7s" },
-                  { icon: "🏔️", title: "Family Resort Deal", subtitle: "Vail partner offer", delay: "0.9s" },
-                  { icon: "🧒", title: "Kids' Ski Gear", subtitle: "Age-based targeting", delay: "1.1s" }].
-                  map((card, i) =>
-                  <div
-                    key={i}
-                    className="border rounded-lg p-4 text-center animate-branch"
-                    style={{
-                      borderColor: "#BFDBFE",
-                      backgroundColor: "#F8FAFF",
-                      animationDelay: card.delay,
-                      animationFillMode: "both"
-                    }}>
-                    
-                        <div className="text-2xl mb-2">{card.icon}</div>
-                        <div className="text-sm font-semibold" style={{ color: "#0F172A" }}>{card.title}</div>
-                        <div className="text-xs mt-1" style={{ color: "#3B82F6" }}>{card.subtitle}</div>
+
+                  {/* RIGHT — Output items */}
+                  <div className="flex flex-col gap-2.5">
+                    {(beat5Phase === 0
+                      ? [
+                          { label: "Analytics", icon: "📊" },
+                          { label: "UX", icon: "🖥️" },
+                          { label: "Rewards", icon: "🎁" },
+                          { label: "Relationship", icon: "🤝" },
+                        ]
+                      : [
+                          { label: "Analytics", icon: "📊" },
+                          { label: "UX", icon: "🖥️" },
+                          { label: "Personalized Rewards", icon: "🎁" },
+                          { label: "Automated Relationship Intelligence", icon: "🤝" },
+                        ]
+                    ).map((item, i) => (
+                      <div
+                        key={item.label}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-500"
+                        style={{
+                          borderColor: beat5Phase >= 1 ? "#BFDBFE" : "#E2E8F0",
+                          backgroundColor: beat5Phase >= 1 ? "#F8FAFF" : "#FAFBFC",
+                        }}>
+                        <span className="text-base">{item.icon}</span>
+                        <span
+                          className="text-sm font-medium transition-colors duration-500"
+                          style={{ color: beat5Phase >= 1 ? "#1E40AF" : "#64748B" }}>
+                          {item.label}
+                        </span>
                       </div>
-                  )}
+                    ))}
                   </div>
-                  <div
-                  className="mt-5 flex items-center gap-2 px-4 py-2 rounded-lg border animate-branch"
-                  style={{
-                    borderColor: "#E2E8F0",
-                    backgroundColor: "#FAFBFC",
-                    animationDelay: "1.4s",
-                    animationFillMode: "both"
-                  }}>
-                  
-                    <span className="text-sm" style={{ color: "#64748B" }}>→ Wealth Advisor View:</span>
-                    <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>Ski Trip — Family Vacation · $3,420</span>
-                  </div>
+
                 </div>
               </div>
             </div>
