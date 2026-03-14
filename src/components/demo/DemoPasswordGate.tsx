@@ -193,7 +193,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         <div className="w-full max-w-4xl relative" style={{ minHeight: 400 }}>
           {/* Previous beat cards — stacked behind */}
           {Array.from({ length: step }).map((_, i) => {
-            if (i < 2) return null; // beats 1 & 2 are cardless
+            if (i < 2 || i === 5) return null; // beats 1, 2, and 6 are cardless
             const distance = step - i;
             if (distance > 4) return null;
             const yOffset = -(distance * 28);
