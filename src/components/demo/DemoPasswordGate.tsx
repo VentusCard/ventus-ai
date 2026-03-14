@@ -14,6 +14,8 @@ const BEAT_SUMMARIES = [
 export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [granted, setGranted] = useState(() => sessionStorage.getItem("demo_access") === "true");
   const [step, setStep] = useState(0);
+  const [displayStep, setDisplayStep] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
