@@ -166,9 +166,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         <div className="w-full max-w-4xl relative" style={{ minHeight: 400 }}>
           {/* Previous beat cards — stacked behind */}
           {Array.from({ length: step }).map((_, i) => {
-            const distance = step - i; // how far back from active
-            if (distance > 4) return null; // only show up to 4 stacked cards
-            const yOffset = -(distance * 28); // shift up
+            if (i < 2) return null; // beats 1 & 2 are cardless
+            const distance = step - i;
+            if (distance > 4) return null;
+            const yOffset = -(distance * 28);
             const scaleVal = 1 - distance * 0.03;
             const opacityVal = Math.max(0.15, 0.65 - distance * 0.15);
             return (
