@@ -375,7 +375,18 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </p>
 
                 {/* Horizontal flow diagram */}
-                <div className="mt-10 flex items-center justify-center gap-4 sm:gap-6">
+                {beat5Phase >= 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 animate-fade-slide" style={{ animationFillMode: "both" }}>
+                    <p className="text-xs font-bold tracking-widest uppercase text-center" style={{ color: "#2563EB", minWidth: 160, letterSpacing: "0.1em" }}>
+                      If we truly understand our customers
+                    </p>
+                    <div style={{ width: 44 }} />
+                    <p className="text-xs font-bold tracking-widest uppercase text-center" style={{ color: "#2563EB", letterSpacing: "0.1em" }}>
+                      We can then provide a deeply personalized experience
+                    </p>
+                  </div>
+                )}
+                <div className={`${beat5Phase >= 1 ? 'mt-4' : 'mt-10'} flex items-center justify-center gap-4 sm:gap-6`}>
 
                   {/* LEFT — Input boxes */}
                   <div className="flex flex-col items-stretch gap-3 relative">
