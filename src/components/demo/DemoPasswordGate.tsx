@@ -266,7 +266,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 3 */}
-              {step === 2 && (
+              {displayStep === 2 && (
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>01</span>
