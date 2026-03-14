@@ -238,7 +238,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
             <div className={displayStep >= 2 ? "p-8 sm:p-10" : ""}>
 
               {/* Beat 1 */}
-              {step === 0 && (
+              {displayStep === 0 && (
                 <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't work.
