@@ -493,7 +493,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     style={{ opacity: revealLogo ? 1 : 0, transform: revealLogo ? "translateY(0)" : "translateY(20px)" }}>
                     <img src={ventusLogo} alt="VentusAI" className="h-12 mb-3" />
                     <p className="mt-2 text-base" style={{ color: "#64748B" }}>
-                      Transaction Intelligence Infrastructure for Banks
+                      Transform banking experiences — no core overhaul required.
                     </p>
                   </div>
                   <div
