@@ -333,7 +333,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 4 */}
-              {step === 3 && (
+              {displayStep === 3 && (
                 <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
                     <div className="flex items-center gap-3 mb-4">
