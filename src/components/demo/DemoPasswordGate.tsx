@@ -203,14 +203,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   height: 80,
                   transformOrigin: "top center",
                   transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
-                style={{
-                  borderColor: "#E2E8F0",
-                  boxShadow: `0 ${4 - distance}px ${12 - distance * 2}px rgba(0,0,0,${0.06 - distance * 0.01})`,
-                  transform: `translateY(${yOffset}px) scale(${scaleVal})`,
-                  opacity: opacityVal,
-                  zIndex: i,
-                  height: 80,
-                  transformOrigin: "top center",
                 }}>
                 <div className="px-8 py-5 flex items-center gap-3">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
