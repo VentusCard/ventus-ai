@@ -1,23 +1,28 @@
 
 
-# Beat 5: Full-Width Columns with Single-Line Cards
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-The left (input) and right (output/carousel) columns are fixed at `260px` width, and long card labels like "Geo-Targeted Merchant Partnerships" may wrap to two lines.
+### Implemented
 
-## Fix
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-1. **Remove fixed widths** on both columns and the header labels. Replace `minWidth: 260, width: 260` with `flex: 1, minWidth: 0` so they fill available space equally.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-2. **Update the layout container** (line 436): change `gap-4 sm:gap-6` to a tighter gap and ensure `w-full` is set.
-
-3. **Header labels** (lines 428, 432): remove `minWidth: 260, width: 260` and `max-w-[220px]`, use `flex-1 min-w-0` instead.
-
-4. **Left column** (line 439): change `style={{ minWidth: 260, width: 260 }}` → `className="flex-1 min-w-0"`.
-
-5. **Right column** (line 488): change `style={{ minWidth: 260, width: 260, ... }}` → use `flex-1 min-w-0` plus keep the position/height styles.
-
-6. **Force single-line** on all card labels: add `whitespace-nowrap` to the label `<span>` elements in both static labels (line 510) and carousel cards (line 550).
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

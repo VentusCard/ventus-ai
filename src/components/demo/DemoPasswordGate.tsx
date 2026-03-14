@@ -424,19 +424,19 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </p>
 
                   {/* Horizontal flow diagram */}
-                  <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6">
-                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 max-w-[220px]" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                  <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 w-full">
+                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
                       {beat5Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
                     </p>
                     <div style={{ width: 44 }} />
-                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 max-w-[220px]" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
                       {beat5Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
                     </p>
                   </div>
-                  <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6">
+                  <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6 w-full">
 
                     {/* LEFT — Input boxes */}
-                    <div className="flex flex-col items-stretch gap-4 relative" style={{ minWidth: 260, width: 260 }}>
+                    <div className="flex flex-col items-stretch gap-4 relative flex-1 min-w-0">
                       <div
                         className="absolute -inset-4 rounded-xl border-2 transition-all duration-500"
                         style={{
@@ -485,7 +485,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
 
                     {/* RIGHT — Output items */}
-                    <div style={{ minWidth: 260, width: 260, position: 'relative' }}>
+                    <div className="flex-1 min-w-0 relative">
                       {/* Phase 0: static labels */}
                       <div
                         className="flex flex-col gap-2.5 transition-all duration-500"
@@ -507,7 +507,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
                             style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}>
                             <span className="text-base">{item.icon}</span>
-                            <span className="text-sm font-medium" style={{ color: "#64748B" }}>{item.label}</span>
+                            <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#64748B" }}>{item.label}</span>
                           </div>
                         ))}
                       </div>
@@ -547,7 +547,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
                                 style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}>
                                 <span className="text-base flex-shrink-0">{item.icon}</span>
-                                <span className="text-sm font-medium" style={{ color: "#1E40AF" }}>{item.label}</span>
+                                <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>{item.label}</span>
                               </div>
                             ))
                           )}
