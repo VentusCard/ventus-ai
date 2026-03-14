@@ -284,7 +284,42 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               <div className="border rounded-xl p-8 sm:p-10 flex flex-col" style={{ borderColor: "#E2E8F0", backgroundColor: "rgba(255,255,255,0.7)", minHeight: '58vh' }}>
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
-...
+                  <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>MCCs can't identify patterns.</h2>
+                <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                  Three transactions across three different MCC codes. To the bank, these are completely unrelated purchases.
+                </p>
+                <div className="mt-8">
+                  <div className="space-y-3">
+                    {[
+                  { merchant: "Vail Resorts — EPIC Pass", mcc: "7941", mccLabel: "Sports & Entertainment", amount: "$979.00", delay: "0.2s" },
+                  { merchant: "Burton Snowboards", mcc: "5941", mccLabel: "Sporting Goods", amount: "$649.00", delay: "0.5s" },
+                  { merchant: "The North Face", mcc: "5699", mccLabel: "Apparel", amount: "$389.00", delay: "0.8s" }].
+                  map((tx, i) =>
+                  <div
+                    key={i}
+                    className="flex items-center justify-between px-5 py-3 rounded-lg border animate-fade-slide"
+                    style={{
+                      borderColor: "#E2E8F0",
+                      backgroundColor: "#FAFBFC",
+                      animationDelay: tx.delay,
+                      animationFillMode: "both"
+                    }}>
+                    
+                        <div className="flex items-center gap-4">
+                          {beat4Phase >= 1 && (
+                            <span className="text-sm font-medium animate-fade-slide" style={{ color: "#0F172A" }}>{tx.merchant}</span>
+                          )}
+                          <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
+                            MCC {tx.mcc} · {tx.mccLabel}
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
+                      </div>
+                  )}
+                  </div>
+                </div>
                 {beat4Phase >= 2 && (
                 <div
                 className="mt-8 min-h-[180px] sm:min-h-[220px] flex items-center justify-center animate-fade-slide"
