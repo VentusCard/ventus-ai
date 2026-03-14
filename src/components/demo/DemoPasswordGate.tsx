@@ -193,7 +193,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         <div className="w-full max-w-4xl relative" style={{ minHeight: 400 }}>
           {/* Previous beat cards — stacked behind */}
           {Array.from({ length: step }).map((_, i) => {
-            if (i < 2 || i === 5) return null; // beats 1, 2, and 6 are cardless
+            if (i < 2) return null; // beats 1 & 2 are cardless
             const distance = step - i;
             if (distance > 4) return null;
             const yOffset = -(distance * 28);
@@ -229,13 +229,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           {/* Active beat card */}
           <div
             key={`beat-${displayStep}`}
-            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 && displayStep !== 5 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
+            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
             style={{
-              ...(displayStep >= 2 && displayStep !== 5 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
+              ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
               zIndex: step + 1,
-              marginTop: displayStep >= 2 && displayStep !== 5 ? Math.min(displayStep - 1, 4) * 4 : 0,
+              marginTop: displayStep >= 2 ? Math.min(displayStep - 1, 4) * 4 : 0,
             }}>
-            <div className={displayStep >= 2 && displayStep !== 5 ? "p-8 sm:p-10" : ""}>
+            <div className={displayStep >= 2 ? "p-8 sm:p-10" : ""}>
 
               {/* Beat 1 */}
               {displayStep === 0 && (
