@@ -14,6 +14,8 @@ const BEAT_SUMMARIES = [
 export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [granted, setGranted] = useState(() => sessionStorage.getItem("demo_access") === "true");
   const [step, setStep] = useState(0);
+  const [displayStep, setDisplayStep] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
@@ -22,6 +24,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [beat5Phase, setBeat5Phase] = useState(0);
 
   const advance = useCallback(() => {
+    if (isTransitioning) return;
     setStep((s) => {
       if (s === 3) {
         if (beat4Phase < 2) {
@@ -37,11 +40,20 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         }
         setBeat5Phase(0);
       }
-      return s < TOTAL_BEATS - 1 ? s + 1 : s;
+      const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
+      if (next !== s) {
+        setIsTransitioning(true);
+        setTimeout(() => {
+          setDisplayStep(next);
+          setIsTransitioning(false);
+        }, 150);
+      }
+      return next;
     });
-  }, [beat4Phase, beat5Phase]);
+  }, [beat4Phase, beat5Phase, isTransitioning]);
 
   const goBack = useCallback(() => {
+    if (isTransitioning) return;
     if (step === 3 && beat4Phase > 0) {
       setBeat4Phase((p) => p - 1);
       return;
@@ -50,12 +62,20 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       setBeat5Phase((p) => p - 1);
       return;
     }
-    setStep((s) => s > 0 ? s - 1 : s);
+    if (step > 0) {
+      setIsTransitioning(true);
+      const prev = step - 1;
+      setStep(prev);
+      setTimeout(() => {
+        setDisplayStep(prev);
+        setIsTransitioning(false);
+      }, 150);
+    }
     setRevealLogo(false);
     setRevealInput(false);
     setBeat4Phase(0);
     setBeat5Phase(0);
-  }, [step, beat4Phase, beat5Phase]);
+  }, [step, beat4Phase, beat5Phase, isTransitioning]);
 
   useEffect(() => {
     if (step === 5) {
@@ -116,18 +136,25 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           50% { opacity: 1; }
         }
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(18px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes fadeSlideOut {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to { opacity: 0; transform: translateY(-12px) scale(0.98); }
         }
         @keyframes branchOut {
-          from { opacity: 0; transform: scale(0.8); }
+          from { opacity: 0; transform: scale(0.92); }
           to { opacity: 1; transform: scale(1); }
         }
         .animate-fade-slide {
-          animation: fadeSlideIn 0.5s ease forwards;
+          animation: fadeSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-slide-out {
+          animation: fadeSlideOut 0.15s ease-out forwards;
         }
         .animate-branch {
-          animation: branchOut 0.4s ease forwards;
+          animation: branchOut 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
 
@@ -175,7 +202,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
             return (
               <div
                 key={`stack-${i}`}
-                className="absolute top-0 left-0 right-0 rounded-2xl border bg-white overflow-hidden transition-all duration-500 ease-out"
+                className="absolute top-0 left-0 right-0 rounded-2xl border bg-white overflow-hidden"
                 style={{
                   borderColor: "#E2E8F0",
                   boxShadow: `0 ${4 - distance}px ${12 - distance * 2}px rgba(0,0,0,${0.06 - distance * 0.01})`,
@@ -184,6 +211,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   zIndex: i,
                   height: 80,
                   transformOrigin: "top center",
+                  transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}>
                 <div className="px-8 py-5 flex items-center gap-3">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
@@ -200,16 +228,17 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
           {/* Active beat card */}
           <div
-            className={`relative animate-fade-slide ${step >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
+            key={`beat-${displayStep}-${beat4Phase}-${beat5Phase}`}
+            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
             style={{
-              ...(step >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
+              ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
               zIndex: step + 1,
-              marginTop: step >= 2 ? Math.min(step - 1, 4) * 4 : 0,
+              marginTop: displayStep >= 2 ? Math.min(displayStep - 1, 4) * 4 : 0,
             }}>
-            <div className={step >= 2 ? "p-8 sm:p-10" : ""}>
+            <div className={displayStep >= 2 ? "p-8 sm:p-10" : ""}>
 
               {/* Beat 1 */}
-              {step === 0 && (
+              {displayStep === 0 && (
                 <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't work.
@@ -222,7 +251,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 2 */}
-              {step === 1 && (
+              {displayStep === 1 && (
                 <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     The answer is three letters:{" "}
@@ -237,7 +266,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 3 */}
-              {step === 2 && (
+              {displayStep === 2 && (
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>01</span>
@@ -304,7 +333,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 4 */}
-              {step === 3 && (
+              {displayStep === 3 && (
                 <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
                     <div className="flex items-center gap-3 mb-4">
@@ -367,7 +396,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 5 */}
-              {step === 4 && (
+              {displayStep === 4 && (
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
@@ -483,7 +512,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               )}
 
               {/* Beat 6 — Reveal */}
-              {step === 5 && (
+              {displayStep === 5 && (
                 <div className="text-center py-8">
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     You can't patch this. You need a new layer.
