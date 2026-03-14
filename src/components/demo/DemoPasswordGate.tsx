@@ -395,28 +395,98 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         </span>
                       </div>
                     )}
-                    <div
-                      className="px-5 py-3 rounded-lg border text-center transition-all duration-500"
-                      style={{
-                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1",
-                        borderStyle: beat5Phase >= 1 ? "solid" : "dashed",
-                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
-                        minWidth: 160
-                      }}>
-                      <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
-                        Demographics
-                      </span>
+                    {/* Demographics — stacked glassmorphism */}
+                    <div className="relative" style={{ minWidth: 160, paddingTop: 16 }}>
+                      {/* Ghost card 2 (furthest back) */}
+                      <div
+                        className="absolute inset-x-0 top-0 rounded-lg transition-all duration-500"
+                        style={{
+                          height: "calc(100% - 16px)",
+                          transform: "translateY(0px) scale(0.94)",
+                          opacity: 0.3,
+                          backdropFilter: "blur(12px)",
+                          WebkitBackdropFilter: "blur(12px)",
+                          backgroundColor: beat5Phase >= 1 ? "rgba(59,130,246,0.06)" : "rgba(255,255,255,0.4)",
+                          border: `1px ${beat5Phase >= 1 ? "solid" : "dashed"} ${beat5Phase >= 1 ? "rgba(59,130,246,0.3)" : "rgba(203,213,225,0.5)"}`,
+                          zIndex: 0,
+                        }}
+                      />
+                      {/* Ghost card 1 */}
+                      <div
+                        className="absolute inset-x-0 top-0 rounded-lg transition-all duration-500"
+                        style={{
+                          height: "calc(100% - 16px)",
+                          transform: "translateY(8px) scale(0.97)",
+                          opacity: 0.5,
+                          backdropFilter: "blur(14px)",
+                          WebkitBackdropFilter: "blur(14px)",
+                          backgroundColor: beat5Phase >= 1 ? "rgba(59,130,246,0.05)" : "rgba(255,255,255,0.5)",
+                          border: `1px ${beat5Phase >= 1 ? "solid" : "dashed"} ${beat5Phase >= 1 ? "rgba(59,130,246,0.25)" : "rgba(203,213,225,0.6)"}`,
+                          zIndex: 1,
+                        }}
+                      />
+                      {/* Front card */}
+                      <div
+                        className="relative px-5 py-3 rounded-lg text-center transition-all duration-500"
+                        style={{
+                          zIndex: 2,
+                          backdropFilter: "blur(16px)",
+                          WebkitBackdropFilter: "blur(16px)",
+                          backgroundColor: beat5Phase >= 1 ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.7)",
+                          border: `1px ${beat5Phase >= 1 ? "solid" : "dashed"} ${beat5Phase >= 1 ? "#3B82F6" : "rgba(203,213,225,0.8)"}`,
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+                        }}>
+                        <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
+                          Demographics
+                        </span>
+                      </div>
                     </div>
-                    <div
-                      className="px-5 py-3 rounded-lg border text-center transition-all duration-500"
-                      style={{
-                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#E2E8F0",
-                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
-                        minWidth: 160
-                      }}>
-                      <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#64748B" }}>
-                        Transactions
-                      </span>
+
+                    {/* Transactions — stacked glassmorphism */}
+                    <div className="relative" style={{ minWidth: 160, paddingTop: 16 }}>
+                      {/* Ghost card 2 (furthest back) */}
+                      <div
+                        className="absolute inset-x-0 top-0 rounded-lg transition-all duration-500"
+                        style={{
+                          height: "calc(100% - 16px)",
+                          transform: "translateY(0px) scale(0.94)",
+                          opacity: 0.3,
+                          backdropFilter: "blur(12px)",
+                          WebkitBackdropFilter: "blur(12px)",
+                          backgroundColor: beat5Phase >= 1 ? "rgba(59,130,246,0.06)" : "rgba(255,255,255,0.4)",
+                          border: `1px solid ${beat5Phase >= 1 ? "rgba(59,130,246,0.3)" : "rgba(226,232,240,0.5)"}`,
+                          zIndex: 0,
+                        }}
+                      />
+                      {/* Ghost card 1 */}
+                      <div
+                        className="absolute inset-x-0 top-0 rounded-lg transition-all duration-500"
+                        style={{
+                          height: "calc(100% - 16px)",
+                          transform: "translateY(8px) scale(0.97)",
+                          opacity: 0.5,
+                          backdropFilter: "blur(14px)",
+                          WebkitBackdropFilter: "blur(14px)",
+                          backgroundColor: beat5Phase >= 1 ? "rgba(59,130,246,0.05)" : "rgba(255,255,255,0.5)",
+                          border: `1px solid ${beat5Phase >= 1 ? "rgba(59,130,246,0.25)" : "rgba(226,232,240,0.6)"}`,
+                          zIndex: 1,
+                        }}
+                      />
+                      {/* Front card */}
+                      <div
+                        className="relative px-5 py-3 rounded-lg text-center transition-all duration-500"
+                        style={{
+                          zIndex: 2,
+                          backdropFilter: "blur(16px)",
+                          WebkitBackdropFilter: "blur(16px)",
+                          backgroundColor: beat5Phase >= 1 ? "rgba(59,130,246,0.08)" : "rgba(255,255,255,0.7)",
+                          border: `1px solid ${beat5Phase >= 1 ? "#3B82F6" : "rgba(226,232,240,0.8)"}`,
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+                        }}>
+                        <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#64748B" }}>
+                          Transactions
+                        </span>
+                      </div>
                     </div>
                   </div>
 
