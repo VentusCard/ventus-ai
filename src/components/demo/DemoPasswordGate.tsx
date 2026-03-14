@@ -448,7 +448,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span
                           className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide"
                           style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}>
-                          Intent Data
+                          Dynamic Personas & Behavioral Insights
                         </span>
                       </div>
                       <div
