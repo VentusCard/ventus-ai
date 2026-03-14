@@ -9,8 +9,8 @@ import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
 
 export default function DemoPage() {
-  const [customerA, setCustomerA] = useState<DemoCustomer>(DEMO_CUSTOMERS[0]);
-  const [customerB, setCustomerB] = useState<DemoCustomer>(DEMO_CUSTOMERS[1]);
+  const [customerA, setCustomerA] = useState<DemoCustomer | null>(null);
+  const [customerB, setCustomerB] = useState<DemoCustomer | null>(null);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
 
   const parsedA = useMemo<Transaction[]>(() => {
