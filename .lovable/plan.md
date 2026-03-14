@@ -1,22 +1,28 @@
 
 
-# Center Active Content Higher on Screen
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-The active beat content sits in `flex-1 flex items-center justify-center` which centers it in the **remaining** space after the collapsed stack. As more beats stack up top, the "center" shifts down. The content also feels too low overall.
+### Implemented
 
-## Solution
-Change the active beat container from `items-center` (vertical center) to `items-start` with top padding, so content appears higher and more centrally positioned visually regardless of how many collapsed cards are above.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-### Changes
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-1. **Line 166** — Change the active beat container from:
-   - `flex-1 flex items-center justify-center px-8 overflow-y-auto`
-   - To: `flex-1 flex items-start justify-center px-8 pt-8 overflow-y-auto`
-   
-   This pushes content toward the top of the remaining space with a small top padding, making it feel higher and more central on the full screen.
-
-2. **Line 138** — Reduce collapsed stack top padding from `pt-20` to `pt-16` to reclaim vertical space for the active content area.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
