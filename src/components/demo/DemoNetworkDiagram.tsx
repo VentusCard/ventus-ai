@@ -6,8 +6,8 @@ import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   activeNode: DemoNodeType | null;
   onNodeClick: (node: DemoNodeType) => void;
   nodeReadiness: NodeReadiness;
@@ -196,10 +196,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Transaction Cards — Left */}
       <div className="absolute" style={{ left: colLeft - 40, top: inputAY - 50, width: 160, zIndex: 1 }}>
-        <TxCard customer={customerA} color="#3b82f6" />
+        <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
       </div>
       <div className="absolute" style={{ left: colLeft - 40, top: inputBY - 50, width: 160, zIndex: 1 }}>
-        <TxCard customer={customerB} color="#10b981" />
+        <TxCard customer={customerB} color="#10b981" label="Customer B" />
       </div>
 
       {/* Engine Node — Center */}
@@ -312,7 +312,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   );
 }
 
-function TxCard({ customer, color }: { customer: DemoCustomer; color: string }) {
+function TxCard({ customer, color, label }: { customer: DemoCustomer | null; color: string; label: string }) {
+  if (!customer) {
+    return (
+      <div
+        className="rounded-lg border-2 border-dashed p-2.5 flex items-center justify-center"
+        style={{ borderColor: `${color}40`, minHeight: 90 }}
+      >
+        <p className="text-[10px] font-medium text-slate-400">{label}</p>
+      </div>
+    );
+  }
+
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
