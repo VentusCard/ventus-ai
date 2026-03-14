@@ -312,7 +312,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   );
 }
 
-function TxCard({ customer, color }: { customer: DemoCustomer; color: string }) {
+function TxCard({ customer, color, label }: { customer: DemoCustomer | null; color: string; label: string }) {
+  if (!customer) {
+    return (
+      <div
+        className="rounded-lg border-2 border-dashed p-2.5 flex items-center justify-center"
+        style={{ borderColor: `${color}40`, minHeight: 90 }}
+      >
+        <p className="text-[10px] font-medium text-slate-400">{label}</p>
+      </div>
+    );
+  }
+
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
