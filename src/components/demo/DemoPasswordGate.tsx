@@ -436,7 +436,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6 w-full">
 
                     {/* LEFT — Input boxes */}
-                    <div className="flex flex-col items-stretch gap-4 relative" style={{ minWidth: 260, width: 260 }}>
+                    <div className="flex flex-col items-stretch gap-4 relative flex-1 min-w-0">
                       <div
                         className="absolute -inset-4 rounded-xl border-2 transition-all duration-500"
                         style={{
