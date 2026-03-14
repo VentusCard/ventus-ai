@@ -1,28 +1,21 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+## Plan: Always Show Network Diagram with Empty Customer Boxes
 
-### Implemented
+**Goal**: The right panel should always display the full network flow (engine, output nodes, connection lines). When customers aren't selected, the left input cards show as empty placeholder boxes instead of hiding everything.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### Changes
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+**1. `src/pages/DemoPage.tsx`**
+- Remove the conditional `{customerA && customerB && (...)}` around `DemoNetworkDiagram`
+- Always render `DemoNetworkDiagram`, passing `customerA` and `customerB` as nullable
+- Remove the "Select two customers to begin" fallback div
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**2. `src/components/demo/DemoNetworkDiagram.tsx`**
+- Update Props interface: `customerA` and `customerB` become `DemoCustomer | null`
+- Update `TxCard` to accept `customer: DemoCustomer | null`
+- When `customer` is null, render an empty placeholder card (dashed border, "Customer A/B" label, muted style) instead of the populated card
+- Pass a label prop ("Customer A" / "Customer B") or derive from color to show in the empty state
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+Everything else (engine node, output section nodes, SVG lines) stays as-is — they already render based on `dims` and don't depend on customer data.
+
