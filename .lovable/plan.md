@@ -1,28 +1,28 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Better Vertical Spacing for "Pattern: Skiing" Badge
 
-### Implemented
+## Problem
+The "Pattern: Skiing" badge (Beat 4, Phase 2) appears cramped with only `mt-6` spacing above the transaction list. The layout doesn't use available vertical space effectively.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+## Solution
+Increase vertical spacing between the transaction list and the badge to create better visual breathing room and center the badge more prominently in the available space.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+## Changes
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**File**: `src/components/demo/DemoPasswordGate.tsx`
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+**Line 322-338** — Increase margin-top from `mt-6` to `mt-12` for better vertical spacing:
+
+```tsx
+{beat4Phase >= 2 && (
+  <div
+    className="mt-12 flex items-center justify-center gap-3 animate-fade-slide"
+    style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
+    {/* ... rest of badge code ... */}
+  </div>
+)}
+```
+
+This doubles the spacing from 1.5rem (24px) to 3rem (48px), giving the "Pattern: Skiing" badge more vertical breathing room and making it feel less cramped after the transaction list.
+
