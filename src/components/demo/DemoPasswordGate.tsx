@@ -8,7 +8,7 @@ const BEAT_SUMMARIES = [
 "Built on MCC — a 1974 taxonomy for routing, not intelligence.",
 "MCCs are blind — same code for symphony, Celtics, and Monster Jam.",
 "MCCs can't see patterns — three ski purchases, three generic codes.",
-"Patterns can't extend — no demographics, no actionable offers."];
+"Disconnected data — no demographics, no actionable intelligence."];
 
 
 export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
