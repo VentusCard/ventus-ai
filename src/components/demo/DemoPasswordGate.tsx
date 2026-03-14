@@ -19,6 +19,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [revealLogo, setRevealLogo] = useState(false);
   const [revealInput, setRevealInput] = useState(false);
   const [beat4Phase, setBeat4Phase] = useState(0);
+  const [beat5Phase, setBeat5Phase] = useState(0);
 
   const advance = useCallback(() => {
     setStep((s) => {
@@ -29,20 +30,32 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         }
         setBeat4Phase(0);
       }
+      if (s === 4) {
+        if (beat5Phase < 1) {
+          setBeat5Phase((p) => p + 1);
+          return s;
+        }
+        setBeat5Phase(0);
+      }
       return s < TOTAL_BEATS - 1 ? s + 1 : s;
     });
-  }, [beat4Phase]);
+  }, [beat4Phase, beat5Phase]);
 
   const goBack = useCallback(() => {
     if (step === 3 && beat4Phase > 0) {
       setBeat4Phase((p) => p - 1);
       return;
     }
+    if (step === 4 && beat5Phase > 0) {
+      setBeat5Phase((p) => p - 1);
+      return;
+    }
     setStep((s) => s > 0 ? s - 1 : s);
     setRevealLogo(false);
     setRevealInput(false);
     setBeat4Phase(0);
-  }, [step, beat4Phase]);
+    setBeat5Phase(0);
+  }, [step, beat4Phase, beat5Phase]);
 
   useEffect(() => {
     if (step === 5) {
