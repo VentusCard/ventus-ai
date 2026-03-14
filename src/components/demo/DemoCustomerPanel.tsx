@@ -278,6 +278,8 @@ function CustomerSlot({
             Load Data
           </Button>
         </div>
+      ) : !selected ? (
+        <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
       ) : (
         <>
           {/* Summary stats */}
