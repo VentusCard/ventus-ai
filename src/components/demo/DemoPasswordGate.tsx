@@ -425,7 +425,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                   {/* Horizontal flow diagram */}
                   <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 w-full">
-                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 max-w-[220px]" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", minWidth: 260, width: 260, letterSpacing: "0.1em" }}>
+                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
                       {beat5Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
                     </p>
                     <div style={{ width: 44 }} />
