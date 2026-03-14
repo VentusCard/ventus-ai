@@ -433,7 +433,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       {beat5Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
                     </p>
                   </div>
-                  <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6">
+                  <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6 w-full">
 
                     {/* LEFT — Input boxes */}
                     <div className="flex flex-col items-stretch gap-4 relative" style={{ minWidth: 260, width: 260 }}>
