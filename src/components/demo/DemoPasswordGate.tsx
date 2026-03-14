@@ -361,9 +361,16 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                               animationFillMode: "both"
                             }}>
                             <div className="flex items-center gap-4">
-                              {beat4Phase >= 1 && (
-                                <span className="text-sm font-medium animate-fade-slide" style={{ color: "#0F172A" }}>{tx.merchant}</span>
-                              )}
+                              <span
+                                className="text-sm font-medium transition-all duration-500"
+                                style={{
+                                  color: "#0F172A",
+                                  opacity: beat4Phase >= 1 ? 1 : 0,
+                                  transform: beat4Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
+                                }}
+                              >
+                                {tx.merchant}
+                              </span>
                               <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
                                 MCC {tx.mcc} · {tx.mccLabel}
                               </span>
