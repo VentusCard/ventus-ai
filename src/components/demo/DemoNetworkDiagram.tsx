@@ -6,8 +6,8 @@ import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   activeNode: DemoNodeType | null;
   onNodeClick: (node: DemoNodeType) => void;
   nodeReadiness: NodeReadiness;
