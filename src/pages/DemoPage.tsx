@@ -14,14 +14,16 @@ export default function DemoPage() {
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
 
   const parsedA = useMemo<Transaction[]>(() => {
+    if (!customerA) return [];
     const result = parsePastedText(customerA.csv);
     return result.transactions ?? [];
-  }, [customerA.csv]);
+  }, [customerA?.csv]);
 
   const parsedB = useMemo<Transaction[]>(() => {
+    if (!customerB) return [];
     const result = parsePastedText(customerB.csv);
     return result.transactions ?? [];
-  }, [customerB.csv]);
+  }, [customerB?.csv]);
 
   const {
     nodeReadiness,
