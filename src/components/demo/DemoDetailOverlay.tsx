@@ -24,7 +24,7 @@ interface Props {
 }
 
 const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
-  engagement: { title: "Customer Engagement", color: "#f59e0b" },
+  engagement: { title: "Personalized UX", color: "#f59e0b" },
   analytics: { title: "Bank-Wide Analytics", color: "#3b82f6" },
   rewards: { title: "Consumer Rewards", color: "#22c55e" },
   travel: { title: "Travel Experiences", color: "#06b6d4" },
