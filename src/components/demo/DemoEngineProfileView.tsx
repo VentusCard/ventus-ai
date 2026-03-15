@@ -199,13 +199,6 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
       category_diversity: Object.keys(pillarMap).length,
       lifestyle_type: customer.lifestyleType,
     },
-    life_events_detected: customer.lifeEvents.map(e => ({
-      event: e.name,
-      confidence: `${e.confidence}%`,
-      urgency: e.urgency,
-      timing: e.timing,
-      evidence: e.evidence,
-    })),
     opportunity_flags: [
       pillarEntries.length > 3 && "diversified_spender",
       customer.lifeEvents.some(e => e.urgency === "Urgent") && "urgent_life_event",
