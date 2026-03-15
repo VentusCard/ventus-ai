@@ -252,6 +252,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               width: 210,
               height: sectionContentHeight,
               zIndex: 2,
+              transition: posTransition,
             }}
           >
             <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600 mb-2">
