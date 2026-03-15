@@ -282,12 +282,6 @@ function CustomerSlot({
         <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
       ) : (
         <>
-          {/* Demographics */}
-          {selected.profile?.demographics && (
-            <p className="text-[10px] text-slate-400 mb-1.5">
-              Age {selected.profile.demographics.age} · {selected.profile.demographics.occupation} · {selected.profile.demographics.familyStatus}
-            </p>
-          )}
           {/* Summary stats */}
           <div className="flex items-center gap-1.5 flex-wrap mb-1.5 text-[11px] text-slate-500">
             <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
