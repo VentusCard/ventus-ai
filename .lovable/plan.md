@@ -1,66 +1,28 @@
 
 
-# Enhance Ventus AI Engine Profile with Frequency, Tier, and Temporal Patterns
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## What Changes
+### Implemented
 
-Enhance the `buildEnrichedProfile` function in `DemoEngineProfileView.tsx` to produce a richer, truly dynamic profile by mining the `spending_tier`, `purchase_frequency`, and `date` fields already present on every `EnrichedTransaction`.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-## New Profile Sections
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-### 1. `spending_intelligence` — Tier-Qualified Behavioral Signals
-Aggregate spending tier per pillar/subcategory to produce human-readable insights like:
-- `"premium_sports_equipment_buyer"`
-- `"budget_traveler"`
-- `"standard_dining"`
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-Structure:
-```json
-"spending_intelligence": {
-  "tier_profile": [
-    { "pillar": "Sports & Outdoors", "dominant_tier": "Premium", "avg_spend": "$342", "insight": "Purchases premium sports equipment consistently" },
-    { "pillar": "Travel", "dominant_tier": "Budget", "avg_spend": "$89", "insight": "Budget-conscious traveler, prefers value options" }
-  ]
-}
-```
-
-### 2. `temporal_patterns` — Seasonal and Frequency Analysis
-Parse transaction dates to detect monthly clustering and combine with `purchase_frequency` to generate seasonal behavioral narratives:
-- Group transactions by month, identify peak months per pillar
-- Produce insights like `"Sports spending peaks May–Nov"`, `"Travel clusters in March"`
-
-Structure:
-```json
-"temporal_patterns": {
-  "seasonal_behaviors": [
-    { "pillar": "Sports & Outdoors", "peak_months": ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov"], "frequency": "Monthly", "narrative": "Purchases premium sports equipment every May–Nov" },
-    { "pillar": "Travel", "peak_months": ["Mar"], "frequency": "Occasional", "narrative": "Budget travels every March" }
-  ],
-  "monthly_activity_heatmap": { "Jan": 4, "Feb": 6, ... }
-}
-```
-
-### 3. `dynamic_profile_summary` — Natural Language Array
-Combine tier + temporal + pillar data into plain-English behavioral statements at the top level:
-```json
-"dynamic_profile_summary": [
-  "Purchases premium sports equipment every May–Nov",
-  "Budget traveler with occasional trips in March",
-  "Weekly dining at standard-tier restaurants",
-  "Premium wellness spending year-round"
-]
-```
-
-## Technical Approach
-
-**Single file change**: `src/components/demo/DemoEngineProfileView.tsx`
-
-- In `buildEnrichedProfile`, add logic to:
-  1. **Tier aggregation**: For each pillar, tally `spending_tier` values, pick the dominant one
-  2. **Month clustering**: Parse `t.date`, bucket by month per pillar, find peak months (months with above-average tx count for that pillar)
-  3. **Frequency mode**: For each pillar, pick the most common `purchase_frequency` value
-  4. **Narrative builder**: Combine tier + peak months + frequency into a sentence (e.g., "Purchases premium sports equipment every May–Nov")
-- Insert these three new sections into the returned profile object between `behavioral_patterns` and `life_events_detected`
-
-No new dependencies, no database changes, no edge function changes. All data is already available on the `EnrichedTransaction` type.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
