@@ -323,7 +323,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
                   <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
-                    MCC 7922 — "Sports and Entertainment." Three customers. Three purchases: Symphony Orchestra, Celtics tickets, Monster Jam.
+                    Three customers. Three purchases: Symphony Orchestra, Celtics tickets, Monster Jam.
                     Three completely different people — invisible to the bank.
                   </p>
                   <div className="mt-8 flex flex-col items-center gap-6">
