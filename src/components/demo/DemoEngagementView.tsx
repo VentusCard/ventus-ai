@@ -30,14 +30,20 @@ interface SpendingItem {
   icon: string;
   spend: number;
   budget: number;
+  subcategories: { subcategory: string; count: number; total: number }[];
 }
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
   if (enriched && enriched.length > 0) {
-    const pillarMap = new Map<string, number>();
+    const pillarMap = new Map<string, { total: number; subcats: Map<string, { count: number; total: number }> }>();
     enriched.forEach((t) => {
-      const current = pillarMap.get(t.pillar) || 0;
-      pillarMap.set(t.pillar, current + Math.abs(t.amount));
+      const entry = pillarMap.get(t.pillar) || { total: 0, subcats: new Map() };
+      entry.total += Math.abs(t.amount);
+      const sub = entry.subcats.get(t.subcategory) || { count: 0, total: 0 };
+      sub.count += 1;
+      sub.total += Math.abs(t.amount);
+      entry.subcats.set(t.subcategory, sub);
+      pillarMap.set(t.pillar, entry);
     });
     const pillarIcons: Record<string, string> = {
       "Travel": "✈️", "Dining": "🍽️", "Shopping": "🛍️", "Wellness": "💪",
@@ -45,13 +51,16 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
       "Health": "❤️", "Education": "📚", "Groceries": "🛒", "Personal Care": "💆",
     };
     return Array.from(pillarMap.entries())
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 4)
-      .map(([name, spend]) => ({
+      .map(([name, data]) => ({
         name,
         icon: pillarIcons[name] || "📊",
-        spend: Math.round(spend),
-        budget: Math.round(spend * (1 + Math.random() * 0.3)),
+        spend: Math.round(data.total),
+        budget: Math.round(data.total * (1 + Math.random() * 0.3)),
+        subcategories: Array.from(data.subcats.entries())
+          .map(([subcategory, s]) => ({ subcategory, count: s.count, total: Math.round(s.total) }))
+          .sort((a, b) => b.total - a.total),
       }));
   }
   return customer.topPillars.map((p) => ({
@@ -59,6 +68,7 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
     icon: p.icon,
     spend: parseInt(p.spend.replace(/[$,]/g, "")),
     budget: Math.round(parseInt(p.spend.replace(/[$,]/g, "")) * (1 + Math.random() * 0.3)),
+    subcategories: [],
   }));
 }
 
