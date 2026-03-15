@@ -283,14 +283,36 @@ function CustomerSlot({
       ) : (
         <>
           {/* Summary stats */}
-          <div className="flex items-center gap-2 mb-2 text-[11px] text-slate-500">
-            <span className="font-semibold text-slate-700">{transactions.length}</span> txns
+          <div className="flex items-center gap-1.5 flex-wrap mb-1.5 text-[11px] text-slate-500">
+            <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
             <span className="text-slate-300">·</span>
-            <span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total
+            <span><span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total</span>
+            {dateRange && (
+              <>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-400">{dateRange}</span>
+              </>
+            )}
           </div>
-          {dateRange && (
-            <p className="text-[10px] text-slate-400 mb-2">{dateRange}</p>
-          )}
+          {/* Source pills */}
+          {(() => {
+            const sources = [...new Set(transactions.map(t => t.source).filter(Boolean))];
+            return sources.length > 0 ? (
+              <div className="flex items-center gap-1.5 flex-wrap mb-2 text-[10px]">
+                <span className="text-slate-500 font-medium">Sources:</span>
+                {sources.map(s => (
+                  <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${
+                    s === "Checking" ? "bg-slate-100 text-slate-600" :
+                    s === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                    s === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                    s === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                    s === "HSA" ? "bg-amber-50 text-amber-700" :
+                    "bg-slate-50 text-slate-500"
+                  }`}>{s}</span>
+                ))}
+              </div>
+            ) : null;
+          })()}
 
           {/* Compact transaction table */}
           <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
