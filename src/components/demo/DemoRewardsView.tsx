@@ -5,12 +5,15 @@ import type { EnrichedTransaction } from "@/types/transaction";
 import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 import { DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
 import { supabase } from "@/integrations/supabase/client";
+import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
+  precomputedA?: PersonalizedDealData | null;
+  precomputedB?: PersonalizedDealData | null;
 }
 
 interface PersonalizedDeal extends BankDeal {
@@ -59,37 +62,39 @@ async function fetchPersonalization(
   }
 }
 
-export default function DemoRewardsView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+export default function DemoRewardsView({ customerA, customerB, enrichedA, enrichedB, precomputedA, precomputedB }: Props) {
   const hasEnriched = (enrichedA?.length ?? 0) > 0 || (enrichedB?.length ?? 0) > 0;
 
-  // Derive profiles from enriched transactions
+  // Use precomputed deals if available, otherwise derive from enriched transactions
   const profileA = useMemo(() => hasEnriched && enrichedA ? deriveCustomerProfile(enrichedA) : null, [enrichedA, hasEnriched]);
   const profileB = useMemo(() => hasEnriched && enrichedB ? deriveCustomerProfile(enrichedB) : null, [enrichedB, hasEnriched]);
 
-  // Select deals from library based on profiles
-  const dealsA = useMemo(() => profileA ? getRelevantDeals(profileA, 10) : [], [profileA]);
-  const dealsB = useMemo(() => profileB ? getRelevantDeals(profileB, 10) : [], [profileB]);
+  const dealsA = useMemo(() => precomputedA?.deals ?? (profileA ? getRelevantDeals(profileA, 10) : []), [precomputedA, profileA]);
+  const dealsB = useMemo(() => precomputedB?.deals ?? (profileB ? getRelevantDeals(profileB, 10) : []), [precomputedB, profileB]);
 
-  // AI personalization state
+  // AI personalization state — use precomputed if available, otherwise fetch
   const [personalizedA, setPersonalizedA] = useState<Record<string, { msg: string; cta: string }>>({});
   const [personalizedB, setPersonalizedB] = useState<Record<string, { msg: string; cta: string }>>({});
   const [loadingA, setLoadingA] = useState(false);
   const [loadingB, setLoadingB] = useState(false);
 
-  // Fetch AI personalization when deals are ready
+  const effectivePersonalizedA = precomputedA?.personalized ?? personalizedA;
+  const effectivePersonalizedB = precomputedB?.personalized ?? personalizedB;
+
+  // Only fetch if no precomputed data
   useEffect(() => {
-    if (dealsA.length > 0 && profileA) {
+    if (!precomputedA && dealsA.length > 0 && profileA) {
       setLoadingA(true);
       fetchPersonalization(dealsA, profileA, customerA).then(r => { setPersonalizedA(r); setLoadingA(false); });
     }
-  }, [dealsA, profileA, customerA]);
+  }, [dealsA, profileA, customerA, precomputedA]);
 
   useEffect(() => {
-    if (dealsB.length > 0 && profileB) {
+    if (!precomputedB && dealsB.length > 0 && profileB) {
       setLoadingB(true);
       fetchPersonalization(dealsB, profileB, customerB).then(r => { setPersonalizedB(r); setLoadingB(false); });
     }
-  }, [dealsB, profileB, customerB]);
+  }, [dealsB, profileB, customerB, precomputedB]);
 
   // Find shared merchants between the two deal sets
   const sharedMerchants = useMemo(() => {
@@ -127,8 +132,8 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
           customer={customerA}
           profile={profileA!}
           deals={dealsA}
-          personalized={personalizedA}
-          loading={loadingA}
+          personalized={effectivePersonalizedA}
+          loading={!precomputedA && loadingA}
           color="#3b82f6"
           sharedMerchants={sharedMerchants}
         />
@@ -136,8 +141,8 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
           customer={customerB}
           profile={profileB!}
           deals={dealsB}
-          personalized={personalizedB}
-          loading={loadingB}
+          personalized={effectivePersonalizedB}
+          loading={!precomputedB && loadingB}
           color="#10b981"
           sharedMerchants={sharedMerchants}
         />

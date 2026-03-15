@@ -1,27 +1,28 @@
 
 
-# Make Rewards Node Ready When Personalized Messages Are Actually Ready
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-The rewards node currently fires a throwaway `deal-personalization` call using static `customerA.deals` and sets `rewards: "ready"` when it returns. But when the user clicks to view, `DemoRewardsView` derives a completely different deal set from enriched transactions and fires its own personalization call — so "ready" doesn't actually mean the messages are available.
+### Implemented
 
-## Plan
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-### 1. Move deal derivation + personalization into `useDemoEnrichment`
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-In `useDemoEnrichment.ts`, after both classifications complete (inside `maybeStartPhase2`), derive deal profiles from enriched transactions using the same `deriveCustomerProfile` + `getRelevantDeals` logic that `DemoRewardsView` uses. Then fire `deal-personalization` for both customers using those derived deals. Store the results in state (`personalizedDealsA`, `personalizedDealsB`). Set `rewards: "ready"` only when both personalization responses return.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-Remove the current pre-fire block (lines 226-260) that uses static `customerA.deals`.
-
-### 2. Pass personalization results through to `DemoRewardsView`
-
-- Add `personalizedDealsA` and `personalizedDealsB` to the hook's return value
-- Thread them through `DemoPage` → `DemoDetailOverlay` → `DemoRewardsView`
-- In `DemoRewardsView`, skip the internal `fetchPersonalization` calls if pre-computed results are provided as props
-
-### Files to change
-- `src/hooks/useDemoEnrichment.ts` — move deal derivation + personalization here, store results, gate rewards readiness
-- `src/components/demo/DemoRewardsView.tsx` — accept optional pre-computed personalization props, skip fetch if provided
-- `src/components/demo/DemoDetailOverlay.tsx` — pass personalization data through
-- `src/pages/DemoPage.tsx` — pass personalization data from hook to overlay
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

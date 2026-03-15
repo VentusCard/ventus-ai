@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
-import type { LocalExperiencesData } from "@/hooks/useDemoEnrichment";
+import type { LocalExperiencesData, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
@@ -18,6 +18,8 @@ interface Props {
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
   localExperiences?: LocalExperiencesData;
+  personalizedDealsA?: PersonalizedDealData | null;
+  personalizedDealsB?: PersonalizedDealData | null;
   onClose: () => void;
 }
 
@@ -38,7 +40,7 @@ const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; custom
   lifeEvents: DemoLifeEventsView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
 
   const renderContent = () => {
@@ -62,6 +64,8 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
           customerB={customerB}
           enrichedA={enrichedA}
           enrichedB={enrichedB}
+          precomputedA={personalizedDealsA}
+          precomputedB={personalizedDealsB}
         />
       );
     }
