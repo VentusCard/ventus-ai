@@ -44,6 +44,8 @@ export default function DemoPage() {
     localExperiences,
     personalizedDealsA,
     personalizedDealsB,
+    detectedEventA,
+    detectedEventB,
     startEnrichment,
   } = useDemoEnrichment();
 
