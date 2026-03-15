@@ -388,7 +388,7 @@ txn_h008,PORTILLOS HOT DOGS,Chicago classic lunch,5814,18.45,2025-08-18,60614,Ca
 txn_h009,TRADER JOES,Specialty groceries,5411,89.23,2025-08-19,60614,Cashback Card
 txn_h010,NETFLIX,Monthly subscription,4899,15.99,2025-08-15,,Cashback Card
 txn_h011,TARGET,Home décor and essentials,5411,145.67,2025-08-19,60614,Cashback Card
-txn_h012,LOU MALNATIS PIZZERIA,Deep dish pizza dinner,5812,67.50,2025-08-20,60614,Travel Card
+txn_h012,LOU MALNATIS PIZZERIA,Deep dish pizza dinner,5812,67.50,2025-08-20,60614,Premium Card
 txn_h013,LOWE'S,Garden tools and plants,5211,124.30,2025-08-20,60657,Checking
 txn_h014,PANERA BREAD,Lunch and coffee,5814,16.90,2025-08-21,60614,Cashback Card
 txn_h015,COSTCO WHOLESALE,Bulk grocery shopping,5411,298.76,2025-08-21,60614,Cashback Card
