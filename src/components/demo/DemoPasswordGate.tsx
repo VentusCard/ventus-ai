@@ -4,7 +4,7 @@ import ventusLogo from "@/assets/ventus-logo-blue.png";
 const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
-"Ventus AI — Intelligence infrastructure for modern banking.",
+"Ventus AI — AI Customer Intelligence Layer that Powers Banking Personalization Across Functions.",
 "Billions in personalization spend — zero customer understanding.",
 "Built on MCC — a 1974 taxonomy for routing, not intelligence.",
 "MCCs are blind — same code for symphony, Celtics, and Monster Jam.",
