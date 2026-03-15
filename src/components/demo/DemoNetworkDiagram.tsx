@@ -27,6 +27,13 @@ interface SectionDef {
   nodes: NodeDef[];
 }
 
+// Geometry constants
+const TX_CARD_WIDTH = 160;
+const TX_CARD_ANCHOR = 40; // card renders at colLeft - TX_CARD_ANCHOR
+const ENGINE_WIDTH = 160;
+const SECTION_WIDTH = 210;
+const SECTION_ANCHOR = 58; // section renders at colRight - SECTION_ANCHOR
+
 const SECTIONS: SectionDef[] = [
   {
     label: "UX & Analytics",
@@ -62,35 +69,60 @@ const ENGINE_FEATURES = [
 ];
 
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
+  // ResizeObserver for continuous tracking during flex transitions
   useEffect(() => {
-    const update = () => {
-      if (svgRef.current) {
-        const rect = svgRef.current.getBoundingClientRect();
-        setDims({ w: rect.width, h: rect.height });
-      }
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, [centered]);
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setDims({ w: width, h: height });
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  // When centered (panel collapsed), shift columns inward to center the flow
-  const colLeft = centered ? dims.w * 0.2 : dims.w * 0.12;
-  const colCenter = centered ? dims.w * 0.5 : dims.w * 0.48;
-  const colRight = centered ? dims.w * 0.8 : dims.w * 0.85;
+  // Compute column positions with visual-bias compensation
+  // Left extent: colLeft - TX_CARD_ANCHOR (left edge of tx cards)
+  // Right extent: colRight - SECTION_ANCHOR + SECTION_WIDTH (right edge of sections)
+  // Composition width = (colRight - SECTION_ANCHOR + SECTION_WIDTH) - (colLeft - TX_CARD_ANCHOR)
+  // We want composition center = dims.w / 2
 
-  const posTransition = "left 0.5s ease, top 0.5s ease";
+  let colLeft: number, colCenter: number, colRight: number;
+
+  if (centered && dims.w > 0) {
+    // Total composition spread: from left edge of tx cards to right edge of sections
+    // Let's define spacing ratios between the three columns
+    const compositionSpan = dims.w * 0.7; // use 70% of width for the composition
+    const leftAnchor = (dims.w - compositionSpan) / 2 + TX_CARD_ANCHOR; // so left card edge starts at margin
+    const rightAnchor = leftAnchor + compositionSpan - (SECTION_WIDTH - SECTION_ANCHOR); // so right section edge ends at margin
+    const centerAnchor = (leftAnchor + rightAnchor) / 2;
+
+    colLeft = leftAnchor;
+    colCenter = centerAnchor;
+    colRight = rightAnchor;
+
+    // Clamp to prevent overflow
+    const minLeft = TX_CARD_ANCHOR + 10;
+    const maxRight = dims.w - (SECTION_WIDTH - SECTION_ANCHOR) - 10;
+    if (colLeft < minLeft) colLeft = minLeft;
+    if (colRight > maxRight) colRight = maxRight;
+    colCenter = (colLeft + colRight) / 2;
+  } else {
+    colLeft = dims.w * 0.12;
+    colCenter = dims.w * 0.48;
+    colRight = dims.w * 0.85;
+  }
+
   const midY = dims.h * 0.5;
-
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
   // Section container layout constants (grouped)
   const sectionGap = 12;
-  const sectionPadTop = 28; // space for label
+  const sectionPadTop = 28;
   const nodeHeight = 44;
   const nodeGap = 8;
   const sectionPadBottom = 12;
@@ -118,8 +150,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   });
 
   return (
-    <div className="relative w-full h-full">
-      <svg ref={svgRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
+    <div ref={containerRef} className="relative w-full h-full">
+      <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" />
@@ -200,10 +232,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </svg>
 
       {/* Transaction Cards — Left */}
-      <div className="absolute" style={{ left: colLeft - 40, top: inputAY - 50, width: 160, zIndex: 1, transition: posTransition }}>
+      <div className="absolute" style={{ left: colLeft - TX_CARD_ANCHOR, top: inputAY - 50, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
       </div>
-      <div className="absolute" style={{ left: colLeft - 40, top: inputBY - 50, width: 160, zIndex: 1, transition: posTransition }}>
+      <div className="absolute" style={{ left: colLeft - TX_CARD_ANCHOR, top: inputBY - 50, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerB} color="#10b981" label="Customer B" />
       </div>
 
@@ -212,11 +244,11 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         onClick={() => { if (engineReady) onNodeClick("engine"); }}
         disabled={!engineReady}
         title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-shadow transition-opacity duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
-          left: colCenter - 70,
+          left: colCenter - ENGINE_WIDTH / 2,
           top: midY - 100,
-          width: 160,
+          width: ENGINE_WIDTH,
           height: 200,
           boxShadow: engineProcessing && !engineReady
             ? "0 0 30px rgba(99, 102, 241, 0.25)"
@@ -224,7 +256,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               ? "0 0 20px rgba(34, 197, 94, 0.15)"
               : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
-          transition: `${posTransition}, all 0.3s ease`,
         }}
       >
         <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
@@ -247,12 +278,11 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             key={section.label}
             className="absolute rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col p-3 pt-2"
             style={{
-              left: colRight - 58,
+              left: colRight - SECTION_ANCHOR,
               top: sectionTop,
-              width: 210,
+              width: SECTION_WIDTH,
               height: sectionContentHeight,
               zIndex: 2,
-              transition: posTransition,
             }}
           >
             <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600 mb-2">
@@ -272,7 +302,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                     key={node.id}
                     onClick={() => { if (canOpen) onNodeClick(node.id); }}
                     disabled={!canOpen}
-                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 group"
+                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
                     style={{
                       height: nodeHeight,
                       cursor: canOpen ? "pointer" : "not-allowed",
@@ -292,7 +322,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                         : isActive
                           ? `0 0 12px ${node.color}15`
                           : "0 1px 3px rgba(0,0,0,0.06)",
-                      transition: "all 0.5s ease",
                     }}
                   >
                     <div
@@ -300,7 +329,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       style={{
                         background: canOpen ? `${node.color}20` : `${node.color}12`,
                         border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
-                        transition: "all 0.4s ease",
                       }}
                     >
                       <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
@@ -337,7 +365,7 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
-      className="rounded-lg border-2 p-2.5 bg-white transition-all duration-300"
+      className="rounded-lg border-2 p-2.5 bg-white"
       style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}
     >
       <div className="flex items-center gap-2 mb-2">
