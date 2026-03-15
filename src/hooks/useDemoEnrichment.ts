@@ -184,13 +184,63 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         if (classifiedResults.length < 2 || phase2Started) return;
         phase2Started = true;
 
-        const allClassified = [...classifiedResults[0], ...classifiedResults[1]];
+        const classifiedA = classifiedResults[0];
+        const classifiedB = classifiedResults[1];
+        const allClassified = [...classifiedA, ...classifiedB];
 
         // Mark input lines solid + analytics & engine ready
         setInputReady(true);
         setNodeReady({ engine: "ready", analytics: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
+
+        // Fire deal personalization from enriched data
+        const fireRewardsPersonalization = async () => {
+          try {
+            const profileA = deriveCustomerProfile(classifiedA);
+            const profileB = deriveCustomerProfile(classifiedB);
+            const dealsSelA = getRelevantDeals(profileA, 10);
+            const dealsSelB = getRelevantDeals(profileB, 10);
+
+            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer) => {
+              const payload = {
+                deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
+                profile: {
+                  pillars: profile.topPillars.map(p => ({ name: p.pillar, spend: Math.round(p.annualSpend), pct: Math.round((p.annualSpend / (profile.totalSpend || 1)) * 100) })),
+                  signals: profile.lifestyleSignals,
+                },
+                ctx: {
+                  demo: {
+                    occ: customer.profile.demographics.occupation,
+                    fam: customer.profile.demographics.familyStatus,
+                    inc: customer.profile.aum,
+                    tier: customer.profile.segment,
+                  },
+                  persona: { traits: profile.lifestyleSignals, interests: profile.topPillars.map(p => p.pillar) },
+                },
+                txCount: profile.topPillars.reduce((s, p) => s + p.transactionCount, 0),
+              };
+              const res = await fetch(`${supabaseUrl}/functions/v1/deal-personalization`, { method: "POST", headers, body: JSON.stringify(payload) });
+              if (!res.ok) throw new Error(`deals: ${res.status}`);
+              const data = await res.json();
+              const map: Record<string, { msg: string; cta: string }> = {};
+              (data?.recs || []).forEach((r: any) => { map[r.id] = { msg: r.msg, cta: r.cta }; });
+              return { deals, personalized: map } as PersonalizedDealData;
+            };
+
+            const [resultA, resultB] = await Promise.all([
+              personalize(dealsSelA, profileA, customerA),
+              personalize(dealsSelB, profileB, customerB),
+            ]);
+            setPersonalizedDealsA(resultA);
+            setPersonalizedDealsB(resultB);
+          } catch (err) {
+            console.warn("[Phase2] Deal personalization failed:", err);
+          }
+          setNodeReady({ rewards: "ready" });
+        };
+
+        fireRewardsPersonalization();
 
         // Fire lifestyle signals (needs classified txns)
         const spendingSummary = buildSpendingSummary(allClassified);
