@@ -43,7 +43,7 @@ export default function DemoCustomerPanel({
         <h2 className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
           Ventus AI
         </h2>
-        <p className="text-[11px] text-slate-500 mt-0.5">Conference Demo</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">Select Two Users to Compare Personalization</p>
       </div>
 
       {/* Customer A */}
