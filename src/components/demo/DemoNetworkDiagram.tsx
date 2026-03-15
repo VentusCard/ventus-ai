@@ -207,25 +207,25 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Engine Node — Center */}
       <button
-        onClick={() => { if (allNodesReady) onNodeClick("engine"); }}
-        disabled={!allNodesReady}
-        title={allNodesReady ? "View deep customer profile" : "Run enrichment first"}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${allNodesReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : anyProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        onClick={() => { if (engineReady) onNodeClick("engine"); }}
+        disabled={!engineReady}
+        title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: colCenter - 70,
           top: midY - 100,
           width: 160,
           height: 200,
-          boxShadow: anyProcessing && !inputReady
+          boxShadow: engineProcessing && !engineReady
             ? "0 0 30px rgba(99, 102, 241, 0.25)"
-            : inputReady
+            : engineReady
               ? "0 0 20px rgba(34, 197, 94, 0.15)"
               : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
           transition: "all 0.3s ease",
         }}
       >
-        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${anyProcessing && !inputReady ? "animate-pulse" : ""}`}>
+        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
           <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
         <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
