@@ -39,7 +39,10 @@ export default function DemoPage() {
   } = useDemoEnrichment();
 
   const handleEnrich = () => {
-    if (customerA && customerB) startEnrichment(customerA, customerB);
+    if (customerA && customerB) {
+      setPanelCollapsed(true);
+      startEnrichment(customerA, customerB);
+    }
   };
 
   const currentPhase: "idle" | "classification" | "travel" | "complete" =
