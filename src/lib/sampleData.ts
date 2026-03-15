@@ -979,7 +979,7 @@ txn_ch027,SPOTIFY,Premium subscription,4899,10.99,2024-11-15,,Cashback Card
 txn_ch028,EAST BANK CLUB,December membership,7997,295.00,2024-12-01,60610,Premium Card
 txn_ch029,CTA VENTRA,Monthly pass,4111,105.00,2024-12-01,60610,Checking
 txn_ch030,WHOLE FOODS CHICAGO,Weekly shopping,5411,142.34,2024-12-02,60610,Cashback Card
-txn_ch031,TENNIS TOURNAMENT,Entry fee,7999,85.00,2024-12-03,60610,Checking
+txn_ch031,TENNIS TOURNAMENT,Entry fee,7999,85.00,2024-12-03,60610,Cashback Card
 txn_ch032,SWEETGREEN,Lunch,5814,16.90,2024-12-04,60610,Cashback Card
 txn_ch033,GNC CHICAGO,Pre-workout and vitamins,5499,78.50,2024-12-05,60610,Cashback Card
 txn_ch034,LULULEMON CHICAGO,Winter workout gear,5655,189.00,2024-12-06,60610,Premium Card
