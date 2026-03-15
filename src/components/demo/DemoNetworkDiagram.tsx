@@ -224,7 +224,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               ? "0 0 20px rgba(34, 197, 94, 0.15)"
               : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
-          transition: "all 0.3s ease",
+          transition: `${posTransition}, all 0.3s ease`,
         }}
       >
         <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
