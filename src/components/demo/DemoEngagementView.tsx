@@ -133,16 +133,37 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                   const pct = Math.min((b.spend / b.budget) * 100, 100);
                   const isOver = b.spend > b.budget;
                   const barColor = isOver ? "#ef4444" : pct > 80 ? "#f59e0b" : "#22c55e";
+                  const isExpanded = expandedPillar === b.name;
+                  const hasSubcats = b.subcategories.length > 0;
                   return (
-                    <div key={b.name} className="rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200">
+                    <div
+                      key={b.name}
+                      className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats ? "cursor-pointer hover:border-slate-300" : ""}`}
+                      onClick={() => hasSubcats && setExpandedPillar(isExpanded ? null : b.name)}
+                    >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{b.icon}</span>
-                        <span className="text-[10px] font-semibold text-slate-900">{b.name}</span>
+                        <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
+                        {hasSubcats && (
+                          isExpanded
+                            ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
+                            : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
+                        )}
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
                       </div>
                       <p className="text-[8px] text-slate-400">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
+                      {isExpanded && (
+                        <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-0.5">
+                          {b.subcategories.slice(0, 5).map((sub) => (
+                            <div key={sub.subcategory} className="flex items-center justify-between text-[8px]">
+                              <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
+                              <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
