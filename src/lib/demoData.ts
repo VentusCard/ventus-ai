@@ -86,10 +86,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Shopping", icon: "🛍️", pct: 14, spend: "$1,680" },
     ],
     sampleTransactions: [
-      { merchant: "Equinox Fitness", amount: "$200", date: "Aug 15", category: "Wellness" },
-      { merchant: "Whole Foods Market", amount: "$157", date: "Aug 16", category: "Grocery" },
-      { merchant: "Delta Air Lines", amount: "$450", date: "Aug 12", category: "Travel" },
-      { merchant: "Sephora", amount: "$157", date: "Aug 25", category: "Shopping" },
+      { merchant: "Equinox Fitness", amount: "$200", date: "Aug 15", category: "Wellness", zip_code: "94102", source: "Premium Card" },
+      { merchant: "Whole Foods Market", amount: "$157", date: "Aug 16", category: "Grocery", zip_code: "94102", source: "Cashback Card" },
+      { merchant: "Delta Air Lines", amount: "$450", date: "Aug 12", category: "Travel", zip_code: "94102", source: "Travel Card" },
+      { merchant: "Sephora", amount: "$157", date: "Aug 25", category: "Shopping", zip_code: "94102", source: "Premium Card" },
     ],
     deals: [
       { brand: "REI Co-op", offer: "10% back on outdoor gear", tag: "Outdoor", match: 96 },
