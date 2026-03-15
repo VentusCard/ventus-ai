@@ -159,10 +159,12 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         }
       `}</style>
 
-      {/* Logo — top left */}
-      <div className="absolute top-6 left-8 z-20">
-        <img src={ventusLogo} alt="VentusAI" className="h-7" />
-      </div>
+      {/* Logo — top left (hidden on beat 0) */}
+      {step > 0 && (
+        <div className="absolute top-6 left-8 z-20">
+          <img src={ventusLogo} alt="VentusAI" className="h-7" />
+        </div>
+      )}
 
       {/* Dot navigation — bottom center */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
