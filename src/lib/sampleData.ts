@@ -438,7 +438,7 @@ txn_h058,STANLEY STEEMER,Carpet cleaning service,7217,195.00,2025-09-11,60614,Ch
 txn_h059,WHOLE FOODS MARKET,Weekly shopping,5411,178.90,2025-09-11,60614,Cashback Card
 txn_h060,AMAZON PRIME,Annual membership renewal,5999,139.00,2025-09-11,,Cashback Card
 txn_h061,HOME DEPOT,Washer and dryer,5722,1289.00,2025-09-12,60614,Checking
-txn_h062,LOU MALNATIS PIZZERIA,Family dinner,5812,89.40,2025-09-12,60614,Travel Card
+txn_h062,LOU MALNATIS PIZZERIA,Family dinner,5812,89.40,2025-09-12,60614,Premium Card
 txn_h063,CVS PHARMACY,Household items,5912,34.67,2025-09-13,60614,Cashback Card
 txn_h064,PANERA BREAD,Lunch meeting,5814,22.80,2025-09-13,60614,Cashback Card
 txn_h065,WAYFAIR,Online furniture purchase,5712,445.67,2025-09-14,,Checking
