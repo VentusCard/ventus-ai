@@ -164,10 +164,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Grocery", icon: "🛒", pct: 15, spend: "$2,700" },
     ],
     sampleTransactions: [
-      { merchant: "Buy Buy Baby", amount: "$234", date: "Sep 05", category: "Family" },
-      { merchant: "Home Depot", amount: "$345", date: "Sep 12", category: "Home" },
-      { merchant: "College Board SAT", amount: "$68", date: "Oct 05", category: "Education" },
-      { merchant: "Costco Wholesale", amount: "$199", date: "Sep 06", category: "Grocery" },
+      { merchant: "Home Depot", amount: "$157", date: "Aug 16", category: "Home", zip_code: "60614", source: "Checking" },
+      { merchant: "Costco Wholesale", amount: "$299", date: "Aug 21", category: "Grocery", zip_code: "60614", source: "Cashback Card" },
+      { merchant: "Gibsons Steakhouse", amount: "$288", date: "Aug 15", category: "Dining", zip_code: "60614", source: "Premium Card" },
+      { merchant: "Crate and Barrel", amount: "$157", date: "Aug 22", category: "Home", zip_code: "60614", source: "Premium Card" },
     ],
     deals: [
       { brand: "Target", offer: "20% off kids' back-to-school", tag: "Family", match: 95 },
