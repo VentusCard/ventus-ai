@@ -84,7 +84,41 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
   const level = getLevel(healthScore);
   const featuredAchievement = achievements.find((a) => a.status === "in_progress") || achievements.find((a) => a.status === "unlocked") || achievements[0];
 
-  const tip = enrichedTransactions?.length ? generateFinancialTip(enrichedTransactions) : null;
+  const [tip, setTip] = useState<FinancialTip | null>(null);
+  const [isLoadingTip, setIsLoadingTip] = useState(false);
+
+  useEffect(() => {
+    if (!enrichedTransactions?.length) {
+      setTip(null);
+      return;
+    }
+    let cancelled = false;
+    const fetchTip = async () => {
+      setIsLoadingTip(true);
+      try {
+        const customerContext = {
+          name: customer.profile.name,
+          lifestyleType: customer.lifestyleType,
+          segment: customer.profile.segment,
+          demographics: customer.profile.demographics,
+          holdings: customer.profile.holdings,
+        };
+        const { data, error } = await supabase.functions.invoke('generate-financial-tip', {
+          body: { transactions: enrichedTransactions, customer: customerContext },
+        });
+        if (!cancelled && data && !error) {
+          setTip(data);
+        }
+      } catch (e) {
+        console.error('Failed to generate financial tip:', e);
+      } finally {
+        if (!cancelled) setIsLoadingTip(false);
+      }
+    };
+    fetchTip();
+    return () => { cancelled = true; };
+  }, [enrichedTransactions, customer]);
+
   const TipIcon = tip ? ICON_MAP[tip.icon] || Lightbulb : Lightbulb;
 
   return (
