@@ -91,7 +91,7 @@ export default function DemoPage() {
       {/* Left Panel — collapsible */}
       <div
         className={`shrink-0 border-r border-slate-200 bg-slate-50 transition-all duration-500 ease-in-out overflow-hidden relative ${
-          panelCollapsed ? "w-0 min-w-0 opacity-0" : "w-[30%] min-w-[280px] max-w-[380px] opacity-100"
+          panelCollapsed ? "w-0 min-w-0 opacity-0" : "w-[35%] min-w-[340px] max-w-[440px] opacity-100"
         }`}
       >
         {/* Collapse button inside panel */}
