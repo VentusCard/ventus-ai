@@ -327,8 +327,8 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
-      className="rounded-lg border p-2.5 bg-white"
-      style={{ borderColor: `${color}25`, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+      className="rounded-lg border-2 p-2.5 bg-white transition-all duration-300"
+      style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}
     >
       <div className="flex items-center gap-2 mb-2">
         <div
