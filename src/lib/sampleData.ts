@@ -409,7 +409,7 @@ txn_h029,GRUBHUB,Lunch delivery,5814,28.40,2025-08-28,60614,Cashback Card
 txn_h030,COMED,Electric utility bill,4900,145.67,2025-08-28,60614,Checking
 txn_h031,IKEA,Dining room furniture,5712,445.00,2025-08-29,60126,Checking
 txn_h032,WHOLE FOODS MARKET,Specialty items,5411,134.90,2025-08-29,60614,Cashback Card
-txn_h033,PEQUODS PIZZA,Weekend dinner,5812,54.30,2025-08-30,60614,Travel Card
+txn_h033,PEQUODS PIZZA,Weekend dinner,5812,54.30,2025-08-30,60614,Cashback Card
 txn_h034,BP,Gas station,5541,48.70,2025-08-30,60614,Cashback Card
 txn_h035,HOMEGOODS,Bathroom accessories,5714,89.50,2025-08-31,60614,Cashback Card
 txn_h036,MARIANO'S,Weekly grocery run,5411,187.34,2025-08-31,60614,Cashback Card
