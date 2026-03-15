@@ -1,37 +1,63 @@
 
 
+## Plan: Wire AI-Detected Life Events to Demo + Rich PrepareEventDialog UI
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+### Problem
+1. The `analyze-lifestyle-signals` edge function IS called during enrichment, but the response is **discarded** — never stored in state
+2. `DemoLifeEventsView` currently renders hardcoded `lifeEvents` from `demoData.ts` instead of AI-detected events
+3. The life event cards are minimal — no supporting transactions, insights, or action buttons
 
-### Implemented
+### Target
+- Show **one AI-detected life event per customer** with the rich PrepareEventDialog-style UI:
+  - Supporting transaction evidence (from the AI response)
+  - Ventus AI Insights paragraph
+  - Recommended Next Steps
+  - Action buttons: "Prepare with Ventus WM Co-Pilot", "Download PDF", "Email Me Summary"
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### Changes
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+**File 1: `src/hooks/useDemoEnrichment.ts`**
+- Store lifestyle signals response in new state: `lifestyleSignalsA` and `lifestyleSignalsB`
+- The edge function currently only runs for `customerA`'s transactions — run it for **both** customers separately
+- Each call returns `{ detected_events: [{ event_name, confidence, evidence: [{merchant, amount, date, relevance}], talking_points, financial_projection }] }`
+- Store just the first detected event per customer
+- Export these from the hook return value
+- Add a new type `DetectedLifeEventResult` to capture the AI response shape
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+**File 2: `src/components/demo/DemoDetailOverlay.tsx`**
+- Pass the stored lifestyle signals data to `DemoLifeEventsView`
+- Remove `lifeEvents` from `SIMPLE_VIEW_MAP` since it now needs enriched data props
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**File 3: `src/components/demo/DemoLifeEventsView.tsx`** (major rewrite)
+- Accept new optional props: `lifestyleSignalA` and `lifestyleSignalB` (the AI-detected event objects)
+- For each customer, render **one** life event card matching the PrepareEventDialog layout:
+  - **Header**: Event name + confidence badge
+  - **Supporting Transactions**: Chronological list with merchant, amount, date, and relevance explanation (from AI `evidence` array)
+  - **Ventus AI Insights**: Use `mockInsightsByEventType` mapped from the event name, or fall back to a generated summary from the talking points
+  - **Recommended Next Steps**: Use `getRecommendedSteps` mapped from the event name, or derive from talking points
+  - **Action Buttons**: "Prepare with Ventus", "Download PDF", "Email Me Summary" — show toast on click (demo context)
+- Fall back to the first hardcoded `lifeEvents` entry if AI data isn't available
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+**File 4: `src/pages/DemoPage.tsx`** (or wherever `useDemoEnrichment` is consumed)
+- Pass the new lifestyle signal state down through `DemoDetailOverlay`
+
+### Event Type Mapping
+The AI returns `event_name` as a free-text string (e.g., "College Preparation for Child"). To map to `mockInsightsByEventType` keys, implement a keyword-based mapper:
+- "retirement" / "401k" → `retirement`
+- "college" / "education" / "school" → `education`
+- "home" / "house" / "mortgage" → `home_purchase`
+- "baby" / "family" / "child" / "nursery" → `family_formation`
+- "elder" / "aging" / "senior" → `elder_care`
+- "business" / "exit" / "liquidity" → `business_liquidity`
+- "estate" / "wealth transfer" / "trust" → `wealth_transfer`
+- Default → `retirement`
+
+### Data Flow
+```text
+useDemoEnrichment
+  → calls analyze-lifestyle-signals for each customer
+  → stores first detected_event per customer in state
+  → passes down via DemoDetailOverlay props
+  → DemoLifeEventsView renders rich card per customer
+```
+
