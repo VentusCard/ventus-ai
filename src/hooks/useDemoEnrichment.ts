@@ -60,6 +60,8 @@ interface DemoEnrichmentResult {
   localExperiences: LocalExperiencesData;
   personalizedDealsA: PersonalizedDealData | null;
   personalizedDealsB: PersonalizedDealData | null;
+  detectedEventA: DetectedLifeEventResult | null;
+  detectedEventB: DetectedLifeEventResult | null;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
