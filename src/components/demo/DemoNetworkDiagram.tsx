@@ -12,6 +12,7 @@ interface Props {
   onNodeClick: (node: DemoNodeType) => void;
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
+  centered?: boolean;
 }
 
 interface NodeDef {
@@ -60,7 +61,7 @@ const ENGINE_FEATURES = [
   "Life Event Detection",
 ];
 
-export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady }: Props) {
+export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -76,9 +77,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const colLeft = dims.w * 0.12;
-  const colCenter = dims.w * 0.48;
-  const colRight = dims.w * 0.85;
+  // When centered (panel collapsed), shift columns inward to center the flow
+  const colLeft = centered ? dims.w * 0.18 : dims.w * 0.12;
+  const colCenter = centered ? dims.w * 0.46 : dims.w * 0.48;
+  const colRight = centered ? dims.w * 0.75 : dims.w * 0.85;
   const midY = dims.h * 0.5;
 
   const inputAY = midY - 70;

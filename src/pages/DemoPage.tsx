@@ -109,6 +109,7 @@ export default function DemoPage() {
           onNodeClick={(node) => setActiveNode(node)}
           nodeReadiness={nodeReadiness}
           inputReady={inputReady}
+          centered={panelCollapsed}
         />
 
         {activeNode && customerA && customerB && (
