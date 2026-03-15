@@ -258,7 +258,7 @@ txn_037,BARNES & NOBLE,Books purchase,5942,45.80,2025-09-08,94102,Cashback Card
 txn_038,VETERINARY CLINIC,Dog annual checkup,0742,185.00,2025-09-09,94103,Checking
 txn_039,HULU,Streaming subscription,4899,14.99,2025-08-15,,Cashback Card
 txn_040,LYFT RIDE,Ride to airport,4121,35.80,2025-09-10,94102,Travel Card
-txn_041,OLIVE GARDEN,Dinner for two,5812,67.50,2025-09-11,94103,Travel Card
+txn_041,OLIVE GARDEN,Dinner for two,5812,67.50,2025-09-11,94103,Cashback Card
 txn_042,IKEA,Furniture purchase,5712,345.00,2025-09-12,94102,Checking
 txn_043,ULTA BEAUTY,Beauty products,5977,92.30,2025-09-13,94102,Premium Card
 txn_044,PETFOOD EXPRESS,Premium dog food,5995,54.99,2025-09-14,94103,Cashback Card
