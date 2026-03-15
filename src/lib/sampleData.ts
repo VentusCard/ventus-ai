@@ -14,7 +14,7 @@ export const SAMPLE_CUSTOMER_1: ClientProfileData = {
   demographics: {
     age: "45",
     occupation: "Product Director",
-    familyStatus: "Married, 1 teenager (16)",
+    familyStatus: "Married, 1 dependent",
     incomeLevel: "$200K-$250K",
     industry: "Technology",
   },
@@ -84,7 +84,7 @@ export const SAMPLE_CUSTOMER_3: ClientProfileData = {
   demographics: {
     age: "38",
     occupation: "Director of Operations",
-    familyStatus: "Married, 2 children",
+    familyStatus: "Married, 2 dependents",
     incomeLevel: "$250K-$350K",
     industry: "Healthcare",
   },
@@ -120,7 +120,7 @@ export const SAMPLE_CUSTOMER_4: ClientProfileData = {
   demographics: {
     age: "48",
     occupation: "Managing Partner",
-    familyStatus: "Married, 2 children",
+    familyStatus: "Married, 2 dependents",
     incomeLevel: "$500K-$750K",
     industry: "Legal",
   },
@@ -157,7 +157,7 @@ export const SAMPLE_CUSTOMER_5: ClientProfileData = {
   demographics: {
     age: "42",
     occupation: "Investment Banker",
-    familyStatus: "Married, 1 child",
+    familyStatus: "Married, 1 dependent",
     incomeLevel: "$400K-$600K",
     industry: "Finance",
   },
@@ -193,7 +193,7 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
   demographics: {
     age: "55",
     occupation: "Chief Technology Officer",
-    familyStatus: "Married, adult children",
+    familyStatus: "Married, adult dependents",
     incomeLevel: "$600K-$1M",
     industry: "Technology",
   },
