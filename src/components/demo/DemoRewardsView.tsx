@@ -12,6 +12,8 @@ interface Props {
   customerB: DemoCustomer;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
+  precomputedA?: PersonalizedDealData | null;
+  precomputedB?: PersonalizedDealData | null;
 }
 
 interface PersonalizedDeal extends BankDeal {
