@@ -290,7 +290,7 @@ txn_069,UBER NYC,Ride to airport,4121,52.90,2025-09-28,11101,Travel Card
 txn_070,DELTA AIR LINES,Return flight home,4511,480.00,2025-09-28,,Travel Card
 txn_071,SHELL OIL LOCAL,Gas station home,5541,49.10,2025-09-29,94102,Cashback Card
 txn_072,STARBUCKS COFFEE,Morning coffee home,5814,6.75,2025-09-30,94102,Cashback Card
-txn_073,COLLEGEBOARD SAT,SAT registration fee,8299,68.00,2025-10-05,,Checking
+txn_073,COLLEGEBOARD SAT,SAT registration fee,8299,68.00,2025-10-05,,Cashback Card
 txn_074,KAPLAN TEST PREP,SAT prep course,8299,1299.00,2025-10-08,94102,Checking
 txn_075,STANFORD VISITOR PARKING,Campus tour parking,7523,25.00,2025-10-14,94305,Checking
 `;
