@@ -144,7 +144,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   establishedProfessional: {
     ageRange: [40, 55],
-    familyStatuses: ['Married, 2 children', 'Married, adult children', 'Divorced, children'],
+    familyStatuses: ['Married, 2 dependents', 'Married, adult dependents', 'Divorced, dependents'],
     occupations: ['Chief Technology Officer', 'Managing Partner', 'Surgeon', 'Investment Banker', 'Entrepreneur', 'Corporate Executive'],
     industries: ['Finance', 'Technology', 'Healthcare', 'Legal', 'Consulting'],
     incomeLevels: ['$250K-$400K', '$400K-$600K', '$600K-$1M'],
