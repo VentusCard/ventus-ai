@@ -1,28 +1,21 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Collapse Left Panel on Enrichment Start
 
-### Implemented
+## Overview
+When enrichment begins (`isProcessing` becomes true or `currentPhase` leaves "idle"), the left panel slides off-screen and is replaced by a small floating button in the top-left corner. Clicking the button re-expands the panel. The panel also stays collapsed once enrichment completes so the network diagram gets full width.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+## Changes — `src/pages/DemoPage.tsx`
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+1. Add `panelCollapsed` state, default `false`
+2. Set `panelCollapsed = true` when `handleEnrich` fires
+3. Wrap the left panel div with a conditional transition:
+   - When collapsed: `translate-x` off-screen + `w-0 overflow-hidden` with CSS transition
+   - When expanded: normal 30% width
+4. Add a floating button (top-left, `z-50`) visible only when collapsed:
+   - Small pill with the Ventus logo or a `PanelLeft` icon + "Show Panel"
+   - `onClick` → `setPanelCollapsed(false)`
+5. The network diagram `flex-1` naturally fills the freed space
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+No other files need changes. Pure layout toggle in DemoPage.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
