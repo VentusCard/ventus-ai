@@ -1,37 +1,25 @@
 
 
+# Align Demo `sampleTransactions` with Real CSV Data
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+## Problem
+The `sampleTransactions` in `demoData.ts` are manually written summaries (4 per customer) that don't match the actual CSV data fields. The real CSVs in `sampleData.ts` already include `zip_code` and `source` — these fields just aren't carried over to the demo display data.
 
-### Implemented
+## Plan
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### 1. Update type in `src/lib/demoData.ts` (line 24)
+Add `zip_code` and `source` to the `sampleTransactions` type definition.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+### 2. Update all 6 customers' `sampleTransactions` in `src/lib/demoData.ts`
+Pull the values directly from the corresponding CSV data so they match. For each customer's 4 sample transactions, add the correct `zip_code` and `source` from the CSV. Example for c1:
+```ts
+{ merchant: "Equinox Fitness", amount: "$200", date: "Aug 15", category: "Wellness", zip_code: "94102", source: "Premium Card" },
+```
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+### 3. Update display in `src/components/demo/DemoNetworkDiagram.tsx` (~line 381)
+Show `source` as a small colored badge on each transaction row, using the existing color scheme from memory (Checking=Slate, Cashback=Green, Travel=Blue, Premium=Purple, HSA=Amber).
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+### Files
+- **Edit**: `src/lib/demoData.ts` — type + data for all 6 customers
+- **Edit**: `src/components/demo/DemoNetworkDiagram.tsx` — display source badge
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
