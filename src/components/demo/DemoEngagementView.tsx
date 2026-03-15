@@ -1,8 +1,9 @@
+import { useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { calculateAchievements, calculateHealthScore, getLevel } from "@/lib/achievementEngine";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
-import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star } from "lucide-react";
+import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
