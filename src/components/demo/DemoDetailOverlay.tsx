@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
-import type { LocalExperiencesData } from "@/hooks/useDemoEnrichment";
+import type { LocalExperiencesData, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
