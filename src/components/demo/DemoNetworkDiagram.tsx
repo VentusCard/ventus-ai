@@ -200,10 +200,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </svg>
 
       {/* Transaction Cards — Left */}
-      <div className="absolute" style={{ left: colLeft - 40, top: inputAY - 50, width: 160, zIndex: 1 }}>
+      <div className="absolute" style={{ left: colLeft - 40, top: inputAY - 50, width: 160, zIndex: 1, transition: posTransition }}>
         <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
       </div>
-      <div className="absolute" style={{ left: colLeft - 40, top: inputBY - 50, width: 160, zIndex: 1 }}>
+      <div className="absolute" style={{ left: colLeft - 40, top: inputBY - 50, width: 160, zIndex: 1, transition: posTransition }}>
         <TxCard customer={customerB} color="#10b981" label="Customer B" />
       </div>
 
