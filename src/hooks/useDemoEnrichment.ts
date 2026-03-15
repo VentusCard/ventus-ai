@@ -129,7 +129,6 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         wealth: "processing",
         engine: "processing",
       });
-      });
     }, 100);
 
     const parseCSV = (customer: DemoCustomer) => {
