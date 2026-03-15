@@ -125,10 +125,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Entertainment", icon: "🎮", pct: 16, spend: "$1,920" },
     ],
     sampleTransactions: [
-      { merchant: "Apple Store", amount: "$1,299", date: "Aug 20", category: "Technology" },
-      { merchant: "Barry's Bootcamp", amount: "$150", date: "Aug 18", category: "Fitness" },
-      { merchant: "Chipotle", amount: "$12", date: "Aug 22", category: "Dining" },
-      { merchant: "Steam Games", amount: "$60", date: "Aug 19", category: "Entertainment" },
+      { merchant: "Equinox Austin", amount: "$250", date: "Aug 15", category: "Fitness", source: "Premium Card" },
+      { merchant: "Barry's Bootcamp", amount: "$150", date: "Aug 18", category: "Fitness", source: "Premium Card" },
+      { merchant: "REI Co-op", amount: "$235", date: "Aug 17", category: "Outdoors", zip_code: "78701", source: "Cashback Card" },
+      { merchant: "Nike Store Austin", amount: "$160", date: "Aug 17", category: "Shopping", source: "Cashback Card" },
     ],
     deals: [
       { brand: "Best Buy", offer: "15% off MacBook accessories", tag: "Tech", match: 94 },
