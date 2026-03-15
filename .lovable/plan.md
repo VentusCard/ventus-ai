@@ -1,37 +1,37 @@
 
 
-## Fix: Life Event Detection Shows Wrong Customer Data
 
-### Root Cause
-Race condition in `src/hooks/useDemoEnrichment.ts`. When classifications complete, results are pushed to an array with `classifiedResults.push(classified)` (line 316). Then `maybeStartPhase2` assumes `classifiedResults[0]` = customer A and `[1]` = customer B (lines 208-209). But whichever classification finishes first gets index 0 -- so if B finishes first, the lifestyle signals for "Sarah" are run against James's transactions and vice versa.
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-Edge function logs confirm this: the `analyze-lifestyle-signals` call for "James Rodriguez" received Sarah's SAT/Stanford/Kaplan transactions, and Sarah's call received James's wellness transactions.
+### Implemented
 
-### Fix (single file: `src/hooks/useDemoEnrichment.ts`)
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-1. Replace `classifiedResults: EnrichedTransaction[][]` (unordered array) with a keyed object: `classifiedResults: { a?: EnrichedTransaction[]; b?: EnrichedTransaction[] }`.
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
-2. Change `onClassified` to two separate callbacks -- `onClassifiedA` and `onClassifiedB` -- that store results under the correct key:
-   ```ts
-   const onClassifiedA = (classified: EnrichedTransaction[]) => {
-     classifiedResults.a = classified;
-     maybeStartPhase2();
-   };
-   const onClassifiedB = (classified: EnrichedTransaction[]) => {
-     classifiedResults.b = classified;
-     maybeStartPhase2();
-   };
-   ```
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-3. Update `maybeStartPhase2`:
-   - Guard: `if (!classifiedResults.a || !classifiedResults.b || phase2Started) return;`
-   - Use `classifiedResults.a` and `classifiedResults.b` instead of `[0]` and `[1]`
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-4. Pass the correct callback to each enrichment call:
-   ```ts
-   enrichA.startEnrichment(txnsA, undefined, onClassifiedA);
-   enrichB.startEnrichment(txnsB, undefined, onClassifiedB);
-   ```
-
-This guarantees Sarah's classified transactions go to Sarah's lifestyle analysis and James's go to James's, regardless of which classification finishes first.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

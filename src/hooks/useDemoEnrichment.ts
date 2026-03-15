@@ -197,16 +197,17 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       const headers = getHeaders();
 
       // Track whether phase2 already started (from whichever classification finishes first)
-      let classifiedResults: EnrichedTransaction[][] = [];
+      let classifiedResults: { a?: EnrichedTransaction[]; b?: EnrichedTransaction[] } = {};
       let phase2Started = false;
 
       const maybeStartPhase2 = () => {
         // Need both classifications to start lifestyle signals
-        if (classifiedResults.length < 2 || phase2Started) return;
+        if (!classifiedResults.a || !classifiedResults.b || phase2Started) return;
         phase2Started = true;
 
-        const classifiedA = classifiedResults[0];
-        const classifiedB = classifiedResults[1];
+        const classifiedA = classifiedResults.a;
+        const classifiedB = classifiedResults.b;
+
         const allClassified = [...classifiedA, ...classifiedB];
 
         // Mark input lines solid + analytics & engine ready
@@ -312,16 +313,20 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           });
       };
 
-      const onClassified = (classified: EnrichedTransaction[]) => {
-        classifiedResults.push(classified);
+      const onClassifiedA = (classified: EnrichedTransaction[]) => {
+        classifiedResults.a = classified;
+        maybeStartPhase2();
+      };
+      const onClassifiedB = (classified: EnrichedTransaction[]) => {
+        classifiedResults.b = classified;
         maybeStartPhase2();
       };
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
       // 1. Classify only (no travel-detection) — pass undefined for homeZip
-      const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassified);
-      const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassified);
+      const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassifiedA);
+      const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassifiedB);
 
       // 2. Deal personalization — now handled inside maybeStartPhase2 after classification
 
