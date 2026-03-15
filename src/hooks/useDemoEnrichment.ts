@@ -239,7 +239,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             setNodeReady({ rewards: "ready" });
           });
       } else {
-        setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+        setNodeReady({ rewards: "ready" });
       }
 
       // 3. Local experiences — fire at t=0 for each customer's first trip destination
