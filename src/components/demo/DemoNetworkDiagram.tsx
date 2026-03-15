@@ -75,7 +75,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
+  }, [centered]);
 
   // When centered (panel collapsed), shift columns inward to center the flow
   const colLeft = centered ? dims.w * 0.18 : dims.w * 0.12;
