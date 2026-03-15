@@ -81,10 +81,20 @@ export default function DemoPage() {
 
       {/* Left Panel — collapsible */}
       <div
-        className={`shrink-0 border-r border-slate-200 bg-slate-50 transition-all duration-500 ease-in-out overflow-hidden ${
+        className={`shrink-0 border-r border-slate-200 bg-slate-50 transition-all duration-500 ease-in-out overflow-hidden relative ${
           panelCollapsed ? "w-0 min-w-0 opacity-0" : "w-[30%] min-w-[280px] max-w-[380px] opacity-100"
         }`}
       >
+        {/* Collapse button inside panel */}
+        {!panelCollapsed && (
+          <button
+            onClick={() => setPanelCollapsed(true)}
+            className="absolute top-3 right-3 z-10 flex items-center justify-center w-7 h-7 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-400 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
+            title="Collapse panel"
+          >
+            <PanelLeft className="h-3.5 w-3.5" />
+          </button>
+        )}
         <DemoCustomerPanel
           customerA={customerA}
           customerB={customerB}
