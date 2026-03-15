@@ -377,27 +377,13 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
         </div>
         <p className="text-[10px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
       </div>
-      <div className="space-y-1">
-        {customer.sampleTransactions.slice(0, 3).map((tx, i) => (
-          <div key={i} className="flex items-center justify-between text-[8px] gap-1">
-            <span className="text-slate-500 truncate">{tx.merchant}</span>
-            <div className="flex items-center gap-1 shrink-0">
-              {tx.source && (
-                <span className={`px-1 py-px rounded text-[6px] font-medium ${
-                  tx.source === "Checking" ? "bg-slate-100 text-slate-600" :
-                  tx.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
-                  tx.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
-                  tx.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
-                  tx.source === "HSA" ? "bg-amber-50 text-amber-700" :
-                  "bg-slate-50 text-slate-500"
-                }`}>
-                  {tx.source}
-                </span>
-              )}
-              <span className="text-slate-700">{tx.amount}</span>
-            </div>
-          </div>
-        ))}
+      <div className="space-y-0.5">
+        <p className="text-[9px] font-mono text-slate-600">
+          {customer.txnCount} txns · {customer.txnTotal}
+        </p>
+        <p className="text-[9px] font-mono text-slate-400">
+          {customer.dateRange} · {customer.sourceCount} sources
+        </p>
       </div>
     </div>
   );
