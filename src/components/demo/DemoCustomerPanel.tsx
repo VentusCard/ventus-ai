@@ -298,6 +298,7 @@ function CustomerSlot({
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-slate-50">
                   <tr className="border-b border-slate-100">
+                    <th className="text-left px-2 py-1.5 font-medium text-slate-500">Date</th>
                     <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
                     <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
                     <th className="text-center px-2 py-1.5 font-medium text-slate-500">Source</th>
