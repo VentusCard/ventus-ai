@@ -21,7 +21,7 @@ export interface DemoCustomer {
   zip: string;
   lifestyleType: string;
   topPillars: { name: string; icon: string; pct: number; spend: string }[];
-  sampleTransactions: { merchant: string; amount: string; date: string; category: string }[];
+  sampleTransactions: { merchant: string; amount: string; date: string; category: string; zip_code?: string; source?: string }[];
   deals: { brand: string; offer: string; tag: string; match: number }[];
   lifeEvents: { name: string; confidence: number; urgency: "Urgent" | "Soon" | "Upcoming"; timing: string; evidence: string; color: string }[];
   trips: { destination: string; dates: string; spend: string; highlights: string[] }[];
