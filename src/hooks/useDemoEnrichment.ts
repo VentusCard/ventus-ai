@@ -30,6 +30,21 @@ const INITIAL_READINESS: NodeReadiness = {
 
 const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
 
+export interface DetectedLifeEventEvidence {
+  merchant: string;
+  amount: number;
+  date: string;
+  relevance: string;
+}
+
+export interface DetectedLifeEventResult {
+  event_name: string;
+  confidence: number;
+  evidence: DetectedLifeEventEvidence[];
+  talking_points: string[];
+  financial_projection?: any;
+}
+
 export interface PersonalizedDealData {
   deals: BankDeal[];
   personalized: Record<string, { msg: string; cta: string }>;
