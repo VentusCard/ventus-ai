@@ -1049,7 +1049,7 @@ txn_ch097,PRESSED JUICERY,Cold pressed juice,5814,12.90,2025-02-26,60610,Cashbac
 txn_ch098,EAST BANK CLUB,March membership,7997,295.00,2025-03-01,60610,Premium Card
 txn_ch099,CTA VENTRA,Monthly pass,4111,105.00,2025-03-01,60610,Checking
 txn_ch100,TRADER JOES,Weekly shopping,5411,89.45,2025-03-03,60610,Cashback Card
-txn_ch101,TENNIS TOURNAMENT,Spring tournament entry,7999,95.00,2025-03-04,60610,Checking
+txn_ch101,TENNIS TOURNAMENT,Spring tournament entry,7999,95.00,2025-03-04,60610,Cashback Card
 txn_ch102,SWEETGREEN,Lunch,5814,17.10,2025-03-05,60610,Cashback Card
 txn_ch103,NIKE CHICAGO,Running shoes,5661,158.00,2025-03-06,60610,Cashback Card
 txn_ch104,WHOLE FOODS CHICAGO,Weekly shopping,5411,142.34,2025-03-10,60610,Cashback Card
