@@ -15,6 +15,7 @@ export default function DemoPage() {
   const [customerB, setCustomerB] = useState<DemoCustomer | null>(null);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const parsedA = useMemo<Transaction[]>(() => {
     if (!customerA) return [];
