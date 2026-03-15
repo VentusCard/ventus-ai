@@ -62,37 +62,39 @@ async function fetchPersonalization(
   }
 }
 
-export default function DemoRewardsView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+export default function DemoRewardsView({ customerA, customerB, enrichedA, enrichedB, precomputedA, precomputedB }: Props) {
   const hasEnriched = (enrichedA?.length ?? 0) > 0 || (enrichedB?.length ?? 0) > 0;
 
-  // Derive profiles from enriched transactions
+  // Use precomputed deals if available, otherwise derive from enriched transactions
   const profileA = useMemo(() => hasEnriched && enrichedA ? deriveCustomerProfile(enrichedA) : null, [enrichedA, hasEnriched]);
   const profileB = useMemo(() => hasEnriched && enrichedB ? deriveCustomerProfile(enrichedB) : null, [enrichedB, hasEnriched]);
 
-  // Select deals from library based on profiles
-  const dealsA = useMemo(() => profileA ? getRelevantDeals(profileA, 10) : [], [profileA]);
-  const dealsB = useMemo(() => profileB ? getRelevantDeals(profileB, 10) : [], [profileB]);
+  const dealsA = useMemo(() => precomputedA?.deals ?? (profileA ? getRelevantDeals(profileA, 10) : []), [precomputedA, profileA]);
+  const dealsB = useMemo(() => precomputedB?.deals ?? (profileB ? getRelevantDeals(profileB, 10) : []), [precomputedB, profileB]);
 
-  // AI personalization state
+  // AI personalization state — use precomputed if available, otherwise fetch
   const [personalizedA, setPersonalizedA] = useState<Record<string, { msg: string; cta: string }>>({});
   const [personalizedB, setPersonalizedB] = useState<Record<string, { msg: string; cta: string }>>({});
   const [loadingA, setLoadingA] = useState(false);
   const [loadingB, setLoadingB] = useState(false);
 
-  // Fetch AI personalization when deals are ready
+  const effectivePersonalizedA = precomputedA?.personalized ?? personalizedA;
+  const effectivePersonalizedB = precomputedB?.personalized ?? personalizedB;
+
+  // Only fetch if no precomputed data
   useEffect(() => {
-    if (dealsA.length > 0 && profileA) {
+    if (!precomputedA && dealsA.length > 0 && profileA) {
       setLoadingA(true);
       fetchPersonalization(dealsA, profileA, customerA).then(r => { setPersonalizedA(r); setLoadingA(false); });
     }
-  }, [dealsA, profileA, customerA]);
+  }, [dealsA, profileA, customerA, precomputedA]);
 
   useEffect(() => {
-    if (dealsB.length > 0 && profileB) {
+    if (!precomputedB && dealsB.length > 0 && profileB) {
       setLoadingB(true);
       fetchPersonalization(dealsB, profileB, customerB).then(r => { setPersonalizedB(r); setLoadingB(false); });
     }
-  }, [dealsB, profileB, customerB]);
+  }, [dealsB, profileB, customerB, precomputedB]);
 
   // Find shared merchants between the two deal sets
   const sharedMerchants = useMemo(() => {
