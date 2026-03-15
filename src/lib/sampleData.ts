@@ -258,7 +258,7 @@ txn_037,BARNES & NOBLE,Books purchase,5942,45.80,2025-09-08,94102,Cashback Card
 txn_038,VETERINARY CLINIC,Dog annual checkup,0742,185.00,2025-09-09,94103,Checking
 txn_039,HULU,Streaming subscription,4899,14.99,2025-08-15,,Cashback Card
 txn_040,LYFT RIDE,Ride to airport,4121,35.80,2025-09-10,94102,Travel Card
-txn_041,OLIVE GARDEN,Dinner for two,5812,67.50,2025-09-11,94103,Travel Card
+txn_041,OLIVE GARDEN,Dinner for two,5812,67.50,2025-09-11,94103,Cashback Card
 txn_042,IKEA,Furniture purchase,5712,345.00,2025-09-12,94102,Checking
 txn_043,ULTA BEAUTY,Beauty products,5977,92.30,2025-09-13,94102,Premium Card
 txn_044,PETFOOD EXPRESS,Premium dog food,5995,54.99,2025-09-14,94103,Cashback Card
@@ -290,9 +290,9 @@ txn_069,UBER NYC,Ride to airport,4121,52.90,2025-09-28,11101,Travel Card
 txn_070,DELTA AIR LINES,Return flight home,4511,480.00,2025-09-28,,Travel Card
 txn_071,SHELL OIL LOCAL,Gas station home,5541,49.10,2025-09-29,94102,Cashback Card
 txn_072,STARBUCKS COFFEE,Morning coffee home,5814,6.75,2025-09-30,94102,Cashback Card
-txn_073,COLLEGEBOARD SAT,SAT registration fee,8299,68.00,2025-10-05,,Checking
+txn_073,COLLEGEBOARD SAT,SAT registration fee,8299,68.00,2025-10-05,,Cashback Card
 txn_074,KAPLAN TEST PREP,SAT prep course,8299,1299.00,2025-10-08,94102,Checking
-txn_075,STANFORD VISITOR PARKING,Campus tour parking,7523,25.00,2025-10-14,94305,Checking
+txn_075,STANFORD VISITOR PARKING,Campus tour parking,7523,25.00,2025-10-14,94305,Cashback Card
 `;
 
 export const SAMPLE_CSV_SPORTS_WELLNESS = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
@@ -388,7 +388,7 @@ txn_h008,PORTILLOS HOT DOGS,Chicago classic lunch,5814,18.45,2025-08-18,60614,Ca
 txn_h009,TRADER JOES,Specialty groceries,5411,89.23,2025-08-19,60614,Cashback Card
 txn_h010,NETFLIX,Monthly subscription,4899,15.99,2025-08-15,,Cashback Card
 txn_h011,TARGET,Home décor and essentials,5411,145.67,2025-08-19,60614,Cashback Card
-txn_h012,LOU MALNATIS PIZZERIA,Deep dish pizza dinner,5812,67.50,2025-08-20,60614,Travel Card
+txn_h012,LOU MALNATIS PIZZERIA,Deep dish pizza dinner,5812,67.50,2025-08-20,60614,Premium Card
 txn_h013,LOWE'S,Garden tools and plants,5211,124.30,2025-08-20,60657,Checking
 txn_h014,PANERA BREAD,Lunch and coffee,5814,16.90,2025-08-21,60614,Cashback Card
 txn_h015,COSTCO WHOLESALE,Bulk grocery shopping,5411,298.76,2025-08-21,60614,Cashback Card
@@ -409,7 +409,7 @@ txn_h029,GRUBHUB,Lunch delivery,5814,28.40,2025-08-28,60614,Cashback Card
 txn_h030,COMED,Electric utility bill,4900,145.67,2025-08-28,60614,Checking
 txn_h031,IKEA,Dining room furniture,5712,445.00,2025-08-29,60126,Checking
 txn_h032,WHOLE FOODS MARKET,Specialty items,5411,134.90,2025-08-29,60614,Cashback Card
-txn_h033,PEQUODS PIZZA,Weekend dinner,5812,54.30,2025-08-30,60614,Travel Card
+txn_h033,PEQUODS PIZZA,Weekend dinner,5812,54.30,2025-08-30,60614,Cashback Card
 txn_h034,BP,Gas station,5541,48.70,2025-08-30,60614,Cashback Card
 txn_h035,HOMEGOODS,Bathroom accessories,5714,89.50,2025-08-31,60614,Cashback Card
 txn_h036,MARIANO'S,Weekly grocery run,5411,187.34,2025-08-31,60614,Cashback Card
@@ -438,7 +438,7 @@ txn_h058,STANLEY STEEMER,Carpet cleaning service,7217,195.00,2025-09-11,60614,Ch
 txn_h059,WHOLE FOODS MARKET,Weekly shopping,5411,178.90,2025-09-11,60614,Cashback Card
 txn_h060,AMAZON PRIME,Annual membership renewal,5999,139.00,2025-09-11,,Cashback Card
 txn_h061,HOME DEPOT,Washer and dryer,5722,1289.00,2025-09-12,60614,Checking
-txn_h062,LOU MALNATIS PIZZERIA,Family dinner,5812,89.40,2025-09-12,60614,Travel Card
+txn_h062,LOU MALNATIS PIZZERIA,Family dinner,5812,89.40,2025-09-12,60614,Premium Card
 txn_h063,CVS PHARMACY,Household items,5912,34.67,2025-09-13,60614,Cashback Card
 txn_h064,PANERA BREAD,Lunch meeting,5814,22.80,2025-09-13,60614,Cashback Card
 txn_h065,WAYFAIR,Online furniture purchase,5712,445.67,2025-09-14,,Checking
@@ -730,7 +730,7 @@ txn_ny021,NETFLIX,Monthly subscription,4899,15.99,2024-11-15,,Cashback Card
 txn_ny022,SEAMLESS,Dinner delivery,5814,38.60,2024-11-20,10003,Cashback Card
 txn_ny023,DICKS SPORTING GOODS,Dumbbells and mat,5941,145.90,2024-11-21,10003,Cashback Card
 txn_ny024,TRADER JOES,Thanksgiving groceries,5411,112.45,2024-11-23,10003,Cashback Card
-txn_ny025,UBER NYC,Ride to friends,4121,24.50,2024-11-24,10003,Travel Card
+txn_ny025,UBER NYC,Ride to friends,4121,24.50,2024-11-24,10003,Cashback Card
 txn_ny026,SPOTIFY,Premium subscription,4899,10.99,2024-11-15,,Cashback Card
 txn_ny027,EQUINOX GRAMERCY,December membership,7997,245.00,2024-12-01,10003,Premium Card
 txn_ny028,MTA METROCARD,Monthly pass,4111,132.00,2024-12-01,10003,Checking
@@ -750,7 +750,7 @@ txn_ny041,HOME DEPOT NYC,Paint and supplies,5211,234.56,2024-12-17,10003,Checkin
 txn_ny042,PANERA BREAD,Lunch meeting,5814,16.90,2024-12-18,10003,Cashback Card
 txn_ny043,HOMEGOODS NYC,Bathroom accessories,5714,89.50,2024-12-19,10003,Cashback Card
 txn_ny044,TRADER JOES,Holiday groceries,5411,134.90,2024-12-21,10003,Cashback Card
-txn_ny045,UBER NYC,Holiday party ride,4121,32.80,2024-12-22,10003,Travel Card
+txn_ny045,UBER NYC,Holiday party ride,4121,32.80,2024-12-22,10003,Cashback Card
 txn_ny046,PELOTON,Monthly subscription,7997,44.00,2024-12-15,,Premium Card
 txn_ny047,BEST BUY NYC,Smart home devices,5732,267.89,2024-12-23,10003,Checking
 txn_ny048,SEAMLESS,Dinner delivery,5814,42.30,2024-12-24,10003,Cashback Card
@@ -957,7 +957,7 @@ txn_ch005,SWEETGREEN,Healthy lunch,5814,17.25,2024-11-04,60610,Cashback Card
 txn_ch006,LULULEMON CHICAGO,Tennis outfit,5655,156.00,2024-11-05,60610,Premium Card
 txn_ch007,GNC CHICAGO,Protein and supplements,5499,89.50,2024-11-06,60610,Cashback Card
 txn_ch008,TRADER JOES,Weekly shopping,5411,92.34,2024-11-07,60610,Cashback Card
-txn_ch009,TENNIS LESSONS,Private coaching session,7999,120.00,2024-11-08,60610,Checking
+txn_ch009,TENNIS LESSONS,Private coaching session,7999,120.00,2024-11-08,60610,Premium Card
 txn_ch010,PRESSED JUICERY,Cold pressed juice,5814,12.50,2024-11-09,60610,Cashback Card
 txn_ch011,NIKE CHICAGO,Tennis shoes,5661,145.00,2024-11-10,60610,Cashback Card
 txn_ch012,CHIPOTLE,Quick dinner,5814,13.75,2024-11-11,60610,Cashback Card
@@ -979,7 +979,7 @@ txn_ch027,SPOTIFY,Premium subscription,4899,10.99,2024-11-15,,Cashback Card
 txn_ch028,EAST BANK CLUB,December membership,7997,295.00,2024-12-01,60610,Premium Card
 txn_ch029,CTA VENTRA,Monthly pass,4111,105.00,2024-12-01,60610,Checking
 txn_ch030,WHOLE FOODS CHICAGO,Weekly shopping,5411,142.34,2024-12-02,60610,Cashback Card
-txn_ch031,TENNIS TOURNAMENT,Entry fee,7999,85.00,2024-12-03,60610,Checking
+txn_ch031,TENNIS TOURNAMENT,Entry fee,7999,85.00,2024-12-03,60610,Cashback Card
 txn_ch032,SWEETGREEN,Lunch,5814,16.90,2024-12-04,60610,Cashback Card
 txn_ch033,GNC CHICAGO,Pre-workout and vitamins,5499,78.50,2024-12-05,60610,Cashback Card
 txn_ch034,LULULEMON CHICAGO,Winter workout gear,5655,189.00,2024-12-06,60610,Premium Card
@@ -1004,7 +1004,7 @@ txn_ch052,AMC RIVER EAST,Movie tickets,7832,32.00,2024-12-26,60610,Cashback Card
 txn_ch053,EAST BANK CLUB,January membership,7997,295.00,2025-01-01,60610,Premium Card
 txn_ch054,CTA VENTRA,Monthly pass,4111,105.00,2025-01-01,60610,Checking
 txn_ch055,WHOLE FOODS CHICAGO,New Year groceries,5411,134.67,2025-01-02,60610,Cashback Card
-txn_ch056,TENNIS LESSONS,Private coaching,7999,120.00,2025-01-03,60610,Checking
+txn_ch056,TENNIS LESSONS,Private coaching,7999,120.00,2025-01-03,60610,Premium Card
 txn_ch057,GNC CHICAGO,New year supplements,5499,98.70,2025-01-04,60610,Cashback Card
 txn_ch058,NIKE CHICAGO,New tennis shoes,5661,165.00,2025-01-05,60610,Cashback Card
 txn_ch059,TRADER JOES,Weekly shopping,5411,89.45,2025-01-06,60610,Cashback Card
@@ -1028,7 +1028,7 @@ txn_ch076,GNC CHICAGO,Protein powder,5499,67.90,2025-01-28,60610,Cashback Card
 txn_ch077,EAST BANK CLUB,February membership,7997,295.00,2025-02-01,60610,Premium Card
 txn_ch078,CTA VENTRA,Monthly pass,4111,105.00,2025-02-01,60610,Checking
 txn_ch079,WHOLE FOODS CHICAGO,Weekly shopping,5411,142.67,2025-02-03,60610,Cashback Card
-txn_ch080,TENNIS LESSONS,Private coaching,7999,120.00,2025-02-04,60610,Checking
+txn_ch080,TENNIS LESSONS,Private coaching,7999,120.00,2025-02-04,60610,Premium Card
 txn_ch081,NIKE CHICAGO,Tennis apparel,5661,134.00,2025-02-05,60610,Cashback Card
 txn_ch082,RESTORE HYPER WELLNESS,Compression therapy,7298,85.00,2025-02-06,60610,Premium Card
 txn_ch083,TRADER JOES,Weekly groceries,5411,87.56,2025-02-07,60610,Cashback Card
@@ -1049,7 +1049,7 @@ txn_ch097,PRESSED JUICERY,Cold pressed juice,5814,12.90,2025-02-26,60610,Cashbac
 txn_ch098,EAST BANK CLUB,March membership,7997,295.00,2025-03-01,60610,Premium Card
 txn_ch099,CTA VENTRA,Monthly pass,4111,105.00,2025-03-01,60610,Checking
 txn_ch100,TRADER JOES,Weekly shopping,5411,89.45,2025-03-03,60610,Cashback Card
-txn_ch101,TENNIS TOURNAMENT,Spring tournament entry,7999,95.00,2025-03-04,60610,Checking
+txn_ch101,TENNIS TOURNAMENT,Spring tournament entry,7999,95.00,2025-03-04,60610,Cashback Card
 txn_ch102,SWEETGREEN,Lunch,5814,17.10,2025-03-05,60610,Cashback Card
 txn_ch103,NIKE CHICAGO,Running shoes,5661,158.00,2025-03-06,60610,Cashback Card
 txn_ch104,WHOLE FOODS CHICAGO,Weekly shopping,5411,142.34,2025-03-10,60610,Cashback Card
@@ -1062,7 +1062,7 @@ txn_ch110,PRESSED JUICERY,Juice cleanse 3-day,5814,168.00,2025-03-19,60610,Cashb
 txn_ch111,CHIPOTLE,Dinner,5814,13.75,2025-03-20,60610,Cashback Card
 txn_ch112,GNC CHICAGO,Protein and BCAAs,5499,89.40,2025-03-21,60610,Cashback Card
 txn_ch113,WHOLE FOODS CHICAGO,Organic groceries,5411,156.78,2025-03-24,60610,Cashback Card
-txn_ch114,TENNIS LESSONS,Private coaching,7999,120.00,2025-03-25,60610,Checking
+txn_ch114,TENNIS LESSONS,Private coaching,7999,120.00,2025-03-25,60610,Premium Card
 txn_ch115,COMED,Electric bill,4900,95.67,2025-03-26,60610,Checking
 txn_ch116,ATHLETA CHICAGO,Tennis dress,5655,98.00,2025-03-27,60610,Premium Card
 txn_ch117,TRADER JOES,Weekly shopping,5411,91.34,2025-03-31,60610,Cashback Card
