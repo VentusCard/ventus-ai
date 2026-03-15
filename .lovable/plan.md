@@ -1,28 +1,21 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+## Plan: Add Introductory Beat as First Beat
 
-### Implemented
+**Goal**: Insert a new Beat 0 that introduces Ventus AI before the existing narrative begins. All current beats shift by one index.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### Changes in `src/components/demo/DemoPasswordGate.tsx`
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+1. **Increment `TOTAL_BEATS`** from 6 to 7
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+2. **Add a new intro beat summary** at index 0 in `BEAT_SUMMARIES` (e.g., "Ventus AI — Intelligence infrastructure for modern banking.")
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+3. **Shift all beat logic by +1**:
+   - Beat 4 phase logic → beat index 4 becomes 5
+   - Beat 5 phase logic → beat index 5 becomes 6
+   - Final beat (password input, logo reveal) triggers at step 6 instead of 5
+   - Cardless beats: indices 0, 1, 2 (new intro + original beats 1 & 2) — update the `if (i < 2)` check to `if (i < 3)` in the stacked card renderer
+   - `displayStep >= 2` card styling checks become `displayStep >= 3`
+
+4. **New Beat 0 content** (cardless, centered): Ventus AI logo prominently displayed, company tagline, and a brief one-liner positioning statement. Clean, confident intro — sets the stage before the "problem" narrative begins.
+
