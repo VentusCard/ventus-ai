@@ -1,22 +1,28 @@
 
 
-# Fix: Engine Node Should Be "Ready" Only When Profile Is Viewable
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-The `engine` node starts as `"ready"` in `INITIAL_READINESS`, which is misleading. It should only show as "ready" (with the blue border) when all enrichment is complete and the deep customer profile can actually be viewed.
+### Implemented
 
-## Changes — `src/hooks/useDemoEnrichment.ts`
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-1. **Change `INITIAL_READINESS`**: Set `engine: "idle"` instead of `"ready"`.
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-2. **In `startEnrichment`**: Set `engine` to `"processing"` along with all other nodes at the start.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-3. **Set `engine` to `"ready"` last**: After all other nodes (analytics, travel, rewards, engagement, wealth, lifeEvents) have resolved, set engine to `"ready"`. This can be done by watching for all other nodes becoming ready — add a check after each node-ready setter. When all 6 non-engine nodes are ready, set `engine: "ready"`.
-
-   Practically: add a helper that checks if the 6 peripheral nodes are all ready and, if so, flips engine to ready. Call this helper after every `setNodeReadiness` that marks a node ready.
-
-## Result
-- Engine stays gray/processing during enrichment
-- Engine gets the blue border + glow only when all modules are done and the profile JSON is viewable
-- No change needed in `DemoNetworkDiagram.tsx` — it already uses `allNodesReady` for the clickable state
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

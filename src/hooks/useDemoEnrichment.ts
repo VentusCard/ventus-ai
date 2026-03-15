@@ -24,8 +24,10 @@ const INITIAL_READINESS: NodeReadiness = {
   travel: "idle",
   lifeEvents: "idle",
   wealth: "idle",
-  engine: "ready",
+  engine: "idle",
 };
+
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
 
 interface DemoEnrichmentResult {
   nodeReadiness: NodeReadiness;
@@ -67,6 +69,18 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
   const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
+
+  // Helper: update node readiness and auto-flip engine to ready when all peripherals done
+  const setNodeReady = useCallback((updates: Partial<NodeReadiness>) => {
+    setNodeReadiness(prev => {
+      const next = { ...prev, ...updates };
+      const allPeripheralReady = PERIPHERAL_NODES.every(n => next[n] === "ready");
+      if (allPeripheralReady && next.engine !== "ready") {
+        next.engine = "ready";
+      }
+      return next;
+    });
+  }, []);
   const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
   const enrichA = useSSEEnrichment();
@@ -113,7 +127,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         travel: "processing",
         lifeEvents: "processing",
         wealth: "processing",
-        engine: "ready",
+        engine: "processing",
+      });
       });
     }, 100);
 
@@ -144,7 +159,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         // Mark input lines solid + analytics ready
         setInputReady(true);
-        setNodeReadiness(prev => ({ ...prev, analytics: "ready" }));
+        setNodeReady({ analytics: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
@@ -168,11 +183,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         lifestylePromise
           .then(data => {
             console.log("[Phase2] Lifestyle signals:", data);
-            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready", lifeEvents: "ready" }));
+            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
           })
           .catch(err => {
             console.warn("[Phase2] Lifestyle failed:", err);
-            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready", lifeEvents: "ready" }));
+            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
           })
           .finally(() => {
             setPhase2Processing(false);
@@ -217,14 +232,14 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           .then(r => r.ok ? r.json() : Promise.reject(new Error(`deals: ${r.status}`)))
           .then(data => {
             console.log("[Phase2] Deals:", data);
-            setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+            setNodeReady({ rewards: "ready" });
           })
           .catch(err => {
             console.warn("[Phase2] Deals failed:", err);
-            setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+            setNodeReady({ rewards: "ready" });
           });
       } else {
-        setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+        setNodeReady({ rewards: "ready" });
       }
 
       // 3. Local experiences — fire at t=0 for each customer's first trip destination
@@ -260,16 +275,16 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             [resA.customerId]: resA.results,
             [resB.customerId]: resB.results,
           });
-          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+          setNodeReady({ travel: "ready" });
         })
         .catch(() => {
-          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+          setNodeReady({ travel: "ready" });
         });
 
     } catch (err: any) {
       toast.error(err.message);
     }
-  }, [enrichA, enrichB, nodeReadiness]);
+  }, [enrichA, enrichB, nodeReadiness, setNodeReady]);
 
   return {
     nodeReadiness,
