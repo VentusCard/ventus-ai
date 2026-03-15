@@ -78,9 +78,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   }, [centered]);
 
   // When centered (panel collapsed), shift columns inward to center the flow
-  const colLeft = centered ? dims.w * 0.18 : dims.w * 0.12;
-  const colCenter = centered ? dims.w * 0.44 : dims.w * 0.48;
-  const colRight = centered ? dims.w * 0.72 : dims.w * 0.85;
+  const colLeft = centered ? dims.w * 0.2 : dims.w * 0.12;
+  const colCenter = centered ? dims.w * 0.5 : dims.w * 0.48;
+  const colRight = centered ? dims.w * 0.8 : dims.w * 0.85;
 
   const posTransition = "left 0.5s ease, top 0.5s ease";
   const midY = dims.h * 0.5;
