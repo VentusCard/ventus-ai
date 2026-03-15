@@ -56,14 +56,14 @@ export default function DemoPage() {
 
   return (
     <DemoPasswordGate>
-    <div className="demo-page h-screen w-screen flex overflow-hidden bg-background relative" style={{ fontFamily: "Manrope, sans-serif" }}>
+    <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Exit to keynote button */}
       <button
         onClick={() => {
           sessionStorage.removeItem("demo_access");
           window.location.reload();
         }}
-        className="absolute top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-background/80 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+        className="absolute top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
       >
         ✕ Exit Demo
       </button>
@@ -72,7 +72,7 @@ export default function DemoPage() {
       {panelCollapsed && (
         <button
           onClick={() => setPanelCollapsed(false)}
-          className="absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors shadow-sm"
+          className="absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
         >
           <PanelLeft className="h-3.5 w-3.5" />
           Show Panel
@@ -81,7 +81,7 @@ export default function DemoPage() {
 
       {/* Left Panel — collapsible */}
       <div
-        className={`shrink-0 border-r border-border bg-muted transition-all duration-500 ease-in-out overflow-hidden ${
+        className={`shrink-0 border-r border-slate-200 bg-slate-50 transition-all duration-500 ease-in-out overflow-hidden ${
           panelCollapsed ? "w-0 min-w-0 opacity-0" : "w-[30%] min-w-[280px] max-w-[380px] opacity-100"
         }`}
       >
