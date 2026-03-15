@@ -102,6 +102,7 @@ export function buildCustomDemoCustomer(
     },
     csv,
     zip: zip || "10001",
+    ...summary,
     lifestyleType: "Custom Profile",
     topPillars: [],
     sampleTransactions: [],
