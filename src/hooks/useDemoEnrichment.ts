@@ -278,7 +278,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           setNodeReady({ travel: "ready" });
         })
         .catch(() => {
-          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+          setNodeReady({ travel: "ready" });
         });
 
     } catch (err: any) {
