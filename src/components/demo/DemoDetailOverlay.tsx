@@ -35,7 +35,6 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
   analytics: DemoAnalyticsView,
-  engagement: DemoEngagementView,
   wealth: DemoWealthView,
   lifeEvents: DemoLifeEventsView,
 };
@@ -46,6 +45,9 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
   const renderContent = () => {
     if (node === "engine") {
       return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+    }
+    if (node === "engagement") {
+      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
     }
     if (node === "travel") {
       return (
