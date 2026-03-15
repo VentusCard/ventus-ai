@@ -1,17 +1,28 @@
 
 
-# Make Engine Ready State Match Actual Content Readiness
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-The engine card currently fires its "ready" state on a fixed 1.5s timer (`setTimeout`, line 138 in `useDemoEnrichment.ts`), regardless of whether the enrichment data is actually available. The user wants the engine to show "ready" only when the content is truly ready.
+### Implemented
 
-## Change
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**File: `src/hooks/useDemoEnrichment.ts`**
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-Remove the fixed 1.5s `setTimeout` that sets `engine: "ready"` (lines 137-140). Instead, set `engine: "ready"` inside `maybeStartPhase2()` (around line 181) when both classifications have completed and `inputReady` is set to `true`. This is the point where actual enrichment data is available.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-The peripheral node gating logic already works correctly — queued peripheral updates flush when the engine becomes ready. So moving the engine ready trigger to `maybeStartPhase2` will naturally cause all pending peripheral nodes to flush at the right time too.
-
-No changes to `DemoNetworkDiagram.tsx` — the visual styling already handles idle/processing/ready states correctly.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

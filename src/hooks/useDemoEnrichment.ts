@@ -134,10 +134,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
-    // Fire engine ready after 1.5s
-    setTimeout(() => {
-      setNodeReady({ engine: "ready" });
-    }, 1500);
+    // Engine ready is now set in maybeStartPhase2 when classifications complete
 
     // Set all to processing
     setTimeout(() => {
@@ -177,9 +174,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         const allClassified = [...classifiedResults[0], ...classifiedResults[1]];
 
-        // Mark input lines solid + analytics ready
+        // Mark input lines solid + analytics & engine ready
         setInputReady(true);
-        setNodeReady({ analytics: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
