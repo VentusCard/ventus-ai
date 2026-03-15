@@ -73,6 +73,7 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
 }
 
 function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
+  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const firstName = customer.profile.name.split(" ")[0];
   const budgets = computeSpending(customer, enrichedTransactions);
 
