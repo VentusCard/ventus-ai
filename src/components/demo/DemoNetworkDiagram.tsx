@@ -262,25 +262,29 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 const isActive = activeNode === node.id;
                 const state = nodeReadiness[node.id];
                 const isReady = state === "ready";
+                const canOpen = engineReady && isReady;
 
                 return (
                   <button
                     key={node.id}
-                    onClick={() => onNodeClick(node.id)}
-                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 cursor-pointer group"
+                    onClick={() => { if (canOpen) onNodeClick(node.id); }}
+                    disabled={!canOpen}
+                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 group"
                     style={{
                       height: nodeHeight,
-                      background: isReady
+                      cursor: canOpen ? "pointer" : "not-allowed",
+                      opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
+                      background: canOpen
                         ? `${node.color}15`
                         : isActive
                           ? `${node.color}10`
                           : "#ffffff",
-                      borderColor: isReady
+                      borderColor: canOpen
                         ? `${node.color}80`
                         : isActive
                           ? `${node.color}60`
                           : "#e2e8f0",
-                      boxShadow: isReady
+                      boxShadow: canOpen
                         ? `0 0 16px ${node.color}20`
                         : isActive
                           ? `0 0 12px ${node.color}15`
@@ -291,8 +295,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                       style={{
-                        background: isReady ? `${node.color}20` : `${node.color}12`,
-                        border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
+                        background: canOpen ? `${node.color}20` : `${node.color}12`,
+                        border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
                         transition: "all 0.4s ease",
                       }}
                     >
@@ -301,7 +305,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                     <div className="text-left">
                       <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
                       <p className="text-[8px] text-slate-400">
-                        {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+                        {!engineReady ? "Waiting for Engine…" : isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
                       </p>
                     </div>
                   </button>
