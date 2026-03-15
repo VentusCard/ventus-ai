@@ -240,7 +240,21 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
             )}
 
             {/* Coaching Tip Card */}
-            {tip && (
+            {isLoadingTip && (
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <Skeleton className="w-5 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-4 rounded-full" />
+                </div>
+                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/4 h-3" />
+                <div className="flex gap-1.5 pt-1">
+                  <Skeleton className="w-12 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-5 rounded-full" />
+                </div>
+              </div>
+            )}
+            {!isLoadingTip && tip && (
               <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
