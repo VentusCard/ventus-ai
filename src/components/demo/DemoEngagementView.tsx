@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { calculateAchievements, calculateHealthScore, getLevel } from "@/lib/achievementEngine";
-import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Props {
@@ -82,7 +84,41 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
   const level = getLevel(healthScore);
   const featuredAchievement = achievements.find((a) => a.status === "in_progress") || achievements.find((a) => a.status === "unlocked") || achievements[0];
 
-  const tip = enrichedTransactions?.length ? generateFinancialTip(enrichedTransactions) : null;
+  const [tip, setTip] = useState<FinancialTip | null>(null);
+  const [isLoadingTip, setIsLoadingTip] = useState(false);
+
+  useEffect(() => {
+    if (!enrichedTransactions?.length) {
+      setTip(null);
+      return;
+    }
+    let cancelled = false;
+    const fetchTip = async () => {
+      setIsLoadingTip(true);
+      try {
+        const customerContext = {
+          name: customer.profile.name,
+          lifestyleType: customer.lifestyleType,
+          segment: customer.profile.segment,
+          demographics: customer.profile.demographics,
+          holdings: customer.profile.holdings,
+        };
+        const { data, error } = await supabase.functions.invoke('generate-financial-tip', {
+          body: { transactions: enrichedTransactions, customer: customerContext },
+        });
+        if (!cancelled && data && !error) {
+          setTip(data);
+        }
+      } catch (e) {
+        console.error('Failed to generate financial tip:', e);
+      } finally {
+        if (!cancelled) setIsLoadingTip(false);
+      }
+    };
+    fetchTip();
+    return () => { cancelled = true; };
+  }, [enrichedTransactions, customer]);
+
   const TipIcon = tip ? ICON_MAP[tip.icon] || Lightbulb : Lightbulb;
 
   return (
@@ -204,7 +240,21 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
             )}
 
             {/* Coaching Tip Card */}
-            {tip && (
+            {isLoadingTip && (
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <Skeleton className="w-5 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-4 rounded-full" />
+                </div>
+                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/4 h-3" />
+                <div className="flex gap-1.5 pt-1">
+                  <Skeleton className="w-12 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-5 rounded-full" />
+                </div>
+              </div>
+            )}
+            {!isLoadingTip && tip && (
               <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
