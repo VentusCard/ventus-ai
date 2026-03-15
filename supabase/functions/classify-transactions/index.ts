@@ -570,8 +570,6 @@ Deno.serve(async (req) => {
       amount: t.amount,
       date: t.date,
       ...(t.zip_code && { zip: t.zip_code }),
-      ...(t.mcc && { mcc: t.mcc }),
-      ...(t.source && { source: t.source }),
     }));
 
     console.log(`[SSE] Starting classification for ${transactions.length} transactions`);
