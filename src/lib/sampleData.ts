@@ -12,10 +12,10 @@ export const SAMPLE_CUSTOMER_1: ClientProfileData = {
     address: "1250 Market St, San Francisco, CA 94102",
   },
   demographics: {
-    age: "32",
-    occupation: "Product Manager",
-    familyStatus: "Single",
-    incomeLevel: "$150K-$200K",
+    age: "45",
+    occupation: "Product Director",
+    familyStatus: "Married, 1 teenager (16)",
+    incomeLevel: "$200K-$250K",
     industry: "Technology",
   },
   holdings: {
