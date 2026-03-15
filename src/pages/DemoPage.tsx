@@ -146,13 +146,32 @@ export default function DemoPage() {
         )}
       </div>
 
-      {/* Next Step floating button */}
-      <button
-        onClick={() => setContactOpen(true)}
-        className="absolute bottom-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
-      >
-        Next Step →
-      </button>
+      {/* Bottom-right navigation */}
+      {activeNode ? (
+        <div className="absolute bottom-4 right-4 z-[60] flex items-center gap-2">
+          {prevNode && (
+            <button
+              onClick={() => setActiveNode(prevNode)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+            >
+              ← Previous
+            </button>
+          )}
+          <button
+            onClick={() => setActiveNode(nextNode)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+          >
+            {nextNode ? "Next →" : "Close ✕"}
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setContactOpen(true)}
+          className="absolute bottom-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+        >
+          Next Step →
+        </button>
+      )}
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
