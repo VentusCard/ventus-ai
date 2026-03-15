@@ -232,7 +232,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           .then(r => r.ok ? r.json() : Promise.reject(new Error(`deals: ${r.status}`)))
           .then(data => {
             console.log("[Phase2] Deals:", data);
-            setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+            setNodeReady({ rewards: "ready" });
           })
           .catch(err => {
             console.warn("[Phase2] Deals failed:", err);
