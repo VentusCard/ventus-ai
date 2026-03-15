@@ -244,12 +244,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {displayStep === 0 &&
               <div className="text-center py-12 flex flex-col items-center gap-6">
                   <img src={ventusLogo} alt="Ventus AI" className="h-14 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }} />
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-slide" style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both" }}>
-                    AI Customer Intelligence Layer that Powers Banking Personalization Across Functions
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-snug sm:leading-snug lg:leading-snug animate-fade-slide" style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both" }}>
+                    AI Customer Intelligence Layer<br />that Powers Banking Personalization<br />Across Functions
                   </h1>
-                  <p className="text-lg sm:text-xl max-w-xl mx-auto leading-relaxed animate-fade-slide" style={{ color: "#64748B", animationDelay: "0.8s", animationFillMode: "both" }}>
-                    One AI-native layer that turns raw transaction data into actionable customer understanding.
-                  </p>
                 </div>
               }
 
