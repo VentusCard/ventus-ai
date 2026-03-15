@@ -5,6 +5,7 @@ import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { toast } from "sonner";
+import { deriveCustomerProfile, getRelevantDeals, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 
 export type NodeReadiness = Record<DemoNodeType, "idle" | "processing" | "ready">;
 
