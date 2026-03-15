@@ -957,7 +957,7 @@ txn_ch005,SWEETGREEN,Healthy lunch,5814,17.25,2024-11-04,60610,Cashback Card
 txn_ch006,LULULEMON CHICAGO,Tennis outfit,5655,156.00,2024-11-05,60610,Premium Card
 txn_ch007,GNC CHICAGO,Protein and supplements,5499,89.50,2024-11-06,60610,Cashback Card
 txn_ch008,TRADER JOES,Weekly shopping,5411,92.34,2024-11-07,60610,Cashback Card
-txn_ch009,TENNIS LESSONS,Private coaching session,7999,120.00,2024-11-08,60610,Checking
+txn_ch009,TENNIS LESSONS,Private coaching session,7999,120.00,2024-11-08,60610,Premium Card
 txn_ch010,PRESSED JUICERY,Cold pressed juice,5814,12.50,2024-11-09,60610,Cashback Card
 txn_ch011,NIKE CHICAGO,Tennis shoes,5661,145.00,2024-11-10,60610,Cashback Card
 txn_ch012,CHIPOTLE,Quick dinner,5814,13.75,2024-11-11,60610,Cashback Card
