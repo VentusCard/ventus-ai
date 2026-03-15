@@ -1004,7 +1004,7 @@ txn_ch052,AMC RIVER EAST,Movie tickets,7832,32.00,2024-12-26,60610,Cashback Card
 txn_ch053,EAST BANK CLUB,January membership,7997,295.00,2025-01-01,60610,Premium Card
 txn_ch054,CTA VENTRA,Monthly pass,4111,105.00,2025-01-01,60610,Checking
 txn_ch055,WHOLE FOODS CHICAGO,New Year groceries,5411,134.67,2025-01-02,60610,Cashback Card
-txn_ch056,TENNIS LESSONS,Private coaching,7999,120.00,2025-01-03,60610,Checking
+txn_ch056,TENNIS LESSONS,Private coaching,7999,120.00,2025-01-03,60610,Premium Card
 txn_ch057,GNC CHICAGO,New year supplements,5499,98.70,2025-01-04,60610,Cashback Card
 txn_ch058,NIKE CHICAGO,New tennis shoes,5661,165.00,2025-01-05,60610,Cashback Card
 txn_ch059,TRADER JOES,Weekly shopping,5411,89.45,2025-01-06,60610,Cashback Card
