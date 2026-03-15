@@ -263,30 +263,47 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         fireRewardsPersonalization();
 
-        // Fire lifestyle signals (needs classified txns)
-        const spendingSummary = buildSpendingSummary(allClassified);
-        const lifestylePromise = fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            client: {
-              name: customerA.profile.name,
-              age: customerA.profile.demographics.age,
-              occupation: customerA.profile.demographics.occupation,
-              family_status: customerA.profile.demographics.familyStatus,
-            },
-            transactions: allClassified.slice(0, 75),
-            spending_summary: spendingSummary,
-          }),
-        }).then(r => r.ok ? r.json() : Promise.reject(new Error(`lifestyle: ${r.status}`)));
+        // Fire lifestyle signals for EACH customer separately
+        const fireLifestyleForCustomer = async (
+          customer: DemoCustomer,
+          txns: EnrichedTransaction[],
+          setResult: (r: DetectedLifeEventResult | null) => void,
+        ) => {
+          const summary = buildSpendingSummary(txns);
+          try {
+            const res = await fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                client: {
+                  name: customer.profile.name,
+                  age: customer.profile.demographics.age,
+                  occupation: customer.profile.demographics.occupation,
+                  family_status: customer.profile.demographics.familyStatus,
+                },
+                transactions: txns.slice(0, 75),
+                spending_summary: summary,
+              }),
+            });
+            if (!res.ok) throw new Error(`lifestyle: ${res.status}`);
+            const data = await res.json();
+            console.log(`[Phase2] Lifestyle signals for ${customer.profile.name}:`, data);
+            const firstEvent = data?.detected_events?.[0] ?? null;
+            setResult(firstEvent);
+          } catch (err) {
+            console.warn(`[Phase2] Lifestyle failed for ${customer.profile.name}:`, err);
+            setResult(null);
+          }
+        };
 
-        lifestylePromise
-          .then(data => {
-            console.log("[Phase2] Lifestyle signals:", data);
+        Promise.all([
+          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA),
+          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB),
+        ])
+          .then(() => {
             setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
           })
-          .catch(err => {
-            console.warn("[Phase2] Lifestyle failed:", err);
+          .catch(() => {
             setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
           })
           .finally(() => {
