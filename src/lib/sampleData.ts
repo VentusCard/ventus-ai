@@ -730,7 +730,7 @@ txn_ny021,NETFLIX,Monthly subscription,4899,15.99,2024-11-15,,Cashback Card
 txn_ny022,SEAMLESS,Dinner delivery,5814,38.60,2024-11-20,10003,Cashback Card
 txn_ny023,DICKS SPORTING GOODS,Dumbbells and mat,5941,145.90,2024-11-21,10003,Cashback Card
 txn_ny024,TRADER JOES,Thanksgiving groceries,5411,112.45,2024-11-23,10003,Cashback Card
-txn_ny025,UBER NYC,Ride to friends,4121,24.50,2024-11-24,10003,Travel Card
+txn_ny025,UBER NYC,Ride to friends,4121,24.50,2024-11-24,10003,Cashback Card
 txn_ny026,SPOTIFY,Premium subscription,4899,10.99,2024-11-15,,Cashback Card
 txn_ny027,EQUINOX GRAMERCY,December membership,7997,245.00,2024-12-01,10003,Premium Card
 txn_ny028,MTA METROCARD,Monthly pass,4111,132.00,2024-12-01,10003,Checking
