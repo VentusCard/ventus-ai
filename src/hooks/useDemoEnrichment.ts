@@ -24,8 +24,10 @@ const INITIAL_READINESS: NodeReadiness = {
   travel: "idle",
   lifeEvents: "idle",
   wealth: "idle",
-  engine: "ready",
+  engine: "idle",
 };
+
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
 
 interface DemoEnrichmentResult {
   nodeReadiness: NodeReadiness;
