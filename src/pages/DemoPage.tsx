@@ -143,6 +143,8 @@ export default function DemoPage() {
             localExperiences={localExperiences}
             personalizedDealsA={personalizedDealsA}
             personalizedDealsB={personalizedDealsB}
+            detectedEventA={detectedEventA}
+            detectedEventB={detectedEventB}
             onClose={() => setActiveNode(null)}
           />
         )}

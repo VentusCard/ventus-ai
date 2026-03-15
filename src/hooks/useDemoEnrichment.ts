@@ -379,6 +379,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     localExperiences,
     personalizedDealsA,
     personalizedDealsB,
+    detectedEventA,
+    detectedEventB,
     startEnrichment,
   };
 }
