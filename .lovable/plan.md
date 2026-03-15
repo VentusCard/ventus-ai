@@ -1,36 +1,28 @@
 
 
-# Make Pillar Cards Expandable to Show Subcategory Breakdown
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## What Changes
+### Implemented
 
-In `DemoEngagementView.tsx`, make each pillar spending card in the 2x2 grid clickable/expandable. When tapped, it expands to show subcategory counts derived from the enriched transactions.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-## Implementation
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-**File:** `src/components/demo/DemoEngagementView.tsx`
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-1. **Add state** to `PhoneMockup`: `const [expandedPillar, setExpandedPillar] = useState<string | null>(null)` — only one pillar expanded at a time.
-
-2. **Compute subcategory data** per pillar from `enrichedTransactions`:
-   ```ts
-   // Group enriched transactions by pillar → subcategory → count + total
-   const subcatMap: Record<string, { subcategory: string; count: number; total: number }[]>
-   ```
-
-3. **Make each pillar card clickable** — add `onClick` to toggle `expandedPillar`, add a small chevron icon indicator.
-
-4. **When expanded**, render subcategory rows below the progress bar showing:
-   - Subcategory name
-   - Transaction count
-   - Total spend
-   
-   Use a smooth height transition with `overflow-hidden`.
-
-5. **When no enriched data**, the cards remain static (no expand behavior).
-
-6. **Layout note**: Switch from `grid-cols-2` to a single-column list when a pillar is expanded, or keep grid but let expanded card span full width via conditional class.
-
-### Simpler approach
-Keep the 2-column grid. When a card is clicked, it expands downward within its grid cell showing 2-3 subcategory rows with counts. Add `cursor-pointer` and a tiny `ChevronDown`/`ChevronUp` icon.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

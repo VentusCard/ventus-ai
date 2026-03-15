@@ -1,8 +1,9 @@
+import { useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { calculateAchievements, calculateHealthScore, getLevel } from "@/lib/achievementEngine";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
-import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star } from "lucide-react";
+import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
@@ -29,14 +30,20 @@ interface SpendingItem {
   icon: string;
   spend: number;
   budget: number;
+  subcategories: { subcategory: string; count: number; total: number }[];
 }
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
   if (enriched && enriched.length > 0) {
-    const pillarMap = new Map<string, number>();
+    const pillarMap = new Map<string, { total: number; subcats: Map<string, { count: number; total: number }> }>();
     enriched.forEach((t) => {
-      const current = pillarMap.get(t.pillar) || 0;
-      pillarMap.set(t.pillar, current + Math.abs(t.amount));
+      const entry = pillarMap.get(t.pillar) || { total: 0, subcats: new Map() };
+      entry.total += Math.abs(t.amount);
+      const sub = entry.subcats.get(t.subcategory) || { count: 0, total: 0 };
+      sub.count += 1;
+      sub.total += Math.abs(t.amount);
+      entry.subcats.set(t.subcategory, sub);
+      pillarMap.set(t.pillar, entry);
     });
     const pillarIcons: Record<string, string> = {
       "Travel": "✈️", "Dining": "🍽️", "Shopping": "🛍️", "Wellness": "💪",
@@ -44,13 +51,16 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
       "Health": "❤️", "Education": "📚", "Groceries": "🛒", "Personal Care": "💆",
     };
     return Array.from(pillarMap.entries())
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 4)
-      .map(([name, spend]) => ({
+      .map(([name, data]) => ({
         name,
         icon: pillarIcons[name] || "📊",
-        spend: Math.round(spend),
-        budget: Math.round(spend * (1 + Math.random() * 0.3)),
+        spend: Math.round(data.total),
+        budget: Math.round(data.total * (1 + Math.random() * 0.3)),
+        subcategories: Array.from(data.subcats.entries())
+          .map(([subcategory, s]) => ({ subcategory, count: s.count, total: Math.round(s.total) }))
+          .sort((a, b) => b.total - a.total),
       }));
   }
   return customer.topPillars.map((p) => ({
@@ -58,10 +68,12 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
     icon: p.icon,
     spend: parseInt(p.spend.replace(/[$,]/g, "")),
     budget: Math.round(parseInt(p.spend.replace(/[$,]/g, "")) * (1 + Math.random() * 0.3)),
+    subcategories: [],
   }));
 }
 
 function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
+  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const firstName = customer.profile.name.split(" ")[0];
   const budgets = computeSpending(customer, enrichedTransactions);
 
@@ -121,16 +133,37 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                   const pct = Math.min((b.spend / b.budget) * 100, 100);
                   const isOver = b.spend > b.budget;
                   const barColor = isOver ? "#ef4444" : pct > 80 ? "#f59e0b" : "#22c55e";
+                  const isExpanded = expandedPillar === b.name;
+                  const hasSubcats = b.subcategories.length > 0;
                   return (
-                    <div key={b.name} className="rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200">
+                    <div
+                      key={b.name}
+                      className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats ? "cursor-pointer hover:border-slate-300" : ""}`}
+                      onClick={() => hasSubcats && setExpandedPillar(isExpanded ? null : b.name)}
+                    >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{b.icon}</span>
-                        <span className="text-[10px] font-semibold text-slate-900">{b.name}</span>
+                        <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
+                        {hasSubcats && (
+                          isExpanded
+                            ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
+                            : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
+                        )}
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
                       </div>
                       <p className="text-[8px] text-slate-400">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
+                      {isExpanded && (
+                        <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-0.5">
+                          {b.subcategories.slice(0, 5).map((sub) => (
+                            <div key={sub.subcategory} className="flex items-center justify-between text-[8px]">
+                              <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
+                              <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
