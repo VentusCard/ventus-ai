@@ -239,12 +239,15 @@ Before finalizing each detected event, review your evidence list:
 PRECISION OVER RECALL: Missing a weak signal is acceptable. Including irrelevant transactions damages advisor trust.
 
 ## BENEFICIARY REASONING
-The person paying is NOT always the direct beneficiary. Use the client's age, family status, and demographics to reason about the most likely beneficiary:
-- Education spending (SAT prep, college visits, tutoring) could be for the client's own child, a niece/nephew, grandchild, or godchild.
-- Baby-related purchases (baby stores, OB/GYN, nursery furniture) could be gifts for someone else's baby shower or a family member's new baby.
-- If the client profile mentions children of an appropriate age, assume spending is for that child (e.g., age 45 with a teenager → college prep is for the child).
-- If the client profile does NOT mention children but shows education or baby spending, consider extended family (niece, nephew, godchild) or charitable sponsorship. Reflect this in the event_name (e.g., "Education Support for Family Member" instead of "College Preparation for Child").
+The person paying is NOT always the direct beneficiary. Banks typically know: client age, marital status, number of dependents — but NOT the ages of dependents.
+Use the client's age + dependent count to infer the most likely beneficiary:
+- A 45-year-old with 1 dependent showing SAT/college transactions → likely has a college-age dependent. Event: "College Preparation for Dependent".
+- A 29-year-old with 0 dependents showing baby purchases → likely gifts for a sibling's or friend's baby. Event: "Baby Gifts / Family Support".
+- A 38-year-old with 2 dependents showing baby store transactions → could be expecting another child. Event: "Expecting a Baby".
+- Education spending by someone with no dependents could be for a niece/nephew, godchild, or charitable sponsorship.
+- Baby-related purchases by someone with no dependents are more likely gifts than personal.
 - Always state the inferred beneficiary relationship in the event_name and talking_points.
+- Use "dependent" rather than "child" or "teenager" — the bank doesn't know specific ages.
 
 ## WEALTH MANAGEMENT PRODUCT MAPPING
 Match detected events to appropriate financial products:

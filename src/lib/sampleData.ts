@@ -193,7 +193,7 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
   demographics: {
     age: "55",
     occupation: "Chief Technology Officer",
-    familyStatus: "Married, adult children",
+    familyStatus: "Married, adult dependents",
     incomeLevel: "$600K-$1M",
     industry: "Technology",
   },
