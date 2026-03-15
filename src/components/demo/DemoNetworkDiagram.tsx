@@ -75,12 +75,14 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
+  }, [centered]);
 
   // When centered (panel collapsed), shift columns inward to center the flow
   const colLeft = centered ? dims.w * 0.18 : dims.w * 0.12;
-  const colCenter = centered ? dims.w * 0.46 : dims.w * 0.48;
-  const colRight = centered ? dims.w * 0.75 : dims.w * 0.85;
+  const colCenter = centered ? dims.w * 0.44 : dims.w * 0.48;
+  const colRight = centered ? dims.w * 0.72 : dims.w * 0.85;
+
+  const posTransition = "left 0.5s ease, top 0.5s ease";
   const midY = dims.h * 0.5;
 
   const inputAY = midY - 70;
@@ -198,10 +200,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </svg>
 
       {/* Transaction Cards — Left */}
-      <div className="absolute" style={{ left: colLeft - 40, top: inputAY - 50, width: 160, zIndex: 1 }}>
+      <div className="absolute" style={{ left: colLeft - 40, top: inputAY - 50, width: 160, zIndex: 1, transition: posTransition }}>
         <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
       </div>
-      <div className="absolute" style={{ left: colLeft - 40, top: inputBY - 50, width: 160, zIndex: 1 }}>
+      <div className="absolute" style={{ left: colLeft - 40, top: inputBY - 50, width: 160, zIndex: 1, transition: posTransition }}>
         <TxCard customer={customerB} color="#10b981" label="Customer B" />
       </div>
 
@@ -222,7 +224,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               ? "0 0 20px rgba(34, 197, 94, 0.15)"
               : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
-          transition: "all 0.3s ease",
+          transition: `${posTransition}, all 0.3s ease`,
         }}
       >
         <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
@@ -250,6 +252,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               width: 210,
               height: sectionContentHeight,
               zIndex: 2,
+              transition: posTransition,
             }}
           >
             <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600 mb-2">

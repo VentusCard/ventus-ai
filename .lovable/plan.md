@@ -1,24 +1,28 @@
 
 
-# Center and Animate Network Diagram on Panel Collapse
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## Problem
-When the left panel collapses, the network diagram columns shift but aren't truly centered in the now-full-width container. The transition also isn't animated.
+### Implemented
 
-## Plan
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**File: `src/components/demo/DemoNetworkDiagram.tsx`**
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-1. **Fix centering math** — When `centered=true`, distribute the three columns evenly across the full width. Approximate layout:
-   - `colLeft`: `dims.w * 0.15` → `dims.w * 0.18` (keep similar)
-   - `colCenter`: `dims.w * 0.46` → `dims.w * 0.44` (shift slightly left to visually center the flow)  
-   - `colRight`: `dims.w * 0.75` → `dims.w * 0.72` (pull right column inward)
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-2. **Animate the transition** — Add CSS `transition` to all absolutely-positioned elements (TX cards, engine button, section containers) so they smoothly glide when `centered` toggles:
-   - Add `transition: left 0.5s ease, top 0.5s ease` via inline styles on each positioned element
-   - SVG lines will re-render on state change; add a wrapper `<g>` with CSS transition on opacity for a subtle crossfade
-
-3. **SVG re-measurement** — Trigger a dims recalculation when `centered` changes by adding `centered` to the `useEffect` dependency array, so the SVG paths update to match new positions.
-
-**Changes**: Single file edit — `src/components/demo/DemoNetworkDiagram.tsx`
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
