@@ -141,6 +141,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPhase2Processing(false);
     setPhase2Status("");
     setLocalExperiences({});
+    setPersonalizedDealsA(null);
+    setPersonalizedDealsB(null);
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
