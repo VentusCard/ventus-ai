@@ -1,5 +1,6 @@
 
 
+
 ## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
 ### Implemented
@@ -8,6 +9,14 @@
 - Tip generator rotating 5 contextual tips based on transactions
 - Mock customer insight logs (12 entries) and wellness alerts (10 signals)
 - KPI data for banker dashboard
+
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
 **Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
 - Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
