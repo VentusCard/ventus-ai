@@ -133,7 +133,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   growingFamily: {
     ageRange: [32, 45],
-    familyStatuses: ['Married, 1 child', 'Married, 2 children', 'Married, 3 children'],
+    familyStatuses: ['Married, 1 dependent', 'Married, 2 dependents', 'Married, 3 dependents'],
     occupations: ['Senior Manager', 'Director of Operations', 'Physician', 'Attorney', 'Business Owner', 'VP of Sales'],
     industries: ['Healthcare', 'Legal', 'Finance', 'Technology', 'Real Estate'],
     incomeLevels: ['$150K-$250K', '$250K-$350K', '$350K-$500K'],
