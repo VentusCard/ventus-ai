@@ -17,6 +17,11 @@ export default function DemoPage() {
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
+  const NODE_ORDER: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
+  const activeIdx = activeNode ? NODE_ORDER.indexOf(activeNode) : -1;
+  const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
+  const nextNode = activeIdx >= 0 && activeIdx < NODE_ORDER.length - 1 ? NODE_ORDER[activeIdx + 1] : null;
+
   const parsedA = useMemo<Transaction[]>(() => {
     if (!customerA) return [];
     const result = parsePastedText(customerA.csv);
@@ -141,13 +146,32 @@ export default function DemoPage() {
         )}
       </div>
 
-      {/* Next Step floating button */}
-      <button
-        onClick={() => setContactOpen(true)}
-        className="absolute bottom-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
-      >
-        Next Step →
-      </button>
+      {/* Bottom-right navigation */}
+      {activeNode ? (
+        <div className="absolute bottom-4 right-4 z-[60] flex items-center gap-2">
+          {prevNode && (
+            <button
+              onClick={() => setActiveNode(prevNode)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+            >
+              ← Previous
+            </button>
+          )}
+          <button
+            onClick={() => setActiveNode(nextNode)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+          >
+            {nextNode ? "Next →" : "Close ✕"}
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setContactOpen(true)}
+          className="absolute bottom-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+        >
+          Next Step →
+        </button>
+      )}
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>

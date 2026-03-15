@@ -1,22 +1,28 @@
 
 
-# Add Prev/Next Navigation in Feature Overlays
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-**File: `src/pages/DemoPage.tsx`**
+### Implemented
 
-Define a node order array: `["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "engine"]`
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-- When `activeNode` is `null`: show "Next Step →" button (existing behavior)
-- When `activeNode` is set: show prev/next buttons instead
-  - "Previous" hidden on first node
-  - "Next" shown on all nodes except the last (`engine`)
-  - On the last node (`engine`), "Next" closes the overlay (sets `activeNode` to `null`)
-  - Wait — user said "wealth is the last node, close it afterwards"
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-**Updated node order**: `["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"]` — remove `engine` from the navigation sequence (or put it first/exclude it). Actually, let me re-read: the user wants wealth to be last and closing after it. So the sequence for prev/next is: `engagement → analytics → rewards → travel → lifeEvents → wealth`. On "Next" from wealth, close the overlay.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-- Styling: match existing floating button pattern (rounded-full, border, backdrop-blur, small text)
-- The buttons render at `bottom-4 right-4` with `z-[60]` to sit above the overlay's `z-50`
-
-No changes needed to `DemoDetailOverlay.tsx`.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
