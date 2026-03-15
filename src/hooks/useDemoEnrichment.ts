@@ -77,6 +77,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
   const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
+  const [personalizedDealsA, setPersonalizedDealsA] = useState<PersonalizedDealData | null>(null);
+  const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
   const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
   const engineReadyRef = useRef(false);
 
