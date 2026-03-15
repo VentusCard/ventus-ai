@@ -30,6 +30,11 @@ const INITIAL_READINESS: NodeReadiness = {
 
 const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
 
+export interface PersonalizedDealData {
+  deals: BankDeal[];
+  personalized: Record<string, { msg: string; cta: string }>;
+}
+
 interface DemoEnrichmentResult {
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
@@ -38,6 +43,8 @@ interface DemoEnrichmentResult {
   enrichedA: EnrichedTransaction[];
   enrichedB: EnrichedTransaction[];
   localExperiences: LocalExperiencesData;
+  personalizedDealsA: PersonalizedDealData | null;
+  personalizedDealsB: PersonalizedDealData | null;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
