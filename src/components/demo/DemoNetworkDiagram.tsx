@@ -207,7 +207,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         onClick={() => { if (allNodesReady) onNodeClick("engine"); }}
         disabled={!allNodesReady}
         title={allNodesReady ? "View deep customer profile" : "Run enrichment first"}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${allNodesReady ? "cursor-pointer hover:scale-[1.02] border-blue-500 border-2 shadow-[0_0_16px_rgba(59,130,246,0.25)]" : anyProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${allNodesReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : anyProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: colCenter - 70,
           top: midY - 100,
