@@ -80,6 +80,7 @@ export function buildCustomDemoCustomer(
   demographics: CustomDemographics,
   zip: string
 ): DemoCustomer {
+  const summary = summarizeCsv(csv);
   return {
     id,
     profile: {
