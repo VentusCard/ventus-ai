@@ -44,6 +44,8 @@ export default function DemoPage() {
     localExperiences,
     personalizedDealsA,
     personalizedDealsB,
+    detectedEventA,
+    detectedEventB,
     startEnrichment,
   } = useDemoEnrichment();
 
@@ -141,6 +143,8 @@ export default function DemoPage() {
             localExperiences={localExperiences}
             personalizedDealsA={personalizedDealsA}
             personalizedDealsB={personalizedDealsB}
+            detectedEventA={detectedEventA}
+            detectedEventB={detectedEventB}
             onClose={() => setActiveNode(null)}
           />
         )}
