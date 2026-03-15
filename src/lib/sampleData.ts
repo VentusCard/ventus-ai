@@ -1028,7 +1028,7 @@ txn_ch076,GNC CHICAGO,Protein powder,5499,67.90,2025-01-28,60610,Cashback Card
 txn_ch077,EAST BANK CLUB,February membership,7997,295.00,2025-02-01,60610,Premium Card
 txn_ch078,CTA VENTRA,Monthly pass,4111,105.00,2025-02-01,60610,Checking
 txn_ch079,WHOLE FOODS CHICAGO,Weekly shopping,5411,142.67,2025-02-03,60610,Cashback Card
-txn_ch080,TENNIS LESSONS,Private coaching,7999,120.00,2025-02-04,60610,Checking
+txn_ch080,TENNIS LESSONS,Private coaching,7999,120.00,2025-02-04,60610,Premium Card
 txn_ch081,NIKE CHICAGO,Tennis apparel,5661,134.00,2025-02-05,60610,Cashback Card
 txn_ch082,RESTORE HYPER WELLNESS,Compression therapy,7298,85.00,2025-02-06,60610,Premium Card
 txn_ch083,TRADER JOES,Weekly groceries,5411,87.56,2025-02-07,60610,Cashback Card
