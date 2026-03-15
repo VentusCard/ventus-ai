@@ -187,7 +187,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           })
           .catch(err => {
             console.warn("[Phase2] Lifestyle failed:", err);
-            setNodeReadiness(prev => ({ ...prev, wealth: "ready", engagement: "ready", lifeEvents: "ready" }));
+            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
           })
           .finally(() => {
             setPhase2Processing(false);
