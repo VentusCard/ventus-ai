@@ -131,6 +131,13 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPhase2Processing(false);
     setPhase2Status("");
     setLocalExperiences({});
+    engineReadyRef.current = false;
+    pendingReadyRef.current = {};
+
+    // Fire engine ready after 1.5s
+    setTimeout(() => {
+      setNodeReady({ engine: "ready" });
+    }, 1500);
 
     // Set all to processing
     setTimeout(() => {
