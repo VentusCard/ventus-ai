@@ -140,9 +140,9 @@ export default function DemoPage() {
       {/* Next Step floating button */}
       <button
         onClick={() => setContactOpen(true)}
-        className="absolute bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg transition-colors"
+        className="absolute bottom-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
       >
-        Next Step <ArrowRight className="h-4 w-4" />
+        Next Step →
       </button>
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
