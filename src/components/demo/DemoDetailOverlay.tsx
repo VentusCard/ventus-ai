@@ -77,8 +77,8 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         <DemoLifeEventsView
           customerA={customerA}
           customerB={customerB}
-          detectedEventA={detectedEventA ?? null}
-          detectedEventB={detectedEventB ?? null}
+          detectedEventA={detectedEventA ?? []}
+          detectedEventB={detectedEventB ?? []}
         />
       );
     }
