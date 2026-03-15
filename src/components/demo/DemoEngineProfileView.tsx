@@ -10,13 +10,20 @@ interface Props {
   enrichedB?: EnrichedTransaction[];
 }
 
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
 function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransaction[]) {
   const totalSpend = enriched.reduce((s, t) => s + Math.abs(t.amount || 0), 0);
 
-  // Pillar breakdown from enriched data
   const pillarMap: Record<string, { spend: number; count: number; confSum: number }> = {};
   const merchantMap: Record<string, number> = {};
   const subcatMap: Record<string, number> = {};
+
+  // Extended: tier, frequency, month tracking per pillar
+  const pillarTiers: Record<string, Record<string, number>> = {};
+  const pillarFreqs: Record<string, Record<string, number>> = {};
+  const pillarMonths: Record<string, Record<number, number>> = {};
+  const pillarSpendForTier: Record<string, { total: number; count: number }> = {};
 
   for (const t of enriched) {
     const pillar = t.pillar || "Unknown";
@@ -30,6 +37,28 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
 
     const subcat = t.subcategory || "Other";
     subcatMap[subcat] = (subcatMap[subcat] || 0) + Math.abs(t.amount || 0);
+
+    // Tier tallying
+    const tier = t.spending_tier || "N/A";
+    if (!pillarTiers[pillar]) pillarTiers[pillar] = {};
+    pillarTiers[pillar][tier] = (pillarTiers[pillar][tier] || 0) + 1;
+
+    // Frequency tallying
+    const freq = t.purchase_frequency || "One-Time";
+    if (!pillarFreqs[pillar]) pillarFreqs[pillar] = {};
+    pillarFreqs[pillar][freq] = (pillarFreqs[pillar][freq] || 0) + 1;
+
+    // Month clustering
+    if (t.date) {
+      const month = new Date(t.date).getMonth();
+      if (!pillarMonths[pillar]) pillarMonths[pillar] = {};
+      pillarMonths[pillar][month] = (pillarMonths[pillar][month] || 0) + 1;
+    }
+
+    // Spend for tier avg
+    if (!pillarSpendForTier[pillar]) pillarSpendForTier[pillar] = { total: 0, count: 0 };
+    pillarSpendForTier[pillar].total += Math.abs(t.amount || 0);
+    pillarSpendForTier[pillar].count += 1;
   }
 
   const pillarEntries = Object.entries(pillarMap).sort((a, b) => b[1].spend - a[1].spend);
@@ -38,6 +67,90 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
   const avgConfidence = enriched.length > 0
     ? enriched.reduce((s, t) => s + (t.confidence || 0), 0) / enriched.length
     : 0;
+
+  // --- Build spending_intelligence ---
+  const mode = (map: Record<string, number>) => {
+    let best = ""; let max = 0;
+    for (const [k, v] of Object.entries(map)) { if (v > max) { max = v; best = k; } }
+    return best;
+  };
+
+  const tierInsightVerb = (tier: string) => {
+    if (tier === "Premium") return "Purchases premium";
+    if (tier === "Budget") return "Budget-conscious";
+    return "Regular";
+  };
+
+  const tierProfile = pillarEntries
+    .filter(([p]) => p !== "Miscellaneous & Unclassified" && p !== "Unknown")
+    .map(([pillar]) => {
+      const dominantTier = mode(pillarTiers[pillar] || {});
+      const avg = pillarSpendForTier[pillar]
+        ? pillarSpendForTier[pillar].total / pillarSpendForTier[pillar].count
+        : 0;
+      const pillarLower = pillar.toLowerCase().replace(/ & /g, " ").replace(/\s+/g, " ");
+      const insight = dominantTier === "Premium"
+        ? `Purchases premium ${pillarLower} consistently`
+        : dominantTier === "Budget"
+          ? `Budget-conscious ${pillarLower}, prefers value options`
+          : `Standard ${pillarLower} spending patterns`;
+      return {
+        pillar,
+        dominant_tier: dominantTier,
+        avg_spend: `$${avg.toFixed(0)}`,
+        insight,
+      };
+    });
+
+  // --- Build temporal_patterns ---
+  const seasonalBehaviors = pillarEntries
+    .filter(([p]) => p !== "Miscellaneous & Unclassified" && p !== "Unknown")
+    .map(([pillar]) => {
+      const months = pillarMonths[pillar] || {};
+      const monthEntries = Object.entries(months).map(([m, c]) => ({ m: Number(m), c }));
+      if (monthEntries.length === 0) return null;
+      const avgCount = monthEntries.reduce((s, e) => s + e.c, 0) / 12;
+      const peakMonthNums = monthEntries.filter(e => e.c > avgCount).map(e => e.m).sort((a, b) => a - b);
+      const peakMonthNames = peakMonthNums.map(m => MONTH_NAMES[m]);
+      const dominantFreq = mode(pillarFreqs[pillar] || {});
+      const dominantTier = mode(pillarTiers[pillar] || {});
+
+      // Build narrative
+      const tierAdj = dominantTier === "Premium" ? "premium " : dominantTier === "Budget" ? "budget " : "";
+      const pillarLower = pillar.toLowerCase();
+      let narrative: string;
+      if (peakMonthNames.length >= 10) {
+        narrative = `${tierAdj.charAt(0).toUpperCase() + tierAdj.slice(1)}${pillarLower} spending year-round`;
+      } else if (peakMonthNames.length >= 3) {
+        const range = `${peakMonthNames[0]}–${peakMonthNames[peakMonthNames.length - 1]}`;
+        narrative = `${tierInsightVerb(dominantTier)} ${pillarLower} every ${range}`;
+      } else if (peakMonthNames.length > 0) {
+        narrative = `${tierInsightVerb(dominantTier)} ${pillarLower} in ${peakMonthNames.join(", ")}`;
+      } else {
+        narrative = `Occasional ${tierAdj}${pillarLower} spending`;
+      }
+
+      return {
+        pillar,
+        peak_months: peakMonthNames,
+        frequency: dominantFreq,
+        narrative,
+      };
+    })
+    .filter(Boolean);
+
+  // Monthly heatmap
+  const monthlyHeatmap: Record<string, number> = {};
+  for (const m of MONTH_NAMES) monthlyHeatmap[m] = 0;
+  for (const t of enriched) {
+    if (t.date) {
+      const mi = new Date(t.date).getMonth();
+      monthlyHeatmap[MONTH_NAMES[mi]] += 1;
+    }
+  }
+
+  // --- dynamic_profile_summary ---
+  const dynamicSummary = seasonalBehaviors.map((b: any) => b.narrative as string);
 
   return {
     customer_id: customer.id,
@@ -54,6 +167,7 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
       avg_confidence: `${(avgConfidence * 100).toFixed(1)}%`,
       enriched_at: new Date().toISOString(),
     },
+    dynamic_profile_summary: dynamicSummary,
     spending_summary: {
       total_analyzed: `$${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
       transaction_count: enriched.length,
@@ -64,6 +178,13 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
         avg_confidence: `${((data.confSum / data.count) * 100).toFixed(0)}%`,
         tx_count: data.count,
       })),
+    },
+    spending_intelligence: {
+      tier_profile: tierProfile,
+    },
+    temporal_patterns: {
+      seasonal_behaviors: seasonalBehaviors,
+      monthly_activity_heatmap: monthlyHeatmap,
     },
     behavioral_patterns: {
       unique_merchants: Object.keys(merchantMap).length,
@@ -91,6 +212,7 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
       customer.trips.length > 0 && "active_traveler",
       customer.deals.some(d => d.match >= 90) && "high_match_rewards",
       avgConfidence > 0.85 && "high_confidence_profile",
+      tierProfile.some(t => t.dominant_tier === "Premium") && "premium_segment_buyer",
     ].filter(Boolean),
   };
 }
