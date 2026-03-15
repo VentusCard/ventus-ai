@@ -300,15 +300,30 @@ function CustomerSlot({
                   <tr className="border-b border-slate-100">
                     <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
                     <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
-                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Date</th>
+                    <th className="text-center px-2 py-1.5 font-medium text-slate-500">Source</th>
+                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Zip</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((t, i) => (
                     <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
-                      <td className="px-2 py-1 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                      <td className="px-2 py-1 text-slate-700 truncate max-w-[120px]">{t.merchant_name}</td>
                       <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
-                      <td className="px-2 py-1 text-right text-slate-400">{formatShortDate(t.date)}</td>
+                      <td className="px-2 py-1 text-center">
+                        {t.source && (
+                          <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
+                            t.source === "Checking" ? "bg-slate-100 text-slate-600" :
+                            t.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                            t.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                            t.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                            t.source === "HSA" ? "bg-amber-50 text-amber-700" :
+                            "bg-slate-50 text-slate-500"
+                          }`}>
+                            {t.source}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-2 py-1 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
