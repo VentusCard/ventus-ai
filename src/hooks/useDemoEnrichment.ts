@@ -60,8 +60,8 @@ interface DemoEnrichmentResult {
   localExperiences: LocalExperiencesData;
   personalizedDealsA: PersonalizedDealData | null;
   personalizedDealsB: PersonalizedDealData | null;
-  detectedEventA: DetectedLifeEventResult | null;
-  detectedEventB: DetectedLifeEventResult | null;
+  detectedEventA: DetectedLifeEventResult[];
+  detectedEventB: DetectedLifeEventResult[];
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
@@ -96,8 +96,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
   const [personalizedDealsA, setPersonalizedDealsA] = useState<PersonalizedDealData | null>(null);
   const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
-  const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult | null>(null);
-  const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult | null>(null);
+  const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult[]>([]);
+  const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult[]>([]);
   const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
   const engineReadyRef = useRef(false);
 
@@ -162,8 +162,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setLocalExperiences({});
     setPersonalizedDealsA(null);
     setPersonalizedDealsB(null);
-    setDetectedEventA(null);
-    setDetectedEventB(null);
+    setDetectedEventA([]);
+    setDetectedEventB([]);
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
@@ -268,7 +268,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         const fireLifestyleForCustomer = async (
           customer: DemoCustomer,
           txns: EnrichedTransaction[],
-          setResult: (r: DetectedLifeEventResult | null) => void,
+          setResult: (r: DetectedLifeEventResult[]) => void,
         ) => {
           const summary = buildSpendingSummary(txns);
           try {
@@ -289,11 +289,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             if (!res.ok) throw new Error(`lifestyle: ${res.status}`);
             const data = await res.json();
             console.log(`[Phase2] Lifestyle signals for ${customer.profile.name}:`, data);
-            const firstEvent = data?.detected_events?.[0] ?? null;
-            setResult(firstEvent);
+            const events: DetectedLifeEventResult[] = (data?.detected_events ?? []).slice(0, 3);
+            setResult(events);
           } catch (err) {
             console.warn(`[Phase2] Lifestyle failed for ${customer.profile.name}:`, err);
-            setResult(null);
+            setResult([]);
           }
         };
 
