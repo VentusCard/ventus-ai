@@ -238,6 +238,14 @@ Before finalizing each detected event, review your evidence list:
 
 PRECISION OVER RECALL: Missing a weak signal is acceptable. Including irrelevant transactions damages advisor trust.
 
+## BENEFICIARY REASONING
+The person paying is NOT always the direct beneficiary. Use the client's age, family status, and demographics to reason about the most likely beneficiary:
+- Education spending (SAT prep, college visits, tutoring) could be for the client's own child, a niece/nephew, grandchild, or godchild.
+- Baby-related purchases (baby stores, OB/GYN, nursery furniture) could be gifts for someone else's baby shower or a family member's new baby.
+- If the client profile mentions children of an appropriate age, assume spending is for that child (e.g., age 45 with a teenager → college prep is for the child).
+- If the client profile does NOT mention children but shows education or baby spending, consider extended family (niece, nephew, godchild) or charitable sponsorship. Reflect this in the event_name (e.g., "Education Support for Family Member" instead of "College Preparation for Child").
+- Always state the inferred beneficiary relationship in the event_name and talking_points.
+
 ## WEALTH MANAGEMENT PRODUCT MAPPING
 Match detected events to appropriate financial products:
 

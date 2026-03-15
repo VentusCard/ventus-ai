@@ -68,6 +68,11 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
         <p className="text-[10px] text-slate-400">
           {customer.profile.name} · {customer.profile.segment}
         </p>
+        {customer.profile.demographics && (
+          <p className="text-[10px] text-slate-400">
+            Age {customer.profile.demographics.age} · {customer.profile.demographics.occupation} · {customer.profile.demographics.familyStatus}
+          </p>
+        )}
       </div>
 
       {/* Supporting Transactions */}
