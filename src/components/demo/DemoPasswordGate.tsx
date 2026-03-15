@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 6;
+const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
+"Ventus AI — Intelligence infrastructure for modern banking.",
 "Billions in personalization spend — zero customer understanding.",
 "Built on MCC — a 1974 taxonomy for routing, not intelligence.",
 "MCCs are blind — same code for symphony, Celtics, and Monster Jam.",
@@ -26,14 +27,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const advance = useCallback(() => {
     if (isTransitioning) return;
     setStep((s) => {
-      if (s === 3) {
+      if (s === 4) {
         if (beat4Phase < 2) {
           setBeat4Phase((p) => p + 1);
           return s;
         }
         setBeat4Phase(0);
       }
-      if (s === 4) {
+      if (s === 5) {
         if (beat5Phase < 1) {
           setBeat5Phase((p) => p + 1);
           return s;
@@ -54,11 +55,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
   const goBack = useCallback(() => {
     if (isTransitioning) return;
-    if (step === 3 && beat4Phase > 0) {
+    if (step === 4 && beat4Phase > 0) {
       setBeat4Phase((p) => p - 1);
       return;
     }
-    if (step === 4 && beat5Phase > 0) {
+    if (step === 5 && beat5Phase > 0) {
       setBeat5Phase((p) => p - 1);
       return;
     }
@@ -78,7 +79,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   }, [step, beat4Phase, beat5Phase, isTransitioning]);
 
   useEffect(() => {
-    if (step === 5) {
+    if (step === 6) {
       const t1 = setTimeout(() => setRevealLogo(true), 1500);
       const t2 = setTimeout(() => setRevealInput(true), 2200);
       return () => {clearTimeout(t1);clearTimeout(t2);};
@@ -92,7 +93,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         goBack();
         return;
       }
-      if (step === 5) return;
+      if (step === 6) return;
       if (e.code === "Space" || e.code === "ArrowRight" || e.code === "Enter") {
         e.preventDefault();
         advance();
@@ -122,9 +123,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step < 5 ? "pointer" : "default"
+        cursor: step < 6 ? "pointer" : "default"
       }}
-      onClick={() => step < 5 && advance()}>
+      onClick={() => step < 6 && advance()}>
       
       <style>{`
         @keyframes ambientShift {
@@ -179,7 +180,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       </div>
 
       {/* Tap hint */}
-      {step < 5 &&
+      {step < 6 &&
       <div
         className="fixed bottom-20 left-1/2 -translate-x-1/2 text-xs tracking-wide z-20"
         style={{ color: "#94A3B8", animation: "subtlePulse 2.5s ease infinite" }}>
@@ -193,7 +194,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         <div className="w-full max-w-4xl relative" style={{ minHeight: 400 }}>
           {/* Previous beat cards — stacked behind */}
           {Array.from({ length: step }).map((_, i) => {
-            if (i < 2) return null; // beats 1 & 2 are cardless
+            if (i < 3) return null; // beats 0, 1 & 2 are cardless
             const distance = step - i;
             if (distance > 4) return null;
             const yOffset = -(distance * 28);
@@ -215,7 +216,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 }}>
                 <div className="px-8 py-5 flex items-center gap-3">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
-                    {String(i + 1).padStart(2, "0")}
+                    {String(i).padStart(2, "0")}
                   </span>
                   <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   <span className="text-sm font-medium truncate" style={{ color: "#64748B", maxWidth: "80%" }}>
@@ -229,16 +230,29 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           {/* Active beat card */}
           <div
             key={`beat-${displayStep}`}
-            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 2 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
+            className={`relative ${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"} ${displayStep >= 3 ? "rounded-2xl border bg-white shadow-lg" : ""}`}
             style={{
-              ...(displayStep >= 2 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
+              ...(displayStep >= 3 ? { borderColor: "#E2E8F0", boxShadow: "0 8px 30px rgba(0,0,0,0.08)" } : {}),
               zIndex: step + 1,
-              marginTop: displayStep >= 2 ? Math.min(displayStep - 1, 4) * 4 : 0
+              marginTop: displayStep >= 3 ? Math.min(displayStep - 2, 4) * 4 : 0
             }}>
-            <div className={displayStep >= 2 ? "p-8 sm:p-10" : ""}>
+            <div className={displayStep >= 3 ? "p-8 sm:p-10" : ""}>
+
+              {/* Beat 0 — Intro */}
+              {displayStep === 0 &&
+              <div className="text-center py-12 flex flex-col items-center gap-6">
+                  <img src={ventusLogo} alt="Ventus AI" className="h-14 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }} />
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-slide" style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both" }}>
+                    Intelligence infrastructure for modern banking.
+                  </h1>
+                  <p className="text-lg sm:text-xl max-w-xl mx-auto leading-relaxed animate-fade-slide" style={{ color: "#64748B", animationDelay: "0.8s", animationFillMode: "both" }}>
+                    One AI-native layer that turns raw transaction data into actionable customer understanding.
+                  </p>
+                </div>
+              }
 
               {/* Beat 1 */}
-              {displayStep === 0 &&
+              {displayStep === 1 &&
               <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't work.
@@ -251,7 +265,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               }
 
               {/* Beat 2 */}
-              {displayStep === 1 &&
+              {displayStep === 2 &&
               <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     The answer is three letters:{" "}
@@ -266,7 +280,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               }
 
               {/* Beat 3 */}
-              {displayStep === 2 &&
+              {displayStep === 3 &&
               <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>01</span>
@@ -333,7 +347,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               }
 
               {/* Beat 4 */}
-              {displayStep === 3 &&
+              {displayStep === 4 &&
               <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
                     <div className="flex items-center gap-3 mb-4">
@@ -407,7 +421,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               }
 
               {/* Beat 5 */}
-              {displayStep === 4 &&
+              {displayStep === 5 &&
               <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
@@ -560,7 +574,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               }
 
               {/* Beat 6 — Reveal */}
-              {displayStep === 5 &&
+              {displayStep === 6 &&
               <div className="text-center py-8">
                   <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     One AI-Native layer that enables personalized banking across functions.
