@@ -18,6 +18,8 @@ interface Props {
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
   localExperiences?: LocalExperiencesData;
+  personalizedDealsA?: PersonalizedDealData | null;
+  personalizedDealsB?: PersonalizedDealData | null;
   onClose: () => void;
 }
 
