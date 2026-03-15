@@ -284,7 +284,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     } catch (err: any) {
       toast.error(err.message);
     }
-  }, [enrichA, enrichB, nodeReadiness]);
+  }, [enrichA, enrichB, nodeReadiness, setNodeReady]);
 
   return {
     nodeReadiness,
