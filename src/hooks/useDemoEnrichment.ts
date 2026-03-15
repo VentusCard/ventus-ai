@@ -69,17 +69,31 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
   const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
+  const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
+  const engineReadyRef = useRef(false);
 
-  // Helper: update node readiness and auto-flip engine to ready when all peripherals done
+  // Helper: gate peripheral updates behind engine readiness
   const setNodeReady = useCallback((updates: Partial<NodeReadiness>) => {
-    setNodeReadiness(prev => {
-      const next = { ...prev, ...updates };
-      const allPeripheralReady = PERIPHERAL_NODES.every(n => next[n] === "ready");
-      if (allPeripheralReady && next.engine !== "ready") {
-        next.engine = "ready";
-      }
-      return next;
-    });
+    // Filter out engine from peripheral gating logic
+    const { engine: engineUpdate, ...peripheralUpdates } = updates;
+
+    if (engineUpdate === "ready") {
+      // Engine is becoming ready — flush all pending peripheral updates too
+      engineReadyRef.current = true;
+      const flushed = { ...pendingReadyRef.current };
+      pendingReadyRef.current = {};
+      setNodeReadiness(prev => ({ ...prev, engine: "ready", ...flushed, ...peripheralUpdates }));
+      return;
+    }
+
+    if (!engineReadyRef.current && Object.keys(peripheralUpdates).length > 0) {
+      // Engine not ready yet — queue peripheral updates
+      pendingReadyRef.current = { ...pendingReadyRef.current, ...peripheralUpdates };
+      return;
+    }
+
+    // Engine already ready — apply immediately
+    setNodeReadiness(prev => ({ ...prev, ...updates }));
   }, []);
   const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
