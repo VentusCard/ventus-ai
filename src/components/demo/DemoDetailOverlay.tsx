@@ -40,7 +40,7 @@ const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; custom
   lifeEvents: DemoLifeEventsView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
 
   const renderContent = () => {
