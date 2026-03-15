@@ -136,6 +136,16 @@ export default function DemoPage() {
           />
         )}
       </div>
+
+      {/* Next Step floating button */}
+      <button
+        onClick={() => setContactOpen(true)}
+        className="absolute bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg transition-colors"
+      >
+        Next Step <ArrowRight className="h-4 w-4" />
+      </button>
+
+      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
     </DemoPasswordGate>
   );
