@@ -174,9 +174,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         const allClassified = [...classifiedResults[0], ...classifiedResults[1]];
 
-        // Mark input lines solid + analytics ready
+        // Mark input lines solid + analytics & engine ready
         setInputReady(true);
-        setNodeReady({ analytics: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
