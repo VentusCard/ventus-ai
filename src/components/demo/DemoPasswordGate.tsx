@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
+import { Monitor } from "lucide-react";
+import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
 const TOTAL_BEATS = 7;
@@ -112,6 +115,39 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       setError(true);
     }
   };
+
+  const isSmallScreen = useIsMobile() || useIsTablet();
+
+  if (isSmallScreen) {
+    return (
+      <div
+        className="h-screen w-screen flex items-center justify-center px-6"
+        style={{
+          fontFamily: "Manrope, sans-serif",
+          background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
+        }}
+      >
+        <div className="text-center max-w-sm">
+          <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-6" style={{ backgroundColor: "#EFF6FF" }}>
+            <Monitor className="h-8 w-8" style={{ color: "#3B82F6" }} />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight mb-3" style={{ color: "#0F172A" }}>
+            Desktop Required
+          </h1>
+          <p className="text-sm leading-relaxed mb-8" style={{ color: "#64748B" }}>
+            This interactive demo is designed for larger screens. Please visit on a desktop or laptop for the best experience.
+          </p>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold text-white"
+            style={{ backgroundColor: "#3B82F6" }}
+          >
+            Return to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (granted) return <>{children}</>;
 
