@@ -160,6 +160,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV_SPORTS_WELLNESS,
     zip: "78701",
     lifestyleType: "Tech Enthusiast",
+    ...summarizeCsv(SAMPLE_CSV_SPORTS_WELLNESS),
     topPillars: [
       { name: "Technology", icon: "💻", pct: 28, spend: "$3,360" },
       { name: "Dining", icon: "🍽️", pct: 24, spend: "$2,880" },
