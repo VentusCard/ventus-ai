@@ -203,10 +203,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Wine & Spirits", icon: "🍷", pct: 14, spend: "$3,920" },
     ],
     sampleTransactions: [
-      { merchant: "Pebble Beach Golf", amount: "$595", date: "Sep 14", category: "Golf" },
-      { merchant: "Wine.com", amount: "$287", date: "Sep 10", category: "Wine & Spirits" },
-      { merchant: "United Airlines", amount: "$680", date: "Sep 08", category: "Travel" },
-      { merchant: "Morton's Steakhouse", amount: "$245", date: "Sep 15", category: "Dining" },
+      { merchant: "United Airlines", amount: "$1,345", date: "Nov 25", category: "Travel", zip_code: "94102", source: "Travel Card" },
+      { merchant: "Yellowstone Lodge", amount: "$1,234", date: "Nov 25", category: "Travel", zip_code: "82190", source: "Travel Card" },
+      { merchant: "Kids Soccer League", amount: "$295", date: "Nov 05", category: "Family", zip_code: "94102", source: "Checking" },
+      { merchant: "Safeway", amount: "$179", date: "Nov 11", category: "Grocery", zip_code: "94102", source: "Cashback Card" },
     ],
     deals: [
       { brand: "Callaway", offer: "20% off premium clubs", tag: "Golf", match: 97 },
