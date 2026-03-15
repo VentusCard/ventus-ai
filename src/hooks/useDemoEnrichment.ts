@@ -134,10 +134,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
-    // Fire engine ready after 1.5s
-    setTimeout(() => {
-      setNodeReady({ engine: "ready" });
-    }, 1500);
+    // Engine ready is now set in maybeStartPhase2 when classifications complete
 
     // Set all to processing
     setTimeout(() => {
