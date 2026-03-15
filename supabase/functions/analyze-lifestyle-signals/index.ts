@@ -176,7 +176,7 @@ serve(async (req) => {
 
     // Build dynamic prompt based on transaction data
     const transactionSummary = sortedTransactions
-      .slice(0, 75) // Increased from 50 to catch more life event clusters
+      .slice(0, 100) // Increased to capture full life event clusters
       .map((t: any) => `- ${t.merchant_name || t.merchant}: $${t.amount} (${t.pillar || t.category || 'Unknown'}, ${t.subcategory || ''}) on ${t.date}`)
       .join('\n');
 

@@ -282,7 +282,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
                   occupation: customer.profile.demographics.occupation,
                   family_status: customer.profile.demographics.familyStatus,
                 },
-                transactions: txns.slice(0, 75),
+                transactions: txns,
                 spending_summary: summary,
               }),
             });
