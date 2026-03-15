@@ -20,12 +20,51 @@ export interface DemoCustomer {
   csv: string;
   zip: string;
   lifestyleType: string;
+  txnCount: number;
+  txnTotal: string;
+  sourceCount: number;
+  dateRange: string;
   topPillars: { name: string; icon: string; pct: number; spend: string }[];
   sampleTransactions: { merchant: string; amount: string; date: string; category: string; zip_code?: string; source?: string }[];
   deals: { brand: string; offer: string; tag: string; match: number }[];
   lifeEvents: { name: string; confidence: number; urgency: "Urgent" | "Soon" | "Upcoming"; timing: string; evidence: string; color: string }[];
   trips: { destination: string; dates: string; spend: string; highlights: string[] }[];
   pillarBreakdown: { pillar: string; pct: number; color: string }[];
+}
+
+export function summarizeCsv(csv: string): { txnCount: number; txnTotal: string; sourceCount: number; dateRange: string } {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return { txnCount: 0, txnTotal: "$0", sourceCount: 0, dateRange: "–" };
+
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const amtIdx = header.findIndex((h) => h === "amount");
+  const dateIdx = header.findIndex((h) => h === "date");
+  const srcIdx = header.findIndex((h) => h === "source");
+
+  const rows = lines.slice(1).filter((l) => l.trim());
+  let total = 0;
+  const sources = new Set<string>();
+  const dates: Date[] = [];
+
+  for (const row of rows) {
+    const cols = row.split(",").map((c) => c.trim());
+    if (amtIdx >= 0) total += Math.abs(parseFloat(cols[amtIdx]) || 0);
+    if (srcIdx >= 0 && cols[srcIdx]) sources.add(cols[srcIdx]);
+    if (dateIdx >= 0 && cols[dateIdx]) {
+      const d = new Date(cols[dateIdx]);
+      if (!isNaN(d.getTime())) dates.push(d);
+    }
+  }
+
+  const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  let dateRange = "–";
+  if (dates.length > 0) {
+    dates.sort((a, b) => a.getTime() - b.getTime());
+    const fmtD = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    dateRange = `${fmtD(dates[0])} – ${fmtD(dates[dates.length - 1])}`;
+  }
+
+  return { txnCount: rows.length, txnTotal: fmt.format(total), sourceCount: sources.size, dateRange };
 }
 
 export interface CustomDemographics {
