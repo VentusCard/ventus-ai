@@ -275,7 +275,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             [resA.customerId]: resA.results,
             [resB.customerId]: resB.results,
           });
-          setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
+          setNodeReady({ travel: "ready" });
         })
         .catch(() => {
           setNodeReadiness(prev => ({ ...prev, travel: "ready" }));
