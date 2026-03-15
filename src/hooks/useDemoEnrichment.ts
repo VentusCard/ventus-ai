@@ -162,6 +162,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setLocalExperiences({});
     setPersonalizedDealsA(null);
     setPersonalizedDealsB(null);
+    setDetectedEventA(null);
+    setDetectedEventB(null);
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
