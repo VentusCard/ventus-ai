@@ -17,6 +17,11 @@ export default function DemoPage() {
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
+  const NODE_ORDER: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
+  const activeIdx = activeNode ? NODE_ORDER.indexOf(activeNode) : -1;
+  const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
+  const nextNode = activeIdx >= 0 && activeIdx < NODE_ORDER.length - 1 ? NODE_ORDER[activeIdx + 1] : null;
+
   const parsedA = useMemo<Transaction[]>(() => {
     if (!customerA) return [];
     const result = parsePastedText(customerA.csv);
