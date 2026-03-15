@@ -7,7 +7,8 @@ import DemoPasswordGate from "@/components/demo/DemoPasswordGate";
 import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
-import { PanelLeft } from "lucide-react";
+import { PanelLeft, ArrowRight } from "lucide-react";
+import ContactFormDialog from "@/components/ContactFormDialog";
 
 export default function DemoPage() {
   const [customerA, setCustomerA] = useState<DemoCustomer | null>(null);
