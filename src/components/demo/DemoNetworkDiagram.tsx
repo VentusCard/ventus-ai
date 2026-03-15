@@ -38,7 +38,7 @@ const SECTIONS: SectionDef[] = [
   {
     label: "UX & Analytics",
     nodes: [
-      { id: "engagement", label: "Customer Engagement", icon: Smartphone, color: "#f59e0b" },
+      { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b" },
       { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
     ],
   },
