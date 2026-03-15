@@ -69,6 +69,18 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
   const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
+
+  // Helper: update node readiness and auto-flip engine to ready when all peripherals done
+  const setNodeReady = useCallback((updates: Partial<NodeReadiness>) => {
+    setNodeReadiness(prev => {
+      const next = { ...prev, ...updates };
+      const allPeripheralReady = PERIPHERAL_NODES.every(n => next[n] === "ready");
+      if (allPeripheralReady && next.engine !== "ready") {
+        next.engine = "ready";
+      }
+      return next;
+    });
+  }, []);
   const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
   const enrichA = useSSEEnrichment();
