@@ -157,7 +157,7 @@ export const SAMPLE_CUSTOMER_5: ClientProfileData = {
   demographics: {
     age: "42",
     occupation: "Investment Banker",
-    familyStatus: "Married, 1 child",
+    familyStatus: "Married, 1 dependent",
     incomeLevel: "$400K-$600K",
     industry: "Finance",
   },

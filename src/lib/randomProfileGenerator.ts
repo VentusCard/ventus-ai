@@ -155,7 +155,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   preRetiree: {
     ageRange: [55, 65],
-    familyStatuses: ['Married, adult children', 'Empty nester', 'Married, grandchildren'],
+    familyStatuses: ['Married, adult dependents', 'Empty nester', 'Married, grandchildren'],
     occupations: ['Senior Vice President', 'Retired Executive', 'Business Owner', 'Partner Emeritus', 'Board Member', 'Consultant'],
     industries: ['Finance', 'Real Estate', 'Energy', 'Manufacturing', 'Consulting'],
     incomeLevels: ['$300K-$500K', '$500K-$750K', '$750K+'],
