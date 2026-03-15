@@ -127,7 +127,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         travel: "processing",
         lifeEvents: "processing",
         wealth: "processing",
-        engine: "ready",
+        engine: "processing",
+      });
       });
     }, 100);
 
