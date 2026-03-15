@@ -552,8 +552,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         { label: "Bank-Wide Behavioral Analytics", icon: "📊" },
                         { label: "Automated Relationship Intelligence", icon: "🤝" },
                         { label: "Financial Wellness Coaching", icon: "🌱" },
-                        { label: "Cross-Sell Opportunity Matrix", icon: "🔗" },
-                        { label: "Geo-Targeted Merchant Partnerships", icon: "📍" }].
+{ label: "Cross-Sell Opportunity Matrix", icon: "🔗" },
+                        { label: "Geo-Targeted Merchant Partnerships", icon: "📍" },
+                        { label: "Gamification and Achievements", icon: "🏆" },
+                        { label: "Fund Outflow and Competitor Analysis", icon: "💸" }].
                         map((item, i) =>
                         <div
                           key={`${dupeIdx}-${i}`}
