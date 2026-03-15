@@ -1,37 +1,30 @@
 
 
+## Plan: Demographics in Life Event Cards + Broader Event Detection
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+### Change 1: Show demographics under the name in life event cards
 
-### Implemented
+**File: `src/components/demo/DemoLifeEventsView.tsx`**
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+In the `LifeEventCard` header section (line 68-70), expand the subtitle line to include key demographics from `customer.profile.demographics`:
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+```
+Sarah Mitchell · Premium
+Age 45 · Product Director · Married, 1 teenager (16)
+```
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+Add a second `<p>` line showing age, occupation, and family status pulled from `customer.profile.demographics`.
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+### Change 2: Update edge function prompt to consider broader relationship possibilities
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+**File: `supabase/functions/analyze-lifestyle-signals/index.ts`**
+
+Add a new section to the system prompt (around line 232, after the evidence principles) instructing the AI to consider that the person paying for something may not be the direct beneficiary. Specifically:
+
+- Education-related transactions could be for a child, niece/nephew, grandchild, or godchild — not necessarily the client's own child or themselves.
+- Baby-related transactions could be gifts for someone else's baby shower.
+- The AI should use the client's age, family status, and occupation to reason about the most likely beneficiary, and reflect that in the `event_name` (e.g., "Education Support for Family Member" vs "College Preparation for Child").
+- Add guidance: "If the client profile does not mention children but shows education spending, consider extended family (niece, nephew, godchild) or charitable sponsorship as likely explanations."
+
+This ensures Sarah (age 45, 1 teenager) correctly gets "College Preparation for Child" while someone without kids would get a more nuanced interpretation.
+
