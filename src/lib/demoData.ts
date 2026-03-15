@@ -281,10 +281,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Golf", icon: "⛳", pct: 15, spend: "$4,800" },
     ],
     sampleTransactions: [
-      { merchant: "Emirates Airlines", amount: "$4,200", date: "Oct 01", category: "Travel" },
-      { merchant: "Vanguard", amount: "$12,000", date: "Oct 05", category: "Investments" },
-      { merchant: "Nobu Malibu", amount: "$520", date: "Oct 10", category: "Dining" },
-      { merchant: "Bandon Dunes Golf", amount: "$890", date: "Oct 14", category: "Golf" },
+      { merchant: "East Bank Club", amount: "$295", date: "Nov 01", category: "Fitness", zip_code: "60610", source: "Premium Card" },
+      { merchant: "Tennis Pro Shop", amount: "$85", date: "Nov 03", category: "Sports", zip_code: "60610", source: "Cashback Card" },
+      { merchant: "RPM Italian", amount: "$88", date: "Nov 24", category: "Dining", zip_code: "60610", source: "Premium Card" },
+      { merchant: "Lululemon Chicago", amount: "$156", date: "Nov 05", category: "Fashion", zip_code: "60610", source: "Premium Card" },
     ],
     deals: [
       { brand: "Delta SkyMiles", offer: "100K bonus miles", tag: "Travel", match: 96 },
