@@ -1062,7 +1062,7 @@ txn_ch110,PRESSED JUICERY,Juice cleanse 3-day,5814,168.00,2025-03-19,60610,Cashb
 txn_ch111,CHIPOTLE,Dinner,5814,13.75,2025-03-20,60610,Cashback Card
 txn_ch112,GNC CHICAGO,Protein and BCAAs,5499,89.40,2025-03-21,60610,Cashback Card
 txn_ch113,WHOLE FOODS CHICAGO,Organic groceries,5411,156.78,2025-03-24,60610,Cashback Card
-txn_ch114,TENNIS LESSONS,Private coaching,7999,120.00,2025-03-25,60610,Checking
+txn_ch114,TENNIS LESSONS,Private coaching,7999,120.00,2025-03-25,60610,Premium Card
 txn_ch115,COMED,Electric bill,4900,95.67,2025-03-26,60610,Checking
 txn_ch116,ATHLETA CHICAGO,Tennis dress,5655,98.00,2025-03-27,60610,Premium Card
 txn_ch117,TRADER JOES,Weekly shopping,5411,91.34,2025-03-31,60610,Cashback Card
