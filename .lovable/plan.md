@@ -1,55 +1,28 @@
 
-Goal: Make the Ventus AI Engine the first node that becomes interactable/visually “ready” (clickable + bordered + solid incoming lines), before any other node appears available.
 
-What is currently causing the mismatch:
-1. In `DemoNetworkDiagram.tsx`, engine clickability and border styling are tied to `allNodesReady` (all peripheral nodes), so engine appears available last.
-2. Incoming lines to the engine are tied to `inputReady`, not engine readiness.
-3. Peripheral nodes are always clickable even when not ready, which makes “something else available first” possible.
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-Implementation plan:
+### Implemented
 
-1. Update readiness booleans in `src/components/demo/DemoNetworkDiagram.tsx`
-- Add:
-  - `const engineReady = nodeReadiness.engine === "ready";`
-  - `const engineProcessing = nodeReadiness.engine === "processing";`
-- Keep peripheral readiness checks, but stop using `allNodesReady` for engine UI state.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-2. Make engine button availability depend only on engine readiness
-- Change engine button:
-  - `disabled={!engineReady}`
-  - `onClick` guard to `if (engineReady) onNodeClick("engine")`
-  - title text to reflect engine-first behavior (`"Ventus AI Engine is still processing"` vs `"View deep customer profile"`).
-- Change engine “ready” border/glow classes to use `engineReady` (not `allNodesReady`).
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-3. Make left→engine connector lines become solid when engine is ready
-- For input lines:
-  - `isReady` should be based on `engineReady`.
-  - `isProcessingLine` should be based on `engineProcessing`.
-- This ensures solid connection appears exactly when the engine is available first.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-4. Prevent other nodes from being available before engine
-- In each right-side node button:
-  - Define `const canOpenNode = engineReady && state === "ready";`
-  - Add `disabled={!canOpenNode}` and guard `onClick`.
-  - Update cursor/opacity styles so non-openable nodes visibly look inactive.
-- Status text behavior:
-  - If `!engineReady`: show “Waiting for Engine…”
-  - Else if node processing: “Processing…”
-  - Else if ready: “✓ Data ready”
-  - Else: neutral waiting text.
-
-5. Keep hook sequencing as-is (no backend changes)
-- `useDemoEnrichment.ts` already gates peripheral readiness behind engine readiness and sets engine ready first; no schema/backend work needed.
-- Only UI interaction/visual gating needs adjustment.
-
-Technical details (concise):
-- Primary file: `src/components/demo/DemoNetworkDiagram.tsx`
-- No database/auth/function changes.
-- No route/page-level changes required.
-
-Validation checklist:
-1. Start enrichment.
-2. Confirm engine gets border + becomes clickable first.
-3. Confirm left→engine lines are solid when engine becomes ready.
-4. Confirm right-side nodes are not clickable before engine is ready.
-5. Confirm right-side nodes only become clickable once both conditions are met (engine ready + node ready).
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

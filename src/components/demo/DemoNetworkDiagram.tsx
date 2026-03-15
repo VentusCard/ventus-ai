@@ -103,8 +103,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   };
 
   const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
-  const allNodesReady = ALL_NODES.every(n => nodeReadiness[n.id] === "ready");
-  const inputState: "idle" | "processing" | "ready" = inputReady ? "ready" : anyProcessing ? "processing" : "idle";
+  const engineReady = nodeReadiness.engine === "ready";
+  const engineProcessing = nodeReadiness.engine === "processing";
+  const inputState: "idle" | "processing" | "ready" = engineReady ? "ready" : engineProcessing ? "processing" : "idle";
 
   // Flatten for SVG line rendering
   const nodePositions: { node: NodeDef; y: number }[] = [];
@@ -206,25 +207,25 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Engine Node — Center */}
       <button
-        onClick={() => { if (allNodesReady) onNodeClick("engine"); }}
-        disabled={!allNodesReady}
-        title={allNodesReady ? "View deep customer profile" : "Run enrichment first"}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${allNodesReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : anyProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        onClick={() => { if (engineReady) onNodeClick("engine"); }}
+        disabled={!engineReady}
+        title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-all duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: colCenter - 70,
           top: midY - 100,
           width: 160,
           height: 200,
-          boxShadow: anyProcessing && !inputReady
+          boxShadow: engineProcessing && !engineReady
             ? "0 0 30px rgba(99, 102, 241, 0.25)"
-            : inputReady
+            : engineReady
               ? "0 0 20px rgba(34, 197, 94, 0.15)"
               : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
           transition: "all 0.3s ease",
         }}
       >
-        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${anyProcessing && !inputReady ? "animate-pulse" : ""}`}>
+        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
           <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
         <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
@@ -261,25 +262,29 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 const isActive = activeNode === node.id;
                 const state = nodeReadiness[node.id];
                 const isReady = state === "ready";
+                const canOpen = engineReady && isReady;
 
                 return (
                   <button
                     key={node.id}
-                    onClick={() => onNodeClick(node.id)}
-                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 cursor-pointer group"
+                    onClick={() => { if (canOpen) onNodeClick(node.id); }}
+                    disabled={!canOpen}
+                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 group"
                     style={{
                       height: nodeHeight,
-                      background: isReady
+                      cursor: canOpen ? "pointer" : "not-allowed",
+                      opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
+                      background: canOpen
                         ? `${node.color}15`
                         : isActive
                           ? `${node.color}10`
                           : "#ffffff",
-                      borderColor: isReady
+                      borderColor: canOpen
                         ? `${node.color}80`
                         : isActive
                           ? `${node.color}60`
                           : "#e2e8f0",
-                      boxShadow: isReady
+                      boxShadow: canOpen
                         ? `0 0 16px ${node.color}20`
                         : isActive
                           ? `0 0 12px ${node.color}15`
@@ -290,8 +295,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                       style={{
-                        background: isReady ? `${node.color}20` : `${node.color}12`,
-                        border: `1px solid ${isReady ? `${node.color}50` : `${node.color}30`}`,
+                        background: canOpen ? `${node.color}20` : `${node.color}12`,
+                        border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
                         transition: "all 0.4s ease",
                       }}
                     >
@@ -300,7 +305,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                     <div className="text-left">
                       <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
                       <p className="text-[8px] text-slate-400">
-                        {isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+                        {!engineReady ? "Waiting for Engine…" : isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
                       </p>
                     </div>
                   </button>
