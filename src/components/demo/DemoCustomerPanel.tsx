@@ -183,10 +183,7 @@ function CustomerSlot({
     : "";
 
   return (
-    <div
-      className={`rounded-xl p-3 transition-all duration-300 ${selected && !isCustomMode ? "border-2" : "border border-transparent"}`}
-      style={selected && !isCustomMode ? { borderColor: color } : undefined}
-    >
+    <div>
       <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color }}>{label}</p>
 
       <select
