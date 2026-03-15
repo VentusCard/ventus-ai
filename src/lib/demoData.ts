@@ -242,10 +242,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Culture", icon: "🎭", pct: 16, spend: "$2,880" },
     ],
     sampleTransactions: [
-      { merchant: "Nobu Restaurant", amount: "$380", date: "Sep 11", category: "Dining" },
-      { merchant: "Nordstrom", amount: "$450", date: "Sep 01", category: "Fashion" },
-      { merchant: "SoulCycle NYC", amount: "$85", date: "Sep 03", category: "Wellness" },
-      { merchant: "MoMA Membership", amount: "$150", date: "Sep 08", category: "Culture" },
+      { merchant: "Equinox Gramercy", amount: "$245", date: "Nov 01", category: "Wellness", zip_code: "10003", source: "Premium Card" },
+      { merchant: "SoulCycle Flatiron", amount: "$175", date: "Nov 15", category: "Wellness", zip_code: "10010", source: "Premium Card" },
+      { merchant: "West Elm", amount: "$389", date: "Nov 06", category: "Home", zip_code: "10003", source: "Premium Card" },
+      { merchant: "Whole Foods Union Sq", amount: "$125", date: "Nov 05", category: "Grocery", zip_code: "10003", source: "Cashback Card" },
     ],
     deals: [
       { brand: "Sweetgreen", offer: "$5 off + loyalty double", tag: "Dining", match: 95 },
