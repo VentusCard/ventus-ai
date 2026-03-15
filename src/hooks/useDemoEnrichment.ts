@@ -268,7 +268,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         const fireLifestyleForCustomer = async (
           customer: DemoCustomer,
           txns: EnrichedTransaction[],
-          setResult: (r: DetectedLifeEventResult | null) => void,
+          setResult: (r: DetectedLifeEventResult[]) => void,
         ) => {
           const summary = buildSpendingSummary(txns);
           try {
@@ -289,11 +289,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             if (!res.ok) throw new Error(`lifestyle: ${res.status}`);
             const data = await res.json();
             console.log(`[Phase2] Lifestyle signals for ${customer.profile.name}:`, data);
-            const firstEvent = data?.detected_events?.[0] ?? null;
-            setResult(firstEvent);
+            const events: DetectedLifeEventResult[] = (data?.detected_events ?? []).slice(0, 3);
+            setResult(events);
           } catch (err) {
             console.warn(`[Phase2] Lifestyle failed for ${customer.profile.name}:`, err);
-            setResult(null);
+            setResult([]);
           }
         };
 
