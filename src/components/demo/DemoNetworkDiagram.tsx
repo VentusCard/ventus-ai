@@ -12,6 +12,7 @@ interface Props {
   onNodeClick: (node: DemoNodeType) => void;
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
+  centered?: boolean;
 }
 
 interface NodeDef {
