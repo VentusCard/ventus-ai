@@ -301,8 +301,8 @@ function CustomerSlot({
                     <th className="text-left px-2 py-1.5 font-medium text-slate-500">Date</th>
                     <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
                     <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
-                    <th className="text-center px-2 py-1.5 font-medium text-slate-500">Source</th>
                     <th className="text-right px-2 py-1.5 font-medium text-slate-500">Zip</th>
+                    <th className="text-center px-2 py-1.5 font-medium text-slate-500">Source</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -311,6 +311,7 @@ function CustomerSlot({
                       <td className="px-2 py-1 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
                       <td className="px-2 py-1 text-slate-700 truncate max-w-[120px]">{t.merchant_name}</td>
                       <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
+                      <td className="px-2 py-1 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
                       <td className="px-2 py-1 text-center">
                         {t.source && (
                           <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
@@ -325,7 +326,6 @@ function CustomerSlot({
                           </span>
                         )}
                       </td>
-                      <td className="px-2 py-1 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
