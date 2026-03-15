@@ -64,6 +64,8 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
           customerB={customerB}
           enrichedA={enrichedA}
           enrichedB={enrichedB}
+          precomputedA={personalizedDealsA}
+          precomputedB={personalizedDealsB}
         />
       );
     }

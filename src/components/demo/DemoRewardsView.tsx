@@ -132,8 +132,8 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
           customer={customerA}
           profile={profileA!}
           deals={dealsA}
-          personalized={personalizedA}
-          loading={loadingA}
+          personalized={effectivePersonalizedA}
+          loading={!precomputedA && loadingA}
           color="#3b82f6"
           sharedMerchants={sharedMerchants}
         />
@@ -141,8 +141,8 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
           customer={customerB}
           profile={profileB!}
           deals={dealsB}
-          personalized={personalizedB}
-          loading={loadingB}
+          personalized={effectivePersonalizedB}
+          loading={!precomputedB && loadingB}
           color="#10b981"
           sharedMerchants={sharedMerchants}
         />

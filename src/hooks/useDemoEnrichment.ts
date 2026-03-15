@@ -339,6 +339,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     enrichedA: enrichA.enrichedTransactions,
     enrichedB: enrichB.enrichedTransactions,
     localExperiences,
+    personalizedDealsA,
+    personalizedDealsB,
     startEnrichment,
   };
 }
