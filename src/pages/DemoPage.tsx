@@ -7,13 +7,15 @@ import DemoPasswordGate from "@/components/demo/DemoPasswordGate";
 import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
-import { PanelLeft } from "lucide-react";
+import { PanelLeft, ArrowRight } from "lucide-react";
+import ContactFormDialog from "@/components/ContactFormDialog";
 
 export default function DemoPage() {
   const [customerA, setCustomerA] = useState<DemoCustomer | null>(null);
   const [customerB, setCustomerB] = useState<DemoCustomer | null>(null);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const parsedA = useMemo<Transaction[]>(() => {
     if (!customerA) return [];
@@ -134,6 +136,16 @@ export default function DemoPage() {
           />
         )}
       </div>
+
+      {/* Next Step floating button */}
+      <button
+        onClick={() => setContactOpen(true)}
+        className="absolute bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg transition-colors"
+      >
+        Next Step <ArrowRight className="h-4 w-4" />
+      </button>
+
+      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
     </DemoPasswordGate>
   );

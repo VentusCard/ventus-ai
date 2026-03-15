@@ -1,24 +1,28 @@
 
 
-# Add "Next Step" Button with Contact Form Dialog
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-## What
-Add a floating "Next Step" button in the bottom-right corner of the Demo page that opens a dialog containing the contact form (reusing the form from `ContactUs.tsx`).
+### Implemented
 
-## Implementation
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-### 1. Extract contact form into a reusable component
-- Create `src/components/ContactFormDialog.tsx`
-- Contains a `Dialog` with the contact form fields (name, company, email, subject, message) and mailto submission logic extracted from `ContactUs.tsx`
-- Accepts `open` and `onOpenChange` props
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-### 2. Add button + dialog to `src/pages/DemoPage.tsx`
-- Add state: `const [contactOpen, setContactOpen] = useState(false)`
-- Render a floating button at `absolute bottom-6 right-6 z-50` with text "Next Step →" styled with blue bg
-- Render `<ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />`
-- Button sits alongside the existing "Exit Demo" button area
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-### Files changed
-- **New**: `src/components/ContactFormDialog.tsx` — Dialog wrapper with the contact form
-- **Edit**: `src/pages/DemoPage.tsx` — Add floating button + dialog state
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
