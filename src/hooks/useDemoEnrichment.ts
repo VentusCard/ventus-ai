@@ -236,7 +236,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           })
           .catch(err => {
             console.warn("[Phase2] Deals failed:", err);
-            setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
+            setNodeReady({ rewards: "ready" });
           });
       } else {
         setNodeReadiness(prev => ({ ...prev, rewards: "ready" }));
