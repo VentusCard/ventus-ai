@@ -750,7 +750,7 @@ txn_ny041,HOME DEPOT NYC,Paint and supplies,5211,234.56,2024-12-17,10003,Checkin
 txn_ny042,PANERA BREAD,Lunch meeting,5814,16.90,2024-12-18,10003,Cashback Card
 txn_ny043,HOMEGOODS NYC,Bathroom accessories,5714,89.50,2024-12-19,10003,Cashback Card
 txn_ny044,TRADER JOES,Holiday groceries,5411,134.90,2024-12-21,10003,Cashback Card
-txn_ny045,UBER NYC,Holiday party ride,4121,32.80,2024-12-22,10003,Travel Card
+txn_ny045,UBER NYC,Holiday party ride,4121,32.80,2024-12-22,10003,Cashback Card
 txn_ny046,PELOTON,Monthly subscription,7997,44.00,2024-12-15,,Premium Card
 txn_ny047,BEST BUY NYC,Smart home devices,5732,267.89,2024-12-23,10003,Checking
 txn_ny048,SEAMLESS,Dinner delivery,5814,42.30,2024-12-24,10003,Cashback Card
