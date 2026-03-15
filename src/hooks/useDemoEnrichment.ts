@@ -285,41 +285,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassified);
       const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassified);
 
-      // 2. Deal personalization — NO dependency on classification, fire at t=0
-      const deals = customerA.deals.map((d, i) => ({
-        id: `deal_${i}`, m: d.brand, c: d.tag, r: d.offer,
-      }));
-      const profile = {
-        pillars: customerA.topPillars.map(p => ({ name: p.name, spend: p.spend, pct: p.pct })),
-        signals: [],
-      };
-      const ctx = {
-        demo: {
-          occ: customerA.profile.demographics.occupation,
-          fam: customerA.profile.demographics.familyStatus,
-          inc: customerA.profile.aum,
-          tier: customerA.profile.segment,
-        },
-      };
-
-      if (deals.length > 0) {
-        fetch(`${supabaseUrl}/functions/v1/deal-personalization`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ deals, profile, ctx, txCount: txnsA.length + txnsB.length }),
-        })
-          .then(r => r.ok ? r.json() : Promise.reject(new Error(`deals: ${r.status}`)))
-          .then(data => {
-            console.log("[Phase2] Deals:", data);
-            setNodeReady({ rewards: "ready" });
-          })
-          .catch(err => {
-            console.warn("[Phase2] Deals failed:", err);
-            setNodeReady({ rewards: "ready" });
-          });
-      } else {
-        setNodeReady({ rewards: "ready" });
-      }
+      // 2. Deal personalization — now handled inside maybeStartPhase2 after classification
 
       // 3. Local experiences — fire at t=0 for each customer's first trip destination
       const CATEGORIES = ["dining", "entertainment", "shopping"];
