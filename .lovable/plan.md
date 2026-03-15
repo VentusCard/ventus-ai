@@ -1,37 +1,29 @@
 
 
+## Root Cause: Life Event Transactions Truncated
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+### The Bug
 
-### Implemented
+In `src/hooks/useDemoEnrichment.ts` line 285:
+```ts
+transactions: txns.slice(0, 75),
+```
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+This sends only the **first 75 classified transactions** (in original CSV order) to the lifestyle analysis edge function.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+- **James Rodriguez** has **78 transactions** (txn_s001–txn_s078). The baby-related transactions are the LAST 3: `BUY BUY BABY` (txn_s076), `AUSTIN OB GYN ASSOCIATES` (txn_s077), `POTTERY BARN KIDS` (txn_s078). They are **cut off by `.slice(0, 75)`** and never reach the AI.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+- **Sarah Mitchell** has **75 transactions** (txn_001–txn_075). The college prep transactions are the last 3: `COLLEGEBOARD SAT` (txn_073), `KAPLAN TEST PREP` (txn_074), `STANFORD VISITOR PARKING` (txn_075). These are included but just barely, and the edge function re-sorts by date and takes top 75 again — so they should be present. Sarah's empty result is likely AI non-determinism, but we can improve reliability.
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+The edge function **already** sorts by most recent date and slices to 75 (`sortedTransactions.slice(0, 75)`). The hook's pre-slice is redundant and destructive.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+### Fix
+
+**File: `src/hooks/useDemoEnrichment.ts`** (line 285)
+- Remove `.slice(0, 75)` — send all classified transactions. The edge function handles the limit after sorting by recency, ensuring the most recent (and most life-event-relevant) transactions are always included.
+
+**File: `supabase/functions/analyze-lifestyle-signals/index.ts`**
+- Increase the edge function's transaction window from 75 to 100 to capture more context for event detection, ensuring clusters of life event transactions aren't split.
+
+These two changes ensure James's baby transactions and Sarah's college prep transactions always reach the AI model.
+
