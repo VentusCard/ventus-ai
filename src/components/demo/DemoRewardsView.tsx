@@ -5,6 +5,7 @@ import type { EnrichedTransaction } from "@/types/transaction";
 import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 import { DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
 import { supabase } from "@/integrations/supabase/client";
+import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 
 interface Props {
   customerA: DemoCustomer;
