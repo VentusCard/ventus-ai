@@ -1,28 +1,24 @@
 
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+# Engine Node Must Be Ready Before Peripheral Nodes
 
-### Implemented
+## Problem
+Currently, peripheral nodes (rewards, travel, analytics, etc.) can become "ready" before the Ventus AI Engine. Conceptually, the Engine is the central brain — it should light up first, signaling that data has been processed, and only then should the individual module nodes activate.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+## Solution — `src/hooks/useDemoEnrichment.ts`
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+1. **Remove the "engine waits for all peripherals" logic** from `setNodeReady`. The engine should no longer depend on peripheral nodes.
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+2. **Set engine to "ready" early** — after a short delay (~1.5s) from enrichment start, independent of API results. This represents the engine "ingesting" data.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+3. **Gate peripheral nodes behind engine readiness** — modify `setNodeReady` so that when a peripheral node tries to go "ready", it checks if the engine is already ready. If not, queue the update and apply it once the engine flips to ready.
+
+   Concretely: maintain a `pendingReadyRef` (a ref holding queued node updates). In `setNodeReady`, if `engine !== "ready"`, store the updates in the ref. When the engine timeout fires and sets `engine: "ready"`, also flush all pending peripheral updates.
+
+4. **Timeline**:
+   - t=0: All nodes → "processing"
+   - t≈1.5s: Engine → "ready" (plus any peripherals that already resolved)
+   - t>1.5s: Remaining peripherals light up as their API calls resolve
+
+This ensures the Engine always appears first, and no peripheral node can visually beat it.
+
