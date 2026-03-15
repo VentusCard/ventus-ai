@@ -46,6 +46,9 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
     if (node === "engine") {
       return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
     }
+    if (node === "engagement") {
+      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+    }
     if (node === "travel") {
       return (
         <DemoTravelView
