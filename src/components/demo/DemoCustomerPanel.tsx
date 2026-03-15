@@ -308,6 +308,7 @@ function CustomerSlot({
                 <tbody>
                   {transactions.map((t, i) => (
                     <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
+                      <td className="px-2 py-1 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
                       <td className="px-2 py-1 text-slate-700 truncate max-w-[120px]">{t.merchant_name}</td>
                       <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
                       <td className="px-2 py-1 text-center">
