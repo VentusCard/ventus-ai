@@ -45,7 +45,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
 
   const renderContent = () => {
     if (node === "engine") {
-      return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+      return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} showHeaders />;
     }
     if (node === "engagement") {
       return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
