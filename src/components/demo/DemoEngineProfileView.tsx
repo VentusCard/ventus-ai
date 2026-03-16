@@ -1,274 +1,330 @@
-import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Shield } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
+import { ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
-  showHeaders?: boolean;
 }
 
-/* ── Build dynamic JSON from customer data ──────────────────── */
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-function buildProfileJson(c: DemoCustomer) {
-  return {
-    customer_id: `cust_${c.id}`,
-    bank_id: "test",
-    total_spend: parseFloat(c.txnTotal.replace(/[$,]/g, "")) || 0,
-    pillars: c.pillarBreakdown.map((p) => ({
-      pillar: p.pillar,
-      pct_of_total_spend: p.pct / 100,
-      lifestyle_label: c.lifestyleType
-    })),
-    top_merchants: c.sampleTransactions.slice(0, 4).map((t) => ({
-      merchant: t.merchant,
-      amount: t.amount,
-      category: t.category
-    })),
-    lifestyle_type: c.lifestyleType,
-    segment: c.profile.segment
-  };
-}
+function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransaction[]) {
+  const totalSpend = enriched.reduce((s, t) => s + Math.abs(t.amount || 0), 0);
 
-function buildLifeEventsJson(c: DemoCustomer) {
-  return {
-    customer_id: `cust_${c.id}`,
-    life_events: c.lifeEvents.map((e, i) => ({
-      id: i + 1,
-      event_name: e.name,
-      event_type: e.urgency === "Urgent" ? "OPPORTUNITY" : "NOTABLE",
-      confidence: e.confidence,
-      urgency_timeline: e.urgency === "Urgent" ? "Immediate" : e.urgency === "Soon" ? "Near-term" : "Upcoming",
-      status: "active",
-      is_dismissed: false,
-      timing: e.timing,
-      evidence_summary: e.evidence,
-      detected_at: "2026-03-07T17:56:54.687Z"
-    }))
-  };
-}
+  const pillarMap: Record<string, { spend: number; count: number; confSum: number }> = {};
+  const merchantMap: Record<string, number> = {};
+  const subcatMap: Record<string, number> = {};
 
-function buildTripsJson(c: DemoCustomer) {
-  return {
-    customer_id: `cust_${c.id}`,
-    trips: c.trips.map((t, i) => ({
-      trip_id: `trip_${c.id}_${i + 1}`,
-      destination: t.destination,
-      dates: t.dates,
-      total_trip_spend: t.spend,
-      highlights: t.highlights,
-      is_upcoming: false,
-      detected_at: "2026-03-07T17:57:12.980Z"
-    }))
-  };
-}
+  // Extended: tier, frequency, month tracking per pillar
+  const pillarTiers: Record<string, Record<string, number>> = {};
+  const pillarFreqs: Record<string, Record<string, number>> = {};
+  const pillarMonths: Record<string, Record<number, number>> = {};
+  const pillarSpendForTier: Record<string, { total: number; count: number }> = {};
 
-function buildTransactionsJson(c: DemoCustomer) {
-  return {
-    customer_id: `cust_${c.id}`,
-    total: c.txnCount,
-    limit: 50,
-    offset: 0,
-    transactions: c.sampleTransactions.map((t, i) => ({
-      transaction_id: `t${(i + 1).toString().padStart(3, "0")}`,
-      clean_merchant_name: t.merchant,
-      lifestyle_category: t.category,
-      amount: t.amount,
-      transaction_date: t.date,
-      confidence_score: 0.9,
-      source: t.source || null
-    }))
-  };
-}
+  for (const t of enriched) {
+    const pillar = t.pillar || "Unknown";
+    if (!pillarMap[pillar]) pillarMap[pillar] = { spend: 0, count: 0, confSum: 0 };
+    pillarMap[pillar].spend += Math.abs(t.amount || 0);
+    pillarMap[pillar].count += 1;
+    pillarMap[pillar].confSum += t.confidence || 0;
 
-function buildBankAnalyticsJson() {
-  return {
-    bank_id: "test",
-    generated_at: "2026-03-14T20:08:33.441Z",
-    overview: {
-      total_customers: 22,
-      total_transactions: 218,
-      total_spend: 126378.53,
-      avg_transaction: 579.72,
-      avg_confidence: 0.9
-    },
-    pillar_distribution: [
-    { pillar: "Travel & Exploration", transaction_count: 46, total_spend: 33980.5, customer_count: 14, pct_of_total: 26.89 },
-    { pillar: "Financial & Aspirational", transaction_count: 13, total_spend: 33329, customer_count: 9, pct_of_total: 26.37 },
-    { pillar: "Family & Community", transaction_count: 40, total_spend: 16207.7, customer_count: 10, pct_of_total: 12.82 }],
+    const merchant = t.normalized_merchant || t.merchant_name;
+    merchantMap[merchant] = (merchantMap[merchant] || 0) + Math.abs(t.amount || 0);
 
-    life_event_summary: [
-    { event_type: "OPPORTUNITY", count: 7, avg_confidence: 81.43 },
-    { event_type: "NOTABLE", count: 14, avg_confidence: 83.93 }],
+    const subcat = t.subcategory || "Other";
+    subcatMap[subcat] = (subcatMap[subcat] || 0) + Math.abs(t.amount || 0);
 
-    top_merchants: [
-    { merchant: "Delta Air Lines", transaction_count: 19, total_spend: 8860, customer_count: 13 },
-    { merchant: "Home Depot", transaction_count: 6, total_spend: 7847, customer_count: 6 },
-    { merchant: "MARRIOTT", transaction_count: 9, total_spend: 7206, customer_count: 9 }],
+    // Tier tallying
+    const tier = t.spending_tier || "N/A";
+    if (!pillarTiers[pillar]) pillarTiers[pillar] = {};
+    pillarTiers[pillar][tier] = (pillarTiers[pillar][tier] || 0) + 1;
 
-    segments: [
-    { segment: "Frequent Traveler", customer_count: 3, avg_spend: 517.01 },
-    { segment: "New/Expecting Parent", customer_count: 2, avg_spend: 1104.96 },
-    { segment: "Family-oriented", customer_count: 4, avg_spend: 993.34 }]
+    // Frequency tallying
+    const freq = t.purchase_frequency || "One-Time";
+    if (!pillarFreqs[pillar]) pillarFreqs[pillar] = {};
+    pillarFreqs[pillar][freq] = (pillarFreqs[pillar][freq] || 0) + 1;
 
-  };
-}
-
-/* ── Tab definitions ────────────────────────────────────────── */
-
-const TAB_IDS = ["profile", "life-events", "trips", "transactions", "bank-analytics"] as const;
-const TAB_LABELS: Record<string, string> = {
-  profile: "Profile",
-  "life-events": "Life Events",
-  trips: "Trips",
-  transactions: "Transactions",
-  "bank-analytics": "Bank Analytics"
-};
-
-function getEndpoint(tabId: string, cid: string): string {
-  if (tabId === "bank-analytics") return "GET https://api.ventusai.com/v1/analytics/bank";
-  const path = tabId === "life-events" ? "life-events" : tabId;
-  return `GET https://api.ventusai.com/v1/customers/${cid}/${path}`;
-}
-
-const RESPONSE_MS: Record<string, number> = {
-  profile: 347,
-  "life-events": 412,
-  trips: 289,
-  transactions: 195,
-  "bank-analytics": 523
-};
-
-function getDataForTab(tabId: string, c: DemoCustomer): unknown {
-  switch (tabId) {
-    case "profile":return buildProfileJson(c);
-    case "life-events":return buildLifeEventsJson(c);
-    case "trips":return buildTripsJson(c);
-    case "transactions":return buildTransactionsJson(c);
-    case "bank-analytics":return buildBankAnalyticsJson();
-    default:return {};
-  }
-}
-
-/* ── Syntax highlighting ────────────────────────────────────── */
-
-function syntaxHighlight(json: string): string {
-  return json.replace(
-    /("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
-    (match) => {
-      let cls = "text-[#7dd3fc]";
-      if (/^"/.test(match)) {
-        cls = /:$/.test(match) ? "text-[#c4b5fd]" : "text-[#86efac]";
-      } else if (/true|false/.test(match)) {
-        cls = "text-[#fbbf24]";
-      } else if (/null/.test(match)) {
-        cls = "text-[#94a3b8]";
-      }
-      return `<span class="${cls}">${match}</span>`;
+    // Month clustering
+    if (t.date) {
+      const month = new Date(t.date).getMonth();
+      if (!pillarMonths[pillar]) pillarMonths[pillar] = {};
+      pillarMonths[pillar][month] = (pillarMonths[pillar][month] || 0) + 1;
     }
+
+    // Spend for tier avg
+    if (!pillarSpendForTier[pillar]) pillarSpendForTier[pillar] = { total: 0, count: 0 };
+    pillarSpendForTier[pillar].total += Math.abs(t.amount || 0);
+    pillarSpendForTier[pillar].count += 1;
+  }
+
+  const pillarEntries = Object.entries(pillarMap).sort((a, b) => b[1].spend - a[1].spend);
+  const topMerchants = Object.entries(merchantMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const topSubcats = Object.entries(subcatMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const avgConfidence = enriched.length > 0
+    ? enriched.reduce((s, t) => s + (t.confidence || 0), 0) / enriched.length
+    : 0;
+
+  // --- Build spending_intelligence ---
+  const mode = (map: Record<string, number>) => {
+    let best = ""; let max = 0;
+    for (const [k, v] of Object.entries(map)) { if (v > max) { max = v; best = k; } }
+    return best;
+  };
+
+  const tierInsightVerb = (tier: string) => {
+    if (tier === "Premium") return "Purchases premium";
+    if (tier === "Budget") return "Budget-conscious";
+    return "Regular";
+  };
+
+  const tierProfile = pillarEntries
+    .filter(([p]) => p !== "Miscellaneous & Unclassified" && p !== "Unknown")
+    .map(([pillar]) => {
+      const dominantTier = mode(pillarTiers[pillar] || {});
+      const avg = pillarSpendForTier[pillar]
+        ? pillarSpendForTier[pillar].total / pillarSpendForTier[pillar].count
+        : 0;
+      const pillarLower = pillar.toLowerCase().replace(/ & /g, " ").replace(/\s+/g, " ");
+      const insight = dominantTier === "Premium"
+        ? `Purchases premium ${pillarLower} consistently`
+        : dominantTier === "Budget"
+          ? `Budget-conscious ${pillarLower}, prefers value options`
+          : `Standard ${pillarLower} spending patterns`;
+      return {
+        pillar,
+        dominant_tier: dominantTier,
+        avg_spend: `$${avg.toFixed(0)}`,
+        insight,
+      };
+    });
+
+  // --- Build temporal_patterns ---
+  const seasonalBehaviors = pillarEntries
+    .filter(([p]) => p !== "Miscellaneous & Unclassified" && p !== "Unknown")
+    .map(([pillar]) => {
+      const months = pillarMonths[pillar] || {};
+      const monthEntries = Object.entries(months).map(([m, c]) => ({ m: Number(m), c }));
+      if (monthEntries.length === 0) return null;
+      const avgCount = monthEntries.reduce((s, e) => s + e.c, 0) / 12;
+      const peakMonthNums = monthEntries.filter(e => e.c > avgCount).map(e => e.m).sort((a, b) => a - b);
+      const peakMonthNames = peakMonthNums.map(m => MONTH_NAMES[m]);
+      const dominantFreq = mode(pillarFreqs[pillar] || {});
+      const dominantTier = mode(pillarTiers[pillar] || {});
+
+      // Build narrative
+      const tierAdj = dominantTier === "Premium" ? "premium " : dominantTier === "Budget" ? "budget " : "";
+      const pillarLower = pillar.toLowerCase();
+      let narrative: string;
+      if (peakMonthNames.length >= 10) {
+        narrative = `${tierAdj.charAt(0).toUpperCase() + tierAdj.slice(1)}${pillarLower} spending year-round`;
+      } else if (peakMonthNames.length >= 3) {
+        const range = `${peakMonthNames[0]}–${peakMonthNames[peakMonthNames.length - 1]}`;
+        narrative = `${tierInsightVerb(dominantTier)} ${pillarLower} every ${range}`;
+      } else if (peakMonthNames.length > 0) {
+        narrative = `${tierInsightVerb(dominantTier)} ${pillarLower} in ${peakMonthNames.join(", ")}`;
+      } else {
+        narrative = `Occasional ${tierAdj}${pillarLower} spending`;
+      }
+
+      return {
+        pillar,
+        peak_months: peakMonthNames,
+        frequency: dominantFreq,
+        narrative,
+      };
+    })
+    .filter(Boolean);
+
+  // Monthly heatmap
+  const monthlyHeatmap: Record<string, number> = {};
+  for (const m of MONTH_NAMES) monthlyHeatmap[m] = 0;
+  for (const t of enriched) {
+    if (t.date) {
+      const mi = new Date(t.date).getMonth();
+      monthlyHeatmap[MONTH_NAMES[mi]] += 1;
+    }
+  }
+
+  // --- dynamic_profile_summary ---
+  const dynamicSummary = seasonalBehaviors.map((b: any) => b.narrative as string);
+
+  return {
+    customer_id: customer.id,
+    demographics: {
+      name: customer.profile.name,
+      age: customer.profile.demographics.age,
+      occupation: customer.profile.demographics.occupation,
+      family_status: customer.profile.demographics.familyStatus,
+      income_level: customer.profile.demographics.incomeLevel,
+      segment: customer.profile.segment,
+    },
+    enrichment_metadata: {
+      total_transactions_classified: enriched.length,
+      avg_confidence: `${(avgConfidence * 100).toFixed(1)}%`,
+      enriched_at: new Date().toISOString(),
+    },
+    dynamic_profile_summary: dynamicSummary,
+    spending_summary: {
+      total_analyzed: `$${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      transaction_count: enriched.length,
+      pillar_breakdown: pillarEntries.map(([name, data]) => ({
+        pillar: name,
+        spend: `$${data.spend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+        share: `${((data.spend / totalSpend) * 100).toFixed(1)}%`,
+        avg_confidence: `${((data.confSum / data.count) * 100).toFixed(0)}%`,
+        tx_count: data.count,
+      })),
+    },
+    spending_intelligence: {
+      tier_profile: tierProfile,
+    },
+    temporal_patterns: {
+      seasonal_behaviors: seasonalBehaviors,
+      monthly_activity_heatmap: monthlyHeatmap,
+    },
+    behavioral_patterns: {
+      unique_merchants: Object.keys(merchantMap).length,
+      top_merchants_by_spend: topMerchants.map(([name, spend]) => ({
+        merchant: name,
+        total_spend: `$${spend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      })),
+      top_subcategories: topSubcats.map(([name, spend]) => ({
+        subcategory: name,
+        spend: `$${spend.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      })),
+      category_diversity: Object.keys(pillarMap).length,
+      lifestyle_type: customer.lifestyleType,
+    },
+    opportunity_flags: [
+      pillarEntries.length > 3 && "diversified_spender",
+      customer.lifeEvents.some(e => e.urgency === "Urgent") && "urgent_life_event",
+      customer.trips.length > 0 && "active_traveler",
+      customer.deals.some(d => d.match >= 90) && "high_match_rewards",
+      avgConfidence > 0.85 && "high_confidence_profile",
+      tierProfile.some(t => t.dominant_tier === "Premium") && "premium_segment_buyer",
+    ].filter(Boolean),
+  };
+}
+
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
+function JsonTree({ data, depth = 0, staggerMs = 0 }: { data: JsonValue; depth?: number; staggerMs?: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), staggerMs);
+    return () => clearTimeout(t);
+  }, [staggerMs]);
+
+  if (!visible) return <div className="h-5" />;
+
+  if (data === null) return <span className="text-slate-400">null</span>;
+  if (typeof data === "boolean") return <span className="text-amber-500">{String(data)}</span>;
+  if (typeof data === "number") return <span className="text-cyan-400">{data}</span>;
+  if (typeof data === "string") return <span className="text-emerald-400">"{data}"</span>;
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) return <span className="text-slate-500">[]</span>;
+    return <ArrayNode data={data} depth={depth} staggerBase={staggerMs} />;
+  }
+
+  if (typeof data === "object") {
+    return <ObjectNode data={data as Record<string, JsonValue>} depth={depth} staggerBase={staggerMs} />;
+  }
+
+  return null;
+}
+
+function ObjectNode({ data, depth, staggerBase }: { data: Record<string, JsonValue>; depth: number; staggerBase: number }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const entries = Object.entries(data);
+  const indent = depth * 16;
+
+  return (
+    <div>
+      <button onClick={() => setCollapsed(!collapsed)} className="inline-flex items-center gap-0.5 text-slate-500 hover:text-slate-300 transition-colors">
+        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        <span className="text-slate-500 text-[10px]">{`{${collapsed ? `…${entries.length} keys` : ""}}`}</span>
+      </button>
+      {!collapsed && (
+        <div style={{ paddingLeft: indent > 0 ? 16 : 0 }}>
+          {entries.map(([key, val], i) => (
+            <div key={key} className="flex gap-1 items-start leading-relaxed">
+              <span className="text-indigo-300 shrink-0">"{key}"</span>
+              <span className="text-slate-600 shrink-0">:</span>
+              <JsonTree data={val as JsonValue} depth={depth + 1} staggerMs={staggerBase + (i + 1) * 30} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-/* ── Terminal panel ─────────────────────────────────────────── */
-
-function ApiTerminal({ endpoint, responseMs, data }: {endpoint: string;responseMs: number;data: unknown;}) {
-  const formatted = JSON.stringify(data, null, 2);
-  const highlighted = syntaxHighlight(formatted);
+function ArrayNode({ data, depth, staggerBase }: { data: JsonValue[]; depth: number; staggerBase: number }) {
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="rounded-xl border border-slate-700/60 overflow-hidden" style={{ background: "#0F1117" }}>
-      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/40" style={{ background: "#161822" }}>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            <div className="w-2 h-2 rounded-full bg-red-500/70" />
-            <div className="w-2 h-2 rounded-full bg-yellow-500/70" />
-            <div className="w-2 h-2 rounded-full bg-green-500/70" />
-          </div>
-          <code className="text-[9px] text-slate-400 font-mono truncate">{endpoint}</code>
+    <div>
+      <button onClick={() => setCollapsed(!collapsed)} className="inline-flex items-center gap-0.5 text-slate-500 hover:text-slate-300 transition-colors">
+        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        <span className="text-slate-500 text-[10px]">{`[${collapsed ? `…${data.length} items` : ""}]`}</span>
+      </button>
+      {!collapsed && (
+        <div style={{ paddingLeft: 16 }}>
+          {data.map((item, i) => (
+            <div key={i}>
+              <JsonTree data={item} depth={depth + 1} staggerMs={staggerBase + (i + 1) * 40} />
+              {i < data.length - 1 && <span className="text-slate-600">,</span>}
+            </div>
+          ))}
         </div>
-        
-
-
-        
-      </div>
-      <div className="px-3 py-1 border-b border-slate-700/30 flex items-center gap-2" style={{ background: "#12141d" }}>
-        <span className="text-[9px] font-mono font-semibold text-emerald-400">200 OK</span>
-        <span className="text-[9px] font-mono text-slate-500">•</span>
-        <span className="text-[9px] font-mono text-slate-400">{responseMs}ms</span>
-        <span className="text-[9px] font-mono text-slate-500">•</span>
-        <span className="text-[9px] font-mono text-slate-500">x-api-key: ••••••••</span>
-      </div>
-      <div className="p-3 overflow-auto max-h-[60vh]">
-        <pre
-          className="text-[11px] leading-[1.7] font-mono whitespace-pre"
-          dangerouslySetInnerHTML={{ __html: highlighted }} />
-        
-      </div>
-    </div>);
-
+      )}
+    </div>
+  );
 }
 
-/* ── Main component ─────────────────────────────────────────── */
+function ProfilePanel({ customer, enriched, accentColor }: { customer: DemoCustomer; enriched?: EnrichedTransaction[]; accentColor: string }) {
+  if (!enriched || enriched.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-slate-950 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ background: accentColor }} />
+          <span className="text-xs font-mono font-semibold text-slate-300">{customer.profile.name}</span>
+        </div>
+        <div className="p-8 flex flex-col items-center justify-center gap-3 text-slate-500">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+          <p className="text-xs font-mono">Run enrichment to generate profile</p>
+        </div>
+      </div>
+    );
+  }
 
-export default function DemoEngineProfileView({ customerA, customerB, showHeaders = true }: Props) {
-  const [activeTab, setActiveTab] = useState<string>("profile");
-  const cidA = `cust_${customerA.id}`;
-  const cidB = `cust_${customerB.id}`;
+  const profile = buildEnrichedProfile(customer, enriched);
 
   return (
-    <div className="space-y-3">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-slate-100 border border-slate-200 p-1 rounded-lg gap-0.5 h-9">
-          {TAB_IDS.map((id) =>
-          <TabsTrigger
-            key={id}
-            value={id}
-            className="text-[11px] font-medium px-3 py-1.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 transition-all">
-              {TAB_LABELS[id]}
-            </TabsTrigger>
-          )}
-        </TabsList>
+    <div className="rounded-xl border border-slate-200 bg-slate-950 overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+        <div className="w-2 h-2 rounded-full" style={{ background: accentColor }} />
+        <span className="text-xs font-mono font-semibold text-slate-300">{customer.profile.name}</span>
+        <span className="text-[9px] text-slate-500 ml-auto font-mono">ventus.ai/profile/{customer.id}</span>
+      </div>
+      <div className="p-4 overflow-x-auto font-mono text-[11px] leading-[1.8] max-h-[65vh] overflow-y-auto">
+        <JsonTree data={profile as unknown as JsonValue} staggerMs={0} />
+      </div>
+    </div>
+  );
+}
 
-        {showHeaders && (
-          <div className="grid grid-cols-2 gap-4 mt-3 mb-1">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
-                <span className="text-[8px] font-bold text-blue-600">{customerA.profile.name.split(" ").map(w => w[0]).join("")}</span>
-              </div>
-              <span className="text-xs font-semibold text-blue-600">{customerA.profile.name}</span>
-              <span className="text-[9px] text-slate-400">· {customerA.lifestyleType}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                <span className="text-[8px] font-bold text-emerald-600">{customerB.profile.name.split(" ").map(w => w[0]).join("")}</span>
-              </div>
-              <span className="text-xs font-semibold text-emerald-600">{customerB.profile.name}</span>
-              <span className="text-[9px] text-slate-400">· {customerB.lifestyleType}</span>
-            </div>
-          </div>
-        )}
-
-        {TAB_IDS.map((id) =>
-        <TabsContent key={id} value={id} className="mt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <ApiTerminal
-              endpoint={getEndpoint(id, cidA)}
-              responseMs={RESPONSE_MS[id]}
-              data={getDataForTab(id, customerA)} />
-            
-              <ApiTerminal
-              endpoint={getEndpoint(id, cidB)}
-              responseMs={RESPONSE_MS[id]}
-              data={getDataForTab(id, customerB)} />
-            
-            </div>
-          </TabsContent>
-        )}
-      </Tabs>
-    </div>);
-
+export default function DemoEngineProfileView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <ProfilePanel customer={customerA} enriched={enrichedA} accentColor="#3b82f6" />
+      <ProfilePanel customer={customerB} enriched={enrichedB} accentColor="#10b981" />
+    </div>
+  );
 }
