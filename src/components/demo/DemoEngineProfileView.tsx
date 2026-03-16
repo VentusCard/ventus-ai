@@ -214,7 +214,7 @@ function ApiTerminal({ endpoint, responseMs, data }: {endpoint: string;responseM
 
 /* ── Main component ─────────────────────────────────────────── */
 
-export default function DemoEngineProfileView({ customerA, customerB }: Props) {
+export default function DemoEngineProfileView({ customerA, customerB, showHeaders = true }: Props) {
   const [activeTab, setActiveTab] = useState<string>("profile");
   const cidA = `cust_${customerA.id}`;
   const cidB = `cust_${customerB.id}`;
@@ -222,20 +222,38 @@ export default function DemoEngineProfileView({ customerA, customerB }: Props) {
   return (
     <div className="space-y-3">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-slate-100 border border-slate-200 p-0.5 rounded-lg gap-0 h-8">
+        <TabsList className="bg-slate-100 border border-slate-200 p-1 rounded-lg gap-0.5 h-9">
           {TAB_IDS.map((id) =>
           <TabsTrigger
             key={id}
             value={id}
-            className="text-[10px] font-medium px-2.5 py-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 transition-all">
-            
+            className="text-[11px] font-medium px-3 py-1.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 transition-all">
               {TAB_LABELS[id]}
             </TabsTrigger>
           )}
         </TabsList>
 
+        {showHeaders && (
+          <div className="grid grid-cols-2 gap-4 mt-3 mb-1">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
+                <span className="text-[8px] font-bold text-blue-600">{customerA.profile.name.split(" ").map(w => w[0]).join("")}</span>
+              </div>
+              <span className="text-xs font-semibold text-blue-600">{customerA.profile.name}</span>
+              <span className="text-[9px] text-slate-400">· {customerA.lifestyleType}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                <span className="text-[8px] font-bold text-emerald-600">{customerB.profile.name.split(" ").map(w => w[0]).join("")}</span>
+              </div>
+              <span className="text-xs font-semibold text-emerald-600">{customerB.profile.name}</span>
+              <span className="text-[9px] text-slate-400">· {customerB.lifestyleType}</span>
+            </div>
+          </div>
+        )}
+
         {TAB_IDS.map((id) =>
-        <TabsContent key={id} value={id} className="mt-3">
+        <TabsContent key={id} value={id} className="mt-2">
             <div className="grid grid-cols-2 gap-4">
               <ApiTerminal
               endpoint={getEndpoint(id, cidA)}
