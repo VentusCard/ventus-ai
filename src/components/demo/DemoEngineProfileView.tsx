@@ -9,6 +9,7 @@ interface Props {
   customerB: DemoCustomer;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
+  showHeaders?: boolean;
 }
 
 /* ── Build dynamic JSON from customer data ──────────────────── */
