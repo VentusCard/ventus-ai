@@ -117,37 +117,51 @@ function buildBankAnalyticsJson() {
   };
 }
 
-/* ── Tab config builder per customer ────────────────────────── */
+/* ── Tab definitions ────────────────────────────────────────── */
 
-interface TabConfig {
-  id: string;
-  label: string;
-  endpoint: string;
-  responseMs: number;
-  data: unknown;
-  glow?: boolean;
+const TAB_IDS = ["profile", "life-events", "trips", "transactions", "bank-analytics"] as const;
+const TAB_LABELS: Record<string, string> = {
+  profile: "Profile",
+  "life-events": "Life Events",
+  trips: "Trips",
+  transactions: "Transactions",
+  "bank-analytics": "Bank Analytics",
+};
+
+function getEndpoint(tabId: string, cid: string): string {
+  if (tabId === "bank-analytics") return "GET https://api.ventusai.com/v1/analytics/bank";
+  const path = tabId === "life-events" ? "life-events" : tabId;
+  return `GET https://api.ventusai.com/v1/customers/${cid}/${path}`;
 }
 
-function getTabsForCustomer(c: DemoCustomer): TabConfig[] {
-  const cid = `cust_${c.id}`;
-  return [
-    { id: "profile", label: "Profile", endpoint: `GET https://api.ventusai.com/v1/customers/${cid}/profile`, responseMs: 347, data: buildProfileJson(c) },
-    { id: "life-events", label: "Life Events", endpoint: `GET https://api.ventusai.com/v1/customers/${cid}/life-events`, responseMs: 412, data: buildLifeEventsJson(c), glow: true },
-    { id: "trips", label: "Trips", endpoint: `GET https://api.ventusai.com/v1/customers/${cid}/trips`, responseMs: 289, data: buildTripsJson(c) },
-    { id: "transactions", label: "Transactions", endpoint: `GET https://api.ventusai.com/v1/customers/${cid}/transactions`, responseMs: 195, data: buildTransactionsJson(c) },
-    { id: "bank-analytics", label: "Bank Analytics", endpoint: "GET https://api.ventusai.com/v1/analytics/bank", responseMs: 523, data: buildBankAnalyticsJson() },
-  ];
+const RESPONSE_MS: Record<string, number> = {
+  profile: 347,
+  "life-events": 412,
+  trips: 289,
+  transactions: 195,
+  "bank-analytics": 523,
+};
+
+function getDataForTab(tabId: string, c: DemoCustomer): unknown {
+  switch (tabId) {
+    case "profile": return buildProfileJson(c);
+    case "life-events": return buildLifeEventsJson(c);
+    case "trips": return buildTripsJson(c);
+    case "transactions": return buildTransactionsJson(c);
+    case "bank-analytics": return buildBankAnalyticsJson();
+    default: return {};
+  }
 }
 
-/* ── Syntax-highlighted JSON renderer ───────────────────────── */
+/* ── Syntax highlighting ────────────────────────────────────── */
 
 function syntaxHighlight(json: string): string {
   return json.replace(
     /("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
     (match) => {
-      let cls = "text-[#7dd3fc]"; // number
+      let cls = "text-[#7dd3fc]";
       if (/^"/.test(match)) {
-        cls = /:$/.test(match) ? "text-[#c4b5fd]" : "text-[#86efac]"; // key : string
+        cls = /:$/.test(match) ? "text-[#c4b5fd]" : "text-[#86efac]";
       } else if (/true|false/.test(match)) {
         cls = "text-[#fbbf24]";
       } else if (/null/.test(match)) {
@@ -160,13 +174,12 @@ function syntaxHighlight(json: string): string {
 
 /* ── Terminal panel ─────────────────────────────────────────── */
 
-function ApiTerminal({ tab }: { tab: TabConfig }) {
-  const formatted = JSON.stringify(tab.data, null, 2);
+function ApiTerminal({ endpoint, responseMs, data }: { endpoint: string; responseMs: number; data: unknown }) {
+  const formatted = JSON.stringify(data, null, 2);
   const highlighted = syntaxHighlight(formatted);
 
   return (
     <div className="rounded-xl border border-slate-700/60 overflow-hidden" style={{ background: "#0F1117" }}>
-      {/* Top bar */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/40" style={{ background: "#161822" }}>
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
@@ -174,24 +187,20 @@ function ApiTerminal({ tab }: { tab: TabConfig }) {
             <div className="w-2 h-2 rounded-full bg-yellow-500/70" />
             <div className="w-2 h-2 rounded-full bg-green-500/70" />
           </div>
-          <code className="text-[9px] text-slate-400 font-mono truncate">{tab.endpoint}</code>
+          <code className="text-[9px] text-slate-400 font-mono truncate">{endpoint}</code>
         </div>
         <span className="flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shrink-0">
           <Shield className="w-2.5 h-2.5" />
           Zero PII
         </span>
       </div>
-
-      {/* Status bar */}
       <div className="px-3 py-1 border-b border-slate-700/30 flex items-center gap-2" style={{ background: "#12141d" }}>
         <span className="text-[9px] font-mono font-semibold text-emerald-400">200 OK</span>
         <span className="text-[9px] font-mono text-slate-500">•</span>
-        <span className="text-[9px] font-mono text-slate-400">{tab.responseMs}ms</span>
+        <span className="text-[9px] font-mono text-slate-400">{responseMs}ms</span>
         <span className="text-[9px] font-mono text-slate-500">•</span>
         <span className="text-[9px] font-mono text-slate-500">x-api-key: ••••••••</span>
       </div>
-
-      {/* JSON body */}
       <div className="p-3 overflow-auto max-h-[50vh]">
         <pre
           className="text-[10px] leading-[1.65] font-mono whitespace-pre"
@@ -202,59 +211,45 @@ function ApiTerminal({ tab }: { tab: TabConfig }) {
   );
 }
 
-/* ── Single customer panel with tabs ────────────────────────── */
+/* ── Main component ─────────────────────────────────────────── */
 
-function CustomerTerminal({ customer, accentColor }: { customer: DemoCustomer; accentColor: string }) {
-  const [activeTab, setActiveTab] = useState("profile");
-  const tabs = getTabsForCustomer(customer);
+export default function DemoEngineProfileView({ customerA, customerB }: Props) {
+  const [activeTab, setActiveTab] = useState<string>("profile");
+  const cidA = `cust_${customerA.id}`;
+  const cidB = `cust_${customerB.id}`;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="bg-slate-100 border border-slate-200 p-0.5 rounded-lg gap-0 h-8">
-          {tabs.map((tab) => (
+          {TAB_IDS.map((id) => (
             <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              className={`text-[10px] font-medium px-2 py-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all ${
-                tab.glow
-                  ? "data-[state=active]:text-amber-700 data-[state=inactive]:text-amber-600/80"
-                  : "data-[state=active]:text-slate-900"
-              }`}
-              style={
-                tab.glow
-                  ? { textShadow: activeTab === tab.id ? "0 0 8px rgba(245,158,11,0.4)" : "0 0 6px rgba(245,158,11,0.25)" }
-                  : undefined
-              }
+              key={id}
+              value={id}
+              className="text-[10px] font-medium px-2.5 py-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 transition-all"
             >
-              {tab.glow && (
-                <span
-                  className="inline-block w-1.5 h-1.5 rounded-full mr-1"
-                  style={{ background: "#f59e0b", boxShadow: "0 0 6px 2px rgba(245,158,11,0.45)" }}
-                />
-              )}
-              {tab.label}
+              {TAB_LABELS[id]}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {tabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id} className="mt-2">
-            <ApiTerminal tab={tab} />
+        {TAB_IDS.map((id) => (
+          <TabsContent key={id} value={id} className="mt-3">
+            <div className="grid grid-cols-2 gap-4">
+              <ApiTerminal
+                endpoint={getEndpoint(id, cidA)}
+                responseMs={RESPONSE_MS[id]}
+                data={getDataForTab(id, customerA)}
+              />
+              <ApiTerminal
+                endpoint={getEndpoint(id, cidB)}
+                responseMs={RESPONSE_MS[id]}
+                data={getDataForTab(id, customerB)}
+              />
+            </div>
           </TabsContent>
         ))}
       </Tabs>
-    </div>
-  );
-}
-
-/* ── Main component ─────────────────────────────────────────── */
-
-export default function DemoEngineProfileView({ customerA, customerB }: Props) {
-  return (
-    <div className="grid grid-cols-2 gap-4">
-      <CustomerTerminal customer={customerA} accentColor="#3b82f6" />
-      <CustomerTerminal customer={customerB} accentColor="#10b981" />
     </div>
   );
 }
