@@ -202,9 +202,9 @@ function ApiTerminal({ endpoint, responseMs, data }: {endpoint: string;responseM
         <span className="text-[9px] font-mono text-slate-500">•</span>
         <span className="text-[9px] font-mono text-slate-500">x-api-key: ••••••••</span>
       </div>
-      <div className="p-3 overflow-auto max-h-[50vh]">
+      <div className="p-3 overflow-auto max-h-[60vh]">
         <pre
-          className="text-[10px] leading-[1.65] font-mono whitespace-pre"
+          className="text-[11px] leading-[1.7] font-mono whitespace-pre"
           dangerouslySetInnerHTML={{ __html: highlighted }} />
         
       </div>
