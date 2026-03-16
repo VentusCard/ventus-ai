@@ -21,15 +21,15 @@ function buildProfileJson(c: DemoCustomer) {
     pillars: c.pillarBreakdown.map((p) => ({
       pillar: p.pillar,
       pct_of_total_spend: p.pct / 100,
-      lifestyle_label: c.lifestyleType,
+      lifestyle_label: c.lifestyleType
     })),
     top_merchants: c.sampleTransactions.slice(0, 4).map((t) => ({
       merchant: t.merchant,
       amount: t.amount,
-      category: t.category,
+      category: t.category
     })),
     lifestyle_type: c.lifestyleType,
-    segment: c.profile.segment,
+    segment: c.profile.segment
   };
 }
 
@@ -46,8 +46,8 @@ function buildLifeEventsJson(c: DemoCustomer) {
       is_dismissed: false,
       timing: e.timing,
       evidence_summary: e.evidence,
-      detected_at: "2026-03-07T17:56:54.687Z",
-    })),
+      detected_at: "2026-03-07T17:56:54.687Z"
+    }))
   };
 }
 
@@ -61,8 +61,8 @@ function buildTripsJson(c: DemoCustomer) {
       total_trip_spend: t.spend,
       highlights: t.highlights,
       is_upcoming: false,
-      detected_at: "2026-03-07T17:57:12.980Z",
-    })),
+      detected_at: "2026-03-07T17:57:12.980Z"
+    }))
   };
 }
 
@@ -79,8 +79,8 @@ function buildTransactionsJson(c: DemoCustomer) {
       amount: t.amount,
       transaction_date: t.date,
       confidence_score: 0.9,
-      source: t.source || null,
-    })),
+      source: t.source || null
+    }))
   };
 }
 
@@ -93,27 +93,27 @@ function buildBankAnalyticsJson() {
       total_transactions: 218,
       total_spend: 126378.53,
       avg_transaction: 579.72,
-      avg_confidence: 0.9,
+      avg_confidence: 0.9
     },
     pillar_distribution: [
-      { pillar: "Travel & Exploration", transaction_count: 46, total_spend: 33980.5, customer_count: 14, pct_of_total: 26.89 },
-      { pillar: "Financial & Aspirational", transaction_count: 13, total_spend: 33329, customer_count: 9, pct_of_total: 26.37 },
-      { pillar: "Family & Community", transaction_count: 40, total_spend: 16207.7, customer_count: 10, pct_of_total: 12.82 },
-    ],
+    { pillar: "Travel & Exploration", transaction_count: 46, total_spend: 33980.5, customer_count: 14, pct_of_total: 26.89 },
+    { pillar: "Financial & Aspirational", transaction_count: 13, total_spend: 33329, customer_count: 9, pct_of_total: 26.37 },
+    { pillar: "Family & Community", transaction_count: 40, total_spend: 16207.7, customer_count: 10, pct_of_total: 12.82 }],
+
     life_event_summary: [
-      { event_type: "OPPORTUNITY", count: 7, avg_confidence: 81.43 },
-      { event_type: "NOTABLE", count: 14, avg_confidence: 83.93 },
-    ],
+    { event_type: "OPPORTUNITY", count: 7, avg_confidence: 81.43 },
+    { event_type: "NOTABLE", count: 14, avg_confidence: 83.93 }],
+
     top_merchants: [
-      { merchant: "Delta Air Lines", transaction_count: 19, total_spend: 8860, customer_count: 13 },
-      { merchant: "Home Depot", transaction_count: 6, total_spend: 7847, customer_count: 6 },
-      { merchant: "MARRIOTT", transaction_count: 9, total_spend: 7206, customer_count: 9 },
-    ],
+    { merchant: "Delta Air Lines", transaction_count: 19, total_spend: 8860, customer_count: 13 },
+    { merchant: "Home Depot", transaction_count: 6, total_spend: 7847, customer_count: 6 },
+    { merchant: "MARRIOTT", transaction_count: 9, total_spend: 7206, customer_count: 9 }],
+
     segments: [
-      { segment: "Frequent Traveler", customer_count: 3, avg_spend: 517.01 },
-      { segment: "New/Expecting Parent", customer_count: 2, avg_spend: 1104.96 },
-      { segment: "Family-oriented", customer_count: 4, avg_spend: 993.34 },
-    ],
+    { segment: "Frequent Traveler", customer_count: 3, avg_spend: 517.01 },
+    { segment: "New/Expecting Parent", customer_count: 2, avg_spend: 1104.96 },
+    { segment: "Family-oriented", customer_count: 4, avg_spend: 993.34 }]
+
   };
 }
 
@@ -125,7 +125,7 @@ const TAB_LABELS: Record<string, string> = {
   "life-events": "Life Events",
   trips: "Trips",
   transactions: "Transactions",
-  "bank-analytics": "Bank Analytics",
+  "bank-analytics": "Bank Analytics"
 };
 
 function getEndpoint(tabId: string, cid: string): string {
@@ -139,17 +139,17 @@ const RESPONSE_MS: Record<string, number> = {
   "life-events": 412,
   trips: 289,
   transactions: 195,
-  "bank-analytics": 523,
+  "bank-analytics": 523
 };
 
 function getDataForTab(tabId: string, c: DemoCustomer): unknown {
   switch (tabId) {
-    case "profile": return buildProfileJson(c);
-    case "life-events": return buildLifeEventsJson(c);
-    case "trips": return buildTripsJson(c);
-    case "transactions": return buildTransactionsJson(c);
-    case "bank-analytics": return buildBankAnalyticsJson();
-    default: return {};
+    case "profile":return buildProfileJson(c);
+    case "life-events":return buildLifeEventsJson(c);
+    case "trips":return buildTripsJson(c);
+    case "transactions":return buildTransactionsJson(c);
+    case "bank-analytics":return buildBankAnalyticsJson();
+    default:return {};
   }
 }
 
@@ -174,7 +174,7 @@ function syntaxHighlight(json: string): string {
 
 /* ── Terminal panel ─────────────────────────────────────────── */
 
-function ApiTerminal({ endpoint, responseMs, data }: { endpoint: string; responseMs: number; data: unknown }) {
+function ApiTerminal({ endpoint, responseMs, data }: {endpoint: string;responseMs: number;data: unknown;}) {
   const formatted = JSON.stringify(data, null, 2);
   const highlighted = syntaxHighlight(formatted);
 
@@ -189,10 +189,10 @@ function ApiTerminal({ endpoint, responseMs, data }: { endpoint: string; respons
           </div>
           <code className="text-[9px] text-slate-400 font-mono truncate">{endpoint}</code>
         </div>
-        <span className="flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shrink-0">
-          <Shield className="w-2.5 h-2.5" />
-          Zero PII
-        </span>
+        
+
+
+        
       </div>
       <div className="px-3 py-1 border-b border-slate-700/30 flex items-center gap-2" style={{ background: "#12141d" }}>
         <span className="text-[9px] font-mono font-semibold text-emerald-400">200 OK</span>
@@ -204,11 +204,11 @@ function ApiTerminal({ endpoint, responseMs, data }: { endpoint: string; respons
       <div className="p-3 overflow-auto max-h-[50vh]">
         <pre
           className="text-[10px] leading-[1.65] font-mono whitespace-pre"
-          dangerouslySetInnerHTML={{ __html: highlighted }}
-        />
+          dangerouslySetInnerHTML={{ __html: highlighted }} />
+        
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 /* ── Main component ─────────────────────────────────────────── */
@@ -222,34 +222,34 @@ export default function DemoEngineProfileView({ customerA, customerB }: Props) {
     <div className="space-y-3">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="bg-slate-100 border border-slate-200 p-0.5 rounded-lg gap-0 h-8">
-          {TAB_IDS.map((id) => (
-            <TabsTrigger
-              key={id}
-              value={id}
-              className="text-[10px] font-medium px-2.5 py-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 transition-all"
-            >
+          {TAB_IDS.map((id) =>
+          <TabsTrigger
+            key={id}
+            value={id}
+            className="text-[10px] font-medium px-2.5 py-1 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 transition-all">
+            
               {TAB_LABELS[id]}
             </TabsTrigger>
-          ))}
+          )}
         </TabsList>
 
-        {TAB_IDS.map((id) => (
-          <TabsContent key={id} value={id} className="mt-3">
+        {TAB_IDS.map((id) =>
+        <TabsContent key={id} value={id} className="mt-3">
             <div className="grid grid-cols-2 gap-4">
               <ApiTerminal
-                endpoint={getEndpoint(id, cidA)}
-                responseMs={RESPONSE_MS[id]}
-                data={getDataForTab(id, customerA)}
-              />
+              endpoint={getEndpoint(id, cidA)}
+              responseMs={RESPONSE_MS[id]}
+              data={getDataForTab(id, customerA)} />
+            
               <ApiTerminal
-                endpoint={getEndpoint(id, cidB)}
-                responseMs={RESPONSE_MS[id]}
-                data={getDataForTab(id, customerB)}
-              />
+              endpoint={getEndpoint(id, cidB)}
+              responseMs={RESPONSE_MS[id]}
+              data={getDataForTab(id, customerB)} />
+            
             </div>
           </TabsContent>
-        ))}
+        )}
       </Tabs>
-    </div>
-  );
+    </div>);
+
 }
