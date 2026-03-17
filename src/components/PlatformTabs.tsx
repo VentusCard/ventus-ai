@@ -205,101 +205,68 @@ const EngagementPreview = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {/* LEFT — Category → Pillar Consolidation */}
-      <div className="space-y-2">
-        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Categories → Lifestyle Pillars</p>
-        {categoryGroups.map((group) => {
-          const c = statusColors[group.status];
-          const pct = Math.min((group.spend / group.budget) * 100, 100);
-          return (
-            <div key={group.pillar} className="rounded-lg border border-gray-100 px-2.5 py-2">
-              <div className="flex items-start gap-2">
-                {/* Raw categories */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap gap-1 mb-1.5">
-                    {group.categories.map((cat) => (
-                      <span
-                        key={cat}
-                        className="text-[8px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium whitespace-nowrap"
-                      >
-                        {cat}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                {/* Arrow */}
-                <span className="text-gray-300 text-[10px] mt-1 shrink-0">→</span>
-                {/* Pillar label */}
-                <div className="shrink-0 flex items-center gap-1 mt-0.5">
-                  <span className="text-[10px]">{group.icon}</span>
-                  <span className="text-[10px] font-bold" style={{ color: group.color }}>{group.pillar}</span>
-                </div>
+    <div className="space-y-3">
+      {/* Category → Pillar Consolidation */}
+      <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Categories → Lifestyle Pillars</p>
+      {categoryGroups.map((group) => {
+        const c = statusColors[group.status];
+        const pct = Math.min((group.spend / group.budget) * 100, 100);
+        return (
+          <div key={group.pillar} className="rounded-lg border border-gray-100 px-3 py-2">
+            <div className="flex items-center gap-3">
+              {/* Raw categories */}
+              <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+                {group.categories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="text-[8px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium whitespace-nowrap"
+                  >
+                    {cat}
+                  </span>
+                ))}
               </div>
-              {/* Budget bar */}
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 h-1 rounded-full bg-gray-100">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: c.bar }} />
-                </div>
-                <span className="text-[7px] font-semibold px-1 py-0.5 rounded-full shrink-0" style={{ background: c.bg, color: c.text }}>{c.label}</span>
+              {/* Arrow */}
+              <span className="text-gray-300 text-[12px] shrink-0">→</span>
+              {/* Pillar label */}
+              <div className="shrink-0 flex items-center gap-1.5">
+                <span className="text-[12px]">{group.icon}</span>
+                <span className="text-[11px] font-bold" style={{ color: group.color }}>{group.pillar}</span>
               </div>
-              <p className="text-[8px] text-gray-400 mt-0.5">${group.spend.toLocaleString()} / ${group.budget.toLocaleString()}</p>
+              {/* Status badge */}
+              <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: c.bg, color: c.text }}>{c.label}</span>
             </div>
-          );
-        })}
-      </div>
-
-      {/* RIGHT — Bank App Experience */}
-      <div className="space-y-2">
-        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Bank App Experience</p>
-        {/* Lifestyle Spending Grid */}
-        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase">Your Lifestyle Spending</p>
-        <div className="grid grid-cols-2 gap-1.5">
-          {categoryGroups.map((p) => {
-            const c = statusColors[p.status];
-            const pct = Math.min((p.spend / p.budget) * 100, 100);
-            return (
-              <div key={p.pillar} className="rounded-md px-2 py-1.5 border border-gray-100">
-                <div className="flex items-center justify-between mb-0.5">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px]">{p.icon}</span>
-                    <span className="text-[9px] font-semibold text-gray-900">{p.pillar}</span>
-                  </div>
-                  <span className="text-[6px] font-semibold px-1 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>{c.label}</span>
-                </div>
-                <div className="w-full h-1 rounded-full bg-gray-100 mb-0.5">
-                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: c.bar }} />
-                </div>
-                <p className="text-[8px] text-gray-500">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</p>
+            {/* Budget bar */}
+            <div className="flex items-center gap-3 mt-1.5">
+              <div className="flex-1 h-1.5 rounded-full bg-gray-100">
+                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: c.bar }} />
               </div>
-            );
-          })}
-        </div>
-
-        {/* Gamification — Achievement */}
-        <div className="rounded-md px-2.5 py-2 border border-gray-100" style={{ background: "rgba(245,158,11,0.04)" }}>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[12px]" style={{ background: "rgba(245,158,11,0.12)" }}>🏆</div>
-            <div>
-              <p className="text-[10px] font-semibold text-gray-900">Dining Streak</p>
-              <p className="text-[8px] text-gray-500">5 weeks under budget — keep it going!</p>
-            </div>
-            <div className="ml-auto">
-              <div className="w-5 h-5 rounded-full border-2 border-amber-400 flex items-center justify-center">
-                <span className="text-[7px] font-bold text-amber-600">5</span>
-              </div>
+              <p className="text-[8px] text-gray-400 shrink-0">${group.spend.toLocaleString()} / ${group.budget.toLocaleString()}</p>
             </div>
           </div>
-        </div>
+        );
+      })}
 
-        {/* Coaching — AI Insight */}
-        <div className="rounded-md px-2.5 py-2" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.12)" }}>
-          <div className="flex items-start gap-2">
-            <span className="text-[12px] mt-0.5">💡</span>
-            <div>
-              <p className="text-[10px] font-semibold text-blue-700">AI Insight</p>
-              <p className="text-[8px] text-gray-600">Wellness spending is up 28% this month. Consider adjusting your budget to stay on track.</p>
-            </div>
+      {/* Gamification — Achievement */}
+      <div className="rounded-lg px-3 py-2.5 border border-gray-100" style={{ background: "rgba(245,158,11,0.04)" }}>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[14px]" style={{ background: "rgba(245,158,11,0.12)" }}>🏆</div>
+          <div className="flex-1">
+            <p className="text-[10px] font-semibold text-gray-900">Dining Streak</p>
+            <p className="text-[8px] text-gray-500">5 weeks under budget — keep it going!</p>
+          </div>
+          <div className="w-6 h-6 rounded-full border-2 border-amber-400 flex items-center justify-center">
+            <span className="text-[8px] font-bold text-amber-600">5</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Coaching — AI Insight */}
+      <div className="rounded-lg px-3 py-2.5" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.12)" }}>
+        <div className="flex items-start gap-2.5">
+          <span className="text-[14px] mt-0.5">💡</span>
+          <div>
+            <p className="text-[10px] font-semibold text-blue-700">AI Insight</p>
+            <p className="text-[8px] text-gray-600">Wellness spending is up 28% this month. Consider adjusting your budget to stay on track.</p>
           </div>
         </div>
       </div>
