@@ -167,7 +167,7 @@ ${name}
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Message</label>
-                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900" required />
+                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
                     </div>
                     <Button
                       type="button"
