@@ -1,37 +1,20 @@
 
 
+## Plan: Adapt /demo UX Content into EngagementPreview (No Phone Frame)
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+Take the content from `DemoEngagementView`'s `PhoneMockup` but strip the phone frame/browser chrome. Render the app content directly into the preview area to fit naturally within the Platform tab dimensions.
 
-### Implemented
+### Changes
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+**File: `src/components/PlatformTabs.tsx`** (lines 161-291, `EngagementPreview`)
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+Replace entirely with static versions of the `/demo` UX elements, rendered directly (no phone border, no browser bar):
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+1. **Greeting + subtitle** — "Good morning, Sarah" / "Your personalized banking experience"
+2. **Lifestyle banner** — blue gradient card with "Your Lifestyle" label, "WELLNESS EXPLORER" title, "Top spending: Dining & Wellness"
+3. **"Your Lifestyle Spending" 2×2 grid** — 4 pillar cards (Dining, Wellness, Travel, Shopping) each with emoji icon, name, progress bar, spend/budget text. Expandable subcategories not needed (static preview).
+4. **Achievement card** — amber gradient, Trophy icon, "Dining Streak: 5 weeks under budget", progress bar with score badge
+5. **Coaching tip card** — blue gradient, Lightbulb icon, "Wellness spending is up 28%…" with "Got it" / "Need help" buttons
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+Remove: raw categories array, 3-column transformation grid, ArrowRight import (if unused elsewhere). Keep using the existing `categoryGroups` data for the 2×2 spending grid.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
