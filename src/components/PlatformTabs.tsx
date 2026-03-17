@@ -159,132 +159,82 @@ const RewardsPreview = () => (
 );
 
 const EngagementPreview = () => {
-  const categoryGroups = [
-    {
-      pillar: "Dining",
-      icon: "🍽️",
-      color: "#f59e0b",
-      spend: 480,
-      budget: 500,
-      status: "near" as const,
-      categories: ["Restaurants", "Coffee Shops", "Bars & Lounges"],
-    },
-    {
-      pillar: "Wellness",
-      icon: "💪",
-      color: "#22c55e",
-      spend: 320,
-      budget: 250,
-      status: "over" as const,
-      categories: ["Gyms & Fitness", "Supplements", "Spas & Beauty"],
-    },
-    {
-      pillar: "Travel",
-      icon: "✈️",
-      color: "#3b82f6",
-      spend: 1240,
-      budget: 1500,
-      status: "under" as const,
-      categories: ["Airlines", "Hotels", "Car Rentals"],
-    },
-    {
-      pillar: "Shopping",
-      icon: "🛍️",
-      color: "#a855f7",
-      spend: 180,
-      budget: 400,
-      status: "under" as const,
-      categories: ["Apparel", "Electronics"],
-    },
-  ];
-
-  const statusColors = {
-    near: { bar: "#f59e0b", bg: "rgba(245,158,11,0.08)", text: "#b45309", label: "Near Limit" },
-    over: { bar: "#ef4444", bg: "rgba(239,68,68,0.08)", text: "#dc2626", label: "Over Budget" },
-    under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
-  };
-
-  const rawCategories = [
-    "Restaurants", "Coffee Shops", "Fast Food",
-    "Gyms & Fitness", "Pharmacies",
-    "Airlines", "Hotels", "Car Rentals",
-    "Apparel", "Electronics",
+  const pillars = [
+    { name: "Dining", icon: "🍽️", spend: 480, budget: 500 },
+    { name: "Wellness", icon: "💪", spend: 320, budget: 250 },
+    { name: "Travel", icon: "✈️", spend: 1240, budget: 1500 },
+    { name: "Shopping", icon: "🛍️", spend: 180, budget: 400 },
   ];
 
   return (
     <div className="space-y-3">
-      {/* Mini Transformation Flow */}
-      <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Transaction Enrichment</p>
-      <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
-        {/* Left: Raw Categories */}
-        <div className="space-y-1.5">
-          <p className="text-[8px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Raw Categories</p>
-          {rawCategories.map((cat) => (
-            <div key={cat} className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5">
-              <span className="text-[9px] text-gray-500 font-medium">{cat}</span>
-            </div>
-          ))}
-        </div>
+      {/* Greeting */}
+      <div>
+        <p className="text-sm font-bold text-slate-900">Good morning, Sarah</p>
+        <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
+      </div>
 
-        {/* Center: Arrow */}
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-px h-8 bg-gray-200" />
-          <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
-            <ArrowRight className="w-4 h-4 text-blue-500" />
-          </div>
-          <p className="text-[7px] text-blue-500 font-semibold">AI</p>
-          <div className="w-px h-8 bg-gray-200" />
-        </div>
+      {/* Lifestyle Banner */}
+      <div className="rounded-lg px-3 py-3 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <p className="text-[8px] font-bold tracking-[0.15em] uppercase text-white/60">Your Lifestyle</p>
+        <p className="text-sm font-bold text-white uppercase">Wellness Explorer</p>
+        <p className="text-[10px] text-white/70 mt-0.5">Top spending: Dining & Wellness</p>
+      </div>
 
-        {/* Right: Lifestyle Pillars */}
-        <div className="space-y-1.5">
-          <p className="text-[8px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Lifestyle Pillars</p>
-          {categoryGroups.map((group) => {
-            const c = statusColors[group.status];
-            const pct = Math.min((group.spend / group.budget) * 100, 100);
+      {/* Lifestyle Spending 2×2 */}
+      <div>
+        <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-2">Your Lifestyle Spending</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {pillars.map((p) => {
+            const pct = Math.min((p.spend / p.budget) * 100, 100);
+            const isOver = p.spend > p.budget;
+            const barColor = isOver ? "#ef4444" : pct > 80 ? "#f59e0b" : "#22c55e";
             return (
-              <div key={group.pillar} className="rounded-md border px-2.5 py-1.5" style={{ borderColor: `${group.color}30`, background: `${group.color}08` }}>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px]">{group.icon}</span>
-                    <span className="text-[10px] font-bold" style={{ color: group.color }}>{group.pillar}</span>
-                  </div>
-                  <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>{c.label}</span>
+              <div key={p.name} className="rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-sm">{p.icon}</span>
+                  <span className="text-[10px] font-semibold text-slate-900">{p.name}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-gray-100">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: c.bar }} />
-                  </div>
-                  <span className="text-[7px] text-gray-400">${group.spend.toLocaleString()}</span>
+                <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
                 </div>
+                <p className="text-[8px] text-slate-400">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</p>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Gamification — Achievement */}
-      <div className="rounded-lg px-3 py-2.5 border border-gray-100" style={{ background: "rgba(245,158,11,0.04)" }}>
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[14px]" style={{ background: "rgba(245,158,11,0.12)" }}>🏆</div>
-          <div className="flex-1">
-            <p className="text-[10px] font-semibold text-gray-900">Dining Streak</p>
-            <p className="text-[8px] text-gray-500">5 weeks under budget — keep it going!</p>
+      {/* Achievement Card */}
+      <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-3">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-1.5">
+            <Trophy className="w-3.5 h-3.5 text-amber-500" />
+            <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
           </div>
-          <div className="w-6 h-6 rounded-full border-2 border-amber-400 flex items-center justify-center">
-            <span className="text-[8px] font-bold text-amber-600">5</span>
-          </div>
+          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Level 3</span>
         </div>
+        <p className="text-[11px] font-semibold text-slate-900">Dining Streak</p>
+        <p className="text-[8px] text-slate-500 mb-1.5">5 weeks under budget — keep it going!</p>
+        <div className="w-full h-1.5 rounded-full bg-slate-200">
+          <div className="h-full rounded-full bg-amber-400" style={{ width: "71%" }} />
+        </div>
+        <p className="text-[7px] text-slate-400 mt-0.5">5/7 weeks</p>
       </div>
 
-      {/* Coaching — AI Insight */}
-      <div className="rounded-lg px-3 py-2.5" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.12)" }}>
-        <div className="flex items-start gap-2.5">
-          <span className="text-[14px] mt-0.5">💡</span>
-          <div>
-            <p className="text-[10px] font-semibold text-blue-700">AI Insight</p>
-            <p className="text-[8px] text-gray-600">Wellness spending is up 28% this month. Consider adjusting your budget to stay on track.</p>
+      {/* Coaching Tip Card */}
+      <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
+            <Lightbulb className="w-3 h-3 text-blue-600" />
           </div>
+          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">Wellness</span>
+          <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save $85/mo</span>
+        </div>
+        <p className="text-[10px] text-slate-700 leading-relaxed mb-2">Wellness spending is up 28% this month. Consider adjusting your budget to stay on track.</p>
+        <div className="flex gap-1.5">
+          <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">Got it</button>
+          <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors">Need help</button>
         </div>
       </div>
     </div>
