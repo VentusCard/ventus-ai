@@ -159,86 +159,111 @@ const RewardsPreview = () => (
 );
 
 const EngagementPreview = () => {
+  const categoryGroups = [
+    {
+      pillar: "Dining",
+      icon: "🍽️",
+      color: "#f59e0b",
+      spend: 480,
+      budget: 500,
+      status: "near" as const,
+      categories: ["Restaurants", "Coffee Shops", "Bars & Lounges"],
+    },
+    {
+      pillar: "Wellness",
+      icon: "💪",
+      color: "#22c55e",
+      spend: 320,
+      budget: 250,
+      status: "over" as const,
+      categories: ["Gyms & Fitness", "Supplements", "Spas & Beauty"],
+    },
+    {
+      pillar: "Travel",
+      icon: "✈️",
+      color: "#3b82f6",
+      spend: 1240,
+      budget: 1500,
+      status: "under" as const,
+      categories: ["Airlines", "Hotels", "Car Rentals"],
+    },
+    {
+      pillar: "Shopping",
+      icon: "🛍️",
+      color: "#a855f7",
+      spend: 180,
+      budget: 400,
+      status: "under" as const,
+      categories: ["Apparel", "Electronics"],
+    },
+  ];
+
+  const statusColors = {
+    near: { bar: "#f59e0b", bg: "rgba(245,158,11,0.08)", text: "#b45309", label: "Near Limit" },
+    over: { bar: "#ef4444", bg: "rgba(239,68,68,0.08)", text: "#dc2626", label: "Over Budget" },
+    under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
+  };
+
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {/* LEFT — Customer Profile */}
+    <div className="grid grid-cols-2 gap-4">
+      {/* LEFT — Category → Pillar Consolidation */}
       <div className="space-y-2">
-        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Customer Profile</p>
-        <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-2">
-          <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
-            <span className="text-blue-600 font-bold text-[10px]">SM</span>
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-gray-900">Sarah M.</p>
-            <p className="text-[9px] text-gray-500">Premium Banking · New York, NY</p>
-          </div>
-        </div>
-        <div className="space-y-1">
-          {[
-            { label: "Travel", score: "56%", detail: "$1,240" },
-            { label: "Dining", score: "22%", detail: "$480" },
-            { label: "Wellness", score: "14%", detail: "$320" },
-            { label: "Shopping", score: "8%", detail: "$180" },
-          ].map((p) => (
-            <div key={p.label} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-gray-700">{p.label}</span>
-                <span className="text-[9px] text-gray-400">{p.detail}</span>
+        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Categories → Lifestyle Pillars</p>
+        {categoryGroups.map((group) => {
+          const c = statusColors[group.status];
+          const pct = Math.min((group.spend / group.budget) * 100, 100);
+          return (
+            <div key={group.pillar} className="rounded-lg border border-gray-100 px-2.5 py-2">
+              <div className="flex items-start gap-2">
+                {/* Raw categories */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap gap-1 mb-1.5">
+                    {group.categories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="text-[8px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium whitespace-nowrap"
+                      >
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {/* Arrow */}
+                <span className="text-gray-300 text-[10px] mt-1 shrink-0">→</span>
+                {/* Pillar label */}
+                <div className="shrink-0 flex items-center gap-1 mt-0.5">
+                  <span className="text-[10px]">{group.icon}</span>
+                  <span className="text-[10px] font-bold" style={{ color: group.color }}>{group.pillar}</span>
+                </div>
               </div>
-              <span className="text-[10px] font-semibold text-gray-500">{p.score}</span>
+              {/* Budget bar */}
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 h-1 rounded-full bg-gray-100">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: c.bar }} />
+                </div>
+                <span className="text-[7px] font-semibold px-1 py-0.5 rounded-full shrink-0" style={{ background: c.bg, color: c.text }}>{c.label}</span>
+              </div>
+              <p className="text-[8px] text-gray-400 mt-0.5">${group.spend.toLocaleString()} / ${group.budget.toLocaleString()}</p>
             </div>
-          ))}
-        </div>
-        <div className="rounded-md px-2.5 py-1.5" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.15)" }}>
-          <p className="text-[10px] font-semibold text-blue-700">✦ Wellness Explorer</p>
-        </div>
+          );
+        })}
       </div>
 
-      {/* RIGHT — Bank App Output */}
+      {/* RIGHT — Bank App Experience */}
       <div className="space-y-2">
         <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Bank App Experience</p>
-        {/* Wellness Explorer Banner */}
-        <div className="rounded-lg px-2.5 py-2 relative" style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%)" }}>
-          <p className="text-[10px] font-bold text-white leading-tight">WELLNESS EXPLORER</p>
-          <p className="text-[8px] text-white/50 mt-0.5 text-right">Powered by Ventus AI</p>
-        </div>
-        {/* Offer rows */}
-        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase">For You</p>
-        {[
-          { brand: "REI Co-op", offer: "10% back on outdoor gear", tag: "Outdoor" },
-          { brand: "Sweetgreen", offer: "$5 off your next order", tag: "Dining" },
-          { brand: "Equinox", offer: "First month free", tag: "Wellness" },
-        ].map((o) => (
-          <div key={o.brand} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
-            <div>
-              <p className="text-[11px] font-semibold text-gray-900">{o.brand}</p>
-              <p className="text-[9px] text-gray-500">{o.offer}</p>
-            </div>
-            <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(37,99,235,0.08)", color: "#2563eb" }}>{o.tag}</span>
-          </div>
-        ))}
         {/* Lifestyle Spending Grid */}
-        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase mt-1">Your Lifestyle Spending</p>
+        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase">Your Lifestyle Spending</p>
         <div className="grid grid-cols-2 gap-1.5">
-          {[
-            { name: "Travel", icon: "✈️", spend: 1240, budget: 1500, status: "near" as const },
-            { name: "Dining", icon: "🍽️", spend: 480, budget: 500, status: "near" as const },
-            { name: "Wellness", icon: "💪", spend: 320, budget: 250, status: "over" as const },
-            { name: "Shopping", icon: "🛍️", spend: 180, budget: 400, status: "under" as const },
-          ].map((p) => {
-            const colors = {
-              near: { bar: "#f59e0b", bg: "rgba(245,158,11,0.08)", text: "#b45309", label: "Near Limit" },
-              over: { bar: "#ef4444", bg: "rgba(239,68,68,0.08)", text: "#dc2626", label: "Over Budget" },
-              under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
-            };
-            const c = colors[p.status];
+          {categoryGroups.map((p) => {
+            const c = statusColors[p.status];
             const pct = Math.min((p.spend / p.budget) * 100, 100);
             return (
-              <div key={p.name} className="rounded-md px-2 py-1.5 border border-gray-100">
+              <div key={p.pillar} className="rounded-md px-2 py-1.5 border border-gray-100">
                 <div className="flex items-center justify-between mb-0.5">
                   <div className="flex items-center gap-1">
                     <span className="text-[10px]">{p.icon}</span>
-                    <span className="text-[9px] font-semibold text-gray-900">{p.name}</span>
+                    <span className="text-[9px] font-semibold text-gray-900">{p.pillar}</span>
                   </div>
                   <span className="text-[6px] font-semibold px-1 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>{c.label}</span>
                 </div>
@@ -249,6 +274,33 @@ const EngagementPreview = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Gamification — Achievement */}
+        <div className="rounded-md px-2.5 py-2 border border-gray-100" style={{ background: "rgba(245,158,11,0.04)" }}>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[12px]" style={{ background: "rgba(245,158,11,0.12)" }}>🏆</div>
+            <div>
+              <p className="text-[10px] font-semibold text-gray-900">Dining Streak</p>
+              <p className="text-[8px] text-gray-500">5 weeks under budget — keep it going!</p>
+            </div>
+            <div className="ml-auto">
+              <div className="w-5 h-5 rounded-full border-2 border-amber-400 flex items-center justify-center">
+                <span className="text-[7px] font-bold text-amber-600">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Coaching — AI Insight */}
+        <div className="rounded-md px-2.5 py-2" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.12)" }}>
+          <div className="flex items-start gap-2">
+            <span className="text-[12px] mt-0.5">💡</span>
+            <div>
+              <p className="text-[10px] font-semibold text-blue-700">AI Insight</p>
+              <p className="text-[8px] text-gray-600">Wellness spending is up 28% this month. Consider adjusting your budget to stay on track.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
