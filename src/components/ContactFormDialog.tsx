@@ -52,22 +52,21 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             <Button onClick={handleClose} className="bg-blue-600 hover:bg-blue-700 text-white px-6 h-10">Close</Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-5">
-            {/* Left — Vision Statement */}
-            <div className="md:col-span-2 bg-slate-50 p-6 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200">
-              <img src={ventusLogo} alt="Ventus AI" className="w-20 mb-8" />
-              <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="bg-slate-50 p-8 md:p-10 flex flex-col border-b md:border-b-0 md:border-r border-slate-200">
+              <img src={ventusLogo} alt="Ventus AI" className="w-24 mb-10" />
+              <div className="space-y-8 flex-1 flex flex-col justify-center">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Right now</p>
-                  <p className="text-sm text-slate-500 leading-relaxed">Generic. Static. The same for everyone.</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Right now</p>
+                  <p className="text-base text-slate-500 leading-relaxed">Generic. Static. The same for everyone.</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">With VentusAI</p>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">Personalized. Intelligent. Built for each customer.</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1.5">With VentusAI</p>
+                  <p className="text-base text-slate-700 leading-relaxed font-medium">Personalized. Intelligent. Built for each customer.</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-900 mb-1">What's next</p>
-                  <p className="text-sm font-semibold leading-relaxed bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-900 mb-1.5">What's next</p>
+                  <p className="text-base font-semibold leading-relaxed bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Autonomous. A bank that doesn't wait to be told — it already knows.
                   </p>
                 </div>
@@ -75,7 +74,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             </div>
 
             {/* Right — Contact Form */}
-            <div className="md:col-span-3 p-6 md:p-8">
+            <div className="p-8 md:p-10">
               <h2 className="text-xl font-bold text-gray-900 mb-1">Get in Touch</h2>
               <p className="text-gray-500 text-sm mb-5">We'd love to hear from you. We'll get back within one business day.</p>
               <form className="space-y-3">
