@@ -55,7 +55,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="bg-slate-50 p-8 md:p-10 flex flex-col border-b md:border-b-0 md:border-r border-slate-200">
               <img src={ventusLogo} alt="Ventus AI" className="w-24 mb-10" />
-              <div className="space-y-6">
+              <div className="space-y-8 flex-1 flex flex-col justify-center">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Right now</p>
                   <p className="text-sm text-slate-500 leading-relaxed">Generic. Static. The same for everyone.</p>
