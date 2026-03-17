@@ -31,6 +31,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const advance = useCallback(() => {
     if (isTransitioning) return;
     setStep((s) => {
+      if (s === 3) {
+        if (beat3Phase < 1) {
+          setBeat3Phase((p) => p + 1);
+          return s;
+        }
+        setBeat3Phase(0);
+      }
       if (s === 4) {
         if (beat4Phase < 2) {
           setBeat4Phase((p) => p + 1);
