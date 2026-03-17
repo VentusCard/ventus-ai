@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
@@ -22,35 +22,53 @@ interface NodeDef {
   color: string;
 }
 
-interface SectionDef {
-  label: string;
+interface PillarDef {
+  id: string;
+  name: string;
+  subtitle: string;
+  icon: typeof Search;
+  color: string;
   nodes: NodeDef[];
 }
 
 // Geometry constants
 const TX_CARD_WIDTH = 160;
-const TX_CARD_ANCHOR = 40; // card renders at colLeft - TX_CARD_ANCHOR
+const TX_CARD_ANCHOR = 40;
 const ENGINE_WIDTH = 160;
+const PILLAR_WIDTH = 155;
+const PILLAR_HEIGHT = 58;
 const SECTION_WIDTH = 210;
-const SECTION_ANCHOR = 58; // section renders at colRight - SECTION_ANCHOR
+const SECTION_ANCHOR = 58;
 
-const SECTIONS: SectionDef[] = [
+const PILLARS: PillarDef[] = [
   {
-    label: "UX & Analytics",
+    id: "profiling",
+    name: "Profiling",
+    subtitle: "What they have spent on",
+    icon: Search,
+    color: "#3b82f6",
     nodes: [
       { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b" },
       { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
     ],
   },
   {
-    label: "Personalized Rewards",
+    id: "predictive",
+    name: "Predictive",
+    subtitle: "What they might spend next",
+    icon: Sparkles,
+    color: "#22c55e",
     nodes: [
       { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
       { id: "travel", label: "Travel Experiences", icon: Plane, color: "#06b6d4" },
     ],
   },
   {
-    label: "Life Cycle Intelligence",
+    id: "phase",
+    name: "Phase",
+    subtitle: "Where they are in life",
+    icon: Heart,
+    color: "#a855f7",
     nodes: [
       { id: "lifeEvents", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899" },
       { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
@@ -58,7 +76,8 @@ const SECTIONS: SectionDef[] = [
   },
 ];
 
-const ALL_NODES = SECTIONS.flatMap(s => s.nodes);
+const SECTIONS = PILLARS.map(p => ({ label: p.name, nodes: p.nodes }));
+const ALL_NODES = PILLARS.flatMap(p => p.nodes);
 
 const ENGINE_FEATURES = [
   "Semantic Enrichment",
@@ -72,7 +91,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
-  // ResizeObserver for continuous tracking during flex transitions
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -84,43 +102,28 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // Compute column positions with visual-bias compensation
-  // Left extent: colLeft - TX_CARD_ANCHOR (left edge of tx cards)
-  // Right extent: colRight - SECTION_ANCHOR + SECTION_WIDTH (right edge of sections)
-  // Composition width = (colRight - SECTION_ANCHOR + SECTION_WIDTH) - (colLeft - TX_CARD_ANCHOR)
-  // We want composition center = dims.w / 2
-
-  let colLeft: number, colCenter: number, colRight: number;
+  // 4-column layout: colLeft | colCenter (engine) | colMid (pillars) | colRight (leaf sections)
+  let colLeft: number, colCenter: number, colMid: number, colRight: number;
 
   if (centered && dims.w > 0) {
-    // Total composition spread: from left edge of tx cards to right edge of sections
-    // Let's define spacing ratios between the three columns
-    const compositionSpan = dims.w * 0.7; // use 70% of width for the composition
-    const leftAnchor = (dims.w - compositionSpan) / 2 + TX_CARD_ANCHOR; // so left card edge starts at margin
-    const rightAnchor = leftAnchor + compositionSpan - (SECTION_WIDTH - SECTION_ANCHOR); // so right section edge ends at margin
-    const centerAnchor = (leftAnchor + rightAnchor) / 2;
-
-    colLeft = leftAnchor;
-    colCenter = centerAnchor;
-    colRight = rightAnchor;
-
-    // Clamp to prevent overflow
-    const minLeft = TX_CARD_ANCHOR + 10;
-    const maxRight = dims.w - (SECTION_WIDTH - SECTION_ANCHOR) - 10;
-    if (colLeft < minLeft) colLeft = minLeft;
-    if (colRight > maxRight) colRight = maxRight;
-    colCenter = (colLeft + colRight) / 2;
+    const compositionSpan = dims.w * 0.82;
+    const margin = (dims.w - compositionSpan) / 2;
+    colLeft = margin + TX_CARD_ANCHOR;
+    colRight = dims.w - margin - (SECTION_WIDTH - SECTION_ANCHOR);
+    colCenter = colLeft + (colRight - colLeft) * 0.28;
+    colMid = colLeft + (colRight - colLeft) * 0.58;
   } else {
-    colLeft = dims.w * 0.12;
-    colCenter = dims.w * 0.48;
-    colRight = dims.w * 0.85;
+    colLeft = dims.w * 0.10;
+    colCenter = dims.w * 0.32;
+    colMid = dims.w * 0.56;
+    colRight = dims.w * 0.82;
   }
 
   const midY = dims.h * 0.5;
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  // Section container layout constants (grouped)
+  // Section (leaf) layout
   const sectionGap = 12;
   const sectionPadTop = 28;
   const nodeHeight = 44;
@@ -136,16 +139,21 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return sectionTop + sectionPadTop + nodeIdx * (nodeHeight + nodeGap) + nodeHeight / 2;
   };
 
-  const anyProcessing = Object.values(nodeReadiness).some(s => s === "processing");
+  // Pillar positions — vertically aligned with their section groups
+  const getPillarY = (si: number) => {
+    const sectionTop = getSectionTop(si);
+    return sectionTop + sectionContentHeight / 2;
+  };
+
   const engineReady = nodeReadiness.engine === "ready";
   const engineProcessing = nodeReadiness.engine === "processing";
   const inputState: "idle" | "processing" | "ready" = engineReady ? "ready" : engineProcessing ? "processing" : "idle";
 
-  // Flatten for SVG line rendering
-  const nodePositions: { node: NodeDef; y: number }[] = [];
-  SECTIONS.forEach((section, si) => {
-    section.nodes.forEach((node, ni) => {
-      nodePositions.push({ node, y: getNodeY(si, ni) });
+  // Flatten for SVG
+  const nodePositions: { node: NodeDef; y: number; sectionIdx: number }[] = [];
+  PILLARS.forEach((pillar, si) => {
+    pillar.nodes.forEach((node, ni) => {
+      nodePositions.push({ node, y: getNodeY(si, ni), sectionIdx: si });
     });
   });
 
@@ -171,7 +179,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
         {dims.w > 0 && (
           <>
-            {/* Input lines (left cards → engine) */}
+            {/* Input lines: left cards → engine */}
             {[inputAY, inputBY].map((y, i) => {
               const path = `M ${colLeft + 80} ${y} C ${colCenter - 60} ${y}, ${colCenter - 60} ${midY}, ${colCenter - 40} ${midY}`;
               const isReady = inputState === "ready";
@@ -196,36 +204,73 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               );
             })}
 
-            {/* Output lines (engine → right nodes) */}
-            {nodePositions.map(({ node, y }, i) => {
-              const path = `M ${colCenter + 80} ${midY} C ${colRight - 80} ${midY}, ${colRight - 80} ${y}, ${colRight - 50} ${y}`;
-              const state = nodeReadiness[node.id];
-              const isReady = state === "ready";
-              const isProcessingNode = state === "processing";
+            {/* Engine → 3 pillar nodes */}
+            {PILLARS.map((pillar, pi) => {
+              const pillarY = getPillarY(pi);
+              const path = `M ${colCenter + ENGINE_WIDTH / 2} ${midY} C ${colMid - 40} ${midY}, ${colMid - 40} ${pillarY}, ${colMid - PILLAR_WIDTH / 2} ${pillarY}`;
+              // Pillar is "ready" when engine is ready
+              const pillarReady = engineReady;
+              const pillarProcessing = engineProcessing;
 
               return (
-                <g key={`out-${i}`}>
+                <g key={`eng-pil-${pi}`}>
                   <path
                     d={path}
-                    stroke={node.color}
-                    strokeWidth={isReady ? 2.5 : 1.5}
+                    stroke={pillar.color}
+                    strokeWidth={pillarReady ? 2.5 : 1.5}
                     fill="none"
-                    opacity={isReady ? 0.75 : activeNode === node.id ? 0.5 : 0.2}
-                    strokeDasharray={isReady ? "none" : "6 4"}
+                    opacity={pillarReady ? 0.7 : 0.2}
+                    strokeDasharray={pillarReady ? "none" : "6 4"}
                     className="line-transition"
                   />
-                  {isProcessingNode && (
-                    <circle r="2.5" fill={node.color}>
-                      <animateMotion dur={`${2 + i * 0.4}s`} repeatCount="indefinite" path={path} />
+                  {pillarProcessing && !pillarReady && (
+                    <circle r="2.5" fill={pillar.color}>
+                      <animateMotion dur={`${2.5 + pi * 0.4}s`} repeatCount="indefinite" path={path} />
                     </circle>
                   )}
-                  {isReady && (
-                    <circle r="3" fill={node.color} opacity="0.6">
-                      <animateMotion dur={`${3 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                  {pillarReady && (
+                    <circle r="3" fill={pillar.color} opacity="0.5">
+                      <animateMotion dur={`${3.5 + pi * 0.3}s`} repeatCount="indefinite" path={path} />
                     </circle>
                   )}
                 </g>
               );
+            })}
+
+            {/* Pillar → leaf node lines */}
+            {PILLARS.map((pillar, si) => {
+              const pillarY = getPillarY(si);
+              return pillar.nodes.map((node, ni) => {
+                const nodeY = getNodeY(si, ni);
+                const path = `M ${colMid + PILLAR_WIDTH / 2} ${pillarY} C ${colRight - 70} ${pillarY}, ${colRight - 70} ${nodeY}, ${colRight - SECTION_ANCHOR} ${nodeY}`;
+                const state = nodeReadiness[node.id];
+                const isReady = state === "ready";
+                const isProcessingNode = state === "processing";
+
+                return (
+                  <g key={`pil-leaf-${si}-${ni}`}>
+                    <path
+                      d={path}
+                      stroke={node.color}
+                      strokeWidth={isReady ? 2.5 : 1.5}
+                      fill="none"
+                      opacity={isReady ? 0.75 : activeNode === node.id ? 0.5 : 0.2}
+                      strokeDasharray={isReady ? "none" : "6 4"}
+                      className="line-transition"
+                    />
+                    {isProcessingNode && (
+                      <circle r="2.5" fill={node.color}>
+                        <animateMotion dur={`${2 + ni * 0.4}s`} repeatCount="indefinite" path={path} />
+                      </circle>
+                    )}
+                    {isReady && (
+                      <circle r="3" fill={node.color} opacity="0.6">
+                        <animateMotion dur={`${3 + ni * 0.3}s`} repeatCount="indefinite" path={path} />
+                      </circle>
+                    )}
+                  </g>
+                );
+              });
             })}
           </>
         )}
@@ -269,6 +314,49 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         </div>
         <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
       </button>
+
+      {/* Pillar Nodes — Middle column */}
+      {PILLARS.map((pillar, pi) => {
+        const pillarY = getPillarY(pi);
+        const Icon = pillar.icon;
+        const pillarReady = engineReady;
+
+        return (
+          <div
+            key={pillar.id}
+            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 transition-all duration-300"
+            style={{
+              left: colMid - PILLAR_WIDTH / 2,
+              top: pillarY - PILLAR_HEIGHT / 2,
+              width: PILLAR_WIDTH,
+              height: PILLAR_HEIGHT,
+              zIndex: 2,
+              borderColor: pillarReady ? `${pillar.color}60` : "#e2e8f0",
+              borderLeftWidth: 3,
+              borderLeftColor: pillar.color,
+              background: pillarReady ? `${pillar.color}08` : "#ffffff",
+              boxShadow: pillarReady
+                ? `0 0 16px ${pillar.color}15`
+                : "0 1px 3px rgba(0,0,0,0.06)",
+              opacity: engineReady ? 1 : engineProcessing ? 0.7 : 0.5,
+            }}
+          >
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+              style={{
+                background: `${pillar.color}15`,
+                border: `1px solid ${pillar.color}30`,
+              }}
+            >
+              <Icon className="w-3.5 h-3.5" style={{ color: pillar.color }} />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="text-[10px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
+              <p className="text-[8px] text-slate-400 leading-tight truncate">{pillar.subtitle}</p>
+            </div>
+          </div>
+        );
+      })}
 
       {/* Output Nodes — Right, grouped by section */}
       {SECTIONS.map((section, si) => {

@@ -1,41 +1,37 @@
 
 
-## Plan: Add Intermediate "Pillar" Layer to Network Diagram
 
-**File: `src/components/demo/DemoNetworkDiagram.tsx`**
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-**Current layout:** Engine → 6 output nodes (grouped visually in 3 sections)
+### Implemented
 
-**New layout:** Engine → 3 intermediate pillar nodes → each pillar fans out to 2 leaf nodes
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-### The 3 Pillars
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
-| Pillar | Label | Leaf nodes |
-|--------|-------|------------|
-| **Profiling** | "What they have spent on" | Personalized UX, Bank-Wide Analytics |
-| **Predictive** | "What they might spend next" | Consumer Rewards, Travel Experiences |
-| **Phase** | "Where they are in life" | Life Event Detection, Wealth Management |
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
+
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
 ### Layout Changes
-
-1. **Add a new column** between Engine (center) and the leaf nodes (right). Four columns total:
-   - `colLeft` — transaction cards (unchanged)
-   - `colCenter` — Ventus AI Engine (unchanged)
-   - `colMid` — 3 pillar nodes (NEW), vertically centered, evenly spaced
-   - `colRight` — 6 leaf nodes in 3 grouped sections (unchanged, shifts slightly right if needed)
-
-2. **Pillar node rendering** — each is a rounded card (~150×60px) with:
-   - Bold pillar name (e.g. "Profiling")
-   - Subtitle text (e.g. "What they have spent on")
-   - Colored left accent or icon
-   - State-aware styling matching existing node pattern (idle/processing/ready)
-
-3. **SVG lines update:**
-   - Engine → 3 pillar nodes (replace current engine → 6 nodes lines)
-   - Each pillar → its 2 leaf nodes (new short fan-out lines)
-   - Animated dots follow same pattern as existing lines
-
-4. **Readiness logic** — pillar node shows "ready" when its engine is ready; leaf nodes keep existing `nodeReadiness` behavior. Pillar nodes are not clickable (they're structural groupings).
-
-5. **Column position math** — adjust `colRight` slightly and insert `colMid` at roughly 65% of width. The 3 pillars are vertically distributed to align with their corresponding section groups.
-
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
