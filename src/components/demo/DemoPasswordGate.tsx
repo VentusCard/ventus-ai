@@ -62,7 +62,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       }
       return next;
     });
-  }, [beat4Phase, beat5Phase, isTransitioning]);
+  }, [beat3Phase, beat4Phase, beat5Phase, isTransitioning]);
 
   const goBack = useCallback(() => {
     if (isTransitioning) return;
