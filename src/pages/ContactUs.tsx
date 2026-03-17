@@ -155,7 +155,7 @@ ${name}
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Subject</label>
                       <select
                         name="subject"
-                        className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus:outline-none focus:ring-0"
                         required>
                         
                         <option value="">Select a topic...</option>
