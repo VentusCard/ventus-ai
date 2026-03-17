@@ -1,37 +1,24 @@
 
 
+## Plan: Redesign Customer Experience Preview as Single-Column Holistic Layout
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+**What changed from before**: Remove the 2-column split. Present everything in one flowing column.
 
-### Implemented
+### New Layout (single column, top to bottom)
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+1. **Category → Pillar Consolidation** (primary focus): Show the raw categories mapping into lifestyle pillars with budget progress bars — same data, but laid out as a full-width vertical list instead of cramped in half the space.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+2. **Gamification card** (minor): The "Dining Streak" achievement — keep as-is, just full width.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+3. **AI Coaching card** (minor): The "Wellness spending up 28%" insight — keep as-is, just full width.
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**Removed**: The right-column "Bank App Experience" with the duplicated 2×2 spending grid. The consolidation view already shows spend/budget per pillar, so the grid was redundant.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+### Changes
+
+**File: `src/components/PlatformTabs.tsx`** (lines 207-307)
+- Replace `grid grid-cols-2` with single `space-y-3` container
+- Category→Pillar cards become full-width with more room for the category chips, arrow, and pillar label
+- Gamification and Coaching cards stay but move below the pillar list
+- Remove the "Bank App Experience" right column entirely
+
