@@ -205,36 +205,39 @@ const EngagementPreview = () => {
         </div>
       </div>
 
-      {/* Achievement Card */}
-      <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-3">
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-1.5">
-            <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Savings Streak Card */}
+        <div className="rounded-lg border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-2">
+          <div className="flex items-center gap-1 mb-1">
+            <Trophy className="w-3 h-3 text-amber-600" />
+            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wide">Achievement</span>
           </div>
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Level 3</span>
+          <div className="flex items-center justify-between mb-0.5">
+            <p className="text-[10px] font-bold text-slate-900">Savings Streak</p>
+            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Saver Pro</span>
+          </div>
+          <p className="text-[8px] text-slate-500 mb-1.5">12 weeks of saving $50+</p>
+          <div className="w-full h-1.5 rounded-full bg-slate-200 mb-0.5">
+            <div className="h-full rounded-full bg-amber-400" style={{ width: "75%" }} />
+          </div>
+          <p className="text-[7px] text-slate-400">12/16 weeks</p>
         </div>
-        <p className="text-[11px] font-semibold text-slate-900">Dining Streak</p>
-        <p className="text-[8px] text-slate-500 mb-1.5">5 weeks under budget — keep it going!</p>
-        <div className="w-full h-1.5 rounded-full bg-slate-200">
-          <div className="h-full rounded-full bg-amber-400" style={{ width: "71%" }} />
-        </div>
-        <p className="text-[7px] text-slate-400 mt-0.5">5/7 weeks</p>
-      </div>
 
-      {/* Coaching Tip Card */}
-      <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
+        {/* Emergency Fund Card */}
+        <div className="rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+          <div className="flex items-center gap-1 mb-1">
             <Lightbulb className="w-3 h-3 text-blue-600" />
+            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">On Track</span>
           </div>
-          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">Wellness</span>
-          <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save $85/mo</span>
-        </div>
-        <p className="text-[10px] text-slate-700 leading-relaxed mb-2">Wellness spending is up 28% this month. Consider adjusting your budget to stay on track.</p>
-        <div className="flex gap-1.5">
-          <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">Got it</button>
-          <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors">Need help</button>
+          <p className="text-[10px] font-bold text-slate-900 mb-0.5">Emergency Fund</p>
+          <p className="text-[8px] text-slate-500 leading-snug mb-1.5">68% to your 3-month safety net. Auto-save $25/wk to hit it by August.</p>
+          <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
+            <div className="h-full rounded-full bg-blue-500" style={{ width: "68%" }} />
+          </div>
+          <div className="flex gap-1">
+            <button className="text-[7px] font-semibold px-2 py-0.5 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">Adjust</button>
+            <button className="text-[7px] font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors">Keep going</button>
+          </div>
         </div>
       </div>
     </div>
