@@ -79,12 +79,10 @@ const PILLARS: PillarDef[] = [
 const SECTIONS = PILLARS.map(p => ({ label: p.name, nodes: p.nodes }));
 const ALL_NODES = PILLARS.flatMap(p => p.nodes);
 
-const ENGINE_FEATURES = [
-  "Semantic Enrichment",
-  "Cross-category Pattern Analysis",
-  "Deep Purchase Intelligence",
-  "Behavioral Profiling",
-  "Life Event Detection",
+const ENGINE_CAPABILITIES = [
+  { label: "Semantic Enrichment", icon: Layers, color: "#6366f1" },
+  { label: "Cross-category Patterns", icon: GitBranch, color: "#8b5cf6" },
+  { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
 ];
 
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
