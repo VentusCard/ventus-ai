@@ -31,15 +31,21 @@ interface PillarDef {
   nodes: NodeDef[];
 }
 
-// Geometry constants
+// Geometry constants — all nodes use center-based positioning
 const TX_CARD_WIDTH = 160;
-const TX_CARD_ANCHOR = 40;
-const ENGINE_WIDTH = 160;
+const TX_CARD_HEIGHT = 100;
+const ENGINE_WIDTH = 190;
+const ENGINE_HEIGHT = 220;
 const PILLAR_WIDTH = 155;
 const PILLAR_HEIGHT = 58;
 const LEAF_NODE_WIDTH = 190;
 const LEAF_NODE_HEIGHT = 44;
-const LEAF_PAIR_OFFSET = 30;
+const LEAF_PAIR_OFFSET = 28;
+
+// Horizontal gaps between column centers
+const GAP_TX_ENGINE = 160;
+const GAP_ENGINE_PILLAR = 150;
+const GAP_PILLAR_LEAF = 130;
 
 const PILLARS: PillarDef[] = [
   {
@@ -83,8 +89,6 @@ const ENGINE_CAPABILITIES = [
   { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
 ];
 
-const ALL_NODES = PILLARS.flatMap(p => p.nodes);
-
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
@@ -100,32 +104,23 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // 4-column layout
-  let colLeft: number, colCenter: number, colMid: number, colRight: number;
+  // ── Center-based layout: compute 4 column centers, then center the whole frame ──
+  const totalContentWidth = TX_CARD_WIDTH / 2 + GAP_TX_ENGINE + GAP_ENGINE_PILLAR + GAP_PILLAR_LEAF + LEAF_NODE_WIDTH / 2;
+  const contentLeft = Math.max(20, (dims.w - totalContentWidth) / 2);
 
-  if (centered && dims.w > 0) {
-    const compositionSpan = dims.w * 0.82;
-    const margin = (dims.w - compositionSpan) / 2;
-    colLeft = margin + TX_CARD_ANCHOR;
-    colRight = dims.w - margin - LEAF_NODE_WIDTH * 0.4;
-    colCenter = colLeft + (colRight - colLeft) * 0.28;
-    colMid = colLeft + (colRight - colLeft) * 0.55;
-  } else {
-    colLeft = dims.w * 0.08;
-    colCenter = dims.w * 0.30;
-    colMid = dims.w * 0.55;
-    colRight = dims.w * 0.78;
-  }
+  const txCenterX = contentLeft + TX_CARD_WIDTH / 2;
+  const engineCenterX = txCenterX + GAP_TX_ENGINE;
+  const pillarCenterX = engineCenterX + GAP_ENGINE_PILLAR;
+  const leafCenterX = pillarCenterX + GAP_PILLAR_LEAF;
 
+  // ── Vertical layout: clamped band, not raw viewport scaling ──
   const midY = dims.h * 0.5;
-  const inputAY = midY - 70;
-  const inputBY = midY + 70;
-
-  // Distribute 3 pillars evenly
-  const pillarSpacing = dims.h * 0.28;
+  const pillarSpacing = Math.min(Math.max(dims.h * 0.22, 100), 180);
   const getPillarY = (pi: number) => midY + (pi - 1) * pillarSpacing;
 
-  // Leaf nodes: tight pair anchored to parent pillar
+  const inputAY = midY - 55;
+  const inputBY = midY + 55;
+
   const getNodeY = (pillarIdx: number, nodeIdx: number) => {
     const pillarY = getPillarY(pillarIdx);
     return nodeIdx === 0 ? pillarY - LEAF_PAIR_OFFSET : pillarY + LEAF_PAIR_OFFSET;
@@ -135,13 +130,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const engineProcessing = nodeReadiness.engine === "processing";
   const inputState: "idle" | "processing" | "ready" = engineReady ? "ready" : engineProcessing ? "processing" : "idle";
 
-  // Flatten for SVG
-  const nodePositions: { node: NodeDef; y: number; sectionIdx: number }[] = [];
-  PILLARS.forEach((pillar, si) => {
-    pillar.nodes.forEach((node, ni) => {
-      nodePositions.push({ node, y: getNodeY(si, ni), sectionIdx: si });
-    });
-  });
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
@@ -167,7 +155,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           <>
             {/* Input lines: left cards → engine */}
             {[inputAY, inputBY].map((y, i) => {
-              const path = `M ${colLeft + 80} ${y} C ${colCenter - 60} ${y}, ${colCenter - 60} ${midY}, ${colCenter - 40} ${midY}`;
+              const txRight = txCenterX + TX_CARD_WIDTH / 2;
+              const engineLeft = engineCenterX - ENGINE_WIDTH / 2;
+              const path = `M ${txRight} ${y} C ${(txRight + engineLeft) / 2} ${y}, ${(txRight + engineLeft) / 2} ${midY}, ${engineLeft} ${midY}`;
               const isReady = inputState === "ready";
               const isProcessingLine = inputState === "processing";
               return (
@@ -193,8 +183,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             {/* Engine → 3 pillar nodes */}
             {PILLARS.map((pillar, pi) => {
               const pillarY = getPillarY(pi);
-              const path = `M ${colCenter + ENGINE_WIDTH / 2} ${midY} C ${colMid - 40} ${midY}, ${colMid - 40} ${pillarY}, ${colMid - PILLAR_WIDTH / 2} ${pillarY}`;
-              // Pillar is "ready" when engine is ready
+              const engineRight = engineCenterX + ENGINE_WIDTH / 2;
+              const pillarLeft = pillarCenterX - PILLAR_WIDTH / 2;
+              const cpX = (engineRight + pillarLeft) / 2;
+              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${pillarY}, ${pillarLeft} ${pillarY}`;
               const pillarReady = engineReady;
               const pillarProcessing = engineProcessing;
 
@@ -226,9 +218,12 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             {/* Pillar → leaf node lines */}
             {PILLARS.map((pillar, si) => {
               const pillarY = getPillarY(si);
+              const pillarRight = pillarCenterX + PILLAR_WIDTH / 2;
+              const leafLeft = leafCenterX - LEAF_NODE_WIDTH / 2;
               return pillar.nodes.map((node, ni) => {
                 const nodeY = getNodeY(si, ni);
-                const path = `M ${colMid + PILLAR_WIDTH / 2} ${pillarY} C ${colRight - 40} ${pillarY}, ${colRight - 40} ${nodeY}, ${colRight} ${nodeY}`;
+                const cpX = (pillarRight + leafLeft) / 2;
+                const path = `M ${pillarRight} ${pillarY} C ${cpX} ${pillarY}, ${cpX} ${nodeY}, ${leafLeft} ${nodeY}`;
                 const state = nodeReadiness[node.id];
                 const isReady = state === "ready";
                 const isProcessingNode = state === "processing";
@@ -263,10 +258,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </svg>
 
       {/* Transaction Cards — Left */}
-      <div className="absolute" style={{ left: colLeft - TX_CARD_ANCHOR, top: inputAY - 50, width: TX_CARD_WIDTH, zIndex: 1 }}>
+      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputAY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
       </div>
-      <div className="absolute" style={{ left: colLeft - TX_CARD_ANCHOR, top: inputBY - 50, width: TX_CARD_WIDTH, zIndex: 1 }}>
+      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputBY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerB} color="#10b981" label="Customer B" />
       </div>
 
@@ -277,10 +272,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
         className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-shadow transition-opacity duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
-          left: colCenter - ENGINE_WIDTH / 2,
-          top: midY - 110,
+          left: engineCenterX - ENGINE_WIDTH / 2,
+          top: midY - ENGINE_HEIGHT / 2,
           width: ENGINE_WIDTH,
-          height: 220,
+          height: ENGINE_HEIGHT,
           boxShadow: engineProcessing && !engineReady
             ? "0 0 30px rgba(99, 102, 241, 0.25)"
             : engineReady
@@ -326,7 +321,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             key={pillar.id}
             className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 transition-all duration-300"
             style={{
-              left: colMid - PILLAR_WIDTH / 2,
+              left: pillarCenterX - PILLAR_WIDTH / 2,
               top: pillarY - PILLAR_HEIGHT / 2,
               width: PILLAR_WIDTH,
               height: PILLAR_HEIGHT,
@@ -375,7 +370,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               disabled={!canOpen}
               className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
               style={{
-                left: colRight,
+                left: leafCenterX - LEAF_NODE_WIDTH / 2,
                 top: nodeY - LEAF_NODE_HEIGHT / 2,
                 width: LEAF_NODE_WIDTH,
                 height: LEAF_NODE_HEIGHT,
