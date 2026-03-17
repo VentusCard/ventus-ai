@@ -193,7 +193,15 @@ const EngagementPreview = () => {
               <div key={p.name} className="rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200">
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-sm">{p.icon}</span>
-                  <span className="text-[10px] font-semibold text-slate-900">{p.name}</span>
+                  <span className="text-[10px] font-semibold text-slate-900 flex-1">{p.name}</span>
+                  {p.name === "Travel" && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-[7px] text-slate-400">Trip View</span>
+                      <div className="w-5 h-3 rounded-full bg-blue-500 flex items-center justify-end px-0.5">
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
                   <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
