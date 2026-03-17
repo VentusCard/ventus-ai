@@ -369,10 +369,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               disabled={!canOpen}
               className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
               style={{
-                left: colRight - SECTION_ANCHOR,
-                top: nodeY - nodeHeight / 2,
-                width: SECTION_WIDTH - 20,
-                height: nodeHeight,
+                left: colRight,
+                top: nodeY - LEAF_NODE_HEIGHT / 2,
+                width: LEAF_NODE_WIDTH,
+                height: LEAF_NODE_HEIGHT,
                 cursor: canOpen ? "pointer" : "not-allowed",
                 opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
                 background: canOpen
