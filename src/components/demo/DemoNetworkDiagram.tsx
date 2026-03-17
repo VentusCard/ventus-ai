@@ -370,82 +370,66 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         );
       })}
 
-      {/* Output Nodes — Right, grouped by section */}
-      {SECTIONS.map((section, si) => {
-        const sectionTop = getSectionTop(si);
-        return (
-          <div
-            key={section.label}
-            className="absolute rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col p-3 pt-2"
-            style={{
-              left: colRight - SECTION_ANCHOR,
-              top: sectionTop,
-              width: SECTION_WIDTH,
-              height: sectionContentHeight,
-              zIndex: 2,
-            }}
-          >
-            <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-blue-600 mb-2">
-              {section.label}
-            </p>
+      {/* Output Nodes — Right, ungrouped */}
+      {PILLARS.map((pillar, si) =>
+        pillar.nodes.map((node, ni) => {
+          const nodeY = getNodeY(si, ni);
+          const Icon = node.icon;
+          const isActive = activeNode === node.id;
+          const state = nodeReadiness[node.id];
+          const isReady = state === "ready";
+          const canOpen = engineReady && isReady;
 
-            <div className="flex flex-col gap-2">
-              {section.nodes.map((node) => {
-                const Icon = node.icon;
-                const isActive = activeNode === node.id;
-                const state = nodeReadiness[node.id];
-                const isReady = state === "ready";
-                const canOpen = engineReady && isReady;
-
-                return (
-                  <button
-                    key={node.id}
-                    onClick={() => { if (canOpen) onNodeClick(node.id); }}
-                    disabled={!canOpen}
-                    className="flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
-                    style={{
-                      height: nodeHeight,
-                      cursor: canOpen ? "pointer" : "not-allowed",
-                      opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                      background: canOpen
-                        ? `${node.color}15`
-                        : isActive
-                          ? `${node.color}10`
-                          : "#ffffff",
-                      borderColor: canOpen
-                        ? `${node.color}80`
-                        : isActive
-                          ? `${node.color}60`
-                          : "#e2e8f0",
-                      boxShadow: canOpen
-                        ? `0 0 16px ${node.color}20`
-                        : isActive
-                          ? `0 0 12px ${node.color}15`
-                          : "0 1px 3px rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                      style={{
-                        background: canOpen ? `${node.color}20` : `${node.color}12`,
-                        border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
-                      }}
-                    >
-                      <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-                      <p className="text-[8px] text-slate-400">
-                        {!engineReady ? "Waiting for Engine…" : isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+          return (
+            <button
+              key={node.id}
+              onClick={() => { if (canOpen) onNodeClick(node.id); }}
+              disabled={!canOpen}
+              className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
+              style={{
+                left: colRight - SECTION_ANCHOR,
+                top: nodeY - nodeHeight / 2,
+                width: SECTION_WIDTH - 20,
+                height: nodeHeight,
+                cursor: canOpen ? "pointer" : "not-allowed",
+                opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
+                background: canOpen
+                  ? `${node.color}15`
+                  : isActive
+                    ? `${node.color}10`
+                    : "#ffffff",
+                borderColor: canOpen
+                  ? `${node.color}80`
+                  : isActive
+                    ? `${node.color}60`
+                    : "#e2e8f0",
+                boxShadow: canOpen
+                  ? `0 0 16px ${node.color}20`
+                  : isActive
+                    ? `0 0 12px ${node.color}15`
+                    : "0 1px 3px rgba(0,0,0,0.06)",
+                zIndex: 2,
+              }}
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  background: canOpen ? `${node.color}20` : `${node.color}12`,
+                  border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
+                }}
+              >
+                <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+                <p className="text-[8px] text-slate-400">
+                  {!engineReady ? "Waiting for Engine…" : isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
+                </p>
+              </div>
+            </button>
+          );
+        })
+      )}
     </div>
   );
 }
