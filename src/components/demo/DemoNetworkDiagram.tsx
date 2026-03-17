@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
