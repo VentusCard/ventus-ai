@@ -222,7 +222,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               const pillarY = getPillarY(si);
               return pillar.nodes.map((node, ni) => {
                 const nodeY = getNodeY(si, ni);
-                const path = `M ${colMid + PILLAR_WIDTH / 2} ${pillarY} C ${colRight - 70} ${pillarY}, ${colRight - 70} ${nodeY}, ${colRight - SECTION_ANCHOR} ${nodeY}`;
+                const path = `M ${colMid + PILLAR_WIDTH / 2} ${pillarY} C ${colRight - 40} ${pillarY}, ${colRight - 40} ${nodeY}, ${colRight} ${nodeY}`;
                 const state = nodeReadiness[node.id];
                 const isReady = state === "ready";
                 const isProcessingNode = state === "processing";
