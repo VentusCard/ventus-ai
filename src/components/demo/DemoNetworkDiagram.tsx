@@ -321,7 +321,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             key={pillar.id}
             className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 transition-all duration-300"
             style={{
-              left: colMid - PILLAR_WIDTH / 2,
+              left: pillarCenterX - PILLAR_WIDTH / 2,
               top: pillarY - PILLAR_HEIGHT / 2,
               width: PILLAR_WIDTH,
               height: PILLAR_HEIGHT,
