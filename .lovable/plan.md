@@ -1,18 +1,37 @@
 
 
-## Plan: Add click-to-reveal for MCC label in Beat 3
 
-**File: `src/components/demo/DemoPasswordGate.tsx`**
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-**Current behavior:** Beat 3 ("MCCs are blind") shows the three icons, orange dashed lines, and "MCC 7922 · Sports and Entertainment" box all at once with staggered CSS animations.
+### Implemented
 
-**New behavior:** The three icons appear on entry. The orange SVG lines and MCC 7922 box only appear after the user clicks / presses right arrow, using the same phase pattern already used by beat4 and beat5.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-### Changes:
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
-1. **Add `beat3Phase` state** (initial 0), alongside existing `beat4Phase` / `beat5Phase`.
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-2. **Update `advance` callback** — when `step === 3` and `beat3Phase < 1`, increment `beat3Phase` and return `s` (stay on step 3). When phase is 1, reset and advance to step 4.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-3. **In Beat 3 JSX (lines ~369-379)** — wrap the orange SVG lines and MCC 7922 box in a conditional `opacity`/`transform` transition gated on `beat3Phase >= 1`, replacing the current `animate-fade-slide` auto-animations.
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

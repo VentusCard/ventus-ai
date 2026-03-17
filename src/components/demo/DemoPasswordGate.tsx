@@ -24,12 +24,20 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
   const [revealInput, setRevealInput] = useState(false);
+  const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
 
   const advance = useCallback(() => {
     if (isTransitioning) return;
     setStep((s) => {
+      if (s === 3) {
+        if (beat3Phase < 1) {
+          setBeat3Phase((p) => p + 1);
+          return s;
+        }
+        setBeat3Phase(0);
+      }
       if (s === 4) {
         if (beat4Phase < 2) {
           setBeat4Phase((p) => p + 1);
@@ -366,16 +374,18 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
                       </div>
                     </div>
-                    <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none" className="max-w-md animate-fade-slide" style={{ animationDelay: "1.0s", animationFillMode: "both" }}>
-                      <line x1="50" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                      <line x1="150" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                      <line x1="250" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                    </svg>
-                    <div className="flex flex-col items-center gap-2 animate-fade-slide" style={{ animationDelay: "1.2s", animationFillMode: "both" }}>
-                      <div className="px-5 py-2.5 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
-                        <span className="text-sm font-bold tracking-wider">MCC 7922 · Sports and Entertainment</span>
+                    <div className="transition-all duration-700 ease-out" style={{ opacity: beat3Phase >= 1 ? 1 : 0, transform: beat3Phase >= 1 ? 'translateY(0)' : 'translateY(16px)' }}>
+                      <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none" className="max-w-md">
+                        <line x1="50" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="150" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="250" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                      </svg>
+                      <div className="flex flex-col items-center gap-2 mt-2">
+                        <div className="px-5 py-2.5 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
+                          <span className="text-sm font-bold tracking-wider">MCC 7922 · Sports and Entertainment</span>
+                        </div>
+                        <span className="text-xs" style={{ color: "#94A3B8" }}>Same code for all three</span>
                       </div>
-                      <span className="text-xs" style={{ color: "#94A3B8" }}>Same code for all three</span>
                     </div>
                   </div>
                 </div>
