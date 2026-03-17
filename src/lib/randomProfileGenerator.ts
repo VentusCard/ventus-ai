@@ -133,7 +133,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   growingFamily: {
     ageRange: [32, 45],
-    familyStatuses: ['Married, 1 child', 'Married, 2 children', 'Married, 3 children'],
+    familyStatuses: ['Married, 1 dependent', 'Married, 2 dependents', 'Married, 3 dependents'],
     occupations: ['Senior Manager', 'Director of Operations', 'Physician', 'Attorney', 'Business Owner', 'VP of Sales'],
     industries: ['Healthcare', 'Legal', 'Finance', 'Technology', 'Real Estate'],
     incomeLevels: ['$150K-$250K', '$250K-$350K', '$350K-$500K'],
@@ -144,7 +144,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   establishedProfessional: {
     ageRange: [40, 55],
-    familyStatuses: ['Married, 2 children', 'Married, adult children', 'Divorced, children'],
+    familyStatuses: ['Married, 2 dependents', 'Married, adult dependents', 'Divorced, dependents'],
     occupations: ['Chief Technology Officer', 'Managing Partner', 'Surgeon', 'Investment Banker', 'Entrepreneur', 'Corporate Executive'],
     industries: ['Finance', 'Technology', 'Healthcare', 'Legal', 'Consulting'],
     incomeLevels: ['$250K-$400K', '$400K-$600K', '$600K-$1M'],
@@ -155,7 +155,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   preRetiree: {
     ageRange: [55, 65],
-    familyStatuses: ['Married, adult children', 'Empty nester', 'Married, grandchildren'],
+    familyStatuses: ['Married, adult dependents', 'Empty nester', 'Married, grandchildren'],
     occupations: ['Senior Vice President', 'Retired Executive', 'Business Owner', 'Partner Emeritus', 'Board Member', 'Consultant'],
     industries: ['Finance', 'Real Estate', 'Energy', 'Manufacturing', 'Consulting'],
     incomeLevels: ['$300K-$500K', '$500K-$750K', '$750K+'],

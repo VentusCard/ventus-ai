@@ -65,7 +65,7 @@ ${name}
 
   return (
     <div>
-      <main className="pt-32">
+      <main className="pt-36">
         {/* Two-column: Trust + Form */}
         <section className="py-8 md:py-14 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -140,22 +140,22 @@ ${name}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-gray-900 font-medium mb-1.5 block text-sm">Full Name</label>
-                        <Input name="name" placeholder="Your name" className="h-11 bg-white border-gray-300 text-gray-900" required />
+                        <Input name="name" placeholder="Your name" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
                       </div>
                       <div>
                         <label className="text-gray-900 font-medium mb-1.5 block text-sm">Company Name</label>
-                        <Input name="company" placeholder="Your company" className="h-11 bg-white border-gray-300 text-gray-900" />
+                        <Input name="company" placeholder="Your company" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" />
                       </div>
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Work Email</label>
-                      <Input name="email" type="email" placeholder="you@company.com" className="h-11 bg-white border-gray-300 text-gray-900" required />
+                      <Input name="email" type="email" placeholder="you@company.com" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Subject</label>
                       <select
                         name="subject"
-                        className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus:outline-none focus:ring-0"
                         required>
                         
                         <option value="">Select a topic...</option>
@@ -167,7 +167,7 @@ ${name}
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Message</label>
-                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900" required />
+                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
                     </div>
                     <Button
                       type="button"

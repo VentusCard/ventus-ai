@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
-import type { LocalExperiencesData } from "@/hooks/useDemoEnrichment";
+import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
@@ -18,11 +18,15 @@ interface Props {
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
   localExperiences?: LocalExperiencesData;
+  personalizedDealsA?: PersonalizedDealData | null;
+  personalizedDealsB?: PersonalizedDealData | null;
+  detectedEventA?: DetectedLifeEventResult[];
+  detectedEventB?: DetectedLifeEventResult[];
   onClose: () => void;
 }
 
 const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
-  engagement: { title: "Customer Engagement", color: "#f59e0b" },
+  engagement: { title: "Personalized UX", color: "#f59e0b" },
   analytics: { title: "Bank-Wide Analytics", color: "#3b82f6" },
   rewards: { title: "Consumer Rewards", color: "#22c55e" },
   travel: { title: "Travel Experiences", color: "#06b6d4" },
@@ -33,17 +37,18 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
   analytics: DemoAnalyticsView,
-  engagement: DemoEngagementView,
   wealth: DemoWealthView,
-  lifeEvents: DemoLifeEventsView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
 
   const renderContent = () => {
     if (node === "engine") {
       return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+    }
+    if (node === "engagement") {
+      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
     }
     if (node === "travel") {
       return (
@@ -62,6 +67,18 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
           customerB={customerB}
           enrichedA={enrichedA}
           enrichedB={enrichedB}
+          precomputedA={personalizedDealsA}
+          precomputedB={personalizedDealsB}
+        />
+      );
+    }
+    if (node === "lifeEvents") {
+      return (
+        <DemoLifeEventsView
+          customerA={customerA}
+          customerB={customerB}
+          detectedEventA={detectedEventA ?? []}
+          detectedEventB={detectedEventB ?? []}
         />
       );
     }

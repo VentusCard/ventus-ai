@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Check, Pause, Play } from "lucide-react";
+import { Check, Pause, Play, ArrowRight, Trophy, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
@@ -159,96 +159,98 @@ const RewardsPreview = () => (
 );
 
 const EngagementPreview = () => {
+  const pillars: { name: string; icon: string; spend: number; budget: number; subcategories?: { label: string; amount: number }[] }[] = [
+    { name: "Food", icon: "🍽️", spend: 620, budget: 700, subcategories: [{ label: "Groceries", amount: 340 }, { label: "Cafes", amount: 180 }, { label: "Delivery", amount: 100 }] },
+    { name: "Travel", icon: "✈️", spend: 1240, budget: 1500, subcategories: [{ label: "Trip to New York", amount: 520 }, { label: "Trip to Rome", amount: 480 }, { label: "Trip to Banff", amount: 240 }] },
+    { name: "Active Living", icon: "🏃", spend: 280, budget: 350 },
+    { name: "Wellness", icon: "💆", spend: 320, budget: 250 },
+  ];
+
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {/* LEFT — Customer Profile */}
-      <div className="space-y-2">
-        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Customer Profile</p>
-        <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-2">
-          <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
-            <span className="text-blue-600 font-bold text-[10px]">SM</span>
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-gray-900">Sarah M.</p>
-            <p className="text-[9px] text-gray-500">Premium Banking · New York, NY</p>
-          </div>
-        </div>
-        <div className="space-y-1">
-          {[
-            { label: "Travel", score: "56%", detail: "$1,240" },
-            { label: "Dining", score: "22%", detail: "$480" },
-            { label: "Wellness", score: "14%", detail: "$320" },
-            { label: "Shopping", score: "8%", detail: "$180" },
-          ].map((p) => (
-            <div key={p.label} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-gray-700">{p.label}</span>
-                <span className="text-[9px] text-gray-400">{p.detail}</span>
-              </div>
-              <span className="text-[10px] font-semibold text-gray-500">{p.score}</span>
-            </div>
-          ))}
-        </div>
-        <div className="rounded-md px-2.5 py-1.5" style={{ background: "rgba(37,99,235,0.04)", border: "1px solid rgba(37,99,235,0.15)" }}>
-          <p className="text-[10px] font-semibold text-blue-700">✦ Wellness Explorer</p>
-        </div>
+    <div className="space-y-3">
+      {/* Greeting */}
+      <div>
+        <p className="text-sm font-bold text-slate-900">Good morning, Sarah</p>
+        <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
       </div>
 
-      {/* RIGHT — Bank App Output */}
-      <div className="space-y-2">
-        <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Bank App Experience</p>
-        {/* Wellness Explorer Banner */}
-        <div className="rounded-lg px-2.5 py-2 relative" style={{ background: "linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%)" }}>
-          <p className="text-[10px] font-bold text-white leading-tight">WELLNESS EXPLORER</p>
-          <p className="text-[8px] text-white/50 mt-0.5 text-right">Powered by Ventus AI</p>
-        </div>
-        {/* Offer rows */}
-        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase">For You</p>
-        {[
-          { brand: "REI Co-op", offer: "10% back on outdoor gear", tag: "Outdoor" },
-          { brand: "Sweetgreen", offer: "$5 off your next order", tag: "Dining" },
-          { brand: "Equinox", offer: "First month free", tag: "Wellness" },
-        ].map((o) => (
-          <div key={o.brand} className="flex items-center justify-between rounded-md border border-gray-100 px-2.5 py-1.5">
-            <div>
-              <p className="text-[11px] font-semibold text-gray-900">{o.brand}</p>
-              <p className="text-[9px] text-gray-500">{o.offer}</p>
-            </div>
-            <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(37,99,235,0.08)", color: "#2563eb" }}>{o.tag}</span>
-          </div>
-        ))}
-        {/* Lifestyle Spending Grid */}
-        <p className="text-[8px] font-bold tracking-[0.1em] text-gray-400 uppercase mt-1">Your Lifestyle Spending</p>
+      {/* Lifestyle Banner */}
+      <div className="rounded-lg px-3 py-3 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <p className="text-[8px] font-bold tracking-[0.15em] uppercase text-white/60">Your Lifestyle</p>
+        <p className="text-sm font-bold text-white uppercase">Culinary Traveler</p>
+        <p className="text-[10px] text-white/70 mt-0.5">Top spending: Food & Travel</p>
+      </div>
+
+      {/* Lifestyle Spending 2×2 */}
+      <div>
+        <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-2">Your Lifestyle Spending</p>
         <div className="grid grid-cols-2 gap-1.5">
-          {[
-            { name: "Travel", icon: "✈️", spend: 1240, budget: 1500, status: "near" as const },
-            { name: "Dining", icon: "🍽️", spend: 480, budget: 500, status: "near" as const },
-            { name: "Wellness", icon: "💪", spend: 320, budget: 250, status: "over" as const },
-            { name: "Shopping", icon: "🛍️", spend: 180, budget: 400, status: "under" as const },
-          ].map((p) => {
-            const colors = {
-              near: { bar: "#f59e0b", bg: "rgba(245,158,11,0.08)", text: "#b45309", label: "Near Limit" },
-              over: { bar: "#ef4444", bg: "rgba(239,68,68,0.08)", text: "#dc2626", label: "Over Budget" },
-              under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
-            };
-            const c = colors[p.status];
+          {pillars.map((p) => {
             const pct = Math.min((p.spend / p.budget) * 100, 100);
+            const isOver = p.spend > p.budget;
+            const barColor = isOver ? "#ef4444" : pct > 80 ? "#f59e0b" : "#22c55e";
             return (
-              <div key={p.name} className="rounded-md px-2 py-1.5 border border-gray-100">
-                <div className="flex items-center justify-between mb-0.5">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px]">{p.icon}</span>
-                    <span className="text-[9px] font-semibold text-gray-900">{p.name}</span>
+              <div key={p.name} className="rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-sm">{p.icon}</span>
+                  <span className="text-[10px] font-semibold text-slate-900 flex-1">{p.name}</span>
+                  {p.name === "Travel" && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-[7px] text-slate-400">Trip View</span>
+                      <div className="w-5 h-3 rounded-full bg-blue-500 flex items-center justify-end px-0.5">
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
+                </div>
+                <p className="text-[8px] text-slate-400">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</p>
+                {p.subcategories && (
+                  <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-0.5">
+                    {p.subcategories.map((sub) => (
+                      <div key={sub.label} className="flex items-center justify-between text-[8px]">
+                        <span className="text-slate-500 truncate mr-1">{sub.label}</span>
+                        <span className="text-slate-400 whitespace-nowrap">${sub.amount.toLocaleString()}</span>
+                      </div>
+                    ))}
                   </div>
-                  <span className="text-[6px] font-semibold px-1 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>{c.label}</span>
-                </div>
-                <div className="w-full h-1 rounded-full bg-gray-100 mb-0.5">
-                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: c.bar }} />
-                </div>
-                <p className="text-[8px] text-gray-500">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</p>
+                )}
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-1.5">
+        {/* Savings Streak Card */}
+        <div className="rounded-lg border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-2">
+          <div className="flex items-center gap-1 mb-1">
+            <Trophy className="w-3 h-3 text-amber-600" />
+            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wide">Achievement</span>
+          </div>
+          <div className="flex items-center justify-between mb-0.5">
+            <p className="text-[10px] font-bold text-slate-900">Savings Streak</p>
+            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Saver Pro</span>
+          </div>
+          <p className="text-[8px] text-slate-500 mb-1.5">12/16 weeks of saving $50+</p>
+          <div className="w-full h-1.5 rounded-full bg-slate-200">
+            <div className="h-full rounded-full bg-amber-400" style={{ width: "75%" }} />
+          </div>
+        </div>
+
+        {/* Emergency Fund Card */}
+        <div className="rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-2">
+          <div className="flex items-center gap-1 mb-1">
+            <Lightbulb className="w-3 h-3 text-blue-600" />
+            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">On Track</span>
+          </div>
+          <p className="text-[10px] font-bold text-slate-900 mb-0.5">Emergency Fund</p>
+          <p className="text-[8px] text-slate-500 leading-snug mb-1.5">68% to your 3-month safety net. Auto-save $25/wk to hit it by August.</p>
+          <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
+            <div className="h-full rounded-full bg-blue-500" style={{ width: "68%" }} />
+          </div>
         </div>
       </div>
     </div>

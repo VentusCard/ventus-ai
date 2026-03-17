@@ -20,12 +20,51 @@ export interface DemoCustomer {
   csv: string;
   zip: string;
   lifestyleType: string;
+  txnCount: number;
+  txnTotal: string;
+  sourceCount: number;
+  dateRange: string;
   topPillars: { name: string; icon: string; pct: number; spend: string }[];
-  sampleTransactions: { merchant: string; amount: string; date: string; category: string }[];
+  sampleTransactions: { merchant: string; amount: string; date: string; category: string; zip_code?: string; source?: string }[];
   deals: { brand: string; offer: string; tag: string; match: number }[];
   lifeEvents: { name: string; confidence: number; urgency: "Urgent" | "Soon" | "Upcoming"; timing: string; evidence: string; color: string }[];
   trips: { destination: string; dates: string; spend: string; highlights: string[] }[];
   pillarBreakdown: { pillar: string; pct: number; color: string }[];
+}
+
+export function summarizeCsv(csv: string): { txnCount: number; txnTotal: string; sourceCount: number; dateRange: string } {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return { txnCount: 0, txnTotal: "$0", sourceCount: 0, dateRange: "–" };
+
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const amtIdx = header.findIndex((h) => h === "amount");
+  const dateIdx = header.findIndex((h) => h === "date");
+  const srcIdx = header.findIndex((h) => h === "source");
+
+  const rows = lines.slice(1).filter((l) => l.trim());
+  let total = 0;
+  const sources = new Set<string>();
+  const dates: Date[] = [];
+
+  for (const row of rows) {
+    const cols = row.split(",").map((c) => c.trim());
+    if (amtIdx >= 0) total += Math.abs(parseFloat(cols[amtIdx]) || 0);
+    if (srcIdx >= 0 && cols[srcIdx]) sources.add(cols[srcIdx]);
+    if (dateIdx >= 0 && cols[dateIdx]) {
+      const d = new Date(cols[dateIdx]);
+      if (!isNaN(d.getTime())) dates.push(d);
+    }
+  }
+
+  const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  let dateRange = "–";
+  if (dates.length > 0) {
+    dates.sort((a, b) => a.getTime() - b.getTime());
+    const fmtD = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    dateRange = `${fmtD(dates[0])} – ${fmtD(dates[dates.length - 1])}`;
+  }
+
+  return { txnCount: rows.length, txnTotal: fmt.format(total), sourceCount: sources.size, dateRange };
 }
 
 export interface CustomDemographics {
@@ -41,6 +80,7 @@ export function buildCustomDemoCustomer(
   demographics: CustomDemographics,
   zip: string
 ): DemoCustomer {
+  const summary = summarizeCsv(csv);
   return {
     id,
     profile: {
@@ -62,6 +102,7 @@ export function buildCustomDemoCustomer(
     },
     csv,
     zip: zip || "10001",
+    ...summary,
     lifestyleType: "Custom Profile",
     topPillars: [],
     sampleTransactions: [],
@@ -79,6 +120,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV,
     zip: "94102",
     lifestyleType: "Wellness Explorer",
+    ...summarizeCsv(SAMPLE_CSV),
     topPillars: [
       { name: "Travel", icon: "✈️", pct: 34, spend: "$4,120" },
       { name: "Dining", icon: "🍽️", pct: 22, spend: "$2,640" },
@@ -86,10 +128,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Shopping", icon: "🛍️", pct: 14, spend: "$1,680" },
     ],
     sampleTransactions: [
-      { merchant: "Equinox Fitness", amount: "$200", date: "Aug 15", category: "Wellness" },
-      { merchant: "Whole Foods Market", amount: "$157", date: "Aug 16", category: "Grocery" },
-      { merchant: "Delta Air Lines", amount: "$450", date: "Aug 12", category: "Travel" },
-      { merchant: "Sephora", amount: "$157", date: "Aug 25", category: "Shopping" },
+      { merchant: "Equinox Fitness", amount: "$200", date: "Aug 15", category: "Wellness", zip_code: "94102", source: "Premium Card" },
+      { merchant: "Whole Foods Market", amount: "$157", date: "Aug 16", category: "Grocery", zip_code: "94102", source: "Cashback Card" },
+      { merchant: "Delta Air Lines", amount: "$450", date: "Aug 12", category: "Travel", zip_code: "94102", source: "Travel Card" },
+      { merchant: "Sephora", amount: "$157", date: "Aug 25", category: "Shopping", zip_code: "94102", source: "Premium Card" },
     ],
     deals: [
       { brand: "REI Co-op", offer: "10% back on outdoor gear", tag: "Outdoor", match: 96 },
@@ -118,6 +160,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV_SPORTS_WELLNESS,
     zip: "78701",
     lifestyleType: "Tech Enthusiast",
+    ...summarizeCsv(SAMPLE_CSV_SPORTS_WELLNESS),
     topPillars: [
       { name: "Technology", icon: "💻", pct: 28, spend: "$3,360" },
       { name: "Dining", icon: "🍽️", pct: 24, spend: "$2,880" },
@@ -125,10 +168,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Entertainment", icon: "🎮", pct: 16, spend: "$1,920" },
     ],
     sampleTransactions: [
-      { merchant: "Apple Store", amount: "$1,299", date: "Aug 20", category: "Technology" },
-      { merchant: "Barry's Bootcamp", amount: "$150", date: "Aug 18", category: "Fitness" },
-      { merchant: "Chipotle", amount: "$12", date: "Aug 22", category: "Dining" },
-      { merchant: "Steam Games", amount: "$60", date: "Aug 19", category: "Entertainment" },
+      { merchant: "Equinox Austin", amount: "$250", date: "Aug 15", category: "Fitness", source: "Premium Card" },
+      { merchant: "Barry's Bootcamp", amount: "$150", date: "Aug 18", category: "Fitness", source: "Premium Card" },
+      { merchant: "REI Co-op", amount: "$235", date: "Aug 17", category: "Outdoors", zip_code: "78701", source: "Cashback Card" },
+      { merchant: "Nike Store Austin", amount: "$160", date: "Aug 17", category: "Shopping", source: "Cashback Card" },
     ],
     deals: [
       { brand: "Best Buy", offer: "15% off MacBook accessories", tag: "Tech", match: 94 },
@@ -157,6 +200,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV_FOOD_HOME,
     zip: "60614",
     lifestyleType: "Family Planner",
+    ...summarizeCsv(SAMPLE_CSV_FOOD_HOME),
     topPillars: [
       { name: "Family", icon: "👨‍👩‍👧‍👦", pct: 30, spend: "$5,400" },
       { name: "Home", icon: "🏠", pct: 25, spend: "$4,500" },
@@ -164,10 +208,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Grocery", icon: "🛒", pct: 15, spend: "$2,700" },
     ],
     sampleTransactions: [
-      { merchant: "Buy Buy Baby", amount: "$234", date: "Sep 05", category: "Family" },
-      { merchant: "Home Depot", amount: "$345", date: "Sep 12", category: "Home" },
-      { merchant: "College Board SAT", amount: "$68", date: "Oct 05", category: "Education" },
-      { merchant: "Costco Wholesale", amount: "$199", date: "Sep 06", category: "Grocery" },
+      { merchant: "Home Depot", amount: "$157", date: "Aug 16", category: "Home", zip_code: "60614", source: "Checking" },
+      { merchant: "Costco Wholesale", amount: "$299", date: "Aug 21", category: "Grocery", zip_code: "60614", source: "Cashback Card" },
+      { merchant: "Gibsons Steakhouse", amount: "$288", date: "Aug 15", category: "Dining", zip_code: "60614", source: "Premium Card" },
+      { merchant: "Crate and Barrel", amount: "$157", date: "Aug 22", category: "Home", zip_code: "60614", source: "Premium Card" },
     ],
     deals: [
       { brand: "Target", offer: "20% off kids' back-to-school", tag: "Family", match: 95 },
@@ -196,6 +240,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV_TRAVEL_FAMILY_12,
     zip: "94102",
     lifestyleType: "Golf & Leisure",
+    ...summarizeCsv(SAMPLE_CSV_TRAVEL_FAMILY_12),
     topPillars: [
       { name: "Golf", icon: "⛳", pct: 32, spend: "$8,960" },
       { name: "Dining", icon: "🍽️", pct: 22, spend: "$6,160" },
@@ -203,10 +248,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Wine & Spirits", icon: "🍷", pct: 14, spend: "$3,920" },
     ],
     sampleTransactions: [
-      { merchant: "Pebble Beach Golf", amount: "$595", date: "Sep 14", category: "Golf" },
-      { merchant: "Wine.com", amount: "$287", date: "Sep 10", category: "Wine & Spirits" },
-      { merchant: "United Airlines", amount: "$680", date: "Sep 08", category: "Travel" },
-      { merchant: "Morton's Steakhouse", amount: "$245", date: "Sep 15", category: "Dining" },
+      { merchant: "United Airlines", amount: "$1,345", date: "Nov 25", category: "Travel", zip_code: "94102", source: "Travel Card" },
+      { merchant: "Yellowstone Lodge", amount: "$1,234", date: "Nov 25", category: "Travel", zip_code: "82190", source: "Travel Card" },
+      { merchant: "Kids Soccer League", amount: "$295", date: "Nov 05", category: "Family", zip_code: "94102", source: "Checking" },
+      { merchant: "Safeway", amount: "$179", date: "Nov 11", category: "Grocery", zip_code: "94102", source: "Cashback Card" },
     ],
     deals: [
       { brand: "Callaway", offer: "20% off premium clubs", tag: "Golf", match: 97 },
@@ -235,6 +280,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV_NYC_SPORTS_HOME_12,
     zip: "10003",
     lifestyleType: "Urban Professional",
+    ...summarizeCsv(SAMPLE_CSV_NYC_SPORTS_HOME_12),
     topPillars: [
       { name: "Dining", icon: "🍽️", pct: 28, spend: "$5,040" },
       { name: "Fashion", icon: "👗", pct: 24, spend: "$4,320" },
@@ -242,10 +288,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Culture", icon: "🎭", pct: 16, spend: "$2,880" },
     ],
     sampleTransactions: [
-      { merchant: "Nobu Restaurant", amount: "$380", date: "Sep 11", category: "Dining" },
-      { merchant: "Nordstrom", amount: "$450", date: "Sep 01", category: "Fashion" },
-      { merchant: "SoulCycle NYC", amount: "$85", date: "Sep 03", category: "Wellness" },
-      { merchant: "MoMA Membership", amount: "$150", date: "Sep 08", category: "Culture" },
+      { merchant: "Equinox Gramercy", amount: "$245", date: "Nov 01", category: "Wellness", zip_code: "10003", source: "Premium Card" },
+      { merchant: "SoulCycle Flatiron", amount: "$175", date: "Nov 15", category: "Wellness", zip_code: "10010", source: "Premium Card" },
+      { merchant: "West Elm", amount: "$389", date: "Nov 06", category: "Home", zip_code: "10003", source: "Premium Card" },
+      { merchant: "Whole Foods Union Sq", amount: "$125", date: "Nov 05", category: "Grocery", zip_code: "10003", source: "Cashback Card" },
     ],
     deals: [
       { brand: "Sweetgreen", offer: "$5 off + loyalty double", tag: "Dining", match: 95 },
@@ -274,6 +320,7 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
     csv: SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
     zip: "60610",
     lifestyleType: "Adventurer & Investor",
+    ...summarizeCsv(SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12),
     topPillars: [
       { name: "Travel", icon: "✈️", pct: 30, spend: "$9,600" },
       { name: "Investments", icon: "📈", pct: 25, spend: "$8,000" },
@@ -281,10 +328,10 @@ export const DEMO_CUSTOMERS: DemoCustomer[] = [
       { name: "Golf", icon: "⛳", pct: 15, spend: "$4,800" },
     ],
     sampleTransactions: [
-      { merchant: "Emirates Airlines", amount: "$4,200", date: "Oct 01", category: "Travel" },
-      { merchant: "Vanguard", amount: "$12,000", date: "Oct 05", category: "Investments" },
-      { merchant: "Nobu Malibu", amount: "$520", date: "Oct 10", category: "Dining" },
-      { merchant: "Bandon Dunes Golf", amount: "$890", date: "Oct 14", category: "Golf" },
+      { merchant: "East Bank Club", amount: "$295", date: "Nov 01", category: "Fitness", zip_code: "60610", source: "Premium Card" },
+      { merchant: "Tennis Pro Shop", amount: "$85", date: "Nov 03", category: "Sports", zip_code: "60610", source: "Cashback Card" },
+      { merchant: "RPM Italian", amount: "$88", date: "Nov 24", category: "Dining", zip_code: "60610", source: "Premium Card" },
+      { merchant: "Lululemon Chicago", amount: "$156", date: "Nov 05", category: "Fashion", zip_code: "60610", source: "Premium Card" },
     ],
     deals: [
       { brand: "Delta SkyMiles", offer: "100K bonus miles", tag: "Travel", match: 96 },

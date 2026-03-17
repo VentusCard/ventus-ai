@@ -18,8 +18,8 @@ Rules:
 - Output ONLY the CSV with header row, no explanation`;
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   parsedTransactionsA: Transaction[];
   parsedTransactionsB: Transaction[];
   onSelectA: (c: DemoCustomer) => void;
@@ -43,7 +43,7 @@ export default function DemoCustomerPanel({
         <h2 className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
           Ventus AI
         </h2>
-        <p className="text-[11px] text-slate-500 mt-0.5">Conference Demo</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">Select Two Users to Compare Personalization</p>
       </div>
 
       {/* Customer A */}
@@ -53,7 +53,7 @@ export default function DemoCustomerPanel({
         customId="custom-a"
         selected={customerA}
         onSelect={onSelectA}
-        excludeId={customerB.id}
+        excludeId={customerB?.id}
         transactions={parsedTransactionsA}
       />
 
@@ -66,7 +66,7 @@ export default function DemoCustomerPanel({
         customId="custom-b"
         selected={customerB}
         onSelect={onSelectB}
-        excludeId={customerA.id}
+        excludeId={customerA?.id}
         transactions={parsedTransactionsB}
       />
 
@@ -74,7 +74,7 @@ export default function DemoCustomerPanel({
       <div className="mt-auto pt-6 space-y-3">
         <Button
           onClick={onEnrich}
-          disabled={isProcessing}
+          disabled={isProcessing || !customerA || !customerB}
           variant="ai"
           size="sm"
           className="w-full"
@@ -140,9 +140,9 @@ function CustomerSlot({
   label: string;
   color: string;
   customId: string;
-  selected: DemoCustomer;
+  selected: DemoCustomer | null;
   onSelect: (c: DemoCustomer) => void;
-  excludeId: string;
+  excludeId: string | undefined;
   transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -188,9 +188,10 @@ function CustomerSlot({
 
       <select
         className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 mb-3"
-        value={isCustomMode ? "custom" : selected.id}
+        value={isCustomMode ? "custom" : (selected?.id ?? "")}
         onChange={(e) => handleDropdownChange(e.target.value)}
       >
+        {!selected && !isCustomMode && <option value="" disabled>Select a customer…</option>}
         {DEMO_CUSTOMERS.filter((d) => d.id !== excludeId).map((d) => (
           <option key={d.id} value={d.id}>{d.profile.name}</option>
         ))}
@@ -277,17 +278,41 @@ function CustomerSlot({
             Load Data
           </Button>
         </div>
+      ) : !selected ? (
+        <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
       ) : (
         <>
           {/* Summary stats */}
-          <div className="flex items-center gap-2 mb-2 text-[11px] text-slate-500">
-            <span className="font-semibold text-slate-700">{transactions.length}</span> txns
+          <div className="flex items-center gap-1.5 flex-wrap mb-1.5 text-[11px] text-slate-500">
+            <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
             <span className="text-slate-300">·</span>
-            <span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total
+            <span><span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total</span>
+            {dateRange && (
+              <>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-400">{dateRange}</span>
+              </>
+            )}
           </div>
-          {dateRange && (
-            <p className="text-[10px] text-slate-400 mb-2">{dateRange}</p>
-          )}
+          {/* Source pills */}
+          {(() => {
+            const sources = [...new Set(transactions.map(t => t.source).filter(Boolean))];
+            return sources.length > 0 ? (
+              <div className="flex items-center gap-1.5 flex-wrap mb-2 text-[10px]">
+                <span className="text-slate-500 font-medium">Sources:</span>
+                {sources.map(s => (
+                  <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${
+                    s === "Checking" ? "bg-slate-100 text-slate-600" :
+                    s === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                    s === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                    s === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                    s === "HSA" ? "bg-amber-50 text-amber-700" :
+                    "bg-slate-50 text-slate-500"
+                  }`}>{s}</span>
+                ))}
+              </div>
+            ) : null;
+          })()}
 
           {/* Compact transaction table */}
           <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
@@ -295,17 +320,34 @@ function CustomerSlot({
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-slate-50">
                   <tr className="border-b border-slate-100">
+                    <th className="text-left px-2 py-1.5 font-medium text-slate-500">Date</th>
                     <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
                     <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
-                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Date</th>
+                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Zip</th>
+                    <th className="text-center px-2 py-1.5 font-medium text-slate-500">Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((t, i) => (
                     <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
-                      <td className="px-2 py-1 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                      <td className="px-2 py-1 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
+                      <td className="px-2 py-1 text-slate-700 truncate max-w-[120px]">{t.merchant_name}</td>
                       <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
-                      <td className="px-2 py-1 text-right text-slate-400">{formatShortDate(t.date)}</td>
+                      <td className="px-2 py-1 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
+                      <td className="px-2 py-1 text-center">
+                        {t.source && (
+                          <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
+                            t.source === "Checking" ? "bg-slate-100 text-slate-600" :
+                            t.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                            t.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                            t.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                            t.source === "HSA" ? "bg-amber-50 text-amber-700" :
+                            "bg-slate-50 text-slate-500"
+                          }`}>
+                            {t.source}
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

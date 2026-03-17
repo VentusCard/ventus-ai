@@ -158,6 +158,46 @@ export interface SpendingTimingHighlight {
 }
 
 // Pipeline Status Types for Consumer Rewards Dashboard
+// Gamification Management Types
+export interface RewardConfig {
+  type: 'points' | 'gift_card' | 'cashback' | 'custom';
+  value: number;
+  currency?: string;
+  merchantName?: string;
+  fulfillment: 'automatic' | 'manual_approval';
+  monthlyBudgetCap?: number;
+}
+
+export interface ManagedAchievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: string;
+  targetValue: number;
+  triggerLogic: string;
+  isActive: boolean;
+  completionRate: number;
+  inProgressRate: number;
+  reward?: RewardConfig;
+}
+
+export interface GamificationMetrics {
+  enrolledUsers: number;
+  enrollmentRate: number;
+  avgHealthScore: number;
+  totalUnlocks: number;
+  avgUnlocksPerUser: number;
+  engagementLift: number;
+  achievements: ManagedAchievement[];
+  recommendations: Array<{
+    title: string;
+    description: string;
+    impact: string;
+    priority: 'high' | 'medium';
+  }>;
+}
+
 export type PipelineStage = 'not_started' | 'contacted' | 'negotiating' | 'contract_sent' | 'live';
 
 export interface ContactLogEntry {
@@ -173,4 +213,45 @@ export interface PipelineStatus {
   notes: string[];
   lastUpdated: string;
   contactLog: ContactLogEntry[];
+}
+
+// Wallet Share Intelligence Types
+export interface CompetitorOutflow {
+  institution: string;
+  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto';
+  productCategory: string;
+  estimatedOutflow: number;
+  affectedCustomers: number;
+  trend: 'growing' | 'stable' | 'declining';
+  detectionMethod: string;
+  avgTransferAmount: number;
+  riskLevel: 'high' | 'medium' | 'low';
+}
+
+export interface WalletShareMetricsData {
+  depositFlightRate: number;
+  annualOutflowVolume: number;
+  topCompetitor: string;
+  winBackOpportunity: number;
+  depositFlightTrend: number;
+  outflowTrend: number;
+}
+
+export interface WinBackRecommendation {
+  id: string;
+  outflowPattern: string;
+  competitor: string;
+  affectedCustomers: number;
+  behavioralContext: string;
+  recommendedAction: string;
+  estimatedRecapture: number;
+  confidence: number;
+  segmentTags: string[];
+}
+
+export interface WalletShareTrendPoint {
+  month: string;
+  outflowVolume: number;
+  flightRate: number;
+  winBackRate: number;
 }
