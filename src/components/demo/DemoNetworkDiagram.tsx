@@ -370,7 +370,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               disabled={!canOpen}
               className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
               style={{
-                left: colRight,
+                left: leafCenterX - LEAF_NODE_WIDTH / 2,
                 top: nodeY - LEAF_NODE_HEIGHT / 2,
                 width: LEAF_NODE_WIDTH,
                 height: LEAF_NODE_HEIGHT,
