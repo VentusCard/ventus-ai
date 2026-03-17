@@ -204,47 +204,64 @@ const EngagementPreview = () => {
     under: { bar: "#22c55e", bg: "rgba(34,197,94,0.08)", text: "#16a34a", label: "Under Budget" },
   };
 
+  const rawCategories = [
+    "Restaurants", "Coffee Shops", "Fast Food",
+    "Gyms & Fitness", "Pharmacies",
+    "Airlines", "Hotels", "Car Rentals",
+    "Apparel", "Electronics",
+  ];
+
   return (
     <div className="space-y-3">
-      {/* Category → Pillar Consolidation */}
-      <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Categories → Lifestyle Pillars</p>
-      {categoryGroups.map((group) => {
-        const c = statusColors[group.status];
-        const pct = Math.min((group.spend / group.budget) * 100, 100);
-        return (
-          <div key={group.pillar} className="rounded-lg border border-gray-100 px-3 py-2">
-            <div className="flex items-center gap-3">
-              {/* Raw categories */}
-              <div className="flex flex-wrap gap-1 flex-1 min-w-0">
-                {group.categories.map((cat) => (
-                  <span
-                    key={cat}
-                    className="text-[8px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium whitespace-nowrap"
-                  >
-                    {cat}
-                  </span>
-                ))}
-              </div>
-              {/* Arrow */}
-              <span className="text-gray-300 text-[12px] shrink-0">→</span>
-              {/* Pillar label */}
-              <div className="shrink-0 flex items-center gap-1.5">
-                <span className="text-[12px]">{group.icon}</span>
-                <span className="text-[11px] font-bold" style={{ color: group.color }}>{group.pillar}</span>
-              </div>
-              {/* Status badge */}
-              <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: c.bg, color: c.text }}>{c.label}</span>
+      {/* Mini Transformation Flow */}
+      <p className="text-[9px] font-bold tracking-[0.12em] text-blue-600 uppercase">Transaction Enrichment</p>
+      <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
+        {/* Left: Raw Categories */}
+        <div className="space-y-1.5">
+          <p className="text-[8px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Raw Categories</p>
+          {rawCategories.map((cat) => (
+            <div key={cat} className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5">
+              <span className="text-[9px] text-gray-500 font-medium">{cat}</span>
             </div>
-            {/* Budget bar */}
-            <div className="flex items-center gap-3 mt-1.5">
-              <div className="flex-1 h-1.5 rounded-full bg-gray-100">
-                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: c.bar }} />
-              </div>
-              <p className="text-[8px] text-gray-400 shrink-0">${group.spend.toLocaleString()} / ${group.budget.toLocaleString()}</p>
-            </div>
+          ))}
+        </div>
+
+        {/* Center: Arrow */}
+        <div className="flex flex-col items-center gap-1">
+          <div className="w-px h-8 bg-gray-200" />
+          <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
+            <ArrowRight className="w-4 h-4 text-blue-500" />
           </div>
-        );
-      })}
+          <p className="text-[7px] text-blue-500 font-semibold">AI</p>
+          <div className="w-px h-8 bg-gray-200" />
+        </div>
+
+        {/* Right: Lifestyle Pillars */}
+        <div className="space-y-1.5">
+          <p className="text-[8px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Lifestyle Pillars</p>
+          {categoryGroups.map((group) => {
+            const c = statusColors[group.status];
+            const pct = Math.min((group.spend / group.budget) * 100, 100);
+            return (
+              <div key={group.pillar} className="rounded-md border px-2.5 py-1.5" style={{ borderColor: `${group.color}30`, background: `${group.color}08` }}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px]">{group.icon}</span>
+                    <span className="text-[10px] font-bold" style={{ color: group.color }}>{group.pillar}</span>
+                  </div>
+                  <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>{c.label}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-gray-100">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: c.bar }} />
+                  </div>
+                  <span className="text-[7px] text-gray-400">${group.spend.toLocaleString()}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Gamification — Achievement */}
       <div className="rounded-lg px-3 py-2.5 border border-gray-100" style={{ background: "rgba(245,158,11,0.04)" }}>
