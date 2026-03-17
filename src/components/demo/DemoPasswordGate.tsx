@@ -24,6 +24,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
   const [revealInput, setRevealInput] = useState(false);
+  const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
 
