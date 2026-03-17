@@ -52,8 +52,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             <Button onClick={handleClose} className="bg-blue-600 hover:bg-blue-700 text-white px-6 h-10">Close</Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-5">
-            {/* Left — Vision Statement */}
+          <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="md:col-span-2 bg-slate-50 p-6 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200">
               <img src={ventusLogo} alt="Ventus AI" className="w-20 mb-8" />
               <div className="space-y-6">
