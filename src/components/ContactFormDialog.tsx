@@ -65,9 +65,10 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                   <p className="text-base text-slate-700 leading-relaxed font-medium">Personalized. Intelligent. Built for each customer.</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-900 mb-1">What's next</p>
-                  <p className="text-sm font-semibold leading-relaxed bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-900 mb-1.5">What's next</p>
+                  <p className="text-base font-semibold leading-relaxed bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Autonomous. A bank that doesn't wait to be told — it already knows.
+                  </p>
                   </p>
                 </div>
               </div>
