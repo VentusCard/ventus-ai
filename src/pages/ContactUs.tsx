@@ -149,7 +149,7 @@ ${name}
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Work Email</label>
-                      <Input name="email" type="email" placeholder="you@company.com" className="h-11 bg-white border-gray-300 text-gray-900" required />
+                      <Input name="email" type="email" placeholder="you@company.com" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
                     </div>
                     <div>
                       <label className="text-gray-900 font-medium mb-1.5 block text-sm">Subject</label>
