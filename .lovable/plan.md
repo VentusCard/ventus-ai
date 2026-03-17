@@ -1,37 +1,26 @@
 
 
+## Plan: Add Vision Statement Panel to ContactFormDialog
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+**File: `src/components/ContactFormDialog.tsx`**
 
-### Implemented
+**Changes:**
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+1. **Widen the dialog** — change `sm:max-w-lg` to `sm:max-w-3xl` to accommodate two columns.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+2. **Import the Ventus logo** — `import ventusLogo from "@/assets/ventus-logo-blue.png"` (or whichever logo variant fits best on white).
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+3. **Add a two-column grid layout** inside `DialogContent`, below the header:
+   - **Left column (~40%):** Vision statement panel with:
+     - Ventus logo at top
+     - Three stacked blocks, each with a small bold label and description text:
+       - **Right now** — "Generic. Static. The same for everyone." (gray/muted)
+       - **With VentusAI** — "Personalized. Intelligent. Built for each customer." (blue)
+       - **What's next** — "Autonomous. A bank that doesn't wait to be told — it already knows." (gradient text or bold dark)
+     - Separated by a subtle vertical divider or spacing
+   - **Right column (~60%):** The existing form (unchanged)
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+4. **Responsive:** On small screens (`< sm`), stack vertically — vision panel on top, form below.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+5. **Success state** stays full-width centered as-is.
+
