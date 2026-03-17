@@ -1,37 +1,35 @@
 
 
+## Plan: Fix Diagram Formatting and Spacing
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+**File: `src/components/demo/DemoNetworkDiagram.tsx`**
 
-### Implemented
+### Problems identified
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+1. **Leaf node vertical spacing is inherited from old grouped-section layout** — uses `sectionPadTop: 28`, `sectionPadBottom: 12` creating large gaps between the 3 pillar groups of leaf nodes, as if invisible section boxes still exist.
+2. **Column distribution is uneven** — large gap between pillars and leaf nodes vs. engine and pillars.
+3. **Unused constants** (`SECTIONS`, `ALL_NODES`) left over from previous refactor.
+4. **Container `scale(1.05)` can cause edge clipping** on smaller viewports.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+### Changes
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+1. **Simplify leaf node vertical positioning** — Remove the section-based padding math. Instead, distribute all 6 leaf nodes evenly across the diagram height, with each pair of nodes visually close to its parent pillar. Use pillar Y positions as anchors: each pillar's two nodes are placed at `pillarY - offset` and `pillarY + offset` (e.g. offset ~30px), creating tight pairs.
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+2. **Rebalance column positions** — Adjust the 4 columns to be more evenly distributed:
+   - `colLeft`: 8% (transaction cards)
+   - `colCenter`: 30% (engine)
+   - `colMid`: 55% (pillars)
+   - `colRight`: 78% (leaf nodes)
+   - Same proportional logic for `centered` mode
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+3. **Vertically center pillar nodes** — Distribute 3 pillars evenly across the container height with equal gaps, independent of section math. Engine vertically centered between them.
+
+4. **Clean up dead code** — Remove `SECTIONS`, `ALL_NODES`, `sectionGap`, `sectionPadTop`, `sectionPadBottom`, `sectionContentHeight`, `totalSectionsHeight`, `sectionsStartY`, `getSectionTop`.
+
+5. **Remove `scale(1.05)`** transform to prevent clipping — elements should be sized correctly without it.
+
+6. **SVG path control points** — Update bezier curve control points to match new column positions for smoother curves (shorter horizontal distances between pillars and leaves).
+
+### Result
+A cleaner, evenly-spaced 4-column flow diagram where leaf nodes tightly pair under their parent pillar, columns are balanced, and no phantom section gaps exist.
+
