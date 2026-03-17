@@ -37,8 +37,9 @@ const TX_CARD_ANCHOR = 40;
 const ENGINE_WIDTH = 160;
 const PILLAR_WIDTH = 155;
 const PILLAR_HEIGHT = 58;
-const SECTION_WIDTH = 210;
-const SECTION_ANCHOR = 58;
+const LEAF_NODE_WIDTH = 190;
+const LEAF_NODE_HEIGHT = 44;
+const LEAF_PAIR_OFFSET = 30;
 
 const PILLARS: PillarDef[] = [
   {
