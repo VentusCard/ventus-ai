@@ -77,14 +77,7 @@ const PILLARS: PillarDef[] = [
   },
 ];
 
-const SECTIONS = PILLARS.map(p => ({ label: p.name, nodes: p.nodes }));
 const ALL_NODES = PILLARS.flatMap(p => p.nodes);
-
-const ENGINE_CAPABILITIES = [
-  { label: "Semantic Enrichment", icon: Layers, color: "#6366f1" },
-  { label: "Cross-category Patterns", icon: GitBranch, color: "#8b5cf6" },
-  { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
-];
 
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,47 +94,35 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // 4-column layout: colLeft | colCenter (engine) | colMid (pillars) | colRight (leaf sections)
+  // 4-column layout
   let colLeft: number, colCenter: number, colMid: number, colRight: number;
 
   if (centered && dims.w > 0) {
     const compositionSpan = dims.w * 0.82;
     const margin = (dims.w - compositionSpan) / 2;
     colLeft = margin + TX_CARD_ANCHOR;
-    colRight = dims.w - margin - (SECTION_WIDTH - SECTION_ANCHOR);
+    colRight = dims.w - margin - LEAF_NODE_WIDTH * 0.4;
     colCenter = colLeft + (colRight - colLeft) * 0.28;
-    colMid = colLeft + (colRight - colLeft) * 0.58;
+    colMid = colLeft + (colRight - colLeft) * 0.55;
   } else {
-    colLeft = dims.w * 0.10;
-    colCenter = dims.w * 0.32;
-    colMid = dims.w * 0.56;
-    colRight = dims.w * 0.82;
+    colLeft = dims.w * 0.08;
+    colCenter = dims.w * 0.30;
+    colMid = dims.w * 0.55;
+    colRight = dims.w * 0.78;
   }
 
   const midY = dims.h * 0.5;
   const inputAY = midY - 70;
   const inputBY = midY + 70;
 
-  // Section (leaf) layout
-  const sectionGap = 12;
-  const sectionPadTop = 28;
-  const nodeHeight = 44;
-  const nodeGap = 8;
-  const sectionPadBottom = 12;
-  const sectionContentHeight = sectionPadTop + nodeHeight * 2 + nodeGap + sectionPadBottom;
-  const totalSectionsHeight = sectionContentHeight * 3 + sectionGap * 2;
-  const sectionsStartY = (dims.h - totalSectionsHeight) / 2;
+  // Distribute 3 pillars evenly
+  const pillarSpacing = dims.h * 0.28;
+  const getPillarY = (pi: number) => midY + (pi - 1) * pillarSpacing;
 
-  const getSectionTop = (si: number) => sectionsStartY + si * (sectionContentHeight + sectionGap);
-  const getNodeY = (sectionIdx: number, nodeIdx: number) => {
-    const sectionTop = getSectionTop(sectionIdx);
-    return sectionTop + sectionPadTop + nodeIdx * (nodeHeight + nodeGap) + nodeHeight / 2;
-  };
-
-  // Pillar positions — vertically aligned with their section groups
-  const getPillarY = (si: number) => {
-    const sectionTop = getSectionTop(si);
-    return sectionTop + sectionContentHeight / 2;
+  // Leaf nodes: tight pair anchored to parent pillar
+  const getNodeY = (pillarIdx: number, nodeIdx: number) => {
+    const pillarY = getPillarY(pillarIdx);
+    return nodeIdx === 0 ? pillarY - LEAF_PAIR_OFFSET : pillarY + LEAF_PAIR_OFFSET;
   };
 
   const engineReady = nodeReadiness.engine === "ready";
