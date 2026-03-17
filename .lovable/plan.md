@@ -1,37 +1,31 @@
 
 
+## Analysis: Should the 3 Ps Live Inside the Engine Card?
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+**Short answer: No — keeping them separate is the stronger design.**
 
-### Implemented
+### Why they work better as distinct nodes outside the engine
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+1. **Visual storytelling** — The diagram's power is showing a *flow*: raw data enters the engine, gets processed by 3 capabilities (Semantic Enrichment, Cross-category Patterns, Deep Purchase Analysis), then *produces* three distinct intelligence streams (Profiling, Predictive, Phase). Collapsing the Ps into the engine removes that "transformation" narrative.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+2. **The Ps are *outputs*, not *capabilities*** — The engine's 3 internal cards describe *how* it works (enrichment, pattern detection, analysis). The 3 Ps describe *what it produces* (spending profiles, predictive signals, life-phase intelligence). These are conceptually different layers.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+3. **Diagram hierarchy gets lost** — If you put 3 capabilities + 3 Ps inside one card, that's 6 items in a single box. You'd lose the clean 1 → 3 → 3 → 6 cascade that makes the architecture legible at a glance.
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+4. **The current flow tells a better conference story:**
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+```text
+[Customers] → [Engine: HOW we do it] → [3 Ps: WHAT it produces] → [6 Use Cases: WHERE it applies]
+```
+
+### Recommendation
+
+Keep the approved structure:
+- **Engine card** contains the 3 *capability* cards (Semantic Enrichment, Cross-category Patterns, Deep Purchase Analysis) — these explain the technology
+- **3 Pillar nodes** sit outside as the next layer — these explain the intelligence categories
+- **6 leaf nodes** fan out from the pillars — these are the products/features
+
+This gives you a clean presenter narrative: *"Our engine uses these three techniques → to produce these three types of intelligence → which power these six products."*
+
+If you'd still like to proceed with putting the Ps inside the engine, I can plan that — but I'd recommend keeping the current separation.
+
