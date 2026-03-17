@@ -61,8 +61,8 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                   <p className="text-base text-slate-500 leading-relaxed">Generic. Static. The same for everyone.</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">With VentusAI</p>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">Personalized. Intelligent. Built for each customer.</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1.5">With VentusAI</p>
+                  <p className="text-base text-slate-700 leading-relaxed font-medium">Personalized. Intelligent. Built for each customer.</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-900 mb-1">What's next</p>
