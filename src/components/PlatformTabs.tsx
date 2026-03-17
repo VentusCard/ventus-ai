@@ -177,7 +177,7 @@ const EngagementPreview = () => {
       {/* Lifestyle Banner */}
       <div className="rounded-lg px-3 py-3 bg-gradient-to-r from-blue-600 to-indigo-600">
         <p className="text-[8px] font-bold tracking-[0.15em] uppercase text-white/60">Your Lifestyle</p>
-        <p className="text-sm font-bold text-white uppercase">Wellness Explorer</p>
+        <p className="text-sm font-bold text-white uppercase">Culinary Traveler</p>
         <p className="text-[10px] text-white/70 mt-0.5">Top spending: Food & Travel</p>
       </div>
 
