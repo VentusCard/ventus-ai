@@ -155,7 +155,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           <>
             {/* Input lines: left cards → engine */}
             {[inputAY, inputBY].map((y, i) => {
-              const path = `M ${colLeft + 80} ${y} C ${colCenter - 60} ${y}, ${colCenter - 60} ${midY}, ${colCenter - 40} ${midY}`;
+              const txRight = txCenterX + TX_CARD_WIDTH / 2;
+              const engineLeft = engineCenterX - ENGINE_WIDTH / 2;
+              const path = `M ${txRight} ${y} C ${(txRight + engineLeft) / 2} ${y}, ${(txRight + engineLeft) / 2} ${midY}, ${engineLeft} ${midY}`;
               const isReady = inputState === "ready";
               const isProcessingLine = inputState === "processing";
               return (
@@ -181,8 +183,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             {/* Engine → 3 pillar nodes */}
             {PILLARS.map((pillar, pi) => {
               const pillarY = getPillarY(pi);
-              const path = `M ${colCenter + ENGINE_WIDTH / 2} ${midY} C ${colMid - 40} ${midY}, ${colMid - 40} ${pillarY}, ${colMid - PILLAR_WIDTH / 2} ${pillarY}`;
-              // Pillar is "ready" when engine is ready
+              const engineRight = engineCenterX + ENGINE_WIDTH / 2;
+              const pillarLeft = pillarCenterX - PILLAR_WIDTH / 2;
+              const cpX = (engineRight + pillarLeft) / 2;
+              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${pillarY}, ${pillarLeft} ${pillarY}`;
               const pillarReady = engineReady;
               const pillarProcessing = engineProcessing;
 
@@ -214,9 +218,12 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             {/* Pillar → leaf node lines */}
             {PILLARS.map((pillar, si) => {
               const pillarY = getPillarY(si);
+              const pillarRight = pillarCenterX + PILLAR_WIDTH / 2;
+              const leafLeft = leafCenterX - LEAF_NODE_WIDTH / 2;
               return pillar.nodes.map((node, ni) => {
                 const nodeY = getNodeY(si, ni);
-                const path = `M ${colMid + PILLAR_WIDTH / 2} ${pillarY} C ${colRight - 40} ${pillarY}, ${colRight - 40} ${nodeY}, ${colRight} ${nodeY}`;
+                const cpX = (pillarRight + leafLeft) / 2;
+                const path = `M ${pillarRight} ${pillarY} C ${cpX} ${pillarY}, ${cpX} ${nodeY}, ${leafLeft} ${nodeY}`;
                 const state = nodeReadiness[node.id];
                 const isReady = state === "ready";
                 const isProcessingNode = state === "processing";
@@ -251,10 +258,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       </svg>
 
       {/* Transaction Cards — Left */}
-      <div className="absolute" style={{ left: colLeft - TX_CARD_ANCHOR, top: inputAY - 50, width: TX_CARD_WIDTH, zIndex: 1 }}>
+      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputAY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
       </div>
-      <div className="absolute" style={{ left: colLeft - TX_CARD_ANCHOR, top: inputBY - 50, width: TX_CARD_WIDTH, zIndex: 1 }}>
+      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputBY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerB} color="#10b981" label="Customer B" />
       </div>
 
