@@ -159,11 +159,11 @@ const RewardsPreview = () => (
 );
 
 const EngagementPreview = () => {
-  const pillars = [
-    { name: "Dining", icon: "🍽️", spend: 480, budget: 500 },
-    { name: "Wellness", icon: "💪", spend: 320, budget: 250 },
-    { name: "Travel", icon: "✈️", spend: 1240, budget: 1500 },
-    { name: "Shopping", icon: "🛍️", spend: 180, budget: 400 },
+  const pillars: { name: string; icon: string; spend: number; budget: number; subcategories?: { label: string; amount: number }[] }[] = [
+    { name: "Food", icon: "🍽️", spend: 620, budget: 700, subcategories: [{ label: "Groceries", amount: 340 }, { label: "Cafes", amount: 180 }, { label: "Delivery", amount: 100 }] },
+    { name: "Travel", icon: "✈️", spend: 1240, budget: 1500, subcategories: [{ label: "Trip to New York", amount: 520 }, { label: "Trip to Rome", amount: 480 }, { label: "Trip to Banff", amount: 240 }] },
+    { name: "Active Living", icon: "🏃", spend: 280, budget: 350 },
+    { name: "Wellness", icon: "💆", spend: 320, budget: 250 },
   ];
 
   return (
@@ -178,7 +178,7 @@ const EngagementPreview = () => {
       <div className="rounded-lg px-3 py-3 bg-gradient-to-r from-blue-600 to-indigo-600">
         <p className="text-[8px] font-bold tracking-[0.15em] uppercase text-white/60">Your Lifestyle</p>
         <p className="text-sm font-bold text-white uppercase">Wellness Explorer</p>
-        <p className="text-[10px] text-white/70 mt-0.5">Top spending: Dining & Wellness</p>
+        <p className="text-[10px] text-white/70 mt-0.5">Top spending: Food & Travel</p>
       </div>
 
       {/* Lifestyle Spending 2×2 */}
@@ -199,6 +199,16 @@ const EngagementPreview = () => {
                   <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
                 </div>
                 <p className="text-[8px] text-slate-400">${p.spend.toLocaleString()} / ${p.budget.toLocaleString()}</p>
+                {p.subcategories && (
+                  <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-0.5">
+                    {p.subcategories.map((sub) => (
+                      <div key={sub.label} className="flex items-center justify-between text-[8px]">
+                        <span className="text-slate-500 truncate mr-1">{sub.label}</span>
+                        <span className="text-slate-400 whitespace-nowrap">${sub.amount.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
