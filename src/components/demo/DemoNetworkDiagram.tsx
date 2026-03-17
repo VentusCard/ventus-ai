@@ -40,12 +40,12 @@ const PILLAR_WIDTH = 155;
 const PILLAR_HEIGHT = 58;
 const LEAF_NODE_WIDTH = 190;
 const LEAF_NODE_HEIGHT = 44;
-const LEAF_PAIR_OFFSET = 28;
+const LEAF_PAIR_OFFSET = 32;
 
 // Horizontal gaps between column centers
-const GAP_TX_ENGINE = 160;
-const GAP_ENGINE_PILLAR = 150;
-const GAP_PILLAR_LEAF = 130;
+const GAP_TX_ENGINE = 230;
+const GAP_ENGINE_PILLAR = 225;
+const GAP_PILLAR_LEAF = 220;
 
 const PILLARS: PillarDef[] = [
   {
