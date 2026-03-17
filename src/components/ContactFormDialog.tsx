@@ -57,8 +57,8 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
               <img src={ventusLogo} alt="Ventus AI" className="w-24 mb-10" />
               <div className="space-y-8 flex-1 flex flex-col justify-center">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Right now</p>
-                  <p className="text-sm text-slate-500 leading-relaxed">Generic. Static. The same for everyone.</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Right now</p>
+                  <p className="text-base text-slate-500 leading-relaxed">Generic. Static. The same for everyone.</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">With VentusAI</p>
