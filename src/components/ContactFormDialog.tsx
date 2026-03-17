@@ -75,7 +75,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             </div>
 
             {/* Right — Contact Form */}
-            <div className="md:col-span-3 p-6 md:p-8">
+            <div className="p-8 md:p-10">
               <h2 className="text-xl font-bold text-gray-900 mb-1">Get in Touch</h2>
               <p className="text-gray-500 text-sm mb-5">We'd love to hear from you. We'll get back within one business day.</p>
               <form className="space-y-3">
