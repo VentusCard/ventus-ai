@@ -234,10 +234,6 @@ const EngagementPreview = () => {
           <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
             <div className="h-full rounded-full bg-blue-500" style={{ width: "68%" }} />
           </div>
-          <div className="flex gap-1">
-            <button className="text-[7px] font-semibold px-2 py-0.5 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">Adjust</button>
-            <button className="text-[7px] font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors">Keep going</button>
-          </div>
         </div>
       </div>
     </div>
