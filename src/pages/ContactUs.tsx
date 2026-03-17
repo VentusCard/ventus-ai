@@ -144,7 +144,7 @@ ${name}
                       </div>
                       <div>
                         <label className="text-gray-900 font-medium mb-1.5 block text-sm">Company Name</label>
-                        <Input name="company" placeholder="Your company" className="h-11 bg-white border-gray-300 text-gray-900" />
+                        <Input name="company" placeholder="Your company" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" />
                       </div>
                     </div>
                     <div>
