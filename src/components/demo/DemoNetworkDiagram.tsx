@@ -290,9 +290,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-shadow transition-opacity duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: colCenter - ENGINE_WIDTH / 2,
-          top: midY - 100,
+          top: midY - 110,
           width: ENGINE_WIDTH,
-          height: 200,
+          height: 220,
           boxShadow: engineProcessing && !engineReady
             ? "0 0 30px rgba(99, 102, 241, 0.25)"
             : engineReady
@@ -305,10 +305,24 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           <span className="text-indigo-600 text-lg font-bold">V</span>
         </div>
         <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
-        <div className="space-y-1 px-3">
-          {ENGINE_FEATURES.map((f) => (
-            <p key={f} className="text-[8px] text-slate-500 text-center leading-tight">{f}</p>
-          ))}
+        <div className="flex flex-col gap-1.5 px-2 w-full">
+          {ENGINE_CAPABILITIES.map((cap, ci) => {
+            const Icon = cap.icon;
+            return (
+              <div
+                key={cap.label}
+                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}
+                style={{
+                  background: engineReady ? `${cap.color}15` : `${cap.color}08`,
+                  borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`,
+                  animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined,
+                }}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cap.color }} />
+                <span className="text-[9px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
+              </div>
+            );
+          })}
         </div>
         <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
       </button>
