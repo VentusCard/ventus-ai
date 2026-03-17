@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Check, Pause, Play, ArrowRight } from "lucide-react";
+import { Check, Pause, Play, ArrowRight, Trophy, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
