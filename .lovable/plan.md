@@ -1,37 +1,32 @@
 
 
+## Plan: Improve Category Consolidation Visual in Customer Experience Preview
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+**Problem**: The current EngagementPreview uses tiny inline chips with a text arrow ("→") which feels flat and doesn't communicate the transformation well. Both `/tepilot` and `/demo` present consolidation more effectively:
 
-### Implemented
+- **`/tepilot` (BeforeAfterTransformation)**: Uses a 3-column grid layout — MCC cards on the left, a large arrow in the center, pillar cards on the right — with hover interactions showing which MCCs feed into which pillars.
+- **`/demo` (DemoPasswordGate Beat 3)**: Shows three distinct items funneling down via SVG dashed lines into a single MCC box — visually dramatic.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+**Approach**: Adapt the `/tepilot` transformation flow pattern into a compact version for the Platform tab preview. This is the most fitting since it directly shows category-to-pillar consolidation.
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+### New EngagementPreview Layout (single column, top to bottom)
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+1. **Mini Transformation Flow** (primary): A compact 3-column grid (`[left | arrow | right]`)
+   - **Left**: 6-8 raw categories as small cards (e.g., "Restaurants", "Coffee Shops", "Gyms", "Airlines") styled like the `/tepilot` MCC cards — light background, small text, stacked vertically
+   - **Center**: Arrow icon (like `/tepilot`)
+   - **Right**: 4 lifestyle pillars as colored cards (Dining, Wellness, Travel, Shopping) with spend amounts and budget progress bars — each card colored with its pillar color accent
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+2. **Gamification card** (minor): Keep the "Dining Streak" achievement as-is below the flow.
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+3. **AI Coaching card** (minor): Keep the "Wellness spending up 28%" insight as-is below.
+
+### Changes
+
+**File: `src/components/PlatformTabs.tsx`** (lines 207-273)
+- Replace the current flat list of category→pillar rows with a 3-column grid layout
+- Left column: stack of raw category chips/cards (plain gray styling, like generic bank categories)
+- Center: `ArrowRight` icon from lucide
+- Right column: stack of lifestyle pillar cards with color accents, spend amounts, and budget progress bars
+- Keep gamification and coaching cards unchanged below the flow
+- Import `ArrowRight` from lucide-react
+
