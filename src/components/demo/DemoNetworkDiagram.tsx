@@ -89,8 +89,6 @@ const ENGINE_CAPABILITIES = [
   { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
 ];
 
-const ALL_NODES = PILLARS.flatMap(p => p.nodes);
-
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
@@ -106,32 +104,23 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // 4-column layout
-  let colLeft: number, colCenter: number, colMid: number, colRight: number;
+  // ── Center-based layout: compute 4 column centers, then center the whole frame ──
+  const totalContentWidth = TX_CARD_WIDTH / 2 + GAP_TX_ENGINE + GAP_ENGINE_PILLAR + GAP_PILLAR_LEAF + LEAF_NODE_WIDTH / 2;
+  const contentLeft = Math.max(20, (dims.w - totalContentWidth) / 2);
 
-  if (centered && dims.w > 0) {
-    const compositionSpan = dims.w * 0.82;
-    const margin = (dims.w - compositionSpan) / 2;
-    colLeft = margin + TX_CARD_ANCHOR;
-    colRight = dims.w - margin - LEAF_NODE_WIDTH * 0.4;
-    colCenter = colLeft + (colRight - colLeft) * 0.28;
-    colMid = colLeft + (colRight - colLeft) * 0.55;
-  } else {
-    colLeft = dims.w * 0.08;
-    colCenter = dims.w * 0.30;
-    colMid = dims.w * 0.55;
-    colRight = dims.w * 0.78;
-  }
+  const txCenterX = contentLeft + TX_CARD_WIDTH / 2;
+  const engineCenterX = txCenterX + GAP_TX_ENGINE;
+  const pillarCenterX = engineCenterX + GAP_ENGINE_PILLAR;
+  const leafCenterX = pillarCenterX + GAP_PILLAR_LEAF;
 
+  // ── Vertical layout: clamped band, not raw viewport scaling ──
   const midY = dims.h * 0.5;
-  const inputAY = midY - 70;
-  const inputBY = midY + 70;
-
-  // Distribute 3 pillars evenly
-  const pillarSpacing = dims.h * 0.28;
+  const pillarSpacing = Math.min(Math.max(dims.h * 0.22, 100), 180);
   const getPillarY = (pi: number) => midY + (pi - 1) * pillarSpacing;
 
-  // Leaf nodes: tight pair anchored to parent pillar
+  const inputAY = midY - 55;
+  const inputBY = midY + 55;
+
   const getNodeY = (pillarIdx: number, nodeIdx: number) => {
     const pillarY = getPillarY(pillarIdx);
     return nodeIdx === 0 ? pillarY - LEAF_PAIR_OFFSET : pillarY + LEAF_PAIR_OFFSET;
@@ -141,13 +130,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const engineProcessing = nodeReadiness.engine === "processing";
   const inputState: "idle" | "processing" | "ready" = engineReady ? "ready" : engineProcessing ? "processing" : "idle";
 
-  // Flatten for SVG
-  const nodePositions: { node: NodeDef; y: number; sectionIdx: number }[] = [];
-  PILLARS.forEach((pillar, si) => {
-    pillar.nodes.forEach((node, ni) => {
-      nodePositions.push({ node, y: getNodeY(si, ni), sectionIdx: si });
-    });
-  });
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
