@@ -1,37 +1,22 @@
 
 
+## Plan: Update Pillar Names and Add Expanded Subcategories
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+**File: `src/components/PlatformTabs.tsx`** (lines 162-205)
 
-### Implemented
+1. **Update pillars** to Food, Travel, Active Living, Wellness
+2. **Food** and **Travel** render as expanded cards (taller, with subcategory rows below the progress bar)
+3. **Active Living** and **Wellness** stay compact (current style)
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+**Pillar data:**
+```
+Food:      🍽️  $620 / $700  — expanded with: Groceries ($340), Cafes ($180), Delivery ($100)
+Travel:    ✈️  $1,240 / $1,500 — expanded with: Trip to New York ($520), Trip to Rome ($480), Trip to Banff ($240)
+Active Living: 🏃  $280 / $350  — compact
+Wellness:  💆  $320 / $250  — compact (over budget, red bar)
+```
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+**Expanded card structure** — same card styling, but after the spend/budget line, add a `border-t` divider and 3 subcategory rows (label + amount, `text-[8px]`), matching the expandable subcategory style from `DemoEngagementView.tsx`.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+Also update the lifestyle banner text from "Dining & Wellness" to "Food & Travel".
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
-
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
