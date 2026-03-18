@@ -331,8 +331,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         };
 
         Promise.all([
-          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA),
-          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB),
+          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA, "A"),
+          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB, "B"),
         ])
           .then(() => {
             setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
