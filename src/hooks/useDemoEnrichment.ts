@@ -115,6 +115,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
   const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult[]>([]);
   const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult[]>([]);
+  const [apiPayloads, setApiPayloads] = useState<ApiPayloads>({
+    classificationA: null, classificationB: null,
+    dealPersonalizationA: null, dealPersonalizationB: null,
+    localExperiencesA: null, localExperiencesB: null,
+    lifestyleSignalsA: null, lifestyleSignalsB: null,
+  });
   const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
   const engineReadyRef = useRef(false);
 
