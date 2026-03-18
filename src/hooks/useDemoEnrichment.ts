@@ -26,6 +26,9 @@ const INITIAL_READINESS: NodeReadiness = {
   lifeEvents: "idle",
   wealth: "idle",
   engine: "idle",
+  profiling: "idle",
+  predictive: "idle",
+  phase: "idle",
 };
 
 const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
