@@ -270,7 +270,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         onClick={() => { if (engineReady) onNodeClick("engine"); }}
         disabled={!engineReady}
         title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-shadow transition-opacity duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY - ENGINE_HEIGHT / 2,
@@ -321,7 +321,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             key={pillar.id}
             onClick={() => { if (pillarReady) onNodeClick(pillar.id as DemoNodeType); }}
             disabled={!pillarReady}
-            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 group transition-all duration-300"
+            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 group transition-colors transition-shadow duration-300"
             style={{
               left: pillarCenterX - PILLAR_WIDTH / 2,
               top: pillarY - PILLAR_HEIGHT / 2,
@@ -372,7 +372,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               key={node.id}
               onClick={() => { if (canOpen) onNodeClick(node.id); }}
               disabled={!canOpen}
-              className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
+              className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-[box-shadow,opacity,border-color] duration-300"
               style={{
                 left: leafCenterX - LEAF_NODE_WIDTH / 2,
                 top: nodeY - LEAF_NODE_HEIGHT / 2,
