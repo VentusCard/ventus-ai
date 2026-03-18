@@ -1,37 +1,20 @@
 
 
+## Fix Jittery Pillar Movement on Panel Expand/Collapse
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+### Problem
 
-### Implemented
+The pillar buttons have `transition-all duration-300` in their className. When the side panel opens/closes, the container resizes, `dims` state updates, and all `left`/`top` positions recalculate. The HTML nodes animate their positions smoothly via CSS transition, but the SVG connector lines redraw instantly — causing a visible desync where nodes slide left/right while lines snap.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### Fix
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+Replace `transition-all duration-300` on all absolutely-positioned nodes (pillars, engine, leaf nodes) with transitions scoped to **non-positional properties only** (opacity, box-shadow, border-color). This way, when the container resizes, both SVG paths and HTML nodes reposition instantly and in sync — no weird left-then-right bounce.
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+### Changes in `src/components/demo/DemoNetworkDiagram.tsx`
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+1. **Pillar buttons (line 324)**: Change `transition-all duration-300` → `transition-colors transition-shadow duration-300`
+2. **Engine button (line ~270)**: Change `transition-shadow transition-opacity duration-300` → `transition-[box-shadow,opacity,border-color] duration-300` (already scoped, just verify no `transition-all`)
+3. **Leaf node buttons (line ~375)**: Change `transition-shadow transition-opacity duration-300` → same scoped transition (verify)
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+Single file, ~3 class string edits.
+
