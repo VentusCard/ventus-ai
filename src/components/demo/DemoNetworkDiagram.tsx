@@ -37,7 +37,7 @@ const TX_CARD_HEIGHT = 100;
 const ENGINE_WIDTH = 190;
 const ENGINE_HEIGHT = 220;
 const PILLAR_WIDTH = 155;
-const PILLAR_HEIGHT = 58;
+const PILLAR_HEIGHT = 78;
 const LEAF_NODE_WIDTH = 190;
 const LEAF_NODE_HEIGHT = 44;
 const LEAF_PAIR_OFFSET = 32;
@@ -51,7 +51,7 @@ const PILLARS: PillarDef[] = [
   {
     id: "profiling",
     name: "Profiling",
-    subtitle: "What they have spent on",
+    subtitle: "Who are they, where do they spend & move money?",
     icon: Search,
     color: "#3b82f6",
     nodes: [
@@ -62,7 +62,7 @@ const PILLARS: PillarDef[] = [
   {
     id: "predictive",
     name: "Predictive",
-    subtitle: "What they might spend next",
+    subtitle: "What will they spend on next & how do we reward it?",
     icon: Sparkles,
     color: "#22c55e",
     nodes: [
@@ -73,7 +73,7 @@ const PILLARS: PillarDef[] = [
   {
     id: "phase",
     name: "Phase",
-    subtitle: "Where they are in life",
+    subtitle: "Where are they in their journey & what's their next product?",
     icon: Heart,
     color: "#a855f7",
     nodes: [
@@ -350,7 +350,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             </div>
             <div className="text-left min-w-0">
               <p className="text-[10px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
-              <p className="text-[8px] text-slate-400 leading-tight truncate">{pillar.subtitle}</p>
+              <p className="text-[9px] text-slate-400 leading-tight">{pillar.subtitle}</p>
             </div>
             <p className="absolute -bottom-0.5 right-2 text-[7px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
           </button>

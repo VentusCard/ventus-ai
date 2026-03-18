@@ -1,20 +1,37 @@
 
 
-## Update 3P Pillar Subtitles + Hint at ACH Movement
 
-### Subtitle Copy
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-- **Profiling**: "Who are they, where do they spend & move money?"
-- **Predictive**: "What will they spend on next & how do we reward it?"
-- **Phase**: "Where are they in their journey & what's their next product?"
+### Implemented
 
-The Profiling subtitle now hints at ACH/money movement (e.g., transfers to Marcus, Ally) — signaling the bank can see deposit flight, not just card spend.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-### Changes in `src/components/demo/DemoNetworkDiagram.tsx`
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
-1. **Update `subtitle` text** in the 3 `PILLARS` entries (lines 54, 65, 76)
-2. **Increase `PILLAR_HEIGHT`** from `58` → `78` to fit two-line question subtitles
-3. **Subtitle rendering** (line 353): remove `truncate`, bump from `text-[8px]` to `text-[9px]` so the questions wrap and remain readable
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-Single file, 3 small edits.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
