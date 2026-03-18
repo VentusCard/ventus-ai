@@ -247,7 +247,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         // Mark input lines solid + analytics & engine ready
         setInputReady(true);
-        setNodeReady({ engine: "ready", analytics: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
