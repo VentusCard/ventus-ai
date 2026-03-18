@@ -253,7 +253,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             const dealsSelA = getRelevantDeals(profileA, 10);
             const dealsSelB = getRelevantDeals(profileB, 10);
 
-            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer) => {
+            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer, label: "A" | "B") => {
               const payload = {
                 deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
                 profile: {
@@ -274,14 +274,15 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
               const res = await fetch(`${supabaseUrl}/functions/v1/deal-personalization`, { method: "POST", headers, body: JSON.stringify(payload) });
               if (!res.ok) throw new Error(`deals: ${res.status}`);
               const data = await res.json();
+              setApiPayloads(prev => ({ ...prev, [`dealPersonalization${label}`]: { request: payload, response: data } }));
               const map: Record<string, { msg: string; cta: string }> = {};
               (data?.recs || []).forEach((r: any) => { map[r.id] = { msg: r.msg, cta: r.cta }; });
               return { deals, personalized: map } as PersonalizedDealData;
             };
 
             const [resultA, resultB] = await Promise.all([
-              personalize(dealsSelA, profileA, customerA),
-              personalize(dealsSelB, profileB, customerB),
+              personalize(dealsSelA, profileA, customerA, "A"),
+              personalize(dealsSelB, profileB, customerB, "B"),
             ]);
             setPersonalizedDealsA(resultA);
             setPersonalizedDealsB(resultB);
