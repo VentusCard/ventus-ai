@@ -156,7 +156,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+    <div ref={containerRef} className="relative w-full h-full" style={{ opacity: diagramOpacity, transition: "opacity 150ms ease-in-out" }}>
       <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
