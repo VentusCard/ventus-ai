@@ -42,7 +42,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
   analytics: DemoAnalyticsView,
-  wealth: DemoWealthView,
+  lifeEvents: DemoFinancialJourneyView,
 };
 
 export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, onClose }: Props) {
