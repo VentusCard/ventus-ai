@@ -50,6 +50,22 @@ export interface PersonalizedDealData {
   personalized: Record<string, { msg: string; cta: string }>;
 }
 
+export interface ApiPayloadEntry {
+  request: any;
+  response: any;
+}
+
+export interface ApiPayloads {
+  classificationA: ApiPayloadEntry | null;
+  classificationB: ApiPayloadEntry | null;
+  dealPersonalizationA: ApiPayloadEntry | null;
+  dealPersonalizationB: ApiPayloadEntry | null;
+  localExperiencesA: ApiPayloadEntry | null;
+  localExperiencesB: ApiPayloadEntry | null;
+  lifestyleSignalsA: ApiPayloadEntry | null;
+  lifestyleSignalsB: ApiPayloadEntry | null;
+}
+
 interface DemoEnrichmentResult {
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
