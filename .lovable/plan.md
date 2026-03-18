@@ -1,37 +1,39 @@
 
 
+## Make the Network Diagram Bigger & Wider
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+The diagram currently uses fixed pixel gaps (230/225/220px) between columns and fixed node sizes that don't scale with available space. On a 1504px viewport with a ~35% left panel, the diagram container is ~975px wide but the content only spans ~875px, leaving unused margins. Nodes are also quite small.
 
-### Implemented
+### Changes in `src/components/demo/DemoNetworkDiagram.tsx`
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+**1. Increase all node sizes**
+- `TX_CARD_WIDTH`: 160 → 180
+- `TX_CARD_HEIGHT`: 100 → 110
+- `ENGINE_WIDTH`: 190 → 210
+- `ENGINE_HEIGHT`: 220 → 245
+- `PILLAR_WIDTH`: 155 → 175
+- `PILLAR_HEIGHT`: 78 → 88
+- `LEAF_NODE_WIDTH`: 190 → 210
+- `LEAF_NODE_HEIGHT`: 44 → 52
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+**2. Increase horizontal gaps**
+- `GAP_TX_ENGINE`: 230 → 260
+- `GAP_ENGINE_PILLAR`: 225 → 255
+- `GAP_PILLAR_LEAF`: 220 → 250
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+**3. Increase vertical spread**
+- `LEAF_PAIR_OFFSET`: 32 → 38
+- Pillar spacing clamp: change `Math.min(Math.max(dims.h * 0.22, 100), 180)` to `Math.min(Math.max(dims.h * 0.24, 110), 200)`
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**4. Bump font sizes throughout**
+- Engine "V" logo: `text-lg` → `text-xl`, icon container `w-10 h-10` → `w-11 h-11`
+- Engine label: `text-[11px]` → `text-[12px]`
+- Engine capabilities text: `text-[9px]` → `text-[10px]`
+- Pillar name: `text-[10px]` → `text-[11px]`
+- Pillar subtitle: `text-[9px]` → `text-[9px]` (keep, already readable)
+- Leaf node label: `text-[10px]` → `text-[11px]`
+- Leaf node status: `text-[8px]` → `text-[9px]`
+- TxCard text sizes bumped by 1px each
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+Single file edit — geometry constants, font sizes, and the pillar spacing formula.
+
