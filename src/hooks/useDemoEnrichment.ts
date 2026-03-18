@@ -187,6 +187,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPersonalizedDealsB(null);
     setDetectedEventA([]);
     setDetectedEventB([]);
+    setApiPayloads({
+      classificationA: null, classificationB: null,
+      dealPersonalizationA: null, dealPersonalizationB: null,
+      localExperiencesA: null, localExperiencesB: null,
+      lifestyleSignalsA: null, lifestyleSignalsB: null,
+    });
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
