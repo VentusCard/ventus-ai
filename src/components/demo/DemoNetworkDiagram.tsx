@@ -92,16 +92,40 @@ const ENGINE_CAPABILITIES = [
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
+  const [diagramOpacity, setDiagramOpacity] = useState(1);
+  const prevWidthRef = useRef(0);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
-      setDims({ w: width, h: height });
+      const widthDelta = Math.abs(width - prevWidthRef.current);
+
+      // Only fade for significant width changes (panel open/close), not initial render
+      if (prevWidthRef.current > 0 && widthDelta > 50) {
+        // Fade out
+        setDiagramOpacity(0);
+        clearTimeout(fadeTimerRef.current);
+        fadeTimerRef.current = setTimeout(() => {
+          // Reposition (update dims while invisible)
+          setDims({ w: width, h: height });
+          // Fade back in after a brief reposition frame
+          requestAnimationFrame(() => {
+            setDiagramOpacity(1);
+          });
+        }, 150);
+      } else {
+        setDims({ w: width, h: height });
+      }
+      prevWidthRef.current = width;
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(fadeTimerRef.current);
+    };
   }, []);
 
   // ── Center-based layout: compute 4 column centers, then center the whole frame ──
