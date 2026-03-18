@@ -372,7 +372,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               key={node.id}
               onClick={() => { if (canOpen) onNodeClick(node.id); }}
               disabled={!canOpen}
-              className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-shadow transition-opacity duration-300"
+              className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-[box-shadow,opacity,border-color] duration-300"
               style={{
                 left: leafCenterX - LEAF_NODE_WIDTH / 2,
                 top: nodeY - LEAF_NODE_HEIGHT / 2,
