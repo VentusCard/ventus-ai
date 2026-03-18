@@ -321,7 +321,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             key={pillar.id}
             onClick={() => { if (pillarReady) onNodeClick(pillar.id as DemoNodeType); }}
             disabled={!pillarReady}
-            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 group transition-all duration-300"
+            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 group transition-colors transition-shadow duration-300"
             style={{
               left: pillarCenterX - PILLAR_WIDTH / 2,
               top: pillarY - PILLAR_HEIGHT / 2,
