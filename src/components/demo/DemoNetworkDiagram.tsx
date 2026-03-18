@@ -62,7 +62,7 @@ const PILLARS: PillarDef[] = [
   {
     id: "predictive",
     name: "Predictive",
-    subtitle: "What they might spend next",
+    subtitle: "What will they spend on next & how do we reward it?",
     icon: Sparkles,
     color: "#22c55e",
     nodes: [
