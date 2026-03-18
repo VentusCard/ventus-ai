@@ -446,13 +446,13 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
         >
           {initials}
         </div>
-        <p className="text-[10px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
+        <p className="text-[11px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
       </div>
       <div className="space-y-0.5 overflow-hidden">
-        <p className="text-[8px] font-mono text-slate-600 truncate">
+        <p className="text-[9px] font-mono text-slate-600 truncate">
           {customer.txnCount} txns · {customer.txnTotal}
         </p>
-        <p className="text-[8px] font-mono text-slate-400 truncate">
+        <p className="text-[9px] font-mono text-slate-400 truncate">
           {customer.dateRange} · {customer.sourceCount} sources
         </p>
       </div>
