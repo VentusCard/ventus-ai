@@ -211,6 +211,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         lifeEvents: "processing",
         wealth: "processing",
         engine: "processing",
+        profiling: "processing",
+        predictive: "processing",
+        phase: "processing",
       });
     }, 100);
 
