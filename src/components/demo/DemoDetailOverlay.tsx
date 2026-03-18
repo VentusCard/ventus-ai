@@ -23,6 +23,7 @@ interface Props {
   personalizedDealsB?: PersonalizedDealData | null;
   detectedEventA?: DetectedLifeEventResult[];
   detectedEventB?: DetectedLifeEventResult[];
+  apiPayloads?: ApiPayloads;
   onClose: () => void;
 }
 
