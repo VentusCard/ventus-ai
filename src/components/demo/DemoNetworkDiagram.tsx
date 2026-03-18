@@ -32,20 +32,20 @@ interface PillarDef {
 }
 
 // Geometry constants — all nodes use center-based positioning
-const TX_CARD_WIDTH = 160;
-const TX_CARD_HEIGHT = 100;
-const ENGINE_WIDTH = 190;
-const ENGINE_HEIGHT = 220;
-const PILLAR_WIDTH = 155;
-const PILLAR_HEIGHT = 78;
-const LEAF_NODE_WIDTH = 190;
-const LEAF_NODE_HEIGHT = 44;
-const LEAF_PAIR_OFFSET = 32;
+const TX_CARD_WIDTH = 180;
+const TX_CARD_HEIGHT = 110;
+const ENGINE_WIDTH = 210;
+const ENGINE_HEIGHT = 245;
+const PILLAR_WIDTH = 175;
+const PILLAR_HEIGHT = 88;
+const LEAF_NODE_WIDTH = 210;
+const LEAF_NODE_HEIGHT = 52;
+const LEAF_PAIR_OFFSET = 38;
 
 // Horizontal gaps between column centers
-const GAP_TX_ENGINE = 230;
-const GAP_ENGINE_PILLAR = 225;
-const GAP_PILLAR_LEAF = 220;
+const GAP_TX_ENGINE = 260;
+const GAP_ENGINE_PILLAR = 255;
+const GAP_PILLAR_LEAF = 250;
 
 const PILLARS: PillarDef[] = [
   {
@@ -115,7 +115,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
   // ── Vertical layout: clamped band, not raw viewport scaling ──
   const midY = dims.h * 0.5;
-  const pillarSpacing = Math.min(Math.max(dims.h * 0.22, 100), 180);
+  const pillarSpacing = Math.min(Math.max(dims.h * 0.24, 110), 200);
   const getPillarY = (pi: number) => midY + (pi - 1) * pillarSpacing;
 
   const inputAY = midY - 55;
@@ -284,10 +284,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
-          <span className="text-indigo-600 text-lg font-bold">V</span>
+        <div className={`w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
+          <span className="text-indigo-600 text-xl font-bold">V</span>
         </div>
-        <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
+        <p className="text-[12px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
@@ -302,7 +302,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 }}
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cap.color }} />
-                <span className="text-[9px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
+                <span className="text-[10px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
             );
           })}
@@ -349,7 +349,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               <Icon className="w-3.5 h-3.5" style={{ color: pillar.color }} />
             </div>
             <div className="text-left min-w-0">
-              <p className="text-[10px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
+              <p className="text-[11px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
               <p className="text-[9px] text-slate-400 leading-tight">{pillar.subtitle}</p>
             </div>
             <p className="absolute -bottom-0.5 right-2 text-[7px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
@@ -408,8 +408,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
               </div>
               <div className="text-left">
-                <p className="text-[10px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-                <p className="text-[8px] text-slate-400">
+                <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+                <p className="text-[9px] text-slate-400">
                   {!engineReady ? "Waiting for Engine…" : isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
                 </p>
               </div>
@@ -428,7 +428,7 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
         className="rounded-lg border-2 border-dashed p-2.5 flex items-center justify-center"
         style={{ borderColor: `${color}40`, minHeight: 90 }}
       >
-        <p className="text-[10px] font-medium text-slate-400">{label}</p>
+        <p className="text-[11px] font-medium text-slate-400">{label}</p>
       </div>
     );
   }
@@ -446,13 +446,13 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
         >
           {initials}
         </div>
-        <p className="text-[10px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
+        <p className="text-[11px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
       </div>
       <div className="space-y-0.5 overflow-hidden">
-        <p className="text-[8px] font-mono text-slate-600 truncate">
+        <p className="text-[9px] font-mono text-slate-600 truncate">
           {customer.txnCount} txns · {customer.txnTotal}
         </p>
-        <p className="text-[8px] font-mono text-slate-400 truncate">
+        <p className="text-[9px] font-mono text-slate-400 truncate">
           {customer.dateRange} · {customer.sourceCount} sources
         </p>
       </div>
