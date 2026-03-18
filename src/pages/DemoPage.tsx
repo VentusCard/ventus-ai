@@ -146,6 +146,7 @@ export default function DemoPage() {
             personalizedDealsB={personalizedDealsB}
             detectedEventA={detectedEventA}
             detectedEventB={detectedEventB}
+            apiPayloads={apiPayloads}
             onClose={() => setActiveNode(null)}
           />
         )}

@@ -426,6 +426,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     personalizedDealsB,
     detectedEventA,
     detectedEventB,
+    apiPayloads,
     startEnrichment,
   };
 }
