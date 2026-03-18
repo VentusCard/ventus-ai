@@ -3,7 +3,7 @@ import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase";
 
 interface Props {
   customerA: DemoCustomer | null;
