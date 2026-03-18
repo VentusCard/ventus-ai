@@ -428,7 +428,7 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
         className="rounded-lg border-2 border-dashed p-2.5 flex items-center justify-center"
         style={{ borderColor: `${color}40`, minHeight: 90 }}
       >
-        <p className="text-[10px] font-medium text-slate-400">{label}</p>
+        <p className="text-[11px] font-medium text-slate-400">{label}</p>
       </div>
     );
   }
