@@ -284,10 +284,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
-          <span className="text-indigo-600 text-lg font-bold">V</span>
+        <div className={`w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
+          <span className="text-indigo-600 text-xl font-bold">V</span>
         </div>
-        <p className="text-[11px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
+        <p className="text-[12px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
