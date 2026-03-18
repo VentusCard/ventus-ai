@@ -77,7 +77,7 @@ const PILLARS: PillarDef[] = [
     icon: Heart,
     color: "#a855f7",
     nodes: [
-      { id: "lifeEvents", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899" },
+      { id: "lifeEvents", label: "Financial Journey", icon: CalendarHeart, color: "#ec4899" },
       { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
     ],
   },

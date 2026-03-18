@@ -1,33 +1,37 @@
 
 
-## Restructure Life Events + Wealth Nodes in /demo
 
-### What changes
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-**1. "Wealth Management" node → show the current Life Event Detection content**
+### Implemented
 
-Move the `DemoLifeEventsView` (detected events with evidence, confidence, talking points, action buttons) to render when clicking "Wealth Management". This makes sense — wealth management advisors need life event intelligence to act on.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-- In `DemoDetailOverlay.tsx`: when `node === "wealth"`, render `DemoLifeEventsView` instead of `DemoWealthView`
-- Remove `wealth` from `SIMPLE_VIEW_MAP`
-- Update title to "Wealth Management — Life Event Intelligence"
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
-**2. "Life Event Detection" node → becomes "Financial Journey" with next-product predictions**
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-Rename the node label to "Financial Journey" in `DemoNetworkDiagram.tsx`. Rebuild the view to show:
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-- **Current Product Holdings**: what the customer already has (from `holdings` — deposit, credit, mortgage, investments)
-- **Next Best Product Recommendations**: each with a % match score, derived from:
-  - **Life-event signals**: detected events → product mapping (e.g., Home Purchase 87% → Mortgage Pre-Approval)
-  - **Spending-pattern signals**: pillar concentration without matching product (e.g., 34% travel spend + no travel card → Travel Rewards Card 82%)
-  - **Upgrade signals**: spend velocity vs. current tier (e.g., $12K annual → Premium Card Upgrade 74%)
-- Each recommendation card shows: product name, match %, signal source badge (Life Event / Spending / Upgrade), rationale, estimated annual value
-
-**3. Create new `DemoFinancialJourneyView.tsx`** replacing the life events content for that node. Side-by-side per customer, each showing current holdings and ranked product recommendations with match percentages.
-
-### Files changed
-
-- `src/components/demo/DemoNetworkDiagram.tsx` — rename "Life Event Detection" label to "Financial Journey"
-- `src/components/demo/DemoFinancialJourneyView.tsx` — new component with next-product match % view
-- `src/components/demo/DemoDetailOverlay.tsx` — swap rendering: `wealth` → `DemoLifeEventsView`, `lifeEvents` → `DemoFinancialJourneyView`; update titles
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

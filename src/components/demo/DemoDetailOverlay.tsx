@@ -7,8 +7,8 @@ import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
 import DemoTravelView from "./DemoTravelView";
-import DemoWealthView from "./DemoWealthView";
 import DemoLifeEventsView from "./DemoLifeEventsView";
+import DemoFinancialJourneyView from "./DemoFinancialJourneyView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
 
@@ -32,8 +32,8 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   analytics: { title: "Bank-Wide Analytics", color: "#3b82f6" },
   rewards: { title: "Consumer Rewards", color: "#22c55e" },
   travel: { title: "Travel Experiences", color: "#06b6d4" },
-  lifeEvents: { title: "Life Event Detection Dashboard", color: "#ec4899" },
-  wealth: { title: "Wealth Management Copilot", color: "#a855f7" },
+  lifeEvents: { title: "Financial Journey — Next Best Product", color: "#ec4899" },
+  wealth: { title: "Wealth Management — Life Event Intelligence", color: "#a855f7" },
   engine: { title: "Ventus AI Engine — classify-transactions", color: "#6366f1" },
   profiling: { title: "Profiling — Pillar Summary", color: "#3b82f6" },
   predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
@@ -42,7 +42,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
   analytics: DemoAnalyticsView,
-  wealth: DemoWealthView,
+  lifeEvents: DemoFinancialJourneyView,
 };
 
 export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, onClose }: Props) {
@@ -79,7 +79,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         />
       );
     }
-    if (node === "lifeEvents") {
+    if (node === "wealth") {
       return (
         <DemoLifeEventsView
           customerA={customerA}
