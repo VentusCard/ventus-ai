@@ -73,7 +73,7 @@ const PILLARS: PillarDef[] = [
   {
     id: "phase",
     name: "Phase",
-    subtitle: "Where they are in life",
+    subtitle: "Where are they in their journey & what's their next product?",
     icon: Heart,
     color: "#a855f7",
     nodes: [
