@@ -7,8 +7,8 @@ import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
 import DemoTravelView from "./DemoTravelView";
-import DemoWealthView from "./DemoWealthView";
 import DemoLifeEventsView from "./DemoLifeEventsView";
+import DemoFinancialJourneyView from "./DemoFinancialJourneyView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
 
