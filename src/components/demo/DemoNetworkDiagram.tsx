@@ -51,7 +51,7 @@ const PILLARS: PillarDef[] = [
   {
     id: "profiling",
     name: "Profiling",
-    subtitle: "What they have spent on",
+    subtitle: "Who are they, where do they spend & move money?",
     icon: Search,
     color: "#3b82f6",
     nodes: [
