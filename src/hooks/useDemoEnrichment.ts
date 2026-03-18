@@ -398,6 +398,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             [resA.customerId]: resA.results,
             [resB.customerId]: resB.results,
           });
+          setApiPayloads(prev => ({
+            ...prev,
+            localExperiencesA: { request: { city: customerA.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resA.results },
+            localExperiencesB: { request: { city: customerB.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resB.results },
+          }));
           setNodeReady({ travel: "ready" });
         })
         .catch(() => {
