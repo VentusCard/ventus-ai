@@ -88,6 +88,16 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         />
       );
     }
+    if (node === "lifeEvents") {
+      return (
+        <DemoFinancialJourneyView
+          customerA={customerA}
+          customerB={customerB}
+          detectedEventA={detectedEventA ?? []}
+          detectedEventB={detectedEventB ?? []}
+        />
+      );
+    }
     const ViewComponent = SIMPLE_VIEW_MAP[node];
     if (ViewComponent) return <ViewComponent customerA={customerA} customerB={customerB} />;
     return null;
