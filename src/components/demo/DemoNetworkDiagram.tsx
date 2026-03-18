@@ -270,7 +270,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         onClick={() => { if (engineReady) onNodeClick("engine"); }}
         disabled={!engineReady}
         title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-shadow transition-opacity duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY - ENGINE_HEIGHT / 2,
