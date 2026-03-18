@@ -79,7 +79,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         />
       );
     }
-    if (node === "lifeEvents") {
+    if (node === "wealth") {
       return (
         <DemoLifeEventsView
           customerA={customerA}
