@@ -3,7 +3,7 @@ import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase";
 
 interface Props {
   customerA: DemoCustomer | null;
@@ -317,15 +317,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         const pillarReady = engineReady;
 
         return (
-          <div
+          <button
             key={pillar.id}
-            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 transition-all duration-300"
+            onClick={() => { if (pillarReady) onNodeClick(pillar.id as DemoNodeType); }}
+            disabled={!pillarReady}
+            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 group transition-all duration-300"
             style={{
               left: pillarCenterX - PILLAR_WIDTH / 2,
               top: pillarY - PILLAR_HEIGHT / 2,
               width: PILLAR_WIDTH,
               height: PILLAR_HEIGHT,
               zIndex: 2,
+              cursor: pillarReady ? "pointer" : "not-allowed",
               borderColor: pillarReady ? `${pillar.color}60` : "#e2e8f0",
               borderLeftWidth: 3,
               borderLeftColor: pillar.color,
@@ -349,7 +352,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               <p className="text-[10px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
               <p className="text-[8px] text-slate-400 leading-tight truncate">{pillar.subtitle}</p>
             </div>
-          </div>
+            <p className="absolute -bottom-0.5 right-2 text-[7px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
+          </button>
         );
       })}
 

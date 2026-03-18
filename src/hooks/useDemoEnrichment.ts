@@ -26,6 +26,9 @@ const INITIAL_READINESS: NodeReadiness = {
   lifeEvents: "idle",
   wealth: "idle",
   engine: "idle",
+  profiling: "idle",
+  predictive: "idle",
+  phase: "idle",
 };
 
 const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
@@ -50,6 +53,22 @@ export interface PersonalizedDealData {
   personalized: Record<string, { msg: string; cta: string }>;
 }
 
+export interface ApiPayloadEntry {
+  request: any;
+  response: any;
+}
+
+export interface ApiPayloads {
+  classificationA: ApiPayloadEntry | null;
+  classificationB: ApiPayloadEntry | null;
+  dealPersonalizationA: ApiPayloadEntry | null;
+  dealPersonalizationB: ApiPayloadEntry | null;
+  localExperiencesA: ApiPayloadEntry | null;
+  localExperiencesB: ApiPayloadEntry | null;
+  lifestyleSignalsA: ApiPayloadEntry | null;
+  lifestyleSignalsB: ApiPayloadEntry | null;
+}
+
 interface DemoEnrichmentResult {
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
@@ -62,6 +81,7 @@ interface DemoEnrichmentResult {
   personalizedDealsB: PersonalizedDealData | null;
   detectedEventA: DetectedLifeEventResult[];
   detectedEventB: DetectedLifeEventResult[];
+  apiPayloads: ApiPayloads;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
@@ -98,6 +118,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
   const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult[]>([]);
   const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult[]>([]);
+  const [apiPayloads, setApiPayloads] = useState<ApiPayloads>({
+    classificationA: null, classificationB: null,
+    dealPersonalizationA: null, dealPersonalizationB: null,
+    localExperiencesA: null, localExperiencesB: null,
+    lifestyleSignalsA: null, lifestyleSignalsB: null,
+  });
   const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
   const engineReadyRef = useRef(false);
 
@@ -164,6 +190,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPersonalizedDealsB(null);
     setDetectedEventA([]);
     setDetectedEventB([]);
+    setApiPayloads({
+      classificationA: null, classificationB: null,
+      dealPersonalizationA: null, dealPersonalizationB: null,
+      localExperiencesA: null, localExperiencesB: null,
+      lifestyleSignalsA: null, lifestyleSignalsB: null,
+    });
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
 
@@ -179,6 +211,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         lifeEvents: "processing",
         wealth: "processing",
         engine: "processing",
+        profiling: "processing",
+        predictive: "processing",
+        phase: "processing",
       });
     }, 100);
 
@@ -212,7 +247,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         // Mark input lines solid + analytics & engine ready
         setInputReady(true);
-        setNodeReady({ engine: "ready", analytics: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
@@ -224,7 +259,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             const dealsSelA = getRelevantDeals(profileA, 10);
             const dealsSelB = getRelevantDeals(profileB, 10);
 
-            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer) => {
+            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer, label: "A" | "B") => {
               const payload = {
                 deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
                 profile: {
@@ -245,14 +280,15 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
               const res = await fetch(`${supabaseUrl}/functions/v1/deal-personalization`, { method: "POST", headers, body: JSON.stringify(payload) });
               if (!res.ok) throw new Error(`deals: ${res.status}`);
               const data = await res.json();
+              setApiPayloads(prev => ({ ...prev, [`dealPersonalization${label}`]: { request: payload, response: data } }));
               const map: Record<string, { msg: string; cta: string }> = {};
               (data?.recs || []).forEach((r: any) => { map[r.id] = { msg: r.msg, cta: r.cta }; });
               return { deals, personalized: map } as PersonalizedDealData;
             };
 
             const [resultA, resultB] = await Promise.all([
-              personalize(dealsSelA, profileA, customerA),
-              personalize(dealsSelB, profileB, customerB),
+              personalize(dealsSelA, profileA, customerA, "A"),
+              personalize(dealsSelB, profileB, customerB, "B"),
             ]);
             setPersonalizedDealsA(resultA);
             setPersonalizedDealsB(resultB);
@@ -269,25 +305,28 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           customer: DemoCustomer,
           txns: EnrichedTransaction[],
           setResult: (r: DetectedLifeEventResult[]) => void,
+          label: "A" | "B",
         ) => {
           const summary = buildSpendingSummary(txns);
+          const requestPayload = {
+            client: {
+              name: customer.profile.name,
+              age: customer.profile.demographics.age,
+              occupation: customer.profile.demographics.occupation,
+              family_status: customer.profile.demographics.familyStatus,
+            },
+            transactions: txns,
+            spending_summary: summary,
+          };
           try {
             const res = await fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
               method: "POST",
               headers,
-              body: JSON.stringify({
-                client: {
-                  name: customer.profile.name,
-                  age: customer.profile.demographics.age,
-                  occupation: customer.profile.demographics.occupation,
-                  family_status: customer.profile.demographics.familyStatus,
-                },
-                transactions: txns,
-                spending_summary: summary,
-              }),
+              body: JSON.stringify(requestPayload),
             });
             if (!res.ok) throw new Error(`lifestyle: ${res.status}`);
             const data = await res.json();
+            setApiPayloads(prev => ({ ...prev, [`lifestyleSignals${label}`]: { request: requestPayload, response: data } }));
             console.log(`[Phase2] Lifestyle signals for ${customer.profile.name}:`, data);
             const events: DetectedLifeEventResult[] = (data?.detected_events ?? []).slice(0, 3);
             setResult(events);
@@ -298,8 +337,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         };
 
         Promise.all([
-          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA),
-          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB),
+          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA, "A"),
+          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB, "B"),
         ])
           .then(() => {
             setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
@@ -315,10 +354,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       const onClassifiedA = (classified: EnrichedTransaction[]) => {
         classifiedResults.a = classified;
+        setApiPayloads(prev => ({ ...prev, classificationA: { request: { transactions: txnsA.length + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
         maybeStartPhase2();
       };
       const onClassifiedB = (classified: EnrichedTransaction[]) => {
         classifiedResults.b = classified;
+        setApiPayloads(prev => ({ ...prev, classificationB: { request: { transactions: txnsB.length + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
         maybeStartPhase2();
       };
 
@@ -363,6 +404,11 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             [resA.customerId]: resA.results,
             [resB.customerId]: resB.results,
           });
+          setApiPayloads(prev => ({
+            ...prev,
+            localExperiencesA: { request: { city: customerA.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resA.results },
+            localExperiencesB: { request: { city: customerB.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resB.results },
+          }));
           setNodeReady({ travel: "ready" });
         })
         .catch(() => {
@@ -386,6 +432,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     personalizedDealsB,
     detectedEventA,
     detectedEventB,
+    apiPayloads,
     startEnrichment,
   };
 }

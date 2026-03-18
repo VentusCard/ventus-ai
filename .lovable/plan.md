@@ -1,51 +1,37 @@
 
 
-## Make Engine + 3 Pillars Clickable with Live Data Views
 
-### Revised Node → Data Mapping
+## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
 
-Based on your feedback, here is the holistic mapping that makes narrative sense:
+### Implemented
 
-**Ventus AI Engine** → `classify-transactions` response
-Show the raw enriched transaction data — the actual AI classification output with pillars, subcategories, confidence scores, spending tiers, and purchase frequencies. This is what the engine *does*: it takes raw transactions and returns rich, structured intelligence.
+**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
+- Tip generator rotating 5 contextual tips based on transactions
+- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
+- KPI data for banker dashboard
 
-**Profiling** ("What they have spent on") → Pillar summary derived from classified data
-Show a structured breakdown: each pillar with its total spend, transaction count, average confidence, top subcategories, dominant spending tier, and frequency distribution. This is a live aggregation of the classification output — no separate API call needed, it is computed client-side from the enriched transactions.
+**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
+- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
+- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
+- Incorporates customer profile (demographics, holdings, lifestyle type) when available
+- Structured output via tool calling returning FinancialTip object
+- Strict guardrails: only bank-observable data, no usage metrics or external balances
+- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
 
-**Predictive** ("What they might spend next") → `deal-personalization` + `local-experiences` responses
-Show the deal personalization request/response (profile → personalized offers) alongside the travel local-experiences results. Both are forward-looking: "based on what we know, here is what we recommend next." This combines rewards and travel intelligence into one predictive view.
+**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
+- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
+- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
+- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
+- Response logged indicator shown after interaction
 
-**Phase** ("Where they are in life") → `analyze-lifestyle-signals` response
-Show the lifestyle signals request/response — the detected life events with confidence scores, transaction evidence, talking points, and financial projections. This is the life-stage detection engine.
+**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
+- New "Customer Insights" tab in AnalyticsContainer
+- Two-sided loop visualization diagram
+- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
+- Customer Tip Responses table with sentiment, takeaways, and banker actions
+- Financial Wellness Signals table with severity, status management, recommended actions
+- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
 
-### Implementation
-
-**1. Extend `DemoNodeType`** — add `"profiling" | "predictive" | "phase"` to the union type.
-
-**2. Make pillar nodes clickable** in `DemoNetworkDiagram.tsx` — change the pillar `<div>` elements to `<button>` elements, clickable once engine is ready. Add hover effects and "Click to explore" hint.
-
-**3. Capture raw API payloads** in `useDemoEnrichment.ts`:
-- Store the `classify-transactions` response (already have `enrichedA`/`enrichedB`)
-- Store the `deal-personalization` request + response for both customers
-- Store the `local-experiences` responses
-- Store the `analyze-lifestyle-signals` request + response (already have `detectedEventA`/`detectedEventB`, but also capture the full request payload)
-
-Expose these as a new `apiPayloads` object from the hook.
-
-**4. Create `DemoPillarCodeView.tsx`** — a new component with a dark-themed JSON viewer showing:
-- **Engine view**: sample of enriched transactions with all fields highlighted
-- **Profiling view**: aggregated pillar breakdown table with live stats
-- **Predictive view**: deal-personalization payload + local-experiences data side by side
-- **Phase view**: lifestyle signals request → detected events response
-
-Each view uses a split-pane layout (Request | Response) with syntax-highlighted, collapsible JSON and a "Live Data" badge.
-
-**5. Wire into overlay** — update `DemoDetailOverlay.tsx` with the 3 new pillar types in `NODE_TITLES` and `renderContent()`. Update `DemoPage.tsx` to pass `apiPayloads` and add pillar types to navigation order.
-
-### Files changed
-- `src/components/demo/DemoNetworkDiagram.tsx` — extend type, make pillars clickable
-- `src/hooks/useDemoEnrichment.ts` — capture and expose raw API payloads
-- `src/components/demo/DemoPillarCodeView.tsx` — new component (4 view modes)
-- `src/components/demo/DemoDetailOverlay.tsx` — add pillar + engine rendering with code views
-- `src/pages/DemoPage.tsx` — pass payloads, update navigation
-
+### Layout Changes
+- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
+- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

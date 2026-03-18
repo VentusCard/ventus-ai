@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
-import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
+import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
@@ -10,6 +10,7 @@ import DemoTravelView from "./DemoTravelView";
 import DemoWealthView from "./DemoWealthView";
 import DemoLifeEventsView from "./DemoLifeEventsView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
+import DemoPillarCodeView from "./DemoPillarCodeView";
 
 interface Props {
   node: DemoNodeType;
@@ -22,6 +23,7 @@ interface Props {
   personalizedDealsB?: PersonalizedDealData | null;
   detectedEventA?: DetectedLifeEventResult[];
   detectedEventB?: DetectedLifeEventResult[];
+  apiPayloads?: ApiPayloads;
   onClose: () => void;
 }
 
@@ -32,7 +34,10 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   travel: { title: "Travel Experiences", color: "#06b6d4" },
   lifeEvents: { title: "Life Event Detection Dashboard", color: "#ec4899" },
   wealth: { title: "Wealth Management Copilot", color: "#a855f7" },
-  engine: { title: "Deep Customer Intelligence Profile", color: "#6366f1" },
+  engine: { title: "Ventus AI Engine — classify-transactions", color: "#6366f1" },
+  profiling: { title: "Profiling — Pillar Summary", color: "#3b82f6" },
+  predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
+  phase: { title: "Phase — Life Event Detection", color: "#a855f7" },
 };
 
 const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
@@ -40,12 +45,14 @@ const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; custom
   wealth: DemoWealthView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
 
+  const defaultPayloads: ApiPayloads = { classificationA: null, classificationB: null, dealPersonalizationA: null, dealPersonalizationB: null, localExperiencesA: null, localExperiencesB: null, lifestyleSignalsA: null, lifestyleSignalsB: null };
+
   const renderContent = () => {
-    if (node === "engine") {
-      return <DemoEngineProfileView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+    if (node === "engine" || node === "profiling" || node === "predictive" || node === "phase") {
+      return <DemoPillarCodeView mode={node} customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} apiPayloads={apiPayloads ?? defaultPayloads} />;
     }
     if (node === "engagement") {
       return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
