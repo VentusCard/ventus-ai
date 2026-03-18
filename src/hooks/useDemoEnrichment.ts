@@ -348,10 +348,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       const onClassifiedA = (classified: EnrichedTransaction[]) => {
         classifiedResults.a = classified;
+        setApiPayloads(prev => ({ ...prev, classificationA: { request: { transactions: txnsA.length + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
         maybeStartPhase2();
       };
       const onClassifiedB = (classified: EnrichedTransaction[]) => {
         classifiedResults.b = classified;
+        setApiPayloads(prev => ({ ...prev, classificationB: { request: { transactions: txnsB.length + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
         maybeStartPhase2();
       };
 
