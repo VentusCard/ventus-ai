@@ -115,7 +115,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
   // ── Vertical layout: clamped band, not raw viewport scaling ──
   const midY = dims.h * 0.5;
-  const pillarSpacing = Math.min(Math.max(dims.h * 0.22, 100), 180);
+  const pillarSpacing = Math.min(Math.max(dims.h * 0.24, 110), 200);
   const getPillarY = (pi: number) => midY + (pi - 1) * pillarSpacing;
 
   const inputAY = midY - 55;
