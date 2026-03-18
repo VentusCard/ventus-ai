@@ -302,7 +302,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 }}
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cap.color }} />
-                <span className="text-[9px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
+                <span className="text-[10px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
             );
           })}
