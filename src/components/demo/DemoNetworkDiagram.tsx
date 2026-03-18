@@ -32,20 +32,20 @@ interface PillarDef {
 }
 
 // Geometry constants — all nodes use center-based positioning
-const TX_CARD_WIDTH = 160;
-const TX_CARD_HEIGHT = 100;
-const ENGINE_WIDTH = 190;
-const ENGINE_HEIGHT = 220;
-const PILLAR_WIDTH = 155;
-const PILLAR_HEIGHT = 78;
-const LEAF_NODE_WIDTH = 190;
-const LEAF_NODE_HEIGHT = 44;
-const LEAF_PAIR_OFFSET = 32;
+const TX_CARD_WIDTH = 180;
+const TX_CARD_HEIGHT = 110;
+const ENGINE_WIDTH = 210;
+const ENGINE_HEIGHT = 245;
+const PILLAR_WIDTH = 175;
+const PILLAR_HEIGHT = 88;
+const LEAF_NODE_WIDTH = 210;
+const LEAF_NODE_HEIGHT = 52;
+const LEAF_PAIR_OFFSET = 38;
 
 // Horizontal gaps between column centers
-const GAP_TX_ENGINE = 230;
-const GAP_ENGINE_PILLAR = 225;
-const GAP_PILLAR_LEAF = 220;
+const GAP_TX_ENGINE = 260;
+const GAP_ENGINE_PILLAR = 255;
+const GAP_PILLAR_LEAF = 250;
 
 const PILLARS: PillarDef[] = [
   {
