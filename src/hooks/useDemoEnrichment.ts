@@ -78,6 +78,7 @@ interface DemoEnrichmentResult {
   personalizedDealsB: PersonalizedDealData | null;
   detectedEventA: DetectedLifeEventResult[];
   detectedEventB: DetectedLifeEventResult[];
+  apiPayloads: ApiPayloads;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
