@@ -299,25 +299,28 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           customer: DemoCustomer,
           txns: EnrichedTransaction[],
           setResult: (r: DetectedLifeEventResult[]) => void,
+          label: "A" | "B",
         ) => {
           const summary = buildSpendingSummary(txns);
+          const requestPayload = {
+            client: {
+              name: customer.profile.name,
+              age: customer.profile.demographics.age,
+              occupation: customer.profile.demographics.occupation,
+              family_status: customer.profile.demographics.familyStatus,
+            },
+            transactions: txns,
+            spending_summary: summary,
+          };
           try {
             const res = await fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
               method: "POST",
               headers,
-              body: JSON.stringify({
-                client: {
-                  name: customer.profile.name,
-                  age: customer.profile.demographics.age,
-                  occupation: customer.profile.demographics.occupation,
-                  family_status: customer.profile.demographics.familyStatus,
-                },
-                transactions: txns,
-                spending_summary: summary,
-              }),
+              body: JSON.stringify(requestPayload),
             });
             if (!res.ok) throw new Error(`lifestyle: ${res.status}`);
             const data = await res.json();
+            setApiPayloads(prev => ({ ...prev, [`lifestyleSignals${label}`]: { request: requestPayload, response: data } }));
             console.log(`[Phase2] Lifestyle signals for ${customer.profile.name}:`, data);
             const events: DetectedLifeEventResult[] = (data?.detected_events ?? []).slice(0, 3);
             setResult(events);
