@@ -350,7 +350,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             </div>
             <div className="text-left min-w-0">
               <p className="text-[10px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
-              <p className="text-[8px] text-slate-400 leading-tight truncate">{pillar.subtitle}</p>
+              <p className="text-[9px] text-slate-400 leading-tight">{pillar.subtitle}</p>
             </div>
             <p className="absolute -bottom-0.5 right-2 text-[7px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
           </button>
