@@ -112,7 +112,7 @@ interface Props {
 
 export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <div className="flex flex-col gap-6">
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-slate-700">{customerA.profile.name}</span>
