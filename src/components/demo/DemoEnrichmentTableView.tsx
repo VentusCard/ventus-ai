@@ -44,8 +44,8 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
             <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Amt</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Date</th>
             <th className="w-4 px-0.5"><span className="sr-only">→</span></th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Pillar</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Subcat</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Pillar</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Subcat</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Tier</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Freq</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Conf</th>
@@ -60,7 +60,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
               <td className="font-mono text-[10px] text-slate-900 px-1.5 py-1 whitespace-nowrap">${tx.amount.toFixed(0)}</td>
               <td className="text-[10px] text-slate-600 whitespace-nowrap px-1.5 py-1">{tx.date}</td>
               <td className="px-0.5 py-1"><ArrowRight className="w-2.5 h-2.5 text-primary mx-auto" /></td>
-              <td className="px-1.5 py-1">
+              <td className="px-1 py-1">
                 <Badge
                   variant="outline"
                   className="border text-[9px] px-1 py-0 whitespace-nowrap leading-tight"
@@ -73,7 +73,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                   {tx.pillar}
                 </Badge>
               </td>
-              <td className="text-[10px] text-slate-600 px-1.5 py-1 truncate max-w-[70px]" title={tx.subcategory}>{tx.subcategory}</td>
+              <td className="text-[10px] text-slate-600 px-1 py-1 truncate max-w-[70px]" title={tx.subcategory}>{tx.subcategory}</td>
               <td className="px-1.5 py-1">
                 <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>
                   {tx.spending_tier}
