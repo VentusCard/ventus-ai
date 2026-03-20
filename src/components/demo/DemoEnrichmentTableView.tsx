@@ -62,10 +62,10 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                     <div className="text-[10px] text-slate-500">{tx.merchant_name}</div>
                   )}
                 </TableCell>
-                <TableCell className="font-mono text-xs text-slate-900 py-2">${tx.amount.toFixed(2)}</TableCell>
-                <TableCell className="text-[11px] text-slate-700 whitespace-nowrap py-2">{tx.date}</TableCell>
-                <TableCell className="py-2"><ArrowRight className="w-3 h-3 text-primary mx-auto" /></TableCell>
-                <TableCell className="py-2">
+                <TableCell className="font-mono text-xs text-slate-900 py-2 px-2">${tx.amount.toFixed(2)}</TableCell>
+                <TableCell className="text-[11px] text-slate-700 whitespace-nowrap py-2 px-2">{tx.date}</TableCell>
+                <TableCell className="py-2 px-1"><ArrowRight className="w-3 h-3 text-primary mx-auto" /></TableCell>
+                <TableCell className="py-2 px-2">
                   <Badge
                     variant="outline"
                     className="border text-[10px] px-1.5 py-0 whitespace-nowrap"
