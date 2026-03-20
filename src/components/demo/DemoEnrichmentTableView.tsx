@@ -37,8 +37,8 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
   }
 
   return (
-    <div className="border border-slate-200 rounded-lg overflow-hidden">
-      <div className="max-h-[500px] overflow-y-auto">
+    <div className="border border-slate-200 rounded-lg overflow-hidden overflow-x-auto">
+      <div>
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10">
             <TableRow>
