@@ -128,28 +128,23 @@ const SOURCE_COLORS: Record<string, string> = {
 function CustomerHeader({ customer }: { customer: DemoCustomer }) {
   const sources = [...new Set(customer.sampleTransactions.map(t => t.source).filter(Boolean))];
   return (
-    <div className="mb-2">
-      <div className="flex items-center justify-between mb-0.5">
-        <span className="text-[11px] font-semibold text-slate-700">{customer.profile.name}</span>
-      </div>
-      <div className="flex items-center gap-1.5 flex-wrap text-[10px] text-slate-500">
-        <span><span className="font-semibold text-slate-700">{customer.txnCount}</span> txns</span>
-        <span className="text-slate-300">·</span>
-        <span><span className="font-semibold text-slate-700">{customer.txnTotal}</span> total</span>
-        {customer.dateRange && (
-          <>
-            <span className="text-slate-300">·</span>
-            <span className="text-slate-400">{customer.dateRange}</span>
-          </>
-        )}
-      </div>
+    <div className="flex items-center gap-1.5 flex-wrap mb-2 text-[10px] text-slate-500">
+      <span><span className="font-semibold text-slate-700">{customer.txnCount}</span> txns</span>
+      <span className="text-slate-300">·</span>
+      <span><span className="font-semibold text-slate-700">{customer.txnTotal}</span> total</span>
+      {customer.dateRange && (
+        <>
+          <span className="text-slate-300">·</span>
+          <span className="text-slate-400">{customer.dateRange}</span>
+        </>
+      )}
       {sources.length > 0 && (
-        <div className="flex items-center gap-1 flex-wrap mt-1 text-[10px]">
-          <span className="text-slate-500 font-medium">Sources:</span>
+        <>
+          <span className="text-slate-300">·</span>
           {sources.map(s => (
             <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${SOURCE_COLORS[s!] ?? "bg-slate-50 text-slate-500"}`}>{s}</span>
           ))}
-        </div>
+        </>
       )}
     </div>
   );
