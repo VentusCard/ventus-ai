@@ -37,28 +37,30 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
 
   return (
     <div className="border border-slate-200 rounded-lg overflow-x-auto">
-      <table className="w-full text-left border-collapse min-w-[520px]">
+      <table className="w-full text-left border-collapse min-w-[580px]">
         <thead className="sticky top-0 bg-white z-10 border-b border-slate-200">
           <tr>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Merchant</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Amt</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Date</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Merchant</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Amt</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Date</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Source</th>
             <th className="w-4 px-0.5"><span className="sr-only">→</span></th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Pillar</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Subcat</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Tier</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Freq</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Conf</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Tier</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Freq</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Conf</th>
           </tr>
         </thead>
         <tbody>
           {transactions.map((tx) => (
             <tr key={tx.transaction_id} className="border-b border-slate-100 hover:bg-slate-50/50">
-              <td className="px-1.5 py-1">
-                <div className="text-[10px] font-medium text-slate-900 truncate max-w-[90px]" title={tx.normalized_merchant}>{tx.normalized_merchant}</div>
+              <td className="px-1 py-1">
+                <div className="text-[10px] font-medium text-slate-900 truncate max-w-[80px]" title={tx.normalized_merchant}>{tx.normalized_merchant}</div>
               </td>
-              <td className="font-mono text-[10px] text-slate-900 px-1.5 py-1 whitespace-nowrap">${tx.amount.toFixed(0)}</td>
-              <td className="text-[10px] text-slate-600 whitespace-nowrap px-1.5 py-1">{tx.date}</td>
+              <td className="font-mono text-[10px] text-slate-900 px-1 py-1 whitespace-nowrap">${tx.amount.toFixed(0)}</td>
+              <td className="text-[10px] text-slate-600 whitespace-nowrap px-1 py-1">{tx.date}</td>
+              <td className="text-[10px] text-slate-500 px-1 py-1 whitespace-nowrap">{tx.source || "—"}</td>
               <td className="px-0.5 py-1"><ArrowRight className="w-2.5 h-2.5 text-primary mx-auto" /></td>
               <td className="px-1 py-1">
                 <Badge
