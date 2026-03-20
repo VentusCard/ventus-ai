@@ -56,7 +56,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
           <TableBody>
             {transactions.map((tx) => (
               <TableRow key={tx.transaction_id}>
-                <TableCell className="py-2">
+                <TableCell className="py-2 px-2">
                   <div className="text-xs font-medium text-slate-900">{tx.normalized_merchant}</div>
                   {tx.merchant_name !== tx.normalized_merchant && (
                     <div className="text-[10px] text-slate-500">{tx.merchant_name}</div>
