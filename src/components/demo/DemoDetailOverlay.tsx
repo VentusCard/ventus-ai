@@ -11,6 +11,7 @@ import DemoLifeEventsView from "./DemoLifeEventsView";
 import DemoFinancialJourneyView from "./DemoFinancialJourneyView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
+import DemoEnrichmentTableView from "./DemoEnrichmentTableView";
 
 interface Props {
   node: DemoNodeType;
@@ -34,7 +35,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   travel: { title: "Travel Experiences", color: "#06b6d4" },
   lifeEvents: { title: "Financial Journey — Next Best Product", color: "#ec4899" },
   wealth: { title: "Wealth Management — Life Event Intelligence", color: "#a855f7" },
-  engine: { title: "Ventus AI Engine — classify-transactions", color: "#6366f1" },
+  engine: { title: "Ventus AI Engine — Enrichment Output", color: "#6366f1" },
   profiling: { title: "Profiling — Pillar Summary", color: "#3b82f6" },
   predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
   phase: { title: "Phase — Life Event Detection", color: "#a855f7" },
@@ -50,7 +51,10 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
   const defaultPayloads: ApiPayloads = { classificationA: null, classificationB: null, dealPersonalizationA: null, dealPersonalizationB: null, localExperiencesA: null, localExperiencesB: null, lifestyleSignalsA: null, lifestyleSignalsB: null };
 
   const renderContent = () => {
-    if (node === "engine" || node === "profiling" || node === "predictive" || node === "phase") {
+    if (node === "engine") {
+      return <DemoEnrichmentTableView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+    }
+    if (node === "profiling" || node === "predictive" || node === "phase") {
       return <DemoPillarCodeView mode={node} customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} apiPayloads={apiPayloads ?? defaultPayloads} />;
     }
     if (node === "engagement") {
