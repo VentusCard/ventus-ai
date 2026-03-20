@@ -60,7 +60,18 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
               </td>
               <td className="font-mono text-[10px] text-slate-900 px-1 py-1 whitespace-nowrap">${tx.amount.toFixed(0)}</td>
               <td className="text-[10px] text-slate-600 whitespace-nowrap px-1 py-1">{tx.date}</td>
-              <td className="text-[10px] text-slate-500 px-1 py-1 whitespace-nowrap">{tx.source || "—"}</td>
+              <td className="px-1 py-1">
+                {tx.source ? (
+                  <span className={`inline-block px-1 py-px rounded text-[9px] font-medium whitespace-nowrap ${
+                    tx.source === "Checking" ? "bg-slate-100 text-slate-600" :
+                    tx.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                    tx.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                    tx.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                    tx.source === "HSA" ? "bg-amber-50 text-amber-700" :
+                    "bg-slate-50 text-slate-500"
+                  }`}>{tx.source}</span>
+                ) : <span className="text-[10px] text-slate-400">—</span>}
+              </td>
               <td className="px-0.5 py-1"><ArrowRight className="w-2.5 h-2.5 text-primary mx-auto" /></td>
               <td className="px-1 py-1">
                 <Badge
