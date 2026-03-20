@@ -42,15 +42,15 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10">
             <TableRow>
-              <TableHead className="text-slate-700 text-xs">Merchant</TableHead>
-              <TableHead className="text-slate-700 text-xs">Amount</TableHead>
-              <TableHead className="text-slate-700 text-xs">Date</TableHead>
-              <TableHead className="w-6"><span className="sr-only">→</span></TableHead>
-              <TableHead className="text-slate-700 text-xs">Pillar</TableHead>
-              <TableHead className="text-slate-700 text-xs">Subcategory</TableHead>
-              <TableHead className="text-slate-700 text-xs">Tier</TableHead>
-              <TableHead className="text-slate-700 text-xs">Frequency</TableHead>
-              <TableHead className="text-slate-700 text-xs">Confidence</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Merchant</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Amount</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Date</TableHead>
+              <TableHead className="w-6 px-1"><span className="sr-only">→</span></TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Pillar</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Subcategory</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Tier</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Frequency</TableHead>
+              <TableHead className="text-slate-700 text-xs px-2">Confidence</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
