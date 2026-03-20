@@ -73,7 +73,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                   {tx.pillar}
                 </Badge>
               </td>
-              <td className="text-[10px] text-slate-600 px-1.5 py-1 truncate max-w-[70px]" title={tx.subcategory}>{tx.subcategory}</td>
+              <td className="text-[10px] text-slate-600 px-1 py-1 truncate max-w-[70px]" title={tx.subcategory}>{tx.subcategory}</td>
               <td className="px-1.5 py-1">
                 <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>
                   {tx.spending_tier}
