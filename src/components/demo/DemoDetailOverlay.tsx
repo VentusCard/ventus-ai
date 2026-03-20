@@ -137,7 +137,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
             <span className="text-[8px] font-bold text-emerald-600">{customerB.profile.name.split(" ").map(w => w[0]).join("")}</span>
           </div>
           <span className="text-xs font-semibold text-emerald-600">{customerB.profile.name}</span>
-          <span className="text-[9px] text-slate-400">· {customerB.lifestyleType}</span>
+          
         </div>
       </div>
 
