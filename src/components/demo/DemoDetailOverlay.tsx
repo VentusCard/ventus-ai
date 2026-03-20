@@ -51,7 +51,10 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
   const defaultPayloads: ApiPayloads = { classificationA: null, classificationB: null, dealPersonalizationA: null, dealPersonalizationB: null, localExperiencesA: null, localExperiencesB: null, lifestyleSignalsA: null, lifestyleSignalsB: null };
 
   const renderContent = () => {
-    if (node === "engine" || node === "profiling" || node === "predictive" || node === "phase") {
+    if (node === "engine") {
+      return <DemoEnrichmentTableView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+    }
+    if (node === "profiling" || node === "predictive" || node === "phase") {
       return <DemoPillarCodeView mode={node} customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} apiPayloads={apiPayloads ?? defaultPayloads} />;
     }
     if (node === "engagement") {
