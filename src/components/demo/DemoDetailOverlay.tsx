@@ -11,6 +11,7 @@ import DemoLifeEventsView from "./DemoLifeEventsView";
 import DemoFinancialJourneyView from "./DemoFinancialJourneyView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
+import DemoEnrichmentTableView from "./DemoEnrichmentTableView";
 
 interface Props {
   node: DemoNodeType;
