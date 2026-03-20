@@ -89,7 +89,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                     {tx.purchase_frequency}
                   </Badge>
                 </TableCell>
-                <TableCell className="py-2">
+                <TableCell className="py-2 px-2">
                   <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getConfidenceColor(tx.confidence)}`}>
                     {(tx.confidence * 100).toFixed(0)}%
                   </Badge>
