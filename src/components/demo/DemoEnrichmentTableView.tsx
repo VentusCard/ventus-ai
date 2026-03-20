@@ -1,6 +1,5 @@
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { PILLAR_COLORS } from "@/lib/sampleData";
@@ -37,68 +36,63 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
   }
 
   return (
-    <div className="border border-slate-200 rounded-lg overflow-hidden overflow-x-auto">
-      <div>
-        <Table>
-          <TableHeader className="sticky top-0 bg-white z-10">
-            <TableRow>
-              <TableHead className="text-slate-700 text-xs px-2">Merchant</TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Amount</TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Date</TableHead>
-              <TableHead className="w-6 px-1"><span className="sr-only">→</span></TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Pillar</TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Subcategory</TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Tier</TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Frequency</TableHead>
-              <TableHead className="text-slate-700 text-xs px-2">Confidence</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((tx) => (
-              <TableRow key={tx.transaction_id}>
-                <TableCell className="py-2 px-2">
-                  <div className="text-xs font-medium text-slate-900">{tx.normalized_merchant}</div>
-                  {tx.merchant_name !== tx.normalized_merchant && (
-                    <div className="text-[10px] text-slate-500">{tx.merchant_name}</div>
-                  )}
-                </TableCell>
-                <TableCell className="font-mono text-xs text-slate-900 py-2 px-2">${tx.amount.toFixed(2)}</TableCell>
-                <TableCell className="text-[11px] text-slate-700 whitespace-nowrap py-2 px-2">{tx.date}</TableCell>
-                <TableCell className="py-2 px-1"><ArrowRight className="w-3 h-3 text-primary mx-auto" /></TableCell>
-                <TableCell className="py-2 px-2">
-                  <Badge
-                    variant="outline"
-                    className="border text-[10px] px-1.5 py-0 whitespace-nowrap"
-                    style={{
-                      backgroundColor: `${PILLAR_COLORS[tx.pillar]}20`,
-                      color: PILLAR_COLORS[tx.pillar],
-                      borderColor: `${PILLAR_COLORS[tx.pillar]}40`,
-                    }}
-                  >
-                    {tx.pillar}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-[11px] text-slate-700 py-2 px-2">{tx.subcategory}</TableCell>
-                <TableCell className="py-2 px-2">
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 whitespace-nowrap ${getTierColor(tx.spending_tier)}`}>
-                    {tx.spending_tier}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-2 px-2">
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 whitespace-nowrap ${getFrequencyColor(tx.purchase_frequency)}`}>
-                    {tx.purchase_frequency}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-2 px-2">
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getConfidenceColor(tx.confidence)}`}>
-                    {(tx.confidence * 100).toFixed(0)}%
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="border border-slate-200 rounded-lg overflow-x-auto">
+      <table className="w-full text-left border-collapse min-w-[520px]">
+        <thead className="sticky top-0 bg-white z-10 border-b border-slate-200">
+          <tr>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Merchant</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Amt</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Date</th>
+            <th className="w-4 px-0.5"><span className="sr-only">→</span></th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Pillar</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Subcat</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Tier</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Freq</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1.5 py-1.5 whitespace-nowrap">Conf</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((tx) => (
+            <tr key={tx.transaction_id} className="border-b border-slate-100 hover:bg-slate-50/50">
+              <td className="px-1.5 py-1">
+                <div className="text-[10px] font-medium text-slate-900 truncate max-w-[90px]" title={tx.normalized_merchant}>{tx.normalized_merchant}</div>
+              </td>
+              <td className="font-mono text-[10px] text-slate-900 px-1.5 py-1 whitespace-nowrap">${tx.amount.toFixed(0)}</td>
+              <td className="text-[10px] text-slate-600 whitespace-nowrap px-1.5 py-1">{tx.date}</td>
+              <td className="px-0.5 py-1"><ArrowRight className="w-2.5 h-2.5 text-primary mx-auto" /></td>
+              <td className="px-1.5 py-1">
+                <Badge
+                  variant="outline"
+                  className="border text-[9px] px-1 py-0 whitespace-nowrap leading-tight"
+                  style={{
+                    backgroundColor: `${PILLAR_COLORS[tx.pillar]}20`,
+                    color: PILLAR_COLORS[tx.pillar],
+                    borderColor: `${PILLAR_COLORS[tx.pillar]}40`,
+                  }}
+                >
+                  {tx.pillar}
+                </Badge>
+              </td>
+              <td className="text-[10px] text-slate-600 px-1.5 py-1 truncate max-w-[70px]" title={tx.subcategory}>{tx.subcategory}</td>
+              <td className="px-1.5 py-1">
+                <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>
+                  {tx.spending_tier}
+                </Badge>
+              </td>
+              <td className="px-1.5 py-1">
+                <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getFrequencyColor(tx.purchase_frequency)}`}>
+                  {tx.purchase_frequency}
+                </Badge>
+              </td>
+              <td className="px-1.5 py-1">
+                <Badge variant="outline" className={`text-[9px] px-1 py-0 leading-tight ${getConfidenceColor(tx.confidence)}`}>
+                  {(tx.confidence * 100).toFixed(0)}%
+                </Badge>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -112,18 +106,18 @@ interface Props {
 
 export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-slate-700">{customerA.profile.name}</span>
-          <span className="text-[10px] text-slate-400">{enrichedA?.length ?? 0} transactions</span>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="min-w-0">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-semibold text-slate-700">{customerA.profile.name}</span>
+          <span className="text-[9px] text-slate-400">{enrichedA?.length ?? 0} txns</span>
         </div>
         <CustomerTable transactions={enrichedA ?? []} />
       </div>
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-slate-700">{customerB.profile.name}</span>
-          <span className="text-[10px] text-slate-400">{enrichedB?.length ?? 0} transactions</span>
+      <div className="min-w-0">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-semibold text-slate-700">{customerB.profile.name}</span>
+          <span className="text-[9px] text-slate-400">{enrichedB?.length ?? 0} txns</span>
         </div>
         <CustomerTable transactions={enrichedB ?? []} />
       </div>
