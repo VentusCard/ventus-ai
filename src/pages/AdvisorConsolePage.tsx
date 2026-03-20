@@ -14,6 +14,7 @@ import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
 import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
+import type { DemoCustomer } from "@/lib/demoData";
 
 type ViewMode = "dashboard" | "client";
 
