@@ -1,20 +1,46 @@
 
 
-## Make Enrichment Table Use Full Space with All Columns Visible
+## Plan: Wire Up Wealth Management Tab Buttons in Demo
 
-### Problem
-The current layout uses `grid-cols-2` with side-by-side tables, but 9 columns per table get squeezed horizontally. The `max-h-[500px]` also wastes vertical space in the overlay.
+### Context
+The Wealth Management tab (`DemoLifeEventsView.tsx`) has three action buttons per life event card that currently only show toast messages. The goal is to make them functional, matching the behavior in `/tepilot`.
 
-### Fix — Stack Vertically, Full Width
+### What Changes
 
-Change from side-by-side to **stacked vertically** (one customer table on top, one below), each taking full width so all 9 columns display comfortably. Remove the fixed `max-h-[500px]` constraint and let the outer overlay's `overflow-y-auto` handle scrolling.
+**1. "Download PDF" — generate and download a real PDF**
 
-### Changes in `src/components/demo/DemoEnrichmentTableView.tsx`
+- In `DemoLifeEventsView.tsx`, import `exportEventPreparationPDF` from `@/lib/eventPreparationPdfExport`
+- Build an `EventPreparationData` object by adapting the `DetectedLifeEventResult` + `DemoCustomer` data:
+  - Map `event_name` → `eventName`, `confidence` → `confidence`, derive `eventType` from the event name using a lookup
+  - Map `evidence` array → `CardTransaction[]` (the fields align: merchant, amount, date, relevance)
+  - Map `talking_points` (slice 1+) → `recommendedSteps`
+  - Construct a minimal `DashboardClient` from the `DemoCustomer.profile`
+- Call `exportEventPreparationPDF(preparedData)` on click — this triggers a browser download
 
-1. Change outer container from `grid grid-cols-2 gap-5` → `flex flex-col gap-6`
-2. Remove `max-h-[500px]` from each table's scroll wrapper — let tables show all rows (the overlay content area already scrolls)
-3. Add compact padding to `TableHead` and `TableCell` (`px-2`) so columns fit cleanly at full width
-4. Keep the `overflow-x-auto` on the table wrapper as a safety net
+**2. "Email Me Summary" — open the existing email dialog**
 
-Single file, ~4 line changes.
+- Import `EventSummaryEmailDialog` from `@/components/tepilot/advisor-console/EventSummaryEmailDialog`
+- Add state for `emailDialogOpen` and `emailDialogData` in the `LifeEventCard` component
+- On "Email Me Summary" click, build the same `EventPreparationData` as above, set it as dialog data, and open the dialog
+- Render `<EventSummaryEmailDialog>` within each card
+
+**3. "Prepare with Ventus" — navigate to WM Copilot with both profiles**
+
+- Use `useNavigate` from react-router-dom
+- On click, navigate to `/tepilot/advisor-console` with both customer profiles passed via router state: `navigate('/tepilot/advisor-console', { state: { customerA, customerB, activeCustomerId: customer.id } })`
+- In `AdvisorConsolePage.tsx`, read `location.state` and initialize the client selector with the passed profiles (if state exists)
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/components/demo/DemoLifeEventsView.tsx` | Add PDF download, email dialog, and navigate logic; build adapter to convert demo types → EventPreparationData |
+| `src/pages/AdvisorConsolePage.tsx` | Accept optional router state to pre-load customer profiles |
+
+### Technical Detail: Type Mapping
+
+`DetectedLifeEventResult` (demo) → `EventPreparationData` (copilot) requires:
+- Deriving `eventType` enum from `event_name` string via a name-to-type mapping
+- Wrapping `DemoCustomer.profile` into a `DashboardClient` shape with sensible defaults for `id`, `lastContactDate`, `engagementStatus`, `detectedEvents`
+- Converting `evidence[]` to `CardTransaction[]` (adding a default `cardType`/`cardLast4`)
 
