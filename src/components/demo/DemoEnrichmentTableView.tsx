@@ -84,7 +84,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                     {tx.spending_tier}
                   </Badge>
                 </TableCell>
-                <TableCell className="py-2">
+                <TableCell className="py-2 px-2">
                   <Badge variant="outline" className={`text-[10px] px-1.5 py-0 whitespace-nowrap ${getFrequencyColor(tx.purchase_frequency)}`}>
                     {tx.purchase_frequency}
                   </Badge>
