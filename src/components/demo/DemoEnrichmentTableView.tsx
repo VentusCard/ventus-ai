@@ -117,21 +117,53 @@ interface Props {
   enrichedB?: EnrichedTransaction[];
 }
 
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-purple-50 text-purple-700",
+  "HSA": "bg-amber-50 text-amber-700",
+};
+
+function CustomerHeader({ customer }: { customer: DemoCustomer }) {
+  const sources = [...new Set(customer.sampleTransactions.map(t => t.source).filter(Boolean))];
+  return (
+    <div className="mb-2">
+      <div className="flex items-center justify-between mb-0.5">
+        <span className="text-[11px] font-semibold text-slate-700">{customer.profile.name}</span>
+      </div>
+      <div className="flex items-center gap-1.5 flex-wrap text-[10px] text-slate-500">
+        <span><span className="font-semibold text-slate-700">{customer.txnCount}</span> txns</span>
+        <span className="text-slate-300">·</span>
+        <span><span className="font-semibold text-slate-700">{customer.txnTotal}</span> total</span>
+        {customer.dateRange && (
+          <>
+            <span className="text-slate-300">·</span>
+            <span className="text-slate-400">{customer.dateRange}</span>
+          </>
+        )}
+      </div>
+      {sources.length > 0 && (
+        <div className="flex items-center gap-1 flex-wrap mt-1 text-[10px]">
+          <span className="text-slate-500 font-medium">Sources:</span>
+          {sources.map(s => (
+            <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${SOURCE_COLORS[s!] ?? "bg-slate-50 text-slate-500"}`}>{s}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="min-w-0">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] font-semibold text-slate-700">{customerA.profile.name}</span>
-          <span className="text-[9px] text-slate-400">{enrichedA?.length ?? 0} txns</span>
-        </div>
+        <CustomerHeader customer={customerA} />
         <CustomerTable transactions={enrichedA ?? []} />
       </div>
       <div className="min-w-0">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] font-semibold text-slate-700">{customerB.profile.name}</span>
-          <span className="text-[9px] text-slate-400">{enrichedB?.length ?? 0} txns</span>
-        </div>
+        <CustomerHeader customer={customerB} />
         <CustomerTable transactions={enrichedB ?? []} />
       </div>
     </div>
