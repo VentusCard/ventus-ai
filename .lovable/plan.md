@@ -1,37 +1,45 @@
 
 
+## Show TEPilot-style Enrichment Table When Clicking "Ventus AI Engine"
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+### What Changes
 
-### Implemented
+When clicking the "Ventus AI Engine" node in the /demo network diagram, instead of the current dark-themed JSON profile view, show a light-themed enrichment results table — the same columnar, color-coded format used in the TEPilot `/tepilot` results tab.
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+### Current State
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+- Clicking "engine" node renders `DemoPillarCodeView` which shows raw JSON request/response payloads
+- The TEPilot `ResultsTable` component has the exact table layout wanted: Merchant, Amount, Date, → arrow, Pillar (color-coded badges), Subcategory, Tier, Frequency, Confidence — all with distinct badge colors
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
+### Plan
 
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
+**1. Create `src/components/demo/DemoEnrichmentTableView.tsx`** — New component
 
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon
+A side-by-side (2-column grid) light-themed view showing enriched transactions for both customers in the TEPilot table style:
+
+- Reuse the same color logic from `ResultsTable`: `PILLAR_COLORS` for pillar badges, tier colors (amber/blue/teal), frequency colors (indigo/violet/cyan/orange/slate), confidence colors (green/yellow/red)
+- Each column: customer name header, then a scrollable table with columns: Merchant (normalized + original), Amount, Date, Pillar badge, Subcategory, Tier badge, Frequency badge, Confidence badge
+- Light white background with `border-slate-200`, matching TEPilot styling
+- No Card wrapper — just the table directly in each column since the overlay already provides the frame
+- Include transaction count summary at top of each panel
+- Omit the Actions/Eye column and Source column (not relevant in demo context)
+- Omit the TransactionDetailModal (keep it simple for demo)
+
+**2. Update `src/components/demo/DemoDetailOverlay.tsx`**
+
+- Change the `engine` case in `renderContent()` to render `DemoEnrichmentTableView` instead of `DemoPillarCodeView`
+- Pass `customerA`, `customerB`, `enrichedA`, `enrichedB`
+- Update the engine title in `NODE_TITLES` to something like `"Ventus AI Engine — Enrichment Output"`
+- Keep profiling/predictive/phase still using `DemoPillarCodeView`
+
+### Technical Details
+
+- Import `PILLAR_COLORS` from `@/lib/sampleData` for pillar badge coloring
+- Reuse the same `getConfidenceColor`, `getTierColor`, `getFrequencyColor` helper functions from ResultsTable (copy them into the new component to keep it self-contained)
+- Use `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell` from `@/components/ui/table` and `Badge` from `@/components/ui/badge`
+- The overlay background is already white (`rgba(255,255,255,0.97)`), so the light theme will match naturally
+
+### Files
+- **New**: `src/components/demo/DemoEnrichmentTableView.tsx`
+- **Edit**: `src/components/demo/DemoDetailOverlay.tsx` (swap engine rendering + update title)
+
