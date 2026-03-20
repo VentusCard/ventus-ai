@@ -1,45 +1,20 @@
 
 
-## Show TEPilot-style Enrichment Table When Clicking "Ventus AI Engine"
+## Make Enrichment Table Use Full Space with All Columns Visible
 
-### What Changes
+### Problem
+The current layout uses `grid-cols-2` with side-by-side tables, but 9 columns per table get squeezed horizontally. The `max-h-[500px]` also wastes vertical space in the overlay.
 
-When clicking the "Ventus AI Engine" node in the /demo network diagram, instead of the current dark-themed JSON profile view, show a light-themed enrichment results table — the same columnar, color-coded format used in the TEPilot `/tepilot` results tab.
+### Fix — Stack Vertically, Full Width
 
-### Current State
+Change from side-by-side to **stacked vertically** (one customer table on top, one below), each taking full width so all 9 columns display comfortably. Remove the fixed `max-h-[500px]` constraint and let the outer overlay's `overflow-y-auto` handle scrolling.
 
-- Clicking "engine" node renders `DemoPillarCodeView` which shows raw JSON request/response payloads
-- The TEPilot `ResultsTable` component has the exact table layout wanted: Merchant, Amount, Date, → arrow, Pillar (color-coded badges), Subcategory, Tier, Frequency, Confidence — all with distinct badge colors
+### Changes in `src/components/demo/DemoEnrichmentTableView.tsx`
 
-### Plan
+1. Change outer container from `grid grid-cols-2 gap-5` → `flex flex-col gap-6`
+2. Remove `max-h-[500px]` from each table's scroll wrapper — let tables show all rows (the overlay content area already scrolls)
+3. Add compact padding to `TableHead` and `TableCell` (`px-2`) so columns fit cleanly at full width
+4. Keep the `overflow-x-auto` on the table wrapper as a safety net
 
-**1. Create `src/components/demo/DemoEnrichmentTableView.tsx`** — New component
-
-A side-by-side (2-column grid) light-themed view showing enriched transactions for both customers in the TEPilot table style:
-
-- Reuse the same color logic from `ResultsTable`: `PILLAR_COLORS` for pillar badges, tier colors (amber/blue/teal), frequency colors (indigo/violet/cyan/orange/slate), confidence colors (green/yellow/red)
-- Each column: customer name header, then a scrollable table with columns: Merchant (normalized + original), Amount, Date, Pillar badge, Subcategory, Tier badge, Frequency badge, Confidence badge
-- Light white background with `border-slate-200`, matching TEPilot styling
-- No Card wrapper — just the table directly in each column since the overlay already provides the frame
-- Include transaction count summary at top of each panel
-- Omit the Actions/Eye column and Source column (not relevant in demo context)
-- Omit the TransactionDetailModal (keep it simple for demo)
-
-**2. Update `src/components/demo/DemoDetailOverlay.tsx`**
-
-- Change the `engine` case in `renderContent()` to render `DemoEnrichmentTableView` instead of `DemoPillarCodeView`
-- Pass `customerA`, `customerB`, `enrichedA`, `enrichedB`
-- Update the engine title in `NODE_TITLES` to something like `"Ventus AI Engine — Enrichment Output"`
-- Keep profiling/predictive/phase still using `DemoPillarCodeView`
-
-### Technical Details
-
-- Import `PILLAR_COLORS` from `@/lib/sampleData` for pillar badge coloring
-- Reuse the same `getConfidenceColor`, `getTierColor`, `getFrequencyColor` helper functions from ResultsTable (copy them into the new component to keep it self-contained)
-- Use `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell` from `@/components/ui/table` and `Badge` from `@/components/ui/badge`
-- The overlay background is already white (`rgba(255,255,255,0.97)`), so the light theme will match naturally
-
-### Files
-- **New**: `src/components/demo/DemoEnrichmentTableView.tsx`
-- **Edit**: `src/components/demo/DemoDetailOverlay.tsx` (swap engine rendering + update title)
+Single file, ~4 line changes.
 
