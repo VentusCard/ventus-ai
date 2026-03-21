@@ -94,6 +94,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                     <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
                   ))}
                 </div>
+              </td>
               <td className="px-1.5 py-1">
                 <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>
                   {tx.spending_tier}
