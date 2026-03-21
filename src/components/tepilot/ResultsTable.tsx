@@ -89,7 +89,8 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                       <span className="sr-only">Arrow</span>
                     </TableHead>
                     <TableHead className="text-slate-700">Pillar</TableHead>
-                    <TableHead className="text-slate-700">Subcategory</TableHead>
+                    <TableHead className="text-slate-700">Category</TableHead>
+                    <TableHead className="text-slate-700">Subcategories</TableHead>
                     <TableHead className="text-slate-700">Tier</TableHead>
                     <TableHead className="text-slate-700">Frequency</TableHead>
                     {transactions.some(t => t.source) && (
@@ -192,7 +193,16 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
+                      <TableCell className="text-sm text-slate-700">{transaction.category || "—"}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {(transaction.subcategories ?? [transaction.subcategory]).map((sub, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-slate-50 text-slate-600 border-slate-200">
+                              {sub}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"

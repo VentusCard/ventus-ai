@@ -13,6 +13,9 @@ export interface Transaction {
 export interface EnrichedTransaction extends Transaction {
   normalized_merchant: string;
   pillar: string;
+  category: string;
+  subcategories: string[];
+  /** @deprecated Use subcategories[0] instead */
   subcategory: string;
   confidence: number;
   spending_tier: "Budget" | "Standard" | "Premium" | "N/A";

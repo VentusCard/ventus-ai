@@ -46,7 +46,8 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Source</th>
             <th className="w-4 px-0.5"><span className="sr-only">→</span></th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Pillar</th>
-            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Subcat</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Category</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Subcategories</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Tier</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Freq</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Conf</th>
@@ -86,7 +87,14 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                   {tx.pillar}
                 </Badge>
               </td>
-              <td className="text-[10px] text-slate-600 px-1 py-1 truncate max-w-[70px]" title={tx.subcategory}>{tx.subcategory}</td>
+              <td className="text-[10px] text-slate-700 px-1 py-1 truncate max-w-[70px]" title={tx.category}>{tx.category}</td>
+              <td className="px-1 py-1">
+                <div className="flex flex-wrap gap-0.5">
+                  {(tx.subcategories ?? [tx.subcategory]).map((sub, i) => (
+                    <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
+                  ))}
+                </div>
+              </td>
               <td className="px-1.5 py-1">
                 <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>
                   {tx.spending_tier}
