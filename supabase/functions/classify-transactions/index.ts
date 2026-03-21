@@ -259,11 +259,21 @@ const CLASSIFICATION_TOOL = [
                     "Miscellaneous & Unclassified",
                   ],
                 },
-                subcategory: { type: "string" },
+                category: {
+                  type: "string",
+                  description: "Primary behavioral identifier within the pillar (e.g. Golf, Grocery, Coffee & Cafes, Flights)",
+                },
+                subcategories: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 1,
+                  maxItems: 3,
+                  description: "1-3 labels describing what can be inferred from the merchant name. Only tag what is obvious — do not guess.",
+                },
                 confidence: {
                   type: "number",
                   description:
-                    "Confidence score: 0.9 for recognized brands (Nike, Starbucks) OR obvious categories (any pizzeria, any gym, any grocery), 0.7 for somewhat clear merchants, 0.4 for ambiguous",
+                    "Confidence score: 0.9 for recognized brands OR obvious categories, 0.7 for somewhat clear merchants, 0.4 for ambiguous",
                   minimum: 0.4,
                   maximum: 0.9,
                 },
@@ -275,10 +285,10 @@ const CLASSIFICATION_TOOL = [
                 purchase_frequency: {
                   type: "string",
                   enum: ["Weekly", "Monthly", "Occasional", "Annually", "One-Time"],
-                  description: "How often a typical customer transacts with this merchant type: Weekly (habitual), Monthly (subscriptions/bills), Occasional (few times/year), Annually (once/year), One-Time (unlikely to repeat)",
+                  description: "How often a typical customer transacts with this merchant type",
                 },
               },
-              required: ["transaction_id", "pillar", "confidence", "spending_tier", "purchase_frequency"],
+              required: ["transaction_id", "pillar", "category", "subcategories", "confidence", "spending_tier", "purchase_frequency"],
             },
           },
         },
