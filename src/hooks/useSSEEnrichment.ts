@@ -282,11 +282,12 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
                   if (travelUpdate.is_travel_related) {
                     updated[idx].pillar = "Travel & Exploration";
                     // Use reclassified_subcategory if provided, otherwise use reclassified_pillar as subcategory
-                    if (travelUpdate.reclassified_subcategory) {
+                   if (travelUpdate.reclassified_subcategory) {
                       updated[idx].subcategory = travelUpdate.reclassified_subcategory;
+                      updated[idx].subcategories = [travelUpdate.reclassified_subcategory];
                     } else if (travelUpdate.reclassified_pillar) {
-                      // AI may have put subcategory name in reclassified_pillar field
                       updated[idx].subcategory = travelUpdate.reclassified_pillar;
+                      updated[idx].subcategories = [travelUpdate.reclassified_pillar];
                     }
                   }
                   
