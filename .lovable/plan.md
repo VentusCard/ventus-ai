@@ -1,46 +1,128 @@
 
 
-## Plan: Wire Up Wealth Management Tab Buttons in Demo
+## Plan: Add Category + Multi-Label Subcategories to Classification
 
-### Context
-The Wealth Management tab (`DemoLifeEventsView.tsx`) has three action buttons per life event card that currently only show toast messages. The goal is to make them functional, matching the behavior in `/tepilot`.
+### The Correction
 
-### What Changes
+You're right on two points:
 
-**1. "Download PDF" — generate and download a real PDF**
+1. **Category = the primary behavioral identifier.** For Sports, that's the sport (Golf, Running). For Food, that's the venue type (Grocery, Coffee & Cafes, Dining Out). Current subcategories already serve this role — they get **promoted** to Category.
 
-- In `DemoLifeEventsView.tsx`, import `exportEventPreparationPDF` from `@/lib/eventPreparationPdfExport`
-- Build an `EventPreparationData` object by adapting the `DetectedLifeEventResult` + `DemoCustomer` data:
-  - Map `event_name` → `eventName`, `confidence` → `confidence`, derive `eventType` from the event name using a lookup
-  - Map `evidence` array → `CardTransaction[]` (the fields align: merchant, amount, date, relevance)
-  - Map `talking_points` (slice 1+) → `recommendedSteps`
-  - Construct a minimal `DashboardClient` from the `DemoCustomer.profile`
-- Call `exportEventPreparationPDF(preparedData)` on click — this triggers a browser download
+2. **Subcategories = up to 3 independent labels** that describe what we can reasonably infer from the merchant name alone. They're tags, not a taxonomy — no need to be MECE with each other. And critically: **don't hallucinate** — only tag what the merchant name actually tells you.
 
-**2. "Email Me Summary" — open the existing email dialog**
+```text
+Whole Foods → Food & Dining / Grocery / ["Organic & Natural"]
+   NOT ["Organic & Natural", "Prepared Foods", "Wine & Spirits"]
+   We only know it's an organic-leaning grocery store.
 
-- Import `EventSummaryEmailDialog` from `@/components/tepilot/advisor-console/EventSummaryEmailDialog`
-- Add state for `emailDialogOpen` and `emailDialogData` in the `LifeEventCard` component
-- On "Email Me Summary" click, build the same `EventPreparationData` as above, set it as dialog data, and open the dialog
-- Render `<EventSummaryEmailDialog>` within each card
+TaylorMade → Sports & Active Living / Golf / ["Equipment"]
+   The merchant name tells us golf equipment specifically.
 
-**3. "Prepare with Ventus" — navigate to WM Copilot with both profiles**
+Starbucks → Food & Dining / Coffee & Cafes / ["Chain"]
+   One label is fine. Don't force 3.
 
-- Use `useNavigate` from react-router-dom
-- On click, navigate to `/tepilot/advisor-console` with both customer profiles passed via router state: `navigate('/tepilot/advisor-console', { state: { customerA, customerB, activeCustomerId: customer.id } })`
-- In `AdvisorConsolePage.tsx`, read `location.state` and initialize the client selector with the passed profiles (if state exists)
+REI → Sports & Active Living / Outdoor & Adventure / ["Equipment", "Apparel"]
+   REI reasonably sells both — 2 labels.
+```
 
 ### Files Modified
 
 | File | Change |
-|------|--------|
-| `src/components/demo/DemoLifeEventsView.tsx` | Add PDF download, email dialog, and navigate logic; build adapter to convert demo types → EventPreparationData |
-| `src/pages/AdvisorConsolePage.tsx` | Accept optional router state to pre-load customer profiles |
+|---|---|
+| `supabase/functions/classify-transactions/index.ts` | Promote subcategories to `category`; add `subcategories` array (1-3 labels) to prompt, tool schema, merge logic |
+| `src/types/transaction.ts` | Add `category: string`, `subcategories: string[]`; keep `subcategory` as `subcategories[0]` |
+| `src/components/tepilot/ResultsTable.tsx` | Add Category column; render subcategories as small badges |
+| `src/components/demo/DemoEnrichmentTableView.tsx` | Add Category column; render subcategories |
 
-### Technical Detail: Type Mapping
+### Edge Function Changes
 
-`DetectedLifeEventResult` (demo) → `EventPreparationData` (copilot) requires:
-- Deriving `eventType` enum from `event_name` string via a name-to-type mapping
-- Wrapping `DemoCustomer.profile` into a `DashboardClient` shape with sensible defaults for `id`, `lastContactDate`, `engagementStatus`, `detectedEvents`
-- Converting `evidence[]` to `CardTransaction[]` (adding a default `cardType`/`cardLast4`)
+**1. Prompt taxonomy** — Current subcategories become categories. New instruction for subcategory labels:
+
+```
+PILLARS & CATEGORIES:
+
+1. Sports & Active Living: Golf, Running, Tennis, Skiing, Cycling, 
+   Water Sports, Gym & Fitness, Outdoor & Adventure, Team Sports, General
+
+2. Food & Dining: Grocery, Coffee & Cafes, Dining Out, Fast Food, 
+   Delivery & Takeout, Meal Kits & Subscriptions, Bars & Nightlife, General
+
+3. Health & Wellness: Medical & Doctor, Pharmacy, Mental Health, 
+   Spa & Massage, Vitamins & Supplements, Health Insurance, General
+
+...same pattern for all pillars...
+
+SUBCATEGORY LABELS (1-3 per transaction):
+Return 1 to 3 short labels that describe what you can ACTUALLY INFER 
+from the merchant name. These are independent tags, not a hierarchy.
+
+Only tag what the merchant name tells you. Do NOT guess what the 
+customer bought if the merchant sells many things.
+
+Examples:
+- "TAYLORMADE" → ["Equipment"] (we know it's golf equipment)
+- "WHOLE FOODS" → ["Organic & Natural"] (known positioning)
+- "REI" → ["Equipment", "Apparel"] (REI clearly sells both)
+- "STARBUCKS" → ["Chain"] (that's all we know)
+- "MARIO'S PIZZA" → ["Italian", "Casual"] (pizza = Italian + casual)
+- "EQUINOX" → ["Premium", "Membership"] (known luxury gym)
+- "CVS" → ["Prescription", "OTC"] (pharmacy sells both)
+- "SHELL" → ["Gas"] (one label is fine)
+```
+
+**2. Tool schema** — Add `category`, change `subcategory` to `subcategories`:
+
+```json
+"category": {
+  "type": "string",
+  "description": "Primary behavioral identifier within the pillar (e.g. Golf, Grocery, Coffee & Cafes, Flights)"
+},
+"subcategories": {
+  "type": "array",
+  "items": { "type": "string" },
+  "minItems": 1,
+  "maxItems": 3,
+  "description": "1-3 labels describing what can be inferred from the merchant name. Only tag what is obvious — do not guess."
+}
+```
+
+Add both to `required` array.
+
+**3. Merge logic** (line ~632):
+```typescript
+category: classification.category || "General",
+subcategories: Array.isArray(classification.subcategories)
+  ? classification.subcategories
+  : [classification.subcategory || "General"],
+subcategory: (Array.isArray(classification.subcategories)
+  ? classification.subcategories[0]
+  : classification.subcategory) || "General",
+```
+
+**4. Fallback** (line ~623):
+```typescript
+category: "General",
+subcategories: ["General"],
+subcategory: "General",
+```
+
+### Type Update
+
+```typescript
+export interface EnrichedTransaction extends Transaction {
+  normalized_merchant: string;
+  pillar: string;
+  category: string;           // Primary identifier (Golf, Grocery, Flights)
+  subcategories: string[];    // 1-3 inferred labels
+  subcategory: string;        // = subcategories[0], backward compat
+  confidence: number;
+  // ... rest unchanged
+}
+```
+
+### UI — ResultsTable & DemoEnrichmentTableView
+
+- New **Category** column between Pillar and Subcategory, rendered as a colored badge
+- **Subcategory** column renders `subcategories` as small comma-separated text or stacked mini-badges
+- All 28+ files using `transaction.subcategory` continue working unchanged
 
