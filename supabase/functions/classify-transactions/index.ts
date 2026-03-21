@@ -593,6 +593,8 @@ Deno.serve(async (req) => {
                 ...original,
                 normalized_merchant: original.merchant_name,
                 pillar: "Miscellaneous & Unclassified",
+                category: "General",
+                subcategories: ["General"],
                 subcategory: "General",
                 confidence: 0.1,
                 spending_tier: "N/A",
@@ -602,11 +604,17 @@ Deno.serve(async (req) => {
               };
             }
 
+            const subs = Array.isArray(classification.subcategories)
+              ? classification.subcategories
+              : [classification.subcategory || "General"];
+
             return {
               ...original,
               normalized_merchant: classification.normalized_merchant || original.merchant_name,
               pillar: classification.pillar,
-              subcategory: classification.subcategory || "General",
+              category: classification.category || "General",
+              subcategories: subs,
+              subcategory: subs[0],
               confidence: classification.confidence || 0.8,
               spending_tier: classification.spending_tier || "N/A",
               purchase_frequency: classification.purchase_frequency || "One-Time",
