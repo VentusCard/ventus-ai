@@ -269,53 +269,20 @@ function RewardsPhoneMockup({
           </div>
 
           {/* App content */}
-          <div className="p-4 space-y-2.5 bg-white">
+          <div className="p-3 space-y-2 bg-white">
             {/* Header */}
-            <div>
+            <div className="flex items-baseline justify-between">
               <p className="text-base font-bold text-slate-900">Your Rewards, {firstName}</p>
-              <p className="text-[10px] text-slate-400">Personalized offers based on your lifestyle</p>
-            </div>
-
-            {/* Lifestyle banner */}
-            <div className="rounded-lg px-3 py-2.5" style={{ background: `linear-gradient(135deg, ${color}, ${color}90)` }}>
-              <p className="text-[8px] font-bold tracking-[0.15em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
-                Your Lifestyle
-              </p>
-              <p className="text-sm font-bold text-white uppercase">{customer.lifestyleType}</p>
-              {profile && (
-                <div className="flex flex-wrap gap-1 mt-1.5">
-                  {profile.topPillars.slice(0, 3).map(p => {
-                    const catConfig = DEAL_CATEGORIES[p.pillar as DealCategory];
-                    return (
-                      <span key={p.pillar} className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-white/20 text-white">
-                        {catConfig?.icon || "📊"} {p.pillar.split(" ")[0]}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
+              <span className="text-[9px] text-slate-400">
+                {hasEnriched && deals.length > 0 && <>{deals.length} deals{personalizedCount > 0 && <> · <span style={{ color }}>{personalizedCount} personalized</span></>}</>}
+                {loading && <Loader2 className="w-3 h-3 inline animate-spin text-slate-300 ml-1" />}
+              </span>
             </div>
 
             {/* Local Perks (static from locationPerksData) */}
             {perks.length > 0 && (
               <LocalPerksSection city={city} perks={perks} color={color} />
             )}
-
-            {/* Deal count */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Target className="w-3 h-3 text-slate-400" />
-                <span className="text-[10px] text-slate-500">
-                  <span className="font-semibold text-slate-700">{deals.length} deals</span> matched to you
-                </span>
-              </div>
-              {loading && <Loader2 className="w-3 h-3 animate-spin text-slate-400" />}
-              {!loading && personalizedCount > 0 && (
-                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: `${color}10`, color }}>
-                  {personalizedCount} personalized
-                </span>
-              )}
-            </div>
 
             {/* Deal Cards (scrollable) */}
             <div className="max-h-[400px] overflow-y-auto space-y-1.5 -mx-1 px-1">
