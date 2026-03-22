@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Sparkles, Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star } from "lucide-react";
+import { Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
@@ -297,31 +297,23 @@ function RewardsPhoneMockup({
                           </span>
                         </div>
 
-                        {/* AI Message */}
+                        {/* AI Message + CTA */}
                         {p ? (
-                          <div className="flex items-start gap-1.5">
-                            <Sparkles className="w-3 h-3 shrink-0 mt-0.5" style={{ color }} />
-                            <p className="text-[10px] leading-relaxed text-slate-700 italic line-clamp-2">"{p.msg}"</p>
-                          </div>
-                        ) : loading ? (
-                          <div className="flex items-center gap-1.5">
-                            <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
-                            <span className="text-[9px] text-slate-300">Personalizing…</span>
-                          </div>
-                        ) : null}
-
-                        {/* CTA */}
-                        {p && (
-                          <div className="mt-1.5 flex items-center justify-between">
+                          <div className="flex items-end justify-between gap-2 mt-0.5">
+                            <p className="text-[10px] leading-relaxed text-slate-600 italic line-clamp-2 flex-1">"{p.msg}"</p>
                             <button
-                              className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white"
+                              className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0"
                               style={{ background: color }}
                             >
                               {p.cta}
                             </button>
-                            <span className="text-[8px] text-slate-400">{deal.subcategory}</span>
                           </div>
-                        )}
+                        ) : loading ? (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
+                            <span className="text-[9px] text-slate-300">Personalizing…</span>
+                          </div>
+                        ) : null}
                       </div>
 
                       {/* Expanded detail */}
