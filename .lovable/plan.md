@@ -1,26 +1,19 @@
 
 
-## Tighten Local Experiences Section in Rewards Phone Mockups
+## Compact Deal Cards to 3 Lines
 
 ### Changes — `src/components/demo/DemoRewardsView.tsx`
 
-#### 1. Compact PerkCard into a single row
-Current card has 3 rows (title+tier, tagline, partner+value). Condense to a single-row layout:
-- **Left**: category icon (smaller, `h-5 w-5`)
-- **Middle**: title (truncated) + partner in muted text on same line separated by `·`
-- **Right**: value badge + tier badge inline
+#### Card layout (3 lines total)
+**Line 1**: `[Category emoji] Merchant Name .................. [Reward Badge]`
+**Lines 2-3**: AI message (no sparkle icon, italic, `line-clamp-2`) with **CTA button floated to bottom-right** inline with the text
 
-Remove the tagline entirely — it's redundant with the title in most cases.
-
-#### 2. Tighten LocalPerksSection spacing
-- Reduce section padding from `px-2.5 py-2` to `px-2 py-1.5`
-- Reduce card gap from `space-y-1.5` to `space-y-1`
-- Collapse section by default (`useState(false)`) to save vertical space
-- Remove "perks" count from header — just show `"{city}"` next to the icon
-
-#### 3. Simplify category tabs
-- Remove the category icon from tabs — just use text labels, they're already tiny
-- Tighten tab padding from `px-2 py-0.5` to `px-1.5 py-0.5`
+#### Specific edits
+1. **Remove Sparkles icon** from the AI message block — show just the italic message text, clamped to 2 lines
+2. **Move CTA inline with the message** — place the CTA button at the end of the message row using `flex` with `items-end`, so the message text wraps to ~2 lines and the CTA sits bottom-right
+3. **Remove the separate CTA+subcategory row** — no more standalone line for subcategory or CTA
+4. **Remove loading state sparkle** — keep just spinner + "Personalizing…"
+5. Remove unused `Sparkles` import
 
 ### Files Modified
 - `src/components/demo/DemoRewardsView.tsx`
