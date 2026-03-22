@@ -350,9 +350,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </p>
                   <div className="mt-8 flex flex-col items-center gap-6">
                     <div className="flex justify-center w-full max-w-md mx-auto">
-                      <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
                             <ellipse cx="11" cy="23" rx="3.5" ry="2.5" fill="#94A3B8" />
                             <line x1="14.5" y1="23" x2="14.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
                             <ellipse cx="21" cy="19" rx="3.5" ry="2.5" fill="#94A3B8" />
@@ -360,22 +360,22 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
+                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
                       </div>
                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
                             <circle cx="16" cy="16" r="10" stroke="#94A3B8" strokeWidth="2" fill="none" />
                             <path d="M6 16C6 16 10 12 16 12C22 12 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
                             <path d="M6 16C6 16 10 20 16 20C22 20 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
                             <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
+                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
                       </div>
                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
                             <rect x="6" y="12" width="20" height="8" rx="2" fill="#94A3B8" />
                             <path d="M8 12L12 6H20L24 12" fill="#94A3B8" />
                             <rect x="13" y="7" width="6" height="4" rx="1" fill="#CBD5E1" />
@@ -385,7 +385,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
+                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
                       </div>
                     </div>
                     <div className="transition-all duration-700 ease-out" style={{ opacity: beat3Phase >= 1 ? 1 : 0, transform: beat3Phase >= 1 ? 'translateY(0)' : 'translateY(16px)' }}>
