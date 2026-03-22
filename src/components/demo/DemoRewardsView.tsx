@@ -1,11 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
-import { Sparkles, Loader2, Target, MapPin, ChevronDown, ChevronUp, Gift } from "lucide-react";
+import { Sparkles, Loader2, Target, MapPin, ChevronDown, ChevronUp, Gift, Star } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 import { DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
 import { supabase } from "@/integrations/supabase/client";
-import type { PersonalizedDealData, LocalExperienceDeal } from "@/hooks/useDemoEnrichment";
+import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
+import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
+import { cn } from "@/lib/utils";
 
 interface Props {
   customerA: DemoCustomer;
@@ -14,8 +16,6 @@ interface Props {
   enrichedB?: EnrichedTransaction[];
   precomputedA?: PersonalizedDealData | null;
   precomputedB?: PersonalizedDealData | null;
-  localExperiencesA?: { destination: string; deals: LocalExperienceDeal[] }[];
-  localExperiencesB?: { destination: string; deals: LocalExperienceDeal[] }[];
 }
 
 // Call edge function for AI personalization
@@ -58,7 +58,7 @@ async function fetchPersonalization(
   }
 }
 
-export default function DemoRewardsView({ customerA, customerB, enrichedA, enrichedB, precomputedA, precomputedB, localExperiencesA, localExperiencesB }: Props) {
+export default function DemoRewardsView({ customerA, customerB, enrichedA, enrichedB, precomputedA, precomputedB }: Props) {
   const hasEnriched = (enrichedA?.length ?? 0) > 0 || (enrichedB?.length ?? 0) > 0;
 
   const profileA = useMemo(() => hasEnriched && enrichedA ? deriveCustomerProfile(enrichedA) : null, [enrichedA, hasEnriched]);
@@ -89,6 +89,11 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
     }
   }, [dealsB, profileB, customerB, precomputedB]);
 
+  const cityA = getCityFromZip(customerA.zip);
+  const cityB = getCityFromZip(customerB.zip);
+  const perksA = useMemo(() => getPerksForCity(cityA), [cityA]);
+  const perksB = useMemo(() => getPerksForCity(cityB), [cityB]);
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <RewardsPhoneMockup
@@ -98,8 +103,9 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
         profile={profileA}
         personalized={effectivePersonalizedA}
         loading={!precomputedA && loadingA}
-        localExperiences={localExperiencesA}
         hasEnriched={hasEnriched}
+        city={cityA}
+        perks={perksA}
       />
       <RewardsPhoneMockup
         customer={customerB}
@@ -108,9 +114,112 @@ export default function DemoRewardsView({ customerA, customerB, enrichedA, enric
         profile={profileB}
         personalized={effectivePersonalizedB}
         loading={!precomputedB && loadingB}
-        localExperiences={localExperiencesB}
         hasEnriched={hasEnriched}
+        city={cityB}
+        perks={perksB}
       />
+    </div>
+  );
+}
+
+// ─── Perk Card (compact) ──────────────────────────────────────────────
+function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
+  const cc = CATEGORY_CONFIG[perk.category];
+  const CatIcon = cc.icon;
+
+  return (
+    <div className="flex items-start gap-2 rounded-md border border-slate-100 bg-white p-2 hover:shadow-sm transition-shadow">
+      <div className={cn("h-6 w-6 rounded flex items-center justify-center shrink-0 border", cc.color)}>
+        <CatIcon className="h-3 w-3" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="text-[11px] font-semibold text-slate-900 truncate">{perk.title}</span>
+          <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full shrink-0", TIER_COLORS[perk.tier])}>
+            {perk.tier}
+          </span>
+        </div>
+        <p className="text-[9px] italic text-slate-400 line-clamp-1">{perk.tagline}</p>
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="text-[9px] text-slate-500 truncate">{perk.partner}</span>
+          <span
+            className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ml-auto"
+            style={{ background: `${color}12`, color }}
+          >
+            <Star className="h-2.5 w-2.5 inline mr-0.5" />{perk.value}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Local Perks Section ──────────────────────────────────────────────
+function LocalPerksSection({ city, perks, color }: { city: string; perks: LocationPerk[]; color: string }) {
+  const [open, setOpen] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+
+  const categories = useMemo(() => {
+    const cats = [...new Set(perks.map(p => p.category))];
+    return cats;
+  }, [perks]);
+
+  const filtered = activeCategory === "all" ? perks : perks.filter(p => p.category === activeCategory);
+
+  return (
+    <div className="rounded-lg border border-slate-200 overflow-hidden">
+      <button
+        className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 transition-colors"
+        onClick={() => setOpen(!open)}
+      >
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3 h-3" style={{ color }} />
+          <span className="text-[10px] font-semibold text-slate-700">Local Experiences</span>
+          <span className="text-[9px] text-slate-400">{city} · {perks.length} perks</span>
+        </div>
+        {open ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
+      </button>
+      {open && (
+        <div className="px-2.5 py-2 space-y-2">
+          {/* Category tabs */}
+          <div className="flex flex-wrap gap-1">
+            <button
+              className={cn(
+                "text-[9px] font-medium px-2 py-0.5 rounded-full transition-colors",
+                activeCategory === "all" ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+              )}
+              style={activeCategory === "all" ? { background: color } : undefined}
+              onClick={() => setActiveCategory("all")}
+            >
+              All
+            </button>
+            {categories.map(cat => {
+              const cc = CATEGORY_CONFIG[cat as PerkCategory];
+              const CatIcon = cc.icon;
+              return (
+                <button
+                  key={cat}
+                  className={cn(
+                    "text-[9px] font-medium px-2 py-0.5 rounded-full transition-colors flex items-center gap-0.5",
+                    activeCategory === cat ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  )}
+                  style={activeCategory === cat ? { background: color } : undefined}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  <CatIcon className="h-2.5 w-2.5" />
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+          {/* Perk cards */}
+          <div className="space-y-1.5">
+            {filtered.map(perk => (
+              <PerkCard key={perk.id} perk={perk} color={color} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -123,8 +232,9 @@ function RewardsPhoneMockup({
   profile,
   personalized,
   loading,
-  localExperiences,
   hasEnriched,
+  city,
+  perks,
 }: {
   customer: DemoCustomer;
   color: string;
@@ -132,11 +242,11 @@ function RewardsPhoneMockup({
   profile: DerivedCustomerProfile | null;
   personalized: Record<string, { msg: string; cta: string }>;
   loading: boolean;
-  localExperiences?: { destination: string; deals: LocalExperienceDeal[] }[];
   hasEnriched: boolean;
+  city: string;
+  perks: LocationPerk[];
 }) {
   const [expandedDeal, setExpandedDeal] = useState<string | null>(null);
-  const [localOpen, setLocalOpen] = useState(true);
   const firstName = customer.profile.name.split(" ")[0];
   const personalizedCount = Object.keys(personalized).length;
 
@@ -186,43 +296,9 @@ function RewardsPhoneMockup({
               )}
             </div>
 
-            {/* Local Experiences */}
-            {localExperiences && localExperiences.length > 0 && (
-              <div className="rounded-lg border border-slate-200 overflow-hidden">
-                <button
-                  className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 transition-colors"
-                  onClick={() => setLocalOpen(!localOpen)}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3" style={{ color }} />
-                    <span className="text-[10px] font-semibold text-slate-700">Local Experiences</span>
-                    <span className="text-[9px] text-slate-400">
-                      {localExperiences.map(le => le.destination).join(", ")}
-                    </span>
-                  </div>
-                  {localOpen ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
-                </button>
-                {localOpen && (
-                  <div className="px-3 py-2 space-y-2">
-                    {localExperiences.map(le => (
-                      <div key={le.destination}>
-                        <p className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color }}>
-                          📍 {le.destination}
-                        </p>
-                        <div className="space-y-1">
-                          {le.deals.slice(0, 4).map((d, i) => (
-                            <div key={i} className="flex items-center gap-2 text-[10px]">
-                              <span className="text-slate-400">•</span>
-                              <span className="text-slate-700 font-medium truncate">{d.merchantExample}</span>
-                              <span className="text-slate-400 text-[9px] ml-auto shrink-0">{d.type}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+            {/* Local Perks (static from locationPerksData) */}
+            {perks.length > 0 && (
+              <LocalPerksSection city={city} perks={perks} color={color} />
             )}
 
             {/* Deal count */}
