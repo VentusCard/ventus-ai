@@ -89,7 +89,7 @@ export function AvailableDealsGrid() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-slate-900">Available Deals Library</h1>
-            <IntegrationDiagramButton variant="rewards" />
+            
           </div>
           <p className="text-slate-500 text-sm mt-1">
             {filteredDeals.length} merchant deals across {Object.keys(DEAL_CATEGORIES).length} categories

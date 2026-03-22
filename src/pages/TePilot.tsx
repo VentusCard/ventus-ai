@@ -1178,7 +1178,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Intelligent Reward Personalization</h2>
-                  <IntegrationDiagramButton variant="rewards" />
+                  
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}

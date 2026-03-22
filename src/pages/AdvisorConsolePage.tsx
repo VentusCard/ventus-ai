@@ -283,7 +283,7 @@ const AdvisorConsolePage = () => {
             <h2 className="text-sm font-medium text-slate-500">
               Wealth Management Copilot
             </h2>
-            <IntegrationDiagramButton variant="wealth" />
+            
           </div>
         </div>
       </div>
