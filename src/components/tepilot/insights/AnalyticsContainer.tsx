@@ -5,7 +5,7 @@ import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { BarChart3, Target, Wallet, Heart, Gamepad2, Sparkles } from "lucide-react";
+import { BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles } from "lucide-react";
 
 interface AnalyticsContainerProps {
   defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence';
@@ -24,8 +24,8 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
           Rewards Intelligence
         </TabsTrigger>
         <TabsTrigger value="targeting" className="flex items-center gap-2 data-[state=active]:bg-white">
-          <Target className="w-4 h-4" />
-          Segment Targeting
+          <Route className="w-4 h-4" />
+          Financial Journey
         </TabsTrigger>
         <TabsTrigger value="wallet-share" className="flex items-center gap-2 data-[state=active]:bg-white">
           <Wallet className="w-4 h-4" />
