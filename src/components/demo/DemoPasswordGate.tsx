@@ -311,10 +311,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 1 */}
               {displayStep === 1 &&
               <div className="text-center py-8">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't (truly) work.
                   </h1>
-                  <p className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
+                  <p className="mt-6 text-xl sm:text-2xl max-w-3xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
                     Your customers see irrelevant offers. Random campaigns. Wasted spend.
                     Everyone knows this. The question is <span className="font-semibold" style={{ color: "#0F172A" }}>why</span>.
                   </p>
