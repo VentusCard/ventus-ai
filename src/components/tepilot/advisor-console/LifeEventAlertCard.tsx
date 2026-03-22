@@ -16,6 +16,7 @@ interface LifeEventAlertCardProps {
   onView: (clientId: string) => void;
   onScheduleCall: (clientId: string) => void;
   showEventLabel?: boolean;
+  sourceLabel?: string;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
