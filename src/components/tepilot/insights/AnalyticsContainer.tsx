@@ -5,18 +5,19 @@ import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
+import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { WMCopilotSignInDialog } from "./WMCopilotSignInDialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
-  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown
+  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin
 } from "lucide-react";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'life-events';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events';
 
 interface NavItem {
   value: TabValue;
@@ -38,6 +39,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Rewards",
     items: [
       { value: "rewards-intelligence", label: "Rewards Intelligence", icon: Sparkles },
+      { value: "location-experience", label: "Location Experience", icon: MapPin },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
@@ -68,6 +70,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
+      case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
     }
   };
