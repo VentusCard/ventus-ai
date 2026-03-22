@@ -69,7 +69,6 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
-      case 'wm-copilot': return <BankwideWMCopilotView />;
     }
   };
 
