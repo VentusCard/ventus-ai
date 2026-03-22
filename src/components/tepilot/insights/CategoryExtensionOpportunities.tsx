@@ -193,14 +193,6 @@ function OpportunityCard({
             <p className="text-sm text-emerald-900 leading-snug">{o.whyItFits}</p>
           </div>
 
-          {/* MCC Disconnect */}
-          <div className="bg-amber-50 rounded-lg p-3 flex gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider mb-1">MCC Disconnect</p>
-              <p className="text-sm text-amber-900 leading-snug">{o.mccDisconnectNote}</p>
-            </div>
-          </div>
 
           {/* Detail Grid */}
           <div className="grid grid-cols-3 gap-3">
