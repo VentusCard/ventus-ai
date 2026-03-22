@@ -613,7 +613,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
                         minWidth: 160
                       }}>
-                        <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
                           Transactions
                         </span>
                       </div>
