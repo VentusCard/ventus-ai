@@ -372,14 +372,14 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   );
 }
 
-function TxCard({ customer, color, label }: { customer: DemoCustomer | null; color: string; label: string }) {
+function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | null; color: string; label: string; scaled?: boolean }) {
   if (!customer) {
     return (
       <div
-        className="rounded-lg border-2 border-dashed p-2.5 flex items-center justify-center"
-        style={{ borderColor: `${color}40`, minHeight: 90 }}
+        className={`rounded-lg border-2 border-dashed ${scaled ? "p-3" : "p-2.5"} flex items-center justify-center`}
+        style={{ borderColor: `${color}40`, minHeight: scaled ? 110 : 90 }}
       >
-        <p className="text-[11px] font-medium text-slate-400">{label}</p>
+        <p className={`font-medium text-slate-400 ${scaled ? "text-[13px]" : "text-[11px]"}`}>{label}</p>
       </div>
     );
   }
@@ -387,23 +387,23 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
-      className="rounded-lg border-2 p-2.5 bg-white"
+      className={`rounded-lg border-2 ${scaled ? "p-3" : "p-2.5"} bg-white`}
       style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}
     >
       <div className="flex items-center gap-2 mb-2">
         <div
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+          className={`${scaled ? "w-8 h-8 text-[11px]" : "w-6 h-6 text-[9px]"} rounded-full flex items-center justify-center font-bold text-white`}
           style={{ background: `${color}30`, border: `1px solid ${color}50` }}
         >
           {initials}
         </div>
-        <p className="text-[11px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
+        <p className={`font-semibold text-slate-900 truncate ${scaled ? "text-[13px]" : "text-[11px]"}`}>{customer.profile.name}</p>
       </div>
       <div className="space-y-0.5 overflow-hidden">
-        <p className="text-[9px] font-mono text-slate-600 truncate">
+        <p className={`font-mono text-slate-600 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>
           {customer.txnCount} txns · {customer.txnTotal}
         </p>
-        <p className="text-[9px] font-mono text-slate-400 truncate">
+        <p className={`font-mono text-slate-400 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>
           {customer.dateRange} · {customer.sourceCount} sources
         </p>
       </div>
