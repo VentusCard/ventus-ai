@@ -396,7 +396,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       </svg>
                       <div className="flex flex-col items-center gap-2 mt-2">
                          <div className="px-6 py-3 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
-                           <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment Tickets</span>
+                           <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment</span>
                          </div>
                          <span className="text-sm" style={{ color: "#94A3B8" }}>Same code for all three</span>
                       </div>
