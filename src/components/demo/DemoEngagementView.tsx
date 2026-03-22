@@ -224,7 +224,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                     <div
                       key={b.name}
                       className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats || isTravel ? "cursor-pointer hover:border-slate-300" : ""}`}
-                      onClick={() => (hasSubcats || isTravel) && setExpandedPillar(isExpanded ? null : b.name)}
+                      onClick={() => (hasSubcats || isTravel) && setExpandedPillars(prev => { const next = new Set(prev); if (next.has(b.name)) next.delete(b.name); else next.add(b.name); return next; })}
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{b.icon}</span>
