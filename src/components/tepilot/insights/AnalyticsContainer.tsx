@@ -126,7 +126,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
           ))}
 
           {/* WM Copilot - opens sign-in dialog */}
-          <div className={collapsed ? "" : "mx-3 mt-1 pt-1 border-t border-slate-200"}>
+          <div>
             <button
               onClick={() => setShowSignIn(true)}
               title={collapsed ? "WM Copilot" : undefined}
