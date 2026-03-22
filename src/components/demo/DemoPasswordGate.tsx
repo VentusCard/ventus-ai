@@ -511,19 +511,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                               <span className="text-base font-medium" style={{ color: "#0F172A" }}>
                                 {tx.merchant}
                               </span>
-                              <span
-                            className="px-3 py-1 rounded text-sm font-mono transition-all duration-500"
-                            style={{
-                              backgroundColor: "#FEF3C7",
-                              color: "#D97706",
-                              opacity: beat5Phase >= 1 ? 1 : 0,
-                              width: beat5Phase >= 1 ? 'auto' : 0,
-                              transform: beat5Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap'
-                            }}>
-                                {tx.category}
-                              </span>
                             </div>
                             <span className="text-base font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                           </div>
