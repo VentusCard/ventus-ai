@@ -247,7 +247,7 @@ function RewardsPhoneMockup({
 
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-[380px]">
+      <div className="w-full max-w-[440px]">
         <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
           {/* Browser bar */}
           <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-200 bg-slate-50">
