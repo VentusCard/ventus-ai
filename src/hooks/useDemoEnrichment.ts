@@ -4,6 +4,7 @@ import { parsePastedText } from "@/lib/parsers";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { toast } from "sonner";
 import { deriveCustomerProfile, getRelevantDeals, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 
