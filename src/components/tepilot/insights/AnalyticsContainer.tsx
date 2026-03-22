@@ -70,6 +70,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
+      case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
     }
   };
