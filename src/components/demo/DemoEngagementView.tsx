@@ -112,12 +112,12 @@ function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[
 }
 
 function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
-  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
-  const [tripViewOn, setTripViewOn] = useState(true);
   const firstName = customer.profile.name.split(" ")[0];
   const spending = computeSpending(customer, enrichedTransactions);
   const tripRows = computeTripRows(customer, enrichedTransactions);
   const hasTravel = spending.some((b) => b.name === "Travel");
+  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 2).map(s => s.name)));
+  const [tripViewOn, setTripViewOn] = useState(true);
 
   // Deterministic budgets: 110–140% of spend
   const budgetMap = initializeBudgets(spending.map((s) => ({ pillar: s.name, totalSpend: s.spend })));
@@ -170,7 +170,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
 
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-[380px]">
+      <div className="w-full max-w-[480px]">
         {/* Phone frame */}
         <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
           {/* Browser bar */}
@@ -214,7 +214,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
               <div className="grid grid-cols-2 gap-1.5">
                 {budgets.slice(0, 4).map((b) => {
                   const isTravel = b.name === "Travel";
-                  const isExpanded = expandedPillar === b.name;
+                  const isExpanded = expandedPillars.has(b.name);
                   const hasSubcats = b.subcategories.length > 0;
                   const showTripView = isTravel && tripViewOn && tripRows.length > 0;
                   const ratio = b.budget > 0 ? b.spend / b.budget : 0;
@@ -224,7 +224,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                     <div
                       key={b.name}
                       className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats || isTravel ? "cursor-pointer hover:border-slate-300" : ""}`}
-                      onClick={() => (hasSubcats || isTravel) && setExpandedPillar(isExpanded ? null : b.name)}
+                      onClick={() => (hasSubcats || isTravel) && setExpandedPillars(prev => { const next = new Set(prev); if (next.has(b.name)) next.delete(b.name); else next.add(b.name); return next; })}
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{b.icon}</span>
