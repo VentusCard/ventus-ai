@@ -426,7 +426,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       map((tx, i) =>
                       <div
                         key={i}
-                        className="flex items-center justify-between px-5 py-3 rounded-lg border animate-fade-slide"
+                        className="flex items-center justify-between px-6 py-4 rounded-lg border animate-fade-slide"
                         style={{
                           borderColor: "#E2E8F0",
                           backgroundColor: "#FAFBFC",
@@ -434,11 +434,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           animationFillMode: "both"
                         }}>
                             <div className="flex items-center gap-4">
-                              <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
+                              <span className="px-3 py-1 rounded text-sm font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
                                 MCC {tx.mcc} · {tx.mccLabel}
                               </span>
                               <span
-                            className="text-sm font-medium transition-all duration-500"
+                            className="text-base font-medium transition-all duration-500"
                             style={{
                               color: "#0F172A",
                               opacity: beat4Phase >= 1 ? 1 : 0,
@@ -451,7 +451,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                                 {tx.merchant}
                               </span>
                             </div>
-                            <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
+                            <span className="text-base font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                           </div>
                       )}
                       </div>
