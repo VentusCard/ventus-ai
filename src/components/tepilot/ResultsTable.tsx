@@ -96,19 +96,19 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             <div className="max-h-[600px] overflow-auto">
               <Table className="text-xs table-fixed w-full">
                 <colgroup>
-                  <col className="w-[100px]" /> {/* Merchant */}
+                  <col className="w-[120px]" /> {/* Merchant */}
                   <col className="w-[52px]" />  {/* Amt */}
                   <col className="w-[72px]" />  {/* Date */}
                   <col className="w-[20px]" />  {/* Arrow */}
-                  <col className="w-[90px]" />  {/* Pillar */}
-                  <col className="w-[70px]" />  {/* Category */}
-                  <col className="w-[90px]" />  {/* Subcategories */}
+                  <col className="w-[72px]" />  {/* Pillar */}
+                  <col className="w-[90px]" />  {/* Category */}
+                  <col className="w-[85px]" />  {/* Subcategories */}
                   <col className="w-[60px]" />  {/* Trip */}
                   <col className="w-[52px]" />  {/* Tier */}
                   <col className="w-[56px]" />  {/* Freq */}
                   {transactions.some(t => t.source) && <col className="w-[60px]" />}
                   <col className="w-[40px]" />  {/* Conf */}
-                  <col className="w-[32px]" />  {/* Actions */}
+                  <col className="w-[36px]" />  {/* Actions */}
                 </colgroup>
                 <TableHeader className="sticky top-0 bg-white z-10">
                   <TableRow>
