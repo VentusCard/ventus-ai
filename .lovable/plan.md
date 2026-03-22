@@ -1,38 +1,33 @@
 
 
-## Fix Network Diagram: Fluid Layout + Panel-Responsive Sizing
+## Stage-Ready Network Diagram: Centered + Scaled When Panel Collapsed
 
-### Problems
-1. All geometry constants (gaps, widths) are hardcoded pixels — they don't adapt when the container resizes on panel collapse/expand
-2. The grid can overflow or get cramped depending on available width
-3. The `centered` prop is passed but not meaningfully used
+### Problem
+When the left panel collapses, the diagram content stays small and left-biased instead of expanding to fill the full screen for a stage presentation.
 
-### Solution — `DemoNetworkDiagram.tsx`
+### Approach
+The `centered` prop already receives `panelCollapsed` from DemoPage. Use it to scale up all elements and center the content when the panel is collapsed.
 
-Make the layout **fluid** by deriving all horizontal positions from `dims.w`:
+### Changes — `DemoNetworkDiagram.tsx`
 
-1. **Replace fixed constants with ratios** based on container width:
-   - TX cards at ~12% from left
-   - Engine center at ~35% 
-   - Grid right edge fills remaining space with padding
-   - Gaps and widths scale proportionally with `dims.w`
+**1. Scale factor based on `centered` prop**
+- When `centered` is true (panel collapsed), apply a scale multiplier (~1.25) to all size constants:
+  - `TX_CARD_WIDTH`, `ENGINE_WIDTH`, `GRID_WIDTH`, `TX_CARD_HEIGHT`, `ENGINE_HEIGHT`, `GRID_ROW_HEIGHT`, `GRID_HEADER_HEIGHT`
+- Font sizes in the grid and engine also scale up (e.g., 11px → 13px, 9px → 11px, 10px → 12px)
 
-2. **Clamp minimum sizes** so elements don't shrink too small:
-   - `TX_CARD_WIDTH`: `min(180, dims.w * 0.15)`
-   - `ENGINE_WIDTH`: `min(210, dims.w * 0.18)`
-   - `GRID_WIDTH`: `min(440, dims.w * 0.38)`
-   - Gaps derived from remaining space
+**2. Centering logic**
+- When `centered`, compute `totalContentWidth` (sum of TX + gaps + Engine + gaps + Grid) and offset everything with `offsetX = (dims.w - totalContentWidth) / 2` so the entire flow sits in the horizontal center
+- Vertical spread for TX cards increases (55 → 70) for better spacing at larger scale
 
-3. **Proportional 3-column layout**:
-   ```text
-   |--pad--|--TX--|----gap----|--ENGINE--|----gap----|--GRID--|--pad--|
-   ```
-   Each section gets a percentage of `dims.w`, ensuring balanced spacing at any width.
-
-4. **Grid row compactness** — reduce `GRID_ROW_HEIGHT` slightly (110→100) and tighten padding so content fits cleanly without overflow.
-
-5. **Node buttons** — use `min-w-0` and `truncate` on labels to prevent text overflow in narrower containers.
+**3. Scaled typography classes**
+- Use the `centered` boolean to toggle between small (current) and larger font/icon sizes throughout:
+  - Column headers: 10px → 12px
+  - Pillar subtitles: 9px → 11px
+  - Node labels: 11px → 13px
+  - Node icons: w-3.5 → w-4.5
+  - Engine "V" icon: w-11 → w-14
+  - TxCard text: 11px → 13px, 9px → 11px
 
 ### Files Modified
-- `src/components/demo/DemoNetworkDiagram.tsx` — replace fixed geometry with fluid proportional layout
+- `src/components/demo/DemoNetworkDiagram.tsx`
 
