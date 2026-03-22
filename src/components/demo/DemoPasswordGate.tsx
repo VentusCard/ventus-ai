@@ -300,9 +300,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
               {/* Beat 0 — Intro */}
               {displayStep === 0 &&
-              <div className="text-center py-12 flex flex-col items-center gap-6">
-                  <img src={ventusLogo} alt="Ventus AI" className="h-14 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }} />
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight animate-fade-slide" style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both", lineHeight: 1.25 }}>
+              <div className="text-center py-12 flex flex-col items-center gap-8">
+                  <img src={ventusLogo} alt="Ventus AI" className="h-16 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }} />
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight animate-fade-slide" style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both", lineHeight: 1.25 }}>
                     AI Customer Intelligence Layer<br />that Powers Banking Personalization<br />Across Functions
                   </h1>
                 </div>
@@ -311,10 +311,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 1 */}
               {displayStep === 1 &&
               <div className="text-center py-8">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't (truly) work.
                   </h1>
-                  <p className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
+                  <p className="mt-6 text-xl sm:text-2xl max-w-3xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
                     Your customers see irrelevant offers. Random campaigns. Wasted spend.
                     Everyone knows this. The question is <span className="font-semibold" style={{ color: "#0F172A" }}>why</span>.
                   </p>
@@ -324,11 +324,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 2 */}
               {displayStep === 2 &&
               <div className="text-center py-8">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     The answer is three letters:{" "}
                     <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
-                  <p className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
+                  <p className="mt-6 text-xl sm:text-2xl max-w-3xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
                     Every bank runs on Merchant Category Codes — a four-digit taxonomy from{" "}
                     <span className="font-semibold" style={{ color: "#0F172A" }}>1974</span>{" "}
                     designed for interchange routing, not customer understanding.
@@ -339,20 +339,20 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 3 */}
               {displayStep === 3 &&
               <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>01</span>
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>01</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
-                  <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                  <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
+                  <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                     Three customers. Three purchases: Symphony Orchestra, Celtics tickets, Monster Jam.
                     Three completely different people — invisible to the bank.
                   </p>
                   <div className="mt-8 flex flex-col items-center gap-6">
                     <div className="flex justify-center w-full max-w-md mx-auto">
-                      <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
                             <ellipse cx="11" cy="23" rx="3.5" ry="2.5" fill="#94A3B8" />
                             <line x1="14.5" y1="23" x2="14.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
                             <ellipse cx="21" cy="19" rx="3.5" ry="2.5" fill="#94A3B8" />
@@ -360,22 +360,22 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
+                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
                       </div>
                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
                             <circle cx="16" cy="16" r="10" stroke="#94A3B8" strokeWidth="2" fill="none" />
                             <path d="M6 16C6 16 10 12 16 12C22 12 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
                             <path d="M6 16C6 16 10 20 16 20C22 20 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
                             <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
+                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
                       </div>
                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
-                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
                             <rect x="6" y="12" width="20" height="8" rx="2" fill="#94A3B8" />
                             <path d="M8 12L12 6H20L24 12" fill="#94A3B8" />
                             <rect x="13" y="7" width="6" height="4" rx="1" fill="#CBD5E1" />
@@ -385,7 +385,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
                           </svg>
                         </div>
-                        <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
+                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
                       </div>
                     </div>
                     <div className="transition-all duration-700 ease-out" style={{ opacity: beat3Phase >= 1 ? 1 : 0, transform: beat3Phase >= 1 ? 'translateY(0)' : 'translateY(16px)' }}>
@@ -395,10 +395,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <line x1="250" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                       </svg>
                       <div className="flex flex-col items-center gap-2 mt-2">
-                        <div className="px-5 py-2.5 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
-                          <span className="text-sm font-bold tracking-wider">MCC 7922 · Sports and Entertainment</span>
-                        </div>
-                        <span className="text-xs" style={{ color: "#94A3B8" }}>Same code for all three</span>
+                         <div className="px-6 py-3 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
+                           <span className="text-base font-bold tracking-wider">MCC 7922 · Sports and Entertainment</span>
+                         </div>
+                         <span className="text-sm" style={{ color: "#94A3B8" }}>Same code for all three</span>
                       </div>
                     </div>
                   </div>
@@ -409,12 +409,12 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {displayStep === 4 &&
               <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
+                    <div className="flex items-center gap-3 mb-5">
+                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>MCCs can't identify patterns.</h2>
-                    <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs can't identify patterns.</h2>
+                    <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                       Three transactions across three different MCC codes. To the bank, these are completely unrelated purchases.
                     </p>
                     <div className="mt-8">
@@ -426,7 +426,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       map((tx, i) =>
                       <div
                         key={i}
-                        className="flex items-center justify-between px-5 py-3 rounded-lg border animate-fade-slide"
+                        className="flex items-center justify-between px-6 py-4 rounded-lg border animate-fade-slide"
                         style={{
                           borderColor: "#E2E8F0",
                           backgroundColor: "#FAFBFC",
@@ -434,11 +434,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           animationFillMode: "both"
                         }}>
                             <div className="flex items-center gap-4">
-                              <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
+                              <span className="px-3 py-1 rounded text-sm font-mono" style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}>
                                 MCC {tx.mcc} · {tx.mccLabel}
                               </span>
                               <span
-                            className="text-sm font-medium transition-all duration-500"
+                            className="text-base font-medium transition-all duration-500"
                             style={{
                               color: "#0F172A",
                               opacity: beat4Phase >= 1 ? 1 : 0,
@@ -451,7 +451,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                                 {tx.merchant}
                               </span>
                             </div>
-                            <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
+                            <span className="text-base font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                           </div>
                       )}
                       </div>
@@ -465,13 +465,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   }}>
                     <div className="flex items-center gap-3">
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <div className="flex items-center gap-2 px-5 py-2.5 rounded-full" style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
+                        <svg width="22" height="22" viewBox="0 0 18 18" fill="none">
                           <path d="M9 2L11 7L9 12L7 7L9 2Z" fill="#3B82F6" />
                           <path d="M5 8L9 12L13 8" stroke="#3B82F6" strokeWidth="1.5" fill="none" />
                           <line x1="9" y1="12" x2="9" y2="16" stroke="#3B82F6" strokeWidth="1.5" />
                         </svg>
-                        <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Behavioral Insight: Skiing</span>
+                        <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>Behavioral Insight: Skiing</span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     </div>
@@ -483,12 +483,12 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {displayStep === 5 &&
               <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
+                    <div className="flex items-center gap-3 mb-5">
+                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
-                    <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
+                    <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                       Three purchases. The pattern is invisible to MCCs — but not to semantic intelligence.
                     </p>
                     <div className="mt-8">
@@ -500,7 +500,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       map((tx, i) =>
                       <div
                         key={i}
-                        className="flex items-center justify-between px-5 py-3 rounded-lg border animate-fade-slide"
+                        className="flex items-center justify-between px-6 py-4 rounded-lg border animate-fade-slide"
                         style={{
                           borderColor: "#E2E8F0",
                           backgroundColor: "#FAFBFC",
@@ -508,11 +508,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           animationFillMode: "both"
                         }}>
                             <div className="flex items-center gap-4">
-                              <span className="text-sm font-medium" style={{ color: "#0F172A" }}>
+                              <span className="text-base font-medium" style={{ color: "#0F172A" }}>
                                 {tx.merchant}
                               </span>
                               <span
-                            className="px-2 py-0.5 rounded text-xs font-mono transition-all duration-500"
+                            className="px-3 py-1 rounded text-sm font-mono transition-all duration-500"
                             style={{
                               backgroundColor: "#FEF3C7",
                               color: "#D97706",
@@ -525,7 +525,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                                 {tx.category}
                               </span>
                             </div>
-                            <span className="text-sm font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
+                            <span className="text-base font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                           </div>
                       )}
                       </div>
@@ -539,9 +539,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   }}>
                     <div className="flex items-center gap-3">
                       <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}>
-                        <span className="text-base">🎓</span>
-                        <span className="text-sm font-semibold" style={{ color: "#059669" }}>Life Event Detected: College Planning — 529 plan opportunity identified</span>
+                      <div className="flex items-center gap-2 px-5 py-2.5 rounded-full" style={{ backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}>
+                        <span className="text-lg">🎓</span>
+                        <span className="text-base font-semibold" style={{ color: "#059669" }}>Life Event Detected: College Planning — 529 plan opportunity identified</span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
                     </div>
@@ -552,14 +552,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 6 — Disconnected data */}
               {displayStep === 6 &&
               <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>
+                  <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
                     {beat6Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
                   </h2>
-                  <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                  <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                     {beat6Phase === 0 ?
                   "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals." :
                   "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
@@ -568,11 +568,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                   {/* Horizontal flow diagram */}
                   <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 w-full">
-                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
+                    <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
                       {beat6Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
                     </p>
                     <div style={{ width: 44 }} />
-                    <p className="text-[11px] font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
+                    <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
                       {beat6Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
                     </p>
                   </div>
@@ -602,7 +602,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
                         minWidth: 160
                       }}>
-                        <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
                           Demographics
                         </span>
                       </div>
@@ -613,7 +613,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
                         minWidth: 160
                       }}>
-                        <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
                           Transactions
                         </span>
                       </div>
@@ -647,10 +647,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       map((item) =>
                       <div
                         key={item.label}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                        className="flex items-center gap-2.5 px-5 py-3 rounded-lg border"
                         style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}>
-                            <span className="text-base">{item.icon}</span>
-                            <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#64748B" }}>{item.label}</span>
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="text-base font-medium whitespace-nowrap" style={{ color: "#64748B" }}>{item.label}</span>
                           </div>
                       )}
                       </div>
@@ -689,10 +689,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         map((item, i) =>
                         <div
                           key={`${dupeIdx}-${i}`}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                          className="flex items-center gap-2.5 px-5 py-3 rounded-lg border"
                           style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}>
-                                <span className="text-base flex-shrink-0">{item.icon}</span>
-                                <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>{item.label}</span>
+                                <span className="text-lg flex-shrink-0">{item.icon}</span>
+                                <span className="text-base font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>{item.label}</span>
                               </div>
                         )
                         )}
@@ -707,14 +707,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 7 — Reveal */}
               {displayStep === 7 &&
               <div className="text-center py-8">
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     One AI-Native layer that enables personalized banking across functions.
                   </h1>
                   <div
                   className="mt-12 transition-all duration-700 ease-out flex flex-col items-center"
                   style={{ opacity: revealLogo ? 1 : 0, transform: revealLogo ? "translateY(0)" : "translateY(20px)" }}>
                     
-                    <p className="mt-2 text-base" style={{ color: "#64748B" }}>
+                    <p className="mt-2 text-lg" style={{ color: "#64748B" }}>
                       Transform banking experiences — no core overhaul required.
                     </p>
                   </div>
