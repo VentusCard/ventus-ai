@@ -8,58 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  MapPin, Plus, Search, Pencil, Trash2, Star, Ticket,
-  UtensilsCrossed, Music, Landmark, ShoppingBag, Dumbbell, Plane,
-  Palette, ExternalLink, Calendar, Check, Users, ShieldCheck
+  MapPin, Plus, Search, Pencil, Trash2, Star,
+  ExternalLink, Calendar, Check, Users, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  INITIAL_PERKS, CATEGORY_CONFIG, TIER_COLORS,
+  type LocationPerk, type PerkCategory, type Eligibility,
+} from "@/lib/locationPerksData";
 
 const WEALTH_TIERS = ["All Clients", "Mass Market", "Affluent", "HNW", "UHNW"] as const;
 const AGE_RESTRICTIONS = ["No Restriction", "18+", "21+", "55+", "65+"] as const;
-
-interface Eligibility {
-  wealthTiers: string[];
-  ageRestriction: string;
-  customRules: string;
-}
-
-interface LocationPerk {
-  id: string;
-  city: string;
-  state: string;
-  title: string;
-  tagline: string;
-  description: string;
-  category: PerkCategory;
-  tier: "All Members" | "Preferred" | "Private" | "Premium";
-  partner: string;
-  value: string;
-  startDate: string;
-  endDate: string;
-  link: string;
-  eligibility: Eligibility;
-  active: boolean;
-}
-
-type PerkCategory = "Sports" | "Art" | "Dining" | "Entertainment" | "Culture" | "Shopping" | "Fitness" | "Travel";
-
-const CATEGORY_CONFIG: Record<PerkCategory, { icon: React.ElementType; color: string }> = {
-  Sports: { icon: Ticket, color: "text-green-600 bg-green-50 border-green-200" },
-  Art: { icon: Palette, color: "text-indigo-600 bg-indigo-50 border-indigo-200" },
-  Dining: { icon: UtensilsCrossed, color: "text-orange-600 bg-orange-50 border-orange-200" },
-  Entertainment: { icon: Music, color: "text-purple-600 bg-purple-50 border-purple-200" },
-  Culture: { icon: Landmark, color: "text-blue-600 bg-blue-50 border-blue-200" },
-  Shopping: { icon: ShoppingBag, color: "text-pink-600 bg-pink-50 border-pink-200" },
-  Fitness: { icon: Dumbbell, color: "text-red-600 bg-red-50 border-red-200" },
-  Travel: { icon: Plane, color: "text-sky-600 bg-sky-50 border-sky-200" },
-};
-
-const TIER_COLORS: Record<string, string> = {
-  "All Members": "bg-slate-100 text-slate-700",
-  Preferred: "bg-blue-100 text-blue-700",
-  Private: "bg-amber-100 text-amber-800",
-  Premium: "bg-purple-100 text-purple-700",
-};
 
 const DEFAULT_ELIGIBILITY: Eligibility = { wealthTiers: ["All Clients"], ageRestriction: "No Restriction", customRules: "" };
 
