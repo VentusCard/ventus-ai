@@ -22,7 +22,7 @@ import {
   Sparkles,
   ChevronDown,
 } from "lucide-react";
-import confetti from "canvas-confetti";
+
 import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -86,19 +86,9 @@ export function FinancialAchievements({ enrichedTransactions }: FinancialAchieve
   const achievements = useMemo(() => calculateAchievements(enrichedTransactions), [enrichedTransactions]);
   const score = useMemo(() => calculateHealthScore(achievements), [achievements]);
   const level = useMemo(() => getLevel(score), [score]);
-  const confettiFired = useRef(false);
   const [expanded, setExpanded] = useState(false);
 
   const unlockedCount = achievements.filter((a) => a.status === "unlocked").length;
-
-  useEffect(() => {
-    if (unlockedCount > 0 && !confettiFired.current) {
-      confettiFired.current = true;
-      setTimeout(() => {
-        confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 }, colors: ["#22c55e", "#f59e0b", "#3b82f6"] });
-      }, 500);
-    }
-  }, [unlockedCount]);
 
   if (achievements.length === 0) return null;
 
