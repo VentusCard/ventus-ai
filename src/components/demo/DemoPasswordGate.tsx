@@ -484,7 +484,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
                     <div className="flex items-center gap-3 mb-5">
-                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
+                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
