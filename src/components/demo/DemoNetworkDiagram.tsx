@@ -317,18 +317,16 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         const pillarReady = engineReady;
 
         return (
-          <button
+          <div
             key={pillar.id}
-            onClick={() => { if (pillarReady) onNodeClick(pillar.id as DemoNodeType); }}
-            disabled={!pillarReady}
-            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 group transition-colors transition-shadow duration-300"
+            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 transition-colors transition-shadow duration-300"
             style={{
               left: pillarCenterX - PILLAR_WIDTH / 2,
               top: pillarY - PILLAR_HEIGHT / 2,
               width: PILLAR_WIDTH,
               height: PILLAR_HEIGHT,
               zIndex: 2,
-              cursor: pillarReady ? "pointer" : "not-allowed",
+              cursor: "default",
               borderColor: pillarReady ? `${pillar.color}60` : "#e2e8f0",
               borderLeftWidth: 3,
               borderLeftColor: pillar.color,
@@ -352,8 +350,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               <p className="text-[11px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
               <p className="text-[9px] text-slate-400 leading-tight">{pillar.subtitle}</p>
             </div>
-            <p className="absolute -bottom-0.5 right-2 text-[7px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
-          </button>
+          </div>
         );
       })}
 
