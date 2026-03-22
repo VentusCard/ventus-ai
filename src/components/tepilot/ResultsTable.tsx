@@ -149,6 +149,41 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         </div>
                       </TableCell>
                       <TableCell>
+                        {transaction.trip_label ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  variant="outline"
+                                  className="border flex items-center gap-1 text-xs px-2 py-0.5 whitespace-nowrap bg-purple-500/10 text-purple-700 border-purple-500/20 cursor-help"
+                                >
+                                  <Plane className="w-3 h-3" />
+                                  {transaction.travel_context?.travel_destination || "Trip"}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <div className="text-xs space-y-1.5">
+                                  <p className="font-semibold flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    {transaction.trip_label}
+                                  </p>
+                                  {transaction.travel_context?.travel_period_start && (
+                                    <p>🗓️ {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
+                                  )}
+                                  {transaction.travel_context?.reclassification_reason && (
+                                    <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
+                                      {transaction.travel_context.reclassification_reason}
+                                    </p>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-slate-400 text-sm">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <Badge
                           variant="outline"
                           className={`${getTierColor(transaction.spending_tier)} whitespace-nowrap`}

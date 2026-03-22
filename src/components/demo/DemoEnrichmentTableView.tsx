@@ -96,6 +96,15 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                   ))}
                 </div>
               </td>
+              <td className="px-1 py-1">
+                {tx.trip_label ? (
+                  <span className="inline-flex items-center gap-0.5 bg-purple-500/10 text-purple-700 border border-purple-500/20 text-[9px] px-1 py-px rounded whitespace-nowrap" title={tx.trip_label}>
+                    ✈ {tx.travel_context?.travel_destination || "Trip"}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-slate-400">—</span>
+                )}
+              </td>
               <td className="px-1.5 py-1">
                 <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>
                   {tx.spending_tier}
