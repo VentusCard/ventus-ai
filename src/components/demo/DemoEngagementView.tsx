@@ -112,7 +112,7 @@ function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[
 }
 
 function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
-  const [expandedPillars, setExpandedPillars] = useState<Set<string> | null>(null);
+  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 2).map(s => s.name)));
   const [tripViewOn, setTripViewOn] = useState(true);
   const firstName = customer.profile.name.split(" ")[0];
   const spending = computeSpending(customer, enrichedTransactions);
