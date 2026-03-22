@@ -4,7 +4,6 @@ import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
-import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
 import DemoTravelView from "./DemoTravelView";
@@ -13,6 +12,7 @@ import DemoFinancialJourneyView from "./DemoFinancialJourneyView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
 import DemoEnrichmentTableView from "./DemoEnrichmentTableView";
+import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 
 interface Props {
   node: DemoNodeType;
@@ -35,7 +35,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   engagement: { title: "Personalized UX", color: "#f59e0b" },
   analytics: { title: "Bank-Wide Analytics", color: "#3b82f6" },
   rewards: { title: "Consumer Rewards", color: "#22c55e" },
-  travel: { title: "Travel Experiences", color: "#06b6d4" },
+  travel: { title: "Reward Intelligence", color: "#06b6d4" },
   lifeEvents: { title: "Financial Journey — Next Best Product", color: "#ec4899" },
   wealth: { title: "Wealth Management — Life Event Intelligence", color: "#a855f7" },
   engine: { title: "Ventus AI Engine — Enrichment Output", color: "#6366f1" },
@@ -44,8 +44,12 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   phase: { title: "Phase — Life Event Detection", color: "#a855f7" },
 };
 
-const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; customerB: DemoCustomer }>> = {
-  analytics: DemoAnalyticsView,
+const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth"]);
+
+const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
+  analytics: "dashboard",
+  travel: "rewards-intelligence",
+  wealth: "life-events",
 };
 
 export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, tipA, tipB, onClose }: Props) {
@@ -53,7 +57,12 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
 
   const defaultPayloads: ApiPayloads = { classificationA: null, classificationB: null, dealPersonalizationA: null, dealPersonalizationB: null, localExperiencesA: null, localExperiencesB: null, lifestyleSignalsA: null, lifestyleSignalsB: null };
 
+  const isBankWide = BANK_WIDE_NODES.has(node);
+
   const renderContent = () => {
+    if (isBankWide) {
+      return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} />;
+    }
     if (node === "engine") {
       return <DemoEnrichmentTableView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
     }
@@ -62,18 +71,6 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
     }
     if (node === "engagement") {
       return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} tipA={tipA} tipB={tipB} />;
-    }
-    if (node === "travel") {
-      return (
-        <DemoTravelView
-          customerA={customerA}
-          customerB={customerB}
-          enrichedA={enrichedA}
-          enrichedB={enrichedB}
-          localExperiencesA={localExperiences?.[customerA.id]}
-          localExperiencesB={localExperiences?.[customerB.id]}
-        />
-      );
     }
     if (node === "rewards") {
       return (
@@ -87,16 +84,6 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         />
       );
     }
-    if (node === "wealth") {
-      return (
-        <DemoLifeEventsView
-          customerA={customerA}
-          customerB={customerB}
-          detectedEventA={detectedEventA ?? []}
-          detectedEventB={detectedEventB ?? []}
-        />
-      );
-    }
     if (node === "lifeEvents") {
       return (
         <DemoFinancialJourneyView
@@ -107,10 +94,10 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         />
       );
     }
-    const ViewComponent = SIMPLE_VIEW_MAP[node];
-    if (ViewComponent) return <ViewComponent customerA={customerA} customerB={customerB} />;
     return null;
   };
+
+  const showCustomerHeaders = !isBankWide && node !== "engine";
 
   return (
     <div className="absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
@@ -119,7 +106,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         <div className="flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}40` }} />
           <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-          <span className="text-[10px] text-slate-400 ml-2">Side-by-side comparison</span>
+          {!isBankWide && <span className="text-[10px] text-slate-400 ml-2">Side-by-side comparison</span>}
         </div>
         <button
           onClick={onClose}
@@ -130,7 +117,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
       </div>
 
       {/* Column Headers */}
-      {node !== "engine" && (
+      {showCustomerHeaders && (
         <div className="grid grid-cols-2 gap-4 px-6 pt-3 pb-1">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
@@ -148,7 +135,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2">
+      <div className={`flex-1 overflow-y-auto ${isBankWide ? '' : 'px-6 pb-6 pt-2'}`}>
         {renderContent()}
       </div>
     </div>
