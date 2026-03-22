@@ -146,7 +146,7 @@ export function buildAdvisorContext(
 
   // Travel Analysis
   const travelTransactions = transactions.filter(
-    t => t.travel_context?.is_travel_related
+    t => t.trip_label
   );
   const travelSpend = travelTransactions.reduce((sum, t) => sum + t.amount, 0);
   const destinations = Array.from(
