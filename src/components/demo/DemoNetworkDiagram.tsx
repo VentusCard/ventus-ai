@@ -31,18 +31,11 @@ interface PillarDef {
   nodes: NodeDef[];
 }
 
-// Geometry constants — all nodes use center-based positioning
-const TX_CARD_WIDTH = 180;
+// Geometry constants — base values, overridden by fluid sizing below
 const TX_CARD_HEIGHT = 110;
-const ENGINE_WIDTH = 210;
 const ENGINE_HEIGHT = 245;
-const GRID_WIDTH = 440;
-const GRID_ROW_HEIGHT = 110;
+const GRID_ROW_HEIGHT = 100;
 const GRID_HEADER_HEIGHT = 32;
-
-// Horizontal gaps between column centers
-const GAP_TX_ENGINE = 260;
-const GAP_ENGINE_GRID = 280;
 
 const PILLARS: PillarDef[] = [
   {
@@ -101,13 +94,16 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // ── Center-based layout: compute 3 column centers, then center the whole frame ──
-  const totalContentWidth = TX_CARD_WIDTH / 2 + GAP_TX_ENGINE + GAP_ENGINE_GRID + GRID_WIDTH / 2;
-  const contentLeft = Math.max(20, (dims.w - totalContentWidth) / 2);
+  // ── Fluid layout: derive sizes from container width ──
+  const TX_CARD_WIDTH = Math.max(140, Math.min(180, dims.w * 0.15));
+  const ENGINE_WIDTH = Math.max(160, Math.min(210, dims.w * 0.18));
+  const GRID_WIDTH = Math.max(320, Math.min(440, dims.w * 0.38));
 
-  const txCenterX = contentLeft + TX_CARD_WIDTH / 2;
-  const engineCenterX = txCenterX + GAP_TX_ENGINE;
-  const gridLeftX = engineCenterX + GAP_ENGINE_GRID - GRID_WIDTH / 2;
+  const pad = Math.max(12, dims.w * 0.03);
+  const txCenterX = pad + TX_CARD_WIDTH / 2;
+  const gridRightX = dims.w - pad;
+  const gridLeftX = gridRightX - GRID_WIDTH;
+  const engineCenterX = (txCenterX + TX_CARD_WIDTH / 2 + gridLeftX) / 2;
 
   // ── Vertical layout ──
   const midY = dims.h * 0.5;
@@ -346,9 +342,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       >
                         <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
                       </div>
-                      <div className="text-left">
-                        <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-                        <p className="text-[9px] text-slate-400">
+                      <div className="text-left min-w-0">
+                        <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700 truncate">{node.label}</p>
+                        <p className="text-[9px] text-slate-400 truncate">
                           {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
                         </p>
                       </div>
