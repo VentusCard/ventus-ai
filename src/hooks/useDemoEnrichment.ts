@@ -121,6 +121,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
   const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult[]>([]);
   const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult[]>([]);
+  const [tipA, setTipA] = useState<FinancialTip | null>(null);
+  const [tipB, setTipB] = useState<FinancialTip | null>(null);
   const [apiPayloads, setApiPayloads] = useState<ApiPayloads>({
     classificationA: null, classificationB: null,
     dealPersonalizationA: null, dealPersonalizationB: null,
