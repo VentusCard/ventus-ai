@@ -195,6 +195,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPersonalizedDealsB(null);
     setDetectedEventA([]);
     setDetectedEventB([]);
+    setTipA(null);
+    setTipB(null);
     setApiPayloads({
       classificationA: null, classificationB: null,
       dealPersonalizationA: null, dealPersonalizationB: null,
