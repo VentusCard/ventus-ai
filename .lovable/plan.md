@@ -1,30 +1,25 @@
 
 
-## WM Copilot: Mock Bank Sign-In → Load Enrichment Client → New Tab
+## Edit the Add/Edit Experience Dialog
 
-### Flow
-1. Click "WM Copilot" in analytics sidebar → opens a **sign-in dialog** styled as "Bank of Ventus Wealth Management" (navy/gold branding, bank logo feel)
-2. Mock login form (advisor email + password) → click "Sign In" → brief loading animation
-3. After "sign in," the dialog auto-detects the **current enrichment flow's customer profile** (`userDemographics` already passed into `AnalyticsContainer`). Displays the client name/segment/AUM as a confirmation card: "Signing in as advisor for [Client Name]"
-4. Click "Launch Copilot" → stores client profile in `sessionStorage` (`wm_copilot_launch_client`) → calls `window.open('/tepilot/advisor-console', '_blank')` → dialog closes
-5. If no enrichment profile exists, show a message: "No active client profile. Run the enrichment flow first."
+### Problem
+The current add/edit dialog needs updates to match the campaign-creation-style flow described earlier: add new fields (tagline, dates, link), use a multi-step wizard layout, and ensure all input text is dark-colored.
 
-### Changes
+### Changes to `src/components/tepilot/insights/LocationExperienceManager.tsx`
 
-**New: `src/components/tepilot/insights/WMCopilotSignInDialog.tsx`**
-- Dialog component with "Bank of Ventus" branding (navy `#0f172a` header, gold accent `#d4a843`, serif-style heading)
-- Step 1: Mock sign-in form (pre-filled advisor email, password field, "Sign In" button with spinner)
-- Step 2: Client confirmation card showing `userDemographics.name`, `segment`, `aum` — single "Launch Copilot" button
-- On launch: write profile to `sessionStorage`, `window.open`, close dialog
-- Props: `open`, `onOpenChange`, `userDemographics: ClientProfileData | null`
+**1. Expand the data model** — Add `tagline`, `startDate`, `endDate`, and `link` fields to the `LocationPerk` interface and update `EMPTY_PERK` and `INITIAL_PERKS` with sample values.
 
-**Update: `src/components/tepilot/insights/AnalyticsContainer.tsx`**
-- Add `showSignIn` state
-- When "WM Copilot" nav item clicked → set `showSignIn = true` instead of `setActiveTab`
-- Render `<WMCopilotSignInDialog>` passing `userDemographics` prop through
-- Remove `wm-copilot` from `TabValue`, remove its switch case, remove `BankwideWMCopilotView` import
+**2. Multi-step wizard dialog** — Replace the single-page form with a 3-step flow inside a wider dialog (`max-w-2xl`):
+- **Step 1 — Location & Type**: City/State inputs + category selector displayed as clickable icon chips (using existing `CATEGORY_CONFIG` colors) instead of a dropdown.
+- **Step 2 — Experience Details**: Title, Tagline, Description, Partner, Value, Member Tier, Start Date, End Date, and Link (URL) fields.
+- **Step 3 — Review**: Summary card showing all entered info with category icon, city badge, tier badge, and dates. "Save Experience" button to confirm.
 
-**Update: `src/pages/AdvisorConsolePage.tsx`**
-- On mount, check `sessionStorage` for `wm_copilot_launch_client`
-- If found, parse it, store as `tepilot_client_profile`, set `selectedClientId` and `viewMode = "client"`, then remove the key
+A step indicator (numbered dots/bar) at the top of the dialog. Back/Next navigation buttons at the bottom.
+
+**3. Dark text on all form fields** — Add `!text-slate-900` to every `Input`, `Textarea`, and `SelectTrigger` in the dialog so text is clearly visible.
+
+**4. Update perk cards** — Show tagline (italic, below title), date range (small badge), and link (external-link icon button) on existing cards.
+
+### Files modified
+- `src/components/tepilot/insights/LocationExperienceManager.tsx` — All changes in this single file.
 
