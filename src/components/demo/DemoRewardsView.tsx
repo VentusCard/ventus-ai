@@ -243,7 +243,6 @@ function RewardsPhoneMockup({
   city: string;
   perks: LocationPerk[];
 }) {
-  const [expandedDeal, setExpandedDeal] = useState<string | null>(null);
   const firstName = customer.profile.name.split(" ")[0];
   const personalizedCount = Object.keys(personalized).length;
 
