@@ -483,6 +483,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     detectedEventA,
     detectedEventB,
     apiPayloads,
+    tipA,
+    tipB,
     startEnrichment,
   };
 }
