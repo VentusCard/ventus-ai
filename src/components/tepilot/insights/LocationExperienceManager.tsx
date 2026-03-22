@@ -10,9 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   MapPin, Plus, Search, Pencil, Trash2, Star, Ticket,
   UtensilsCrossed, Music, Landmark, ShoppingBag, Dumbbell, Plane,
-  Palette, ExternalLink, Calendar, ChevronRight, ChevronLeft, Check
+  Palette, ExternalLink, Calendar, Check, Users, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const WEALTH_TIERS = ["All Clients", "Mass Market", "Affluent", "HNW", "UHNW"] as const;
+const AGE_RESTRICTIONS = ["No Restriction", "18+", "21+", "55+", "65+"] as const;
+
+interface Eligibility {
+  wealthTiers: string[];
+  ageRestriction: string;
+  customRules: string;
+}
 
 interface LocationPerk {
   id: string;
@@ -28,6 +37,7 @@ interface LocationPerk {
   startDate: string;
   endDate: string;
   link: string;
+  eligibility: Eligibility;
   active: boolean;
 }
 
@@ -51,90 +61,104 @@ const TIER_COLORS: Record<string, string> = {
   Premium: "bg-purple-100 text-purple-700",
 };
 
+const DEFAULT_ELIGIBILITY: Eligibility = { wealthTiers: ["All Clients"], ageRestriction: "No Restriction", customRules: "" };
+
 const INITIAL_PERKS: LocationPerk[] = [
   {
     id: "1", city: "New York", state: "NY", title: "Mets Home Game Access",
     tagline: "Front-row seats to every home game",
     description: "Complimentary tickets to any regular season Mets home game at Citi Field, including access to the Delta Sky360° Club.",
     category: "Sports", tier: "Premium", partner: "New York Mets", value: "$250/game",
-    startDate: "2025-04-01", endDate: "2025-09-30", link: "https://www.mlb.com/mets", active: true,
+    startDate: "2025-04-01", endDate: "2025-09-30", link: "https://www.mlb.com/mets",
+    eligibility: { wealthTiers: ["HNW", "UHNW"], ageRestriction: "No Restriction", customRules: "" }, active: true,
   },
   {
     id: "2", city: "New York", state: "NY", title: "Le Bernardin Priority Reservations",
     tagline: "Skip the waitlist at NYC's finest",
     description: "Skip the waitlist with guaranteed same-week reservations at Le Bernardin, plus complimentary amuse-bouche.",
     category: "Dining", tier: "Private", partner: "Le Bernardin", value: "$75 credit",
-    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://le-bernardin.com", active: true,
+    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://le-bernardin.com",
+    eligibility: { wealthTiers: ["Affluent", "HNW", "UHNW"], ageRestriction: "21+", customRules: "" }, active: true,
   },
   {
     id: "3", city: "New York", state: "NY", title: "Broadway Show Pre-Sale",
     tagline: "See the best shows before anyone else",
     description: "48-hour pre-sale access to top Broadway shows with up to 30% off premium seating.",
     category: "Entertainment", tier: "Preferred", partner: "Telecharge", value: "30% off",
-    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.telecharge.com", active: true,
+    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.telecharge.com",
+    eligibility: { ...DEFAULT_ELIGIBILITY }, active: true,
   },
   {
     id: "4", city: "Los Angeles", state: "CA", title: "Lakers Courtside Lounge",
     tagline: "The ultimate courtside experience",
     description: "Access to the exclusive courtside lounge during all Lakers home games with complimentary food and beverage.",
     category: "Sports", tier: "Premium", partner: "LA Lakers", value: "$500/game",
-    startDate: "2025-10-01", endDate: "2026-04-15", link: "https://www.nba.com/lakers", active: true,
+    startDate: "2025-10-01", endDate: "2026-04-15", link: "https://www.nba.com/lakers",
+    eligibility: { wealthTiers: ["UHNW"], ageRestriction: "No Restriction", customRules: "Minimum $5M AUM" }, active: true,
   },
   {
     id: "5", city: "Los Angeles", state: "CA", title: "LACMA After-Hours Tour",
     tagline: "Exclusive curator-led art experiences",
     description: "Private after-hours access to LACMA exhibitions with guided tours by senior curators.",
     category: "Art", tier: "Private", partner: "LACMA", value: "Free entry",
-    startDate: "2025-03-01", endDate: "2025-11-30", link: "https://www.lacma.org", active: true,
+    startDate: "2025-03-01", endDate: "2025-11-30", link: "https://www.lacma.org",
+    eligibility: { wealthTiers: ["Affluent", "HNW", "UHNW"], ageRestriction: "No Restriction", customRules: "" }, active: true,
   },
   {
     id: "6", city: "Chicago", state: "IL", title: "Art Institute After-Hours",
     tagline: "Chicago's art treasures, all to yourself",
     description: "Exclusive after-hours access to the Art Institute of Chicago with guided curator tours.",
     category: "Culture", tier: "Preferred", partner: "Art Institute of Chicago", value: "Free entry",
-    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.artic.edu", active: true,
+    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.artic.edu",
+    eligibility: { ...DEFAULT_ELIGIBILITY }, active: true,
   },
   {
     id: "7", city: "Chicago", state: "IL", title: "Cubs Wrigley Field Suite",
     tagline: "Private suite with legendary Wrigley views",
     description: "Private suite access for Cubs home games at Wrigley Field, including catering for up to 8 guests.",
     category: "Sports", tier: "Premium", partner: "Chicago Cubs", value: "$1,200/game",
-    startDate: "2025-04-01", endDate: "2025-09-30", link: "https://www.mlb.com/cubs", active: true,
+    startDate: "2025-04-01", endDate: "2025-09-30", link: "https://www.mlb.com/cubs",
+    eligibility: { wealthTiers: ["HNW", "UHNW"], ageRestriction: "No Restriction", customRules: "" }, active: true,
   },
   {
     id: "8", city: "Miami", state: "FL", title: "Equinox Premium Membership",
     tagline: "Elevate your fitness in paradise",
     description: "Complimentary 3-month Equinox membership at any Miami location with personal training sessions.",
     category: "Fitness", tier: "Private", partner: "Equinox", value: "$900 value",
-    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.equinox.com", active: true,
+    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.equinox.com",
+    eligibility: { wealthTiers: ["Affluent", "HNW", "UHNW"], ageRestriction: "18+", customRules: "" }, active: true,
   },
   {
     id: "9", city: "Miami", state: "FL", title: "South Beach Food Tour",
     tagline: "Taste the best of South Beach",
     description: "Guided culinary experience through South Beach's top restaurants with exclusive tasting menus.",
     category: "Dining", tier: "All Members", partner: "Miami Culinary Tours", value: "50% off",
-    startDate: "2025-01-01", endDate: "2025-12-31", link: "", active: true,
+    startDate: "2025-01-01", endDate: "2025-12-31", link: "",
+    eligibility: { ...DEFAULT_ELIGIBILITY }, active: true,
   },
   {
     id: "10", city: "San Francisco", state: "CA", title: "Giants Oracle Park Experience",
     tagline: "VIP treatment at the ballpark",
     description: "VIP pre-game batting practice viewing and exclusive clubhouse-level seating.",
     category: "Sports", tier: "Preferred", partner: "SF Giants", value: "$175/game",
-    startDate: "2025-04-01", endDate: "2025-09-30", link: "https://www.mlb.com/giants", active: true,
+    startDate: "2025-04-01", endDate: "2025-09-30", link: "https://www.mlb.com/giants",
+    eligibility: { ...DEFAULT_ELIGIBILITY }, active: true,
   },
   {
     id: "11", city: "San Francisco", state: "CA", title: "Ferry Building Tasting Pass",
     tagline: "Artisan flavors by the bay",
     description: "All-access tasting pass at Ferry Building Marketplace artisan vendors, refreshed monthly.",
     category: "Shopping", tier: "All Members", partner: "Ferry Building Marketplace", value: "$50 credit",
-    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.ferrybuildingmarketplace.com", active: true,
+    startDate: "2025-01-01", endDate: "2025-12-31", link: "https://www.ferrybuildingmarketplace.com",
+    eligibility: { ...DEFAULT_ELIGIBILITY }, active: true,
   },
   {
     id: "12", city: "Austin", state: "TX", title: "ACL Festival VIP Pass",
     tagline: "Backstage at Austin's biggest festival",
     description: "VIP weekend passes to Austin City Limits Music Festival with backstage meet-and-greets.",
     category: "Entertainment", tier: "Premium", partner: "ACL Festival", value: "$800 value",
-    startDate: "2025-10-03", endDate: "2025-10-12", link: "https://www.aclfestival.com", active: false,
+    startDate: "2025-10-03", endDate: "2025-10-12", link: "https://www.aclfestival.com",
+    eligibility: { wealthTiers: ["HNW", "UHNW"], ageRestriction: "21+", customRules: "" }, active: false,
   },
 ];
 
@@ -145,10 +169,10 @@ type FormData = Omit<LocationPerk, "id">;
 const EMPTY_PERK: FormData = {
   city: "", state: "", title: "", tagline: "", description: "",
   category: "Sports", tier: "All Members", partner: "", value: "",
-  startDate: "", endDate: "", link: "", active: true,
+  startDate: "", endDate: "", link: "",
+  eligibility: { ...DEFAULT_ELIGIBILITY },
+  active: true,
 };
-
-const STEPS = ["Location & Type", "Experience Details", "Review"];
 
 export function LocationExperienceManager() {
   const [perks, setPerks] = useState<LocationPerk[]>(INITIAL_PERKS);
@@ -157,7 +181,6 @@ export function LocationExperienceManager() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [editDialog, setEditDialog] = useState<{ open: boolean; perk: LocationPerk | null }>({ open: false, perk: null });
   const [formData, setFormData] = useState<FormData>(EMPTY_PERK);
-  const [step, setStep] = useState(0);
 
   const filteredPerks = perks.filter(p => {
     if (cityFilter !== "all" && p.city !== cityFilter) return false;
@@ -177,14 +200,12 @@ export function LocationExperienceManager() {
 
   const openCreate = () => {
     setFormData(EMPTY_PERK);
-    setStep(0);
     setEditDialog({ open: true, perk: null });
   };
 
   const openEdit = (perk: LocationPerk) => {
     const { id, ...rest } = perk;
     setFormData(rest);
-    setStep(0);
     setEditDialog({ open: true, perk });
   };
 
@@ -202,10 +223,24 @@ export function LocationExperienceManager() {
   const cityCount = (city: string) => perks.filter(p => p.city === city).length;
   const activeCount = perks.filter(p => p.active).length;
 
-  const canNext = step === 0 ? (formData.city && formData.state && formData.category) : step === 1 ? (formData.title) : true;
+  const toggleWealthTier = (tier: string) => {
+    setFormData(p => {
+      const current = p.eligibility.wealthTiers;
+      if (tier === "All Clients") {
+        return { ...p, eligibility: { ...p.eligibility, wealthTiers: ["All Clients"] } };
+      }
+      const without = current.filter(t => t !== "All Clients" && t !== tier);
+      const next = current.includes(tier) ? without : [...without, tier];
+      return { ...p, eligibility: { ...p.eligibility, wealthTiers: next.length === 0 ? ["All Clients"] : next } };
+    });
+  };
 
-  const catConfig = formData.category ? CATEGORY_CONFIG[formData.category] : null;
-  const ReviewCatIcon = catConfig?.icon;
+  const eligibilityLabel = (perk: LocationPerk) => {
+    const tiers = perk.eligibility.wealthTiers;
+    const showTiers = tiers.length > 0 && !tiers.includes("All Clients");
+    const showAge = perk.eligibility.ageRestriction && perk.eligibility.ageRestriction !== "No Restriction";
+    return { showTiers, showAge, tiers, age: perk.eligibility.ageRestriction };
+  };
 
   return (
     <div className="space-y-6">
@@ -258,6 +293,7 @@ export function LocationExperienceManager() {
               {cityPerks.map(perk => {
                 const cc = CATEGORY_CONFIG[perk.category];
                 const CatIcon = cc.icon;
+                const elig = eligibilityLabel(perk);
                 return (
                   <Card key={perk.id} className={cn("p-4 border transition-all hover:shadow-sm", perk.active ? "bg-white border-slate-200" : "bg-slate-50 border-slate-200 opacity-60")}>
                     <div className="flex items-start justify-between gap-3">
@@ -282,6 +318,16 @@ export function LocationExperienceManager() {
                               <Badge variant="outline" className="text-[10px] h-5 border-slate-200 text-slate-500">
                                 <Calendar className="h-2.5 w-2.5 mr-1" />
                                 {perk.startDate} — {perk.endDate}
+                              </Badge>
+                            )}
+                            {elig.showTiers && (
+                              <Badge variant="outline" className="text-[10px] h-5 border-amber-200 text-amber-700 bg-amber-50">
+                                <Users className="h-2.5 w-2.5 mr-1" />{elig.tiers.join(", ")}
+                              </Badge>
+                            )}
+                            {elig.showAge && (
+                              <Badge variant="outline" className="text-[10px] h-5 border-rose-200 text-rose-700 bg-rose-50">
+                                <ShieldCheck className="h-2.5 w-2.5 mr-1" />{elig.age}
                               </Badge>
                             )}
                             {perk.link && (
@@ -314,34 +360,20 @@ export function LocationExperienceManager() {
         )}
       </div>
 
-      {/* Multi-step Create/Edit Dialog */}
+      {/* Single-page Create/Edit Dialog */}
       <Dialog open={editDialog.open} onOpenChange={(v) => { if (!v) setEditDialog({ open: false, perk: null }); }}>
-        <DialogContent className="max-w-2xl bg-white">
+        <DialogContent className="max-w-2xl bg-white max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-slate-900">{editDialog.perk ? "Edit Experience" : "Create Experience"}</DialogTitle>
           </DialogHeader>
 
-          {/* Step Indicator */}
-          <div className="flex items-center justify-center gap-2 py-2">
-            {STEPS.map((label, i) => (
-              <div key={label} className="flex items-center gap-2">
-                <div className={cn(
-                  "h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors",
-                  i < step ? "bg-blue-600 border-blue-600 text-white" :
-                  i === step ? "border-blue-600 text-blue-600 bg-blue-50" :
-                  "border-slate-200 text-slate-400 bg-white"
-                )}>
-                  {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
-                </div>
-                <span className={cn("text-xs font-medium hidden sm:inline", i === step ? "text-slate-900" : "text-slate-400")}>{label}</span>
-                {i < STEPS.length - 1 && <div className={cn("w-8 h-0.5 rounded", i < step ? "bg-blue-600" : "bg-slate-200")} />}
+          <div className="space-y-6 py-2">
+            {/* Section 1: Location & Type */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-blue-600" />
+                <h3 className="text-sm font-semibold text-slate-900">Location & Type</h3>
               </div>
-            ))}
-          </div>
-
-          {/* Step 1: Location & Type */}
-          {step === 0 && (
-            <div className="space-y-5 py-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs text-slate-600">City</Label>
@@ -378,11 +410,15 @@ export function LocationExperienceManager() {
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Step 2: Experience Details */}
-          {step === 1 && (
-            <div className="space-y-4 py-2">
+            <div className="h-px bg-slate-200" />
+
+            {/* Section 2: Experience Details */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-blue-600" />
+                <h3 className="text-sm font-semibold text-slate-900">Experience Details</h3>
+              </div>
               <div className="space-y-1.5">
                 <Label className="text-xs text-slate-600">Experience Title</Label>
                 <Input value={formData.title} onChange={e => setFormData(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Mets Home Game Access" className="h-9 text-sm bg-white !text-slate-900" />
@@ -432,68 +468,66 @@ export function LocationExperienceManager() {
                 <Input value={formData.link} onChange={e => setFormData(p => ({ ...p, link: e.target.value }))} placeholder="https://..." className="h-9 text-sm bg-white !text-slate-900" />
               </div>
             </div>
-          )}
 
-          {/* Step 3: Review */}
-          {step === 2 && (
-            <div className="py-2">
-              <Card className="p-5 bg-slate-50 border-slate-200">
-                <div className="flex items-start gap-4">
-                  {ReviewCatIcon && catConfig && (
-                    <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center border shrink-0", catConfig.color)}>
-                      <ReviewCatIcon className="h-5 w-5" />
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <div>
-                      <h3 className="text-base font-bold text-slate-900">{formData.title || "Untitled"}</h3>
-                      {formData.tagline && <p className="text-sm italic text-slate-500">{formData.tagline}</p>}
-                    </div>
-                    <p className="text-sm text-slate-600">{formData.description || "No description"}</p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <Badge variant="outline" className="text-xs border-slate-300 text-slate-700">
-                        <MapPin className="h-3 w-3 mr-1" />{formData.city}, {formData.state}
-                      </Badge>
-                      <Badge className={cn("text-xs border-0", TIER_COLORS[formData.tier])}>{formData.tier}</Badge>
-                      <Badge variant="outline" className="text-xs border-slate-300 text-slate-700">{formData.category}</Badge>
-                      {formData.partner && <Badge variant="outline" className="text-xs border-slate-300 text-slate-700">{formData.partner}</Badge>}
-                      {formData.value && (
-                        <span className="text-xs font-medium text-green-700 flex items-center gap-0.5">
-                          <Star className="h-3 w-3" />{formData.value}
-                        </span>
-                      )}
-                    </div>
-                    {(formData.startDate || formData.endDate) && (
-                      <div className="flex items-center gap-1 text-xs text-slate-500">
-                        <Calendar className="h-3 w-3" />
-                        {formData.startDate || "TBD"} — {formData.endDate || "TBD"}
-                      </div>
-                    )}
-                    {formData.link && (
-                      <a href={formData.link} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                        <ExternalLink className="h-3 w-3" />{formData.link}
-                      </a>
-                    )}
-                  </div>
+            <div className="h-px bg-slate-200" />
+
+            {/* Section 3: Eligibility & Restrictions */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-blue-600" />
+                <h3 className="text-sm font-semibold text-slate-900">Eligibility & Restrictions</h3>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-slate-600">Client Wealth Tiers</Label>
+                <div className="flex flex-wrap gap-2">
+                  {WEALTH_TIERS.map(tier => {
+                    const selected = formData.eligibility.wealthTiers.includes(tier);
+                    return (
+                      <button
+                        key={tier}
+                        type="button"
+                        onClick={() => toggleWealthTier(tier)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full text-xs font-medium border-2 transition-all cursor-pointer",
+                          selected
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        )}
+                      >
+                        {selected && <Check className="h-3 w-3 inline mr-1" />}
+                        {tier}
+                      </button>
+                    );
+                  })}
                 </div>
-              </Card>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-600">Age Restriction</Label>
+                <Select value={formData.eligibility.ageRestriction} onValueChange={v => setFormData(p => ({ ...p, eligibility: { ...p.eligibility, ageRestriction: v } }))}>
+                  <SelectTrigger className="h-9 text-sm bg-white !text-slate-900"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {AGE_RESTRICTIONS.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-600">Custom Rules / Notes</Label>
+                <Textarea
+                  value={formData.eligibility.customRules}
+                  onChange={e => setFormData(p => ({ ...p, eligibility: { ...p.eligibility, customRules: e.target.value } }))}
+                  placeholder="e.g. Minimum $5M AUM, Wealth Management clients only..."
+                  className="text-sm bg-white min-h-[60px] !text-slate-900"
+                />
+              </div>
             </div>
-          )}
+          </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex items-center justify-between pt-2">
-            <Button variant="outline" onClick={() => step === 0 ? setEditDialog({ open: false, perk: null }) : setStep(s => s - 1)}>
-              {step === 0 ? "Cancel" : <><ChevronLeft className="h-4 w-4 mr-1" />Back</>}
+          {/* Footer Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setEditDialog({ open: false, perk: null })}>Cancel</Button>
+            <Button onClick={handleSave} disabled={!formData.city || !formData.title} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Check className="h-4 w-4 mr-1.5" />{editDialog.perk ? "Save Changes" : "Create Experience"}
             </Button>
-            {step < 2 ? (
-              <Button onClick={() => setStep(s => s + 1)} disabled={!canNext} className="bg-blue-600 hover:bg-blue-700 text-white">
-                Next<ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            ) : (
-              <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Check className="h-4 w-4 mr-1.5" />{editDialog.perk ? "Save Changes" : "Create Experience"}
-              </Button>
-            )}
           </div>
         </DialogContent>
       </Dialog>
