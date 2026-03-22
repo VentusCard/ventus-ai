@@ -14,20 +14,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const SHORT_PILLAR: Record<string, string> = {
-  "Sports & Active Living": "Sports",
-  "Miscellaneous & Unclassified": "Misc",
-  "Entertainment & Culture": "Entertainment",
-  "Health & Wellness": "Health",
-  "Travel & Exploration": "Travel",
-  "Food & Dining": "Food",
-  "Home & Living": "Home",
-  "Style & Beauty": "Style",
-  "Technology & Digital Life": "Tech",
-  "Family & Community": "Family",
-  "Financial & Aspirational": "Financial",
-  "Pets": "Pets",
-};
 
 interface ResultsTableProps {
   transactions: EnrichedTransaction[];
@@ -96,12 +82,12 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             <div className="max-h-[600px] overflow-auto">
               <Table className="text-xs table-fixed w-full">
                 <colgroup>
-                  <col className="w-[120px]" /> {/* Merchant */}
+                  <col className="w-[110px]" /> {/* Merchant */}
                   <col className="w-[52px]" />  {/* Amt */}
                   <col className="w-[72px]" />  {/* Date */}
                   <col className="w-[20px]" />  {/* Arrow */}
-                  <col className="w-[72px]" />  {/* Pillar */}
-                  <col className="w-[90px]" />  {/* Category */}
+                  <col className="w-[130px]" /> {/* Pillar */}
+                  <col className="w-[85px]" />  {/* Category */}
                   <col className="w-[85px]" />  {/* Subcategories */}
                   <col className="w-[60px]" />  {/* Trip */}
                   <col className="w-[52px]" />  {/* Tier */}
@@ -162,7 +148,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           className="border text-[9px] px-1 py-0 truncate max-w-full text-center"
                           title={transaction.pillar}
                         >
-                          {SHORT_PILLAR[transaction.pillar] || transaction.pillar}
+                          {transaction.pillar}
                         </Badge>
                         {!transaction.travel_context && currentPhase === "travel" && (
                           <Badge variant="outline" className="text-[9px] bg-amber-50 text-amber-700 border-amber-200 font-medium mt-0.5 px-1 py-0">
