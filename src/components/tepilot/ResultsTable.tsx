@@ -248,11 +248,11 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           {(transaction.confidence * 100).toFixed(0)}%
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right px-1 py-1">
+                      <TableCell className="text-center px-1 py-1">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-5 w-5"
+                          className="h-5 w-5 mx-auto"
                           onClick={() => setSelectedTransaction(transaction)}
                         >
                           <Eye className="w-3 h-3 text-slate-700" />
