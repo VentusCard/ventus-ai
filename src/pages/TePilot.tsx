@@ -54,7 +54,7 @@ import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailMo
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
-import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
+
 const CURRENT_VERSION = "V3.1";
 const TePilot = () => {
   const isMobile = useIsMobile();
@@ -1164,7 +1164,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
-                  <IntegrationDiagramButton variant="enrichment" />
+                  
                 </div>
                 <AnalyticsContainer defaultTab={analyticsDefaultTab} userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />
               </div>}
@@ -1178,7 +1178,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Intelligent Reward Personalization</h2>
-                  <IntegrationDiagramButton variant="rewards" />
+                  
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}
