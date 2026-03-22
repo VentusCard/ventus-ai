@@ -67,8 +67,8 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
         icon: pillarIcons[name] || "📊",
         spend: Math.round(data.total),
         pct: grandTotal > 0 ? Math.round((data.total / grandTotal) * 100) : 0,
-        subcategories: Array.from(data.subcats.entries())
-          .map(([subcategory, s]) => ({ subcategory, count: s.count, total: Math.round(s.total) }))
+        subcategories: Array.from(data.categories.entries())
+          .map(([category, s]) => ({ category, count: s.count, total: Math.round(s.total) }))
           .sort((a, b) => b.total - a.total),
       }));
   }
