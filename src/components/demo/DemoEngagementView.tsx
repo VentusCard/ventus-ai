@@ -170,7 +170,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
 
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-[380px]">
+      <div className="w-full max-w-[480px]">
         {/* Phone frame */}
         <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
           {/* Browser bar */}
