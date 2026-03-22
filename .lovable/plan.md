@@ -1,28 +1,25 @@
 
 
-## Fix Perk Value Badge Colors
+## Add Budget Bars and Trip View Toggle to Demo Engagement View
 
 ### Problem
-The value badges (e.g. "$175/game") in `PerkCard` use the section-level `color` prop (blue or green) instead of matching their category icon color.
+The Personalized UX overlay in the conference demo (`DemoEngagementView.tsx`) is missing two features that exist on the homepage PlatformTabs version:
+1. **Budget progress bars** — each pillar card should show a colored progress bar (green/amber/red) with a `$spend / $budget` label
+2. **Trip View toggle** — the Travel card should show the toggle in the card header (not hidden inside the expanded section)
 
-### Fix — `src/components/demo/DemoRewardsView.tsx`
+### Changes — `src/components/demo/DemoEngagementView.tsx`
 
-Update `PerkCard` to accept the perk's category and use `CATEGORY_HEX[perk.category]` for the value badge color instead of the generic `color` prop.
+#### 1. Generate deterministic budgets
+Import or inline budget generation logic: for each pillar, compute `budget = spend * multiplier` (110–140% of spend, seeded by pillar name hash). This mirrors the approach used in the wealth copilot spending overview.
 
-**Current** (line ~131):
-```tsx
-style={{ background: `${color}12`, color }}
-```
+#### 2. Add progress bar to each pillar card
+Between the pillar name row and the spend amount, insert:
+- A thin progress bar (`h-1.5 rounded-full`) colored by ratio: green (<70%), amber (70–100%), red (>100%)
+- Replace `$X` / `X% of total` with `$spend / $budget` format
 
-**New**:
-```tsx
-const catHex = CATEGORY_HEX[perk.category] || color;
-// ...
-style={{ background: `${catHex}12`, color: catHex }}
-```
-
-This reuses the existing `CATEGORY_HEX` map already defined in the file, so Sports perks get green (`#16a34a`), Art gets indigo, etc.
+#### 3. Move Trip View toggle to Travel card header
+Show the Trip View toggle (small switch) next to the Travel pillar name, always visible — not only when expanded. Remove the duplicate toggle from inside the expanded section.
 
 ### Files Modified
-- `src/components/demo/DemoRewardsView.tsx`
+- `src/components/demo/DemoEngagementView.tsx`
 
