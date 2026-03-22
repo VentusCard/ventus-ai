@@ -30,13 +30,21 @@ const getFrequencyColor = (f: string) => {
   }
 };
 
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-purple-50 text-purple-700",
+  "HSA": "bg-amber-50 text-amber-700",
+};
+
 function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }) {
   if (!transactions.length) {
     return <p className="text-sm text-slate-400 py-8 text-center">No enriched data yet</p>;
   }
 
   return (
-    <div className="border border-slate-200 rounded-lg overflow-x-auto">
+    <div className="flex-1 min-h-0 overflow-auto border border-slate-200 rounded-lg">
       <table className="w-full text-left border-collapse min-w-[580px]">
         <thead className="sticky top-0 bg-white z-10 border-b border-slate-200">
           <tr>
@@ -65,12 +73,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
               <td className="px-1 py-1">
                 {tx.source ? (
                   <span className={`inline-block px-1 py-px rounded text-[9px] font-medium whitespace-nowrap ${
-                    tx.source === "Checking" ? "bg-slate-100 text-slate-600" :
-                    tx.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
-                    tx.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
-                    tx.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
-                    tx.source === "HSA" ? "bg-amber-50 text-amber-700" :
-                    "bg-slate-50 text-slate-500"
+                    SOURCE_COLORS[tx.source] ?? "bg-slate-50 text-slate-500"
                   }`}>{tx.source}</span>
                 ) : <span className="text-[10px] text-slate-400">—</span>}
               </td>
@@ -135,30 +138,28 @@ interface Props {
   enrichedB?: EnrichedTransaction[];
 }
 
-const SOURCE_COLORS: Record<string, string> = {
-  "Checking": "bg-slate-100 text-slate-600",
-  "Cashback Card": "bg-emerald-50 text-emerald-700",
-  "Travel Card": "bg-blue-50 text-blue-700",
-  "Premium Card": "bg-purple-50 text-purple-700",
-  "HSA": "bg-amber-50 text-amber-700",
-};
-
-function CustomerHeader({ customer }: { customer: DemoCustomer }) {
+function CustomerHeader({ customer, color }: { customer: DemoCustomer; color: "blue" | "emerald" }) {
   const sources = [...new Set(customer.sampleTransactions.map(t => t.source).filter(Boolean))];
+  const colors = color === "blue"
+    ? "bg-blue-50 border-blue-200 text-blue-800"
+    : "bg-emerald-50 border-emerald-200 text-emerald-800";
+
   return (
-    <div className="flex items-center gap-1.5 flex-wrap mb-2 text-[10px] text-slate-500">
-      <span><span className="font-semibold text-slate-700">{customer.txnCount}</span> txns</span>
-      <span className="text-slate-300">·</span>
-      <span><span className="font-semibold text-slate-700">{customer.txnTotal}</span> total</span>
+    <div className={`flex items-center gap-2 px-2 py-1.5 rounded-t-lg border ${colors} text-[10px] shrink-0`}>
+      <span className="font-semibold">{customer.profile.name}</span>
+      <span className="text-slate-400">·</span>
+      <span><span className="font-semibold">{customer.txnCount}</span> txns</span>
+      <span className="text-slate-400">·</span>
+      <span>{customer.txnTotal}</span>
       {customer.dateRange && (
         <>
-          <span className="text-slate-300">·</span>
-          <span className="text-slate-400">{customer.dateRange}</span>
+          <span className="text-slate-400">·</span>
+          <span className="opacity-70">{customer.dateRange}</span>
         </>
       )}
       {sources.length > 0 && (
         <>
-          <span className="text-slate-300">·</span>
+          <span className="text-slate-400">·</span>
           {sources.map(s => (
             <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${SOURCE_COLORS[s!] ?? "bg-slate-50 text-slate-500"}`}>{s}</span>
           ))}
@@ -170,13 +171,13 @@ function CustomerHeader({ customer }: { customer: DemoCustomer }) {
 
 export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="min-w-0">
-        <CustomerHeader customer={customerA} />
+    <div className="flex flex-col gap-3 h-full">
+      <div className="flex-1 min-h-0 flex flex-col">
+        <CustomerHeader customer={customerA} color="blue" />
         <CustomerTable transactions={enrichedA ?? []} />
       </div>
-      <div className="min-w-0">
-        <CustomerHeader customer={customerB} />
+      <div className="flex-1 min-h-0 flex flex-col">
+        <CustomerHeader customer={customerB} color="emerald" />
         <CustomerTable transactions={enrichedB ?? []} />
       </div>
     </div>
