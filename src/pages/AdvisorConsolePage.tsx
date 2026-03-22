@@ -197,6 +197,25 @@ const AdvisorConsolePage = () => {
     }
   }, []);
 
+  // Handle launch from WM Copilot sign-in dialog
+  useEffect(() => {
+    const launchData = sessionStorage.getItem("wm_copilot_launch_client");
+    if (launchData) {
+      try {
+        const profile = JSON.parse(launchData);
+        sessionStorage.setItem("tepilot_client_profile", JSON.stringify(profile));
+        sessionStorage.removeItem("wm_copilot_launch_client");
+        // Use a stable ID from the profile name
+        const syntheticId = `wm-launch-${profile.name?.replace(/\s+/g, '-').toLowerCase() || 'client'}`;
+        setSelectedClientId(syntheticId);
+        setViewMode("client");
+      } catch (e) {
+        console.error("Error parsing WM copilot launch data:", e);
+        sessionStorage.removeItem("wm_copilot_launch_client");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     // Load advisor context from sessionStorage
     const contextStr = sessionStorage.getItem("tepilot_advisor_context");

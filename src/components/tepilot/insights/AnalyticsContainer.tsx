@@ -6,7 +6,7 @@ import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
-import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { WMCopilotSignInDialog } from "./WMCopilotSignInDialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
@@ -16,7 +16,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'life-events' | 'wm-copilot';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'life-events';
 
 interface NavItem {
   value: TabValue;
@@ -45,7 +45,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Wealth Management",
     items: [
       { value: "life-events", label: "Life Events Intelligence", icon: CalendarHeart },
-      { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
     ],
   },
 ];
@@ -59,6 +58,7 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -69,7 +69,6 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
-      case 'wm-copilot': return <BankwideWMCopilotView />;
     }
   };
 
@@ -125,6 +124,22 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
               {!collapsed && <div className="mx-3 my-1 border-b border-slate-200 last:hidden" />}
             </Collapsible>
           ))}
+
+          {/* WM Copilot - opens sign-in dialog */}
+          <div className={collapsed ? "" : "mx-3 mt-1 pt-1 border-t border-slate-200"}>
+            <button
+              onClick={() => setShowSignIn(true)}
+              title={collapsed ? "WM Copilot" : undefined}
+              className={cn(
+                "w-full flex items-center gap-2.5 text-left text-sm transition-colors",
+                collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2",
+                "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+              )}
+            >
+              <Briefcase className="w-4 h-4 shrink-0 text-slate-400" />
+              {!collapsed && <span className="truncate">WM Copilot</span>}
+            </button>
+          </div>
         </nav>
       </div>
 
@@ -132,6 +147,12 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       <div className="flex-1 min-w-0 overflow-y-auto p-4">
         {renderContent()}
       </div>
+
+      <WMCopilotSignInDialog
+        open={showSignIn}
+        onOpenChange={setShowSignIn}
+        userDemographics={userDemographics ?? null}
+      />
     </div>
   );
 }
