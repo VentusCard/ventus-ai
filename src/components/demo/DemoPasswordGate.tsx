@@ -324,11 +324,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 2 */}
               {displayStep === 2 &&
               <div className="text-center py-8">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     The answer is three letters:{" "}
                     <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
-                  <p className="mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
+                  <p className="mt-6 text-xl sm:text-2xl max-w-3xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
                     Every bank runs on Merchant Category Codes — a four-digit taxonomy from{" "}
                     <span className="font-semibold" style={{ color: "#0F172A" }}>1974</span>{" "}
                     designed for interchange routing, not customer understanding.
