@@ -112,12 +112,12 @@ function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[
 }
 
 function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
-  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 2).map(s => s.name)));
-  const [tripViewOn, setTripViewOn] = useState(true);
   const firstName = customer.profile.name.split(" ")[0];
   const spending = computeSpending(customer, enrichedTransactions);
   const tripRows = computeTripRows(customer, enrichedTransactions);
   const hasTravel = spending.some((b) => b.name === "Travel");
+  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 2).map(s => s.name)));
+  const [tripViewOn, setTripViewOn] = useState(true);
 
   // Deterministic budgets: 110–140% of spend
   const budgetMap = initializeBudgets(spending.map((s) => ({ pillar: s.name, totalSpend: s.spend })));
