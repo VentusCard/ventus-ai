@@ -129,7 +129,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     )}
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Conf</TableHead>
                     <TableHead className="text-center text-slate-700 text-[11px] px-1 py-1.5">
-                       <Settings2 className="w-3 h-3 text-slate-500 mx-auto" />
+                       <Settings2 className="w-4 h-4 text-slate-500 mx-auto" />
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -255,7 +255,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           className="h-5 w-5 mx-auto"
                           onClick={() => setSelectedTransaction(transaction)}
                         >
-                          <Eye className="w-3 h-3 text-slate-700" />
+                          <Eye className="w-2.5 h-2.5 text-slate-700" />
                         </Button>
                       </TableCell>
                     </TableRow>
