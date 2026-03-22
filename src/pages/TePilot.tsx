@@ -114,13 +114,8 @@ const TePilot = () => {
   const [userDemographics, setUserDemographics] = useState<ClientProfileData | null>(null);
   const [isFromSampleData, setIsFromSampleData] = useState(false);
   
-  // Comparison mode state
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [selectedCompA, setSelectedCompA] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
-  const [selectedCompB, setSelectedCompB] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
-  const [parsedTransactionsB, setParsedTransactionsB] = useState<Transaction[]>([]);
-  const [userDemographicsB, setUserDemographicsB] = useState<ClientProfileData | null>(null);
-  const [anchorZipB, setAnchorZipB] = useState("");
+
+
 
   const navigate = useNavigate();
   const handleNavigateToAdvisorConsole = async () => {
