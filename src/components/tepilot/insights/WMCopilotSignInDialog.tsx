@@ -80,7 +80,7 @@ export function WMCopilotSignInDialog({ open, onOpenChange, userDemographics }: 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-9 text-sm border-slate-200 bg-white"
+                    className="h-9 text-sm text-slate-900 border-slate-200 bg-white"
                   />
                 </div>
               </div>
