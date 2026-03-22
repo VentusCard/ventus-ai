@@ -188,16 +188,16 @@ function OpportunityCard({
 
       {isExpanded && (
         <div className="px-4 pb-4 pt-0 space-y-4 border-t border-slate-100">
-          {/* Why It Fits */}
-          <div className="bg-emerald-50 rounded-lg p-3 mt-3">
-            <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">Why This Fits</p>
-            <p className="text-sm text-emerald-900 leading-snug">{o.whyItFits}</p>
-          </div>
-
-          {/* Deployment Strategy (moved up) */}
-          <div className="bg-blue-50 rounded-lg p-3">
-            <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Deployment Strategy</p>
-            <p className="text-sm text-blue-900 leading-snug">{o.deploymentRationale}</p>
+          {/* Why It Fits + Deployment Strategy — side by side */}
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div className="bg-emerald-50 rounded-lg p-3">
+              <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">Why This Fits</p>
+              <p className="text-sm text-emerald-900 leading-snug">{o.whyItFits}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3">
+              <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Deployment Strategy</p>
+              <p className="text-sm text-blue-900 leading-snug">{o.deploymentRationale}</p>
+            </div>
           </div>
 
           {/* Detail Grid (2 columns now) */}
