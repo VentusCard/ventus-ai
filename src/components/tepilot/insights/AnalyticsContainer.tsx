@@ -11,7 +11,7 @@ import { WMCopilotSignInDialog } from "./WMCopilotSignInDialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
-  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown
+  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin
 } from "lucide-react";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
