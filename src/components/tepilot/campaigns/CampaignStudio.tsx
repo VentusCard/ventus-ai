@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from
+"@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
   Sparkles, Heart, Users as UsersIcon, Bookmark, Download, Target,
   ChevronDown, ChevronRight, MoreHorizontal, Pencil, Trash2, Loader2, CreditCard,
-  Zap, Megaphone,
-} from "lucide-react";
+  Zap, Megaphone } from
+"lucide-react";
 import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { AutomatedFlowsSection } from "./AutomatedFlowsSection";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
@@ -43,7 +43,7 @@ export function CampaignStudio() {
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
     eventTypes: [],
     minConfidence: 0.6,
-    timingWindow: '6-12_months',
+    timingWindow: '6-12_months'
   });
   const [selectedProducts, setSelectedProducts] = useState<Record<string, ProductMode>>({});
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
@@ -53,13 +53,13 @@ export function CampaignStudio() {
     ageRanges: [],
     regions: [],
     incomeBands: [],
-    accountTenure: 'all',
+    accountTenure: 'all'
   });
   const [crossSellStrategies, setCrossSellStrategies] = useState<string[]>([]);
   const [upsellStrategies, setUpsellStrategies] = useState<string[]>([]);
   const [campaignGoal, setCampaignGoal] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
-  
+
 
   // ─── Segments State ───
   const [savedOpen, setSavedOpen] = useState(false);
@@ -73,28 +73,28 @@ export function CampaignStudio() {
 
   // ─── Togglers ───
   const toggleItem = useCallback((list: string[], item: string) => {
-    return list.includes(item) ? list.filter(i => i !== item) : [...list, item];
+    return list.includes(item) ? list.filter((i) => i !== item) : [...list, item];
   }, []);
 
   const handleTogglePillar = useCallback((id: string) => {
-    setSelectedPillars(prev => toggleItem(prev, id));
+    setSelectedPillars((prev) => toggleItem(prev, id));
   }, [toggleItem]);
 
   const handleToggleLifeEvent = useCallback((id: string) => {
-    setLifeEventCriteria(prev => ({
+    setLifeEventCriteria((prev) => ({
       ...prev,
-      eventTypes: prev.eventTypes.includes(id)
-        ? prev.eventTypes.filter(e => e !== id)
-        : [...prev.eventTypes, id],
+      eventTypes: prev.eventTypes.includes(id) ?
+      prev.eventTypes.filter((e) => e !== id) :
+      [...prev.eventTypes, id]
     }));
   }, []);
 
   const handleToggleProduct = useCallback((name: string, mode: ProductMode) => {
-    setSelectedProducts(prev => ({ ...prev, [name]: mode }));
+    setSelectedProducts((prev) => ({ ...prev, [name]: mode }));
   }, []);
 
   const handleRemoveProduct = useCallback((name: string) => {
-    setSelectedProducts(prev => {
+    setSelectedProducts((prev) => {
       const next = { ...prev };
       delete next[name];
       return next;
@@ -102,11 +102,11 @@ export function CampaignStudio() {
   }, []);
 
   const handleToggleCrossSell = useCallback((id: string) => {
-    setCrossSellStrategies(prev => toggleItem(prev, id));
+    setCrossSellStrategies((prev) => toggleItem(prev, id));
   }, [toggleItem]);
 
   const handleToggleUpsell = useCallback((id: string) => {
-    setUpsellStrategies(prev => toggleItem(prev, id));
+    setUpsellStrategies((prev) => toggleItem(prev, id));
   }, [toggleItem]);
 
 
@@ -129,8 +129,8 @@ export function CampaignStudio() {
     }
     if (segment.productCriteria) {
       const products: Record<string, ProductMode> = {};
-      segment.productCriteria.hasProducts?.forEach(p => { products[p] = 'has'; });
-      segment.productCriteria.lacksProducts?.forEach(p => { products[p] = 'lacks'; });
+      segment.productCriteria.hasProducts?.forEach((p) => {products[p] = 'has';});
+      segment.productCriteria.lacksProducts?.forEach((p) => {products[p] = 'lacks';});
       setSelectedProducts(products);
     }
     if (segment.demographicFilters) {
@@ -154,7 +154,7 @@ export function CampaignStudio() {
       upsellStrategies,
       demographicAgeRanges: demographicFilters.ageRanges,
       demographicIncomeBands: demographicFilters.incomeBands,
-      demographicAccountTenure: demographicFilters.accountTenure,
+      demographicAccountTenure: demographicFilters.accountTenure
     });
   }, [selectedPillars, lifeEventCriteria, selectedProducts, selectedRegions, selectedMetros, areaType, crossSellStrategies, upsellStrategies, demographicFilters]);
 
@@ -178,12 +178,12 @@ export function CampaignStudio() {
       crossSellStrategies,
       upsellStrategies,
       campaignGoal,
-      estimatedAudience: estimatedSize,
+      estimatedAudience: estimatedSize
     };
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-campaign-brief', {
-        body: payload,
+        body: payload
       });
 
       if (error) {
@@ -217,7 +217,7 @@ export function CampaignStudio() {
 
   const handleSave = () => {
     toast.success("Campaign saved!", {
-      description: `${(estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`,
+      description: `${(estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`
     });
   };
 
@@ -235,14 +235,14 @@ export function CampaignStudio() {
   const handleIntentParsed = useCallback((result: ParsedIntent) => {
     setCampaignGoal(result.campaign_goal || '');
     setSelectedPillars(result.lifestyle_pillars || []);
-    setLifeEventCriteria(prev => ({
+    setLifeEventCriteria((prev) => ({
       ...prev,
-      eventTypes: result.life_events || [],
+      eventTypes: result.life_events || []
     }));
 
     const products: Record<string, 'has' | 'lacks'> = {};
-    (result.products_has || []).forEach(p => { products[p] = 'has'; });
-    (result.products_lacks || []).forEach(p => { products[p] = 'lacks'; });
+    (result.products_has || []).forEach((p) => {products[p] = 'has';});
+    (result.products_lacks || []).forEach((p) => {products[p] = 'lacks';});
     setSelectedProducts(products);
 
     setCrossSellStrategies(result.cross_sell_strategies || []);
@@ -253,10 +253,10 @@ export function CampaignStudio() {
     }
 
     if (result.age_ranges?.length > 0 || result.income_bands?.length > 0) {
-      setDemographicFilters(prev => ({
+      setDemographicFilters((prev) => ({
         ...prev,
         ageRanges: result.age_ranges?.length > 0 ? result.age_ranges : prev.ageRanges,
-        incomeBands: result.income_bands?.length > 0 ? result.income_bands : prev.incomeBands,
+        incomeBands: result.income_bands?.length > 0 ? result.income_bands : prev.incomeBands
       }));
     }
 
@@ -266,77 +266,77 @@ export function CampaignStudio() {
   // ─── Mode label helper ───
   const modeLabel = (mode: string) => {
     switch (mode) {
-      case 'life_event': return 'Life Event';
-      case 'lifestyle': return 'Lifestyle';
-      case 'product': return 'Product';
-      default: return mode;
+      case 'life_event':return 'Life Event';
+      case 'lifestyle':return 'Lifestyle';
+      case 'product':return 'Product';
+      default:return mode;
     }
   };
 
   return (
     <div className="space-y-0">
       {/* Header with inline metrics */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-5 rounded-lg border border-border mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-bold text-foreground">Campaign Studio</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Build multi-dimensional audience segments and generate AI-powered campaign briefs.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="gap-1.5 px-2.5 py-1 text-xs">
-              <Bookmark className="w-3 h-3" />
-              {metrics.savedSegments} Saved
-            </Badge>
-            <Badge variant="secondary" className="gap-1.5 px-2.5 py-1 text-xs">
-              <UsersIcon className="w-3 h-3" />
-              {(metrics.totalContacts / 1_000_000).toFixed(1)}M Contacts
-            </Badge>
-            <Badge variant="secondary" className="gap-1.5 px-2.5 py-1 text-xs">
-              <Download className="w-3 h-3" />
-              {metrics.totalExports} Exports
-            </Badge>
-            <Badge variant="secondary" className="gap-1.5 px-2.5 py-1 text-xs">
-              <Target className="w-3 h-3" />
-              {Object.values(metrics.modeBreakdown).filter(v => v > 0).length} Modes
-            </Badge>
-          </div>
-        </div>
-      </div>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
 
       {/* Mode Switcher */}
       <div className="grid grid-cols-2 gap-0 rounded-lg border border-border bg-muted/30 p-1 mb-6">
         <button
           onClick={() => setActiveMode('automations')}
           className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
-            activeMode === 'automations'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-          }`}
-        >
+          activeMode === 'automations' ?
+          'bg-primary text-primary-foreground shadow-sm' :
+          'text-muted-foreground hover:bg-muted hover:text-foreground'}`
+          }>
+          
           <Zap className="w-4 h-4" />
           Automated Flows
         </button>
         <button
           onClick={() => setActiveMode('campaigns')}
           className={`flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
-            activeMode === 'campaigns'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-          }`}
-        >
+          activeMode === 'campaigns' ?
+          'bg-primary text-primary-foreground shadow-sm' :
+          'text-muted-foreground hover:bg-muted hover:text-foreground'}`
+          }>
+          
           <Megaphone className="w-4 h-4" />
           Campaigns
         </button>
       </div>
 
-      {activeMode === 'automations' ? (
-        <AutomatedFlowsSection />
-      ) : (
+      {activeMode === 'automations' ?
+      <AutomatedFlowsSection /> :
+
       <>
       {/* Semantic Intent Input */}
       <SemanticIntentInput onIntentParsed={handleIntentParsed} />
@@ -356,26 +356,26 @@ export function CampaignStudio() {
                     <span className="text-xs text-muted-foreground">({SAVED_SEGMENTS.length})</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {SAVED_SEGMENTS.length > 0 && (
-                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2">
+                    {SAVED_SEGMENTS.length > 0 &&
+                        <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2">
                         {SAVED_SEGMENTS.length}
                       </Badge>
-                    )}
-                    {savedOpen ? (
-                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                    )}
+                        }
+                    {savedOpen ?
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" /> :
+
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        }
                   </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="px-3 pb-3 space-y-1.5">
-                    {SAVED_SEGMENTS.map(segment => (
-                      <div
-                        key={segment.id}
-                        className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer"
-                        onClick={() => handleEditSegment(segment)}
-                      >
+                    {SAVED_SEGMENTS.map((segment) =>
+                        <div
+                          key={segment.id}
+                          className="flex items-center justify-between px-3 py-2 rounded-md border border-border bg-secondary/30 hover:bg-secondary/60 transition-colors cursor-pointer"
+                          onClick={() => handleEditSegment(segment)}>
+                          
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{segment.name}</p>
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
@@ -386,7 +386,7 @@ export function CampaignStudio() {
                           {(segment.estimatedSize / 1_000_000).toFixed(1)}M
                         </span>
                       </div>
-                    ))}
+                        )}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -397,63 +397,63 @@ export function CampaignStudio() {
 
               {/* Lifestyle Pillars */}
               <DimensionChipCloud
-                title="Lifestyle Pillars"
-                icon={<Heart className="w-4 h-4 text-primary" />}
-                chips={LIFESTYLE_PILLARS.map(p => ({ id: p, label: p }))}
-                selectedChips={selectedPillars}
-                onToggle={handleTogglePillar}
-                badge={`${LIFESTYLE_PILLARS.length}`}
-                defaultOpen
-              />
+                    title="Lifestyle Pillars"
+                    icon={<Heart className="w-4 h-4 text-primary" />}
+                    chips={LIFESTYLE_PILLARS.map((p) => ({ id: p, label: p }))}
+                    selectedChips={selectedPillars}
+                    onToggle={handleTogglePillar}
+                    badge={`${LIFESTYLE_PILLARS.length}`}
+                    defaultOpen />
+                  
 
               {/* Life Events */}
               <DimensionChipCloud
-                title="Life Events"
-                icon={<Sparkles className="w-4 h-4 text-primary" />}
-                chips={LIFE_EVENTS.map(e => ({ id: e.id, label: e.name }))}
-                selectedChips={lifeEventCriteria.eventTypes}
-                onToggle={handleToggleLifeEvent}
-                badge={`${LIFE_EVENTS.length}`}
-              />
+                    title="Life Events"
+                    icon={<Sparkles className="w-4 h-4 text-primary" />}
+                    chips={LIFE_EVENTS.map((e) => ({ id: e.id, label: e.name }))}
+                    selectedChips={lifeEventCriteria.eventTypes}
+                    onToggle={handleToggleLifeEvent}
+                    badge={`${LIFE_EVENTS.length}`} />
+                  
 
               {/* Banking Products */}
               <ProductDimensionGroup
-                selectedProducts={selectedProducts}
-                onToggle={handleToggleProduct}
-                onRemove={handleRemoveProduct}
-              />
+                    selectedProducts={selectedProducts}
+                    onToggle={handleToggleProduct}
+                    onRemove={handleRemoveProduct} />
+                  
 
               {/* Geography */}
               <GeoDimensionSelector
-                selectedRegions={selectedRegions}
-                selectedMetros={selectedMetros}
-                areaType={areaType}
-                onToggleRegion={(r) => setSelectedRegions(prev => toggleItem(prev, r))}
-                onToggleMetro={(m) => setSelectedMetros(prev => toggleItem(prev, m))}
-                onSetAreaType={setAreaType}
-              />
+                    selectedRegions={selectedRegions}
+                    selectedMetros={selectedMetros}
+                    areaType={areaType}
+                    onToggleRegion={(r) => setSelectedRegions((prev) => toggleItem(prev, r))}
+                    onToggleMetro={(m) => setSelectedMetros((prev) => toggleItem(prev, m))}
+                    onSetAreaType={setAreaType} />
+                  
 
               {/* Demographics */}
               <div className="pt-1">
                 <DemographicFilters
-                  filters={demographicFilters}
-                  onChange={setDemographicFilters}
-                />
+                      filters={demographicFilters}
+                      onChange={setDemographicFilters} />
+                    
               </div>
 
               {/* Strategies */}
               <StrategyChips
-                crossSellStrategies={crossSellStrategies}
-                upsellStrategies={upsellStrategies}
-                onToggleCrossSell={handleToggleCrossSell}
-                onToggleUpsell={handleToggleUpsell}
-              />
+                    crossSellStrategies={crossSellStrategies}
+                    upsellStrategies={upsellStrategies}
+                    onToggleCrossSell={handleToggleCrossSell}
+                    onToggleUpsell={handleToggleUpsell} />
+                  
 
               {/* Audience Estimate */}
               <AudienceEstimateBar
-                estimatedSize={estimatedSize}
-                hasSelections={hasSelections}
-              />
+                    estimatedSize={estimatedSize}
+                    hasSelections={hasSelections} />
+                  
             </div>
           </ResizablePanel>
 
@@ -471,32 +471,32 @@ export function CampaignStudio() {
                     <SelectValue placeholder="Select a product" />
                   </SelectTrigger>
                   <SelectContent>
-                    {DEMO_PRODUCTS.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
+                    {DEMO_PRODUCTS.map((product) =>
+                        <SelectItem key={product.id} value={product.id}>
                         {product.name}
                       </SelectItem>
-                    ))}
+                        )}
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Personalization Preview */}
               <PersonalizationPreviewPanel
-                selectedProduct={DEMO_PRODUCTS.find(p => p.id === selectedProductId) || null}
-                selectedPillars={selectedPillars}
-                selectedLifeEvents={lifeEventCriteria.eventTypes}
-                hasSelections={hasSelections}
-                
-              />
+                    selectedProduct={DEMO_PRODUCTS.find((p) => p.id === selectedProductId) || null}
+                    selectedPillars={selectedPillars}
+                    selectedLifeEvents={lifeEventCriteria.eventTypes}
+                    hasSelections={hasSelections} />
+
+                  
 
               <AICampaignPreview
-                brief={generatedBrief}
-                isGenerating={isGenerating}
-                onGenerate={handleGenerate}
-                estimatedSize={estimatedSize}
-                hasSelections={hasSelections}
-                onSave={handleSave}
-              />
+                    brief={generatedBrief}
+                    isGenerating={isGenerating}
+                    onGenerate={handleGenerate}
+                    estimatedSize={estimatedSize}
+                    hasSelections={hasSelections}
+                    onSave={handleSave} />
+                  
 
             </div>
           </ResizablePanel>
@@ -504,7 +504,7 @@ export function CampaignStudio() {
         </CardContent>
       </Card>
       </>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
