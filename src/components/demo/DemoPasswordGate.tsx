@@ -276,7 +276,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 }}>
                 <div className="px-8 py-5 flex items-center gap-3">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
-                    {String(i).padStart(2, "0")}
+                    {String(i - 2).padStart(2, "0")}
                   </span>
                   <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   <span className="text-sm font-medium truncate" style={{ color: "#64748B", maxWidth: "80%" }}>
