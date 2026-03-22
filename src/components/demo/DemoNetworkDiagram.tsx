@@ -31,11 +31,11 @@ interface PillarDef {
   nodes: NodeDef[];
 }
 
-// Geometry constants — base values, overridden by fluid sizing below
-const TX_CARD_HEIGHT = 110;
-const ENGINE_HEIGHT = 245;
-const GRID_ROW_HEIGHT = 100;
-const GRID_HEADER_HEIGHT = 32;
+// Geometry base constants — scaled by `centered` prop
+const BASE_TX_CARD_HEIGHT = 110;
+const BASE_ENGINE_HEIGHT = 245;
+const BASE_GRID_ROW_HEIGHT = 100;
+const BASE_GRID_HEADER_HEIGHT = 32;
 
 const PILLARS: PillarDef[] = [
   {
