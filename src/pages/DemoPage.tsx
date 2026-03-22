@@ -149,6 +149,8 @@ export default function DemoPage() {
             detectedEventA={detectedEventA}
             detectedEventB={detectedEventB}
             apiPayloads={apiPayloads}
+            tipA={tipA}
+            tipB={tipB}
             onClose={() => setActiveNode(null)}
           />
         )}
