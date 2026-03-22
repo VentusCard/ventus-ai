@@ -22,7 +22,7 @@ import {
   Sparkles,
   ChevronDown,
 } from "lucide-react";
-import confetti from "canvas-confetti";
+
 import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ElementType> = {
