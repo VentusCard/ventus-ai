@@ -36,16 +36,13 @@ const TX_CARD_WIDTH = 180;
 const TX_CARD_HEIGHT = 110;
 const ENGINE_WIDTH = 210;
 const ENGINE_HEIGHT = 245;
-const PILLAR_WIDTH = 175;
-const PILLAR_HEIGHT = 88;
-const LEAF_NODE_WIDTH = 210;
-const LEAF_NODE_HEIGHT = 52;
-const LEAF_PAIR_OFFSET = 38;
+const GRID_WIDTH = 440;
+const GRID_ROW_HEIGHT = 110;
+const GRID_HEADER_HEIGHT = 32;
 
 // Horizontal gaps between column centers
 const GAP_TX_ENGINE = 260;
-const GAP_ENGINE_PILLAR = 255;
-const GAP_PILLAR_LEAF = 250;
+const GAP_ENGINE_GRID = 280;
 
 const PILLARS: PillarDef[] = [
   {
