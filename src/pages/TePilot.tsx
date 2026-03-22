@@ -935,28 +935,8 @@ const TePilot = () => {
                 mode={inputMode} 
                 onModeChange={(mode) => {
                   setInputMode(mode);
-                  // Reset comparison mode when switching to paste/upload
-                  if (comparisonMode) {
-                    setComparisonMode(false);
-                    setSelectedCompA(null);
-                    setSelectedCompB(null);
-                    setParsedTransactionsB([]);
-                    setUserDemographicsB(null);
-                    setAnchorZipB("");
-                    resetEnrichmentB();
-                  }
                 }} 
                 onLoadSample={(data, zip, demographics) => {
-                  // Reset comparison mode for single selection
-                  if (comparisonMode) {
-                    setComparisonMode(false);
-                    setSelectedCompA(null);
-                    setSelectedCompB(null);
-                    setParsedTransactionsB([]);
-                    setUserDemographicsB(null);
-                    setAnchorZipB("");
-                    resetEnrichmentB();
-                  }
                   setRawInput(data);
                   setAnchorZip(zip);
                   setUserDemographics(demographics);
@@ -964,7 +944,6 @@ const TePilot = () => {
                   setInputMode("paste");
                   sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
                 }}
-                onLoadComparisonSamples={handleLoadComparisonSamples}
                 activeSelection={activeSelection}
                 onActiveSelectionChange={setActiveSelection}
               >
