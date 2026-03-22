@@ -14,20 +14,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const SHORT_PILLAR: Record<string, string> = {
-  "Sports & Active Living": "Sports",
-  "Miscellaneous & Unclassified": "Misc",
-  "Entertainment & Culture": "Entertainment",
-  "Health & Wellness": "Health",
-  "Travel & Exploration": "Travel",
-  "Food & Dining": "Food",
-  "Home & Living": "Home",
-  "Style & Beauty": "Style",
-  "Technology & Digital Life": "Tech",
-  "Family & Community": "Family",
-  "Financial & Aspirational": "Financial",
-  "Pets": "Pets",
-};
 
 interface ResultsTableProps {
   transactions: EnrichedTransaction[];
