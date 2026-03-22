@@ -130,21 +130,22 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
       </div>
 
       {/* Column Headers */}
-      <div className="grid grid-cols-2 gap-4 px-6 pt-3 pb-1">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
-            <span className="text-[8px] font-bold text-blue-600">{customerA.profile.name.split(" ").map(w => w[0]).join("")}</span>
+      {node !== "engine" && (
+        <div className="grid grid-cols-2 gap-4 px-6 pt-3 pb-1">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
+              <span className="text-[8px] font-bold text-blue-600">{customerA.profile.name.split(" ").map(w => w[0]).join("")}</span>
+            </div>
+            <span className="text-xs font-semibold text-blue-600">{customerA.profile.name}</span>
           </div>
-          <span className="text-xs font-semibold text-blue-600">{customerA.profile.name}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-            <span className="text-[8px] font-bold text-emerald-600">{customerB.profile.name.split(" ").map(w => w[0]).join("")}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+              <span className="text-[8px] font-bold text-emerald-600">{customerB.profile.name.split(" ").map(w => w[0]).join("")}</span>
+            </div>
+            <span className="text-xs font-semibold text-emerald-600">{customerB.profile.name}</span>
           </div>
-          <span className="text-xs font-semibold text-emerald-600">{customerB.profile.name}</span>
-          
         </div>
-      </div>
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2">
