@@ -370,10 +370,21 @@ Deno.serve(async (req) => {
             (batch, idx) => processBatch(batch, idx, batches.length, homeZip, sendEvent)
           );
 
-          const travelUpdates = batchResults.flat();
+          const rawUpdates = batchResults.flat();
+
+          // Build trip_label for each travel-related update
+          const travelUpdates = rawUpdates.map((u: any) => {
+            if (!u.is_travel_related || !u.travel_destination || !u.travel_period_start) {
+              return { ...u, trip_label: null };
+            }
+            const start = u.travel_period_start.replace(/-/g, '').slice(2); // "260301"
+            const end = (u.travel_period_end || u.travel_period_start).replace(/-/g, '').slice(2);
+            const dest = u.travel_destination;
+            return { ...u, trip_label: `${start}:${end} ${dest} Trip` };
+          });
 
           const totalTime = Date.now() - startTime;
-          const travelCount = travelUpdates.filter((u) => u.is_travel_related).length;
+          const travelCount = travelUpdates.filter((u: any) => u.is_travel_related).length;
           console.log(`[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related) in ${totalTime}ms`);
 
           // Send travel updates

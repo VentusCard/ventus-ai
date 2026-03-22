@@ -91,6 +91,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     <TableHead className="text-slate-700">Pillar</TableHead>
                     <TableHead className="text-slate-700">Category</TableHead>
                     <TableHead className="text-slate-700">Subcategories</TableHead>
+                    <TableHead className="text-slate-700">Trip</TableHead>
                     <TableHead className="text-slate-700">Tier</TableHead>
                     <TableHead className="text-slate-700">Frequency</TableHead>
                     {transactions.some(t => t.source) && (
@@ -119,79 +120,23 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                         <ArrowRight className="w-4 h-4 text-primary mx-auto" />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          {transaction.travel_context?.is_travel_related && transaction.travel_context.original_pillar && transaction.travel_context.original_pillar !== "Travel & Exploration" ? (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center gap-1.5 cursor-help whitespace-nowrap">
-                                    <Badge
-                                      variant="outline"
-                                      className="border flex items-center gap-1 text-xs px-2 py-0.5 whitespace-nowrap"
-                                      style={{
-                                        backgroundColor: `${PILLAR_COLORS["Travel & Exploration"]}15`,
-                                        color: PILLAR_COLORS["Travel & Exploration"],
-                                        borderColor: `${PILLAR_COLORS["Travel & Exploration"]}30`,
-                                      }}
-                                    >
-                                      <Plane className="w-3 h-3" />
-                                      Travel
-                                    </Badge>
-                                    <span className="text-slate-600">:</span>
-                                    <Badge
-                                      variant="outline"
-                                      className="border whitespace-nowrap"
-                                      style={{
-                                        backgroundColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}20`,
-                                        color: PILLAR_COLORS[transaction.travel_context.original_pillar],
-                                        borderColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}40`,
-                                      }}
-                                    >
-                                      {transaction.travel_context.original_pillar}
-                                    </Badge>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-xs">
-                                  <div className="text-xs space-y-1.5">
-                                    <p className="font-semibold flex items-center gap-1">
-                                      <MapPin className="w-3 h-3" />
-                                      Travel Context
-                                    </p>
-                                    {transaction.travel_context.travel_destination && (
-                                      <p>📍 Destination: {transaction.travel_context.travel_destination}</p>
-                                    )}
-                                    {transaction.travel_context.travel_period_start && (
-                                      <p>🗓️ Period: {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
-                                    )}
-                                    {transaction.travel_context.reclassification_reason && (
-                                      <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
-                                        {transaction.travel_context.reclassification_reason}
-                                      </p>
-                                    )}
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : (
-                            <Badge
-                              variant="outline"
-                              style={{
-                                backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
-                                color: PILLAR_COLORS[transaction.pillar],
-                                borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
-                              }}
-                              className="border whitespace-nowrap"
-                            >
-                              {transaction.pillar}
-                            </Badge>
-                          )}
-                          {!transaction.travel_context && currentPhase === "travel" && (
-                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 font-medium">
-                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                              Analyzing...
-                            </Badge>
-                          )}
-                        </div>
+                        <Badge
+                          variant="outline"
+                          style={{
+                            backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
+                            color: PILLAR_COLORS[transaction.pillar],
+                            borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
+                          }}
+                          className="border whitespace-nowrap"
+                        >
+                          {transaction.pillar}
+                        </Badge>
+                        {!transaction.travel_context && currentPhase === "travel" && (
+                          <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 font-medium ml-1">
+                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            Analyzing...
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell className="text-sm text-slate-700">{transaction.category || "—"}</TableCell>
                       <TableCell>
@@ -202,6 +147,41 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             </Badge>
                           ))}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {transaction.trip_label ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  variant="outline"
+                                  className="border flex items-center gap-1 text-xs px-2 py-0.5 whitespace-nowrap bg-purple-500/10 text-purple-700 border-purple-500/20 cursor-help"
+                                >
+                                  <Plane className="w-3 h-3" />
+                                  {transaction.travel_context?.travel_destination || "Trip"}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <div className="text-xs space-y-1.5">
+                                  <p className="font-semibold flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    {transaction.trip_label}
+                                  </p>
+                                  {transaction.travel_context?.travel_period_start && (
+                                    <p>🗓️ {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
+                                  )}
+                                  {transaction.travel_context?.reclassification_reason && (
+                                    <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
+                                      {transaction.travel_context.reclassification_reason}
+                                    </p>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-slate-400 text-sm">—</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge

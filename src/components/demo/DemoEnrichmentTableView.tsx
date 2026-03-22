@@ -48,6 +48,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Pillar</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Category</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Subcategories</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Trip</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Tier</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Freq</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Conf</th>
@@ -94,6 +95,15 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                     <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
                   ))}
                 </div>
+              </td>
+              <td className="px-1 py-1">
+                {tx.trip_label ? (
+                  <span className="inline-flex items-center gap-0.5 bg-purple-500/10 text-purple-700 border border-purple-500/20 text-[9px] px-1 py-px rounded whitespace-nowrap" title={tx.trip_label}>
+                    ✈ {tx.travel_context?.travel_destination || "Trip"}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-slate-400">—</span>
+                )}
               </td>
               <td className="px-1.5 py-1">
                 <Badge variant="outline" className={`text-[9px] px-1 py-0 whitespace-nowrap leading-tight ${getTierColor(tx.spending_tier)}`}>

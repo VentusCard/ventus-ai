@@ -95,7 +95,7 @@ export function aggregateByPillarWithTravelBreakdown(transactions: EnrichedTrans
     existing.subcats.set(t.subcategory, subcat);
 
     // Track segments by original pillar for travel-reclassified transactions
-    const segmentKey = (t.travel_context?.is_travel_related && t.travel_context?.original_pillar) 
+    const segmentKey = (t.trip_label && t.travel_context?.original_pillar) 
       ? t.travel_context.original_pillar 
       : t.pillar;
     existing.segments.set(segmentKey, (existing.segments.get(segmentKey) || 0) + t.amount);

@@ -22,6 +22,8 @@ export interface EnrichedTransaction extends Transaction {
   purchase_frequency: "Weekly" | "Monthly" | "Occasional" | "Annually" | "One-Time";
   explanation: string;
   enriched_at: string;
+  /** Compact trip label e.g. "260301:260315 Banff Trip". Null for non-travel transactions. */
+  trip_label?: string | null;
   travel_context?: {
     is_travel_related: boolean;
     travel_period_start: string | null;
