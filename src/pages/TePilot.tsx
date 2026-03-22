@@ -953,39 +953,10 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
-            {comparisonMode ? (
-              <>
-                {(() => {
-                  const nameA = selectedCompA?.demographics?.name || "Customer A";
-                  const nameB = selectedCompB?.demographics?.name || "Customer B";
-                  const mergedPreview = [
-                    ...parsedTransactions.map(t => ({ ...t, _userId: nameA })),
-                    ...parsedTransactionsB.map(t => ({ ...t, _userId: nameB })),
-                  ];
-                  return <PreviewTable transactions={mergedPreview as any} comparisonMode={true} />;
-                })()}
-                <Button
-                  onClick={() => {
-                    setActiveTab("results");
-                    Promise.all([
-                      startEnrichment(parsedTransactions, anchorZip),
-                      startEnrichmentB(parsedTransactionsB, anchorZipB),
-                    ]);
-                  }}
-                  disabled={isProcessing || isProcessingB}
-                  className="w-full gap-2"
-                  size="lg"
-                >
-                  <Zap className="w-4 h-4" />
-                  Enrich Both & Compare
-                </Button>
-              </>
-            ) : (
               <>
                 <PreviewTable transactions={parsedTransactions} />
                 <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
               </>
-            )}
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
