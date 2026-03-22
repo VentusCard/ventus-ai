@@ -1,10 +1,9 @@
 
 
-## Remove confetti from Financial Achievements card
+## ✅ Trip-Fare Matching: Active Flight-to-Trip Assignment (Completed)
 
-**File:** `src/components/tepilot/insights/FinancialAchievements.tsx`
-
-1. Remove the `import confetti from "canvas-confetti"` import
-2. Remove the `confettiFired` ref
-3. Remove the `useEffect` that fires confetti (lines 94–100)
-
+Implemented two-phase trip resolution:
+1. AI prompt expanded with FLIGHT-TO-TRIP MATCHING section (price signal, date proximity, fare pairs, surplus fares)
+2. Tool schema expanded with `fare_match_confidence`, `fare_match_reason`, `third_party_likely`
+3. Post-processing `reconcileFlightsWithTrips()` function added to edge function
+4. Pre-filter updated to tag airline anchors with `anchor_type: 'flight'` (+ hotel, car_rental, transport)
