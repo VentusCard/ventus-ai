@@ -21,6 +21,7 @@ const PILLAR_FILTERS = [
   'Entertainment & Culture',
   'Technology & Digital Life',
   'Pets',
+  'Style & Beauty',
 ];
 
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
