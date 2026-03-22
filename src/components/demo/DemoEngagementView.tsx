@@ -108,9 +108,16 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [tripViewOn, setTripViewOn] = useState(true);
   const firstName = customer.profile.name.split(" ")[0];
-  const budgets = computeSpending(customer, enrichedTransactions);
+  const spending = computeSpending(customer, enrichedTransactions);
   const tripRows = computeTripRows(customer, enrichedTransactions);
-  const hasTravel = budgets.some((b) => b.name === "Travel");
+  const hasTravel = spending.some((b) => b.name === "Travel");
+
+  // Deterministic budgets: 110–140% of spend
+  const budgetMap = initializeBudgets(spending.map((s) => ({ pillar: s.name, totalSpend: s.spend })));
+  const budgets = spending.map((s) => ({
+    ...s,
+    budget: budgetMap[s.name] || Math.round(s.spend * 1.2),
+  }));
 
   const achievements = enrichedTransactions?.length ? calculateAchievements(enrichedTransactions) : [];
   const healthScore = calculateHealthScore(achievements);
