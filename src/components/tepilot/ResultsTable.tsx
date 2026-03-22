@@ -113,7 +113,9 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                       <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Source</TableHead>
                     )}
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Conf</TableHead>
-                    <TableHead className="px-1 py-1.5"></TableHead>
+                    <TableHead className="text-right text-slate-700 text-[11px] px-1 py-1.5">
+                      <Eye className="w-3 h-3 text-slate-500 ml-auto" />
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
