@@ -4,10 +4,11 @@ import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
-import { BarChart3, Target, Wallet, Heart, Gamepad2 } from "lucide-react";
+import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
+import { BarChart3, Target, Wallet, Heart, Gamepad2, Sparkles } from "lucide-react";
 
 interface AnalyticsContainerProps {
-  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification';
+  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence';
 }
 
 export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
@@ -17,6 +18,10 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
         <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-white">
           <BarChart3 className="w-4 h-4" />
           Analytics Dashboard
+        </TabsTrigger>
+        <TabsTrigger value="rewards-intelligence" className="flex items-center gap-2 data-[state=active]:bg-white">
+          <Sparkles className="w-4 h-4" />
+          Rewards Intelligence
         </TabsTrigger>
         <TabsTrigger value="targeting" className="flex items-center gap-2 data-[state=active]:bg-white">
           <Target className="w-4 h-4" />
@@ -38,6 +43,10 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
 
       <TabsContent value="dashboard" className="mt-0">
         <BankwideView />
+      </TabsContent>
+
+      <TabsContent value="rewards-intelligence" className="mt-0">
+        <RewardsAnalyticsDashboard />
       </TabsContent>
 
       <TabsContent value="targeting" className="mt-0">
