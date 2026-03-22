@@ -268,10 +268,6 @@ function RewardsPhoneMockup({
             {/* Header */}
             <div className="flex items-baseline justify-between">
               <p className="text-base font-bold text-slate-900">Your Rewards, {firstName}</p>
-              <span className="text-[9px] text-slate-400">
-                {hasEnriched && deals.length > 0 && <>{deals.length} deals{personalizedCount > 0 && <> · <span style={{ color }}>{personalizedCount} personalized</span></>}</>}
-                {loading && <Loader2 className="w-3 h-3 inline animate-spin text-slate-300 ml-1" />}
-              </span>
             </div>
 
             {/* Local Perks (static from locationPerksData) */}
