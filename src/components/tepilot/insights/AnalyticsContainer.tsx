@@ -24,8 +24,8 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
           Rewards Intelligence
         </TabsTrigger>
         <TabsTrigger value="targeting" className="flex items-center gap-2 data-[state=active]:bg-white">
-          <Target className="w-4 h-4" />
-          Segment Targeting
+          <Route className="w-4 h-4" />
+          Financial Journey
         </TabsTrigger>
         <TabsTrigger value="wallet-share" className="flex items-center gap-2 data-[state=active]:bg-white">
           <Wallet className="w-4 h-4" />
