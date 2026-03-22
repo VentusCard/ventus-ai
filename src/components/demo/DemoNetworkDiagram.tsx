@@ -31,18 +31,11 @@ interface PillarDef {
   nodes: NodeDef[];
 }
 
-// Geometry constants — all nodes use center-based positioning
-const TX_CARD_WIDTH = 180;
+// Geometry constants — base values, overridden by fluid sizing below
 const TX_CARD_HEIGHT = 110;
-const ENGINE_WIDTH = 210;
 const ENGINE_HEIGHT = 245;
-const GRID_WIDTH = 440;
-const GRID_ROW_HEIGHT = 110;
+const GRID_ROW_HEIGHT = 100;
 const GRID_HEADER_HEIGHT = 32;
-
-// Horizontal gaps between column centers
-const GAP_TX_ENGINE = 260;
-const GAP_ENGINE_GRID = 280;
 
 const PILLARS: PillarDef[] = [
   {
