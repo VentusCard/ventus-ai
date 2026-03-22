@@ -305,9 +305,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               }}
             >
               {/* Question row */}
-              <div className={`flex items-center gap-1.5 px-2 ${centered ? "pt-3 pb-1.5" : "pt-2 pb-1"}`}>
-                <PillarIcon className={`${centered ? "w-4 h-4" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
-                <span className={`font-medium ${centered ? "text-[11px]" : "text-[9px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              <div className={`flex items-center gap-2 px-3 ${centered ? "pt-3 pb-1.5" : "pt-2 pb-1"} w-full`}>
+                <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
+                <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
               </div>
 
               {/* Two node buttons side by side */}
