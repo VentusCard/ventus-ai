@@ -147,15 +147,8 @@ const TePilot = () => {
     restoreEnrichedTransactions
   } = useSSEEnrichment();
 
-  // SSE Enrichment Hook - Customer B (comparison)
-  const {
-    enrichedTransactions: enrichedTransactionsB,
-    isProcessing: isProcessingB,
-    statusMessage: statusMessageB,
-    currentPhase: currentPhaseB,
-    startEnrichment: startEnrichmentB,
-    resetEnrichment: resetEnrichmentB,
-  } = useSSEEnrichment();
+
+
   const [filters, setFilters] = useState<Filters>({
     dateRange: {
       start: null,
