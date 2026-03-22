@@ -602,7 +602,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
                         minWidth: 160
                       }}>
-                        <span className="text-xs font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
                           Demographics
                         </span>
                       </div>
