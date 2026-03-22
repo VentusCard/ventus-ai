@@ -1,37 +1,32 @@
 
 
-## Expand All Pillars, Fire Tip Early, Gate Engagement Readiness
+## Add Travel Detection to /demo Enrichment Pipeline
 
-### Problem
-1. Only the first 2 pillars are expanded by default — should be all 4.
-2. The coaching tip fires lazily inside `PhoneMockup` when the overlay is opened, not at enrichment time.
-3. The engagement node shows "ready" after lifestyle signals complete, but the coaching tip may still be loading when the user clicks in.
+### Current State
+- The demo runs `classify-transactions` but explicitly skips `travel-detection` (line 418: "no travel-detection — pass undefined for homeZip")
+- The Travel overlay (`DemoTravelView`) uses **hardcoded** trip data from `DemoCustomer.trips` — not AI-detected trips
+- Each `DemoCustomer` has a `zip` field available as `homeZip`
+- The `travel` node readiness is gated on `local-experiences` completing, not on actual travel detection
 
-### Changes
+### Plan
 
-#### 1. Expand all 4 pillars by default — `DemoEngagementView.tsx` (line 120)
-Change `spending.slice(0, 2)` → `spending.slice(0, 4)` in the `expandedPillars` initializer so all pillars start expanded.
+#### 1. Add travel-detection call after classification — `useDemoEnrichment.ts`
+- In `maybeStartPhase2()`, after both classifications complete, call `travel-detection` edge function for both customers using their enriched transactions and `customer.zip` as `homeZip`
+- Use `preFilterTravelCandidates()` (from `travelPreFilter.ts`) to reduce payload before sending to AI
+- Parse SSE response and merge `trip_label` + `travel_context` back into `enrichedA`/`enrichedB`
+- Gate `travel: "ready"` on **both** travel-detection AND local-experiences completing (currently only local-experiences)
 
-#### 2. Move coaching tip generation into `useDemoEnrichment` — `useDemoEnrichment.ts`
-- Add state: `tipA`, `tipB`, `tipsReady` (boolean).
-- In `maybeStartPhase2`, fire `generate-financial-tip` for both customers in parallel alongside lifestyle signals.
-- Track when both tips resolve → set `tipsReady = true`.
-- Only set `engagement: "ready"` when **both** lifestyle signals AND tips are complete.
-- Return `tipA` and `tipB` from the hook.
+#### 2. Pass travel-enriched transactions to Travel + Rewards views
+- The enriched transactions already flow through to `DemoDetailOverlay` → `DemoTravelView` and `DemoRewardsView`
+- Update `DemoTravelView` to display **AI-detected trips** (from `trip_label`/`travel_context` on enriched transactions) alongside the existing hardcoded trip cards
+- Group enriched transactions by `trip_label` to build detected trip summaries (destination, date range, transaction count, total spend)
 
-#### 3. Pass pre-fetched tips through to DemoEngagementView
-- **`DemoDetailOverlay.tsx`**: Accept `tipA`/`tipB` props, pass them to `DemoEngagementView`.
-- **`DemoEngagementView.tsx`**: Accept optional `tipA`/`tipB` props, pass the correct one to each `PhoneMockup`.
-- **`PhoneMockup`**: If a tip is provided via props, skip the internal `useEffect` fetch and use the prop directly. Remove the loading skeleton state when tip is pre-provided.
-
-#### 4. Gate engagement readiness — `useDemoEnrichment.ts`
-- Replace the current `setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" })` call.
-- Track two flags: `lifestyleDone` and `tipsDone`. When both are true, set `engagement: "ready"`.
-- `wealth` and `lifeEvents` still become ready when lifestyle signals complete (independent of tips).
+#### 3. Update enrichment flow timeline
+- Phase 2 now includes: lifestyle signals, coaching tips, deal personalization, AND travel detection — all in parallel
+- Travel node readiness = `local-experiences` done AND `travel-detection` done for both customers
 
 ### Files Modified
-- `src/hooks/useDemoEnrichment.ts` — fire tips early, gate engagement on tips + lifestyle
-- `src/components/demo/DemoDetailOverlay.tsx` — pass tips through
-- `src/components/demo/DemoEngagementView.tsx` — accept tip props, expand all 4 pillars
-- `src/pages/DemoPage.tsx` — pass tipA/tipB from hook to overlay (if overlay is rendered there)
+- `src/hooks/useDemoEnrichment.ts` — add travel-detection calls in `maybeStartPhase2`, gate travel node on both sources
+- `src/components/demo/DemoTravelView.tsx` — add AI-detected trip section from enriched transaction data
+- `src/components/demo/DemoDetailOverlay.tsx` — pass enriched transactions to TravelView (already passed, just ensure used)
 
