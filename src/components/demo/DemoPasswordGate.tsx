@@ -48,7 +48,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         setBeat4Phase(0);
       }
       if (s === 5) {
-        if (beat5Phase < 2) {
+        if (beat5Phase < 1) {
           setBeat5Phase((p) => p + 1);
           return s;
         }
@@ -511,19 +511,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                               <span className="text-base font-medium" style={{ color: "#0F172A" }}>
                                 {tx.merchant}
                               </span>
-                              <span
-                            className="px-3 py-1 rounded text-sm font-mono transition-all duration-500"
-                            style={{
-                              backgroundColor: "#FEF3C7",
-                              color: "#D97706",
-                              opacity: beat5Phase >= 1 ? 1 : 0,
-                              width: beat5Phase >= 1 ? 'auto' : 0,
-                              transform: beat5Phase >= 1 ? 'translateX(0)' : 'translateX(-8px)',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap'
-                            }}>
-                                {tx.category}
-                              </span>
                             </div>
                             <span className="text-base font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
                           </div>
@@ -534,8 +521,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <div
                   className="flex items-center justify-center transition-all duration-500 pt-1"
                   style={{
-                    opacity: beat5Phase >= 2 ? 1 : 0,
-                    transform: beat5Phase >= 2 ? 'translateY(0)' : 'translateY(8px)'
+                    opacity: beat5Phase >= 1 ? 1 : 0,
+                    transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(8px)'
                   }}>
                     <div className="flex items-center gap-3">
                       <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
