@@ -1104,10 +1104,10 @@ const TePilot = () => {
                       </p>
                     </CardContent>
                   </Card>}
+                <ResultsTable transactions={enrichedTransactions} currentPhase={currentPhase} statusMessage={statusMessage} onCorrection={handleCorrection} />
                 <div className="flex justify-end">
                   <ExportControls transactions={enrichedTransactions} />
                 </div>
-                <ResultsTable transactions={enrichedTransactions} currentPhase={currentPhase} statusMessage={statusMessage} onCorrection={handleCorrection} />
                 
                 {currentPhase === "complete" && enrichedTransactions.length > 0 && <Card className="border-blue-200 bg-blue-50">
                     <CardContent className="pt-6 flex flex-col items-center gap-4">
