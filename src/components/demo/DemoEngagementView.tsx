@@ -5,7 +5,8 @@ import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { calculateAchievements, calculateHealthScore, getLevel } from "@/lib/achievementEngine";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 interface Props {
   customerA: DemoCustomer;
@@ -31,19 +32,22 @@ interface SpendingItem {
   name: string;
   icon: string;
   spend: number;
-  budget: number;
+  pct: number;
   subcategories: { subcategory: string; count: number; total: number }[];
 }
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
   if (enriched && enriched.length > 0) {
     const pillarMap = new Map<string, { total: number; subcats: Map<string, { count: number; total: number }> }>();
+    let grandTotal = 0;
     enriched.forEach((t) => {
+      const amt = Math.abs(t.amount);
+      grandTotal += amt;
       const entry = pillarMap.get(t.pillar) || { total: 0, subcats: new Map() };
-      entry.total += Math.abs(t.amount);
+      entry.total += amt;
       const sub = entry.subcats.get(t.subcategory) || { count: 0, total: 0 };
       sub.count += 1;
-      sub.total += Math.abs(t.amount);
+      sub.total += amt;
       entry.subcats.set(t.subcategory, sub);
       pillarMap.set(t.pillar, entry);
     });
@@ -51,6 +55,7 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
       "Travel": "✈️", "Dining": "🍽️", "Shopping": "🛍️", "Wellness": "💪",
       "Entertainment": "🎬", "Home": "🏠", "Transportation": "🚗", "Subscriptions": "📱",
       "Health": "❤️", "Education": "📚", "Groceries": "🛒", "Personal Care": "💆",
+      "Food": "🍽️", "Active Living": "🏃",
     };
     return Array.from(pillarMap.entries())
       .sort((a, b) => b[1].total - a[1].total)
@@ -59,7 +64,7 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
         name,
         icon: pillarIcons[name] || "📊",
         spend: Math.round(data.total),
-        budget: Math.round(data.total * (1 + Math.random() * 0.3)),
+        pct: grandTotal > 0 ? Math.round((data.total / grandTotal) * 100) : 0,
         subcategories: Array.from(data.subcats.entries())
           .map(([subcategory, s]) => ({ subcategory, count: s.count, total: Math.round(s.total) }))
           .sort((a, b) => b.total - a.total),
@@ -69,15 +74,49 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
     name: p.name,
     icon: p.icon,
     spend: parseInt(p.spend.replace(/[$,]/g, "")),
-    budget: Math.round(parseInt(p.spend.replace(/[$,]/g, "")) * (1 + Math.random() * 0.3)),
+    pct: p.pct,
     subcategories: [],
   }));
 }
 
+/** Build trip-grouped rows from customer.trips or enriched trip_labels */
+function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[]): { destination: string; spend: number }[] {
+  // Try enriched trip_labels first
+  if (enriched && enriched.length > 0) {
+    const tripMap = new Map<string, number>();
+    enriched.forEach((t) => {
+      if (t.trip_label) {
+        // trip_label format: "YYMMDD:YYMMDD Destination Trip"
+        const labelParts = t.trip_label.split(" ");
+        const dest = labelParts.slice(1).join(" ");
+        if (dest) {
+          tripMap.set(dest, (tripMap.get(dest) || 0) + Math.abs(t.amount));
+        }
+      }
+    });
+    if (tripMap.size > 0) {
+      return Array.from(tripMap.entries())
+        .map(([destination, spend]) => ({ destination, spend: Math.round(spend) }))
+        .sort((a, b) => b.spend - a.spend);
+    }
+  }
+  // Fallback to customer.trips
+  if (customer.trips.length > 0) {
+    return customer.trips.map((t) => ({
+      destination: t.destination,
+      spend: parseInt(t.spend.replace(/[$,]/g, "")),
+    }));
+  }
+  return [];
+}
+
 function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+  const [tripViewOn, setTripViewOn] = useState(true);
   const firstName = customer.profile.name.split(" ")[0];
   const budgets = computeSpending(customer, enrichedTransactions);
+  const tripRows = computeTripRows(customer, enrichedTransactions);
+  const hasTravel = budgets.some((b) => b.name === "Travel");
 
   const achievements = enrichedTransactions?.length ? calculateAchievements(enrichedTransactions) : [];
   const healthScore = calculateHealthScore(achievements);
@@ -123,7 +162,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
 
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-[340px]">
+      <div className="w-full max-w-[380px]">
         {/* Phone frame */}
         <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
           {/* Browser bar */}
@@ -141,7 +180,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
           </div>
 
           {/* App content */}
-          <div className="p-4 space-y-3 bg-white">
+          <div className="p-4 space-y-2.5 bg-white">
             <div>
               <p className="text-base font-bold text-slate-900">Good morning, {firstName}</p>
               <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
@@ -149,7 +188,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
 
             {/* Lifestyle banner */}
             <div
-              className="rounded-lg px-3 py-3"
+              className="rounded-lg px-3 py-2.5"
               style={{ background: `linear-gradient(135deg, ${color}, ${color}90)` }}
             >
               <p className="text-[8px] font-bold tracking-[0.15em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
@@ -161,43 +200,67 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
               </p>
             </div>
 
-            {/* Lifestyle Spending — main content */}
+            {/* Lifestyle Spending */}
             <div>
-              <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-2">Your Lifestyle Spending</p>
+              <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-1.5">Your Lifestyle Spending</p>
               <div className="grid grid-cols-2 gap-1.5">
                 {budgets.slice(0, 4).map((b) => {
-                  const pct = Math.min((b.spend / b.budget) * 100, 100);
-                  const isOver = b.spend > b.budget;
-                  const barColor = isOver ? "#ef4444" : pct > 80 ? "#f59e0b" : "#22c55e";
+                  const isTravel = b.name === "Travel";
                   const isExpanded = expandedPillar === b.name;
                   const hasSubcats = b.subcategories.length > 0;
+                  const showTripView = isTravel && tripViewOn && tripRows.length > 0;
+
                   return (
                     <div
                       key={b.name}
-                      className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats ? "cursor-pointer hover:border-slate-300" : ""}`}
-                      onClick={() => hasSubcats && setExpandedPillar(isExpanded ? null : b.name)}
+                      className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats || isTravel ? "cursor-pointer hover:border-slate-300" : ""}`}
+                      onClick={() => (hasSubcats || isTravel) && setExpandedPillar(isExpanded ? null : b.name)}
                     >
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{b.icon}</span>
                         <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
-                        {hasSubcats && (
+                        {(hasSubcats || isTravel) && (
                           isExpanded
                             ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
                             : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
                         )}
                       </div>
-                      <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
-                      </div>
-                      <p className="text-[8px] text-slate-400">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
+                      <p className="text-[13px] font-bold text-slate-900">${b.spend.toLocaleString()}</p>
+                      <p className="text-[8px] text-slate-400">{b.pct}% of total</p>
+
                       {isExpanded && (
-                        <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-0.5">
-                          {b.subcategories.slice(0, 5).map((sub) => (
-                            <div key={sub.subcategory} className="flex items-center justify-between text-[8px]">
-                              <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
-                              <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
+                        <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-1">
+                          {/* Trip View toggle for Travel */}
+                          {isTravel && tripRows.length > 0 && (
+                            <div
+                              className="flex items-center justify-between mb-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <span className="text-[8px] font-semibold text-slate-500">Trip View</span>
+                              <Switch
+                                checked={tripViewOn}
+                                onCheckedChange={setTripViewOn}
+                                className="h-3.5 w-7 data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-slate-300"
+                              />
                             </div>
-                          ))}
+                          )}
+
+                          {showTripView ? (
+                            tripRows.slice(0, 4).map((trip) => (
+                              <div key={trip.destination} className="flex items-center gap-1.5 text-[9px]">
+                                <MapPin className="w-2.5 h-2.5 shrink-0" style={{ color }} />
+                                <span className="text-slate-600 truncate flex-1">{trip.destination}</span>
+                                <span className="text-slate-900 font-semibold whitespace-nowrap">${trip.spend.toLocaleString()}</span>
+                              </div>
+                            ))
+                          ) : (
+                            b.subcategories.slice(0, 5).map((sub) => (
+                              <div key={sub.subcategory} className="flex items-center justify-between text-[9px]">
+                                <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
+                                <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
+                              </div>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>
@@ -208,8 +271,8 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
 
             {/* Achievement Card */}
             {featuredAchievement && (
-              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-3">
-                <div className="flex items-center justify-between mb-1.5">
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-2.5">
+                <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-1.5">
                     <Trophy className="w-3.5 h-3.5 text-amber-500" />
                     <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
@@ -222,7 +285,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                   </div>
                 </div>
                 <p className="text-[11px] font-semibold text-slate-900">{featuredAchievement.title}</p>
-                <p className="text-[8px] text-slate-500 mb-1.5">{featuredAchievement.description}</p>
+                <p className="text-[8px] text-slate-500 mb-1">{featuredAchievement.description}</p>
                 <div className="w-full h-1.5 rounded-full bg-slate-200">
                   <div
                     className="h-full rounded-full transition-all"
@@ -241,7 +304,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
 
             {/* Coaching Tip Card */}
             {isLoadingTip && (
-              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3 space-y-2">
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5 space-y-2">
                 <div className="flex items-center gap-1.5">
                   <Skeleton className="w-5 h-5 rounded-full" />
                   <Skeleton className="w-16 h-4 rounded-full" />
@@ -255,8 +318,8 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
               </div>
             )}
             {!isLoadingTip && tip && (
-              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3">
-                <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5">
+                <div className="flex items-center gap-1.5 mb-1">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
                     <TipIcon className="w-3 h-3" style={{ color }} />
                   </div>
@@ -267,7 +330,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                     <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save {tip.potentialSavings}</span>
                   )}
                 </div>
-                <p className="text-[10px] text-slate-700 leading-relaxed mb-2">{tip.message}</p>
+                <p className="text-[10px] text-slate-700 leading-relaxed mb-1.5">{tip.message}</p>
                 <div className="flex gap-1.5">
                   <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
                     Got it
