@@ -251,7 +251,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
       {/* ── Stacked Card Layout ── */}
       <div className="flex-1 flex items-center justify-center px-8 overflow-hidden">
-        <div className="w-full max-w-4xl relative" style={{ minHeight: 400 }}>
+        <div className="w-full max-w-5xl relative" style={{ minHeight: 440 }}>
           {/* Previous beat cards — stacked behind */}
           {Array.from({ length: step }).map((_, i) => {
             if (i < 3) return null; // beats 0, 1 & 2 are cardless
@@ -270,7 +270,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   transform: `translateY(${yOffset}px) scale(${scaleVal})`,
                   opacity: opacityVal,
                   zIndex: i,
-                  height: 80,
+                  height: 90,
                   transformOrigin: "top center",
                   transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)"
                 }}>
@@ -296,7 +296,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               zIndex: step + 1,
               marginTop: displayStep >= 3 ? Math.min(displayStep - 2, 4) * 4 : 0
             }}>
-            <div className={displayStep >= 3 ? "p-8 sm:p-10" : ""}>
+            <div className={displayStep >= 3 ? "p-10 sm:p-12" : ""}>
 
               {/* Beat 0 — Intro */}
               {displayStep === 0 &&
