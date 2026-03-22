@@ -40,8 +40,6 @@ import { PersonaCard } from "@/components/tepilot/PersonaCard";
 
 import { ColumnMapper } from "@/components/tepilot/ColumnMapper";
 // ComparisonSetup removed — multi-select now handled in UploadOrPasteContainer
-import { ComparisonDashboard } from "@/components/tepilot/ComparisonDashboard";
-import { ComparisonRewardsView } from "@/components/tepilot/ComparisonRewardsView";
 import { parseFile, parseMultipleFiles, parsePastedText, mapColumnsWithMapping, type MappingResult } from "@/lib/parsers";
 import { applyFilters, applyCorrections } from "@/lib/aggregations";
 import { extractLocationContext } from "@/lib/geoLocationUtils";
@@ -116,13 +114,8 @@ const TePilot = () => {
   const [userDemographics, setUserDemographics] = useState<ClientProfileData | null>(null);
   const [isFromSampleData, setIsFromSampleData] = useState(false);
   
-  // Comparison mode state
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [selectedCompA, setSelectedCompA] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
-  const [selectedCompB, setSelectedCompB] = useState<{ csv: string; zip: string; demographics: ClientProfileData } | null>(null);
-  const [parsedTransactionsB, setParsedTransactionsB] = useState<Transaction[]>([]);
-  const [userDemographicsB, setUserDemographicsB] = useState<ClientProfileData | null>(null);
-  const [anchorZipB, setAnchorZipB] = useState("");
+
+
 
   const navigate = useNavigate();
   const handleNavigateToAdvisorConsole = async () => {
@@ -154,15 +147,8 @@ const TePilot = () => {
     restoreEnrichedTransactions
   } = useSSEEnrichment();
 
-  // SSE Enrichment Hook - Customer B (comparison)
-  const {
-    enrichedTransactions: enrichedTransactionsB,
-    isProcessing: isProcessingB,
-    statusMessage: statusMessageB,
-    currentPhase: currentPhaseB,
-    startEnrichment: startEnrichmentB,
-    resetEnrichment: resetEnrichmentB,
-  } = useSSEEnrichment();
+
+
   const [filters, setFilters] = useState<Filters>({
     dateRange: {
       start: null,
@@ -395,29 +381,8 @@ const TePilot = () => {
     await startEnrichment(parsedTransactions, anchorZip);
   };
 
-  // Comparison mode: auto-trigger from multi-select sample data
-  const handleLoadComparisonSamples = (
-    dataA: { csv: string; zip: string; demographics: ClientProfileData },
-    dataB: { csv: string; zip: string; demographics: ClientProfileData }
-  ) => {
-    setSelectedCompA(dataA);
-    setSelectedCompB(dataB);
-    setComparisonMode(true);
-    const resultA = parsePastedText(`# Home ZIP Code: ${dataA.zip}\n${dataA.csv}`);
-    const resultB = parsePastedText(`# Home ZIP Code: ${dataB.zip}\n${dataB.csv}`);
-    if (!resultA.transactions || !resultB.transactions) {
-      toast.error("Failed to parse comparison datasets");
-      return;
-    }
-    setParsedTransactions(resultA.transactions);
-    setParsedTransactionsB(resultB.transactions);
-    setUserDemographics(dataA.demographics);
-    setUserDemographicsB(dataB.demographics);
-    setAnchorZip(dataA.zip);
-    setAnchorZipB(dataB.zip);
-    setIsFromSampleData(true);
-    setActiveTab("preview");
-  };
+
+
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
     if (!transaction) return;
@@ -951,17 +916,17 @@ const TePilot = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
-            <TabsTrigger value="preview" disabled={comparisonMode ? false : parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Preview (A vs B)" : "Preview"}
+            <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Preview
             </TabsTrigger>
-            <TabsTrigger value="results" disabled={comparisonMode ? !(enrichedTransactions.length > 0 || enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Enrichment (A vs B)" : "Enrichment"}
+            <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Enrichment
             </TabsTrigger>
-            <TabsTrigger value="analytics" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Dashboard (A vs B)" : "Dashboard"}
+            <TabsTrigger value="analytics" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Dashboard
             </TabsTrigger>
-            <TabsTrigger value="insights" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Rewards (A vs B)" : "Insight Tools"}
+            <TabsTrigger value="insights" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Insight Tools
             </TabsTrigger>
           </TabsList>
 
@@ -970,28 +935,8 @@ const TePilot = () => {
                 mode={inputMode} 
                 onModeChange={(mode) => {
                   setInputMode(mode);
-                  // Reset comparison mode when switching to paste/upload
-                  if (comparisonMode) {
-                    setComparisonMode(false);
-                    setSelectedCompA(null);
-                    setSelectedCompB(null);
-                    setParsedTransactionsB([]);
-                    setUserDemographicsB(null);
-                    setAnchorZipB("");
-                    resetEnrichmentB();
-                  }
                 }} 
                 onLoadSample={(data, zip, demographics) => {
-                  // Reset comparison mode for single selection
-                  if (comparisonMode) {
-                    setComparisonMode(false);
-                    setSelectedCompA(null);
-                    setSelectedCompB(null);
-                    setParsedTransactionsB([]);
-                    setUserDemographicsB(null);
-                    setAnchorZipB("");
-                    resetEnrichmentB();
-                  }
                   setRawInput(data);
                   setAnchorZip(zip);
                   setUserDemographics(demographics);
@@ -999,7 +944,6 @@ const TePilot = () => {
                   setInputMode("paste");
                   sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
                 }}
-                onLoadComparisonSamples={handleLoadComparisonSamples}
                 activeSelection={activeSelection}
                 onActiveSelectionChange={setActiveSelection}
               >
@@ -1009,92 +953,13 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
-            {comparisonMode ? (
-              <>
-                {(() => {
-                  const nameA = selectedCompA?.demographics?.name || "Customer A";
-                  const nameB = selectedCompB?.demographics?.name || "Customer B";
-                  const mergedPreview = [
-                    ...parsedTransactions.map(t => ({ ...t, _userId: nameA })),
-                    ...parsedTransactionsB.map(t => ({ ...t, _userId: nameB })),
-                  ];
-                  return <PreviewTable transactions={mergedPreview as any} comparisonMode={true} />;
-                })()}
-                <Button
-                  onClick={() => {
-                    setActiveTab("results");
-                    Promise.all([
-                      startEnrichment(parsedTransactions, anchorZip),
-                      startEnrichmentB(parsedTransactionsB, anchorZipB),
-                    ]);
-                  }}
-                  disabled={isProcessing || isProcessingB}
-                  className="w-full gap-2"
-                  size="lg"
-                >
-                  <Zap className="w-4 h-4" />
-                  Enrich Both & Compare
-                </Button>
-              </>
-            ) : (
               <>
                 <PreviewTable transactions={parsedTransactions} />
                 <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
               </>
-            )}
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
-            {comparisonMode ? (
-              <>
-                {/* Dual enrichment progress */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="bg-white border-slate-200">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500" />
-                        <span className="font-semibold text-sm text-slate-900">{selectedCompA?.demographics?.name || "Customer A"}</span>
-                      </div>
-                      {isProcessing && (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                          <p className="text-xs text-slate-600">{statusMessage || "Processing..."}</p>
-                        </div>
-                      )}
-                      {currentPhase === "complete" && <Badge className="bg-green-100 text-green-700">✓ Complete ({enrichedTransactions.length} transactions)</Badge>}
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-white border-slate-200">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        <span className="font-semibold text-sm text-slate-900">{selectedCompB?.demographics?.name || "Customer B"}</span>
-                      </div>
-                      {isProcessingB && (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
-                          <p className="text-xs text-slate-600">{statusMessageB || "Processing..."}</p>
-                        </div>
-                      )}
-                      {currentPhaseB === "complete" && <Badge className="bg-green-100 text-green-700">✓ Complete ({enrichedTransactionsB.length} transactions)</Badge>}
-                    </CardContent>
-                  </Card>
-                </div>
-                {currentPhase === "complete" && currentPhaseB === "complete" && (
-                  <Card className="border-blue-200 bg-blue-50">
-                    <CardContent className="pt-6 flex flex-col items-center gap-4">
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold text-slate-900 mb-2">Both customers enriched! Ready to compare?</h3>
-                        <p className="text-sm text-slate-600 mb-4">View side-by-side dashboard comparison</p>
-                      </div>
-                      <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
-                        Compare Dashboards <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            ) : (
               <>
                 {currentPhase === "travel" && <Card className="border-yellow-200 bg-yellow-50">
                     <CardContent className="pt-6 flex items-center gap-3">
@@ -1124,28 +989,9 @@ const TePilot = () => {
                     </CardContent>
                   </Card>}
               </>
-            )}
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            {comparisonMode ? (
-              <ComparisonDashboard
-                customerA={{
-                  parsedTransactions,
-                  enrichedTransactions: displayTransactions,
-                  demographics: userDemographics,
-                  label: "Customer A",
-                  color: "bg-blue-500",
-                }}
-                customerB={{
-                  parsedTransactions: parsedTransactionsB,
-                  enrichedTransactions: enrichedTransactionsB,
-                  demographics: userDemographicsB,
-                  label: "Customer B",
-                  color: "bg-emerald-500",
-                }}
-              />
-            ) : (
               <>
                 {/* View Header */}
                 <Card className="p-6 bg-white border-slate-200">
@@ -1207,28 +1053,9 @@ const TePilot = () => {
                     </AccordionItem>
                   </Accordion>}
               </>
-            )}
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
-            {comparisonMode ? (
-              <ComparisonRewardsView
-                customerA={{
-                  enrichedTransactions: displayTransactions,
-                  demographics: userDemographics,
-                  anchorZip,
-                  label: "Customer A",
-                  color: "bg-blue-500",
-                }}
-                customerB={{
-                  enrichedTransactions: enrichedTransactionsB,
-                  demographics: userDemographicsB,
-                  anchorZip: anchorZipB,
-                  label: "Customer B",
-                  color: "bg-emerald-500",
-                }}
-              />
-            ) : (
             <>
             {!insightType && <>
                 {/* Header */}
@@ -1426,7 +1253,7 @@ const TePilot = () => {
                 </div>
               </div>}
             </>
-            )}
+
           </TabsContent>
         </Tabs>
       </div>
