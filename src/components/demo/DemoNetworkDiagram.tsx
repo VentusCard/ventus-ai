@@ -31,11 +31,11 @@ interface PillarDef {
   nodes: NodeDef[];
 }
 
-// Geometry constants — base values, overridden by fluid sizing below
-const TX_CARD_HEIGHT = 110;
-const ENGINE_HEIGHT = 245;
-const GRID_ROW_HEIGHT = 100;
-const GRID_HEADER_HEIGHT = 32;
+// Geometry base constants — scaled by `centered` prop
+const BASE_TX_CARD_HEIGHT = 110;
+const BASE_ENGINE_HEIGHT = 245;
+const BASE_GRID_ROW_HEIGHT = 100;
+const BASE_GRID_HEADER_HEIGHT = 32;
 
 const PILLARS: PillarDef[] = [
   {
@@ -94,24 +94,36 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // ── Fluid layout: derive sizes from container width ──
-  const TX_CARD_WIDTH = Math.max(140, Math.min(180, dims.w * 0.15));
-  const ENGINE_WIDTH = Math.max(160, Math.min(210, dims.w * 0.18));
-  const GRID_WIDTH = Math.max(320, Math.min(440, dims.w * 0.38));
+  // ── Scale factor for stage-ready presentation ──
+  const scale = centered ? 1.25 : 1.0;
 
+  const TX_CARD_WIDTH = Math.max(140, Math.min(180 * scale, dims.w * 0.15 * scale));
+  const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
+  const ENGINE_WIDTH = Math.max(160, Math.min(210 * scale, dims.w * 0.18 * scale));
+  const ENGINE_HEIGHT = BASE_ENGINE_HEIGHT * scale;
+  const GRID_WIDTH = Math.max(320, Math.min(480 * scale, dims.w * 0.40 * scale));
+  const GRID_ROW_HEIGHT = BASE_GRID_ROW_HEIGHT * scale;
+  const GRID_HEADER_HEIGHT = BASE_GRID_HEADER_HEIGHT * scale;
+
+  // ── Horizontal layout — centered when panel collapsed ──
   const pad = Math.max(12, dims.w * 0.03);
-  const txCenterX = pad + TX_CARD_WIDTH / 2;
-  const gridRightX = dims.w - pad;
-  const gridLeftX = gridRightX - GRID_WIDTH;
-  const engineCenterX = (txCenterX + TX_CARD_WIDTH / 2 + gridLeftX) / 2;
+  const gap1 = Math.max(30, dims.w * 0.04) * scale;
+  const gap2 = Math.max(30, dims.w * 0.04) * scale;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + GRID_WIDTH;
+  const offsetX = centered ? (dims.w - totalContentWidth) / 2 : pad;
+
+  const txCenterX = offsetX + TX_CARD_WIDTH / 2;
+  const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
+  const gridLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
 
   // ── Vertical layout ──
   const midY = dims.h * 0.5;
   const totalGridHeight = GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * 3;
   const gridTopY = midY - totalGridHeight / 2;
 
-  const inputAY = midY - 55;
-  const inputBY = midY + 55;
+  const txSpread = centered ? 70 : 55;
+  const inputAY = midY - txSpread;
+  const inputBY = midY + txSpread;
 
   // Row center Y positions (relative to container)
   const getRowCenterY = (rowIdx: number) => gridTopY + GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * rowIdx + GRID_ROW_HEIGHT / 2;
@@ -208,10 +220,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Transaction Cards — Left */}
       <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputAY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
-        <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
+        <TxCard customer={customerA} color="#3b82f6" label="Customer A" scaled={centered} />
       </div>
       <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputBY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
-        <TxCard customer={customerB} color="#10b981" label="Customer B" />
+        <TxCard customer={customerB} color="#10b981" label="Customer B" scaled={centered} />
       </div>
 
       {/* Engine Node — Center */}
@@ -233,30 +245,30 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
-          <span className="text-indigo-600 text-xl font-bold">V</span>
+        <div className={`${centered ? "w-14 h-14" : "w-11 h-11"} rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
+          <span className={`text-indigo-600 font-bold ${centered ? "text-2xl" : "text-xl"}`}>V</span>
         </div>
-        <p className="text-[12px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
+        <p className={`font-bold text-slate-900 text-center mb-2 ${centered ? "text-[14px]" : "text-[12px]"}`}>Ventus AI Engine</p>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
             return (
               <div
                 key={cap.label}
-                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}
+                className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}
                 style={{
                   background: engineReady ? `${cap.color}15` : `${cap.color}08`,
                   borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`,
                   animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined,
                 }}
               >
-                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cap.color }} />
-                <span className="text-[10px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
+                <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
+                <span className={`font-semibold ${centered ? "text-[12px]" : "text-[10px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
             );
           })}
         </div>
-        <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
+        <p className={`text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity ${centered ? "text-[10px]" : "text-[8px]"}`}>Click to explore →</p>
       </button>
 
       {/* 3x2 Grid — Right side */}
@@ -273,10 +285,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         {/* Column Headers */}
         <div className="flex" style={{ height: GRID_HEADER_HEIGHT }}>
           <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Consumer Facing</span>
+            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Consumer Facing</span>
           </div>
           <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bank Facing</span>
+            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Bank Facing</span>
           </div>
         </div>
 
@@ -293,13 +305,13 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               }}
             >
               {/* Question row */}
-              <div className="flex items-center gap-1.5 px-2 pt-2 pb-1">
-                <PillarIcon className="w-3 h-3 shrink-0" style={{ color: pillar.color }} />
-                <span className="text-[9px] font-medium" style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              <div className={`flex items-center gap-1.5 px-2 ${centered ? "pt-3 pb-1.5" : "pt-2 pb-1"}`}>
+                <PillarIcon className={`${centered ? "w-4 h-4" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
+                <span className={`font-medium ${centered ? "text-[11px]" : "text-[9px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
               </div>
 
               {/* Two node buttons side by side */}
-              <div className="flex gap-2 px-2">
+              <div className={`flex gap-2 px-2 ${centered ? "gap-3 px-3" : ""}`}>
                 {pillar.nodes.map((node) => {
                   const Icon = node.icon;
                   const isActive = activeNode === node.id;
@@ -312,7 +324,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       key={node.id}
                       onClick={() => { if (canOpen) onNodeClick(node.id); }}
                       disabled={!canOpen}
-                      className="flex-1 flex items-center gap-2 rounded-xl border px-3 py-2 group transition-[box-shadow,opacity,border-color] duration-300"
+                      className={`flex-1 flex items-center gap-2 rounded-xl border ${centered ? "px-4 py-3" : "px-3 py-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
                       style={{
                         cursor: canOpen ? "pointer" : "not-allowed",
                         opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
@@ -334,17 +346,17 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       }}
                     >
                       <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        className={`${centered ? "w-9 h-9" : "w-7 h-7"} rounded-lg flex items-center justify-center shrink-0`}
                         style={{
                           background: canOpen ? `${node.color}20` : `${node.color}12`,
                           border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
                         }}
                       >
-                        <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+                        <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: node.color }} />
                       </div>
                       <div className="text-left min-w-0">
-                        <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700 truncate">{node.label}</p>
-                        <p className="text-[9px] text-slate-400 truncate">
+                        <p className={`font-semibold text-slate-900 group-hover:text-slate-700 truncate ${centered ? "text-[13px]" : "text-[11px]"}`}>{node.label}</p>
+                        <p className={`text-slate-400 truncate ${centered ? "text-[11px]" : "text-[9px]"}`}>
                           {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
                         </p>
                       </div>
@@ -360,14 +372,14 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   );
 }
 
-function TxCard({ customer, color, label }: { customer: DemoCustomer | null; color: string; label: string }) {
+function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | null; color: string; label: string; scaled?: boolean }) {
   if (!customer) {
     return (
       <div
-        className="rounded-lg border-2 border-dashed p-2.5 flex items-center justify-center"
-        style={{ borderColor: `${color}40`, minHeight: 90 }}
+        className={`rounded-lg border-2 border-dashed ${scaled ? "p-3" : "p-2.5"} flex items-center justify-center`}
+        style={{ borderColor: `${color}40`, minHeight: scaled ? 110 : 90 }}
       >
-        <p className="text-[11px] font-medium text-slate-400">{label}</p>
+        <p className={`font-medium text-slate-400 ${scaled ? "text-[13px]" : "text-[11px]"}`}>{label}</p>
       </div>
     );
   }
@@ -375,23 +387,23 @@ function TxCard({ customer, color, label }: { customer: DemoCustomer | null; col
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
     <div
-      className="rounded-lg border-2 p-2.5 bg-white"
+      className={`rounded-lg border-2 ${scaled ? "p-3" : "p-2.5"} bg-white`}
       style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}
     >
       <div className="flex items-center gap-2 mb-2">
         <div
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+          className={`${scaled ? "w-8 h-8 text-[11px]" : "w-6 h-6 text-[9px]"} rounded-full flex items-center justify-center font-bold text-white`}
           style={{ background: `${color}30`, border: `1px solid ${color}50` }}
         >
           {initials}
         </div>
-        <p className="text-[11px] font-semibold text-slate-900 truncate">{customer.profile.name}</p>
+        <p className={`font-semibold text-slate-900 truncate ${scaled ? "text-[13px]" : "text-[11px]"}`}>{customer.profile.name}</p>
       </div>
       <div className="space-y-0.5 overflow-hidden">
-        <p className="text-[9px] font-mono text-slate-600 truncate">
+        <p className={`font-mono text-slate-600 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>
           {customer.txnCount} txns · {customer.txnTotal}
         </p>
-        <p className="text-[9px] font-mono text-slate-400 truncate">
+        <p className={`font-mono text-slate-400 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>
           {customer.dateRange} · {customer.sourceCount} sources
         </p>
       </div>
