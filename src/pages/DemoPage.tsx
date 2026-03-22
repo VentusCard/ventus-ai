@@ -47,6 +47,8 @@ export default function DemoPage() {
     detectedEventA,
     detectedEventB,
     apiPayloads,
+    tipA,
+    tipB,
     startEnrichment,
   } = useDemoEnrichment();
 
@@ -147,6 +149,8 @@ export default function DemoPage() {
             detectedEventA={detectedEventA}
             detectedEventB={detectedEventB}
             apiPayloads={apiPayloads}
+            tipA={tipA}
+            tipB={tipB}
             onClose={() => setActiveNode(null)}
           />
         )}

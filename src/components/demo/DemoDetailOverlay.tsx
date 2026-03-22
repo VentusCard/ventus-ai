@@ -3,6 +3,7 @@ import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import DemoAnalyticsView from "./DemoAnalyticsView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
@@ -25,6 +26,8 @@ interface Props {
   detectedEventA?: DetectedLifeEventResult[];
   detectedEventB?: DetectedLifeEventResult[];
   apiPayloads?: ApiPayloads;
+  tipA?: FinancialTip | null;
+  tipB?: FinancialTip | null;
   onClose: () => void;
 }
 
@@ -45,7 +48,7 @@ const SIMPLE_VIEW_MAP: Record<string, React.FC<{ customerA: DemoCustomer; custom
   analytics: DemoAnalyticsView,
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, tipA, tipB, onClose }: Props) {
   const { title, color } = NODE_TITLES[node];
 
   const defaultPayloads: ApiPayloads = { classificationA: null, classificationB: null, dealPersonalizationA: null, dealPersonalizationB: null, localExperiencesA: null, localExperiencesB: null, lifestyleSignalsA: null, lifestyleSignalsB: null };
@@ -58,7 +61,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
       return <DemoPillarCodeView mode={node} customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} apiPayloads={apiPayloads ?? defaultPayloads} />;
     }
     if (node === "engagement") {
-      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} tipA={tipA} tipB={tipB} />;
     }
     if (node === "travel") {
       return (

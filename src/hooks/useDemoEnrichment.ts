@@ -4,6 +4,7 @@ import { parsePastedText } from "@/lib/parsers";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { toast } from "sonner";
 import { deriveCustomerProfile, getRelevantDeals, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 
@@ -82,6 +83,8 @@ interface DemoEnrichmentResult {
   detectedEventA: DetectedLifeEventResult[];
   detectedEventB: DetectedLifeEventResult[];
   apiPayloads: ApiPayloads;
+  tipA: FinancialTip | null;
+  tipB: FinancialTip | null;
   startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
 }
 
@@ -118,6 +121,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
   const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult[]>([]);
   const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult[]>([]);
+  const [tipA, setTipA] = useState<FinancialTip | null>(null);
+  const [tipB, setTipB] = useState<FinancialTip | null>(null);
   const [apiPayloads, setApiPayloads] = useState<ApiPayloads>({
     classificationA: null, classificationB: null,
     dealPersonalizationA: null, dealPersonalizationB: null,
@@ -190,6 +195,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPersonalizedDealsB(null);
     setDetectedEventA([]);
     setDetectedEventB([]);
+    setTipA(null);
+    setTipB(null);
     setApiPayloads({
       classificationA: null, classificationB: null,
       dealPersonalizationA: null, dealPersonalizationB: null,
@@ -336,15 +343,58 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           }
         };
 
-        Promise.all([
+        // Fire coaching tips for both customers
+        const fireCoachingTips = async () => {
+          const fetchTipFor = async (customer: DemoCustomer, txns: EnrichedTransaction[]): Promise<FinancialTip | null> => {
+            try {
+              const customerContext = {
+                name: customer.profile.name,
+                lifestyleType: customer.lifestyleType,
+                segment: customer.profile.segment,
+                demographics: customer.profile.demographics,
+                holdings: customer.profile.holdings,
+              };
+              const res = await fetch(`${supabaseUrl}/functions/v1/generate-financial-tip`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ transactions: txns, customer: customerContext }),
+              });
+              if (!res.ok) return null;
+              return await res.json();
+            } catch (e) {
+              console.warn(`[Phase2] Tip generation failed for ${customer.profile.name}:`, e);
+              return null;
+            }
+          };
+          const [tA, tB] = await Promise.all([
+            fetchTipFor(customerA, classifiedA),
+            fetchTipFor(customerB, classifiedB),
+          ]);
+          setTipA(tA);
+          setTipB(tB);
+        };
+
+        // Run lifestyle + tips in parallel, gate engagement on both
+        const lifestylePromise = Promise.all([
           fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA, "A"),
           fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB, "B"),
-        ])
+        ]);
+        const tipsPromise = fireCoachingTips();
+
+        lifestylePromise
           .then(() => {
-            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready" });
           })
           .catch(() => {
-            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready" });
+          });
+
+        Promise.all([lifestylePromise, tipsPromise])
+          .then(() => {
+            setNodeReady({ engagement: "ready" });
+          })
+          .catch(() => {
+            setNodeReady({ engagement: "ready" });
           })
           .finally(() => {
             setPhase2Processing(false);
@@ -433,6 +483,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     detectedEventA,
     detectedEventB,
     apiPayloads,
+    tipA,
+    tipB,
     startEnrichment,
   };
 }
