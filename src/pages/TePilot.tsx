@@ -916,17 +916,17 @@ const TePilot = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
-            <TabsTrigger value="preview" disabled={comparisonMode ? false : parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Preview (A vs B)" : "Preview"}
+            <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Preview
             </TabsTrigger>
-            <TabsTrigger value="results" disabled={comparisonMode ? !(enrichedTransactions.length > 0 || enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Enrichment (A vs B)" : "Enrichment"}
+            <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Enrichment
             </TabsTrigger>
-            <TabsTrigger value="analytics" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Dashboard (A vs B)" : "Dashboard"}
+            <TabsTrigger value="analytics" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Dashboard
             </TabsTrigger>
-            <TabsTrigger value="insights" disabled={comparisonMode ? !(enrichedTransactions.length > 0 && enrichedTransactionsB.length > 0) : enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
-              {comparisonMode ? "Rewards (A vs B)" : "Insight Tools"}
+            <TabsTrigger value="insights" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Insight Tools
             </TabsTrigger>
           </TabsList>
 
