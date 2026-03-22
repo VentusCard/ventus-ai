@@ -67,7 +67,15 @@ async function runWithConcurrency<T, R>(
   return results;
 }
 
-// Enhanced Travel Detection Prompt with trip examples
+// Airline keywords for flight detection
+const AIRLINE_KEYWORDS = [
+  'airline', 'airways', 'delta', 'united', 'southwest', 'american airlines', 'jetblue',
+  'british airways', 'air france', 'lufthansa', 'easyjet', 'ryanair',
+  'emirates', 'qatar airways', 'singapore airlines', 'cathay', 'klm', 'virgin atlantic',
+  'spirit', 'frontier', 'alaska air', 'hawaiian air', 'sun country',
+];
+
+// Enhanced Travel Detection Prompt with trip examples and flight-to-trip matching
 const TRAVEL_DETECTION_PROMPT = `You are analyzing PRE-FILTERED transactions that were flagged as potential travel because they:
 1. Have zip codes different from home (home zip: {homeZip})
 2. Are travel anchors (hotels, flights, car rentals)
@@ -120,6 +128,26 @@ RECLASSIFY CATEGORIES AT DESTINATION:
 - Rideshares/Uber → "Local Transportation"
 - Grocery/convenience stores → "Travel Essentials"
 
+FLIGHT-TO-TRIP MATCHING:
+When you see multiple flight/airline charges, you MUST actively assign each to a specific trip:
+1. PRICE SIGNAL: International trips (Europe, Asia, Middle East) typically have fares $500+.
+   Domestic US trips typically have fares $150-$400.
+   Example: Two DELTA charges — $289 and $1,142. The $289 likely = domestic (Florida), $1,142 likely = international (Paris).
+2. DATE PROXIMITY: Match each fare to the trip whose start date is closest to the fare's charge date.
+   A fare charged on March 1 likely belongs to the trip starting March 3, not the trip starting April 15.
+3. FARE PAIRS: Two similar amounts from the same airline within a trip window = round-trip pair.
+   Bracket them around the trip they belong to.
+4. SURPLUS FARES: If you see more flight charges than trips detected (e.g., 4 flights but only 1 trip
+   for the cardholder), mark the extras as third_party_likely: true with fare_match_reason
+   explaining "Fare does not match any detected trip window — likely paid for another traveler".
+5. SAME-DAY BOOKINGS: If multiple flights are booked on the same day, use PRICE SIGNAL first,
+   then DATE PROXIMITY to the nearest trip start, to differentiate them.
+
+For each flight/airline transaction, you MUST set:
+- fare_match_confidence: "high" (clear price/date match), "medium" (reasonable inference), or "low" (best guess)
+- fare_match_reason: Brief explanation of why this fare was assigned to this trip (or flagged third-party)
+- third_party_likely: true if this fare doesn't match any trip the cardholder took
+
 OUTPUT for each transaction:
 - is_travel_related: true/false
 - travel_period_start/end: ISO dates (REQUIRED if is_travel_related=true)
@@ -127,7 +155,10 @@ OUTPUT for each transaction:
 - original_pillar: Pillar before reclassification
 - reclassification_reason: Why this was marked travel/non-travel
 - reclassified_pillar: New pillar (if reclassified)
-- reclassified_subcategory: New subcategory (if reclassified)`;
+- reclassified_subcategory: New subcategory (if reclassified)
+- fare_match_confidence: "high" | "medium" | "low" (for flight/airline transactions)
+- fare_match_reason: string (for flight/airline transactions)
+- third_party_likely: boolean (for flight/airline transactions where fare doesn't match cardholder's trip)`;
 
 const TRAVEL_DETECTION_TOOL = [
   {
@@ -152,6 +183,9 @@ const TRAVEL_DETECTION_TOOL = [
                 reclassified_pillar: { type: "string" },
                 reclassified_subcategory: { type: "string" },
                 reclassification_reason: { type: "string" },
+                fare_match_confidence: { type: "string", enum: ["high", "medium", "low"] },
+                fare_match_reason: { type: "string" },
+                third_party_likely: { type: "boolean" },
               },
               required: ["transaction_id", "is_travel_related"],
             },
@@ -294,6 +328,157 @@ async function processBatch(
   }));
 }
 
+// Post-processing: reconcile orphaned flights with detected trips
+function reconcileFlightsWithTrips(
+  updates: any[],
+  originalTransactions: any[]
+): any[] {
+  // Build a lookup of original transaction amounts by id
+  const txAmountMap = new Map<string, number>();
+  const txMerchantMap = new Map<string, string>();
+  originalTransactions.forEach((t) => {
+    txAmountMap.set(t.id, Math.abs(t.amount || 0));
+    txMerchantMap.set(t.id, (t.merchant || "").toLowerCase());
+  });
+
+  // Identify detected trips (unique destination + date windows)
+  const trips: Array<{
+    destination: string;
+    start: string;
+    end: string;
+    tripLabel: string;
+    isInternational: boolean;
+  }> = [];
+
+  const seenTrips = new Set<string>();
+  updates.forEach((u) => {
+    if (u.is_travel_related && u.travel_destination && u.travel_period_start) {
+      const key = `${u.travel_destination}|${u.travel_period_start}`;
+      if (!seenTrips.has(key)) {
+        seenTrips.add(key);
+        const dest = u.travel_destination.toLowerCase();
+        const internationalKeywords = [
+          'london', 'paris', 'rome', 'berlin', 'tokyo', 'sydney', 'dubai', 'amsterdam',
+          'barcelona', 'munich', 'vienna', 'prague', 'lisbon', 'madrid', 'milan', 'dublin',
+          'brussels', 'zurich', 'geneva', 'singapore', 'hong kong', 'bangkok', 'toronto',
+          'vancouver', 'montreal', 'cancun', 'mexico', 'caribbean', 'bahamas', 'jamaica',
+          'europe', 'asia', 'africa', 'australia', 'south america',
+        ];
+        const isInternational = internationalKeywords.some((kw) => dest.includes(kw));
+        trips.push({
+          destination: u.travel_destination,
+          start: u.travel_period_start,
+          end: u.travel_period_end || u.travel_period_start,
+          tripLabel: u.trip_label || "",
+          isInternational,
+        });
+      }
+    }
+  });
+
+  if (trips.length === 0) return updates;
+
+  // Find orphaned flight transactions (not assigned to a trip but are airline charges)
+  return updates.map((u) => {
+    const merchant = txMerchantMap.get(u.transaction_id) || "";
+    const isAirline = AIRLINE_KEYWORDS.some((kw) => merchant.includes(kw));
+
+    // Skip non-airline transactions or already-assigned ones
+    if (!isAirline) return u;
+    if (u.is_travel_related && u.travel_destination && u.fare_match_confidence) return u;
+
+    const amount = txAmountMap.get(u.transaction_id) || 0;
+
+    // Find the original transaction date
+    const origTx = originalTransactions.find((t) => t.id === u.transaction_id);
+    const txDate = origTx ? new Date(origTx.date).getTime() : 0;
+
+    // Score each trip for this fare
+    let bestTrip: (typeof trips)[0] | null = null;
+    let bestScore = -Infinity;
+    let bestReason = "";
+
+    trips.forEach((trip) => {
+      let score = 0;
+      const reasons: string[] = [];
+
+      // Price-distance heuristic
+      if (trip.isInternational && amount >= 500) {
+        score += 3;
+        reasons.push(`fare $${amount} matches international destination`);
+      } else if (!trip.isInternational && amount >= 100 && amount <= 500) {
+        score += 3;
+        reasons.push(`fare $${amount} matches domestic destination`);
+      } else if (trip.isInternational && amount < 300) {
+        score -= 2;
+        reasons.push(`fare $${amount} unusually low for international`);
+      } else if (!trip.isInternational && amount > 800) {
+        score -= 2;
+        reasons.push(`fare $${amount} unusually high for domestic`);
+      }
+
+      // Date proximity (closer = better)
+      if (txDate > 0) {
+        const tripStart = new Date(trip.start).getTime();
+        const daysDiff = Math.abs(txDate - tripStart) / (1000 * 60 * 60 * 24);
+        if (daysDiff <= 7) {
+          score += 4;
+          reasons.push(`booked ${Math.round(daysDiff)}d before trip`);
+        } else if (daysDiff <= 30) {
+          score += 2;
+          reasons.push(`booked ${Math.round(daysDiff)}d before trip`);
+        } else if (daysDiff <= 90) {
+          score += 1;
+          reasons.push(`booked ${Math.round(daysDiff)}d before trip`);
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestTrip = trip;
+        bestReason = reasons.join("; ");
+      }
+    });
+
+    // If we found a matching trip, assign the flight to it
+    if (bestTrip && bestScore > 0) {
+      const confidence = bestScore >= 5 ? "high" : bestScore >= 3 ? "medium" : "low";
+      return {
+        ...u,
+        is_travel_related: true,
+        travel_destination: bestTrip.destination,
+        travel_period_start: bestTrip.start,
+        travel_period_end: bestTrip.end,
+        fare_match_confidence: u.fare_match_confidence || confidence,
+        fare_match_reason: u.fare_match_reason || `Reconciled: ${bestReason}`,
+        third_party_likely: false,
+        reclassification_reason: u.reclassification_reason || `Flight matched to ${bestTrip.destination} trip`,
+      };
+    }
+
+    // Check if this is a surplus fare (more flights than trips × 2)
+    const allAirlineIds = updates
+      .filter((upd) => {
+        const m = txMerchantMap.get(upd.transaction_id) || "";
+        return AIRLINE_KEYWORDS.some((kw) => m.includes(kw));
+      })
+      .map((upd) => upd.transaction_id);
+
+    if (allAirlineIds.length > trips.length * 2) {
+      return {
+        ...u,
+        is_travel_related: false,
+        third_party_likely: true,
+        fare_match_confidence: "low",
+        fare_match_reason: `Surplus fare — ${allAirlineIds.length} flights for ${trips.length} trip(s). Likely paid for another traveler.`,
+        reclassification_reason: "Fare does not match any detected trip window",
+      };
+    }
+
+    return u;
+  });
+}
+
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
@@ -344,7 +529,7 @@ Deno.serve(async (req) => {
           sendEvent("status", { message: "Analyzing travel patterns..." });
           const startTime = Date.now();
 
-          // Prepare transaction summary
+          // Prepare transaction summary (include amount for fare matching)
           const transactionSummary = transactions.map((t) => ({
             id: t.transaction_id,
             date: t.date,
@@ -353,6 +538,7 @@ Deno.serve(async (req) => {
             amount: t.amount,
             pillar: t.pillar,
             zip: t.zip_code || "unknown",
+            anchor_type: t.anchor_type || null,
           }));
 
           // Split into batches
@@ -370,7 +556,11 @@ Deno.serve(async (req) => {
             (batch, idx) => processBatch(batch, idx, batches.length, homeZip, sendEvent)
           );
 
-          const rawUpdates = batchResults.flat();
+          let rawUpdates = batchResults.flat();
+
+          // Phase 2: Reconcile orphaned flights with detected trips
+          sendEvent("status", { message: "Reconciling flight fares with trips..." });
+          rawUpdates = reconcileFlightsWithTrips(rawUpdates, transactionSummary);
 
           // Build trip_label for each travel-related update
           const travelUpdates = rawUpdates.map((u: any) => {
@@ -385,7 +575,8 @@ Deno.serve(async (req) => {
 
           const totalTime = Date.now() - startTime;
           const travelCount = travelUpdates.filter((u: any) => u.is_travel_related).length;
-          console.log(`[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related) in ${totalTime}ms`);
+          const thirdPartyCount = travelUpdates.filter((u: any) => u.third_party_likely).length;
+          console.log(`[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related, ${thirdPartyCount} third-party flagged) in ${totalTime}ms`);
 
           // Send travel updates
           sendEvent("travel_updates", { travel_updates: travelUpdates });
