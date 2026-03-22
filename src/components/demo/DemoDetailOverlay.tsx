@@ -26,6 +26,8 @@ interface Props {
   detectedEventA?: DetectedLifeEventResult[];
   detectedEventB?: DetectedLifeEventResult[];
   apiPayloads?: ApiPayloads;
+  tipA?: FinancialTip | null;
+  tipB?: FinancialTip | null;
   onClose: () => void;
 }
 
