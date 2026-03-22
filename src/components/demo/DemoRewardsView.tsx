@@ -143,9 +143,6 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
         >
           {perk.value}
         </span>
-        <span className={cn("text-[7px] font-semibold px-1 py-0.5 rounded-full", TIER_COLORS[perk.tier])}>
-          {perk.tier}
-        </span>
       </div>
     </div>
   );
