@@ -34,22 +34,23 @@ interface SpendingItem {
   icon: string;
   spend: number;
   pct: number;
-  subcategories: { subcategory: string; count: number; total: number }[];
+  subcategories: { category: string; count: number; total: number }[];
 }
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
   if (enriched && enriched.length > 0) {
-    const pillarMap = new Map<string, { total: number; subcats: Map<string, { count: number; total: number }> }>();
+    const pillarMap = new Map<string, { total: number; categories: Map<string, { count: number; total: number }> }>();
     let grandTotal = 0;
     enriched.forEach((t) => {
       const amt = Math.abs(t.amount);
       grandTotal += amt;
-      const entry = pillarMap.get(t.pillar) || { total: 0, subcats: new Map() };
+      const entry = pillarMap.get(t.pillar) || { total: 0, categories: new Map() };
       entry.total += amt;
-      const sub = entry.subcats.get(t.subcategory) || { count: 0, total: 0 };
-      sub.count += 1;
-      sub.total += amt;
-      entry.subcats.set(t.subcategory, sub);
+      const catKey = t.category || "General";
+      const cat = entry.categories.get(catKey) || { count: 0, total: 0 };
+      cat.count += 1;
+      cat.total += amt;
+      entry.categories.set(catKey, cat);
       pillarMap.set(t.pillar, entry);
     });
     const pillarIcons: Record<string, string> = {
@@ -66,8 +67,8 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
         icon: pillarIcons[name] || "📊",
         spend: Math.round(data.total),
         pct: grandTotal > 0 ? Math.round((data.total / grandTotal) * 100) : 0,
-        subcategories: Array.from(data.subcats.entries())
-          .map(([subcategory, s]) => ({ subcategory, count: s.count, total: Math.round(s.total) }))
+        subcategories: Array.from(data.categories.entries())
+          .map(([category, s]) => ({ category, count: s.count, total: Math.round(s.total) }))
           .sort((a, b) => b.total - a.total),
       }));
   }
@@ -273,8 +274,8 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                             ))
                           ) : (
                             b.subcategories.slice(0, 5).map((sub) => (
-                              <div key={sub.subcategory} className="flex items-center justify-between text-[9px]">
-                                <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
+                              <div key={sub.category} className="flex items-center justify-between text-[9px]">
+                                <span className="text-slate-500 truncate mr-1">{sub.category}</span>
                                 <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
                               </div>
                             ))
