@@ -57,7 +57,7 @@ const PILLARS: PillarDef[] = [
     color: "#22c55e",
     nodes: [
       { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
-      { id: "travel", label: "Travel Experiences", icon: Plane, color: "#06b6d4" },
+      { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4" },
     ],
   },
   {
