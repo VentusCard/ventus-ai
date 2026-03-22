@@ -1,36 +1,36 @@
 
 
-## Revamp Consumer Rewards in /demo — Side-by-Side Phone Mockups
+## Use Static Location Experiences from /tepilot in Demo Rewards
 
-### Concept
-Two phone mockups side-by-side (same pattern as Personalized UX/Engagement view) — each showing a compact consumer rewards app experience with personalized deals, AI messages, and local experiences. Like two people comparing their phones.
+### Goal
+Replace the AI-generated local experiences in the rewards phone mockups with the static `INITIAL_PERKS` data from `LocationExperienceManager.tsx`. Show art, entertainment, perks, etc. with proper category variety and tier badges — different per customer based on their home city.
 
-### Changes — `src/components/demo/DemoRewardsView.tsx`
+### Changes
 
-Full rewrite. Replace the current flat deal-card columns with two `PhoneMockup` components mirroring the Engagement view's phone frame pattern.
+#### 1. Extract `INITIAL_PERKS` to a shared data file
+- Create `src/lib/locationPerksData.ts` — move the `INITIAL_PERKS` array, `LocationPerk` type, `PerkCategory` type, and `CATEGORY_CONFIG` from `LocationExperienceManager.tsx` into this shared file
+- Update `LocationExperienceManager.tsx` to import from the shared file
 
-#### Phone Mockup Contents (per customer)
-1. **Header**: "Your Rewards" + lifestyle type banner (reuse Engagement pattern — gradient banner with color)
-2. **Lifestyle pills**: Top 3 pillars as small emoji+label chips (from enriched data or precomputed)
-3. **Deal cards** (scrollable list inside phone): Compact deal rows showing:
-   - Merchant name + category icon + reward badge (e.g. "5% Back")
-   - AI personalized message in italic (from precomputed `personalizedA/B` or fetched via edge function)
-   - AI CTA button
-4. **Local Experiences section**: Collapsible section at top with city name + category tabs (Entertainment/Dining/Arts/Shopping) — pulls from `localExperiences` prop or `useCityDeals` hook
-5. **Personalization status footer**: "X deals personalized" or loading spinner
+#### 2. Rewrite Local Experiences section in `DemoRewardsView.tsx`
+- Import the static perks data
+- Map customer zip → city (94102→SF, 78701→Austin, 60614→Chicago, 10003→NYC)
+- Filter perks by the customer's city
+- Show category tabs (Art, Entertainment, Sports, Dining, etc.) within the phone mockup
+- Each perk card shows: category icon + title + partner + value badge + tier badge (color-coded: Premium/Private/Preferred/All Members)
+- Remove dependency on `localExperiences` prop and `useCityDeals` hook for this section
 
-#### Data Flow
-- Reuse existing `precomputedA/B` props for deals + personalization (already fetched by `useDemoEnrichment`)
-- Derive `customerProfile` from enriched transactions using existing `deriveCustomerProfile` from `dealSelectionUtils`
-- Local experiences: use `localExperiences` prop passed from parent, or call `useCityDeals` with customer's home city
-- Static fallback (pre-enrichment): show customer's static `deals` array in phone frame
+#### 3. Perk card design (compact, phone-scale)
+- Category icon (from `CATEGORY_CONFIG`) + perk title in bold
+- Partner name in muted text
+- Value badge (e.g., "$250/game", "Free entry", "30% off") — styled with the customer accent color
+- Tier badge (e.g., "Premium", "Private") — using existing `TIER_COLORS`
+- Tagline as italic subtitle
 
-#### Layout
-- `grid grid-cols-2 gap-4` with two `PhoneMockup` components
-- Phone frame: browser dots bar + `yourbank.com/rewards` URL bar + white content area
-- Max width `max-w-[380px]` per phone (same as Engagement)
-- Internal scroll for deal list (`max-h-[400px] overflow-y-auto`)
+### Result
+Two customers in different cities see completely different location perks — one sees NYC Broadway/Mets/Le Bernardin, the other sees Austin ACL/Chicago Art Institute etc., showcasing the variety of art, entertainment, dining, sports, and culture perks.
 
 ### Files Modified
-- `src/components/demo/DemoRewardsView.tsx` — full rewrite with phone mockup pattern
+- `src/lib/locationPerksData.ts` — new shared data file
+- `src/components/tepilot/insights/LocationExperienceManager.tsx` — import from shared file
+- `src/components/demo/DemoRewardsView.tsx` — use static perks instead of AI-generated local experiences
 
