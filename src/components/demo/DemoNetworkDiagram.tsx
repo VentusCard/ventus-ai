@@ -285,10 +285,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         {/* Column Headers */}
         <div className="flex" style={{ height: GRID_HEADER_HEIGHT }}>
           <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Consumer Facing</span>
+            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Consumer Facing</span>
           </div>
           <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bank Facing</span>
+            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Bank Facing</span>
           </div>
         </div>
 
