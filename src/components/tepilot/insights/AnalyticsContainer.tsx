@@ -5,16 +5,22 @@ import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles } from "lucide-react";
+import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
+import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, CalendarHeart, Briefcase } from "lucide-react";
+import { ClientProfileData } from "@/types/clientProfile";
+import { AIInsights } from "@/types/lifestyle-signals";
 
 interface AnalyticsContainerProps {
-  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence';
+  defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'life-events' | 'wm-copilot';
+  userDemographics?: ClientProfileData | null;
+  lifestyleSignals?: AIInsights | null;
 }
 
-export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals }: AnalyticsContainerProps) {
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <TabsList className="mb-6 bg-slate-100 p-1">
+      <TabsList className="mb-6 bg-slate-100 p-1 flex-wrap h-auto gap-1">
         <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-white">
           <BarChart3 className="w-4 h-4" />
           Analytics Dashboard
@@ -38,6 +44,14 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
         <TabsTrigger value="gamification" className="flex items-center gap-2 data-[state=active]:bg-white">
           <Gamepad2 className="w-4 h-4" />
           Gamification
+        </TabsTrigger>
+        <TabsTrigger value="life-events" className="flex items-center gap-2 data-[state=active]:bg-white">
+          <CalendarHeart className="w-4 h-4" />
+          Life Events Intelligence
+        </TabsTrigger>
+        <TabsTrigger value="wm-copilot" className="flex items-center gap-2 data-[state=active]:bg-white">
+          <Briefcase className="w-4 h-4" />
+          WM Copilot
         </TabsTrigger>
       </TabsList>
 
@@ -63,6 +77,14 @@ export function AnalyticsContainer({ defaultTab = 'dashboard' }: AnalyticsContai
 
       <TabsContent value="gamification" className="mt-0">
         <GamificationManagement />
+      </TabsContent>
+
+      <TabsContent value="life-events" className="mt-0">
+        <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />
+      </TabsContent>
+
+      <TabsContent value="wm-copilot" className="mt-0">
+        <BankwideWMCopilotView />
       </TabsContent>
     </Tabs>
   );
