@@ -381,29 +381,8 @@ const TePilot = () => {
     await startEnrichment(parsedTransactions, anchorZip);
   };
 
-  // Comparison mode: auto-trigger from multi-select sample data
-  const handleLoadComparisonSamples = (
-    dataA: { csv: string; zip: string; demographics: ClientProfileData },
-    dataB: { csv: string; zip: string; demographics: ClientProfileData }
-  ) => {
-    setSelectedCompA(dataA);
-    setSelectedCompB(dataB);
-    setComparisonMode(true);
-    const resultA = parsePastedText(`# Home ZIP Code: ${dataA.zip}\n${dataA.csv}`);
-    const resultB = parsePastedText(`# Home ZIP Code: ${dataB.zip}\n${dataB.csv}`);
-    if (!resultA.transactions || !resultB.transactions) {
-      toast.error("Failed to parse comparison datasets");
-      return;
-    }
-    setParsedTransactions(resultA.transactions);
-    setParsedTransactionsB(resultB.transactions);
-    setUserDemographics(dataA.demographics);
-    setUserDemographicsB(dataB.demographics);
-    setAnchorZip(dataA.zip);
-    setAnchorZipB(dataB.zip);
-    setIsFromSampleData(true);
-    setActiveTab("preview");
-  };
+
+
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
     if (!transaction) return;
