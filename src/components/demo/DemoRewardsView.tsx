@@ -243,7 +243,6 @@ function RewardsPhoneMockup({
   city: string;
   perks: LocationPerk[];
 }) {
-  const [expandedDeal, setExpandedDeal] = useState<string | null>(null);
   const firstName = customer.profile.name.split(" ")[0];
   const personalizedCount = Object.keys(personalized).length;
 
@@ -282,15 +281,13 @@ function RewardsPhoneMockup({
               {hasEnriched && deals.length > 0 ? (
                 deals.map((deal, i) => {
                   const p = personalized[deal.id];
-                  const isExpanded = expandedDeal === deal.id;
                   const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
 
                   return (
                     <div
                       key={deal.id}
-                      className="rounded-lg border border-slate-200 bg-white animate-fade-in cursor-pointer transition-all hover:shadow-sm"
+                      className="rounded-lg border border-slate-200 bg-white animate-fade-in"
                       style={{ animationDelay: `${i * 60}ms` }}
-                      onClick={() => setExpandedDeal(isExpanded ? null : deal.id)}
                     >
                       <div className="p-2 pb-1">
                         <div className="flex items-center justify-between mb-0.5">
@@ -324,43 +321,6 @@ function RewardsPhoneMockup({
                           </div>
                         ) : null}
                       </div>
-
-                      {/* Expanded detail */}
-                      {isExpanded && (
-                        <div className="px-2.5 pb-2 pt-1 border-t border-slate-100">
-                          <div className="grid grid-cols-2 gap-1.5 text-[9px]">
-                            <div>
-                              <span className="text-slate-400">Category</span>
-                              <p className="font-medium text-slate-700">{deal.merchantCategory}</p>
-                            </div>
-                            <div>
-                              <span className="text-slate-400">Popularity</span>
-                              <p className="font-medium text-slate-700 capitalize">{deal.popularity}</p>
-                            </div>
-                            <div>
-                              <span className="text-slate-400">Activations</span>
-                              <p className="font-medium text-slate-700">{deal.activationCount.toLocaleString()}</p>
-                            </div>
-                            <div>
-                              <span className="text-slate-400">Match Reason</span>
-                              <p className="font-medium text-slate-700">
-                                {profile?.topPillars.some(tp => tp.pillar === deal.merchantCategory)
-                                  ? `${deal.merchantCategory.split(" ")[0]} spending`
-                                  : "Discovery pick"
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          {p && (
-                            <div className="mt-1.5 rounded-md p-2" style={{ background: `${color}06` }}>
-                              <p className="text-[8px] font-bold uppercase tracking-wider mb-0.5" style={{ color }}>
-                                ✨ AI Personalization
-                              </p>
-                              <p className="text-[10px] text-slate-600 leading-relaxed">{p.msg}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   );
                 })
