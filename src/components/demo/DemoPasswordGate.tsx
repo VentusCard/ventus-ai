@@ -270,7 +270,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   transform: `translateY(${yOffset}px) scale(${scaleVal})`,
                   opacity: opacityVal,
                   zIndex: i,
-                  height: 80,
+                  height: 90,
                   transformOrigin: "top center",
                   transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)"
                 }}>
