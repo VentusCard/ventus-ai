@@ -1,24 +1,33 @@
 
 
-## Remove Category Label Phase from Education Beat
+## Fix Beat Numbers on Keynote Cards
 
 ### Problem
-The education beat (Beat 5) currently has 3 phases:
-- Phase 0: Show merchant names + amounts
-- Phase 1: Reveal category labels ("Education Services", "Education - Other")
-- Phase 2: Reveal life event insight
+The beat/card numbers are inconsistent in two ways:
 
-The user wants to remove Phase 1 (the category labels), going directly from merchants to the life event insight.
+1. **Active card labels vs stacked card labels mismatch**: Active cards use hardcoded labels ("01", "02", "02", "03") while stacked cards behind use `String(i).padStart(2, "0")` which produces "03", "04", "05", "06" for steps 3–6.
 
-### Changes — `src/components/demo/DemoPasswordGate.tsx`
+2. **Duplicate number**: Beat 5 (Education/College) shows "02" — same as Beat 4 (Skiing). It should be "03".
 
-#### 1. Remove category label elements (lines 514–526)
-Delete the `<span>` that renders `tx.category` with the yellow background. The transaction rows will only show merchant name and amount.
+### Current state
+| Step | Active card label | Stacked card label | Should be |
+|------|------------------|--------------------|-----------|
+| 3    | 01               | 03                 | 01        |
+| 4    | 02               | 04                 | 02        |
+| 5    | 02 ❌            | 05                 | 03        |
+| 6    | 03               | 06                 | 04        |
 
-#### 2. Simplify beat5Phase from 3 phases to 2
-- Change the click handler: `beat5Phase < 2` → `beat5Phase < 1` (line 51), so there's only one sub-phase (phase 0 → phase 1)
-- Change the life event reveal condition: `beat5Phase >= 2` → `beat5Phase >= 1` (lines 537–538)
-- The goBack handler for `beat5Phase > 0` stays the same but will now only step back one phase
+### Fix — `src/components/demo/DemoPasswordGate.tsx`
+
+#### 1. Fix active card labels
+- Line 487: Change `"02"` → `"03"` (Beat 5 / Education)
+- Line 543: Change `"03"` → `"04"` (Beat 6 / Disconnected data)
+
+#### 2. Fix stacked card labels
+- Line 279: Change `{String(i).padStart(2, "0")}` → `{String(i - 2).padStart(2, "0")}` so step 3→"01", step 4→"02", step 5→"03", step 6→"04" — matching the active card labels.
+
+#### 3. Fix `BEAT_SUMMARIES` indexing
+The stacked cards access `BEAT_SUMMARIES[i]` where `i` is the step index (3–6), but the array only has 7 entries (indices 0–6). Verify each summary maps to the correct card content.
 
 ### Files Modified
 - `src/components/demo/DemoPasswordGate.tsx`
