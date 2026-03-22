@@ -159,7 +159,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             color: PILLAR_COLORS[transaction.pillar],
                             borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
                           }}
-                          className="border text-[9px] px-1 py-0 truncate max-w-full block text-center"
+                          className="border text-[9px] px-1 py-0 truncate max-w-full text-center"
                           title={transaction.pillar}
                         >
                           {SHORT_PILLAR[transaction.pillar] || transaction.pillar}
