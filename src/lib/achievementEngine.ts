@@ -100,7 +100,7 @@ function checkDiversifiedSpender(txns: EnrichedTransaction[]): Achievement {
 }
 
 function checkTravelPlanner(txns: EnrichedTransaction[]): Achievement {
-  const travelTxns = txns.filter((t) => t.travel_context?.is_travel_related);
+  const travelTxns = txns.filter((t) => t.trip_label);
   // Check for advance bookings: transactions dated well before travel period
   let advanceBookings = 0;
   travelTxns.forEach((t) => {
