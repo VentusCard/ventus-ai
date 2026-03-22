@@ -220,10 +220,10 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
       {/* Transaction Cards — Left */}
       <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputAY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
-        <TxCard customer={customerA} color="#3b82f6" label="Customer A" />
+        <TxCard customer={customerA} color="#3b82f6" label="Customer A" scaled={centered} />
       </div>
       <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputBY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
-        <TxCard customer={customerB} color="#10b981" label="Customer B" />
+        <TxCard customer={customerB} color="#10b981" label="Customer B" scaled={centered} />
       </div>
 
       {/* Engine Node — Center */}
