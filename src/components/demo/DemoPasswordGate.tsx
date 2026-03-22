@@ -552,14 +552,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 6 — Disconnected data */}
               {displayStep === 6 &&
               <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>
+                  <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
                     {beat6Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
                   </h2>
-                  <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                  <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                     {beat6Phase === 0 ?
                   "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals." :
                   "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
