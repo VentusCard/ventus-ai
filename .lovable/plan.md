@@ -1,32 +1,26 @@
 
 
-## Tighten Consumer Rewards Phone Mockups
+## Tighten Local Experiences Section in Rewards Phone Mockups
 
 ### Changes — `src/components/demo/DemoRewardsView.tsx`
 
-#### 1. Remove the "Lifestyle Profile" banner card
-Delete the gradient lifestyle banner block (lines 279-297) — the one showing "Your Lifestyle" / lifestyle type / pillar chips. This is redundant with the deal cards themselves which already communicate the personalization story.
+#### 1. Compact PerkCard into a single row
+Current card has 3 rows (title+tier, tagline, partner+value). Condense to a single-row layout:
+- **Left**: category icon (smaller, `h-5 w-5`)
+- **Middle**: title (truncated) + partner in muted text on same line separated by `·`
+- **Right**: value badge + tier badge inline
 
-#### 2. Deduplicate reward value display
-Currently each deal card shows:
-- `deal.rewardValue` as a badge (e.g. "7% Cashback") on the top-right
-- `deal.dealTitle` as a subtitle which often repeats the same reward text
+Remove the tagline entirely — it's redundant with the title in most cases.
 
-Fix: Remove the `dealTitle` line (line 349). The reward badge + merchant name + AI message is sufficient. The card becomes: **icon + merchant name + reward badge** on row 1, then **AI message** on row 2.
+#### 2. Tighten LocalPerksSection spacing
+- Reduce section padding from `px-2.5 py-2` to `px-2 py-1.5`
+- Reduce card gap from `space-y-1.5` to `space-y-1`
+- Collapse section by default (`useState(false)`) to save vertical space
+- Remove "perks" count from header — just show `"{city}"` next to the icon
 
-#### 3. Tighten spacing throughout
-- Reduce phone content padding from `p-4 space-y-2.5` to `p-3 space-y-2`
-- Reduce deal card internal padding from `p-2.5 pb-1.5` to `p-2 pb-1`
-- Remove the "Deal count" status bar (lines 304-318) — it adds clutter. The personalization badge can move inline with the header.
-- Merge the personalized count badge into the header subtitle (e.g. "10 deals · 8 personalized")
-
-#### 4. Compact header
-Combine the header + personalization status into one tight line:
-- "Your Rewards, {firstName}" with deal count as muted suffix
-- Remove the separate subtitle "Personalized offers based on your lifestyle"
-
-### Result
-Each phone mockup becomes visually tighter — header → local perks → deal list → footer, with no duplicate info and less vertical padding.
+#### 3. Simplify category tabs
+- Remove the category icon from tabs — just use text labels, they're already tiny
+- Tighten tab padding from `px-2 py-0.5` to `px-1.5 py-0.5`
 
 ### Files Modified
 - `src/components/demo/DemoRewardsView.tsx`
