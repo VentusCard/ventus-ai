@@ -707,14 +707,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {/* Beat 7 — Reveal */}
               {displayStep === 7 &&
               <div className="text-center py-8">
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     One AI-Native layer that enables personalized banking across functions.
                   </h1>
                   <div
                   className="mt-12 transition-all duration-700 ease-out flex flex-col items-center"
                   style={{ opacity: revealLogo ? 1 : 0, transform: revealLogo ? "translateY(0)" : "translateY(20px)" }}>
                     
-                    <p className="mt-2 text-base" style={{ color: "#64748B" }}>
+                    <p className="mt-2 text-lg" style={{ color: "#64748B" }}>
                       Transform banking experiences — no core overhaul required.
                     </p>
                   </div>
