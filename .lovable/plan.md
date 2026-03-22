@@ -1,32 +1,14 @@
 
 
-## Add Travel Detection to /demo Enrichment Pipeline
+## Hide Column Headers for Engine Node
 
-### Current State
-- The demo runs `classify-transactions` but explicitly skips `travel-detection` (line 418: "no travel-detection — pass undefined for homeZip")
-- The Travel overlay (`DemoTravelView`) uses **hardcoded** trip data from `DemoCustomer.trips` — not AI-detected trips
-- Each `DemoCustomer` has a `zip` field available as `homeZip`
-- The `travel` node readiness is gated on `local-experiences` completing, not on actual travel detection
+The `DemoDetailOverlay` renders a "Column Headers" section (lines 132–147) showing customer names with avatar icons for all views. Since the `DemoEnrichmentTableView` (the "engine" node) already has its own `CustomerHeader` bars with names and stats, these top headers are redundant.
 
-### Plan
+### Change — `src/components/demo/DemoDetailOverlay.tsx`
 
-#### 1. Add travel-detection call after classification — `useDemoEnrichment.ts`
-- In `maybeStartPhase2()`, after both classifications complete, call `travel-detection` edge function for both customers using their enriched transactions and `customer.zip` as `homeZip`
-- Use `preFilterTravelCandidates()` (from `travelPreFilter.ts`) to reduce payload before sending to AI
-- Parse SSE response and merge `trip_label` + `travel_context` back into `enrichedA`/`enrichedB`
-- Gate `travel: "ready"` on **both** travel-detection AND local-experiences completing (currently only local-experiences)
+Conditionally hide the Column Headers section when `node === "engine"`:
 
-#### 2. Pass travel-enriched transactions to Travel + Rewards views
-- The enriched transactions already flow through to `DemoDetailOverlay` → `DemoTravelView` and `DemoRewardsView`
-- Update `DemoTravelView` to display **AI-detected trips** (from `trip_label`/`travel_context` on enriched transactions) alongside the existing hardcoded trip cards
-- Group enriched transactions by `trip_label` to build detected trip summaries (destination, date range, transaction count, total spend)
+- Wrap the grid div at lines 133–147 in a condition: only render when `node !== "engine"`
 
-#### 3. Update enrichment flow timeline
-- Phase 2 now includes: lifestyle signals, coaching tips, deal personalization, AND travel detection — all in parallel
-- Travel node readiness = `local-experiences` done AND `travel-detection` done for both customers
-
-### Files Modified
-- `src/hooks/useDemoEnrichment.ts` — add travel-detection calls in `maybeStartPhase2`, gate travel node on both sources
-- `src/components/demo/DemoTravelView.tsx` — add AI-detected trip section from enriched transaction data
-- `src/components/demo/DemoDetailOverlay.tsx` — pass enriched transactions to TravelView (already passed, just ensure used)
+This is a one-line conditional — no other files need changes.
 
