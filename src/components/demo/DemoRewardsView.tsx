@@ -128,27 +128,24 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
   const CatIcon = cc.icon;
 
   return (
-    <div className="flex items-start gap-2 rounded-md border border-slate-100 bg-white p-2 hover:shadow-sm transition-shadow">
-      <div className={cn("h-6 w-6 rounded flex items-center justify-center shrink-0 border", cc.color)}>
-        <CatIcon className="h-3 w-3" />
+    <div className="flex items-center gap-1.5 py-1 px-1.5 rounded-md hover:bg-slate-50 transition-colors">
+      <div className={cn("h-5 w-5 rounded flex items-center justify-center shrink-0 border", cc.color)}>
+        <CatIcon className="h-2.5 w-2.5" />
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <span className="text-[11px] font-semibold text-slate-900 truncate">{perk.title}</span>
-          <span className={cn("text-[8px] font-semibold px-1.5 py-0.5 rounded-full shrink-0", TIER_COLORS[perk.tier])}>
-            {perk.tier}
-          </span>
-        </div>
-        <p className="text-[9px] italic text-slate-400 line-clamp-1">{perk.tagline}</p>
-        <div className="flex items-center gap-1.5 mt-1">
-          <span className="text-[9px] text-slate-500 truncate">{perk.partner}</span>
-          <span
-            className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ml-auto"
-            style={{ background: `${color}12`, color }}
-          >
-            <Star className="h-2.5 w-2.5 inline mr-0.5" />{perk.value}
-          </span>
-        </div>
+      <div className="min-w-0 flex-1 flex items-center gap-1">
+        <span className="text-[10px] font-semibold text-slate-900 truncate">{perk.title}</span>
+        <span className="text-[9px] text-slate-400 truncate">· {perk.partner}</span>
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <span
+          className="text-[8px] font-bold px-1.5 py-0.5 rounded"
+          style={{ background: `${color}12`, color }}
+        >
+          {perk.value}
+        </span>
+        <span className={cn("text-[7px] font-semibold px-1 py-0.5 rounded-full", TIER_COLORS[perk.tier])}>
+          {perk.tier}
+        </span>
       </div>
     </div>
   );
