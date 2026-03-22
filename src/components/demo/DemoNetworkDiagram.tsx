@@ -342,9 +342,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       >
                         <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
                       </div>
-                      <div className="text-left">
-                        <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-                        <p className="text-[9px] text-slate-400">
+                      <div className="text-left min-w-0">
+                        <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700 truncate">{node.label}</p>
+                        <p className="text-[9px] text-slate-400 truncate">
                           {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
                         </p>
                       </div>
