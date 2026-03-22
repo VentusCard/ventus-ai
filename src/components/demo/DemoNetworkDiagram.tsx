@@ -36,16 +36,13 @@ const TX_CARD_WIDTH = 180;
 const TX_CARD_HEIGHT = 110;
 const ENGINE_WIDTH = 210;
 const ENGINE_HEIGHT = 245;
-const PILLAR_WIDTH = 175;
-const PILLAR_HEIGHT = 88;
-const LEAF_NODE_WIDTH = 210;
-const LEAF_NODE_HEIGHT = 52;
-const LEAF_PAIR_OFFSET = 38;
+const GRID_WIDTH = 440;
+const GRID_ROW_HEIGHT = 110;
+const GRID_HEADER_HEIGHT = 32;
 
 // Horizontal gaps between column centers
 const GAP_TX_ENGINE = 260;
-const GAP_ENGINE_PILLAR = 255;
-const GAP_PILLAR_LEAF = 250;
+const GAP_ENGINE_GRID = 280;
 
 const PILLARS: PillarDef[] = [
   {
@@ -104,32 +101,28 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // ── Center-based layout: compute 4 column centers, then center the whole frame ──
-  const totalContentWidth = TX_CARD_WIDTH / 2 + GAP_TX_ENGINE + GAP_ENGINE_PILLAR + GAP_PILLAR_LEAF + LEAF_NODE_WIDTH / 2;
+  // ── Center-based layout: compute 3 column centers, then center the whole frame ──
+  const totalContentWidth = TX_CARD_WIDTH / 2 + GAP_TX_ENGINE + GAP_ENGINE_GRID + GRID_WIDTH / 2;
   const contentLeft = Math.max(20, (dims.w - totalContentWidth) / 2);
 
   const txCenterX = contentLeft + TX_CARD_WIDTH / 2;
   const engineCenterX = txCenterX + GAP_TX_ENGINE;
-  const pillarCenterX = engineCenterX + GAP_ENGINE_PILLAR;
-  const leafCenterX = pillarCenterX + GAP_PILLAR_LEAF;
+  const gridLeftX = engineCenterX + GAP_ENGINE_GRID - GRID_WIDTH / 2;
 
-  // ── Vertical layout: clamped band, not raw viewport scaling ──
+  // ── Vertical layout ──
   const midY = dims.h * 0.5;
-  const pillarSpacing = Math.min(Math.max(dims.h * 0.24, 110), 200);
-  const getPillarY = (pi: number) => midY + (pi - 1) * pillarSpacing;
+  const totalGridHeight = GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * 3;
+  const gridTopY = midY - totalGridHeight / 2;
 
   const inputAY = midY - 55;
   const inputBY = midY + 55;
 
-  const getNodeY = (pillarIdx: number, nodeIdx: number) => {
-    const pillarY = getPillarY(pillarIdx);
-    return nodeIdx === 0 ? pillarY - LEAF_PAIR_OFFSET : pillarY + LEAF_PAIR_OFFSET;
-  };
+  // Row center Y positions (relative to container)
+  const getRowCenterY = (rowIdx: number) => gridTopY + GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * rowIdx + GRID_ROW_HEIGHT / 2;
 
   const engineReady = nodeReadiness.engine === "ready";
   const engineProcessing = nodeReadiness.engine === "processing";
   const inputState: "idle" | "processing" | "ready" = engineReady ? "ready" : engineProcessing ? "processing" : "idle";
-
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
@@ -180,18 +173,17 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               );
             })}
 
-            {/* Engine → 3 pillar nodes */}
+            {/* Engine → 3 grid rows */}
             {PILLARS.map((pillar, pi) => {
-              const pillarY = getPillarY(pi);
+              const rowCenterY = getRowCenterY(pi);
               const engineRight = engineCenterX + ENGINE_WIDTH / 2;
-              const pillarLeft = pillarCenterX - PILLAR_WIDTH / 2;
-              const cpX = (engineRight + pillarLeft) / 2;
-              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${pillarY}, ${pillarLeft} ${pillarY}`;
+              const cpX = (engineRight + gridLeftX) / 2;
+              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${rowCenterY}, ${gridLeftX} ${rowCenterY}`;
               const pillarReady = engineReady;
               const pillarProcessing = engineProcessing;
 
               return (
-                <g key={`eng-pil-${pi}`}>
+                <g key={`eng-row-${pi}`}>
                   <path
                     d={path}
                     stroke={pillar.color}
@@ -213,45 +205,6 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                   )}
                 </g>
               );
-            })}
-
-            {/* Pillar → leaf node lines */}
-            {PILLARS.map((pillar, si) => {
-              const pillarY = getPillarY(si);
-              const pillarRight = pillarCenterX + PILLAR_WIDTH / 2;
-              const leafLeft = leafCenterX - LEAF_NODE_WIDTH / 2;
-              return pillar.nodes.map((node, ni) => {
-                const nodeY = getNodeY(si, ni);
-                const cpX = (pillarRight + leafLeft) / 2;
-                const path = `M ${pillarRight} ${pillarY} C ${cpX} ${pillarY}, ${cpX} ${nodeY}, ${leafLeft} ${nodeY}`;
-                const state = nodeReadiness[node.id];
-                const isReady = state === "ready";
-                const isProcessingNode = state === "processing";
-
-                return (
-                  <g key={`pil-leaf-${si}-${ni}`}>
-                    <path
-                      d={path}
-                      stroke={node.color}
-                      strokeWidth={isReady ? 2.5 : 1.5}
-                      fill="none"
-                      opacity={isReady ? 0.75 : activeNode === node.id ? 0.5 : 0.2}
-                      strokeDasharray={isReady ? "none" : "6 4"}
-                      className="line-transition"
-                    />
-                    {isProcessingNode && (
-                      <circle r="2.5" fill={node.color}>
-                        <animateMotion dur={`${2 + ni * 0.4}s`} repeatCount="indefinite" path={path} />
-                      </circle>
-                    )}
-                    {isReady && (
-                      <circle r="3" fill={node.color} opacity="0.6">
-                        <animateMotion dur={`${3 + ni * 0.3}s`} repeatCount="indefinite" path={path} />
-                      </circle>
-                    )}
-                  </g>
-                );
-              });
             })}
           </>
         )}
@@ -310,110 +263,103 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
       </button>
 
-      {/* Pillar Nodes — Middle column */}
-      {PILLARS.map((pillar, pi) => {
-        const pillarY = getPillarY(pi);
-        const Icon = pillar.icon;
-        const pillarReady = engineReady;
-
-        return (
-          <div
-            key={pillar.id}
-            className="absolute flex items-center gap-2.5 rounded-xl border bg-white px-3 py-2 transition-colors transition-shadow duration-300"
-            style={{
-              left: pillarCenterX - PILLAR_WIDTH / 2,
-              top: pillarY - PILLAR_HEIGHT / 2,
-              width: PILLAR_WIDTH,
-              height: PILLAR_HEIGHT,
-              zIndex: 2,
-              cursor: "default",
-              borderColor: pillarReady ? `${pillar.color}60` : "#e2e8f0",
-              borderLeftWidth: 3,
-              borderLeftColor: pillar.color,
-              background: pillarReady ? `${pillar.color}08` : "#ffffff",
-              boxShadow: pillarReady
-                ? `0 0 16px ${pillar.color}15`
-                : "0 1px 3px rgba(0,0,0,0.06)",
-              opacity: engineReady ? 1 : engineProcessing ? 0.7 : 0.5,
-            }}
-          >
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              style={{
-                background: `${pillar.color}15`,
-                border: `1px solid ${pillar.color}30`,
-              }}
-            >
-              <Icon className="w-3.5 h-3.5" style={{ color: pillar.color }} />
-            </div>
-            <div className="text-left min-w-0">
-              <p className="text-[11px] font-bold text-slate-900 leading-tight">{pillar.name}</p>
-              <p className="text-[9px] text-slate-400 leading-tight">{pillar.subtitle}</p>
-            </div>
+      {/* 3x2 Grid — Right side */}
+      <div
+        className="absolute"
+        style={{
+          left: gridLeftX,
+          top: gridTopY,
+          width: GRID_WIDTH,
+          height: totalGridHeight,
+          zIndex: 2,
+        }}
+      >
+        {/* Column Headers */}
+        <div className="flex" style={{ height: GRID_HEADER_HEIGHT }}>
+          <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Consumer Facing</span>
           </div>
-        );
-      })}
+          <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bank Facing</span>
+          </div>
+        </div>
 
-      {/* Output Nodes — Right, ungrouped */}
-      {PILLARS.map((pillar, si) =>
-        pillar.nodes.map((node, ni) => {
-          const nodeY = getNodeY(si, ni);
-          const Icon = node.icon;
-          const isActive = activeNode === node.id;
-          const state = nodeReadiness[node.id];
-          const isReady = state === "ready";
-          const canOpen = engineReady && isReady;
-
+        {/* 3 Rows */}
+        {PILLARS.map((pillar, pi) => {
+          const PillarIcon = pillar.icon;
           return (
-            <button
-              key={node.id}
-              onClick={() => { if (canOpen) onNodeClick(node.id); }}
-              disabled={!canOpen}
-              className="absolute flex items-center gap-2.5 rounded-xl border px-3 py-2 group transition-[box-shadow,opacity,border-color] duration-300"
+            <div
+              key={pillar.id}
+              className="border-t"
               style={{
-                left: leafCenterX - LEAF_NODE_WIDTH / 2,
-                top: nodeY - LEAF_NODE_HEIGHT / 2,
-                width: LEAF_NODE_WIDTH,
-                height: LEAF_NODE_HEIGHT,
-                cursor: canOpen ? "pointer" : "not-allowed",
-                opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                background: canOpen
-                  ? `${node.color}15`
-                  : isActive
-                    ? `${node.color}10`
-                    : "#ffffff",
-                borderColor: canOpen
-                  ? `${node.color}80`
-                  : isActive
-                    ? `${node.color}60`
-                    : "#e2e8f0",
-                boxShadow: canOpen
-                  ? `0 0 16px ${node.color}20`
-                  : isActive
-                    ? `0 0 12px ${node.color}15`
-                    : "0 1px 3px rgba(0,0,0,0.06)",
-                zIndex: 2,
+                height: GRID_ROW_HEIGHT,
+                borderColor: `${pillar.color}20`,
               }}
             >
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                style={{
-                  background: canOpen ? `${node.color}20` : `${node.color}12`,
-                  border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
-                }}
-              >
-                <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+              {/* Question row */}
+              <div className="flex items-center gap-1.5 px-2 pt-2 pb-1">
+                <PillarIcon className="w-3 h-3 shrink-0" style={{ color: pillar.color }} />
+                <span className="text-[9px] font-medium" style={{ color: pillar.color }}>{pillar.subtitle}</span>
               </div>
-              <div className="text-left">
-                <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
-                <p className="text-[9px] text-slate-400">
-                  {!engineReady ? "Waiting for Engine…" : isReady ? "✓ Data ready" : state === "processing" ? "Processing…" : "Click to explore →"}
-                </p>
+
+              {/* Two node buttons side by side */}
+              <div className="flex gap-2 px-2">
+                {pillar.nodes.map((node) => {
+                  const Icon = node.icon;
+                  const isActive = activeNode === node.id;
+                  const state = nodeReadiness[node.id];
+                  const isReady = state === "ready";
+                  const canOpen = engineReady && isReady;
+
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => { if (canOpen) onNodeClick(node.id); }}
+                      disabled={!canOpen}
+                      className="flex-1 flex items-center gap-2 rounded-xl border px-3 py-2 group transition-[box-shadow,opacity,border-color] duration-300"
+                      style={{
+                        cursor: canOpen ? "pointer" : "not-allowed",
+                        opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
+                        background: canOpen
+                          ? `${node.color}15`
+                          : isActive
+                            ? `${node.color}10`
+                            : "#ffffff",
+                        borderColor: canOpen
+                          ? `${node.color}80`
+                          : isActive
+                            ? `${node.color}60`
+                            : "#e2e8f0",
+                        boxShadow: canOpen
+                          ? `0 0 16px ${node.color}20`
+                          : isActive
+                            ? `0 0 12px ${node.color}15`
+                            : "0 1px 3px rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        style={{
+                          background: canOpen ? `${node.color}20` : `${node.color}12`,
+                          border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
+                        }}
+                      >
+                        <Icon className="w-3.5 h-3.5" style={{ color: node.color }} />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[11px] font-semibold text-slate-900 group-hover:text-slate-700">{node.label}</p>
+                        <p className="text-[9px] text-slate-400">
+                          {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            </button>
+            </div>
           );
-        })
-      )}
+        })}
+      </div>
     </div>
   );
 }
