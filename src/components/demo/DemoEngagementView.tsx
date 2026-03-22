@@ -3,17 +3,11 @@ import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { calculateAchievements, calculateHealthScore, getLevel } from "@/lib/achievementEngine";
+import { hashString, getBudgetStatus, initializeBudgets } from "@/lib/budgetUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp, MapPin } from "lucide-react";
-
-interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
-}
 
 const ICON_MAP: Record<string, React.ElementType> = {
   PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star,
