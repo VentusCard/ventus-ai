@@ -39,17 +39,18 @@ interface SpendingItem {
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
   if (enriched && enriched.length > 0) {
-    const pillarMap = new Map<string, { total: number; subcats: Map<string, { count: number; total: number }> }>();
+    const pillarMap = new Map<string, { total: number; categories: Map<string, { count: number; total: number }> }>();
     let grandTotal = 0;
     enriched.forEach((t) => {
       const amt = Math.abs(t.amount);
       grandTotal += amt;
-      const entry = pillarMap.get(t.pillar) || { total: 0, subcats: new Map() };
+      const entry = pillarMap.get(t.pillar) || { total: 0, categories: new Map() };
       entry.total += amt;
-      const sub = entry.subcats.get(t.subcategory) || { count: 0, total: 0 };
-      sub.count += 1;
-      sub.total += amt;
-      entry.subcats.set(t.subcategory, sub);
+      const catKey = t.category || "General";
+      const cat = entry.categories.get(catKey) || { count: 0, total: 0 };
+      cat.count += 1;
+      cat.total += amt;
+      entry.categories.set(catKey, cat);
       pillarMap.set(t.pillar, entry);
     });
     const pillarIcons: Record<string, string> = {
