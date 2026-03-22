@@ -1,30 +1,36 @@
 
 
-## Revamp Personalized UX Overlay in /demo
+## Revamp Consumer Rewards in /demo — Side-by-Side Phone Mockups
 
-### Problem
-1. The phone mockups in `DemoEngagementView` don't use available space well — progress bars are cluttered
-2. Travel pillar needs a "Trip View" toggle (like the homepage Customer Experience tab) showing trip-grouped subcategories instead of raw budget bars
+### Concept
+Two phone mockups side-by-side (same pattern as Personalized UX/Engagement view) — each showing a compact consumer rewards app experience with personalized deals, AI messages, and local experiences. Like two people comparing their phones.
 
-### Changes — `src/components/demo/DemoEngagementView.tsx`
+### Changes — `src/components/demo/DemoRewardsView.tsx`
 
-#### 1. Replace progress bars with cleaner spending display
-- Remove budget-based progress bars from the 2×2 grid
-- Show spend amount prominently with a subtle percentage indicator instead
-- Use the freed vertical space for richer subcategory detail
+Full rewrite. Replace the current flat deal-card columns with two `PhoneMockup` components mirroring the Engagement view's phone frame pattern.
 
-#### 2. Add Trip View toggle for Travel pillar
-- When Travel pillar is present, show a "Trip View" toggle (matching the homepage pattern: small toggle switch + label)
-- Default Trip View to "On" — subcategories display as trip labels (e.g., "Trip to New York · $520") rather than raw categories
-- Pull trip data from `customer.trips` when available, falling back to enriched subcategories
-- Trip rows show destination name + spend amount
+#### Phone Mockup Contents (per customer)
+1. **Header**: "Your Rewards" + lifestyle type banner (reuse Engagement pattern — gradient banner with color)
+2. **Lifestyle pills**: Top 3 pillars as small emoji+label chips (from enriched data or precomputed)
+3. **Deal cards** (scrollable list inside phone): Compact deal rows showing:
+   - Merchant name + category icon + reward badge (e.g. "5% Back")
+   - AI personalized message in italic (from precomputed `personalizedA/B` or fetched via edge function)
+   - AI CTA button
+4. **Local Experiences section**: Collapsible section at top with city name + category tabs (Entertainment/Dining/Arts/Shopping) — pulls from `localExperiences` prop or `useCityDeals` hook
+5. **Personalization status footer**: "X deals personalized" or loading spinner
 
-#### 3. Use space more effectively
-- Expand max width of phone mockups from `max-w-[340px]` to `max-w-[380px]`
-- Remove the budget denominator text (`$620 / $700`) — just show the spend
-- Make expanded subcategory rows slightly larger for readability
-- Reduce vertical spacing on achievement/tip cards to give lifestyle grid more room
+#### Data Flow
+- Reuse existing `precomputedA/B` props for deals + personalization (already fetched by `useDemoEnrichment`)
+- Derive `customerProfile` from enriched transactions using existing `deriveCustomerProfile` from `dealSelectionUtils`
+- Local experiences: use `localExperiences` prop passed from parent, or call `useCityDeals` with customer's home city
+- Static fallback (pre-enrichment): show customer's static `deals` array in phone frame
 
-### Files modified
-- `src/components/demo/DemoEngagementView.tsx`
+#### Layout
+- `grid grid-cols-2 gap-4` with two `PhoneMockup` components
+- Phone frame: browser dots bar + `yourbank.com/rewards` URL bar + white content area
+- Max width `max-w-[380px]` per phone (same as Engagement)
+- Internal scroll for deal list (`max-h-[400px] overflow-y-auto`)
+
+### Files Modified
+- `src/components/demo/DemoRewardsView.tsx` — full rewrite with phone mockup pattern
 
