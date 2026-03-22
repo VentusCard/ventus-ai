@@ -4,6 +4,7 @@ import { extractLocationContext } from './geoLocationUtils';
 export interface TravelCandidate {
   transaction: EnrichedTransaction;
   reason: 'away_zip' | 'travel_anchor' | 'temporal_cluster';
+  anchor_type?: 'flight' | 'hotel' | 'car_rental' | 'transport' | null;
 }
 
 export interface PreFilterStats {
