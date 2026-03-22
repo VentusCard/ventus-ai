@@ -45,7 +45,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Wealth Management",
     items: [
       { value: "life-events", label: "Life Events Intelligence", icon: CalendarHeart },
-      { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
     ],
   },
 ];
