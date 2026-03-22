@@ -1,35 +1,31 @@
 
 
-## Remove Comparison Mode from /tepilot
+## Rename "Segment Targeting" → "Financial Journey" + Add Product Catalog Overview
 
-### Changes
+### What changes
 
-**File 1: `src/components/tepilot/UploadOrPasteContainer.tsx`**
-- Remove `onLoadComparisonSamples` prop from interface
-- Remove `Checkbox`, `Badge`, `toast` imports (no longer needed)
-- Remove `selectedIndices` state and `handleToggleDataset` multi-select logic
-- Replace with simple `handleSelectDataset(index)` that calls `onLoadSample` directly
-- Remove "Select 1 for single view, or 2 to compare" helper text
-- Remove Badge showing selected count on dropdown trigger
-- Update description to just "Upload files or paste your transaction data to get started."
-- Dropdown items become simple click-to-select (no checkboxes, no preventDefault)
+**1. `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+- Rename tab label from "Segment Targeting" to "Financial Journey"
+- Change icon from `Target` to `Route`
 
-**File 2: `src/pages/TePilot.tsx`**
-- Remove imports: `ComparisonDashboard`, `ComparisonRewardsView`
-- Remove state variables (lines 119-125): `comparisonMode`, `selectedCompA`, `selectedCompB`, `parsedTransactionsB`, `userDemographicsB`, `anchorZipB`
-- Remove second SSE hook (lines 157-165): `enrichedTransactionsB`, `isProcessingB`, `statusMessageB`, `currentPhaseB`, `startEnrichmentB`, `resetEnrichmentB`
-- Remove `handleLoadComparisonSamples` function (lines 398-420)
-- Remove `onLoadComparisonSamples` prop from `<UploadOrPasteContainer>` usage (line 1002)
-- Simplify `onModeChange` callback (lines 971-983): remove comparison reset block
-- Simplify `onLoadSample` callback (lines 984-1001): remove comparison reset block
-- **Tab triggers** (lines 952-966): remove all `comparisonMode ?` ternaries, use simple labels ("Preview", "Enrichment", "Dashboard", "Insight Tools") and simple disabled checks without `comparisonMode`
-- **Preview tab** (lines 1011-1045): remove comparison branch, keep only single-user `PreviewTable` + `EnrichActionBar`
-- **Results tab** (lines 1047-1128): remove comparison branch (dual progress cards), keep only single-user `ResultsTable` + `ExportControls`
-- **Analytics tab** (lines 1130-1211): remove comparison branch (`ComparisonDashboard`), keep only single-user view
-- **Insights tab** (lines 1213-1230): remove comparison branch (`ComparisonRewardsView`), keep only single-user view
+**2. `src/lib/financialJourneyData.ts`** (NEW)
+- Define a comprehensive consumer banking product catalog organized by category, expanding the existing 44 products with any missing ones (e.g., annuities, HSA, safe deposit, wire/ACH services, foreign exchange, private banking, trust & estate services)
+- Each product includes: `name`, `category`, `penetrationRate`, `customerCount` (mock), `revenuePerCustomer`, and `nextProductOpportunities` (array of related upsell/cross-sell product names)
+- Categories expanded to cover the full bank: Credit Cards, Deposit Accounts, Loans & Lending, Investment Products, Insurance, Digital Services, Wealth Management, Estate & Trust Services
+- Summary stats: total products, total customers mapped, avg products per customer
 
-### What stays untouched
-- All single-user enrichment, preview, results, analytics, and insights logic
-- `/demo` page — no changes
-- `ComparisonDashboard.tsx`, `ComparisonRewardsView.tsx`, `ComparisonSetup.tsx` files remain (just unused)
+**3. `src/components/tepilot/campaigns/FinancialJourneyHeader.tsx`** (NEW)
+- A compact header section rendered above the existing Automated Flows / Campaigns switcher
+- Shows a grid of all product categories as cards, each listing product count, total customers, and top opportunity
+- Summary metrics row: Total Products, Avg Products/Customer, Top Cross-Sell Opportunity, Revenue Pipeline
+- Clicking a category card scrolls/highlights relevant products — purely visual context, no navigation away from automation tools
+
+**4. `src/components/tepilot/campaigns/SegmentTargetingView.tsx`** (UPDATE)
+- Import and render `FinancialJourneyHeader` above `CampaignStudio`
+
+### What stays the same
+- `CampaignStudio.tsx` — completely untouched (Automated Flows + Campaigns mode switcher, all dimension selectors, AI brief generation)
+- `AutomatedFlowsSection.tsx` — untouched
+- All campaign components — untouched
+- `/demo` page — untouched
 
