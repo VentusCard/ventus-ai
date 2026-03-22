@@ -539,9 +539,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   }}>
                     <div className="flex items-center gap-3">
                       <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
-                      <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}>
-                        <span className="text-base">🎓</span>
-                        <span className="text-sm font-semibold" style={{ color: "#059669" }}>Life Event Detected: College Planning — 529 plan opportunity identified</span>
+                      <div className="flex items-center gap-2 px-5 py-2.5 rounded-full" style={{ backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}>
+                        <span className="text-lg">🎓</span>
+                        <span className="text-base font-semibold" style={{ color: "#059669" }}>Life Event Detected: College Planning — 529 plan opportunity identified</span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
                     </div>
