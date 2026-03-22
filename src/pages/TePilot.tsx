@@ -1166,7 +1166,7 @@ const TePilot = () => {
                   <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
                   <IntegrationDiagramButton variant="enrichment" />
                 </div>
-                <AnalyticsContainer defaultTab={analyticsDefaultTab} />
+                <AnalyticsContainer defaultTab={analyticsDefaultTab} userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6 pt-6">
