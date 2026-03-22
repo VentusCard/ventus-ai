@@ -68,6 +68,8 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         <DemoTravelView
           customerA={customerA}
           customerB={customerB}
+          enrichedA={enrichedA}
+          enrichedB={enrichedB}
           localExperiencesA={localExperiences?.[customerA.id]}
           localExperiencesB={localExperiences?.[customerB.id]}
         />

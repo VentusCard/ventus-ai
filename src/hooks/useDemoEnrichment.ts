@@ -415,9 +415,30 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // 1. Classify only (no travel-detection) — pass undefined for homeZip
-      const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassifiedA);
-      const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassifiedB);
+      // Track travel readiness: both local-experiences AND travel-detection must complete
+      let localExperiencesDone = false;
+      let travelDetectionDone = false;
+      const maybeSetTravelReady = () => {
+        if (localExperiencesDone && travelDetectionDone) {
+          setNodeReady({ travel: "ready" });
+        }
+      };
+
+      // 1. Classify + travel-detection — pass customer.zip as homeZip
+      const promiseA = enrichA.startEnrichment(txnsA, customerA.zip, onClassifiedA);
+      const promiseB = enrichB.startEnrichment(txnsB, customerB.zip, onClassifiedB);
+
+      // When both enrichments fully complete (including travel-detection), mark travel-detection done
+      Promise.all([promiseA, promiseB])
+        .then(() => {
+          console.log("[Travel Detection] Both customers complete");
+          travelDetectionDone = true;
+          maybeSetTravelReady();
+        })
+        .catch(() => {
+          travelDetectionDone = true;
+          maybeSetTravelReady();
+        });
 
       // 2. Deal personalization — now handled inside maybeStartPhase2 after classification
 
@@ -459,10 +480,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             localExperiencesA: { request: { city: customerA.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resA.results },
             localExperiencesB: { request: { city: customerB.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resB.results },
           }));
-          setNodeReady({ travel: "ready" });
+          localExperiencesDone = true;
+          maybeSetTravelReady();
         })
         .catch(() => {
-          setNodeReady({ travel: "ready" });
+          localExperiencesDone = true;
+          maybeSetTravelReady();
         });
 
     } catch (err: any) {
