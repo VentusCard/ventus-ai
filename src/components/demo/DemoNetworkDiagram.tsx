@@ -33,7 +33,7 @@ interface PillarDef {
 
 // Geometry base constants — scaled by `centered` prop
 const BASE_TX_CARD_HEIGHT = 110;
-const BASE_ENGINE_HEIGHT = 245;
+const BASE_ENGINE_MIN_HEIGHT = 200;
 const BASE_GRID_ROW_HEIGHT = 100;
 const BASE_GRID_HEADER_HEIGHT = 32;
 
