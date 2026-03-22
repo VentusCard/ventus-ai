@@ -18,13 +18,15 @@ interface Props {
   customerB: DemoCustomer;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
+  tipA?: FinancialTip | null;
+  tipB?: FinancialTip | null;
 }
 
-export default function DemoEngagementView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+export default function DemoEngagementView({ customerA, customerB, enrichedA, enrichedB, tipA, tipB }: Props) {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <PhoneMockup customer={customerA} color="#3b82f6" enrichedTransactions={enrichedA} />
-      <PhoneMockup customer={customerB} color="#10b981" enrichedTransactions={enrichedB} />
+      <PhoneMockup customer={customerA} color="#3b82f6" enrichedTransactions={enrichedA} prefetchedTip={tipA} />
+      <PhoneMockup customer={customerB} color="#10b981" enrichedTransactions={enrichedB} prefetchedTip={tipB} />
     </div>
   );
 }
