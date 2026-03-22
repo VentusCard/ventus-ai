@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Sparkles, Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star } from "lucide-react";
+import { Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
