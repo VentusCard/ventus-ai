@@ -13,6 +13,13 @@ const ICON_MAP: Record<string, React.ElementType> = {
   PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star,
 };
 
+interface Props {
+  customerA: DemoCustomer;
+  customerB: DemoCustomer;
+  enrichedA?: EnrichedTransaction[];
+  enrichedB?: EnrichedTransaction[];
+}
+
 export default function DemoEngagementView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
     <div className="grid grid-cols-2 gap-4">
