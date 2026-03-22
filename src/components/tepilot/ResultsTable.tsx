@@ -79,47 +79,62 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
           {transactions.length > 0 && (
             <div className="border border-slate-200 rounded-lg overflow-hidden">
             <div className="max-h-[600px] overflow-auto">
-              <Table className="text-xs">
+              <Table className="text-xs table-fixed w-full">
+                <colgroup>
+                  <col className="w-[100px]" /> {/* Merchant */}
+                  <col className="w-[52px]" />  {/* Amt */}
+                  <col className="w-[72px]" />  {/* Date */}
+                  <col className="w-[20px]" />  {/* Arrow */}
+                  <col className="w-[90px]" />  {/* Pillar */}
+                  <col className="w-[70px]" />  {/* Category */}
+                  <col className="w-[90px]" />  {/* Subcategories */}
+                  <col className="w-[60px]" />  {/* Trip */}
+                  <col className="w-[52px]" />  {/* Tier */}
+                  <col className="w-[56px]" />  {/* Freq */}
+                  {transactions.some(t => t.source) && <col className="w-[60px]" />}
+                  <col className="w-[40px]" />  {/* Conf */}
+                  <col className="w-[32px]" />  {/* Actions */}
+                </colgroup>
                 <TableHeader className="sticky top-0 bg-white z-10">
                   <TableRow>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Merchant</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Amt</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Date</TableHead>
-                    <TableHead className="w-6 px-1">
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Merchant</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Amt</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Date</TableHead>
+                    <TableHead className="px-0">
                       <span className="sr-only">Arrow</span>
                     </TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Pillar</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Category</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Subcategories</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Trip</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Tier</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Freq</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Pillar</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Category</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Subcats</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Trip</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Tier</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Freq</TableHead>
                     {transactions.some(t => t.source) && (
-                      <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Source</TableHead>
+                      <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Source</TableHead>
                     )}
-                    <TableHead className="text-slate-700 text-[11px] px-2 py-1.5">Conf</TableHead>
-                    <TableHead className="text-right text-slate-700 text-[11px] px-2 py-1.5"></TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Conf</TableHead>
+                    <TableHead className="px-1 py-1.5"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {transactions.map((transaction) => (
                     <TableRow key={transaction.transaction_id} className="hover:bg-slate-50/50">
-                      <TableCell className="px-2 py-1.5">
-                        <div className="max-w-[120px] truncate font-medium text-slate-900" title={transaction.normalized_merchant}>
+                      <TableCell className="px-1.5 py-1">
+                        <div className="truncate font-medium text-slate-900" title={transaction.normalized_merchant}>
                           {transaction.normalized_merchant}
                         </div>
                         {transaction.merchant_name !== transaction.normalized_merchant && (
-                          <div className="text-[10px] text-slate-500 truncate max-w-[120px]" title={transaction.merchant_name}>
+                          <div className="text-[10px] text-slate-500 truncate" title={transaction.merchant_name}>
                             {transaction.merchant_name}
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-slate-900 px-2 py-1.5 whitespace-nowrap">${transaction.amount.toFixed(0)}</TableCell>
-                      <TableCell className="text-slate-700 whitespace-nowrap px-2 py-1.5">{transaction.date}</TableCell>
-                      <TableCell className="px-1 py-1.5">
+                      <TableCell className="font-mono text-slate-900 px-1.5 py-1 whitespace-nowrap">${transaction.amount.toFixed(0)}</TableCell>
+                      <TableCell className="text-slate-700 whitespace-nowrap px-1.5 py-1">{transaction.date}</TableCell>
+                      <TableCell className="px-0 py-1">
                         <ArrowRight className="w-3 h-3 text-primary mx-auto" />
                       </TableCell>
-                      <TableCell className="px-2 py-1.5">
+                      <TableCell className="px-1.5 py-1">
                         <Badge
                           variant="outline"
                           style={{
@@ -127,37 +142,37 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                             color: PILLAR_COLORS[transaction.pillar],
                             borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
                           }}
-                          className="border whitespace-nowrap text-[10px] px-1.5 py-0"
+                          className="border text-[9px] px-1 py-0 truncate max-w-full block text-center"
+                          title={transaction.pillar}
                         >
                           {transaction.pillar}
                         </Badge>
                         {!transaction.travel_context && currentPhase === "travel" && (
-                          <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-700 border-amber-200 font-medium ml-1 px-1 py-0">
+                          <Badge variant="outline" className="text-[9px] bg-amber-50 text-amber-700 border-amber-200 font-medium mt-0.5 px-1 py-0">
                             <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5" />
                             …
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-slate-700 px-2 py-1.5 truncate max-w-[80px]" title={transaction.category}>{transaction.category || "—"}</TableCell>
-                      <TableCell className="px-2 py-1.5">
+                      <TableCell className="text-slate-700 px-1.5 py-1">
+                        <span className="truncate block" title={transaction.category}>{transaction.category || "—"}</span>
+                      </TableCell>
+                      <TableCell className="px-1.5 py-1">
                         <div className="flex flex-wrap gap-0.5">
                           {(transaction.subcategories ?? [transaction.subcategory]).map((sub, i) => (
-                            <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
+                            <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded truncate max-w-[80px]" title={sub}>{sub}</span>
                           ))}
                         </div>
                       </TableCell>
-                      <TableCell className="px-2 py-1.5">
+                      <TableCell className="px-1.5 py-1">
                         {transaction.trip_label ? (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Badge
-                                  variant="outline"
-                                  className="border flex items-center gap-0.5 text-[10px] px-1.5 py-0 whitespace-nowrap bg-purple-500/10 text-purple-700 border-purple-500/20 cursor-help"
-                                >
-                                  <Plane className="w-2.5 h-2.5" />
+                                <span className="inline-flex items-center gap-0.5 bg-purple-500/10 text-purple-700 border border-purple-500/20 text-[9px] px-1 py-px rounded cursor-help truncate max-w-full" title={transaction.trip_label}>
+                                  <Plane className="w-2.5 h-2.5 shrink-0" />
                                   {transaction.travel_context?.travel_destination || "Trip"}
-                                </Badge>
+                                </span>
                               </TooltipTrigger>
                               <TooltipContent className="max-w-xs">
                                 <div className="text-xs space-y-1.5">
@@ -181,26 +196,26 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           <span className="text-slate-400">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="px-2 py-1.5">
+                      <TableCell className="px-1.5 py-1">
                         <Badge
                           variant="outline"
-                          className={`${getTierColor(transaction.spending_tier)} whitespace-nowrap text-[10px] px-1.5 py-0`}
+                          className={`${getTierColor(transaction.spending_tier)} text-[9px] px-1 py-0`}
                         >
                           {transaction.spending_tier}
                         </Badge>
                       </TableCell>
-                      <TableCell className="px-2 py-1.5">
+                      <TableCell className="px-1.5 py-1">
                         <Badge
                           variant="outline"
-                          className={`${getFrequencyColor(transaction.purchase_frequency)} whitespace-nowrap text-[10px] px-1.5 py-0`}
+                          className={`${getFrequencyColor(transaction.purchase_frequency)} text-[9px] px-1 py-0`}
                         >
                           {transaction.purchase_frequency}
                         </Badge>
                       </TableCell>
                       {transactions.some(t => t.source) && (
-                        <TableCell className="px-2 py-1.5">
+                        <TableCell className="px-1.5 py-1">
                           {transaction.source ? (
-                            <Badge variant="outline" className={`text-[10px] font-medium whitespace-nowrap px-1.5 py-0 ${getSourceColor(transaction.source)}`}>
+                            <Badge variant="outline" className={`text-[9px] font-medium px-1 py-0 ${getSourceColor(transaction.source)}`}>
                               {transaction.source}
                             </Badge>
                           ) : (
@@ -208,22 +223,22 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           )}
                         </TableCell>
                       )}
-                      <TableCell className="px-2 py-1.5">
+                      <TableCell className="px-1.5 py-1">
                         <Badge
                           variant="outline"
-                          className={`${getConfidenceColor(transaction.confidence)} text-[10px] px-1.5 py-0`}
+                          className={`${getConfidenceColor(transaction.confidence)} text-[9px] px-1 py-0`}
                         >
                           {(transaction.confidence * 100).toFixed(0)}%
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right px-2 py-1.5">
+                      <TableCell className="text-right px-1 py-1">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
+                          className="h-5 w-5"
                           onClick={() => setSelectedTransaction(transaction)}
                         >
-                          <Eye className="w-3.5 h-3.5 text-slate-700" />
+                          <Eye className="w-3 h-3 text-slate-700" />
                         </Button>
                       </TableCell>
                     </TableRow>
