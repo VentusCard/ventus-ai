@@ -5,7 +5,7 @@ import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { BarChart3, Target, Wallet, Heart, Gamepad2, Sparkles } from "lucide-react";
+import { BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles } from "lucide-react";
 
 interface AnalyticsContainerProps {
   defaultTab?: 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence';
