@@ -255,7 +255,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           className="h-5 w-5 mx-auto"
                           onClick={() => setSelectedTransaction(transaction)}
                         >
-                          <Eye className="w-3 h-3 text-slate-700" />
+                          <Eye className="w-2.5 h-2.5 text-slate-700" />
                         </Button>
                       </TableCell>
                     </TableRow>
