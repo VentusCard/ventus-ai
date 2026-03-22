@@ -343,15 +343,58 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           }
         };
 
-        Promise.all([
+        // Fire coaching tips for both customers
+        const fireCoachingTips = async () => {
+          const fetchTipFor = async (customer: DemoCustomer, txns: EnrichedTransaction[]): Promise<FinancialTip | null> => {
+            try {
+              const customerContext = {
+                name: customer.profile.name,
+                lifestyleType: customer.lifestyleType,
+                segment: customer.profile.segment,
+                demographics: customer.profile.demographics,
+                holdings: customer.profile.holdings,
+              };
+              const res = await fetch(`${supabaseUrl}/functions/v1/generate-financial-tip`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ transactions: txns, customer: customerContext }),
+              });
+              if (!res.ok) return null;
+              return await res.json();
+            } catch (e) {
+              console.warn(`[Phase2] Tip generation failed for ${customer.profile.name}:`, e);
+              return null;
+            }
+          };
+          const [tA, tB] = await Promise.all([
+            fetchTipFor(customerA, classifiedA),
+            fetchTipFor(customerB, classifiedB),
+          ]);
+          setTipA(tA);
+          setTipB(tB);
+        };
+
+        // Run lifestyle + tips in parallel, gate engagement on both
+        const lifestylePromise = Promise.all([
           fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA, "A"),
           fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB, "B"),
-        ])
+        ]);
+        const tipsPromise = fireCoachingTips();
+
+        lifestylePromise
           .then(() => {
-            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready" });
           })
           .catch(() => {
-            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready" });
+          });
+
+        Promise.all([lifestylePromise, tipsPromise])
+          .then(() => {
+            setNodeReady({ engagement: "ready" });
+          })
+          .catch(() => {
+            setNodeReady({ engagement: "ready" });
           })
           .finally(() => {
             setPhase2Processing(false);
