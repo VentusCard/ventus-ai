@@ -131,12 +131,28 @@ export function preFilterTravelCandidates(
     
     if (isAwayZip || isTravelAnchor || isInternational || hasLocationInMerchant) {
       let reason: 'away_zip' | 'travel_anchor' | 'temporal_cluster' = 'away_zip';
-      if (isTravelAnchor) reason = 'travel_anchor';
-      else if (isInternational || hasLocationInMerchant) reason = 'away_zip';
+      let anchor_type: TravelCandidate['anchor_type'] = null;
+      
+      if (isTravelAnchor) {
+        reason = 'travel_anchor';
+        // Determine specific anchor type
+        if (airlineAnchors.some(a => merchant.includes(a))) {
+          anchor_type = 'flight';
+        } else if (hotelAnchors.some(a => merchant.includes(a))) {
+          anchor_type = 'hotel';
+        } else if (carRentalAnchors.some(a => merchant.includes(a))) {
+          anchor_type = 'car_rental';
+        } else {
+          anchor_type = 'transport';
+        }
+      } else if (isInternational || hasLocationInMerchant) {
+        reason = 'away_zip';
+      }
       
       candidateMap.set(tx.transaction_id, {
         transaction: tx,
-        reason
+        reason,
+        anchor_type
       });
     } else {
       homeZone.push(tx);
