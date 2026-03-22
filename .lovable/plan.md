@@ -1,34 +1,37 @@
 
 
-## Fix Beat Numbers on Keynote Cards
+## Expand All Pillars, Fire Tip Early, Gate Engagement Readiness
 
 ### Problem
-The beat/card numbers are inconsistent in two ways:
+1. Only the first 2 pillars are expanded by default — should be all 4.
+2. The coaching tip fires lazily inside `PhoneMockup` when the overlay is opened, not at enrichment time.
+3. The engagement node shows "ready" after lifestyle signals complete, but the coaching tip may still be loading when the user clicks in.
 
-1. **Active card labels vs stacked card labels mismatch**: Active cards use hardcoded labels ("01", "02", "02", "03") while stacked cards behind use `String(i).padStart(2, "0")` which produces "03", "04", "05", "06" for steps 3–6.
+### Changes
 
-2. **Duplicate number**: Beat 5 (Education/College) shows "02" — same as Beat 4 (Skiing). It should be "03".
+#### 1. Expand all 4 pillars by default — `DemoEngagementView.tsx` (line 120)
+Change `spending.slice(0, 2)` → `spending.slice(0, 4)` in the `expandedPillars` initializer so all pillars start expanded.
 
-### Current state
-| Step | Active card label | Stacked card label | Should be |
-|------|------------------|--------------------|-----------|
-| 3    | 01               | 03                 | 01        |
-| 4    | 02               | 04                 | 02        |
-| 5    | 02 ❌            | 05                 | 03        |
-| 6    | 03               | 06                 | 04        |
+#### 2. Move coaching tip generation into `useDemoEnrichment` — `useDemoEnrichment.ts`
+- Add state: `tipA`, `tipB`, `tipsReady` (boolean).
+- In `maybeStartPhase2`, fire `generate-financial-tip` for both customers in parallel alongside lifestyle signals.
+- Track when both tips resolve → set `tipsReady = true`.
+- Only set `engagement: "ready"` when **both** lifestyle signals AND tips are complete.
+- Return `tipA` and `tipB` from the hook.
 
-### Fix — `src/components/demo/DemoPasswordGate.tsx`
+#### 3. Pass pre-fetched tips through to DemoEngagementView
+- **`DemoDetailOverlay.tsx`**: Accept `tipA`/`tipB` props, pass them to `DemoEngagementView`.
+- **`DemoEngagementView.tsx`**: Accept optional `tipA`/`tipB` props, pass the correct one to each `PhoneMockup`.
+- **`PhoneMockup`**: If a tip is provided via props, skip the internal `useEffect` fetch and use the prop directly. Remove the loading skeleton state when tip is pre-provided.
 
-#### 1. Fix active card labels
-- Line 487: Change `"02"` → `"03"` (Beat 5 / Education)
-- Line 543: Change `"03"` → `"04"` (Beat 6 / Disconnected data)
-
-#### 2. Fix stacked card labels
-- Line 279: Change `{String(i).padStart(2, "0")}` → `{String(i - 2).padStart(2, "0")}` so step 3→"01", step 4→"02", step 5→"03", step 6→"04" — matching the active card labels.
-
-#### 3. Fix `BEAT_SUMMARIES` indexing
-The stacked cards access `BEAT_SUMMARIES[i]` where `i` is the step index (3–6), but the array only has 7 entries (indices 0–6). Verify each summary maps to the correct card content.
+#### 4. Gate engagement readiness — `useDemoEnrichment.ts`
+- Replace the current `setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" })` call.
+- Track two flags: `lifestyleDone` and `tipsDone`. When both are true, set `engagement: "ready"`.
+- `wealth` and `lifeEvents` still become ready when lifestyle signals complete (independent of tips).
 
 ### Files Modified
-- `src/components/demo/DemoPasswordGate.tsx`
+- `src/hooks/useDemoEnrichment.ts` — fire tips early, gate engagement on tips + lifestyle
+- `src/components/demo/DemoDetailOverlay.tsx` — pass tips through
+- `src/components/demo/DemoEngagementView.tsx` — accept tip props, expand all 4 pillars
+- `src/pages/DemoPage.tsx` — pass tipA/tipB from hook to overlay (if overlay is rendered there)
 
