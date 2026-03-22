@@ -61,7 +61,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
       return <DemoPillarCodeView mode={node} customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} apiPayloads={apiPayloads ?? defaultPayloads} />;
     }
     if (node === "engagement") {
-      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} tipA={tipA} tipB={tipB} />;
     }
     if (node === "travel") {
       return (
