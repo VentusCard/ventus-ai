@@ -9,6 +9,17 @@ import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
 import { cn } from "@/lib/utils";
 
+const CATEGORY_HEX: Record<string, string> = {
+  Sports: "#16a34a",
+  Art: "#4f46e5",
+  Dining: "#ea580c",
+  Entertainment: "#9333ea",
+  Culture: "#2563eb",
+  Shopping: "#db2777",
+  Fitness: "#dc2626",
+  Travel: "#0284c7",
+};
+
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
