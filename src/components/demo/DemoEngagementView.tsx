@@ -114,12 +114,12 @@ function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[
   return [];
 }
 
-function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
+function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[]; prefetchedTip?: FinancialTip | null }) {
   const firstName = customer.profile.name.split(" ")[0];
   const spending = computeSpending(customer, enrichedTransactions);
   const tripRows = computeTripRows(customer, enrichedTransactions);
   const hasTravel = spending.some((b) => b.name === "Travel");
-  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 2).map(s => s.name)));
+  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 4).map(s => s.name)));
   const [tripViewOn, setTripViewOn] = useState(true);
 
   // Deterministic budgets: 110–140% of spend
@@ -134,10 +134,17 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
   const level = getLevel(healthScore);
   const featuredAchievement = achievements.find((a) => a.status === "in_progress") || achievements.find((a) => a.status === "unlocked") || achievements[0];
 
+  // Use prefetched tip if available, otherwise fetch internally
   const [tip, setTip] = useState<FinancialTip | null>(null);
   const [isLoadingTip, setIsLoadingTip] = useState(false);
 
   useEffect(() => {
+    // If we have a prefetched tip, use it directly
+    if (prefetchedTip !== undefined) {
+      setTip(prefetchedTip);
+      setIsLoadingTip(false);
+      return;
+    }
     if (!enrichedTransactions?.length) {
       setTip(null);
       return;
@@ -167,7 +174,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
     };
     fetchTip();
     return () => { cancelled = true; };
-  }, [enrichedTransactions, customer]);
+  }, [enrichedTransactions, customer, prefetchedTip]);
 
   const TipIcon = tip ? ICON_MAP[tip.icon] || Lightbulb : Lightbulb;
 
