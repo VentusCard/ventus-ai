@@ -274,8 +274,8 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                             ))
                           ) : (
                             b.subcategories.slice(0, 5).map((sub) => (
-                              <div key={sub.subcategory} className="flex items-center justify-between text-[9px]">
-                                <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
+                              <div key={sub.category} className="flex items-center justify-between text-[9px]">
+                                <span className="text-slate-500 truncate mr-1">{sub.category}</span>
                                 <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
                               </div>
                             ))
