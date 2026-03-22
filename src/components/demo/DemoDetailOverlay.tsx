@@ -79,6 +79,8 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
           enrichedB={enrichedB}
           precomputedA={personalizedDealsA}
           precomputedB={personalizedDealsB}
+          localExperiencesA={localExperiences?.[customerA.id]}
+          localExperiencesB={localExperiences?.[customerB.id]}
         />
       );
     }
