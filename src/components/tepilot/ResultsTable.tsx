@@ -148,7 +148,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                           className="border text-[9px] px-1 py-0 truncate max-w-full text-center"
                           title={transaction.pillar}
                         >
-                          {SHORT_PILLAR[transaction.pillar] || transaction.pillar}
+                          {transaction.pillar}
                         </Badge>
                         {!transaction.travel_context && currentPhase === "travel" && (
                           <Badge variant="outline" className="text-[9px] bg-amber-50 text-amber-700 border-amber-200 font-medium mt-0.5 px-1 py-0">
