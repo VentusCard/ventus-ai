@@ -245,30 +245,30 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
-          <span className="text-indigo-600 text-xl font-bold">V</span>
+        <div className={`${centered ? "w-14 h-14" : "w-11 h-11"} rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
+          <span className={`text-indigo-600 font-bold ${centered ? "text-2xl" : "text-xl"}`}>V</span>
         </div>
-        <p className="text-[12px] font-bold text-slate-900 text-center mb-2">Ventus AI Engine</p>
+        <p className={`font-bold text-slate-900 text-center mb-2 ${centered ? "text-[14px]" : "text-[12px]"}`}>Ventus AI Engine</p>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
             return (
               <div
                 key={cap.label}
-                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}
+                className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}
                 style={{
                   background: engineReady ? `${cap.color}15` : `${cap.color}08`,
                   borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`,
                   animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined,
                 }}
               >
-                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: cap.color }} />
-                <span className="text-[10px] font-semibold" style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
+                <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
+                <span className={`font-semibold ${centered ? "text-[12px]" : "text-[10px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
             );
           })}
         </div>
-        <p className="text-[8px] text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Click to explore →</p>
+        <p className={`text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity ${centered ? "text-[10px]" : "text-[8px]"}`}>Click to explore →</p>
       </button>
 
       {/* 3x2 Grid — Right side */}
