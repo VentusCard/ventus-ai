@@ -1,19 +1,17 @@
 
 
-## Compact Deal Cards to 3 Lines
+## Changes — `src/components/demo/DemoRewardsView.tsx`
 
-### Changes — `src/components/demo/DemoRewardsView.tsx`
+### 1. Expand by default
+Change `useState(false)` to `useState(true)` on line 153.
 
-#### Card layout (3 lines total)
-**Line 1**: `[Category emoji] Merchant Name .................. [Reward Badge]`
-**Lines 2-3**: AI message (no sparkle icon, italic, `line-clamp-2`) with **CTA button floated to bottom-right** inline with the text
+### 2. Category pills match category icon color
+Currently all active pills use the section's `color` prop. Instead, extract a hex color from each category's `CATEGORY_CONFIG` color class and use it for the active pill background.
 
-#### Specific edits
-1. **Remove Sparkles icon** from the AI message block — show just the italic message text, clamped to 2 lines
-2. **Move CTA inline with the message** — place the CTA button at the end of the message row using `flex` with `items-end`, so the message text wraps to ~2 lines and the CTA sits bottom-right
-3. **Remove the separate CTA+subcategory row** — no more standalone line for subcategory or CTA
-4. **Remove loading state sparkle** — keep just spinner + "Personalizing…"
-5. Remove unused `Sparkles` import
+- Parse the Tailwind class in `CATEGORY_CONFIG[cat].color` to extract the text color (e.g. `text-green-600` → a green hex).
+- Create a small lookup map `CATEGORY_HEX` mapping each `PerkCategory` to a hex color (e.g. Sports → `#16a34a`, Art → `#4f46e5`, etc.).
+- For the "All" pill, keep using the section `color` prop.
+- For each category pill, when active use `background: CATEGORY_HEX[cat]` instead of `background: color`.
 
 ### Files Modified
 - `src/components/demo/DemoRewardsView.tsx`
