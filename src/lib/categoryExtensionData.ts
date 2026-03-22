@@ -26,6 +26,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Oct 15 - Nov 30 (Pre-Season)',
     deploymentRationale: 'Deploy 2 weeks before ski equipment peak (Week 44) to capture gear-up shoppers bundling accessories.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'GoPro', product: 'HERO13 Black', msrp: '$399.99', link: 'https://gopro.com' },
+      { name: 'Insta360', product: 'X4', msrp: '$499.99', link: 'https://www.insta360.com' },
+      { name: 'DJI', product: 'Osmo Action 5 Pro', msrp: '$379.00', link: 'https://www.dji.com' },
+    ],
   },
   {
     id: 'ski-outerwear',
@@ -49,6 +54,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Oct 1 - Nov 15',
     deploymentRationale: 'Outerwear purchases precede resort bookings by ~2 weeks. Deploy early to catch the gear-first, book-second pattern.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'The North Face', product: 'ThermoBall Eco Jacket', msrp: '$230.00', link: 'https://www.thenorthface.com' },
+      { name: 'Patagonia', product: 'Nano Puff Jacket', msrp: '$279.00', link: 'https://www.patagonia.com' },
+      { name: "Arc'teryx", product: 'Beta LT Jacket', msrp: '$575.00', link: 'https://www.arcteryx.com' },
+    ],
   },
   {
     id: 'marathon-massage',
@@ -72,6 +82,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Mar 1 - Apr 30, Sep 1 - Oct 31',
     deploymentRationale: 'Spring and fall marathon seasons drive predictable recovery spending. Deploy 1 week before major race weekends.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Massage Envy', product: 'Sports Recovery Session', msrp: '$99.99/session', link: 'https://www.massageenvy.com' },
+      { name: 'Hand & Stone', product: 'Deep Tissue Massage', msrp: '$109.95/session', link: 'https://www.handandstone.com' },
+      { name: 'Elements Massage', product: 'Sports Massage', msrp: '$119.00/session', link: 'https://www.elementsmassage.com' },
+    ],
   },
   {
     id: 'marathon-compression',
@@ -95,6 +110,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan 1 - Feb 15, Mar 15 - May 1',
     deploymentRationale: 'New Year resolution runners and spring marathon training windows drive highest demand for recovery products.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Fleet Feet', product: 'CEP Compression Socks', msrp: '$59.99', link: 'https://www.fleetfeet.com' },
+      { name: 'Road Runner Sports', product: 'R-Gear Recovery Tights', msrp: '$79.99', link: 'https://www.roadrunnersports.com' },
+      { name: 'CEP', product: 'Recovery Pro Tights', msrp: '$89.99', link: 'https://www.cepcompression.com' },
+    ],
   },
   {
     id: 'cycling-nutrition',
@@ -118,6 +138,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Apr - Jul (peak cycling season)',
     deploymentRationale: 'Spring and summer cycling season drives the highest volume of long rides and corresponding nutrition needs.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Clif Bar', product: 'Energy Bar Variety Pack', msrp: '$14.99/12pk', link: 'https://www.clifbar.com' },
+      { name: 'RXBAR', product: 'Protein Bar Variety Pack', msrp: '$29.99/12pk', link: 'https://www.rxbar.com' },
+      { name: 'GoMacro', product: 'MacroBar Variety', msrp: '$27.99/12pk', link: 'https://www.gomacro.com' },
+    ],
   },
 
   // ==========================================
@@ -145,6 +170,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: '30-60 days after baby product cluster + mortgage detected',
     deploymentRationale: 'Nesting instinct peaks in the month before and after birth. Home security is a natural extension of the protective mindset.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Ring', product: 'Alarm Pro Security Kit', msrp: '$299.99', link: 'https://ring.com' },
+      { name: 'SimpliSafe', product: 'The Essentials System', msrp: '$249.99', link: 'https://simplisafe.com' },
+      { name: 'ADT', product: 'Smart Home Starter', msrp: '$199.99 + $28.99/mo', link: 'https://www.adt.com' },
+    ],
   },
   {
     id: 'family-entertainment',
@@ -168,6 +198,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'May - Aug (summer), Dec (holiday break)',
     deploymentRationale: 'Summer vacation and holiday break are peak family entertainment periods. Bundle streaming + ticket deals during planning windows.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Disney', product: 'Disney Bundle (Disney+ / Hulu / ESPN+)', msrp: '$14.99/mo', link: 'https://www.disneyplus.com' },
+      { name: 'Universal', product: 'Universal+ Annual Pass', msrp: '$399.99/yr', link: 'https://www.universalorlando.com' },
+      { name: 'Merlin Entertainments', product: 'Merlin Annual Pass', msrp: '$189.99/yr', link: 'https://www.merlinannualpass.com' },
+    ],
   },
   {
     id: 'schoolkids-eduboxes',
@@ -191,6 +226,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Aug (back-to-school), Nov-Dec (holiday gifting)',
     deploymentRationale: 'Back-to-school and holiday periods drive highest parent interest in educational products. Subscription boxes make ideal gifts.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'KiwiCo', product: 'Tinker Crate (Ages 9-16)', msrp: '$29.95/mo', link: 'https://www.kiwico.com' },
+      { name: 'Little Passports', product: 'World Edition', msrp: '$26.95/mo', link: 'https://www.littlepassports.com' },
+      { name: 'MEL Science', product: 'MEL Chemistry Kit', msrp: '$34.90/mo', link: 'https://melscience.com' },
+    ],
   },
   {
     id: 'family-mealkits',
@@ -214,6 +254,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (New Year healthy eating), Sep (back-to-routine)',
     deploymentRationale: 'New Year healthy eating resolutions and back-to-school routine resets are peak meal kit trial periods.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'HelloFresh', product: 'Family Plan (4 servings)', msrp: '$9.99/serving', link: 'https://www.hellofresh.com' },
+      { name: 'Blue Apron', product: 'Signature Family Box', msrp: '$8.99/serving', link: 'https://www.blueapron.com' },
+      { name: 'Home Chef', product: 'Family Meal Kit', msrp: '$10.49/serving', link: 'https://www.homechef.com' },
+    ],
   },
   {
     id: 'youthsports-photos',
@@ -237,6 +282,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Mar (spring season), Aug-Sep (fall season start)',
     deploymentRationale: 'Season kickoff windows create natural demand for capturing the new team experience.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Hudl', product: 'Hudl Focus Camera', msrp: '$199.00/season', link: 'https://www.hudl.com' },
+      { name: 'GameChanger', product: 'Team Subscription', msrp: '$16.99/mo', link: 'https://gc.com' },
+      { name: 'Shutterfly', product: 'Custom Team Photo Book', msrp: '$39.99', link: 'https://www.shutterfly.com' },
+    ],
   },
 
   // ==========================================
@@ -264,6 +314,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Apr - Jul (peak renovation season)',
     deploymentRationale: 'Spring/summer renovation peak creates a 3-month window where smart home upsell conversion is highest.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Google Nest', product: 'Nest Learning Thermostat', msrp: '$249.99', link: 'https://store.google.com/nest' },
+      { name: 'Amazon', product: 'Echo Show 15', msrp: '$249.99', link: 'https://www.amazon.com/echo' },
+      { name: 'Ecobee', product: 'Smart Thermostat Premium', msrp: '$249.99', link: 'https://www.ecobee.com' },
+    ],
   },
   {
     id: 'gardeners-farmbox',
@@ -287,6 +342,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Apr - Jun (spring planting season)',
     deploymentRationale: 'Spring gardening season and farmers market openings coincide perfectly. Deploy when the grow-your-own mindset is strongest.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Local Harvest', product: 'CSA Share Finder', msrp: '$25-50/week', link: 'https://www.localharvest.org' },
+      { name: 'Misfits Market', product: 'Weekly Produce Box', msrp: '$26.00/box', link: 'https://www.misfitsmarket.com' },
+      { name: 'Imperfect Foods', product: 'Custom Grocery Box', msrp: '$30.00/box', link: 'https://www.imperfectfoods.com' },
+    ],
   },
   {
     id: 'furniture-fragrance',
@@ -310,6 +370,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Sep-Nov (fall nesting), Dec (holiday gifting)',
     deploymentRationale: 'Fall nesting instinct and holiday entertaining drive peak candle/fragrance purchases alongside furniture buying.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Yankee Candle', product: 'Large Jar Candle', msrp: '$31.99', link: 'https://www.yankeecandle.com' },
+      { name: 'Diptyque', product: 'Baies Candle', msrp: '$74.00', link: 'https://www.diptyqueparis.com' },
+      { name: 'Bath & Body Works', product: '3-Wick Candle', msrp: '$26.95', link: 'https://www.bathandbodyworks.com' },
+    ],
   },
   {
     id: 'homecooks-cookware',
@@ -333,6 +398,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Apr-Jul (post-renovation), Nov-Dec (holiday gifting)',
     deploymentRationale: 'Post-renovation glow and holiday entertaining are the two peak cookware purchase windows.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Le Creuset', product: 'Signature Dutch Oven 5.5 Qt', msrp: '$399.95', link: 'https://www.lecreuset.com' },
+      { name: 'All-Clad', product: 'D5 Stainless 10-Piece Set', msrp: '$799.95', link: 'https://www.all-clad.com' },
+      { name: 'Staub', product: 'Round Cocotte 5.5 Qt', msrp: '$379.99', link: 'https://www.staub-usa.com' },
+    ],
   },
   {
     id: 'lawncare-outdoor-furniture',
@@ -356,6 +426,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Mar - May (pre-summer prep)',
     deploymentRationale: 'Spring landscaping season creates a natural window for outdoor furniture purchases before summer entertaining begins.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Wayfair', product: 'Patio Conversation Set', msrp: '$599.99', link: 'https://www.wayfair.com' },
+      { name: 'Pottery Barn', product: 'Indio Lounge Collection', msrp: '$1,299.00', link: 'https://www.potterybarn.com' },
+      { name: 'Article', product: 'Ora Outdoor Sofa', msrp: '$849.00', link: 'https://www.article.com' },
+    ],
   },
 
   // ==========================================
@@ -383,6 +458,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov 1 - Dec 25 (Holiday gifting + year-end travel)',
     deploymentRationale: 'Holiday season combines gift-giving with peak business travel. Noise-canceling headphones are the #1 tech gift for travelers.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'Sony', product: 'WH-1000XM5', msrp: '$399.99', link: 'https://electronics.sony.com' },
+      { name: 'Bose', product: 'QuietComfort Ultra', msrp: '$429.99', link: 'https://www.bose.com' },
+      { name: 'Apple', product: 'AirPods Max', msrp: '$549.00', link: 'https://www.apple.com/airpods-max' },
+    ],
   },
   {
     id: 'hotel-luggage',
@@ -406,6 +486,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov - Jan (holiday gifting + New Year travel plans)',
     deploymentRationale: 'Holiday gifting and New Year travel planning create peak luggage purchase demand.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'Away', product: 'The Bigger Carry-On', msrp: '$295.00', link: 'https://www.awaytravel.com' },
+      { name: 'Samsonite', product: 'Proxis Spinner 55', msrp: '$349.99', link: 'https://www.samsonite.com' },
+      { name: 'Tumi', product: 'Alpha 3 International Carry-On', msrp: '$795.00', link: 'https://www.tumi.com' },
+    ],
   },
   {
     id: 'international-language',
@@ -429,6 +514,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan-Feb (planning), Apr-May (summer trip prep)',
     deploymentRationale: 'New Year travel planning and pre-summer trip preparation are the two peak windows for language learning sign-ups.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Babbel', product: '12-Month Subscription', msrp: '$83.88/yr', link: 'https://www.babbel.com' },
+      { name: 'Rosetta Stone', product: 'Lifetime Subscription', msrp: '$179.99', link: 'https://www.rosettastone.com' },
+      { name: 'Duolingo', product: 'Super Duolingo Annual', msrp: '$83.99/yr', link: 'https://www.duolingo.com' },
+    ],
   },
   {
     id: 'roadtrip-car-accessories',
@@ -452,6 +542,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'May - Jun (pre-summer road trip season)',
     deploymentRationale: 'Pre-summer planning window is when road trip gear purchases peak. Deploy before Memorial Day weekend.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'WeatherTech', product: 'FloorLiner Set', msrp: '$189.95', link: 'https://www.weathertech.com' },
+      { name: 'Thule', product: 'Motion XT Cargo Box', msrp: '$699.95', link: 'https://www.thule.com' },
+      { name: 'AAA', product: 'Premier Membership', msrp: '$124.00/yr', link: 'https://www.aaa.com' },
+    ],
   },
   {
     id: 'beach-sun-protection',
@@ -475,6 +570,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Mar - Apr (spring break), May - Jun (summer prep)',
     deploymentRationale: 'Spring break and pre-summer windows drive peak swimwear and suncare purchases. Deploy 3-4 weeks before typical booking dates.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Maui Jim', product: 'Peahi Polarized Sunglasses', msrp: '$339.00', link: 'https://www.mauijim.com' },
+      { name: 'Vuori', product: 'Kore Short', msrp: '$68.00', link: 'https://vuoriclothing.com' },
+      { name: 'Supergoop', product: 'Unseen Sunscreen SPF 40', msrp: '$38.00', link: 'https://supergoop.com' },
+    ],
   },
 
   // ==========================================
@@ -502,6 +602,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan-Mar (New Year resolution cooks), Sep-Nov (fall entertaining)',
     deploymentRationale: 'New Year and fall entertaining seasons create natural spikes in culinary curiosity.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Sur La Table', product: 'In-Person Cooking Class', msrp: '$89.00/class', link: 'https://www.surlatable.com' },
+      { name: 'Williams Sonoma', product: 'Virtual Cooking Class', msrp: '$49.95/class', link: 'https://www.williams-sonoma.com' },
+      { name: 'Local Studios', product: 'Private Group Class', msrp: '$75-150/class', link: 'https://www.classbento.com' },
+    ],
   },
   {
     id: 'coffee-espresso',
@@ -525,6 +630,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov 1 - Dec 25 (Holiday gifting)',
     deploymentRationale: 'Espresso machines are the #3 kitchen gift item. Deploy to high-frequency coffee shop visitors whose partners are likely looking for gift ideas.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Breville', product: 'Barista Express Impress', msrp: '$749.95', link: 'https://www.breville.com' },
+      { name: 'Fellow', product: 'Opus Conical Burr Grinder', msrp: '$195.00', link: 'https://fellowproducts.com' },
+      { name: "De'Longhi", product: 'La Specialista Prestigio', msrp: '$799.95', link: 'https://www.delonghi.com' },
+    ],
   },
   {
     id: 'wine-clubs',
@@ -548,6 +658,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov - Jan (holiday entertaining & gifting)',
     deploymentRationale: 'Holiday entertaining and New Year create peak demand for wine subscriptions as both self-purchases and gifts.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Winc', product: '4-Bottle Monthly Box', msrp: '$59.96/mo', link: 'https://www.winc.com' },
+      { name: 'Naked Wines', product: 'Angel Membership', msrp: '$40.00/mo credit', link: 'https://www.nakedwines.com' },
+      { name: 'Wine.com', product: 'StewardShip Membership', msrp: '$49.00/yr', link: 'https://www.wine.com' },
+    ],
   },
   {
     id: 'takeout-kitchen-gadgets',
@@ -571,6 +686,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (New Year cooking goals), Nov-Dec (holiday gifting)',
     deploymentRationale: 'New Year resolution to cook more and holiday gift season create dual peaks for kitchen gadget purchases.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Ninja', product: 'Foodi 6-in-1 Air Fryer', msrp: '$129.99', link: 'https://www.ninjakitchen.com' },
+      { name: 'Instant Pot', product: 'Duo Plus 6-Quart', msrp: '$89.99', link: 'https://www.instantpot.com' },
+      { name: 'Our Place', product: 'Always Pan 2.0', msrp: '$150.00', link: 'https://fromourplace.com' },
+    ],
   },
   {
     id: 'organic-farmbox',
@@ -594,6 +714,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan-Mar (healthy eating goals), Apr-May (spring produce)',
     deploymentRationale: 'New Year healthy eating and spring produce season create two strong windows for farm box trial sign-ups.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Misfits Market', product: 'Weekly Produce Box', msrp: '$26.00/box', link: 'https://www.misfitsmarket.com' },
+      { name: 'Imperfect Foods', product: 'Custom Grocery Box', msrp: '$30.00/box', link: 'https://www.imperfectfoods.com' },
+      { name: 'Thrive Market', product: 'Annual Membership + Box', msrp: '$59.95/yr', link: 'https://thrivemarket.com' },
+    ],
   },
 
   // ==========================================
@@ -621,6 +746,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Dec 26 - Feb 28 (New Year fitness surge)',
     deploymentRationale: 'New Year resolution gym spending creates a massive nutrition supplement upsell window. 88% of new memberships happen in Weeks 1-6.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'GNC', product: 'Pro Performance Whey Protein', msrp: '$49.99', link: 'https://www.gnc.com' },
+      { name: 'Vitamin Shoppe', product: 'BodyTech Whey Isolate', msrp: '$39.99', link: 'https://www.vitaminshoppe.com' },
+      { name: 'AG1', product: 'Athletic Greens Monthly', msrp: '$79.00/mo', link: 'https://drinkag1.com' },
+    ],
   },
   {
     id: 'wellness-greenjuice',
@@ -644,6 +774,12 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan 1 - Feb 28 (New Year wellness surge), Apr 1 - May 15 (spring reset)',
     deploymentRationale: 'New Year resolution + spring detox windows are the two highest-conversion periods. AG1 reports 3x subscription starts in January vs. average month.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'AG1', product: 'Athletic Greens Starter Kit', msrp: '$79.00/mo', link: 'https://drinkag1.com' },
+      { name: 'Live It Up', product: 'Super Greens Powder', msrp: '$49.95/mo', link: 'https://liveitup.com' },
+      { name: 'Pressed Juicery', product: 'Greens 2 Cold-Pressed Juice', msrp: '$7.50/bottle', link: 'https://www.pressedjuicery.com' },
+      { name: 'Daily Harvest', product: 'Smoothie Subscription', msrp: '$8.49/smoothie', link: 'https://www.daily-harvest.com' },
+    ],
   },
   {
     id: 'yoga-athleisure',
@@ -667,6 +803,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (New Year), Sep (back-to-routine)',
     deploymentRationale: 'January resolution sign-ups and September back-to-routine periods drive highest studio enrollment and apparel purchases simultaneously.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'Lululemon', product: 'Align High-Rise Pant 25"', msrp: '$98.00', link: 'https://www.lululemon.com' },
+      { name: 'Alo Yoga', product: 'Airlift High-Waist Legging', msrp: '$118.00', link: 'https://www.aloyoga.com' },
+      { name: 'Athleta', product: 'Elation Ultra High Rise Tight', msrp: '$109.00', link: 'https://athleta.gap.com' },
+    ],
   },
   {
     id: 'spa-skincare',
@@ -690,6 +831,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (self-care goals), May (pre-summer), Nov-Dec (gifting)',
     deploymentRationale: 'New Year self-care resolutions, pre-summer prep, and holiday gifting create three strong windows for skincare subscriptions.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Dermstore', product: 'BeautyFIX Monthly Box', msrp: '$24.95/mo', link: 'https://www.dermstore.com' },
+      { name: 'Sephora', product: 'Favorites Skincare Set', msrp: '$68.00', link: 'https://www.sephora.com' },
+      { name: 'The Ordinary', product: 'The Balance Set', msrp: '$29.00', link: 'https://theordinary.com' },
+    ],
   },
   {
     id: 'sleep-bedding',
@@ -713,6 +859,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (sleep improvement goals), Sep (fall bedroom refresh)',
     deploymentRationale: 'New Year wellness resolutions and fall nesting instincts create two natural windows for bedding upgrades.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Casper', product: 'Wave Hybrid Snow Mattress', msrp: '$2,695.00', link: 'https://casper.com' },
+      { name: 'Brooklinen', product: 'Luxe Core Sheet Set', msrp: '$178.00', link: 'https://www.brooklinen.com' },
+      { name: 'Parachute', product: 'Percale Sheet Set', msrp: '$169.00', link: 'https://www.parachutehome.com' },
+    ],
   },
 
   // ==========================================
@@ -740,6 +891,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Aug 1 - Sep 15 (Pre-season / Season opener)',
     deploymentRationale: 'Tailgating gear purchases peak before the football season starts. Deploy when excitement is highest and pre-season games begin.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Weber', product: 'Spirit II E-310 Gas Grill', msrp: '$459.00', link: 'https://www.weber.com' },
+      { name: 'YETI', product: 'Tundra 45 Hard Cooler', msrp: '$325.00', link: 'https://www.yeti.com' },
+      { name: 'Traeger', product: 'Ranger Portable Grill', msrp: '$449.99', link: 'https://www.traeger.com' },
+    ],
   },
   {
     id: 'concerts-audio',
@@ -763,6 +919,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday gifting), May (pre-festival season)',
     deploymentRationale: 'Holiday gifting and pre-festival season are the two windows when music fans most actively shop for audio equipment.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Sonos', product: 'Era 300 Speaker', msrp: '$449.00', link: 'https://www.sonos.com' },
+      { name: 'Audio-Technica', product: 'AT-LP120XUSB Turntable', msrp: '$249.00', link: 'https://www.audio-technica.com' },
+      { name: 'Crosley', product: 'Voyager Turntable', msrp: '$89.95', link: 'https://www.crosleyradio.com' },
+    ],
   },
   {
     id: 'museum-art',
@@ -786,6 +947,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday gifting), Mar-Apr (spring gallery season)',
     deploymentRationale: 'Holiday gifting and spring gallery openings create two natural art print purchase windows.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Society6', product: 'Framed Art Print', msrp: '$39.99-79.99', link: 'https://society6.com' },
+      { name: 'Minted', product: 'Limited Edition Print', msrp: '$68.00-198.00', link: 'https://www.minted.com' },
+      { name: 'Saatchi Art', product: 'Original Artwork', msrp: '$200.00-2,000.00', link: 'https://www.saatchiart.com' },
+    ],
   },
   {
     id: 'books-audiobooks',
@@ -809,6 +975,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday), Jun-Jul (summer reading)',
     deploymentRationale: 'Holiday gifting and summer reading season create two strong windows for digital reading subscriptions.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Amazon', product: 'Kindle Paperwhite Signature', msrp: '$189.99', link: 'https://www.amazon.com/kindle' },
+      { name: 'Audible', product: 'Premium Plus Annual', msrp: '$149.50/yr', link: 'https://www.audible.com' },
+      { name: 'Libro.fm', product: 'Monthly Audiobook Membership', msrp: '$14.99/mo', link: 'https://libro.fm' },
+    ],
   },
   {
     id: 'movies-streaming',
@@ -832,6 +1003,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (awards season), Jun-Jul (summer blockbusters)',
     deploymentRationale: 'Awards season and summer blockbuster periods drive highest cinema engagement and streaming sign-up intent.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'AMC', product: 'A-List Membership', msrp: '$24.99/mo', link: 'https://www.amctheatres.com/alist' },
+      { name: 'Criterion Channel', product: 'Annual Subscription', msrp: '$99.99/yr', link: 'https://www.criterionchannel.com' },
+      { name: 'MUBI', product: 'Annual Membership', msrp: '$95.88/yr', link: 'https://mubi.com' },
+    ],
   },
 
   // ==========================================
@@ -859,6 +1035,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov 1 - Dec 31 (Holiday + Black Friday)',
     deploymentRationale: 'Black Friday and holiday gifting season is when gaming setup upgrades peak. Bundle chair deals with gaming hardware promotions.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Secretlab', product: 'TITAN Evo', msrp: '$519.00', link: 'https://secretlab.co' },
+      { name: 'Herman Miller', product: 'Aeron Chair - Gaming Edition', msrp: '$1,395.00', link: 'https://www.hermanmiller.com' },
+      { name: 'Razer', product: 'Iskur V2 Gaming Chair', msrp: '$499.99', link: 'https://www.razer.com' },
+    ],
   },
   {
     id: 'smarthome-networking',
@@ -882,6 +1063,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday smart home gifting)',
     deploymentRationale: 'Holiday smart home device gifting creates a surge in networking upgrade need when new devices join the household.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'eero', product: 'eero Pro 6E (3-pack)', msrp: '$399.99', link: 'https://eero.com' },
+      { name: 'Google', product: 'Nest Wifi Pro (3-pack)', msrp: '$399.99', link: 'https://store.google.com' },
+      { name: 'Ubiquiti', product: 'UniFi Dream Router', msrp: '$199.00', link: 'https://ui.com' },
+    ],
   },
   {
     id: 'photography-prints',
@@ -905,6 +1091,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday photo books), May (spring/wedding season)',
     deploymentRationale: 'Holiday photo book season and spring wedding/event photography create two strong printing demand windows.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Shutterfly', product: 'Premium Photo Book', msrp: '$49.99', link: 'https://www.shutterfly.com' },
+      { name: 'Artifact Uprising', product: 'Hardcover Photo Book', msrp: '$69.00', link: 'https://www.artifactuprising.com' },
+      { name: 'Mixbook', product: 'Custom Photo Book', msrp: '$39.99', link: 'https://www.mixbook.com' },
+    ],
   },
   {
     id: 'podcast-microphones',
@@ -928,6 +1119,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (New Year projects), Nov-Dec (holiday gifting)',
     deploymentRationale: 'New Year "start a podcast" resolutions and holiday gifting drive two distinct microphone purchase windows.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Blue', product: 'Yeti X USB Microphone', msrp: '$169.99', link: 'https://www.logitechg.com/blue' },
+      { name: 'Shure', product: 'MV7+ Podcast Microphone', msrp: '$269.00', link: 'https://www.shure.com' },
+      { name: 'Rode', product: 'PodMic USB', msrp: '$199.00', link: 'https://www.rode.com' },
+    ],
   },
   {
     id: 'productivity-desks',
@@ -951,6 +1147,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Jan (workspace refresh), Sep (back-to-work)',
     deploymentRationale: 'New Year workspace upgrades and September back-to-work energy create two natural ergonomic furniture purchase windows.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Autonomous', product: 'SmartDesk Pro', msrp: '$529.00', link: 'https://www.autonomous.ai' },
+      { name: 'Uplift', product: 'V2 Standing Desk', msrp: '$599.00', link: 'https://www.upliftdesk.com' },
+      { name: 'Fully', product: 'Jarvis Bamboo Standing Desk', msrp: '$579.00', link: 'https://www.fully.com' },
+    ],
   },
 
   // ==========================================
@@ -978,6 +1179,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: '7-14 days after a vet bill exceeding $300 is detected',
     deploymentRationale: 'Post-vet-visit is the highest engagement moment for pet parents. Subscription offers convert best when pet care is top-of-mind.',
     priority: 'high',
+    merchantDetails: [
+      { name: 'BarkBox', product: 'Monthly Toy & Treat Box', msrp: '$35.00/mo', link: 'https://www.barkbox.com' },
+      { name: 'Chewy', product: 'Autoship Subscription', msrp: 'Varies (5-10% off)', link: 'https://www.chewy.com' },
+      { name: 'Petco', product: 'Vital Care Membership', msrp: '$19.99/mo', link: 'https://www.petco.com' },
+    ],
   },
   {
     id: 'pet-grooming',
@@ -1001,6 +1207,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday grooming), Jun-Jul (summer boarding)',
     deploymentRationale: 'Holiday grooming rush and summer travel boarding needs create two peak demand windows for pet services.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'PetSmart', product: 'Full Grooming Package', msrp: '$75.00/session', link: 'https://www.petsmart.com/grooming' },
+      { name: 'Wag', product: 'Dog Walking Membership', msrp: '$9.99/mo + per walk', link: 'https://wagwalking.com' },
+      { name: 'Rover', product: 'Premium Boarding', msrp: '$45-85/night', link: 'https://www.rover.com' },
+    ],
   },
   {
     id: 'pet-portraits',
@@ -1024,6 +1235,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday gifting), Feb (Valentine\'s/pet appreciation)',
     deploymentRationale: 'Holiday and Valentine\'s Day create two strong gift-giving windows for custom pet portraits.',
     priority: 'low',
+    merchantDetails: [
+      { name: 'Crown & Paw', product: 'Renaissance Pet Portrait', msrp: '$49.99', link: 'https://crownandpaw.com' },
+      { name: 'West & Willow', product: 'Custom Pet Portrait', msrp: '$69.95', link: 'https://westandwillow.com' },
+      { name: 'PetPortraits', product: 'Watercolor Pet Portrait', msrp: '$59.99', link: 'https://petportraits.com' },
+    ],
   },
   {
     id: 'multipet-feeders',
@@ -1047,6 +1263,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'Nov-Dec (holiday), Jan (New Year pet routine optimization)',
     deploymentRationale: 'Holiday gifting and New Year "get organized" energy drive automated feeder purchases.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'PetSafe', product: 'Smart Feed 2.0', msrp: '$149.95', link: 'https://www.petsafe.net' },
+      { name: 'SureFeed', product: 'Microchip Pet Feeder Connect', msrp: '$179.99', link: 'https://www.surepetcare.com' },
+      { name: 'Petlibro', product: 'Granary Camera Feeder', msrp: '$119.99', link: 'https://www.petlibro.com' },
+    ],
   },
   {
     id: 'dogpark-walking',
@@ -1070,6 +1291,11 @@ export const CATEGORY_EXTENSION_OPPORTUNITIES: CategoryExtensionOpportunity[] = 
     optimalDeploymentWindow: 'May-Jun (summer travel), Nov-Dec (holiday travel)',
     deploymentRationale: 'Travel seasons create peak demand for on-demand pet care when regular daycare isn\'t enough.',
     priority: 'medium',
+    merchantDetails: [
+      { name: 'Rover', product: 'Dog Walking (30 min)', msrp: '$15-25/walk', link: 'https://www.rover.com' },
+      { name: 'Wag', product: 'Premium Walking Plan', msrp: '$9.99/mo + per walk', link: 'https://wagwalking.com' },
+      { name: 'Care.com', product: 'Premium Pet Care Membership', msrp: '$39.99/mo', link: 'https://www.care.com' },
+    ],
   },
 ];
 
