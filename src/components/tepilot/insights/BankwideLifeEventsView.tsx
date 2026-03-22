@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -6,11 +6,13 @@ import {
   AlertTriangle, Users, AlertCircle, Clock, CalendarDays, Scan
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LIFE_EVENT_CONFIG, DetectedLifeEvent, DashboardClient } from "@/types/dashboardClient";
+import { LIFE_EVENT_CONFIG, DetectedLifeEvent, DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { LifeEventAlertCard } from "@/components/tepilot/advisor-console/LifeEventAlertCard";
+import { PrepareEventDialog, generateEventPreparationData } from "@/components/tepilot/advisor-console/PrepareEventDialog";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
+import { toast } from "sonner";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart,
@@ -33,6 +35,9 @@ interface BankwideLifeEventsViewProps {
 }
 
 export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: BankwideLifeEventsViewProps) {
+  const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
+  const [prepareData, setPrepareData] = useState<EventPreparationData | null>(null);
+
   // Generate static example clients
   const staticClients = useMemo(() => generateDashboardClients(12), []);
 
@@ -40,7 +45,6 @@ export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: B
   const enrichedClient: DashboardClient | null = useMemo(() => {
     if (!userDemographics) return null;
     
-    // Derive life events from lifestyle signals if available
     const detectedEvents: DetectedLifeEvent[] = [];
     if (lifestyleSignals?.detected_events) {
       lifestyleSignals.detected_events.forEach((evt: any) => {
@@ -58,7 +62,6 @@ export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: B
       });
     }
 
-    // If no events detected, create a plausible one
     if (detectedEvents.length === 0) {
       detectedEvents.push({
         eventType: 'home_purchase',
@@ -79,25 +82,6 @@ export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: B
     };
   }, [userDemographics, lifestyleSignals]);
 
-  // Combine enriched + static clients for the list
-  const allClients = useMemo(() => {
-    const clients: Array<{ client: DashboardClient; sourceLabel: string }> = [];
-    
-    if (enrichedClient) {
-      enrichedClient.detectedEvents.forEach(event => {
-        clients.push({ client: enrichedClient, sourceLabel: 'From Transaction Enrichment' });
-      });
-    }
-
-    staticClients.forEach(client => {
-      client.detectedEvents.forEach(() => {
-        clients.push({ client, sourceLabel: 'Static Example' });
-      });
-    });
-
-    return clients;
-  }, [enrichedClient, staticClients]);
-
   // Flatten for the card list (one card per client-event pair)
   const clientEventPairs = useMemo(() => {
     const pairs: Array<{ client: DashboardClient; event: DetectedLifeEvent; sourceLabel: string }> = [];
@@ -116,6 +100,24 @@ export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: B
 
     return pairs;
   }, [enrichedClient, staticClients]);
+
+  const handlePrepare = (clientId: string, event: DetectedLifeEvent) => {
+    const client = clientEventPairs.find(p => p.client.id === clientId)?.client;
+    if (client) {
+      const data = generateEventPreparationData(client, event);
+      setPrepareData(data);
+      setPrepareDialogOpen(true);
+    }
+  };
+
+  const handleView = (clientId: string) => {
+    toast.info('Client detail view available in the WM Copilot tab');
+  };
+
+  const handleScheduleCall = (clientId: string) => {
+    const client = clientEventPairs.find(p => p.client.id === clientId)?.client;
+    toast.success(`Scheduling call with ${client?.profile.name || 'client'}...`);
+  };
 
   const totalDetected = Object.values(BANKWIDE_EVENT_STATS).reduce((s, v) => s + v.detected, 0);
   const totalUrgent = Object.values(BANKWIDE_EVENT_STATS).reduce((s, v) => s + v.urgent, 0);
@@ -165,15 +167,21 @@ export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: B
               key={`${item.client.id}-${item.event.eventType}-${idx}`}
               client={item.client}
               event={item.event}
-              onPrepare={() => {}}
-              onView={() => {}}
-              onScheduleCall={() => {}}
+              onPrepare={handlePrepare}
+              onView={handleView}
+              onScheduleCall={handleScheduleCall}
               showEventLabel
               sourceLabel={item.sourceLabel}
             />
           ))}
         </div>
       </div>
+
+      <PrepareEventDialog
+        open={prepareDialogOpen}
+        onOpenChange={setPrepareDialogOpen}
+        data={prepareData}
+      />
     </div>
   );
 }
