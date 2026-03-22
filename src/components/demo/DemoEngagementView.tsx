@@ -214,7 +214,7 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
               <div className="grid grid-cols-2 gap-1.5">
                 {budgets.slice(0, 4).map((b) => {
                   const isTravel = b.name === "Travel";
-                  const isExpanded = expandedPillar === b.name;
+                  const isExpanded = expandedPillars.has(b.name);
                   const hasSubcats = b.subcategories.length > 0;
                   const showTripView = isTravel && tripViewOn && tripRows.length > 0;
                   const ratio = b.budget > 0 ? b.spend / b.budget : 0;
