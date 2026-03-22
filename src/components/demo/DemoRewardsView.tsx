@@ -138,6 +138,8 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
   const cc = CATEGORY_CONFIG[perk.category];
   const CatIcon = cc.icon;
 
+  const catHex = CATEGORY_HEX[perk.category] || color;
+
   return (
     <div className="flex items-center gap-1.5 py-1 px-1.5 rounded-md hover:bg-slate-50 transition-colors">
       <div className={cn("h-5 w-5 rounded flex items-center justify-center shrink-0 border", cc.color)}>
@@ -150,7 +152,7 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
       <div className="flex items-center gap-1 shrink-0">
         <span
           className="text-[8px] font-bold px-1.5 py-0.5 rounded"
-          style={{ background: `${color}12`, color }}
+          style={{ background: `${catHex}12`, color: catHex }}
         >
           {perk.value}
         </span>
