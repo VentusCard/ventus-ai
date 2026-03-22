@@ -31,22 +31,31 @@ export function preFilterTravelCandidates(
   const homeCity = locationContext.homeCity;
   
   // US Hotels
-  const travelAnchors = [
+  const hotelAnchors = [
     'hotel', 'marriott', 'hilton', 'hyatt', 'holiday inn', 'airbnb', 'vrbo',
-    // International Hotels
     'premier inn', 'travelodge', 'ibis', 'mercure', 'novotel', 'accor', 'radisson',
-    // US Airlines
-    'airline', 'airways', 'delta', 'united', 'southwest', 'american airlines', 'jetblue',
-    // International Airlines
-    'british airways', 'air france', 'lufthansa', 'easyjet', 'ryanair', 
-    'emirates', 'qatar airways', 'singapore airlines', 'cathay', 'klm', 'virgin atlantic',
-    // US Car Rentals
-    'hertz', 'enterprise', 'avis', 'budget', 'car rental', 'alamo',
-    // International Car Rentals
-    'europcar', 'sixt',
-    // Transport
-    'airport', 'parking', 'eurotunnel', 'eurostar', 'channel tunnel'
   ];
+  
+  // Airlines
+  const airlineAnchors = [
+    'airline', 'airways', 'delta', 'united', 'southwest', 'american airlines', 'jetblue',
+    'british airways', 'air france', 'lufthansa', 'easyjet', 'ryanair',
+    'emirates', 'qatar airways', 'singapore airlines', 'cathay', 'klm', 'virgin atlantic',
+    'spirit', 'frontier', 'alaska air', 'hawaiian air', 'sun country',
+  ];
+  
+  // Car rentals
+  const carRentalAnchors = [
+    'hertz', 'enterprise', 'avis', 'budget', 'car rental', 'alamo',
+    'europcar', 'sixt',
+  ];
+  
+  // Transport
+  const transportAnchors = [
+    'airport', 'parking', 'eurotunnel', 'eurostar', 'channel tunnel',
+  ];
+  
+  const travelAnchors = [...hotelAnchors, ...airlineAnchors, ...carRentalAnchors, ...transportAnchors];
   
   // International city/location keywords to detect in merchant names
   const locationKeywords = [
