@@ -299,7 +299,7 @@ function RewardsPhoneMockup({
                       style={{ animationDelay: `${i * 60}ms` }}
                       onClick={() => setExpandedDeal(isExpanded ? null : deal.id)}
                     >
-                      <div className="p-2.5 pb-1.5">
+                      <div className="p-2 pb-1">
                         <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span className="text-sm">{catConfig?.icon || "🎁"}</span>
@@ -312,8 +312,6 @@ function RewardsPhoneMockup({
                             {deal.rewardValue}
                           </span>
                         </div>
-
-                        <p className="text-[10px] text-slate-500 line-clamp-1 mb-1">{deal.dealTitle}</p>
 
                         {/* AI Message */}
                         {p ? (
