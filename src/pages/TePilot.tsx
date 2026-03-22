@@ -992,24 +992,6 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            {comparisonMode ? (
-              <ComparisonDashboard
-                customerA={{
-                  parsedTransactions,
-                  enrichedTransactions: displayTransactions,
-                  demographics: userDemographics,
-                  label: "Customer A",
-                  color: "bg-blue-500",
-                }}
-                customerB={{
-                  parsedTransactions: parsedTransactionsB,
-                  enrichedTransactions: enrichedTransactionsB,
-                  demographics: userDemographicsB,
-                  label: "Customer B",
-                  color: "bg-emerald-500",
-                }}
-              />
-            ) : (
               <>
                 {/* View Header */}
                 <Card className="p-6 bg-white border-slate-200">
@@ -1071,7 +1053,6 @@ const TePilot = () => {
                     </AccordionItem>
                   </Accordion>}
               </>
-            )}
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
