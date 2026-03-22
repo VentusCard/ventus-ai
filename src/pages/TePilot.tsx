@@ -54,7 +54,7 @@ import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailMo
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
-import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
+
 const CURRENT_VERSION = "V3.1";
 const TePilot = () => {
   const isMobile = useIsMobile();
