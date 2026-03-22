@@ -106,7 +106,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     </TableHead>
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Pillar</TableHead>
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Category</TableHead>
-                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Subcats</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Sub-cat</TableHead>
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Trip</TableHead>
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Tier</TableHead>
                     <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Freq</TableHead>
