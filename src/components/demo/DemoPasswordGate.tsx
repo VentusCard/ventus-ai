@@ -296,7 +296,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               zIndex: step + 1,
               marginTop: displayStep >= 3 ? Math.min(displayStep - 2, 4) * 4 : 0
             }}>
-            <div className={displayStep >= 3 ? "p-8 sm:p-10" : ""}>
+            <div className={displayStep >= 3 ? "p-10 sm:p-12" : ""}>
 
               {/* Beat 0 — Intro */}
               {displayStep === 0 &&
