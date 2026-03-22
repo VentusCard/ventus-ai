@@ -483,12 +483,12 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {displayStep === 5 &&
               <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
+                    <div className="flex items-center gap-3 mb-5">
+                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
-                    <p className="mt-3 text-base sm:text-lg" style={{ color: "#64748B" }}>
+                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
+                    <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                       Three purchases. The pattern is invisible to MCCs — but not to semantic intelligence.
                     </p>
                     <div className="mt-8">
