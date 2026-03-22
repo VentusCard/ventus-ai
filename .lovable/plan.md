@@ -1,45 +1,93 @@
 
 
-## Findings: How Category & Subcategories Display in /tepilot and /demo
+## Plan: Add `trip_label` Field to Travel Detection (Preserve Original Classification)
 
-### What's Already Working
-Both `ResultsTable.tsx` (/tepilot) and `DemoEnrichmentTableView.tsx` (/demo engine view) already have the **Category** and **Subcategories** columns added. Data flows from the edge function through `useSSEEnrichment` → UI, so new fields render automatically when live classification runs.
+### Core Idea
 
-### Bug Found: Travel Detection Desyncs `subcategory` and `subcategories`
+Instead of reclassifying transactions (changing pillar to "Travel & Exploration", overwriting subcategories), travel detection adds a **`trip_label`** string that encodes the trip compactly:
 
-In `src/hooks/useSSEEnrichment.ts` (lines 285-290), when travel detection reclassifies a transaction, it updates `subcategory` but **not** `subcategories`:
-
-```typescript
-updated[idx].subcategory = travelUpdate.reclassified_subcategory;
-// subcategories array is never updated!
+```
+"260301:260315 Banff Trip"
+"260612:260615 Miami Trip"
 ```
 
-This means after travel detection, the Subcategories column (which reads `tx.subcategories`) shows stale data while `tx.subcategory` has the correct travel value.
+Format: `YYMMDD:YYMMDD Destination Trip`
 
-**Fix**: Update both fields together:
+Non-travel transactions get `trip_label: null`. The original pillar/category/subcategories stay **untouched**.
+
+### Why This Is Better
+
+- Original classification preserved — a Shell gas station during a Banff trip stays "Home & Living / Local Commuting / Gas" 
+- Trip grouping becomes trivial: group by `trip_label`
+- TravelTimeline and other downstream views parse the label instead of reconstructing trips from `travel_context` fields
+- The label is human-readable and sortable
+
+### Files Changed
+
+| File | Change |
+|---|---|
+| `src/types/transaction.ts` | Add `trip_label?: string` to `EnrichedTransaction` |
+| `supabase/functions/travel-detection/index.ts` | Add `trip_label` to AI tool schema output; build label from destination + dates |
+| `src/hooks/useSSEEnrichment.ts` | **Stop overwriting pillar/subcategories**; just set `trip_label` and `travel_context` |
+| `src/components/tepilot/ResultsTable.tsx` | Add "Trip" column showing `trip_label` as a compact badge (e.g., `✈ 260301:260315 Banff`) |
+| `src/components/tepilot/insights/TravelTimeline.tsx` | Simplify `groupTransactionsByTrip` — group by `trip_label` instead of composite key from `travel_context` |
+| `src/components/tepilot/AfterInsightsPanel.tsx` | Use `trip_label` for travel metrics instead of pillar check |
+| `src/lib/advisorContextBuilder.ts` | Use `trip_label` for travel context building |
+| `src/lib/geoLocationUtils.ts` | Use `trip_label` for geo aggregation |
+| `src/lib/achievementEngine.ts` | Use `trip_label` for travel achievement checks |
+| `src/components/demo/DemoEnrichmentTableView.tsx` | Add Trip column |
+
+### Key Implementation Details
+
+**1. Type addition:**
 ```typescript
-if (travelUpdate.reclassified_subcategory) {
-  updated[idx].subcategory = travelUpdate.reclassified_subcategory;
-  updated[idx].subcategories = [travelUpdate.reclassified_subcategory];
-} else if (travelUpdate.reclassified_pillar) {
-  updated[idx].subcategory = travelUpdate.reclassified_pillar;
-  updated[idx].subcategories = [travelUpdate.reclassified_pillar];
+export interface EnrichedTransaction extends Transaction {
+  // ... existing fields unchanged
+  trip_label?: string | null;  // e.g. "260301:260315 Banff Trip"
+  travel_context?: { ... };    // kept for detailed metadata
 }
 ```
 
-### Demo Sub-Views Using `t.subcategory` (Backward Compat — OK)
+**2. Edge function — build label from AI output:**
+The AI still returns `is_travel_related`, `travel_destination`, `travel_period_start/end`. The edge function constructs the label:
+```typescript
+function buildTripLabel(update: any): string | null {
+  if (!update.is_travel_related || !update.travel_destination || !update.travel_period_start) return null;
+  const start = update.travel_period_start.replace(/-/g, '').slice(2); // "260301"
+  const end = (update.travel_period_end || update.travel_period_start).replace(/-/g, '').slice(2);
+  return `${start}:${end} ${update.travel_destination} Trip`;
+}
+```
 
-These files still reference `.subcategory` (the deprecated singular field), which works fine since it maps to `subcategories[0]`:
+**3. useSSEEnrichment — stop overwriting classification:**
+```typescript
+// BEFORE (current): overwrites pillar + subcategories
+updated[idx].pillar = "Travel & Exploration";
+updated[idx].subcategory = travelUpdate.reclassified_subcategory;
 
-| File | Usage | Status |
-|---|---|---|
-| `DemoEngagementView.tsx` | Groups spending by `t.subcategory` | ✅ Works (uses first label) |
-| `DemoEngineProfileView.tsx` | Aggregates by `t.subcategory` | ✅ Works |
-| `DemoPillarCodeView.tsx` | Shows in JSON payload | ✅ Works |
-| `DemoRewardsView.tsx` | Shows `deal.subcategory` | ✅ Works (different type) |
+// AFTER: just add label + context, keep original classification
+updated[idx].trip_label = travelUpdate.trip_label;
+updated[idx].travel_context = { ... };
+// pillar, category, subcategories UNTOUCHED
+```
 
-No changes needed for backward compat — the singular field is preserved.
+**4. TravelTimeline — simplified grouping:**
+```typescript
+// Group by trip_label instead of composite key
+const tripMap = new Map<string, EnrichedTransaction[]>();
+transactions
+  .filter(t => t.trip_label)
+  .forEach(t => {
+    if (!tripMap.has(t.trip_label!)) tripMap.set(t.trip_label!, []);
+    tripMap.get(t.trip_label!)!.push(t);
+  });
+```
 
-### Recommended Fix
-One file change: `src/hooks/useSSEEnrichment.ts` — sync `subcategories` array when travel detection updates `subcategory`.
+**5. ResultsTable — Trip column:**
+Shows a small `✈ Banff` badge on travel rows, with tooltip showing full label. Non-travel rows show "—".
+
+### What Stays the Same
+- `travel_context` object is still populated for detailed metadata (destination, dates, original_pillar, reason)
+- The AI prompt and tool schema in `travel-detection` stay largely the same — only the response processing adds the label construction
+- Demo sub-views (DemoTravelView, etc.) still work with `travel_context`
 
