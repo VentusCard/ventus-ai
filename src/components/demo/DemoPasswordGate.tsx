@@ -276,7 +276,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 }}>
                 <div className="px-8 py-5 flex items-center gap-3">
                   <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
-                    {String(i).padStart(2, "0")}
+                    {String(i - 2).padStart(2, "0")}
                   </span>
                   <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   <span className="text-sm font-medium truncate" style={{ color: "#64748B", maxWidth: "80%" }}>
@@ -484,7 +484,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               <div className="flex flex-col" style={{ minHeight: '40vh' }}>
                   <div>
                     <div className="flex items-center gap-3 mb-5">
-                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
+                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
@@ -540,7 +540,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               {displayStep === 6 &&
               <div>
                   <div className="flex items-center gap-3 mb-5">
-                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
+                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>04</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
