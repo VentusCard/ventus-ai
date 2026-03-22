@@ -36,7 +36,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function CampaignStudio() {
   // ─── Mode State ───
-  const [activeMode, setActiveMode] = useState<'campaigns' | 'automations'>('campaigns');
+  const [activeMode, setActiveMode] = useState<'campaigns' | 'automations'>('automations');
 
   // ─── Dimension State ───
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
