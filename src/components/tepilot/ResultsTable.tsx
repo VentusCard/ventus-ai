@@ -91,6 +91,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
                     <TableHead className="text-slate-700">Pillar</TableHead>
                     <TableHead className="text-slate-700">Category</TableHead>
                     <TableHead className="text-slate-700">Subcategories</TableHead>
+                    <TableHead className="text-slate-700">Trip</TableHead>
                     <TableHead className="text-slate-700">Tier</TableHead>
                     <TableHead className="text-slate-700">Frequency</TableHead>
                     {transactions.some(t => t.source) && (
