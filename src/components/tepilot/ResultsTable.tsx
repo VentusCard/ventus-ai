@@ -82,12 +82,12 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             <div className="max-h-[600px] overflow-auto">
               <Table className="text-xs table-fixed w-full">
                 <colgroup>
-                  <col className="w-[120px]" /> {/* Merchant */}
+                  <col className="w-[110px]" /> {/* Merchant */}
                   <col className="w-[52px]" />  {/* Amt */}
                   <col className="w-[72px]" />  {/* Date */}
                   <col className="w-[20px]" />  {/* Arrow */}
-                  <col className="w-[72px]" />  {/* Pillar */}
-                  <col className="w-[90px]" />  {/* Category */}
+                  <col className="w-[130px]" /> {/* Pillar */}
+                  <col className="w-[85px]" />  {/* Category */}
                   <col className="w-[85px]" />  {/* Subcategories */}
                   <col className="w-[60px]" />  {/* Trip */}
                   <col className="w-[52px]" />  {/* Tier */}
