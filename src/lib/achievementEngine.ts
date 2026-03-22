@@ -173,7 +173,7 @@ function checkLocalChampion(txns: EnrichedTransaction[]): Achievement {
   }
 
   // Local = home_zip matches zip_code or no travel context
-  const localTxns = diningRetail.filter((t) => !t.travel_context?.is_travel_related);
+  const localTxns = diningRetail.filter((t) => !t.trip_label);
   const localPct = Math.round((localTxns.length / diningRetail.length) * 100);
   const target = 60;
   return {
