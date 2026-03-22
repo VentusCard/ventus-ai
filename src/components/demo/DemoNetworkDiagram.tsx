@@ -94,24 +94,36 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // ── Fluid layout: derive sizes from container width ──
-  const TX_CARD_WIDTH = Math.max(140, Math.min(180, dims.w * 0.15));
-  const ENGINE_WIDTH = Math.max(160, Math.min(210, dims.w * 0.18));
-  const GRID_WIDTH = Math.max(320, Math.min(440, dims.w * 0.38));
+  // ── Scale factor for stage-ready presentation ──
+  const scale = centered ? 1.25 : 1.0;
 
+  const TX_CARD_WIDTH = Math.max(140, Math.min(180 * scale, dims.w * 0.15 * scale));
+  const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
+  const ENGINE_WIDTH = Math.max(160, Math.min(210 * scale, dims.w * 0.18 * scale));
+  const ENGINE_HEIGHT = BASE_ENGINE_HEIGHT * scale;
+  const GRID_WIDTH = Math.max(320, Math.min(480 * scale, dims.w * 0.40 * scale));
+  const GRID_ROW_HEIGHT = BASE_GRID_ROW_HEIGHT * scale;
+  const GRID_HEADER_HEIGHT = BASE_GRID_HEADER_HEIGHT * scale;
+
+  // ── Horizontal layout — centered when panel collapsed ──
   const pad = Math.max(12, dims.w * 0.03);
-  const txCenterX = pad + TX_CARD_WIDTH / 2;
-  const gridRightX = dims.w - pad;
-  const gridLeftX = gridRightX - GRID_WIDTH;
-  const engineCenterX = (txCenterX + TX_CARD_WIDTH / 2 + gridLeftX) / 2;
+  const gap1 = Math.max(30, dims.w * 0.04) * scale;
+  const gap2 = Math.max(30, dims.w * 0.04) * scale;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + GRID_WIDTH;
+  const offsetX = centered ? (dims.w - totalContentWidth) / 2 : pad;
+
+  const txCenterX = offsetX + TX_CARD_WIDTH / 2;
+  const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
+  const gridLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
 
   // ── Vertical layout ──
   const midY = dims.h * 0.5;
   const totalGridHeight = GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * 3;
   const gridTopY = midY - totalGridHeight / 2;
 
-  const inputAY = midY - 55;
-  const inputBY = midY + 55;
+  const txSpread = centered ? 70 : 55;
+  const inputAY = midY - txSpread;
+  const inputBY = midY + txSpread;
 
   // Row center Y positions (relative to container)
   const getRowCenterY = (rowIdx: number) => gridTopY + GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * rowIdx + GRID_ROW_HEIGHT / 2;
