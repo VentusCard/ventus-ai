@@ -48,6 +48,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Pillar</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Category</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Subcategories</th>
+            <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Trip</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Tier</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Freq</th>
             <th className="text-slate-600 text-[10px] font-semibold px-1 py-1.5 whitespace-nowrap">Conf</th>
