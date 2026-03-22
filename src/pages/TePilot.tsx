@@ -1253,7 +1253,7 @@ const TePilot = () => {
                 </div>
               </div>}
             </>
-            )}
+
           </TabsContent>
         </Tabs>
       </div>
