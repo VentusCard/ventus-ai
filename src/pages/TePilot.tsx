@@ -1164,7 +1164,7 @@ const TePilot = () => {
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                   <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
-                  <IntegrationDiagramButton variant="enrichment" />
+                  
                 </div>
                 <AnalyticsContainer defaultTab={analyticsDefaultTab} userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />
               </div>}
