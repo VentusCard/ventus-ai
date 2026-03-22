@@ -217,6 +217,8 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                   const isExpanded = expandedPillar === b.name;
                   const hasSubcats = b.subcategories.length > 0;
                   const showTripView = isTravel && tripViewOn && tripRows.length > 0;
+                  const ratio = b.budget > 0 ? b.spend / b.budget : 0;
+                  const { color: barColor, label: statusLabel } = getBudgetStatus(b.spend, b.budget);
 
                   return (
                     <div
@@ -227,32 +229,40 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-sm">{b.icon}</span>
                         <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
+                        {/* Trip View toggle in Travel header */}
+                        {isTravel && tripRows.length > 0 && (
+                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <span className="text-[7px] text-slate-400">Trips</span>
+                            <Switch
+                              checked={tripViewOn}
+                              onCheckedChange={setTripViewOn}
+                              className="h-3 w-6 data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-slate-300"
+                            />
+                          </div>
+                        )}
                         {(hasSubcats || isTravel) && (
                           isExpanded
                             ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
                             : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
                         )}
                       </div>
-                      <p className="text-[13px] font-bold text-slate-900">${b.spend.toLocaleString()}</p>
-                      <p className="text-[8px] text-slate-400">{b.pct}% of total</p>
+
+                      {/* Budget bar */}
+                      <div className="flex items-center justify-between mb-0.5">
+                        <p className="text-[9px] text-slate-500">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
+                        <span className="text-[7px] font-semibold px-1 py-0.5 rounded" style={{ background: `${barColor}18`, color: barColor }}>
+                          {statusLabel}
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-100 mb-0.5">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(ratio * 100, 100)}%`, background: barColor }}
+                        />
+                      </div>
 
                       {isExpanded && (
                         <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-1">
-                          {/* Trip View toggle for Travel */}
-                          {isTravel && tripRows.length > 0 && (
-                            <div
-                              className="flex items-center justify-between mb-1"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <span className="text-[8px] font-semibold text-slate-500">Trip View</span>
-                              <Switch
-                                checked={tripViewOn}
-                                onCheckedChange={setTripViewOn}
-                                className="h-3.5 w-7 data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-slate-300"
-                              />
-                            </div>
-                          )}
-
                           {showTripView ? (
                             tripRows.slice(0, 4).map((trip) => (
                               <div key={trip.destination} className="flex items-center gap-1.5 text-[9px]">
