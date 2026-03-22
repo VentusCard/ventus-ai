@@ -37,9 +37,9 @@ export function RewardsAnalyticsDashboard() {
         <SeasonalSpendingHeatmap filters={filters} />
       </CollapsibleCard>
 
-      {/* Section 2: Category Extension Opportunities */}
+      {/* Section 2: Lifestyle Extension Opportunities */}
       <CollapsibleCard
-        title="Category Extension Opportunities"
+        title="Lifestyle Extension Opportunities"
         description="Cross-category deals that MCC codes would never connect. Behavioral signals reveal hidden product-market adjacencies."
         icon={<Puzzle className="w-5 h-5 text-violet-500" />}
         defaultExpanded={true}
