@@ -146,7 +146,7 @@ function CustomerHeader({ customer, color }: { customer: DemoCustomer; color: "b
 
   return (
     <div className={`flex items-center gap-2 px-2 py-1.5 rounded-t-lg border ${colors} text-[10px] shrink-0`}>
-      <span className="font-semibold">{customer.name}</span>
+      <span className="font-semibold">{customer.profile.name}</span>
       <span className="text-slate-400">·</span>
       <span><span className="font-semibold">{customer.txnCount}</span> txns</span>
       <span className="text-slate-400">·</span>
