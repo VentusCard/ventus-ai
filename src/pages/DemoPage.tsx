@@ -47,6 +47,8 @@ export default function DemoPage() {
     detectedEventA,
     detectedEventB,
     apiPayloads,
+    tipA,
+    tipB,
     startEnrichment,
   } = useDemoEnrichment();
 
