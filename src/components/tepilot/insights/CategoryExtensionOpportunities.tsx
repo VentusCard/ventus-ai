@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CATEGORY_EXTENSION_OPPORTUNITIES, getCategoryExtensionSummary } from "@/lib/categoryExtensionData";
 import { formatCurrency, formatNumber } from "@/lib/formatHelper";
 import {
-  ArrowRight, AlertTriangle, Users, DollarSign, TrendingUp, Calendar, Target, ChevronDown, SlidersHorizontal
+  ArrowRight, Users, DollarSign, TrendingUp, Calendar, Target, ChevronDown, ExternalLink
 } from "lucide-react";
 import type { CategoryExtensionOpportunity } from "@/types/bankwide";
 
@@ -193,14 +194,14 @@ function OpportunityCard({
             <p className="text-sm text-emerald-900 leading-snug">{o.whyItFits}</p>
           </div>
 
+          {/* Deployment Strategy (moved up) */}
+          <div className="bg-blue-50 rounded-lg p-3">
+            <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Deployment Strategy</p>
+            <p className="text-sm text-blue-900 leading-snug">{o.deploymentRationale}</p>
+          </div>
 
-          {/* Detail Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-slate-50 rounded-lg p-3">
-              <p className="text-xs text-slate-500 mb-1">Merchant Partner</p>
-              <p className="text-sm font-semibold text-slate-800">{o.extensionMerchant}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{o.extensionCategory}</p>
-            </div>
+          {/* Detail Grid (2 columns now) */}
+          <div className="grid grid-cols-2 gap-3">
             <div className="bg-slate-50 rounded-lg p-3">
               <p className="text-xs text-slate-500 mb-1">Conversion Rate</p>
               <p className="text-sm font-semibold text-slate-800">{o.projectedConversionRate}%</p>
@@ -212,11 +213,44 @@ function OpportunityCard({
             </div>
           </div>
 
-          {/* Deployment */}
-          <div className="bg-blue-50 rounded-lg p-3">
-            <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Deployment Strategy</p>
-            <p className="text-sm text-blue-900 leading-snug">{o.deploymentRationale}</p>
-          </div>
+          {/* Merchant Partners Table */}
+          {o.merchantDetails && o.merchantDetails.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Merchant Partners</p>
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50">
+                      <TableHead className="text-xs font-semibold text-slate-600 h-9">Merchant</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 h-9">Product</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 h-9">MSRP</TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 h-9 text-right">Link</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {o.merchantDetails.map((m) => (
+                      <TableRow key={m.name} className="hover:bg-slate-50/50">
+                        <TableCell className="text-sm font-medium text-slate-800 py-2.5">{m.name}</TableCell>
+                        <TableCell className="text-sm text-slate-600 py-2.5">{m.product}</TableCell>
+                        <TableCell className="text-sm text-slate-600 py-2.5">{m.msrp}</TableCell>
+                        <TableCell className="text-right py-2.5">
+                          <a
+                            href={m.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Visit <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
 
           {/* Audience Tags */}
           <div className="flex flex-wrap gap-4 text-xs text-slate-500">

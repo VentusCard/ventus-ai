@@ -256,6 +256,13 @@ export interface WalletShareTrendPoint {
   winBackRate: number;
 }
 
+export interface MerchantDetail {
+  name: string;
+  product: string;
+  msrp: string;
+  link: string;
+}
+
 // Category Extension Opportunity — behaviorally adjacent deals that MCC codes can't connect
 export interface CategoryExtensionOpportunity {
   id: string;
@@ -279,4 +286,5 @@ export interface CategoryExtensionOpportunity {
   optimalDeploymentWindow: string;
   deploymentRationale: string;
   priority: 'high' | 'medium' | 'low';
+  merchantDetails: MerchantDetail[];
 }
