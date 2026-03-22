@@ -960,56 +960,6 @@ const TePilot = () => {
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
-            {comparisonMode ? (
-              <>
-                {/* Dual enrichment progress */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="bg-white border-slate-200">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500" />
-                        <span className="font-semibold text-sm text-slate-900">{selectedCompA?.demographics?.name || "Customer A"}</span>
-                      </div>
-                      {isProcessing && (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                          <p className="text-xs text-slate-600">{statusMessage || "Processing..."}</p>
-                        </div>
-                      )}
-                      {currentPhase === "complete" && <Badge className="bg-green-100 text-green-700">✓ Complete ({enrichedTransactions.length} transactions)</Badge>}
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-white border-slate-200">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        <span className="font-semibold text-sm text-slate-900">{selectedCompB?.demographics?.name || "Customer B"}</span>
-                      </div>
-                      {isProcessingB && (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
-                          <p className="text-xs text-slate-600">{statusMessageB || "Processing..."}</p>
-                        </div>
-                      )}
-                      {currentPhaseB === "complete" && <Badge className="bg-green-100 text-green-700">✓ Complete ({enrichedTransactionsB.length} transactions)</Badge>}
-                    </CardContent>
-                  </Card>
-                </div>
-                {currentPhase === "complete" && currentPhaseB === "complete" && (
-                  <Card className="border-blue-200 bg-blue-50">
-                    <CardContent className="pt-6 flex flex-col items-center gap-4">
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold text-slate-900 mb-2">Both customers enriched! Ready to compare?</h3>
-                        <p className="text-sm text-slate-600 mb-4">View side-by-side dashboard comparison</p>
-                      </div>
-                      <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
-                        Compare Dashboards <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            ) : (
               <>
                 {currentPhase === "travel" && <Card className="border-yellow-200 bg-yellow-50">
                     <CardContent className="pt-6 flex items-center gap-3">
@@ -1039,7 +989,6 @@ const TePilot = () => {
                     </CardContent>
                   </Card>}
               </>
-            )}
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
