@@ -9,6 +9,17 @@ import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
 import { cn } from "@/lib/utils";
 
+const CATEGORY_HEX: Record<string, string> = {
+  Sports: "#16a34a",
+  Art: "#4f46e5",
+  Dining: "#ea580c",
+  Entertainment: "#9333ea",
+  Culture: "#2563eb",
+  Shopping: "#db2777",
+  Fitness: "#dc2626",
+  Travel: "#0284c7",
+};
+
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
@@ -150,7 +161,7 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
 
 // ─── Local Perks Section ──────────────────────────────────────────────
 function LocalPerksSection({ city, perks, color }: { city: string; perks: LocationPerk[]; color: string }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const categories = useMemo(() => [...new Set(perks.map(p => p.category))], [perks]);
@@ -190,7 +201,7 @@ function LocalPerksSection({ city, perks, color }: { city: string; perks: Locati
                   "text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors",
                   activeCategory === cat ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                 )}
-                style={activeCategory === cat ? { background: color } : undefined}
+                style={activeCategory === cat ? { background: CATEGORY_HEX[cat] || color } : undefined}
                 onClick={() => setActiveCategory(cat)}
               >
                 {cat}
