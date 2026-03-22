@@ -58,6 +58,7 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const renderContent = () => {
     switch (activeTab) {
