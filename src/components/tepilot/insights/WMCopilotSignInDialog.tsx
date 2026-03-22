@@ -69,7 +69,7 @@ export function WMCopilotSignInDialog({ open, onOpenChange, userDemographics }: 
                     id="wm-email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-9 text-sm border-slate-200 bg-white"
+                    className="h-9 text-sm !text-slate-900 border-slate-200 bg-white"
                   />
                 </div>
                 <div className="space-y-1.5">
