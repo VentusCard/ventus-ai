@@ -268,7 +268,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             );
           })}
         </div>
-        <p className={`text-indigo-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity ${centered ? "text-[10px]" : "text-[8px]"}`}>Click to explore →</p>
+        
       </button>
 
       {/* 3x2 Grid — Right side */}
