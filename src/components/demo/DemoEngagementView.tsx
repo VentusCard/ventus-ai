@@ -34,7 +34,7 @@ interface SpendingItem {
   icon: string;
   spend: number;
   pct: number;
-  subcategories: { subcategory: string; count: number; total: number }[];
+  subcategories: { category: string; count: number; total: number }[];
 }
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
