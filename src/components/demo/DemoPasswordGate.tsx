@@ -647,10 +647,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       map((item) =>
                       <div
                         key={item.label}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                        className="flex items-center gap-2.5 px-5 py-3 rounded-lg border"
                         style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}>
-                            <span className="text-base">{item.icon}</span>
-                            <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#64748B" }}>{item.label}</span>
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="text-base font-medium whitespace-nowrap" style={{ color: "#64748B" }}>{item.label}</span>
                           </div>
                       )}
                       </div>
