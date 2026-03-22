@@ -1,43 +1,30 @@
 
 
-## Convert Tab Bar to Collapsible Left Sidebar with Grouped Sections
+## WM Copilot: Mock Bank Sign-In → Load Enrichment Client → New Tab
 
-### Current State
-8 tabs displayed as a horizontal wrapping `TabsList` at the top of `AnalyticsContainer`.
-
-### Target State
-A collapsible left column with tabs grouped under 3 labeled sections:
-
-**Analytics**
-- Analytics Dashboard
-- Financial Journey
-- Wallet Share Intelligence
-- Customer Insights
-
-**Rewards**
-- Rewards Intelligence
-- Gamification
-
-**Wealth Management**
-- Life Events Intelligence
-- WM Copilot
+### Flow
+1. Click "WM Copilot" in analytics sidebar → opens a **sign-in dialog** styled as "Bank of Ventus Wealth Management" (navy/gold branding, bank logo feel)
+2. Mock login form (advisor email + password) → click "Sign In" → brief loading animation
+3. After "sign in," the dialog auto-detects the **current enrichment flow's customer profile** (`userDemographics` already passed into `AnalyticsContainer`). Displays the client name/segment/AUM as a confirmation card: "Signing in as advisor for [Client Name]"
+4. Click "Launch Copilot" → stores client profile in `sessionStorage` (`wm_copilot_launch_client`) → calls `window.open('/tepilot/advisor-console', '_blank')` → dialog closes
+5. If no enrichment profile exists, show a message: "No active client profile. Run the enrichment flow first."
 
 ### Changes
 
-**`src/components/tepilot/insights/AnalyticsContainer.tsx`** (rewrite)
-- Replace `TabsList` with a two-column layout: left sidebar + right content area
-- Use `useState` to track `activeTab` (instead of Radix Tabs, use manual state since sidebar nav doesn't map to TabsList)
-- Left column (~240px, collapsible to icon-only ~48px):
-  - Toggle button (ChevronLeft/ChevronRight) at top
-  - Three `Collapsible` sections: "Analytics", "Rewards", "Wealth Management"
-  - Each section has a group label and nav buttons with icons + text (text hidden when collapsed)
-  - Active item highlighted with `bg-blue-50 text-blue-700 border-l-2 border-blue-600`
-  - All sections default open
-- Right side: renders the matching content component based on `activeTab`
-- On mobile (<768px): sidebar starts collapsed, overlays or stays as icon strip
+**New: `src/components/tepilot/insights/WMCopilotSignInDialog.tsx`**
+- Dialog component with "Bank of Ventus" branding (navy `#0f172a` header, gold accent `#d4a843`, serif-style heading)
+- Step 1: Mock sign-in form (pre-filled advisor email, password field, "Sign In" button with spinner)
+- Step 2: Client confirmation card showing `userDemographics.name`, `segment`, `aum` — single "Launch Copilot" button
+- On launch: write profile to `sessionStorage`, `window.open`, close dialog
+- Props: `open`, `onOpenChange`, `userDemographics: ClientProfileData | null`
 
-### No changes to
-- Any content component (BankwideView, RewardsAnalyticsDashboard, etc.)
-- TePilot.tsx (props pass-through unchanged)
-- Any other file
+**Update: `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+- Add `showSignIn` state
+- When "WM Copilot" nav item clicked → set `showSignIn = true` instead of `setActiveTab`
+- Render `<WMCopilotSignInDialog>` passing `userDemographics` prop through
+- Remove `wm-copilot` from `TabValue`, remove its switch case, remove `BankwideWMCopilotView` import
+
+**Update: `src/pages/AdvisorConsolePage.tsx`**
+- On mount, check `sessionStorage` for `wm_copilot_launch_client`
+- If found, parse it, store as `tepilot_client_profile`, set `selectedClientId` and `viewMode = "client"`, then remove the key
 
