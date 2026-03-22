@@ -100,7 +100,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const TX_CARD_WIDTH = Math.max(140, Math.min(180 * scale, dims.w * 0.15 * scale));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
   const ENGINE_WIDTH = Math.max(160, Math.min(210 * scale, dims.w * 0.18 * scale));
-  const ENGINE_HEIGHT = BASE_ENGINE_HEIGHT * scale;
+  const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
   const GRID_WIDTH = Math.max(320, Math.min(480 * scale, dims.w * 0.40 * scale));
   const GRID_ROW_HEIGHT = BASE_GRID_ROW_HEIGHT * scale;
   const GRID_HEADER_HEIGHT = BASE_GRID_HEADER_HEIGHT * scale;
