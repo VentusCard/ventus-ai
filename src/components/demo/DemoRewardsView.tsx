@@ -201,7 +201,7 @@ function LocalPerksSection({ city, perks, color }: { city: string; perks: Locati
                   "text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors",
                   activeCategory === cat ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                 )}
-                style={activeCategory === cat ? { background: color } : undefined}
+                style={activeCategory === cat ? { background: CATEGORY_HEX[cat] || color } : undefined}
                 onClick={() => setActiveCategory(cat)}
               >
                 {cat}
