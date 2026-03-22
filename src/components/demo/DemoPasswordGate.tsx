@@ -689,10 +689,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         map((item, i) =>
                         <div
                           key={`${dupeIdx}-${i}`}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border"
+                          className="flex items-center gap-2.5 px-5 py-3 rounded-lg border"
                           style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}>
-                                <span className="text-base flex-shrink-0">{item.icon}</span>
-                                <span className="text-sm font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>{item.label}</span>
+                                <span className="text-lg flex-shrink-0">{item.icon}</span>
+                                <span className="text-base font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>{item.label}</span>
                               </div>
                         )
                         )}
