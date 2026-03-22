@@ -37,6 +37,7 @@ export function LifeEventAlertCard({
   onView,
   onScheduleCall,
   showEventLabel = false,
+  sourceLabel,
 }: LifeEventAlertCardProps) {
   const config = LIFE_EVENT_CONFIG[event.eventType];
   const IconComponent = iconMap[config.icon] || AlertTriangle;
