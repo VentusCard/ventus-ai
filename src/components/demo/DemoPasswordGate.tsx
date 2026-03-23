@@ -4,7 +4,7 @@ import { Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 8;
+const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
 "Ventus AI — AI Customer Intelligence Layer that Powers Banking Personalization Across Functions.",
@@ -12,7 +12,6 @@ const BEAT_SUMMARIES = [
 "Built on MCC — a 1974 taxonomy for routing, not intelligence.",
 "MCCs are blind — same code for symphony, Celtics, and Monster Jam.",
 "MCCs can't see patterns — three ski purchases, three generic codes.",
-"Semantic enrichment reveals life events — category codes become irrelevant.",
 "Disconnected data — no demographics, no actionable intelligence."];
 
 
@@ -26,7 +25,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
-  const [beat6Phase, setBeat6Phase] = useState(0);
 
   const advance = useCallback(() => {
     if (isTransitioning) return;
@@ -52,13 +50,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         }
         setBeat5Phase(0);
       }
-      if (s === 6) {
-        if (beat6Phase < 1) {
-          setBeat6Phase((p) => p + 1);
-          return s;
-        }
-        setBeat6Phase(0);
-      }
       const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
       if (next !== s) {
         setIsTransitioning(true);
@@ -69,7 +60,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       }
       return next;
     });
-  }, [beat3Phase, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
+  }, [beat3Phase, beat4Phase, beat5Phase, isTransitioning]);
 
   const goBack = useCallback(() => {
     if (isTransitioning) return;
@@ -79,10 +70,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
     }
     if (step === 5 && beat5Phase > 0) {
       setBeat5Phase((p) => p - 1);
-      return;
-    }
-    if (step === 6 && beat6Phase > 0) {
-      setBeat6Phase((p) => p - 1);
       return;
     }
     if (step > 0) {
@@ -98,11 +85,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
     setRevealInput(false);
     setBeat4Phase(0);
     setBeat5Phase(0);
-    setBeat6Phase(0);
-  }, [step, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
+  }, [step, beat4Phase, beat5Phase, isTransitioning]);
 
   useEffect(() => {
-    if (step === 7) {
+    if (step === 6) {
       const t1 = setTimeout(() => setRevealLogo(true), 1500);
       const t2 = setTimeout(() => setRevealInput(true), 2200);
       return () => {clearTimeout(t1);clearTimeout(t2);};
@@ -116,7 +102,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         goBack();
         return;
       }
-      if (step === 7) return;
+      if (step === 6) return;
       if (e.code === "Space" || e.code === "ArrowRight" || e.code === "Enter") {
         e.preventDefault();
         advance();
@@ -170,9 +156,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step < 7 ? "pointer" : "default"
+        cursor: step < 6 ? "pointer" : "default"
       }}
-      onClick={() => step < 7 && advance()}>
+      onClick={() => step < 6 && advance()}>
       
       <style>{`
         @keyframes ambientShift {
@@ -229,7 +215,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
       </div>
 
       {/* Tap hint */}
-      {step < 7 &&
+      {step < 6 &&
       <div
         className="fixed bottom-20 left-1/2 -translate-x-1/2 text-xs tracking-wide z-20"
         style={{ color: "#94A3B8", animation: "subtlePulse 2.5s ease infinite" }}>
@@ -468,75 +454,18 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </div>
               }
 
-              {/* Beat 5 — College Planning / 529 Opportunity */}
+              {/* Beat 5 — Disconnected data */}
               {displayStep === 5 &&
-              <div className="flex flex-col" style={{ minHeight: '40vh' }}>
-                  <div>
-                    <div className="flex items-center gap-3 mb-5">
-                      <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
-                      <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Semantic enrichment reveals life events.</h2>
-                    <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                      Three purchases. The pattern is invisible to MCCs — but not to semantic intelligence.
-                    </p>
-                    <div className="mt-8">
-                      <div className="space-y-3">
-                        {[
-                      { merchant: "Princeton Review — SAT Prep", category: "Education Services", amount: "$2,200.00", delay: "0.2s" },
-                      { merchant: "Common App Inc.", category: "Education - Other", amount: "$350.00", delay: "0.5s" },
-                      { merchant: "Magoosh — SAT Prep Guide", category: "Education Services", amount: "$65.00", delay: "0.8s" }].
-                      map((tx, i) =>
-                      <div
-                        key={i}
-                        className="flex items-center justify-between px-6 py-4 rounded-lg border animate-fade-slide"
-                        style={{
-                          borderColor: "#E2E8F0",
-                          backgroundColor: "#FAFBFC",
-                          animationDelay: tx.delay,
-                          animationFillMode: "both"
-                        }}>
-                            <div className="flex items-center gap-4">
-                              <span className="text-base font-medium" style={{ color: "#0F172A" }}>
-                                {tx.merchant}
-                              </span>
-                            </div>
-                            <span className="text-base font-semibold" style={{ color: "#0F172A" }}>{tx.amount}</span>
-                          </div>
-                      )}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                  className="flex items-center justify-center transition-all duration-500 pt-1"
-                  style={{
-                    opacity: beat5Phase >= 1 ? 1 : 0,
-                    transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(8px)'
-                  }}>
-                    <div className="flex items-center gap-3">
-                      <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
-                      <div className="flex items-center gap-2 px-5 py-2.5 rounded-full" style={{ backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}>
-                        <span className="text-lg">🎓</span>
-                        <span className="text-base font-semibold" style={{ color: "#059669" }}>Life Event Detected: College Planning — 529 plan opportunity identified</span>
-                      </div>
-                      <div className="h-px w-16" style={{ backgroundColor: "#059669" }} />
-                    </div>
-                  </div>
-                </div>
-              }
-
-              {/* Beat 6 — Disconnected data */}
-              {displayStep === 6 &&
               <div>
                   <div className="flex items-center gap-3 mb-5">
-                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>04</span>
+                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
-                    {beat6Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
+                    {beat5Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
                   </h2>
                   <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    {beat6Phase === 0 ?
+                    {beat5Phase === 0 ?
                   "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals." :
                   "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
                   }
@@ -544,12 +473,12 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                   {/* Horizontal flow diagram */}
                   <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 w-full">
-                    <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
-                      {beat6Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
+                    <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
+                      {beat5Phase >= 1 ? "If we truly understand our customers" : "We don't really understand our customers"}
                     </p>
                     <div style={{ width: 44 }} />
-                    <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
-                      {beat6Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
+                    <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat5Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
+                      {beat5Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
                     </p>
                   </div>
                   <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6 w-full">
@@ -561,8 +490,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       style={{
                         borderColor: "#3B82F6",
                         backgroundColor: "rgba(59,130,246,0.04)",
-                        opacity: beat6Phase >= 1 ? 1 : 0,
-                        transform: beat6Phase >= 1 ? "translateY(0)" : "translateY(8px)"
+                        opacity: beat5Phase >= 1 ? 1 : 0,
+                        transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(8px)"
                       }}>
                         <span
                         className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
@@ -573,23 +502,23 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <div
                       className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
                       style={{
-                        borderColor: beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1",
-                        borderStyle: beat6Phase >= 1 ? "solid" : "dashed",
-                        backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
+                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1",
+                        borderStyle: beat5Phase >= 1 ? "solid" : "dashed",
+                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
                         minWidth: 160
                       }}>
-                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
                           Demographics
                         </span>
                       </div>
                       <div
                       className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
                       style={{
-                        borderColor: beat6Phase >= 1 ? "#3B82F6" : "#E2E8F0",
-                        backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
+                        borderColor: beat5Phase >= 1 ? "#3B82F6" : "#E2E8F0",
+                        backgroundColor: beat5Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
                         minWidth: 160
                       }}>
-                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat5Phase >= 1 ? "#3B82F6" : "#64748B" }}>
                           Transactions
                         </span>
                       </div>
@@ -598,8 +527,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     {/* MIDDLE — Arrow */}
                     <div className="flex items-center px-1">
                       <svg width="48" height="24" viewBox="0 0 48 24" fill="none" className="transition-colors duration-500">
-                        <line x1="0" y1="12" x2="38" y2="12" stroke={beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeDasharray={beat6Phase >= 1 ? "none" : "4 3"} className="transition-all duration-500" />
-                        <path d="M36 6L44 12L36 18" stroke={beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-500" />
+                        <line x1="0" y1="12" x2="38" y2="12" stroke={beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeDasharray={beat5Phase >= 1 ? "none" : "4 3"} className="transition-all duration-500" />
+                        <path d="M36 6L44 12L36 18" stroke={beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-500" />
                       </svg>
                     </div>
 
@@ -609,11 +538,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <div
                       className="flex flex-col gap-2.5 transition-all duration-500"
                       style={{
-                        opacity: beat6Phase === 0 ? 1 : 0,
-                        transform: beat6Phase === 0 ? 'translateY(0)' : 'translateY(-10px)',
-                        position: beat6Phase === 0 ? 'relative' : 'absolute',
+                        opacity: beat5Phase === 0 ? 1 : 0,
+                        transform: beat5Phase === 0 ? 'translateY(0)' : 'translateY(-10px)',
+                        position: beat5Phase === 0 ? 'relative' : 'absolute',
                         inset: 0,
-                        pointerEvents: beat6Phase === 0 ? 'auto' : 'none'
+                        pointerEvents: beat5Phase === 0 ? 'auto' : 'none'
                       }}>
                         {[
                       { label: "Analytics", icon: "📊" },
@@ -635,11 +564,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <div
                       className="transition-all duration-700"
                       style={{
-                        opacity: beat6Phase >= 1 ? 1 : 0,
-                        transform: beat6Phase >= 1 ? 'translateY(0)' : 'translateY(10px)',
-                        position: beat6Phase >= 1 ? 'relative' : 'absolute',
+                        opacity: beat5Phase >= 1 ? 1 : 0,
+                        transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(10px)',
+                        position: beat5Phase >= 1 ? 'relative' : 'absolute',
                         inset: 0,
-                        pointerEvents: beat6Phase >= 1 ? 'auto' : 'none',
+                        pointerEvents: beat5Phase >= 1 ? 'auto' : 'none',
                         height: 200,
                         overflow: 'hidden',
                         maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
@@ -680,8 +609,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                 </div>
               }
 
-              {/* Beat 7 — Reveal */}
-              {displayStep === 7 &&
+              {/* Beat 6 — Reveal */}
+              {displayStep === 6 &&
               <div className="text-center py-8">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
                     One AI-Native layer that enables personalized banking across functions.
