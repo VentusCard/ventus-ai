@@ -224,6 +224,9 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         profiling: "processing",
         predictive: "processing",
         phase: "processing",
+        outflow: "processing",
+        locational: "processing",
+        lifeEventIntel: "processing",
       });
     }, 100);
 
