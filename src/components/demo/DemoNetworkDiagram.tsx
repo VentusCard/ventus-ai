@@ -20,6 +20,7 @@ interface NodeDef {
   label: string;
   icon: typeof BarChart3;
   color: string;
+  audience: "consumer" | "bank";
 }
 
 interface PillarDef {
