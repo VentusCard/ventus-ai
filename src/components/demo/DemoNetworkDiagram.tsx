@@ -110,16 +110,16 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const CONSUMER_COL_WIDTH = Math.max(160, Math.min(200 * scale, dims.w * 0.16 * scale));
 
   const ROW_HEIGHT = Math.max(120, 140 * scale);
-  const BANK_NODE_HEIGHT = Math.max(34, 38 * scale);
+  const BANK_NODE_HEIGHT = Math.max(32, 38 * scale);
   const BANK_NODE_GAP = Math.max(4, 6 * scale);
-  const CONSUMER_NODE_HEIGHT = Math.max(70, 80 * scale);
-  const QUESTION_LABEL_HEIGHT = centered ? 28 : 24;
+  const CONSUMER_NODE_HEIGHT = Math.max(62, 80 * scale);
+  const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
 
   // Horizontal positions
   const pad = Math.max(12, dims.w * 0.02);
-  const gap1 = Math.max(30, dims.w * 0.03) * scale;
-  const gap2 = Math.max(25, dims.w * 0.025) * scale;
-  const gap3 = Math.max(20, dims.w * 0.02) * scale;
+  const gap1 = Math.max(20, dims.w * 0.02) * scale;
+  const gap2 = Math.max(35, dims.w * 0.035) * scale;
+  const gap3 = Math.max(30, dims.w * 0.03) * scale;
 
   const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
   const offsetX = centered ? (dims.w - totalContentWidth) / 2 : pad;
@@ -295,8 +295,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 zIndex: 2,
               }}
             >
-              <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-4 h-4"} shrink-0`} style={{ color: pillar.color }} />
-              <span className={`font-semibold leading-tight ${centered ? "text-[15px]" : "text-[13px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
+              <span className={`font-semibold leading-tight ${centered ? "text-[15px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
             {/* 2 stacked bank nodes */}
