@@ -188,22 +188,29 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             {/* Engine → Bank column rows */}
             {PILLAR_ROWS.map((pillar, pi) => {
               const rowCenterY = getRowCenterY(pi);
+              const bankNodesH = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+              const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
+              const contentTop = rowCenterY - cHeight / 2;
               const engineRight = engineCenterX + ENGINE_WIDTH / 2;
-              const cpX = (engineRight + bankColLeftX) / 2;
-              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${rowCenterY}, ${bankColLeftX} ${rowCenterY}`;
               const pillarReady = engineReady;
               const pillarProcessing = engineProcessing;
-              return (
-                <g key={`eng-bank-${pi}`}>
-                  <path d={path} stroke={pillar.color} strokeWidth={pillarReady ? 2.5 : 1.5} fill="none" opacity={pillarReady ? 0.7 : 0.2} strokeDasharray={pillarReady ? "none" : "6 4"} className="line-transition" />
-                  {pillarProcessing && !pillarReady && (
-                    <circle r="2.5" fill={pillar.color}><animateMotion dur={`${2.5 + pi * 0.4}s`} repeatCount="indefinite" path={path} /></circle>
-                  )}
-                  {pillarReady && (
-                    <circle r="3" fill={pillar.color} opacity="0.5"><animateMotion dur={`${3.5 + pi * 0.3}s`} repeatCount="indefinite" path={path} /></circle>
-                  )}
-                </g>
-              );
+
+              return pillar.bankNodes.map((_, ni) => {
+                const bankNodeY = contentTop + ni * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2;
+                const cpX = (engineRight + bankColLeftX) / 2;
+                const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${bankNodeY}, ${bankColLeftX} ${bankNodeY}`;
+                return (
+                  <g key={`eng-bank-${pi}-${ni}`}>
+                    <path d={path} stroke={pillar.color} strokeWidth={pillarReady ? 2.5 : 1.5} fill="none" opacity={pillarReady ? 0.7 : 0.2} strokeDasharray={pillarReady ? "none" : "6 4"} className="line-transition" />
+                    {pillarProcessing && !pillarReady && (
+                      <circle r="2.5" fill={pillar.color}><animateMotion dur={`${2.5 + pi * 0.4 + ni * 0.2}s`} repeatCount="indefinite" path={path} /></circle>
+                    )}
+                    {pillarReady && (
+                      <circle r="3" fill={pillar.color} opacity="0.5"><animateMotion dur={`${3.5 + pi * 0.3 + ni * 0.15}s`} repeatCount="indefinite" path={path} /></circle>
+                    )}
+                  </g>
+                );
+              });
             })}
 
             {/* Bank column → Consumer column (one line per bank node) */}
