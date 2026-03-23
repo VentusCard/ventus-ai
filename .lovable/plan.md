@@ -1,35 +1,36 @@
 
 
-## Remove Column Headers, Add Color-Coded Cards + Legend
+## Add "Next Best Product" Card with Life-Event-Driven Personalization
 
-### Problem
-The "Consumer Facing" and "Bank Facing" text headers take up space and are redundant once cards are visually differentiated. Both Financial Journey and Wealth Management are bank-facing, so the distinction should be clear via color coding rather than labels.
+### What
+Add a prominent **"Next Best Product"** card between the profile summary and category sections in the Financial Journey view. It highlights the #1 scored opportunity with personalized outreach messages driven by **detected life events when available**, falling back to pillar/segment signals otherwise.
 
-### Change
+### How
 
-**File: `src/components/demo/DemoNetworkDiagram.tsx`**
+**File: `src/components/demo/DemoFinancialJourneyView.tsx`**
 
-1. **Remove the column headers** (lines 286-293) — delete the "Consumer Facing" / "Bank Facing" `<div>` block. Reclaim the `GRID_HEADER_HEIGHT` space or reduce it to a small gap.
+1. **New `NextProductCard` component** — rendered after the profile card, before category sections. Takes top opportunity + customer + detectedEvents.
 
-2. **Color-code the node buttons** by audience type:
-   - **Consumer-facing** nodes (Personalized UX, Consumer Rewards, Financial Journey): add a subtle left border accent in amber/orange (`border-l-3 border-l-amber-400`)
-   - **Bank-facing** nodes (Bank-Wide Analytics, Reward Intelligence, Wealth Management): add a subtle left border accent in blue (`border-l-3 border-l-blue-400`)
+2. **Card layout:**
+   - Category color accent (left border)
+   - Product name + category badge + confidence bar
+   - Top signals with Zap icons
+   - Est. annual revenue
+   - **Personalized Messages** section with 3 channel previews (Email, SMS, In-App)
+   - "Push to Campaign" button per channel (toast on click)
 
-   Add an `audience` field to `NodeDef` and the PILLARS data:
-   - `engagement` → consumer, `analytics` → bank
-   - `rewards` → consumer, `travel` → bank
-   - `lifeEvents` → bank, `wealth` → bank
+3. **Message generation logic** — `generatePersonalizedMessages(customer, product, signals, detectedEvents)`:
+   - **If life events detected**: Use the top event's `event_name` and `talking_points` to craft contextual messages. E.g., "Robert, as you prepare for [Home Purchase], our HELOC could help bridge your down payment..."
+   - **Fallback (no life events)**: Use top pillar spending + segment tier. E.g., "Robert, your travel-forward lifestyle suggests Premium Travel could earn you 5x on flights..."
+   - Returns `{ email: string; sms: string; inApp: string }` — all deterministic, no API call.
 
-   Wait — the user said "both financial journey and wealth management are bank-facing." So the Phase row has both as bank-facing. Let me map correctly:
-   - Consumer: `engagement`, `rewards`
-   - Bank: `analytics`, `travel`, `lifeEvents`, `wealth`
-
-3. **Add a compact legend** at the bottom of the grid area:
-   ```text
-   ● Consumer-Facing    ● Bank-Facing
+4. **Insert in `CustomerOpportunities`** layout:
    ```
-   Small dots with the accent colors, `text-[9px]` styling, positioned below the last grid row.
+   [Profile Card + Held Products]
+   [Next Best Product Card]        ← NEW
+   [Category Sections...]
+   ```
 
 ### Files Modified
-- `src/components/demo/DemoNetworkDiagram.tsx`
+- `src/components/demo/DemoFinancialJourneyView.tsx`
 
