@@ -53,6 +53,18 @@ const SOURCE_TO_PRODUCT: Record<string, string> = {
   "Student Card": "Student Card",
 };
 
+/* ── Source pill colors ── */
+const SOURCE_PILL_COLORS: Record<string, string> = {
+  "Premium Card": "bg-purple-50 text-purple-700",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  Checking: "bg-slate-100 text-slate-600",
+  HSA: "bg-amber-50 text-amber-700",
+  Savings: "bg-teal-50 text-teal-700",
+  "Business Card": "bg-indigo-50 text-indigo-700",
+  "Student Card": "bg-pink-50 text-pink-700",
+};
+
 /* ── Category icons ── */
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   credit_cards: CreditCard,
