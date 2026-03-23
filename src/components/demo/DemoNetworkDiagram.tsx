@@ -367,6 +367,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             </div>
           );
         })}
+
+        {/* Legend */}
+        <div className={`flex items-center justify-center gap-4 mt-2 ${centered ? "text-[11px]" : "text-[9px]"} text-slate-400`}>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+            Consumer-Facing
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+            Bank-Facing
+          </span>
+        </div>
       </div>
     </div>
   );
