@@ -1,36 +1,35 @@
 
 
-## Use Color-Coded Source Pills for "Currently Held" in Financial Journey
+## Remove Column Headers, Add Color-Coded Cards + Legend
 
 ### Problem
-The Financial Journey view shows held products as plain grey badges. The left panel already uses color-coded source pills (purple for Premium Card, emerald for Cashback Card, blue for Travel Card, etc.). These should match.
+The "Consumer Facing" and "Bank Facing" text headers take up space and are redundant once cards are visually differentiated. Both Financial Journey and Wealth Management are bank-facing, so the distinction should be clear via color coding rather than labels.
 
 ### Change
 
-**File: `src/components/demo/DemoFinancialJourneyView.tsx`**
+**File: `src/components/demo/DemoNetworkDiagram.tsx`**
 
-In the "Currently Held" section (~lines 286-296), replace the generic grey `Badge` rendering with color-coded pills matching the customer panel's source color scheme:
+1. **Remove the column headers** (lines 286-293) — delete the "Consumer Facing" / "Bank Facing" `<div>` block. Reclaim the `GRID_HEADER_HEIGHT` space or reduce it to a small gap.
 
-- Extract a shared `SOURCE_PILL_COLOR` map (or inline it):
-  - Checking → `bg-slate-100 text-slate-600`
-  - Cashback Card / Basic Cashback → `bg-emerald-50 text-emerald-700`
-  - Travel Card / Travel Rewards → `bg-blue-50 text-blue-700`
-  - Premium Card / World Elite → `bg-purple-50 text-purple-700`
-  - HSA → `bg-amber-50 text-amber-700`
-  - Savings → `bg-teal-50 text-teal-700`
-  - Fallback → `bg-slate-50 text-slate-500`
+2. **Color-code the node buttons** by audience type:
+   - **Consumer-facing** nodes (Personalized UX, Consumer Rewards, Financial Journey): add a subtle left border accent in amber/orange (`border-l-3 border-l-amber-400`)
+   - **Bank-facing** nodes (Bank-Wide Analytics, Reward Intelligence, Wealth Management): add a subtle left border accent in blue (`border-l-3 border-l-blue-400`)
 
-- Display the **source name** (e.g., "Premium Card") rather than the mapped product name (e.g., "World Elite"), since that's what users see in the input panel. Show both if useful: "Premium Card" as the pill label.
+   Add an `audience` field to `NodeDef` and the PILLARS data:
+   - `engagement` → consumer, `analytics` → bank
+   - `rewards` → consumer, `travel` → bank
+   - `lifeEvents` → bank, `wealth` → bank
 
-- Actually, since `heldProducts` currently stores mapped product names ("World Elite"), we need to also track the original source names. We'll create a `heldSources` set from `sampleTransactions` sources, and display those as colored pills. The product names continue to be used internally for opportunity filtering.
+   Wait — the user said "both financial journey and wealth management are bank-facing." So the Phase row has both as bank-facing. Let me map correctly:
+   - Consumer: `engagement`, `rewards`
+   - Bank: `analytics`, `travel`, `lifeEvents`, `wealth`
 
-### Layout
-```text
-Currently Held
-[Checking] [Premium Card] [Cashback Card] [Travel Card] [HSA]
- (grey)     (purple)       (emerald)       (blue)        (amber)
-```
+3. **Add a compact legend** at the bottom of the grid area:
+   ```text
+   ● Consumer-Facing    ● Bank-Facing
+   ```
+   Small dots with the accent colors, `text-[9px]` styling, positioned below the last grid row.
 
 ### Files Modified
-- `src/components/demo/DemoFinancialJourneyView.tsx` — update held products display to use color-coded source pills
+- `src/components/demo/DemoNetworkDiagram.tsx`
 
