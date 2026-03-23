@@ -243,6 +243,22 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         <TxCard customer={customerB} color="#10b981" label="Customer B" scaled={centered} />
       </div>
 
+      {/* Enrichment Zone Background */}
+      {dims.w > 0 && (
+        <div
+          className="absolute rounded-2xl border border-slate-200 shadow-sm transition-all duration-700"
+          style={{
+            left: engineCenterX - ENGINE_WIDTH / 2 - 16,
+            width: (bankColLeftX + BANK_COL_WIDTH + 16) - (engineCenterX - ENGINE_WIDTH / 2 - 16),
+            top: gridTopY - 40,
+            height: totalGridHeight + 56,
+            background: "rgba(255,255,255,0.8)",
+            backdropFilter: "blur(4px)",
+            zIndex: 0,
+          }}
+        />
+      )}
+
       {/* Engine Node */}
       <button
         onClick={() => { if (engineReady) onNodeClick("engine"); }}
@@ -260,7 +276,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         <div className={`${centered ? "w-14 h-14" : "w-11 h-11"} rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
           <span className={`text-indigo-600 font-bold ${centered ? "text-3xl" : "text-2xl"}`}>V</span>
         </div>
-        <p className={`font-bold text-slate-900 text-center mb-2 ${centered ? "text-[16px]" : "text-[14px]"}`}>Ventus AI Engine</p>
+        <p className={`font-bold text-slate-900 text-center mb-2 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
