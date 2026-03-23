@@ -262,6 +262,7 @@ export default function DemoFinancialJourneyView({ customerA, customerB, detecte
 /* ── Per-customer column ── */
 function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCustomer; detectedEvents: DetectedLifeEventResult[] }) {
   const heldProducts = useMemo(() => getHeldProducts(customer), [customer]);
+  const heldSources = useMemo(() => getHeldSources(customer), [customer]);
   const opportunities = useMemo(
     () => scoreOpportunities(customer, heldProducts, detectedEvents, FINANCIAL_PRODUCTS),
     [customer, heldProducts, detectedEvents]
