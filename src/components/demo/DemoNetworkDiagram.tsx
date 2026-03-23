@@ -38,6 +38,11 @@ const BASE_ENGINE_MIN_HEIGHT = 200;
 const BASE_GRID_ROW_HEIGHT = 100;
 const BASE_GRID_HEADER_HEIGHT = 32;
 
+const AUDIENCE_ACCENT = {
+  consumer: "border-l-amber-400",
+  bank: "border-l-blue-400",
+} as const;
+
 const PILLARS: PillarDef[] = [
   {
     id: "profiling",
@@ -46,8 +51,8 @@ const PILLARS: PillarDef[] = [
     icon: Search,
     color: "#3b82f6",
     nodes: [
-      { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b" },
-      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
+      { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
+      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6", audience: "bank" },
     ],
   },
   {
@@ -57,8 +62,8 @@ const PILLARS: PillarDef[] = [
     icon: Sparkles,
     color: "#22c55e",
     nodes: [
-      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
-      { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4" },
+      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
+      { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
     ],
   },
   {
@@ -68,8 +73,8 @@ const PILLARS: PillarDef[] = [
     icon: Heart,
     color: "#a855f7",
     nodes: [
-      { id: "lifeEvents", label: "Financial Journey", icon: CalendarHeart, color: "#ec4899" },
-      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
+      { id: "lifeEvents", label: "Financial Journey", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
+      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7", audience: "bank" },
     ],
   },
 ];
