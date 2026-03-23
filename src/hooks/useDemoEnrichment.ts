@@ -30,9 +30,12 @@ const INITIAL_READINESS: NodeReadiness = {
   profiling: "idle",
   predictive: "idle",
   phase: "idle",
+  outflow: "idle",
+  locational: "idle",
+  lifeEventIntel: "idle",
 };
 
-const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel"];
 
 export interface DetectedLifeEventEvidence {
   merchant: string;

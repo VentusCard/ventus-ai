@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel";
 
 interface Props {
   customerA: DemoCustomer | null;
@@ -23,59 +23,56 @@ interface NodeDef {
   audience: "consumer" | "bank";
 }
 
-interface PillarDef {
+interface PillarRow {
   id: string;
-  name: string;
   subtitle: string;
   icon: typeof Search;
   color: string;
-  nodes: NodeDef[];
+  bankNodes: NodeDef[];
+  consumerNode: NodeDef;
 }
 
-// Geometry base constants — scaled by `centered` prop
 const BASE_TX_CARD_HEIGHT = 110;
 const BASE_ENGINE_MIN_HEIGHT = 200;
-const BASE_GRID_ROW_HEIGHT = 100;
-const BASE_GRID_HEADER_HEIGHT = 8;
 
 const AUDIENCE_ACCENT = {
   consumer: "border-l-amber-400",
   bank: "border-l-blue-400",
 } as const;
 
-const PILLARS: PillarDef[] = [
+const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    name: "Profiling",
     subtitle: "Who are they, where do they spend & move money?",
     icon: Search,
     color: "#3b82f6",
-    nodes: [
-      { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
-      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6", audience: "bank" },
+    bankNodes: [
+      { id: "analytics", label: "Behavioral Analytics", icon: BarChart3, color: "#3b82f6", audience: "bank" },
+      { id: "outflow", label: "Outflow Analysis", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
     ],
+    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
   },
   {
     id: "predictive",
-    name: "Predictive",
     subtitle: "What will they spend on next & how do we reward it?",
     icon: Sparkles,
     color: "#22c55e",
-    nodes: [
-      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
+    bankNodes: [
       { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
+      { id: "locational", label: "Locational Experience", icon: MapPin, color: "#0891b2", audience: "bank" },
     ],
+    consumerNode: { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
   },
   {
     id: "phase",
-    name: "Phase",
     subtitle: "Where are they in their journey & what's their next product?",
     icon: Heart,
     color: "#a855f7",
-    nodes: [
-      { id: "lifeEvents", label: "Financial Journey", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
-      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7", audience: "bank" },
+    bankNodes: [
+      { id: "lifeEventIntel", label: "Life Event Intelligence", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
+      { id: "lifeEvents", label: "Financial Journey", icon: TrendingUp, color: "#a855f7", audience: "bank" },
     ],
+    consumerNode: { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
   },
 ];
 
@@ -100,39 +97,46 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
     return () => observer.disconnect();
   }, []);
 
-  // ── Scale factor for stage-ready presentation ──
   const scale = centered ? 1.25 : 1.0;
 
-  const TX_CARD_WIDTH = Math.max(140, Math.min(180 * scale, dims.w * 0.15 * scale));
+  const TX_CARD_WIDTH = Math.max(140, Math.min(180 * scale, dims.w * 0.12 * scale));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
-  const ENGINE_WIDTH = Math.max(160, Math.min(210 * scale, dims.w * 0.18 * scale));
+  const ENGINE_WIDTH = Math.max(160, Math.min(200 * scale, dims.w * 0.15 * scale));
   const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
-  const GRID_WIDTH = Math.max(320, Math.min(480 * scale, dims.w * 0.40 * scale));
-  const GRID_ROW_HEIGHT = BASE_GRID_ROW_HEIGHT * scale;
-  const GRID_HEADER_HEIGHT = BASE_GRID_HEADER_HEIGHT * scale;
 
-  // ── Horizontal layout — centered when panel collapsed ──
-  const pad = Math.max(12, dims.w * 0.03);
-  const gap1 = Math.max(30, dims.w * 0.04) * scale;
-  const gap2 = Math.max(30, dims.w * 0.04) * scale;
-  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + GRID_WIDTH;
+  // Bank column: 2 stacked nodes per row
+  const BANK_COL_WIDTH = Math.max(180, Math.min(220 * scale, dims.w * 0.18 * scale));
+  // Consumer column: 1 node per row
+  const CONSUMER_COL_WIDTH = Math.max(160, Math.min(200 * scale, dims.w * 0.16 * scale));
+
+  const ROW_HEIGHT = Math.max(120, 140 * scale);
+  const BANK_NODE_HEIGHT = Math.max(34, 38 * scale);
+  const BANK_NODE_GAP = Math.max(4, 6 * scale);
+
+  // Horizontal positions
+  const pad = Math.max(12, dims.w * 0.02);
+  const gap1 = Math.max(30, dims.w * 0.03) * scale;
+  const gap2 = Math.max(25, dims.w * 0.025) * scale;
+  const gap3 = Math.max(20, dims.w * 0.02) * scale;
+
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
   const offsetX = centered ? (dims.w - totalContentWidth) / 2 : pad;
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
-  const gridLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
+  const bankColLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
+  const consumerColLeftX = bankColLeftX + BANK_COL_WIDTH + gap3;
 
-  // ── Vertical layout ──
+  // Vertical layout
   const midY = dims.h * 0.5;
-  const totalGridHeight = GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * 3;
+  const totalGridHeight = ROW_HEIGHT * 3;
   const gridTopY = midY - totalGridHeight / 2;
 
   const txSpread = centered ? 70 : 55;
   const inputAY = midY - txSpread;
   const inputBY = midY + txSpread;
 
-  // Row center Y positions (relative to container)
-  const getRowCenterY = (rowIdx: number) => gridTopY + GRID_HEADER_HEIGHT + GRID_ROW_HEIGHT * rowIdx + GRID_ROW_HEIGHT / 2;
+  const getRowCenterY = (rowIdx: number) => gridTopY + ROW_HEIGHT * rowIdx + ROW_HEIGHT / 2;
 
   const engineReady = nodeReadiness.engine === "ready";
   const engineProcessing = nodeReadiness.engine === "processing";
@@ -160,7 +164,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
         {dims.w > 0 && (
           <>
-            {/* Input lines: left cards → engine */}
+            {/* Input lines: TX cards → engine */}
             {[inputAY, inputBY].map((y, i) => {
               const txRight = txCenterX + TX_CARD_WIDTH / 2;
               const engineLeft = engineCenterX - ENGINE_WIDTH / 2;
@@ -169,15 +173,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               const isProcessingLine = inputState === "processing";
               return (
                 <g key={`in-${i}`}>
-                  <path
-                    d={path}
-                    stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"}
-                    strokeWidth={isReady ? 2 : 1.5}
-                    fill="none"
-                    opacity={isReady ? 0.7 : 0.25}
-                    strokeDasharray={isReady ? "none" : "6 4"}
-                    className="line-transition"
-                  />
+                  <path d={path} stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"} strokeWidth={isReady ? 2 : 1.5} fill="none" opacity={isReady ? 0.7 : 0.25} strokeDasharray={isReady ? "none" : "6 4"} className="line-transition" />
                   {isProcessingLine && (
                     <circle r="2.5" fill="#3b82f6">
                       <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
@@ -187,36 +183,38 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               );
             })}
 
-            {/* Engine → 3 grid rows */}
-            {PILLARS.map((pillar, pi) => {
+            {/* Engine → Bank column rows */}
+            {PILLAR_ROWS.map((pillar, pi) => {
               const rowCenterY = getRowCenterY(pi);
               const engineRight = engineCenterX + ENGINE_WIDTH / 2;
-              const cpX = (engineRight + gridLeftX) / 2;
-              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${rowCenterY}, ${gridLeftX} ${rowCenterY}`;
+              const cpX = (engineRight + bankColLeftX) / 2;
+              const path = `M ${engineRight} ${midY} C ${cpX} ${midY}, ${cpX} ${rowCenterY}, ${bankColLeftX} ${rowCenterY}`;
               const pillarReady = engineReady;
               const pillarProcessing = engineProcessing;
-
               return (
-                <g key={`eng-row-${pi}`}>
-                  <path
-                    d={path}
-                    stroke={pillar.color}
-                    strokeWidth={pillarReady ? 2.5 : 1.5}
-                    fill="none"
-                    opacity={pillarReady ? 0.7 : 0.2}
-                    strokeDasharray={pillarReady ? "none" : "6 4"}
-                    className="line-transition"
-                  />
+                <g key={`eng-bank-${pi}`}>
+                  <path d={path} stroke={pillar.color} strokeWidth={pillarReady ? 2.5 : 1.5} fill="none" opacity={pillarReady ? 0.7 : 0.2} strokeDasharray={pillarReady ? "none" : "6 4"} className="line-transition" />
                   {pillarProcessing && !pillarReady && (
-                    <circle r="2.5" fill={pillar.color}>
-                      <animateMotion dur={`${2.5 + pi * 0.4}s`} repeatCount="indefinite" path={path} />
-                    </circle>
+                    <circle r="2.5" fill={pillar.color}><animateMotion dur={`${2.5 + pi * 0.4}s`} repeatCount="indefinite" path={path} /></circle>
                   )}
                   {pillarReady && (
-                    <circle r="3" fill={pillar.color} opacity="0.5">
-                      <animateMotion dur={`${3.5 + pi * 0.3}s`} repeatCount="indefinite" path={path} />
-                    </circle>
+                    <circle r="3" fill={pillar.color} opacity="0.5"><animateMotion dur={`${3.5 + pi * 0.3}s`} repeatCount="indefinite" path={path} /></circle>
                   )}
+                </g>
+              );
+            })}
+
+            {/* Bank column → Consumer column */}
+            {PILLAR_ROWS.map((pillar, pi) => {
+              const rowCenterY = getRowCenterY(pi);
+              const bankRight = bankColLeftX + BANK_COL_WIDTH;
+              const consumerLeft = consumerColLeftX;
+              const cpX = (bankRight + consumerLeft) / 2;
+              const path = `M ${bankRight} ${rowCenterY} C ${cpX} ${rowCenterY}, ${cpX} ${rowCenterY}, ${consumerLeft} ${rowCenterY}`;
+              const pillarReady = engineReady;
+              return (
+                <g key={`bank-cons-${pi}`}>
+                  <path d={path} stroke={pillar.consumerNode.color} strokeWidth={pillarReady ? 2 : 1} fill="none" opacity={pillarReady ? 0.6 : 0.15} strokeDasharray={pillarReady ? "none" : "4 3"} className="line-transition" />
                 </g>
               );
             })}
@@ -224,7 +222,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         )}
       </svg>
 
-      {/* Transaction Cards — Left */}
+      {/* Transaction Cards */}
       <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputAY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
         <TxCard customer={customerA} color="#3b82f6" label="Customer A" scaled={centered} />
       </div>
@@ -232,22 +230,17 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         <TxCard customer={customerB} color="#10b981" label="Customer B" scaled={centered} />
       </div>
 
-      {/* Engine Node — Center */}
+      {/* Engine Node */}
       <button
         onClick={() => { if (engineReady) onNodeClick("engine"); }}
         disabled={!engineReady}
-        title={engineReady ? "View deep customer profile" : "Ventus AI Engine is still processing"}
         className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY - ENGINE_MIN_HEIGHT / 2,
           width: ENGINE_WIDTH,
           minHeight: ENGINE_MIN_HEIGHT,
-          boxShadow: engineProcessing && !engineReady
-            ? "0 0 30px rgba(99, 102, 241, 0.25)"
-            : engineReady
-              ? "0 0 20px rgba(34, 197, 94, 0.15)"
-              : "0 4px 24px rgba(99, 102, 241, 0.1)",
+          boxShadow: engineProcessing && !engineReady ? "0 0 30px rgba(99, 102, 241, 0.25)" : engineReady ? "0 0 20px rgba(34, 197, 94, 0.15)" : "0 4px 24px rgba(99, 102, 241, 0.1)",
           zIndex: 1,
         }}
       >
@@ -259,126 +252,135 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div
-                key={cap.label}
-                className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}
-                style={{
-                  background: engineReady ? `${cap.color}15` : `${cap.color}08`,
-                  borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`,
-                  animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined,
-                }}
-              >
+              <div key={cap.label} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[12px]" : "text-[10px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
             );
           })}
         </div>
-        
       </button>
 
-      {/* 3x2 Grid — Right side */}
-      <div
-        className="absolute"
-        style={{
-          left: gridLeftX,
-          top: gridTopY,
-          width: GRID_WIDTH,
-          height: totalGridHeight,
-          zIndex: 2,
-        }}
-      >
-        {/* Spacer */}
-        <div style={{ height: GRID_HEADER_HEIGHT }} />
+      {/* Bank Analytics Column + Consumer Views Column */}
+      {PILLAR_ROWS.map((pillar, pi) => {
+        const rowCenterY = getRowCenterY(pi);
+        const PillarIcon = pillar.icon;
+        const questionHeight = centered ? 28 : 24;
+        const bankBlockTop = rowCenterY - (questionHeight + BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP) / 2;
 
-        {/* 3 Rows */}
-        {PILLARS.map((pillar, pi) => {
-          const PillarIcon = pillar.icon;
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          return (
+        return (
+          <div key={pillar.id}>
+            {/* Pillar question + 2 bank nodes */}
             <div
-              key={pillar.id}
-              className="border-t"
+              className="absolute flex flex-col"
               style={{
-                height: GRID_ROW_HEIGHT,
-                borderColor: `${pillar.color}20`,
+                left: bankColLeftX,
+                top: bankBlockTop,
+                width: BANK_COL_WIDTH,
+                zIndex: 2,
               }}
             >
-              {/* Question row */}
-              <div className={`flex items-center gap-2 px-3 ${centered ? "pt-3 pb-1.5" : "pt-2 pb-1"} w-full`}>
-                <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
-                <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              {/* Question label */}
+              <div className={`flex items-center gap-1.5 px-2 mb-1`} style={{ height: questionHeight }}>
+                <PillarIcon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
+                <span className={`font-semibold leading-tight truncate ${centered ? "text-[11px]" : "text-[9px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
               </div>
 
-              {/* Two node buttons side by side */}
-              <div className={`flex gap-2 px-2 ${centered ? "gap-3 px-3" : ""}`}>
-                {pillar.nodes.map((node) => {
-                  const Icon = node.icon;
-                  const isActive = activeNode === node.id;
-                  const state = nodeReadiness[node.id];
-                  const isReady = state === "ready";
-                  const canOpen = engineReady && isReady;
+              {/* 2 stacked bank nodes */}
+              {pillar.bankNodes.map((node) => {
+                const Icon = node.icon;
+                const state = nodeReadiness[node.id];
+                const isReady = state === "ready";
+                const canOpen = engineReady && isReady;
 
-                  return (
-                    <button
-                      key={node.id}
-                      onClick={() => { if (canOpen) onNodeClick(node.id); }}
-                      disabled={!canOpen}
-                      className={`flex-1 flex items-center gap-2 rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} ${centered ? "px-4 py-3" : "px-3 py-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
-                      style={{
-                        cursor: canOpen ? "pointer" : "not-allowed",
-                        opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                        background: canOpen
-                          ? `${node.color}15`
-                          : isActive
-                            ? `${node.color}10`
-                            : "#ffffff",
-                        borderColor: canOpen
-                          ? `${node.color}80`
-                          : isActive
-                            ? `${node.color}60`
-                            : "#e2e8f0",
-                        boxShadow: canOpen
-                          ? `0 0 16px ${node.color}20`
-                          : isActive
-                            ? `0 0 12px ${node.color}15`
-                            : "0 1px 3px rgba(0,0,0,0.06)",
-                      }}
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => { if (canOpen) onNodeClick(node.id); }}
+                    disabled={!canOpen}
+                    className={`flex items-center gap-2 rounded-lg border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} ${centered ? "px-3" : "px-2"} mb-[${BANK_NODE_GAP}px] group transition-[box-shadow,opacity,border-color] duration-300`}
+                    style={{
+                      height: BANK_NODE_HEIGHT,
+                      cursor: canOpen ? "pointer" : "not-allowed",
+                      opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
+                      background: canOpen ? `${node.color}15` : "#ffffff",
+                      borderColor: canOpen ? `${node.color}80` : "#e2e8f0",
+                      boxShadow: canOpen ? `0 0 12px ${node.color}15` : "0 1px 3px rgba(0,0,0,0.04)",
+                      marginBottom: BANK_NODE_GAP,
+                    }}
+                  >
+                    <div
+                      className={`${centered ? "w-7 h-7" : "w-6 h-6"} rounded-md flex items-center justify-center shrink-0`}
+                      style={{ background: canOpen ? `${node.color}20` : `${node.color}10`, border: `1px solid ${canOpen ? `${node.color}40` : `${node.color}20`}` }}
                     >
-                      <div
-                        className={`${centered ? "w-9 h-9" : "w-7 h-7"} rounded-lg flex items-center justify-center shrink-0`}
-                        style={{
-                          background: canOpen ? `${node.color}20` : `${node.color}12`,
-                          border: `1px solid ${canOpen ? `${node.color}50` : `${node.color}30`}`,
-                        }}
-                      >
-                        <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: node.color }} />
-                      </div>
-                      <div className="text-left min-w-0">
-                        <p className={`font-semibold text-slate-900 group-hover:text-slate-700 truncate ${centered ? "text-[13px]" : "text-[11px]"}`}>{node.label}</p>
-                        <p className={`text-slate-400 truncate ${centered ? "text-[11px]" : "text-[9px]"}`}>
-                          {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      <Icon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"}`} style={{ color: node.color }} />
+                    </div>
+                    <div className="text-left min-w-0 flex-1">
+                      <p className={`font-semibold text-slate-900 truncate ${centered ? "text-[11px]" : "text-[9px]"}`}>{node.label}</p>
+                    </div>
+                    <span className={`shrink-0 ${centered ? "text-[9px]" : "text-[8px]"} text-slate-400`}>
+                      {!engineReady ? "" : isReady ? "✓" : state === "processing" ? "…" : ""}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          );
-        })}
 
-        {/* Legend */}
-        <div className={`flex items-center justify-center gap-4 mt-2 ${centered ? "text-[11px]" : "text-[9px]"} text-slate-400`}>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-            Consumer-Facing
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
-            Bank-Facing
-          </span>
-        </div>
+            {/* Consumer node */}
+            {(() => {
+              const node = pillar.consumerNode;
+              const Icon = node.icon;
+              const state = nodeReadiness[node.id];
+              const isReady = state === "ready";
+              const canOpen = engineReady && isReady;
+              const consumerNodeHeight = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+
+              return (
+                <button
+                  key={node.id}
+                  onClick={() => { if (canOpen) onNodeClick(node.id); }}
+                  disabled={!canOpen}
+                  className={`absolute flex flex-col items-center justify-center rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} group transition-[box-shadow,opacity,border-color] duration-300`}
+                  style={{
+                    left: consumerColLeftX,
+                    top: rowCenterY - consumerNodeHeight / 2,
+                    width: CONSUMER_COL_WIDTH,
+                    height: consumerNodeHeight,
+                    cursor: canOpen ? "pointer" : "not-allowed",
+                    opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
+                    background: canOpen ? `${node.color}12` : "#ffffff",
+                    borderColor: canOpen ? `${node.color}70` : "#e2e8f0",
+                    boxShadow: canOpen ? `0 0 16px ${node.color}18` : "0 1px 3px rgba(0,0,0,0.04)",
+                    zIndex: 2,
+                  }}
+                >
+                  <div
+                    className={`${centered ? "w-9 h-9" : "w-7 h-7"} rounded-lg flex items-center justify-center mb-1`}
+                    style={{ background: canOpen ? `${node.color}20` : `${node.color}10`, border: `1px solid ${canOpen ? `${node.color}40` : `${node.color}20`}` }}
+                  >
+                    <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: node.color }} />
+                  </div>
+                  <p className={`font-semibold text-slate-900 ${centered ? "text-[12px]" : "text-[10px]"}`}>{node.label}</p>
+                  <p className={`text-slate-400 ${centered ? "text-[10px]" : "text-[8px]"}`}>
+                    {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
+                  </p>
+                </button>
+              );
+            })()}
+          </div>
+        );
+      })}
+
+      {/* Legend */}
+      <div className={`absolute ${centered ? "text-[11px]" : "text-[9px]"} text-slate-400 flex items-center gap-4`} style={{ bottom: Math.max(8, gridTopY + totalGridHeight + 8), left: bankColLeftX, zIndex: 2 }}>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+          Consumer-Facing
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+          Bank-Facing
+        </span>
       </div>
     </div>
   );
@@ -387,10 +389,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | null; color: string; label: string; scaled?: boolean }) {
   if (!customer) {
     return (
-      <div
-        className={`rounded-lg border-2 border-dashed ${scaled ? "p-3" : "p-2.5"} flex items-center justify-center`}
-        style={{ borderColor: `${color}40`, minHeight: scaled ? 110 : 90 }}
-      >
+      <div className={`rounded-lg border-2 border-dashed ${scaled ? "p-3" : "p-2.5"} flex items-center justify-center`} style={{ borderColor: `${color}40`, minHeight: scaled ? 110 : 90 }}>
         <p className={`font-medium text-slate-400 ${scaled ? "text-[13px]" : "text-[11px]"}`}>{label}</p>
       </div>
     );
@@ -398,26 +397,16 @@ function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | n
 
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
-    <div
-      className={`rounded-lg border-2 ${scaled ? "p-3" : "p-2.5"} bg-white`}
-      style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}
-    >
+    <div className={`rounded-lg border-2 ${scaled ? "p-3" : "p-2.5"} bg-white`} style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}>
       <div className="flex items-center gap-2 mb-2">
-        <div
-          className={`${scaled ? "w-8 h-8 text-[11px]" : "w-6 h-6 text-[9px]"} rounded-full flex items-center justify-center font-bold text-white`}
-          style={{ background: `${color}30`, border: `1px solid ${color}50` }}
-        >
+        <div className={`${scaled ? "w-8 h-8 text-[11px]" : "w-6 h-6 text-[9px]"} rounded-full flex items-center justify-center font-bold text-white`} style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
           {initials}
         </div>
         <p className={`font-semibold text-slate-900 truncate ${scaled ? "text-[13px]" : "text-[11px]"}`}>{customer.profile.name}</p>
       </div>
       <div className="space-y-0.5 overflow-hidden">
-        <p className={`font-mono text-slate-600 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>
-          {customer.txnCount} txns · {customer.txnTotal}
-        </p>
-        <p className={`font-mono text-slate-400 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>
-          {customer.dateRange} · {customer.sourceCount} sources
-        </p>
+        <p className={`font-mono text-slate-600 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>{customer.txnCount} txns · {customer.txnTotal}</p>
+        <p className={`font-mono text-slate-400 truncate ${scaled ? "text-[11px]" : "text-[9px]"}`}>{customer.dateRange} · {customer.sourceCount} sources</p>
       </div>
     </div>
   );
