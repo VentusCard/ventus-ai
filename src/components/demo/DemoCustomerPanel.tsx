@@ -282,6 +282,20 @@ function CustomerSlot({
         <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
       ) : (
         <>
+          {/* Bank-available demographics */}
+          {(selected.profile.demographics.industry || selected.profile.demographics.incomeLevel) && (
+            <div className="mb-2 flex items-center gap-2 border-t border-slate-100 pt-2 text-[10px] text-slate-500">
+              {selected.profile.demographics.industry && (
+                <span>Industry: <span className="font-medium text-slate-600">{selected.profile.demographics.industry}</span></span>
+              )}
+              {selected.profile.demographics.industry && selected.profile.demographics.incomeLevel && (
+                <span className="text-slate-300">·</span>
+              )}
+              {selected.profile.demographics.incomeLevel && (
+                <span>Income: <span className="font-medium text-slate-600">{selected.profile.demographics.incomeLevel}</span></span>
+              )}
+            </div>
+          )}
           {/* Summary stats */}
           <div className="flex items-center gap-1.5 flex-wrap mb-1.5 text-[11px] text-slate-500">
             <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
