@@ -72,22 +72,21 @@ export default function DemoPage() {
   return (
     <DemoPasswordGate>
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
-      {/* Exit to keynote button */}
-      <button
-        onClick={() => {
-          sessionStorage.removeItem("demo_access");
-          window.location.reload();
-        }}
-        className="absolute top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
-      >
-        ✕ Exit Demo
-      </button>
+      {/* Logo + one-liner when panel collapsed */}
+      {panelCollapsed && (
+        <div className="absolute top-6 left-6 z-40 max-w-[280px]">
+          <img src={ventusLogo} className="h-6 mb-2" alt="Ventus" />
+          <p className="text-[11px] text-slate-500 leading-tight">
+            One AI-Native layer that enables personalized banking across functions.
+          </p>
+        </div>
+      )}
 
-      {/* Floating expand button — visible when panel is collapsed */}
+      {/* Show Panel — bottom-left when collapsed */}
       {panelCollapsed && (
         <button
           onClick={() => setPanelCollapsed(false)}
-          className="absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
+          className="absolute bottom-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
         >
           <PanelLeft className="h-3.5 w-3.5" />
           Show Panel
