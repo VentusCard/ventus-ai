@@ -1,13 +1,39 @@
+import { useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
+import {
+  JOURNEY_PRODUCTS,
+  JOURNEY_CATEGORIES,
+  type JourneyProduct,
+  type JourneyCategory,
+} from "@/lib/financialJourneyData";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Zap, TrendingUp, ArrowUpCircle, Send, CalendarClock,
-  CheckCircle2, Clock, Timer, ChevronRight, MessageSquare,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  ChevronRight,
+  CreditCard,
+  Landmark,
+  HandCoins,
+  TrendingUp,
+  ShieldCheck,
+  Crown,
+  Scale,
+  Mail,
+  MessageSquare,
+  Bell,
+  Zap,
+  CheckCircle2,
+  Package,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
+/* ── Props ── */
 interface Props {
   customerA: DemoCustomer;
   customerB: DemoCustomer;
@@ -15,355 +41,446 @@ interface Props {
   detectedEventB: DetectedLifeEventResult[];
 }
 
-type SignalType = "Life Event" | "Spending Pattern" | "Upgrade";
-type QueueStatus = "ready" | "queued" | "scheduled";
-
-interface QueuedAction {
-  product: string;
-  match: number;
-  signalType: SignalType;
-  status: QueueStatus;
-  triggerName: string;
-  triggerConfidence?: number;
-  evidence: string[];
-  personalizedMessage: string;
-  annualValue: string;
-}
-
-function statusFromMatch(match: number): QueueStatus {
-  if (match >= 85) return "ready";
-  if (match >= 70) return "queued";
-  return "scheduled";
-}
-
-const statusConfig: Record<QueueStatus, { label: string; icon: typeof CheckCircle2; borderClass: string; pillBg: string; pillText: string }> = {
-  ready: { label: "Ready to Send", icon: CheckCircle2, borderClass: "border-l-emerald-500", pillBg: "bg-emerald-50", pillText: "text-emerald-700" },
-  queued: { label: "Queued", icon: Clock, borderClass: "border-l-amber-500", pillBg: "bg-amber-50", pillText: "text-amber-700" },
-  scheduled: { label: "Scheduled", icon: Timer, borderClass: "border-l-blue-500", pillBg: "bg-blue-50", pillText: "text-blue-700" },
+/* ── Source → Product name mapping ── */
+const SOURCE_TO_PRODUCT: Record<string, string> = {
+  "Premium Card": "World Elite",
+  "Cashback Card": "Basic Cashback",
+  "Travel Card": "Travel Rewards",
+  Checking: "Checking",
+  HSA: "HSA",
+  Savings: "Savings",
+  "Business Card": "Business Card",
+  "Student Card": "Student Card",
 };
 
-const signalIcons: Record<SignalType, typeof Zap> = {
-  "Life Event": Zap,
-  "Spending Pattern": TrendingUp,
-  "Upgrade": ArrowUpCircle,
+/* ── Category icons ── */
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  credit_cards: CreditCard,
+  deposit_accounts: Landmark,
+  loans_lending: HandCoins,
+  investment_products: TrendingUp,
+  insurance: ShieldCheck,
+  wealth_management: Crown,
+  estate_trust: Scale,
 };
 
-const signalColors: Record<SignalType, { bg: string; text: string }> = {
-  "Life Event": { bg: "bg-purple-50", text: "text-purple-700" },
-  "Spending Pattern": { bg: "bg-amber-50", text: "text-amber-700" },
-  "Upgrade": { bg: "bg-blue-50", text: "text-blue-700" },
+/* ── Pillar → product affinity boosts ── */
+const PILLAR_PRODUCT_AFFINITY: Record<string, string[]> = {
+  travel: ["Travel Rewards", "Premium Travel", "Airline Co-Brand", "Hotel Co-Brand", "Travel Insurance"],
+  dining: ["Basic Cashback", "Custom Cashback", "Co-Branded Retail"],
+  wellness: ["HSA", "Life Insurance", "Disability Insurance"],
+  technology: ["Business Card", "Business Line of Credit"],
+  fitness: ["HSA", "Life Insurance"],
+  shopping: ["Custom Cashback", "Co-Branded Retail", "Basic Cashback"],
+  entertainment: ["Custom Cashback", "Travel Rewards"],
 };
 
-function findDetectedEvent(events: DetectedLifeEventResult[], keywords: string[]): DetectedLifeEventResult | undefined {
-  return events.find(e => keywords.some(kw => e.event_name.toLowerCase().includes(kw)));
-}
+/* ── Life event → product affinity ── */
+const EVENT_PRODUCT_AFFINITY: Record<string, string[]> = {
+  home: ["Home Mortgage", "HELOC", "Home Insurance", "Home Mortgage Refi", "Construction Loan"],
+  house: ["Home Mortgage", "HELOC", "Home Insurance"],
+  mortgage: ["Home Mortgage", "HELOC", "Home Mortgage Refi"],
+  family: ["529 Plan", "Life Insurance", "Education Trust", "Guardianship Services", "Youth / Teen Account"],
+  baby: ["529 Plan", "Life Insurance", "Education Trust"],
+  child: ["529 Plan", "Education Trust", "Youth / Teen Account"],
+  career: ["Brokerage", "Managed Portfolio", "Financial Advisory", "Business Card"],
+  promotion: ["Brokerage", "Managed Portfolio", "Premium Travel", "World Elite"],
+  retire: ["Traditional IRA", "Roth IRA", "Annuity", "Managed Portfolio", "Estate Planning"],
+  business: ["Business Card", "Business Checking", "Business Savings", "Small Business Loan", "Business Line of Credit", "SEP IRA"],
+  education: ["529 Plan", "Student Loan Refi", "Education Trust"],
+};
 
-function buildEvidence(detectedEvent?: DetectedLifeEventResult, fallback?: string[]): string[] {
-  if (detectedEvent?.evidence?.length) {
-    return detectedEvent.evidence
-      .slice(0, 3)
-      .map(ev => `${ev.merchant} — $${ev.amount.toFixed(0)} (${ev.date}): ${ev.relevance}`);
-  }
-  return fallback ?? [];
-}
-
-function generateMessage(name: string, signalType: SignalType, product: string, triggerName: string): string {
-  const firstName = name.split(" ")[0];
-  if (signalType === "Life Event") {
-    return `Hi ${firstName}, based on signals we've detected around ${triggerName.toLowerCase()}, we'd love to discuss how our ${product} could support your next chapter.`;
-  }
-  if (signalType === "Spending Pattern") {
-    return `Hi ${firstName}, your ${triggerName.toLowerCase()} spending suggests you'd benefit from our ${product} — let's make every dollar work harder.`;
-  }
-  return `Hi ${firstName}, your activity qualifies you for ${product} — unlock better rewards and dedicated support.`;
-}
-
-function deriveActions(customer: DemoCustomer, detectedEvents: DetectedLifeEventResult[]): QueuedAction[] {
-  const actions: QueuedAction[] = [];
-  const name = customer.profile.name;
-  const holdings = customer.profile.holdings;
-  const pillars = customer.topPillars;
-
-  // Life-event-driven — match against actual AI-detected events
-  const homeEvent = findDetectedEvent(detectedEvents, ["home", "house", "mortgage", "property"]);
-  if (homeEvent) {
-    const match = Math.min(homeEvent.confidence + 5, 98);
-    actions.push({
-      product: holdings.mortgage === "$0" ? "Mortgage Pre-Approval" : "Home Equity Line of Credit",
-      match,
-      signalType: "Life Event",
-      status: statusFromMatch(match),
-      triggerName: homeEvent.event_name,
-      triggerConfidence: homeEvent.confidence,
-      evidence: buildEvidence(homeEvent),
-      personalizedMessage: generateMessage(name, "Life Event", holdings.mortgage === "$0" ? "Mortgage Pre-Approval" : "HELOC", homeEvent.event_name),
-      annualValue: holdings.mortgage === "$0" ? "$2,400" : "$1,800",
-    });
-  }
-
-  const familyEvent = findDetectedEvent(detectedEvents, ["family", "baby", "child", "parent", "pregnan", "education"]);
-  if (familyEvent) {
-    const match = Math.min(familyEvent.confidence + 3, 96);
-    actions.push({
-      product: "529 Education Savings Plan",
-      match,
-      signalType: "Life Event",
-      status: statusFromMatch(match),
-      triggerName: familyEvent.event_name,
-      triggerConfidence: familyEvent.confidence,
-      evidence: buildEvidence(familyEvent),
-      personalizedMessage: generateMessage(name, "Life Event", "529 Education Savings Plan", familyEvent.event_name),
-      annualValue: "$1,200",
-    });
-  }
-
-  const careerEvent = findDetectedEvent(detectedEvents, ["career", "advance", "promotion", "job", "business"]);
-  if (careerEvent) {
-    const match = Math.min(careerEvent.confidence + 1, 94);
-    actions.push({
-      product: "Investment Advisory Account",
-      match,
-      signalType: "Life Event",
-      status: statusFromMatch(match),
-      triggerName: careerEvent.event_name,
-      triggerConfidence: careerEvent.confidence,
-      evidence: buildEvidence(careerEvent),
-      personalizedMessage: generateMessage(name, "Life Event", "Investment Advisory Account", careerEvent.event_name),
-      annualValue: "$3,200",
-    });
-  }
-
-  const retireEvent = findDetectedEvent(detectedEvents, ["retire", "pension", "elder"]);
-  if (retireEvent) {
-    const match = Math.min(retireEvent.confidence + 4, 97);
-    actions.push({
-      product: "Retirement Planning Suite",
-      match,
-      signalType: "Life Event",
-      status: statusFromMatch(match),
-      triggerName: retireEvent.event_name,
-      triggerConfidence: retireEvent.confidence,
-      evidence: buildEvidence(retireEvent),
-      personalizedMessage: generateMessage(name, "Life Event", "Retirement Planning Suite", retireEvent.event_name),
-      annualValue: "$4,500",
-    });
-  }
-
-  // Also add any detected events not yet matched
-  for (const ev of detectedEvents) {
-    const alreadyUsed = actions.some(a => a.triggerName === ev.event_name);
-    if (!alreadyUsed) {
-      const match = Math.min(ev.confidence + 2, 95);
-      actions.push({
-        product: "Personalized Financial Review",
-        match,
-        signalType: "Life Event",
-        status: statusFromMatch(match),
-        triggerName: ev.event_name,
-        triggerConfidence: ev.confidence,
-        evidence: buildEvidence(ev),
-        personalizedMessage: generateMessage(name, "Life Event", "Personalized Financial Review", ev.event_name),
-        annualValue: "$1,500",
-      });
+/* ── Derive held products from transaction sources ── */
+function getHeldProducts(customer: DemoCustomer): Set<string> {
+  const held = new Set<string>();
+  // Always assume they have Checking + Savings as baseline
+  held.add("Checking");
+  held.add("Savings");
+  for (const txn of customer.sampleTransactions) {
+    const src = txn.source;
+    if (src && SOURCE_TO_PRODUCT[src]) {
+      held.add(SOURCE_TO_PRODUCT[src]);
     }
   }
-
-  // Spending pattern
-  const travelPillar = pillars.find(p => p.name.toLowerCase() === "travel");
-  if (travelPillar && travelPillar.pct >= 15) {
-    const match = 78 + Math.round(travelPillar.pct * 0.5);
-    actions.push({
-      product: "Travel Rewards Card",
-      match,
-      signalType: "Spending Pattern",
-      status: statusFromMatch(match),
-      triggerName: "Travel",
-      evidence: [`Travel is ${travelPillar.pct}% of total spend (${travelPillar.spend})`, `Top category by volume — high recurring frequency`],
-      personalizedMessage: generateMessage(name, "Spending Pattern", "Travel Rewards Card", "travel"),
-      annualValue: `$${Math.round(parseInt(travelPillar.spend.replace(/[^0-9]/g, "")) * 0.03)}`,
-    });
-  }
-
-  const diningPillar = pillars.find(p => p.name.toLowerCase() === "dining");
-  if (diningPillar && diningPillar.pct >= 15) {
-    const match = 74 + Math.round(diningPillar.pct * 0.4);
-    actions.push({
-      product: "Dining Cash Back Card",
-      match,
-      signalType: "Spending Pattern",
-      status: statusFromMatch(match),
-      triggerName: "Dining",
-      evidence: [`Dining represents ${diningPillar.pct}% of monthly spend (${diningPillar.spend})`, `High category concentration — cash back opportunity`],
-      personalizedMessage: generateMessage(name, "Spending Pattern", "Dining Cash Back Card", "dining"),
-      annualValue: `$${Math.round(parseInt(diningPillar.spend.replace(/[^0-9]/g, "")) * 0.04)}`,
-    });
-  }
-
-  // Upgrade
-  const totalSpendNum = parseInt(customer.txnTotal.replace(/[^0-9]/g, "")) || 0;
-  const annualizedSpend = totalSpendNum * 4;
-  if (annualizedSpend > 40000 && customer.profile.segment === "Preferred") {
-    const match = 74 + Math.min(Math.round((annualizedSpend - 40000) / 2000), 20);
-    actions.push({
-      product: "Premium Card Upgrade",
-      match,
-      signalType: "Upgrade",
-      status: statusFromMatch(match),
-      triggerName: "Spend Velocity",
-      evidence: [`Annualized spend ~$${(annualizedSpend / 1000).toFixed(0)}K qualifies for Premium tier`, `Current segment: ${customer.profile.segment} — upgrade unlocks 3x multiplier`],
-      personalizedMessage: generateMessage(name, "Upgrade", "Premium Card Upgrade", "Spend Velocity"),
-      annualValue: `$${Math.round(annualizedSpend * 0.01)}`,
-    });
-  }
-
-  const seen = new Set<string>();
-  return actions
-    .sort((a, b) => b.match - a.match)
-    .filter(r => { if (seen.has(r.product)) return false; seen.add(r.product); return true; })
-    .slice(0, 5);
+  return held;
 }
 
+/* ── Scored opportunity ── */
+interface ScoredOpportunity {
+  product: JourneyProduct;
+  confidence: number;
+  signals: string[];
+  nextSteps: string[];
+}
+
+/* ── Confidence scoring engine ── */
+function scoreOpportunities(
+  customer: DemoCustomer,
+  heldProducts: Set<string>,
+  detectedEvents: DetectedLifeEventResult[],
+  allProducts: JourneyProduct[]
+): ScoredOpportunity[] {
+  const results: ScoredOpportunity[] = [];
+
+  // Pre-compute pillar map
+  const pillarMap: Record<string, number> = {};
+  for (const p of customer.topPillars) {
+    pillarMap[p.name.toLowerCase()] = p.pct;
+  }
+
+  // Pre-compute event keywords
+  const eventKeywords = detectedEvents.map(e => ({
+    event: e,
+    words: e.event_name.toLowerCase().split(/\s+/),
+  }));
+
+  for (const product of allProducts) {
+    if (heldProducts.has(product.name)) continue;
+
+    let score = 15; // base
+    const signals: string[] = [];
+
+    // 1. Adjacent product boost — if any held product lists this as nextProductOpportunity
+    const adjacentBoost = allProducts
+      .filter(p => heldProducts.has(p.name))
+      .some(p => p.nextProductOpportunities.includes(product.name));
+    if (adjacentBoost) {
+      score += 25;
+      signals.push("Adjacent to currently held products");
+    }
+
+    // 2. Pillar affinity
+    for (const [pillar, pct] of Object.entries(pillarMap)) {
+      const affinityProducts = PILLAR_PRODUCT_AFFINITY[pillar] ?? [];
+      if (affinityProducts.includes(product.name)) {
+        score += Math.round(pct * 0.6);
+        signals.push(`${pillar.charAt(0).toUpperCase() + pillar.slice(1)} spending at ${pct}%`);
+      }
+    }
+
+    // 3. Life event match
+    for (const { event, words } of eventKeywords) {
+      for (const [keyword, products] of Object.entries(EVENT_PRODUCT_AFFINITY)) {
+        if (words.some(w => w.includes(keyword)) && products.includes(product.name)) {
+          score += Math.round(event.confidence * 0.3);
+          signals.push(`Life event: ${event.event_name} (${event.confidence}%)`);
+          break;
+        }
+      }
+    }
+
+    // 4. Segment/AUM tier boost for wealth products
+    const aum = parseInt(customer.profile.aum?.replace(/[^0-9]/g, "") || "0");
+    if (product.category === "wealth_management" || product.category === "estate_trust") {
+      if (aum >= 500000) {
+        score += 20;
+        signals.push(`AUM ${customer.profile.aum} qualifies for premium services`);
+      } else if (aum >= 100000) {
+        score += 10;
+        signals.push(`AUM ${customer.profile.aum} — growth potential`);
+      }
+    }
+
+    // 5. Penetration rate as a small factor (popular products slightly boosted)
+    score += Math.round(product.penetrationRate * 0.15);
+
+    // Cap at 95
+    const confidence = Math.min(Math.max(score, 10), 95);
+
+    // Generate next steps
+    const nextSteps = generateNextSteps(product, confidence);
+
+    results.push({ product, confidence, signals: signals.slice(0, 3), nextSteps });
+  }
+
+  return results.sort((a, b) => b.confidence - a.confidence);
+}
+
+function generateNextSteps(product: JourneyProduct, confidence: number): string[] {
+  const steps: string[] = [];
+  if (confidence >= 70) {
+    steps.push("Schedule personalized outreach with tailored offer");
+    steps.push("Include in next relationship review meeting");
+  } else if (confidence >= 40) {
+    steps.push("Add to awareness campaign drip sequence");
+    steps.push("Monitor for signal strengthening triggers");
+  } else {
+    steps.push("Include in educational content program");
+    steps.push("Track behavioral signals for future readiness");
+  }
+  return steps;
+}
+
+function confidenceColor(c: number) {
+  if (c >= 70) return { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" };
+  if (c >= 40) return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" };
+  return { bg: "bg-slate-50", text: "text-slate-500", border: "border-slate-200" };
+}
+
+function confidenceLabel(c: number) {
+  if (c >= 70) return "High";
+  if (c >= 40) return "Medium";
+  return "Low";
+}
+
+/* ── Financial categories (exclude digital_services) ── */
+const FINANCIAL_CATEGORIES = JOURNEY_CATEGORIES.filter(c => c.id !== "digital_services");
+const FINANCIAL_PRODUCTS = JOURNEY_PRODUCTS.filter(p => p.category !== "digital_services");
+
+/* ── Main component ── */
 export default function DemoFinancialJourneyView({ customerA, customerB, detectedEventA, detectedEventB }: Props) {
   return (
     <div className="grid grid-cols-2 gap-6">
-      <CustomerQueue customer={customerA} detectedEvents={detectedEventA} />
-      <CustomerQueue customer={customerB} detectedEvents={detectedEventB} />
+      <CustomerOpportunities customer={customerA} detectedEvents={detectedEventA} />
+      <CustomerOpportunities customer={customerB} detectedEvents={detectedEventB} />
     </div>
   );
 }
 
-function CustomerQueue({ customer, detectedEvents }: { customer: DemoCustomer; detectedEvents: DetectedLifeEventResult[] }) {
-  const actions = deriveActions(customer, detectedEvents);
+/* ── Per-customer column ── */
+function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCustomer; detectedEvents: DetectedLifeEventResult[] }) {
+  const heldProducts = useMemo(() => getHeldProducts(customer), [customer]);
+  const opportunities = useMemo(
+    () => scoreOpportunities(customer, heldProducts, detectedEvents, FINANCIAL_PRODUCTS),
+    [customer, heldProducts, detectedEvents]
+  );
 
-  if (actions.length === 0) {
-    return (
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 flex items-center justify-center">
-        <p className="text-sm text-slate-400">No actions queued — awaiting enrichment data</p>
-      </div>
-    );
-  }
+  const highCount = opportunities.filter(o => o.confidence >= 70).length;
+  const medCount = opportunities.filter(o => o.confidence >= 40 && o.confidence < 70).length;
+  const lowCount = opportunities.filter(o => o.confidence < 40).length;
+
+  // Group by category
+  const byCategory = useMemo(() => {
+    const map = new Map<JourneyCategory, ScoredOpportunity[]>();
+    for (const opp of opportunities) {
+      const cat = opp.product.category;
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(opp);
+    }
+    return map;
+  }, [opportunities]);
 
   return (
-    <div className="space-y-3">
-      {/* Queue summary */}
-      <div className="flex items-center gap-3 mb-1">
-        <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-slate-500">
-          {actions.length} Actions Queued
-        </span>
-        <div className="flex items-center gap-1.5">
-          {(["ready", "queued", "scheduled"] as QueueStatus[]).map(s => {
-            const count = actions.filter(a => a.status === s).length;
-            if (count === 0) return null;
-            const cfg = statusConfig[s];
-            return (
-              <span key={s} className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${cfg.pillBg} ${cfg.pillText}`}>
-                {count} {cfg.label}
-              </span>
-            );
-          })}
+    <div className="space-y-4">
+      {/* Summary header */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-slate-900">{customer.profile.name}</p>
+            <p className="text-[10px] text-slate-500">{customer.profile.segment} · AUM {customer.profile.aum}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-bold text-slate-900">{opportunities.length}</p>
+            <p className="text-[9px] text-slate-500 uppercase tracking-wider">Opportunities</p>
+          </div>
+        </div>
+
+        {/* Confidence breakdown */}
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold">{highCount} High</span>
+          <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold">{medCount} Medium</span>
+          <span className="text-[9px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-semibold">{lowCount} Low</span>
+        </div>
+
+        {/* Held products */}
+        <div>
+          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Currently Held</p>
+          <div className="flex flex-wrap gap-1">
+            {Array.from(heldProducts).map(name => (
+              <Badge key={name} variant="secondary" className="text-[9px] bg-slate-100 text-slate-600 border-transparent">
+                <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" />
+                {name}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
 
-      {actions.map((action, idx) => (
-        <ActionCard key={idx} action={action} />
-      ))}
+      {/* Category sections */}
+      {FINANCIAL_CATEGORIES.map(cat => {
+        const catOpps = byCategory.get(cat.id);
+        if (!catOpps || catOpps.length === 0) return null;
+        const CatIcon = CATEGORY_ICONS[cat.id] || Package;
+        const topConfidence = catOpps[0].confidence;
+
+        return (
+          <CategorySection
+            key={cat.id}
+            label={cat.label}
+            icon={<CatIcon className="w-4 h-4" />}
+            color={cat.color}
+            textColor={cat.textColor}
+            count={catOpps.length}
+            topConfidence={topConfidence}
+            opportunities={catOpps}
+            customerName={customer.profile.name}
+          />
+        );
+      })}
     </div>
   );
 }
 
-function ActionCard({ action }: { action: QueuedAction }) {
-  const cfg = statusConfig[action.status];
-  const StatusIcon = cfg.icon;
-  const SignalIcon = signalIcons[action.signalType];
-  const sigColor = signalColors[action.signalType];
+/* ── Category collapsible section ── */
+function CategorySection({
+  label, icon, color, textColor, count, topConfidence, opportunities, customerName,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+  textColor: string;
+  count: number;
+  topConfidence: number;
+  opportunities: ScoredOpportunity[];
+  customerName: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const cc = confidenceColor(topConfidence);
 
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white border-l-4 ${cfg.borderClass} overflow-hidden hover:shadow-md transition-shadow`}>
-      <div className="p-4 space-y-3">
-        {/* Top row: status + product + match */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 text-[9px] font-semibold px-2 py-0.5 rounded-full ${cfg.pillBg} ${cfg.pillText}`}>
-                <StatusIcon className="w-2.5 h-2.5" />
-                {cfg.label}
-              </span>
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger asChild>
+        <button className={cn(
+          "w-full flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left",
+          open && "bg-slate-50"
+        )}>
+          <div className="flex items-center gap-2">
+            <span className={cn("p-1.5 rounded-md", color, textColor)}>{icon}</span>
+            <span className="text-xs font-semibold text-slate-800">{label}</span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">{count}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", cc.bg, cc.text)}>
+              Top: {topConfidence}%
+            </span>
+            <ChevronRight className={cn("w-3.5 h-3.5 text-slate-400 transition-transform", open && "rotate-90")} />
+          </div>
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="space-y-2 mt-2 pl-2">
+          {opportunities.map((opp, idx) => (
+            <ProductCard key={idx} opp={opp} customerName={customerName} />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+/* ── Individual product opportunity card ── */
+function ProductCard({ opp, customerName }: { opp: ScoredOpportunity; customerName: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const cc = confidenceColor(opp.confidence);
+  const firstName = customerName.split(" ")[0];
+
+  return (
+    <Collapsible open={expanded} onOpenChange={setExpanded}>
+      <CollapsibleTrigger asChild>
+        <button className={cn(
+          "w-full flex items-center justify-between rounded-lg border px-3 py-2 hover:shadow-sm transition-all text-left",
+          cc.border, "bg-white"
+        )}>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[11px] font-medium text-slate-800 truncate">{opp.product.name}</span>
+            {opp.signals.length > 0 && (
+              <Badge variant="outline" className="text-[8px] border-transparent bg-purple-50 text-purple-600 shrink-0">
+                <Zap className="w-2 h-2 mr-0.5" />
+                {opp.signals.length} signal{opp.signals.length > 1 ? "s" : ""}
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", cc.bg, cc.text)}>
+              {opp.confidence}%
+            </span>
+            <ChevronRight className={cn("w-3 h-3 text-slate-400 transition-transform", expanded && "rotate-90")} />
+          </div>
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="rounded-b-lg border border-t-0 border-slate-200 bg-white px-3 py-3 space-y-3">
+          {/* Confidence + label */}
+          <div className="flex items-center gap-2">
+            <div className={cn("h-1.5 rounded-full bg-slate-100 flex-1")}>
+              <div
+                className={cn("h-1.5 rounded-full transition-all", opp.confidence >= 70 ? "bg-emerald-500" : opp.confidence >= 40 ? "bg-amber-500" : "bg-slate-400")}
+                style={{ width: `${opp.confidence}%` }}
+              />
             </div>
-            <p className="text-sm font-bold text-slate-900">{action.product}</p>
+            <span className={cn("text-[9px] font-semibold", cc.text)}>{confidenceLabel(opp.confidence)} Confidence</span>
           </div>
-          <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 shrink-0" style={{
-            borderColor: action.match >= 85 ? "#22c55e" : action.match >= 70 ? "#f59e0b" : "#94a3b8",
-            background: action.match >= 85 ? "#f0fdf4" : action.match >= 70 ? "#fffbeb" : "#f8fafc",
-          }}>
-            <span className="text-xs font-bold" style={{
-              color: action.match >= 85 ? "#16a34a" : action.match >= 70 ? "#d97706" : "#64748b",
-            }}>{action.match}%</span>
-          </div>
-        </div>
 
-        {/* Trigger badge */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="outline" className={`text-[9px] ${sigColor.bg} ${sigColor.text} border-transparent`}>
-            <SignalIcon className="w-2.5 h-2.5 mr-1" />
-            {action.signalType}
-          </Badge>
-          <span className="text-[10px] text-slate-600 font-medium">{action.triggerName}</span>
-          {action.triggerConfidence != null && (
-            <span className="text-[9px] text-slate-400">({action.triggerConfidence}% confidence)</span>
+          {/* Signals */}
+          {opp.signals.length > 0 && (
+            <div>
+              <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Signals Detected</p>
+              <ul className="space-y-0.5">
+                {opp.signals.map((sig, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-[10px] text-slate-600 leading-snug">
+                    <Zap className="w-2.5 h-2.5 text-purple-400 mt-0.5 shrink-0" />
+                    <span>{sig}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
-        </div>
 
-        {/* Evidence */}
-        {action.evidence.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Supporting Evidence</p>
+          {/* Next steps */}
+          <div>
+            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Recommended Next Steps</p>
             <ul className="space-y-0.5">
-              {action.evidence.map((ev, i) => (
+              {opp.nextSteps.map((step, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-[10px] text-slate-600 leading-snug">
                   <ChevronRight className="w-2.5 h-2.5 text-slate-300 mt-0.5 shrink-0" />
-                  <span>{ev}</span>
+                  <span>{step}</span>
                 </li>
               ))}
             </ul>
           </div>
-        )}
 
-        {/* Personalized message */}
-        <div className="rounded-lg bg-slate-50 border border-slate-100 p-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <MessageSquare className="w-3 h-3 text-slate-400" />
-            <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Personalized Message</span>
+          {/* Est. value */}
+          <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+            <span className="text-[9px] text-slate-400">
+              Est. Annual Revenue: <span className="font-semibold text-emerald-600 text-[10px]">${opp.product.revenuePerCustomer.toLocaleString()}</span>
+            </span>
           </div>
-          <p className="text-[11px] text-slate-700 leading-relaxed italic">"{action.personalizedMessage}"</p>
-        </div>
 
-        {/* Actions + value */}
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-[9px] text-slate-400">
-            Est. Annual Value: <span className="font-semibold text-emerald-600 text-[10px]">{action.annualValue}</span>
-          </span>
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-3 text-[10px]"
-              onClick={() => toast.success(`Scheduled outreach for ${action.product}`)}
-            >
-              <CalendarClock className="w-3 h-3 mr-1" />
-              Schedule
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="h-7 px-3 text-[10px]"
-              onClick={() => toast.success(`Sent ${action.product} outreach`)}
-            >
-              <Send className="w-3 h-3 mr-1" />
-              Send Now
-            </Button>
+          {/* Downstream personalization */}
+          <div>
+            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Push to Personalization</p>
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2.5 text-[9px] rounded-md"
+                onClick={(e) => { e.stopPropagation(); toast.success(`Email campaign queued for ${firstName} — ${opp.product.name}`); }}
+              >
+                <Mail className="w-3 h-3 mr-1" />
+                Email Campaign
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2.5 text-[9px] rounded-md"
+                onClick={(e) => { e.stopPropagation(); toast.success(`SMS outreach scheduled for ${firstName} — ${opp.product.name}`); }}
+              >
+                <MessageSquare className="w-3 h-3 mr-1" />
+                SMS
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2.5 text-[9px] rounded-md"
+                onClick={(e) => { e.stopPropagation(); toast.success(`In-app notification set for ${firstName} — ${opp.product.name}`); }}
+              >
+                <Bell className="w-3 h-3 mr-1" />
+                In-App
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
