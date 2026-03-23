@@ -8,6 +8,7 @@ import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
 import { PanelLeft, ArrowRight } from "lucide-react";
+import ventusLogo from "@/assets/ventus-logo-blue.png";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
 export default function DemoPage() {
@@ -71,6 +72,12 @@ export default function DemoPage() {
   return (
     <DemoPasswordGate>
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
+      {/* Top-left branding */}
+      <div className="absolute top-4 left-4 z-50 flex items-center gap-2.5">
+        <img src={ventusLogo} className="h-7" alt="Ventus" />
+        <span className="text-slate-400 text-xs font-medium tracking-wide">One AI-Native layer that enables personalized banking across functions.</span>
+      </div>
+
       {/* Exit to keynote button */}
       <button
         onClick={() => {
@@ -86,7 +93,7 @@ export default function DemoPage() {
       {panelCollapsed && (
         <button
           onClick={() => setPanelCollapsed(false)}
-          className="absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
+          className="absolute top-14 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
         >
           <PanelLeft className="h-3.5 w-3.5" />
           Show Panel

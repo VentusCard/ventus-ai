@@ -257,10 +257,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`${centered ? "w-14 h-14" : "w-11 h-11"} rounded-xl bg-indigo-50 flex items-center justify-center mb-2 border border-indigo-200 group-hover:bg-indigo-100 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
-          <span className={`text-indigo-600 font-bold ${centered ? "text-3xl" : "text-2xl"}`}>V</span>
-        </div>
-        <p className={`font-bold text-slate-900 text-center mb-2 ${centered ? "text-[16px]" : "text-[14px]"}`}>Ventus AI Engine</p>
+        <p className={`font-bold text-slate-900 text-center mb-2 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
