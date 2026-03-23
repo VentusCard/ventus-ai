@@ -100,13 +100,13 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const scale = centered ? 1.25 : 1.0;
 
   // Compact widths for open-panel (~790px), larger for centered (~full width)
-  const TX_CARD_WIDTH = centered ? Math.min(180, dims.w * 0.12) : Math.min(160, Math.max(130, dims.w * 0.16));
+  const TX_CARD_WIDTH = centered ? Math.min(220, dims.w * 0.14) : Math.min(160, Math.max(130, dims.w * 0.16));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
-  const ENGINE_WIDTH = centered ? Math.min(200, dims.w * 0.15) : Math.min(175, Math.max(150, dims.w * 0.18));
+  const ENGINE_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(175, Math.max(150, dims.w * 0.18));
   const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
 
-  const BANK_COL_WIDTH = centered ? Math.min(220, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
-  const CONSUMER_COL_WIDTH = centered ? Math.min(200, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
+  const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
+  const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
 
   const ROW_HEIGHT = Math.max(120, 140 * scale);
   const BANK_NODE_HEIGHT = Math.max(32, 38 * scale);
@@ -115,9 +115,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
 
   // Horizontal gaps — tight on left, generous on right
-  const gap1 = centered ? 40 : Math.max(14, dims.w * 0.018);
-  const gap2 = centered ? 50 : Math.max(28, dims.w * 0.035);
-  const gap3 = centered ? 40 : Math.max(24, dims.w * 0.03);
+  const gap1 = centered ? 50 : Math.max(14, dims.w * 0.018);
+  const gap2 = centered ? 60 : Math.max(28, dims.w * 0.035);
+  const gap3 = centered ? 55 : Math.max(24, dims.w * 0.03);
 
   // Always center the block in the available width
   const pad = Math.max(8, dims.w * 0.01);
@@ -134,7 +134,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const totalGridHeight = ROW_HEIGHT * 3;
   const gridTopY = midY - totalGridHeight / 2;
 
-  const txSpread = centered ? 70 : 55;
+  const txSpread = centered ? 85 : 55;
   const inputAY = midY - txSpread;
   const inputBY = midY + txSpread;
 
@@ -258,14 +258,14 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`mb-2 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
+        <div className="mb-2">
           <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
         </div>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {ENGINE_CAPABILITIES.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div key={cap.label} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
+              <div key={cap.label} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[13px]" : "text-[12px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
