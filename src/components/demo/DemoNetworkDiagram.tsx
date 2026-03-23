@@ -323,7 +323,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       key={node.id}
                       onClick={() => { if (canOpen) onNodeClick(node.id); }}
                       disabled={!canOpen}
-                      className={`flex-1 flex items-center gap-2 rounded-xl border ${centered ? "px-4 py-3" : "px-3 py-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
+                      className={`flex-1 flex items-center gap-2 rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} ${centered ? "px-4 py-3" : "px-3 py-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
                       style={{
                         cursor: canOpen ? "pointer" : "not-allowed",
                         opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
