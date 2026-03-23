@@ -1,33 +1,18 @@
 
 
-## Fix Bank-Facing Node → Tab Mapping
+## Rename Engine Node to "Advanced Enrichment" & Redesign Card
 
-**File: `src/components/demo/DemoDetailOverlay.tsx`**
+**File: `src/components/demo/DemoNetworkDiagram.tsx`**
 
-### Issues Found
+### Changes (lines ~259–275)
 
-| Bank Node | Diagram Label | Current Tab | Correct Tab | Why |
-|-----------|--------------|-------------|-------------|-----|
-| `analytics` | Behavioral Analytics | `dashboard` | `dashboard` | ✅ Correct |
-| `outflow` | Outflow Analysis | `dashboard` | `wallet-share` | Wallet Share Intelligence covers outflow analysis |
-| `travel` | Reward Intelligence | `rewards-intelligence` | `rewards-intelligence` | ✅ Correct |
-| `locational` | Locational Experience | `rewards-intelligence` | `location-experience` | Exact name match exists as its own tab |
-| `lifeEventIntel` | Life Event Intelligence | `life-events` | `life-events` | ✅ Correct |
-| `wealth` (bank) | Financial Journey | `life-events` | `targeting` | The "Financial Journey" tab (`targeting`) is the exact match |
+1. **Remove the "V" logo block** — delete the `div` with the rounded-xl indigo square containing the bold "V" letter (lines 260-262).
+2. **Rename title** — change `"Ventus AI Engine"` to `"Advanced Enrichment"` (line 263).
+3. **Adjust card design** — without the large logo icon taking up space, add a small `Layers` icon inline next to the title text instead, keeping the card compact. Reduce top padding since the big square icon is gone.
 
-### Fix
-Update `BANK_WIDE_TAB_MAP` in DemoDetailOverlay.tsx:
-
-```typescript
-const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
-  analytics: "dashboard",        // ✅ unchanged
-  outflow: "wallet-share",       // 🔧 was "dashboard"
-  travel: "rewards-intelligence", // ✅ unchanged
-  locational: "location-experience", // 🔧 was "rewards-intelligence"
-  lifeEventIntel: "life-events", // ✅ unchanged
-  wealth: "targeting",           // 🔧 was "life-events" → Financial Journey tab
-};
-```
-
-Three lines changed, no structural modifications needed.
+### Result
+The engine card will show:
+- A compact header: small Layers icon + "Advanced Enrichment" title
+- The three capability rows below (Semantic Enrichment, Cross-category Patterns, Deep Purchase Analysis) unchanged
+- Same interaction behavior (click when ready, processing animation, etc.)
 
