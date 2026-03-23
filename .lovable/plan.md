@@ -1,22 +1,24 @@
 
 
-## Move Financial Journey to Relationship Section
+## Add Deal Management Tab to Rewards Section
 
-**File: `src/components/tepilot/insights/AnalyticsContainer.tsx`** (lines 28–52)
+### What
+Add a "Deal Management" nav item to the Rewards section in the Bank-wide Analytics sidebar. This will embed the existing `AvailableDealsGrid` component (currently only on the standalone `/rewards-pipeline` page) directly inside the analytics container.
 
-Two changes to `NAV_GROUPS`:
+### Changes
 
-1. **Remove** `{ value: "targeting", label: "Financial Journey", icon: Route }` from the "Analytics" group
-2. **Rename** "Wealth Management" → "Relationship" and **add** the Financial Journey item into it, so it becomes:
+**File: `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+
+1. **Import** `AvailableDealsGrid` from `@/components/tepilot/rewards-pipeline/AvailableDealsGrid` and add `Package` icon from lucide-react.
+2. **Add `'deal-management'` to `TabValue` union type.**
+3. **Add nav item** to the Rewards group:
    ```
-   {
-     label: "Relationship",
-     items: [
-       { value: "life-events", label: "Life Events Intelligence", icon: CalendarHeart },
-       { value: "targeting", label: "Financial Journey", icon: Route },
-     ],
-   }
+   { value: "deal-management", label: "Deal Management", icon: Package }
+   ```
+4. **Add switch case** in `renderContent`:
+   ```
+   case 'deal-management': return <AvailableDealsGrid />;
    ```
 
-No other files need changes — the tab routing and content rendering already use the `value` key which stays the same.
+Single file change — the grid component and all its deal data already exist.
 
