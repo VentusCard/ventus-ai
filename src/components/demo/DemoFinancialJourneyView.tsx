@@ -105,7 +105,6 @@ const EVENT_PRODUCT_AFFINITY: Record<string, string[]> = {
 /* ── Derive held products from transaction sources ── */
 function getHeldProducts(customer: DemoCustomer): Set<string> {
   const held = new Set<string>();
-  // Always assume they have Checking + Savings as baseline
   held.add("Checking");
   held.add("Savings");
   for (const txn of customer.sampleTransactions) {
@@ -115,6 +114,17 @@ function getHeldProducts(customer: DemoCustomer): Set<string> {
     }
   }
   return held;
+}
+
+/* ── Derive held source names (for display) ── */
+function getHeldSources(customer: DemoCustomer): string[] {
+  const sources = new Set<string>();
+  sources.add("Checking");
+  sources.add("Savings");
+  for (const txn of customer.sampleTransactions) {
+    if (txn.source) sources.add(txn.source);
+  }
+  return Array.from(sources);
 }
 
 /* ── Scored opportunity ── */
