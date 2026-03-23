@@ -278,7 +278,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
               <div className="text-center py-12 flex flex-col items-center gap-8">
                   <img src={ventusLogo} alt="Ventus AI" className="h-16 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }} />
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight animate-fade-slide" style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both", lineHeight: 1.25 }}>
-                    AI Banking Personalization Engine<br />That Does it All
+                    AI Banking Personalization and<br />Customer Intelligence Engine
                   </h1>
                 </div>
               }
