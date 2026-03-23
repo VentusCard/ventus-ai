@@ -100,9 +100,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const scale = centered ? 1.25 : 1.0;
 
   // Compact widths for open-panel (~790px), larger for centered (~full width)
-  const TX_CARD_WIDTH = centered ? Math.min(180, dims.w * 0.12) : Math.min(130, Math.max(110, dims.w * 0.14));
+  const TX_CARD_WIDTH = centered ? Math.min(180, dims.w * 0.12) : Math.min(160, Math.max(130, dims.w * 0.16));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
-  const ENGINE_WIDTH = centered ? Math.min(200, dims.w * 0.15) : Math.min(150, Math.max(130, dims.w * 0.16));
+  const ENGINE_WIDTH = centered ? Math.min(200, dims.w * 0.15) : Math.min(175, Math.max(150, dims.w * 0.18));
   const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
 
   const BANK_COL_WIDTH = centered ? Math.min(220, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
