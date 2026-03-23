@@ -709,24 +709,17 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   className="mt-10 transition-all duration-500 ease-out"
                   style={{ opacity: revealInput ? 1 : 0, transform: revealInput ? "translateY(0)" : "translateY(12px)" }}
                   onClick={(e) => e.stopPropagation()}>
-                    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-3">
-                      <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => {setPassword(e.target.value);setError(false);}}
-                      placeholder="Enter access code"
-                      className="h-11 w-64 rounded-lg border bg-white px-4 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ borderColor: error ? "#EF4444" : "#E2E8F0", color: "#0F172A" }} />
-                      {error && <p className="text-sm" style={{ color: "#EF4444" }}>Incorrect access code</p>}
-                      <button
-                      type="submit"
-                      className="h-10 px-8 rounded-full text-sm font-semibold text-white transition-colors"
+                    <button
+                      onClick={() => {
+                        sessionStorage.setItem("demo_access", "true");
+                        setGranted(true);
+                      }}
+                      className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
                       style={{ backgroundColor: "#3B82F6" }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#2563EB"}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3B82F6"}>
-                        Enter Demo
-                      </button>
-                    </form>
+                      Enter Demo →
+                    </button>
                   </div>
                 </div>
               }
