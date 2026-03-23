@@ -382,16 +382,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         );
       })}
 
-      {/* Legend */}
-      <div className={`absolute ${centered ? "text-[11px]" : "text-[9px]"} text-slate-400 flex items-center gap-4`} style={{ bottom: Math.max(8, gridTopY + totalGridHeight + 8), left: bankColLeftX, zIndex: 2 }}>
-        <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-          Consumer-Facing
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
-          Bank-Facing
-        </span>
+      {/* Column Headers */}
+      <div
+        className={`absolute ${centered ? "text-[11px]" : "text-[9px]"} font-semibold text-slate-400 uppercase tracking-wider text-center`}
+        style={{ left: bankColLeftX, width: BANK_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+      >
+        Bank-Facing
+      </div>
+      <div
+        className={`absolute ${centered ? "text-[11px]" : "text-[9px]"} font-semibold text-slate-400 uppercase tracking-wider text-center`}
+        style={{ left: consumerColLeftX, width: CONSUMER_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+      >
+        Consumer-Facing
       </div>
     </div>
   );
