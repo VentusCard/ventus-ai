@@ -74,8 +74,8 @@ export default function DemoPage() {
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Logo + one-liner when panel collapsed */}
       {panelCollapsed && (
-        <div className="absolute top-6 left-6 z-40 flex items-center gap-3">
-          <img src={ventusLogo} className="h-6" alt="Ventus" />
+        <div className="absolute top-6 left-6 z-40">
+          <img src={ventusLogo} className="h-6 mb-2" alt="Ventus" />
           <p className="text-[14px] text-slate-500 whitespace-nowrap">
             One AI-Native layer that enables personalized banking across functions.
           </p>
