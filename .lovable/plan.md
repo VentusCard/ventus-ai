@@ -1,36 +1,84 @@
 
 
-## Add "Next Best Product" Card with Life-Event-Driven Personalization
+## Restructure Network Diagram: 4-Column Layout with Bank Analytics → Consumer Views
 
-### What
-Add a prominent **"Next Best Product"** card between the profile summary and category sections in the Financial Journey view. It highlights the #1 scored opportunity with personalized outreach messages driven by **detected life events when available**, falling back to pillar/segment signals otherwise.
+### What Changes
 
-### How
+Replace the current 3-row grid (each with 2 side-by-side nodes) with a **4-column flow**:
 
-**File: `src/components/demo/DemoFinancialJourneyView.tsx`**
+```text
+TX Cards → Engine → Bank Analytics (3 rows, 2 items each) → Consumer Views (3 single cards)
+```
 
-1. **New `NextProductCard` component** — rendered after the profile card, before category sections. Takes top opportunity + customer + detectedEvents.
+**New structure after Engine:**
 
-2. **Card layout:**
-   - Category color accent (left border)
-   - Product name + category badge + confidence bar
-   - Top signals with Zap icons
-   - Est. annual revenue
-   - **Personalized Messages** section with 3 channel previews (Email, SMS, In-App)
-   - "Push to Campaign" button per channel (toast on click)
+| Pillar (Question) | Bank Analytics (Col 3) | Consumer View (Col 4) |
+|---|---|---|
+| Profiling: "Who are they..." | Behavioral Analytics, Outflow Analysis | Personalized UX |
+| Predictive: "What will they spend..." | Reward Intelligence, Locational Experience | Consumer Rewards |
+| Phase: "Where are they in their journey..." | Life Event Intelligence, Financial Journey | Wealth Management |
 
-3. **Message generation logic** — `generatePersonalizedMessages(customer, product, signals, detectedEvents)`:
-   - **If life events detected**: Use the top event's `event_name` and `talking_points` to craft contextual messages. E.g., "Robert, as you prepare for [Home Purchase], our HELOC could help bridge your down payment..."
-   - **Fallback (no life events)**: Use top pillar spending + segment tier. E.g., "Robert, your travel-forward lifestyle suggests Premium Travel could earn you 5x on flights..."
-   - Returns `{ email: string; sms: string; inApp: string }` — all deterministic, no API call.
+### New Node Types
 
-4. **Insert in `CustomerOpportunities`** layout:
-   ```
-   [Profile Card + Held Products]
-   [Next Best Product Card]        ← NEW
-   [Category Sections...]
-   ```
+Add to `DemoNodeType`: `"outflow" | "locational" | "lifeEventIntel"`
+
+These route to existing views when clicked:
+- `outflow` → opens `analytics` (dashboard tab, same as Behavioral Analytics)
+- `locational` → opens `travel` (reward intelligence tab)
+- `lifeEventIntel` → opens `wealth` (life events tab)
+
+Update `PERIPHERAL_NODES` in `useDemoEnrichment.ts` and `NODE_TITLES` / `BANK_WIDE_NODES` / `BANK_WIDE_TAB_MAP` in `DemoDetailOverlay.tsx` to include the new aliases.
+
+### Layout Geometry
+
+Replace the single `GRID_WIDTH` zone with two zones:
+- **Bank column** (~40% of remaining space): 3 rows, each containing a pillar question header + 2 compact bank node buttons stacked or side-by-side
+- **Consumer column** (~25% of remaining space): 3 rows, each with 1 consumer node button, vertically centered on its bank row
+
+Horizontal positions become:
+```text
+txCenterX → engineCenterX → bankColLeftX → consumerColLeftX
+```
+
+SVG connections:
+- Engine → 3 bank rows (existing bezier pattern, just target bankColLeftX)
+- Each bank row → its consumer card (short horizontal bezier from bank row right edge to consumer card left edge)
+
+### Dynamic Sizing
+
+All widths/heights scale with `scale` factor (1.25x when centered). Column widths derived from `dims.w` percentages with `Math.max` floors. Row heights use existing `BASE_GRID_ROW_HEIGHT * scale` pattern.
+
+### Data Model
+
+Replace `PILLARS` with a new structure:
+
+```typescript
+interface PillarRow {
+  id: string;
+  subtitle: string;
+  icon: typeof Search;
+  color: string;
+  bankNodes: NodeDef[];  // 2 bank-facing nodes
+  consumerNode: NodeDef; // 1 consumer-facing node
+}
+
+const PILLAR_ROWS: PillarRow[] = [
+  {
+    id: "profiling", subtitle: "Who are they...", color: "#3b82f6",
+    bankNodes: [
+      { id: "analytics", label: "Behavioral Analytics", audience: "bank" },
+      { id: "outflow", label: "Outflow Analysis", audience: "bank" },
+    ],
+    consumerNode: { id: "engagement", label: "Personalized UX", audience: "consumer" },
+  },
+  // ... predictive, phase
+];
+```
 
 ### Files Modified
-- `src/components/demo/DemoFinancialJourneyView.tsx`
+
+1. **`src/components/demo/DemoNetworkDiagram.tsx`** — Full restructure of layout, data model, SVG paths, and node rendering
+2. **`src/hooks/useDemoEnrichment.ts`** — Add new node types to `DemoNodeType` union and `PERIPHERAL_NODES`; map new nodes' readiness to their parent node's readiness
+3. **`src/components/demo/DemoDetailOverlay.tsx`** — Add new node types to `NODE_TITLES`, `BANK_WIDE_NODES`, `BANK_WIDE_TAB_MAP` so clicking them opens the correct view
+4. **`src/pages/DemoPage.tsx`** — Add new node types to `NODE_ORDER`
 
