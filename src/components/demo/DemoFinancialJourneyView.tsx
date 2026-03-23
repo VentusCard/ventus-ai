@@ -249,6 +249,58 @@ function confidenceLabel(c: number) {
 const FINANCIAL_CATEGORIES = JOURNEY_CATEGORIES.filter(c => c.id !== "digital_services");
 const FINANCIAL_PRODUCTS = JOURNEY_PRODUCTS.filter(p => p.category !== "digital_services");
 
+/* ── Category color lookup ── */
+const CATEGORY_META_MAP = Object.fromEntries(JOURNEY_CATEGORIES.map(c => [c.id, c]));
+
+/* ── Category left-border color map (can't use dynamic Tailwind classes) ── */
+const CATEGORY_BORDER_COLOR: Record<string, string> = {
+  credit_cards: "#1d4ed8",
+  deposit_accounts: "#059669",
+  loans_lending: "#d97706",
+  investment_products: "#7c3aed",
+  insurance: "#e11d48",
+  digital_services: "#0891b2",
+  wealth_management: "#4338ca",
+  estate_trust: "#9333ea",
+};
+
+/* ── Personalized message generation ── */
+function generatePersonalizedMessages(
+  customer: DemoCustomer,
+  product: JourneyProduct,
+  signals: string[],
+  detectedEvents: DetectedLifeEventResult[]
+): { email: string; sms: string; inApp: string } {
+  const firstName = customer.profile.name.split(" ")[0];
+  const topEvent = detectedEvents.length > 0 ? detectedEvents[0] : null;
+  const topPillar = customer.topPillars?.[0];
+
+  if (topEvent) {
+    const eventName = topEvent.event_name;
+    const talkingPoint = topEvent.talking_points?.[0] || `preparing for ${eventName}`;
+    return {
+      email: `${firstName}, as you prepare for ${eventName}, our ${product.name} could be the perfect fit. ${talkingPoint}. Let's schedule a quick review to explore how this aligns with your goals.`,
+      sms: `Hi ${firstName}! We noticed signals around ${eventName} — ${product.name} could help. Reply YES to learn more or speak with an advisor.`,
+      inApp: `🎯 Based on your ${eventName} journey, ${product.name} is recommended for you. Tap to explore personalized benefits.`,
+    };
+  }
+
+  if (topPillar) {
+    const pillarName = topPillar.name.charAt(0).toUpperCase() + topPillar.name.slice(1);
+    return {
+      email: `${firstName}, your ${pillarName.toLowerCase()}-forward lifestyle (${topPillar.pct}% of spend) suggests ${product.name} could unlock significant value. As a ${customer.profile.segment} member, you qualify for enhanced benefits.`,
+      sms: `Hi ${firstName}! Your ${pillarName.toLowerCase()} spending pattern is a great match for ${product.name}. Reply YES to see your personalized offer.`,
+      inApp: `💡 ${product.name} matches your ${pillarName.toLowerCase()} lifestyle. Explore tailored rewards for ${customer.profile.segment} members.`,
+    };
+  }
+
+  return {
+    email: `${firstName}, based on your profile, ${product.name} could be a great addition to your financial toolkit. Let's explore the benefits together.`,
+    sms: `Hi ${firstName}! ${product.name} may be right for you. Reply YES to learn more.`,
+    inApp: `Discover how ${product.name} can enhance your financial journey. Tap to explore.`,
+  };
+}
+
 /* ── Main component ── */
 export default function DemoFinancialJourneyView({ customerA, customerB, detectedEventA, detectedEventB }: Props) {
   return (
@@ -271,6 +323,8 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
   const highCount = opportunities.filter(o => o.confidence >= 70).length;
   const medCount = opportunities.filter(o => o.confidence >= 40 && o.confidence < 70).length;
   const lowCount = opportunities.filter(o => o.confidence < 40).length;
+
+  const topOpportunity = opportunities[0] ?? null;
 
   // Group by category
   const byCategory = useMemo(() => {
@@ -319,6 +373,15 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
         </div>
       </div>
 
+      {/* Next Best Product card */}
+      {topOpportunity && (
+        <NextProductCard
+          opp={topOpportunity}
+          customer={customer}
+          detectedEvents={detectedEvents}
+        />
+      )}
+
       {/* Category sections */}
       {FINANCIAL_CATEGORIES.map(cat => {
         const catOpps = byCategory.get(cat.id);
@@ -340,6 +403,151 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
           />
         );
       })}
+    </div>
+  );
+}
+
+/* ── Next Best Product card ── */
+function NextProductCard({
+  opp,
+  customer,
+  detectedEvents,
+}: {
+  opp: ScoredOpportunity;
+  customer: DemoCustomer;
+  detectedEvents: DetectedLifeEventResult[];
+}) {
+  const firstName = customer.profile.name.split(" ")[0];
+  const catMeta = CATEGORY_META_MAP[opp.product.category];
+  const cc = confidenceColor(opp.confidence);
+  const messages = useMemo(
+    () => generatePersonalizedMessages(customer, opp.product, opp.signals, detectedEvents),
+    [customer, opp, detectedEvents]
+  );
+
+  const topEvent = detectedEvents[0];
+  const sourceLabel = topEvent ? `Life Event: ${topEvent.event_name}` : "Spending Pattern Analysis";
+  const borderColor = CATEGORY_BORDER_COLOR[opp.product.category] || "#3b82f6";
+
+  return (
+    <div
+      className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
+      style={{ borderLeftWidth: 3, borderLeftColor: borderColor }}
+    >
+      {/* Header */}
+      <div className="px-4 pt-3 pb-2 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Crown className="w-3.5 h-3.5 text-amber-500" />
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Best Product</span>
+          </div>
+          <Badge variant="outline" className={cn("text-[8px] border-transparent", catMeta?.color, catMeta?.textColor)}>
+            {catMeta?.label}
+          </Badge>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-bold text-slate-900">{opp.product.name}</p>
+          <span className={cn("text-[11px] font-bold px-2.5 py-0.5 rounded-full", cc.bg, cc.text)}>
+            {opp.confidence}% match
+          </span>
+        </div>
+
+        {/* Confidence bar */}
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 rounded-full bg-slate-100 flex-1">
+            <div
+              className={cn("h-1.5 rounded-full transition-all", opp.confidence >= 70 ? "bg-emerald-500" : opp.confidence >= 40 ? "bg-amber-500" : "bg-slate-400")}
+              style={{ width: `${opp.confidence}%` }}
+            />
+          </div>
+          <span className={cn("text-[9px] font-semibold", cc.text)}>{confidenceLabel(opp.confidence)}</span>
+        </div>
+
+        {/* Source badge */}
+        <div className="flex items-center gap-1.5">
+          <Zap className="w-2.5 h-2.5 text-purple-500" />
+          <span className="text-[9px] text-purple-600 font-medium">{sourceLabel}</span>
+        </div>
+
+        {/* Signals */}
+        {opp.signals.length > 0 && (
+          <div className="space-y-0.5">
+            {opp.signals.map((sig, i) => (
+              <div key={i} className="flex items-start gap-1.5 text-[10px] text-slate-600 leading-snug">
+                <Zap className="w-2.5 h-2.5 text-purple-400 mt-0.5 shrink-0" />
+                <span>{sig}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Revenue */}
+        <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+          <span className="text-[9px] text-slate-400">
+            Est. Annual Revenue: <span className="font-semibold text-emerald-600 text-[10px]">${opp.product.revenuePerCustomer.toLocaleString()}</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Personalized messages */}
+      <div className="bg-slate-50/80 px-4 py-3 space-y-2 border-t border-slate-100">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Personalized Outreach</p>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Mail className="w-3 h-3 text-blue-500" />
+              <span className="text-[9px] font-semibold text-slate-700">Email Campaign</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-5 px-2 text-[8px] rounded-md"
+              onClick={() => toast.success(`Email campaign queued for ${firstName} — ${opp.product.name}`)}
+            >
+              Push to Campaign
+            </Button>
+          </div>
+          <p className="text-[10px] text-slate-600 leading-relaxed italic">"{messages.email}"</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <MessageSquare className="w-3 h-3 text-emerald-500" />
+              <span className="text-[9px] font-semibold text-slate-700">SMS Outreach</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-5 px-2 text-[8px] rounded-md"
+              onClick={() => toast.success(`SMS outreach scheduled for ${firstName} — ${opp.product.name}`)}
+            >
+              Push to Campaign
+            </Button>
+          </div>
+          <p className="text-[10px] text-slate-600 leading-relaxed italic">"{messages.sms}"</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Bell className="w-3 h-3 text-amber-500" />
+              <span className="text-[9px] font-semibold text-slate-700">In-App Notification</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-5 px-2 text-[8px] rounded-md"
+              onClick={() => toast.success(`In-app notification set for ${firstName} — ${opp.product.name}`)}
+            >
+              Push to Campaign
+            </Button>
+          </div>
+          <p className="text-[10px] text-slate-600 leading-relaxed italic">"{messages.inApp}"</p>
+        </div>
+      </div>
     </div>
   );
 }
