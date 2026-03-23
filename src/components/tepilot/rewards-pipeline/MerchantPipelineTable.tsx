@@ -35,10 +35,10 @@ const formatUsers = (num: number): string => {
 };
 
 const getConfidenceColor = (score: number): string => {
-  if (score >= 90) return 'text-emerald-600 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800';
-  if (score >= 80) return 'text-teal-600 bg-teal-50 border-teal-200 dark:bg-teal-950/30 dark:text-teal-400 dark:border-teal-800';
-  if (score >= 70) return 'text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800';
-  return 'text-slate-600 bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700';
+  if (score >= 90) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
+  if (score >= 80) return 'text-teal-600 bg-teal-50 border-teal-200';
+  if (score >= 70) return 'text-amber-600 bg-amber-50 border-amber-200';
+  return 'text-slate-600 bg-slate-50 border-slate-200';
 };
 
 type SortField = 'merchant' | 'status' | 'revenue' | 'deadline' | 'confidence';
@@ -258,14 +258,14 @@ export function MerchantPipelineTable({ opportunities, filterOpportunityId }: Me
 
                 {/* Win-Win Section */}
                 <div className="grid grid-cols-1 gap-3">
-                  <div className="p-3 bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-200/50 dark:border-emerald-800/30 rounded-lg">
+                  <div className="p-3 bg-emerald-50/50 border border-emerald-200/50 rounded-lg">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <Handshake className="h-3.5 w-3.5 text-emerald-600/70" />
                       <span className="text-xs font-semibold text-emerald-700/80 uppercase">For {selectedMerchant.pitch.merchantName}</span>
                     </div>
                     <p className="text-sm">{selectedMerchant.pitch.merchantBenefit}</p>
                   </div>
-                  <div className="p-3 bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
+                  <div className="p-3 bg-blue-50/50 border border-blue-200/50 rounded-lg">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <TrendingUp className="h-3.5 w-3.5 text-blue-600/70" />
                       <span className="text-xs font-semibold text-blue-700/80 uppercase">For Bank</span>

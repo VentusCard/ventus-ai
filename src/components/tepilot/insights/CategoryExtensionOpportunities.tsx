@@ -74,8 +74,8 @@ export function CategoryExtensionOpportunities() {
               key={p}
               onClick={() => setPillarFilter(p)}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                pillarFilter === p
-                  ? 'bg-slate-900 text-white'
+                 pillarFilter === p
+                  ? 'bg-blue-600 text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
