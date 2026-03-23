@@ -33,7 +33,7 @@ interface PillarRow {
 }
 
 const BASE_TX_CARD_HEIGHT = 110;
-const BASE_ENGINE_MIN_HEIGHT = 200;
+const BASE_ENGINE_MIN_HEIGHT = 140;
 
 const AUDIENCE_ACCENT = {
   consumer: "border-l-amber-400",
@@ -247,7 +247,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       <button
         onClick={() => { if (engineReady) onNodeClick("engine"); }}
         disabled={!engineReady}
-        className={`absolute flex flex-col items-center justify-center rounded-2xl border bg-white group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-3 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY - ENGINE_MIN_HEIGHT / 2,
@@ -257,8 +257,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 1,
         }}
       >
-        <div className={`flex items-center gap-2 mb-3 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
-          <Layers className={`${centered ? "w-5 h-5" : "w-4 h-4"} text-indigo-600 shrink-0`} />
+        <div className={`mb-2 ${engineProcessing && !engineReady ? "animate-pulse" : ""}`}>
           <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
         </div>
         <div className="flex flex-col gap-1.5 px-2 w-full">
