@@ -20,6 +20,7 @@ interface NodeDef {
   label: string;
   icon: typeof BarChart3;
   color: string;
+  audience: "consumer" | "bank";
 }
 
 interface PillarDef {
@@ -35,7 +36,12 @@ interface PillarDef {
 const BASE_TX_CARD_HEIGHT = 110;
 const BASE_ENGINE_MIN_HEIGHT = 200;
 const BASE_GRID_ROW_HEIGHT = 100;
-const BASE_GRID_HEADER_HEIGHT = 32;
+const BASE_GRID_HEADER_HEIGHT = 8;
+
+const AUDIENCE_ACCENT = {
+  consumer: "border-l-amber-400",
+  bank: "border-l-blue-400",
+} as const;
 
 const PILLARS: PillarDef[] = [
   {
@@ -45,8 +51,8 @@ const PILLARS: PillarDef[] = [
     icon: Search,
     color: "#3b82f6",
     nodes: [
-      { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b" },
-      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6" },
+      { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
+      { id: "analytics", label: "Bank-Wide Analytics", icon: BarChart3, color: "#3b82f6", audience: "bank" },
     ],
   },
   {
@@ -56,8 +62,8 @@ const PILLARS: PillarDef[] = [
     icon: Sparkles,
     color: "#22c55e",
     nodes: [
-      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e" },
-      { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4" },
+      { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
+      { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
     ],
   },
   {
@@ -67,8 +73,8 @@ const PILLARS: PillarDef[] = [
     icon: Heart,
     color: "#a855f7",
     nodes: [
-      { id: "lifeEvents", label: "Financial Journey", icon: CalendarHeart, color: "#ec4899" },
-      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7" },
+      { id: "lifeEvents", label: "Financial Journey", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
+      { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#a855f7", audience: "bank" },
     ],
   },
 ];
@@ -282,19 +288,13 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 2,
         }}
       >
-        {/* Column Headers */}
-        <div className="flex" style={{ height: GRID_HEADER_HEIGHT }}>
-          <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Consumer Facing</span>
-          </div>
-          <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Bank Facing</span>
-          </div>
-        </div>
+        {/* Spacer */}
+        <div style={{ height: GRID_HEADER_HEIGHT }} />
 
         {/* 3 Rows */}
         {PILLARS.map((pillar, pi) => {
           const PillarIcon = pillar.icon;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           return (
             <div
               key={pillar.id}
@@ -324,7 +324,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                       key={node.id}
                       onClick={() => { if (canOpen) onNodeClick(node.id); }}
                       disabled={!canOpen}
-                      className={`flex-1 flex items-center gap-2 rounded-xl border ${centered ? "px-4 py-3" : "px-3 py-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
+                      className={`flex-1 flex items-center gap-2 rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} ${centered ? "px-4 py-3" : "px-3 py-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
                       style={{
                         cursor: canOpen ? "pointer" : "not-allowed",
                         opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
@@ -367,6 +367,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             </div>
           );
         })}
+
+        {/* Legend */}
+        <div className={`flex items-center justify-center gap-4 mt-2 ${centered ? "text-[11px]" : "text-[9px]"} text-slate-400`}>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+            Consumer-Facing
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+            Bank-Facing
+          </span>
+        </div>
       </div>
     </div>
   );
