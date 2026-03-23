@@ -294,6 +294,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         {/* 3 Rows */}
         {PILLARS.map((pillar, pi) => {
           const PillarIcon = pillar.icon;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           return (
             <div
               key={pillar.id}
