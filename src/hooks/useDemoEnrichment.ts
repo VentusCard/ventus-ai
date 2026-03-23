@@ -260,7 +260,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         // Mark input lines solid + analytics & engine ready
         setInputReady(true);
-        setNodeReady({ engine: "ready", analytics: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready", outflow: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
@@ -389,10 +389,10 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         lifestylePromise
           .then(() => {
-            setNodeReady({ wealth: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready" });
           })
           .catch(() => {
-            setNodeReady({ wealth: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready" });
           });
 
         Promise.all([lifestylePromise, tipsPromise])
@@ -426,7 +426,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       let travelDetectionDone = false;
       const maybeSetTravelReady = () => {
         if (localExperiencesDone && travelDetectionDone) {
-          setNodeReady({ travel: "ready" });
+          setNodeReady({ travel: "ready", locational: "ready" });
         }
       };
 
