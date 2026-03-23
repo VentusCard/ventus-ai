@@ -250,7 +250,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         className={`absolute flex flex-col items-center rounded-2xl border bg-white py-3 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
-          top: midY - ENGINE_MIN_HEIGHT / 2,
+          top: midY,
+          transform: "translateY(-50%)",
           width: ENGINE_WIDTH,
           minHeight: ENGINE_MIN_HEIGHT,
           boxShadow: engineProcessing && !engineReady ? "0 0 30px rgba(99, 102, 241, 0.25)" : engineReady ? "0 0 20px rgba(34, 197, 94, 0.15)" : "0 4px 24px rgba(99, 102, 241, 0.1)",
