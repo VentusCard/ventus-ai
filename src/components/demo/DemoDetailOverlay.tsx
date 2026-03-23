@@ -51,11 +51,11 @@ const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth", 
 
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",
-  outflow: "dashboard",
+  outflow: "wallet-share",
   travel: "rewards-intelligence",
-  locational: "rewards-intelligence",
+  locational: "location-experience",
   lifeEventIntel: "life-events",
-  wealth: "life-events",
+  wealth: "targeting",
 };
 
 export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, tipA, tipB, onClose }: Props) {
