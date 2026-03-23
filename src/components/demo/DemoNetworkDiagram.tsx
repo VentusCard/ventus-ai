@@ -267,28 +267,38 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       {PILLAR_ROWS.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const PillarIcon = pillar.icon;
-        const questionHeight = centered ? 28 : 24;
-        const bankBlockTop = rowCenterY - (questionHeight + BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP) / 2;
+        const bankNodesHeight = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+        const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
+        const labelTop = rowCenterY - contentHeight / 2 - QUESTION_LABEL_HEIGHT - 2;
+        const contentTop = rowCenterY - contentHeight / 2;
 
         return (
           <div key={pillar.id}>
-            {/* Pillar question + 2 bank nodes */}
+            {/* Question label spanning both columns */}
+            <div
+              className="absolute flex items-center gap-1.5 px-2"
+              style={{
+                left: bankColLeftX,
+                top: labelTop,
+                width: (consumerColLeftX + CONSUMER_COL_WIDTH) - bankColLeftX,
+                height: QUESTION_LABEL_HEIGHT,
+                zIndex: 2,
+              }}
+            >
+              <PillarIcon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
+              <span className={`font-semibold leading-tight ${centered ? "text-[11px]" : "text-[9px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+            </div>
+
+            {/* 2 stacked bank nodes */}
             <div
               className="absolute flex flex-col"
               style={{
                 left: bankColLeftX,
-                top: bankBlockTop,
+                top: contentTop,
                 width: BANK_COL_WIDTH,
                 zIndex: 2,
               }}
             >
-              {/* Question label */}
-              <div className={`flex items-center gap-1.5 px-2 mb-1`} style={{ height: questionHeight }}>
-                <PillarIcon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
-                <span className={`font-semibold leading-tight truncate ${centered ? "text-[11px]" : "text-[9px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
-              </div>
-
-              {/* 2 stacked bank nodes */}
               {pillar.bankNodes.map((node) => {
                 const Icon = node.icon;
                 const state = nodeReadiness[node.id];
@@ -300,7 +310,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                     key={node.id}
                     onClick={() => { if (canOpen) onNodeClick(node.id); }}
                     disabled={!canOpen}
-                    className={`flex items-center gap-2 rounded-lg border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} ${centered ? "px-3" : "px-2"} mb-[${BANK_NODE_GAP}px] group transition-[box-shadow,opacity,border-color] duration-300`}
+                    className={`flex items-center gap-2 rounded-lg border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} ${centered ? "px-3" : "px-2"} group transition-[box-shadow,opacity,border-color] duration-300`}
                     style={{
                       height: BANK_NODE_HEIGHT,
                       cursor: canOpen ? "pointer" : "not-allowed",
@@ -328,14 +338,13 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               })}
             </div>
 
-            {/* Consumer node */}
+            {/* Consumer node — uniform height */}
             {(() => {
               const node = pillar.consumerNode;
               const Icon = node.icon;
               const state = nodeReadiness[node.id];
               const isReady = state === "ready";
               const canOpen = engineReady && isReady;
-              const consumerNodeHeight = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
 
               return (
                 <button
@@ -345,9 +354,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                   className={`absolute flex flex-col items-center justify-center rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} group transition-[box-shadow,opacity,border-color] duration-300`}
                   style={{
                     left: consumerColLeftX,
-                    top: rowCenterY - consumerNodeHeight / 2,
+                    top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
                     width: CONSUMER_COL_WIDTH,
-                    height: consumerNodeHeight,
+                    height: CONSUMER_NODE_HEIGHT,
                     cursor: canOpen ? "pointer" : "not-allowed",
                     opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
                     background: canOpen ? `${node.color}12` : "#ffffff",
