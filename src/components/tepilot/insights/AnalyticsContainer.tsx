@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BankwideView } from "./BankwideView";
+import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
@@ -11,13 +12,13 @@ import { WMCopilotSignInDialog } from "./WMCopilotSignInDialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
-  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin
+  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package
 } from "lucide-react";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management';
 
 interface NavItem {
   value: TabValue;
@@ -38,6 +39,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Rewards",
     items: [
       { value: "rewards-intelligence", label: "Rewards Intelligence", icon: Sparkles },
+      { value: "deal-management", label: "Deal Management", icon: Package },
       { value: "location-experience", label: "Location Experience", icon: MapPin },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
@@ -70,6 +72,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
+      case 'deal-management': return <AvailableDealsGrid />;
       case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
     }
