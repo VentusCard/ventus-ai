@@ -30,7 +30,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Analytics",
     items: [
       { value: "dashboard", label: "Analytics Dashboard", icon: BarChart3 },
-      { value: "targeting", label: "Financial Journey", icon: Route },
       { value: "wallet-share", label: "Wallet Share Intelligence", icon: Wallet },
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
@@ -44,9 +43,10 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Wealth Management",
+    label: "Relationship",
     items: [
       { value: "life-events", label: "Life Events Intelligence", icon: CalendarHeart },
+      { value: "targeting", label: "Financial Journey", icon: Route },
     ],
   },
 ];
