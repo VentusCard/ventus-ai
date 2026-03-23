@@ -1,27 +1,19 @@
 
 
-## Fix Centered (Close-Panel) State: Remove Pulse, Bigger & Spaced Out
+## Draw Individual Lines from AE to Each Bank Node
 
-The user wants changes **only in the centered (close-panel) state**. Three issues:
+Currently the Engine→Bank section (lines 188–207) draws **one line per pillar row** (3 lines total), each targeting the row's center Y. The user wants **one line per bank node** (6 lines total, 2 per row), matching the same visual style.
 
-### 1. Remove `animate-pulse` from AE card during processing
-- Lines 261 and 268: Remove the `animate-pulse` class that fires when `engineProcessing && !engineReady`
-- The processing state glow via `boxShadow` on line 257 is sufficient feedback
+### Change
 
-### 2. Make elements bigger in centered mode
-Current centered values are too conservative. Increase:
-- `TX_CARD_WIDTH`: `Math.min(180, ...)` → `Math.min(220, dims.w * 0.14)`
-- `ENGINE_WIDTH`: `Math.min(200, ...)` → `Math.min(240, dims.w * 0.16)`
-- `BANK_COL_WIDTH`: `Math.min(220, ...)` → `Math.min(260, dims.w * 0.18)`
-- `CONSUMER_COL_WIDTH`: `Math.min(200, ...)` → `Math.min(240, dims.w * 0.16)`
-- `BASE_ENGINE_MIN_HEIGHT * scale` stays, but scale already 1.25
+**File**: `src/components/demo/DemoNetworkDiagram.tsx`, lines 188–207
 
-### 3. Space out more in centered mode
-Increase the centered gaps:
-- `gap1`: `40` → `50`
-- `gap2`: `50` → `60`
-- `gap3`: `40` → `55`
-- `txSpread`: `70` → `85` (customer cards further apart vertically)
+Replace the current `PILLAR_ROWS.map` that draws one path per pillar with a nested loop that draws one path per `bankNode`:
 
-**File**: `src/components/demo/DemoNetworkDiagram.tsx`
+- For each pillar row, compute `contentTop` and iterate over `pillar.bankNodes` (2 per row)
+- Calculate each bank node's vertical center: `contentTop + ni * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2`
+- Draw a cubic bezier from `(engineRight, midY)` to `(bankColLeftX, bankNodeY)` — same curve shape, same stroke color (`pillar.color`), same width/opacity/dash logic, same processing and ready animated circles
+- Keep all existing styling: `strokeWidth`, `opacity`, `strokeDasharray`, `className="line-transition"`, and the two `<circle>` animations
+
+No other changes needed — geometry, node rendering, and bank→consumer lines stay the same.
 
