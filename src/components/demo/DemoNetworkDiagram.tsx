@@ -112,6 +112,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const ROW_HEIGHT = Math.max(120, 140 * scale);
   const BANK_NODE_HEIGHT = Math.max(34, 38 * scale);
   const BANK_NODE_GAP = Math.max(4, 6 * scale);
+  const CONSUMER_NODE_HEIGHT = Math.max(70, 80 * scale);
+  const QUESTION_LABEL_HEIGHT = centered ? 28 : 24;
 
   // Horizontal positions
   const pad = Math.max(12, dims.w * 0.02);
