@@ -309,10 +309,10 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
         <div>
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Currently Held</p>
           <div className="flex flex-wrap gap-1">
-            {Array.from(heldProducts).map(name => (
-              <Badge key={name} variant="secondary" className="text-[9px] bg-slate-100 text-slate-600 border-transparent">
+            {heldSources.map(source => (
+              <Badge key={source} className={cn("text-[9px] border-transparent", SOURCE_PILL_COLORS[source] || "bg-slate-50 text-slate-500")}>
                 <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" />
-                {name}
+                {source}
               </Badge>
             ))}
           </div>
