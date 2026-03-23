@@ -95,9 +95,9 @@ Only tag what the merchant name tells you. Do NOT guess what the customer bought
 CLASSIFICATION EXAMPLES (Pillar / Category / Subcategory Labels):
 
 Sports & Active Living:
-- "EQUINOX" → Gym & Fitness / ["Premium", "Membership"]
+- "EQUINOX" → Gym & Fitness / ["Membership"]
 - "24 HOUR FITNESS" → Gym & Fitness / ["Membership"]
-- "LULULEMON" → Gym & Fitness / ["Apparel", "Premium"]
+- "LULULEMON" → Gym & Fitness / ["Apparel", "Athletic"]
 - "NIKE STORE" → Gym & Fitness / ["Apparel", "Equipment"]
 - "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Apparel"]
 - "DICK'S SPORTING GOODS" → General / ["Equipment"]
@@ -112,7 +112,7 @@ Health & Wellness:
 - "GNC" → Vitamins & Supplements / ["Supplements"]
 - "MASSAGE ENVY" → Spa & Massage / ["Massage"]
 - "TALKSPACE" → Mental Health / ["Therapy"]
-- "BLUE CROSS" → Health Insurance / ["Premium"]
+- "BLUE CROSS" → Health Insurance / ["Monthly"]
 
 Food & Dining:
 - "WHOLE FOODS" → Grocery / ["Organic & Natural"]
@@ -130,26 +130,26 @@ Food & Dining:
 Travel & Exploration:
 - "DELTA AIR LINES" → Flights / ["Domestic"]
 - "UNITED AIRLINES" → Flights / ["Domestic"]
-- "MARRIOTT" → Hotels & Lodging / ["Mid-Range"]
-- "FOUR SEASONS" → Hotels & Lodging / ["Luxury"]
-- "HERTZ" → Car Rentals / ["Standard"]
+- "MARRIOTT" → Hotels & Lodging / ["Full-Service"]
+- "FOUR SEASONS" → Hotels & Lodging / ["Full-Service"]
+- "HERTZ" → Car Rentals / ["Airport"]
 - "UBER" → Travel Transportation / ["Rideshare"]
 - "LYFT" → Travel Transportation / ["Rideshare"]
 
 Home & Living:
 - "HOME DEPOT" → Home Improvement / ["Renovation", "Tools"]
 - "LOWES" → Home Improvement / ["Renovation", "Tools"]
-- "IKEA" → Furniture & Decor / ["Furniture", "Budget"]
+- "IKEA" → Furniture & Decor / ["Furniture", "Self-Assembly"]
 - "SHELL" → Local Commuting / ["Gas"]
 - "CHEVRON" → Local Commuting / ["Gas"]
 - "PG&E" → Utilities / ["Electric", "Gas"]
 
 Style & Beauty:
 - "ZARA" → Clothing / ["Fast Fashion"]
-- "NORDSTROM" → Clothing / ["Premium"]
+- "NORDSTROM" → Clothing / ["Department Store"]
 - "SEPHORA" → Beauty Products / ["Makeup", "Skincare"]
 - "ULTA" → Beauty Products / ["Makeup", "Skincare"]
-- "TIFFANY & CO" → Jewelry / ["Fine Jewelry", "Luxury"]
+- "TIFFANY & CO" → Jewelry / ["Fine Jewelry"]
 
 Pets:
 - "PETCO" → Pet Supplies / ["Supplies"]
@@ -206,6 +206,7 @@ SUBCATEGORY LABEL RULES:
 • Do NOT guess what the customer bought if the merchant sells many things
 • One label is perfectly fine — do not force multiple labels
 • Labels are independent tags, not a hierarchy
+• Do NOT use tier/price-level labels (Premium, Budget, Luxury, Mid-Range, High-End, Value, Discount). These are covered by the spending_tier field.
 
 CONFIDENCE LEVELS:
 • High (0.9): Well-known brand matches OR business category is obvious from merchant name
