@@ -527,8 +527,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     {/* MIDDLE — Arrow */}
                     <div className="flex items-center px-1">
                       <svg width="48" height="24" viewBox="0 0 48 24" fill="none" className="transition-colors duration-500">
-                        <line x1="0" y1="12" x2="38" y2="12" stroke={beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeDasharray={beat6Phase >= 1 ? "none" : "4 3"} className="transition-all duration-500" />
-                        <path d="M36 6L44 12L36 18" stroke={beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-500" />
+                        <line x1="0" y1="12" x2="38" y2="12" stroke={beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeDasharray={beat5Phase >= 1 ? "none" : "4 3"} className="transition-all duration-500" />
+                        <path d="M36 6L44 12L36 18" stroke={beat5Phase >= 1 ? "#3B82F6" : "#CBD5E1"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-500" />
                       </svg>
                     </div>
 
