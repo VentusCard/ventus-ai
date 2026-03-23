@@ -134,29 +134,102 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   });
   const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
   const engineReadyRef = useRef(false);
+  const pendingConsumerRef = useRef<Set<DemoNodeType>>(new Set());
 
-  // Helper: gate peripheral updates behind engine readiness
+  // Consumer nodes must wait for their bank-facing row partners
+  const CONSUMER_DEPS: Record<string, DemoNodeType[]> = {
+    engagement: ["analytics", "outflow"],
+    rewards: ["travel", "locational"],
+    wealth: ["lifeEventIntel", "lifeEvents"],
+  };
+  const CONSUMER_NODES = new Set(Object.keys(CONSUMER_DEPS));
+
+  // Helper: gate peripheral updates behind engine readiness + consumer-node ordering
   const setNodeReady = useCallback((updates: Partial<NodeReadiness>) => {
     // Filter out engine from peripheral gating logic
     const { engine: engineUpdate, ...peripheralUpdates } = updates;
 
     if (engineUpdate === "ready") {
-      // Engine is becoming ready — flush all pending peripheral updates too
       engineReadyRef.current = true;
       const flushed = { ...pendingReadyRef.current };
       pendingReadyRef.current = {};
-      setNodeReadiness(prev => ({ ...prev, engine: "ready", ...flushed, ...peripheralUpdates }));
+      // Apply engine + flushed + peripheral, then check consumer queue
+      setNodeReadiness(prev => {
+        const next = { ...prev, engine: "ready" as const, ...flushed, ...peripheralUpdates };
+        // Flush any queued consumer nodes whose bank deps are now met
+        const toFlush: DemoNodeType[] = [];
+        for (const cn of pendingConsumerRef.current) {
+          if (CONSUMER_DEPS[cn]?.every(dep => next[dep] === "ready")) {
+            toFlush.push(cn);
+          }
+        }
+        if (toFlush.length > 0) {
+          toFlush.forEach(cn => pendingConsumerRef.current.delete(cn));
+          setTimeout(() => {
+            setNodeReadiness(p => {
+              const u: Partial<NodeReadiness> = {};
+              toFlush.forEach(cn => { u[cn] = "ready"; });
+              return { ...p, ...u };
+            });
+          }, 300);
+        }
+        return next;
+      });
       return;
     }
 
     if (!engineReadyRef.current && Object.keys(peripheralUpdates).length > 0) {
-      // Engine not ready yet — queue peripheral updates
       pendingReadyRef.current = { ...pendingReadyRef.current, ...peripheralUpdates };
       return;
     }
 
-    // Engine already ready — apply immediately
-    setNodeReadiness(prev => ({ ...prev, ...updates }));
+    // Separate consumer vs bank updates
+    const bankUpdates: Partial<NodeReadiness> = {};
+    const consumerUpdates: DemoNodeType[] = [];
+
+    for (const [key, val] of Object.entries(peripheralUpdates)) {
+      if (val === "ready" && CONSUMER_NODES.has(key)) {
+        consumerUpdates.push(key as DemoNodeType);
+      } else {
+        bankUpdates[key as DemoNodeType] = val;
+      }
+    }
+
+    // Apply bank updates immediately, then check if consumer nodes can flush
+    setNodeReadiness(prev => {
+      const next = { ...prev, ...bankUpdates };
+
+      // Check each consumer update against deps
+      const immediateFlush: DemoNodeType[] = [];
+      for (const cn of consumerUpdates) {
+        if (CONSUMER_DEPS[cn]?.every(dep => next[dep] === "ready")) {
+          immediateFlush.push(cn);
+        } else {
+          pendingConsumerRef.current.add(cn);
+        }
+      }
+
+      // Also check any previously queued consumer nodes
+      for (const cn of pendingConsumerRef.current) {
+        if (CONSUMER_DEPS[cn]?.every(dep => next[dep] === "ready")) {
+          immediateFlush.push(cn);
+          pendingConsumerRef.current.delete(cn);
+        }
+      }
+
+      if (immediateFlush.length > 0) {
+        // Stagger consumer light-up by 300ms after bank nodes
+        setTimeout(() => {
+          setNodeReadiness(p => {
+            const u: Partial<NodeReadiness> = {};
+            immediateFlush.forEach(cn => { u[cn] = "ready"; });
+            return { ...p, ...u };
+          });
+        }, 300);
+      }
+
+      return next;
+    });
   }, []);
   const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
@@ -208,6 +281,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     });
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
+    pendingConsumerRef.current = new Set();
 
     // Engine ready is now set in maybeStartPhase2 when classifications complete
 
