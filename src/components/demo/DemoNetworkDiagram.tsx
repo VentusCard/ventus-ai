@@ -61,7 +61,7 @@ const PILLAR_ROWS: PillarRow[] = [
       { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
       { id: "locational", label: "Locational Experience", icon: MapPin, color: "#0891b2", audience: "bank" },
     ],
-    consumerNode: { id: "rewards", label: "Consumer Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
+    consumerNode: { id: "rewards", label: "Personalized Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
   },
   {
     id: "phase",
@@ -72,7 +72,7 @@ const PILLAR_ROWS: PillarRow[] = [
       { id: "lifeEventIntel", label: "Life Event Intelligence", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
       { id: "lifeEvents", label: "Financial Journey", icon: TrendingUp, color: "#a855f7", audience: "bank" },
     ],
-    consumerNode: { id: "wealth", label: "Wealth Management", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
+    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
   },
 ];
 
