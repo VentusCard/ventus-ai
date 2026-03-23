@@ -1,24 +1,17 @@
 
 
-## Add Deal Management Tab to Rewards Section
+## Replace Legend with Column Headers
 
-### What
-Add a "Deal Management" nav item to the Rewards section in the Bank-wide Analytics sidebar. This will embed the existing `AvailableDealsGrid` component (currently only on the standalone `/rewards-pipeline` page) directly inside the analytics container.
+**File: `src/components/demo/DemoNetworkDiagram.tsx`**
 
 ### Changes
 
-**File: `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+1. **Remove the legend block** (lines 385–395) — the `Consumer-Facing` / `Bank-Facing` dot legend at the bottom.
 
-1. **Import** `AvailableDealsGrid` from `@/components/tepilot/rewards-pipeline/AvailableDealsGrid` and add `Package` icon from lucide-react.
-2. **Add `'deal-management'` to `TabValue` union type.**
-3. **Add nav item** to the Rewards group:
-   ```
-   { value: "deal-management", label: "Deal Management", icon: Package }
-   ```
-4. **Add switch case** in `renderContent`:
-   ```
-   case 'deal-management': return <AvailableDealsGrid />;
-   ```
+2. **Add two column headers** above the bank and consumer columns, positioned just above the grid:
+   - **"Bank-Facing"** header centered over the bank column (`bankColLeftX`, width `BANK_COL_WIDTH`)
+   - **"Consumer-Facing"** header centered over the consumer column (`consumerColLeftX`, width `CONSUMER_COL_WIDTH`)
+   - Positioned at `gridTopY - 24` (above the first row), styled as small semibold slate text.
 
-Single file change — the grid component and all its deal data already exist.
+3. **Optionally remove** the `AUDIENCE_ACCENT` border-left coloring on cards (amber/blue left borders) if the headers make it redundant — or keep for extra clarity. Will keep for now since they're subtle.
 
