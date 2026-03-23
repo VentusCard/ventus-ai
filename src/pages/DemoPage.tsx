@@ -193,7 +193,7 @@ export default function DemoPage() {
               sessionStorage.removeItem("demo_access");
               window.location.reload();
             }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
           >
             <X className="h-3 w-3" /> Exit
           </button>
