@@ -170,10 +170,10 @@ export function AvailableDealsGrid() {
               size="sm"
               onClick={() => handleCategoryChange(category)}
               className={`rounded-full text-xs transition-all ${
-                isSelected 
-                  ? 'bg-slate-900 text-white hover:bg-slate-800' 
-                  : 'hover:bg-slate-100'
-              }`}
+                 isSelected 
+                   ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                   : 'hover:bg-slate-100'
+               }`}
             >
               {categoryConfig && (
                 <span className="mr-1">{categoryConfig.icon}</span>

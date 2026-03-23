@@ -1009,42 +1009,42 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
           </div>
         </div>
 
-        {/* Right: Deal Detail Panel (1/3 width) - Deep Red Theme */}
+        {/* Right: Deal Detail Panel (1/3 width) */}
         <div className="w-1/3">
-          <div className="bg-gradient-to-br from-red-900 via-rose-900 to-red-950 rounded-xl p-5 h-full min-h-[500px] text-white">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 h-full min-h-[500px]">
             {selectedDeal ? (
               <div className="space-y-5">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="text-[10px] border-rose-700 bg-rose-800/50 text-rose-200">
+                  <Badge variant="outline" className="text-[10px] border-rose-200 bg-rose-50 text-rose-700">
                     {selectedDeal.merchantCategory.split(' ')[0]}
                   </Badge>
                 </div>
 
                 {/* Deal Info */}
                 <div className="space-y-1">
-                  <p className="text-sm text-rose-300/80">{selectedDeal.merchantName}</p>
-                  <h3 className="text-lg font-bold text-white">{selectedDeal.dealTitle}</h3>
+                  <p className="text-sm text-slate-500">{selectedDeal.merchantName}</p>
+                  <h3 className="text-lg font-bold text-slate-900">{selectedDeal.dealTitle}</h3>
                 </div>
 
                 {/* Personalized Message */}
-                <div className="space-y-2 pt-3 border-t border-rose-800/50">
-                  <span className="text-[10px] font-medium text-rose-400 uppercase tracking-wide">
+                <div className="space-y-2 pt-3 border-t border-slate-200">
+                  <span className="text-[10px] font-medium text-rose-600 uppercase tracking-wide">
                     {personalizedDeals.get(selectedDeal.id) ? 'AI-Personalized Message' : 'Deal Details'}
                   </span>
                   {(() => {
                     const aiMsg = personalizedDeals.get(selectedDeal.id);
                     return aiMsg ? (
                       <>
-                        <h4 className="text-base font-semibold text-rose-100 italic">"{aiMsg.message}"</h4>
-                        <p className="text-xs text-rose-300/70 leading-relaxed">
+                        <h4 className="text-base font-semibold text-slate-700 italic">"{aiMsg.message}"</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed">
                           {selectedDeal.dealDescription}
                         </p>
                       </>
                     ) : (
                       <>
-                        <h4 className="text-base font-semibold text-rose-100">{selectedDeal.dealTitle}</h4>
-                        <p className="text-xs text-rose-300/70 leading-relaxed">
+                        <h4 className="text-base font-semibold text-slate-700">{selectedDeal.dealTitle}</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed">
                           {selectedDeal.dealDescription}
                         </p>
                       </>
@@ -1053,19 +1053,19 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                 </div>
 
                 {/* Deal Terms */}
-                <div className="space-y-2 pt-3 border-t border-rose-800/50">
-                  <span className="text-[10px] font-medium text-rose-400 uppercase tracking-wide">Deal Terms</span>
-                  <div className="space-y-1.5 text-xs text-rose-200">
+                <div className="space-y-2 pt-3 border-t border-slate-200">
+                  <span className="text-[10px] font-medium text-rose-600 uppercase tracking-wide">Deal Terms</span>
+                  <div className="space-y-1.5 text-xs text-slate-900">
                     <div className="flex items-center justify-between">
-                      <span className="text-rose-300">Reward</span>
+                      <span className="text-slate-500">Reward</span>
                       <span className="font-medium">{selectedDeal.rewardValue}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-rose-300">Valid Until</span>
+                      <span className="text-slate-500">Valid Until</span>
                       <span className="font-medium">{selectedDeal.validityPeriod.replace('Until ', '')}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-rose-300">Min. Purchase</span>
+                      <span className="text-slate-500">Min. Purchase</span>
                       <span className="font-medium">None</span>
                     </div>
                   </div>
@@ -1074,7 +1074,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                 {/* Activate Deal Button */}
                 <div className="pt-4">
                   <Button 
-                    className="w-full bg-white hover:bg-rose-50 text-rose-900 font-semibold py-3 rounded-lg transition-all hover:shadow-lg"
+                    className="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-lg transition-all hover:shadow-lg"
                     onClick={() => {}}
                   >
                     {personalizedDeals.get(selectedDeal.id)?.cta || "Activate Deal"}
@@ -1083,13 +1083,13 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
 
                 {/* Activation Count */}
                 <div className="pt-3 text-center">
-                  <p className="text-xs text-rose-400">
+                  <p className="text-xs text-slate-400">
                     {selectedDeal.activationCount.toLocaleString()} customers have activated this deal
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-rose-400/60">
+              <div className="flex flex-col items-center justify-center h-full text-slate-400">
                 <Target className="h-10 w-10 mb-3 opacity-50" />
                 <p className="text-sm">Select a deal to view details</p>
               </div>
