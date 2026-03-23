@@ -1,31 +1,24 @@
 
 
-## Fix Column Alignment in Enrichment Output Table
+## Remove Tier-Overlapping Labels from Subcategories
 
-The table columns are unevenly spaced because they all use minimal `px-1` padding with no defined column widths, letting content dictate sizing inconsistently.
+The `classify-transactions` edge function prompt includes subcategory labels like "Premium", "Budget", "Luxury", "Mid-Range" that duplicate the `spending_tier` field. These should be excluded from subcategories.
 
-### Changes to `src/components/demo/DemoEnrichmentTableView.tsx`
+### Changes to `supabase/functions/classify-transactions/index.ts`
 
-**Set explicit column widths** via `w-*` or `min-w-*` classes on `<th>` and matching `<td>` elements, and normalize padding to `px-2`:
+**1. Add explicit exclusion rule** to the SUBCATEGORY LABEL RULES section (~line 204-208):
+- Add: `• Do NOT use tier/price-level labels (Premium, Budget, Luxury, Mid-Range, High-End, Value, Discount). These are covered by the spending_tier field.`
 
-| Column | Width | Notes |
-|--------|-------|-------|
-| Merchant | `w-[110px] min-w-[110px]` | Fixed, truncated |
-| Amt | `w-[55px] min-w-[55px]` | Right-aligned monospace |
-| Date | `w-[80px] min-w-[80px]` | Fixed date format |
-| Source | `w-[90px] min-w-[90px]` | Badge width |
-| Arrow | `w-[20px]` | Unchanged |
-| Pillar | `w-[130px] min-w-[130px]` | Longer badge text |
-| Category | `w-[100px] min-w-[100px]` | Truncated |
-| Subcategories | `w-[110px] min-w-[110px]` | Wrapped chips |
-| Trip | `w-[80px] min-w-[80px]` | Badge or dash |
-| Tier | `w-[70px] min-w-[70px]` | Badge |
-| Freq | `w-[75px] min-w-[75px]` | Badge |
-| Conf | `w-[45px] min-w-[45px]` | Percentage |
+**2. Clean up examples** that use tier labels in subcategories:
+- Line 98: `EQUINOX → ["Premium", "Membership"]` → `["Membership"]`
+- Line 100: `LULULEMON → ["Apparel", "Premium"]` → `["Apparel", "Athletic"]`
+- Line 115: `BLUE CROSS → ["Premium"]` → `["Monthly"]`
+- Line 134: `FOUR SEASONS → ["Luxury"]` → `["Full-Service"]`
+- Line 135: `HERTZ → ["Standard"]` → `["Airport"]`
+- Line 142: `IKEA → ["Furniture", "Budget"]` → `["Furniture", "Self-Assembly"]`
+- Line 149: `NORDSTROM → ["Premium"]` → `["Department Store"]`
+- Line 152: `TIFFANY & CO → ["Fine Jewelry", "Luxury"]` → `["Fine Jewelry"]`
+- Line 133: `MARRIOTT → ["Mid-Range"]` → `["Full-Service"]`
 
-- Increase all cell padding from `px-1` to `px-2` for even breathing room
-- Increase `min-w` on the outer table from `580px` to `1050px` to prevent column compression
-- Increase merchant truncate from `max-w-[80px]` to `max-w-[100px]`
-
-**File**: `src/components/demo/DemoEnrichmentTableView.tsx`
+**File**: `supabase/functions/classify-transactions/index.ts`
 
