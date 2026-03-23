@@ -126,15 +126,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
     return () => window.removeEventListener("keydown", handler);
   }, [step, advance, goBack]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === "2026demo") {
-      sessionStorage.setItem("demo_access", "true");
-      setGranted(true);
-    } else {
-      setError(true);
-    }
-  };
 
   const isSmallScreen = useIsMobile() || useIsTablet();
 
