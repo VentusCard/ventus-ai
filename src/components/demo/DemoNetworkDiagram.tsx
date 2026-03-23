@@ -99,15 +99,14 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
   const scale = centered ? 1.25 : 1.0;
 
-  const TX_CARD_WIDTH = Math.max(140, Math.min(180 * scale, dims.w * 0.12 * scale));
+  // Compact widths for open-panel (~790px), larger for centered (~full width)
+  const TX_CARD_WIDTH = centered ? Math.min(180, dims.w * 0.12) : Math.min(130, Math.max(110, dims.w * 0.14));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
-  const ENGINE_WIDTH = Math.max(160, Math.min(200 * scale, dims.w * 0.15 * scale));
+  const ENGINE_WIDTH = centered ? Math.min(200, dims.w * 0.15) : Math.min(150, Math.max(130, dims.w * 0.16));
   const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
 
-  // Bank column: 2 stacked nodes per row
-  const BANK_COL_WIDTH = Math.max(180, Math.min(220 * scale, dims.w * 0.18 * scale));
-  // Consumer column: 1 node per row
-  const CONSUMER_COL_WIDTH = Math.max(160, Math.min(200 * scale, dims.w * 0.16 * scale));
+  const BANK_COL_WIDTH = centered ? Math.min(220, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
+  const CONSUMER_COL_WIDTH = centered ? Math.min(200, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
 
   const ROW_HEIGHT = Math.max(120, 140 * scale);
   const BANK_NODE_HEIGHT = Math.max(32, 38 * scale);
@@ -115,14 +114,15 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const CONSUMER_NODE_HEIGHT = Math.max(62, 80 * scale);
   const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
 
-  // Horizontal positions
-  const pad = Math.max(12, dims.w * 0.02);
-  const gap1 = Math.max(20, dims.w * 0.02) * scale;
-  const gap2 = Math.max(35, dims.w * 0.035) * scale;
-  const gap3 = Math.max(30, dims.w * 0.03) * scale;
+  // Horizontal gaps — tight on left, generous on right
+  const gap1 = centered ? 40 : Math.max(14, dims.w * 0.018);
+  const gap2 = centered ? 50 : Math.max(28, dims.w * 0.035);
+  const gap3 = centered ? 40 : Math.max(24, dims.w * 0.03);
 
+  // Always center the block in the available width
+  const pad = Math.max(8, dims.w * 0.01);
   const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
-  const offsetX = centered ? (dims.w - totalContentWidth) / 2 : pad;
+  const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
