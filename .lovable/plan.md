@@ -1,17 +1,16 @@
 
 
-## Replace Legend with Column Headers
+## Draw Individual Lines from Each Bank Node to Consumer Node
 
 **File: `src/components/demo/DemoNetworkDiagram.tsx`**
 
-### Changes
+Replace the "Bank column → Consumer column" SVG section (around lines 209–222) which currently draws 1 line per row with a nested loop that draws 2 lines per row — one from each bank-facing card.
 
-1. **Remove the legend block** (lines 385–395) — the `Consumer-Facing` / `Bank-Facing` dot legend at the bottom.
+Each line:
+- **Starts** at the right edge of the individual bank node, at its specific Y position: `contentTop + nodeIndex * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2`
+- **Ends** at the left edge of the consumer node, at the row's center Y
+- Uses a natural cubic bezier curve between the two points
+- Same color/readiness styling as current
 
-2. **Add two column headers** above the bank and consumer columns, positioned just above the grid:
-   - **"Bank-Facing"** header centered over the bank column (`bankColLeftX`, width `BANK_COL_WIDTH`)
-   - **"Consumer-Facing"** header centered over the consumer column (`consumerColLeftX`, width `CONSUMER_COL_WIDTH`)
-   - Positioned at `gridTopY - 24` (above the first row), styled as small semibold slate text.
-
-3. **Optionally remove** the `AUDIENCE_ACCENT` border-left coloring on cards (amber/blue left borders) if the headers make it redundant — or keep for extra clarity. Will keep for now since they're subtle.
+Result: 6 curved lines total (2 per row), each visually connecting a specific bank card to its row's consumer card.
 
