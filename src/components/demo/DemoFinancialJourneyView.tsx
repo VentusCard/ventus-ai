@@ -53,6 +53,18 @@ const SOURCE_TO_PRODUCT: Record<string, string> = {
   "Student Card": "Student Card",
 };
 
+/* ── Source pill colors ── */
+const SOURCE_PILL_COLORS: Record<string, string> = {
+  "Premium Card": "bg-purple-50 text-purple-700",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  Checking: "bg-slate-100 text-slate-600",
+  HSA: "bg-amber-50 text-amber-700",
+  Savings: "bg-teal-50 text-teal-700",
+  "Business Card": "bg-indigo-50 text-indigo-700",
+  "Student Card": "bg-pink-50 text-pink-700",
+};
+
 /* ── Category icons ── */
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   credit_cards: CreditCard,
@@ -93,7 +105,6 @@ const EVENT_PRODUCT_AFFINITY: Record<string, string[]> = {
 /* ── Derive held products from transaction sources ── */
 function getHeldProducts(customer: DemoCustomer): Set<string> {
   const held = new Set<string>();
-  // Always assume they have Checking + Savings as baseline
   held.add("Checking");
   held.add("Savings");
   for (const txn of customer.sampleTransactions) {
@@ -103,6 +114,17 @@ function getHeldProducts(customer: DemoCustomer): Set<string> {
     }
   }
   return held;
+}
+
+/* ── Derive held source names (for display) ── */
+function getHeldSources(customer: DemoCustomer): string[] {
+  const sources = new Set<string>();
+  sources.add("Checking");
+  sources.add("Savings");
+  for (const txn of customer.sampleTransactions) {
+    if (txn.source) sources.add(txn.source);
+  }
+  return Array.from(sources);
 }
 
 /* ── Scored opportunity ── */
@@ -240,6 +262,7 @@ export default function DemoFinancialJourneyView({ customerA, customerB, detecte
 /* ── Per-customer column ── */
 function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCustomer; detectedEvents: DetectedLifeEventResult[] }) {
   const heldProducts = useMemo(() => getHeldProducts(customer), [customer]);
+  const heldSources = useMemo(() => getHeldSources(customer), [customer]);
   const opportunities = useMemo(
     () => scoreOpportunities(customer, heldProducts, detectedEvents, FINANCIAL_PRODUCTS),
     [customer, heldProducts, detectedEvents]
@@ -286,10 +309,10 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
         <div>
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Currently Held</p>
           <div className="flex flex-wrap gap-1">
-            {Array.from(heldProducts).map(name => (
-              <Badge key={name} variant="secondary" className="text-[9px] bg-slate-100 text-slate-600 border-transparent">
+            {heldSources.map(source => (
+              <Badge key={source} className={cn("text-[9px] border-transparent", SOURCE_PILL_COLORS[source] || "bg-slate-50 text-slate-500")}>
                 <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" />
-                {name}
+                {source}
               </Badge>
             ))}
           </div>
