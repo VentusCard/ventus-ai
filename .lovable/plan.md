@@ -1,34 +1,34 @@
 
 
-## Gate Consumer Nodes Behind Their Bank-Facing Counterparts
+## Add Logo + One-Liner When Panel Collapsed; Reposition Buttons
 
-**File: `src/hooks/useDemoEnrichment.ts`**
+**File: `src/pages/DemoPage.tsx`**
 
-### Problem
-Consumer-facing nodes (rewards, wealth, engagement) can currently show "ready" before or simultaneously with their bank-facing counterparts, which breaks the visual narrative of "bank analysis feeds consumer experience."
+### Changes
 
-### Current readiness order
-| Node | When it fires ready |
-|------|-------------------|
-| analytics, outflow | Immediately with engine |
-| travel, locational | When local-experiences + travel-detection complete |
-| lifeEventIntel, lifeEvents | When lifestyle signals complete |
-| **rewards** | When deal personalization completes — **can beat travel/locational** |
-| **wealth** | When lifestyle signals complete — **same time as lifeEvents** |
-| **engagement** | When lifestyle + tips complete — already after analytics ✓ |
+**1. Logo + one-liner (top-left, only when panel collapsed)**
+When `panelCollapsed` is true, render the Ventus logo and the official one-liner ("One AI-Native layer that enables personalized banking across functions.") in the top-left area. Import `ventusLogo` from `@/assets/ventus-logo-blue.png`. Style: logo ~h-6, one-liner below in small slate-500 text, max-width constrained.
 
-### Desired order
-Each consumer node must wait until **both** of its row's bank-facing nodes are ready:
-- `engagement` → after `analytics` + `outflow` (already naturally true)
-- `rewards` → after `travel` + `locational`
-- `wealth` → after `lifeEventIntel` + `lifeEvents`
+**2. Move "Show Panel" button down**
+Relocate from `top-4 left-4` to `bottom-4 left-4` — sits in the bottom-left corner instead of top-left (which is now occupied by the logo).
 
-### Implementation
-Add a gating layer using a ref that tracks pending consumer-node readiness. When a consumer node tries to become "ready", check if its bank-facing dependencies are already ready. If not, queue it. When bank-facing nodes become ready, flush any queued consumer nodes whose dependencies are now met.
+**3. Move "Exit Demo" below "Next Step"**
+Remove the fixed top-right "Exit Demo" button. Instead, place it in the bottom-right cluster:
+- When no overlay is active: stack "Next Step →" and "✕ Exit Demo" vertically (or side by side) in `bottom-4 right-4`
+- When overlay is active: keep the prev/next nav as-is, with "Exit Demo" alongside
 
-Specifically:
-1. Add a `pendingConsumerRef` to hold queued consumer readiness and a mapping of consumer→bank dependencies.
-2. Wrap the existing `setNodeReady` with logic that, when setting a consumer node ready, checks if its bank deps are met; if not, queues it.
-3. When bank nodes become ready, check if any queued consumer nodes can now flush.
-4. Add a small stagger delay (~300ms) before flushing consumer nodes so the "light-up" sequence is visually clear even when bank nodes finish just before consumer ones.
+This groups all action buttons in the bottom bar and frees the top area for branding.
+
+### Layout Summary
+
+```text
+┌─────────────────────────────────────────┐
+│ [Logo]                                  │
+│  One AI-Native layer that enables...    │
+│                                         │
+│            (diagram)                    │
+│                                         │
+│ [Show Panel]          [Next Step][Exit] │
+└─────────────────────────────────────────┘
+```
 
