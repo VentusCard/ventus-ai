@@ -1,39 +1,34 @@
 
 
-## Typography & Color Consistency Pass for Stage Readability
+## Gate Consumer Nodes Behind Their Bank-Facing Counterparts
 
-**File: `src/components/demo/DemoNetworkDiagram.tsx`**
+**File: `src/hooks/useDemoEnrichment.ts`**
 
 ### Problem
-Font sizes are inconsistent across elements (bank labels 9/11px vs consumer labels 10/12px), column headers are too small (9/11px), and secondary text uses slate-400 which washes out on projectors.
+Consumer-facing nodes (rewards, wealth, engagement) can currently show "ready" before or simultaneously with their bank-facing counterparts, which breaks the visual narrative of "bank analysis feeds consumer experience."
 
-### Unified Size Scale (normal / centered)
+### Current readiness order
+| Node | When it fires ready |
+|------|-------------------|
+| analytics, outflow | Immediately with engine |
+| travel, locational | When local-experiences + travel-detection complete |
+| lifeEventIntel, lifeEvents | When lifestyle signals complete |
+| **rewards** | When deal personalization completes — **can beat travel/locational** |
+| **wealth** | When lifestyle signals complete — **same time as lifeEvents** |
+| **engagement** | When lifestyle + tips complete — already after analytics ✓ |
 
-| Element | Current | Proposed |
-|---------|---------|----------|
-| Column headers | 9 / 11px | 11 / 13px |
-| Pillar questions | 9 / 11px | 12 / 14px |
-| Engine title | 12 / 14px | 14 / 16px |
-| Engine "V" | xl / 2xl | 2xl / 3xl |
-| Engine capabilities | 10 / 12px | 12 / 13px |
-| Bank node labels | 9 / 11px | **12 / 13px** |
-| Bank node check/status | 8 / 9px | 10 / 11px |
-| Consumer node labels | 10 / 12px | **13 / 14px** |
-| Consumer node status | 8 / 10px | 11 / 12px |
-| TX card name | 11 / 13px | 13 / 15px |
-| TX card stats | 9 / 11px | 11 / 12px |
-| TX card empty label | 11 / 13px | 13 / 14px |
-| TX card initials | 9 / 11px | 11 / 12px |
+### Desired order
+Each consumer node must wait until **both** of its row's bank-facing nodes are ready:
+- `engagement` → after `analytics` + `outflow` (already naturally true)
+- `rewards` → after `travel` + `locational`
+- `wealth` → after `lifeEventIntel` + `lifeEvents`
 
-### Color Adjustments
-- Column headers: `text-slate-400` → `text-slate-500` (better projector contrast)
-- Bank node check/status: `text-slate-400` → `text-slate-500`
-- Consumer node status text: `text-slate-400` → `text-slate-500`
-- TX card stats line 1: `text-slate-600` stays (good contrast)
-- TX card stats line 2: `text-slate-400` → `text-slate-500`
-- TX card empty label: `text-slate-400` → `text-slate-500`
-- Engine capability idle color: `#64748b` stays
+### Implementation
+Add a gating layer using a ref that tracks pending consumer-node readiness. When a consumer node tries to become "ready", check if its bank-facing dependencies are already ready. If not, queue it. When bank-facing nodes become ready, flush any queued consumer nodes whose dependencies are now met.
 
-### Principle
-Every text element bumps up ~2px uniformly. Bank and consumer node labels now follow the same relative hierarchy. Secondary/meta text shifts from slate-400 to slate-500 throughout for projector visibility.
+Specifically:
+1. Add a `pendingConsumerRef` to hold queued consumer readiness and a mapping of consumer→bank dependencies.
+2. Wrap the existing `setNodeReady` with logic that, when setting a consumer node ready, checks if its bank deps are met; if not, queues it.
+3. When bank nodes become ready, check if any queued consumer nodes can now flush.
+4. Add a small stagger delay (~300ms) before flushing consumer nodes so the "light-up" sequence is visually clear even when bank nodes finish just before consumer ones.
 
