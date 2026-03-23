@@ -21,8 +21,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [step, setStep] = useState(0);
   const [displayStep, setDisplayStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
   const [revealLogo, setRevealLogo] = useState(false);
   const [revealInput, setRevealInput] = useState(false);
   const [beat3Phase, setBeat3Phase] = useState(0);
