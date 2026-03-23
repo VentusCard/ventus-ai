@@ -1,24 +1,38 @@
 
+Fix the diagram by re-centering the entire 4-column composition in the available right-panel space instead of pinning it to the left.
 
-## Fix Cramped Diagram — Tighter Distribution, Not Taller
+**What I’ll change**
+1. **Center the full diagram block even when the side panel is open**
+   - Replace the non-centered `offsetX = pad` behavior with a center-anchored calculation.
+   - Use a clamped centered offset so the layout stays visually centered but never touches the edges.
 
-The problem is horizontal waste + oversized elements, not insufficient height. The non-centered state has big gaps between TX/Engine but then crams bank+consumer columns together.
+2. **Add a compact geometry mode for the open-panel width**
+   - The current min widths are still too large for the ~790px canvas, so the whole block stays bulky and left-heavy.
+   - Reduce non-collapsed widths for:
+     - TX cards
+     - engine card
+     - bank column
+     - consumer column
+   - Keep the larger sizing for collapsed/centered mode.
 
-**File: `src/components/demo/DemoNetworkDiagram.tsx`**
+3. **Rebalance the horizontal budget after centering**
+   - Keep `gap1` tighter than the other gaps.
+   - Give slightly more space between engine → bank and bank → consumer.
+   - Let all connection paths inherit the new coordinates from the updated geometry.
 
-### 1. Shrink node sizes in non-centered state
-- `BANK_NODE_HEIGHT`: min `34` → `32`
-- `CONSUMER_NODE_HEIGHT`: min `70` → `62`
-- `QUESTION_LABEL_HEIGHT`: non-centered `24` → `20` (subtitle sits tighter above nodes)
+4. **Preserve vertical height**
+   - No taller rows.
+   - No added vertical padding.
+   - Only horizontal placement and compact-width tuning.
 
-### 2. Reduce font sizes for non-centered subtitle
-- Pillar subtitle icon: keep `w-4 h-4` but reduce to `w-3.5 h-3.5` in non-centered
-- Pillar subtitle text: `text-[13px]` → `text-[12px]` in non-centered (keeps `text-[15px]` when centered)
-
-### 3. Redistribute horizontal space
-- `gap1` (TX→Engine): reduce min from `30` to `20` — these two don't need so much air
-- `gap2` (Engine→Bank): increase min from `25` to `35` — give the bank column more breathing room from engine
-- `gap3` (Bank→Consumer): increase min from `20` to `30` — stop bank and consumer columns from touching
-
-This shifts horizontal budget from the left side (where it's wasted) to the right side (where it's cramped), while making nodes more compact vertically so three rows distribute comfortably without increasing `ROW_HEIGHT`.
-
+**Technical details**
+- File: `src/components/demo/DemoNetworkDiagram.tsx`
+- Main issue: the previous change improved spacing *inside* the block, but the whole block is still anchored left via `offsetX`.
+- Key update:
+  - compute `totalContentWidth`
+  - compute a centered `offsetX` for both modes
+  - introduce smaller non-centered width clamps so the centered result has real breathing room on both sides
+- Result:
+  - the diagram sits optically centered in the right canvas
+  - bank/consumer columns stop feeling jammed against the left side
+  - collapsed mode keeps its existing larger presentation
