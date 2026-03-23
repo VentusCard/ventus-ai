@@ -33,22 +33,28 @@ interface Props {
 
 const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   engagement: { title: "Personalized UX", color: "#f59e0b" },
-  analytics: { title: "Bank-Wide Analytics", color: "#3b82f6" },
+  analytics: { title: "Behavioral Analytics", color: "#3b82f6" },
+  outflow: { title: "Outflow Analysis", color: "#1d4ed8" },
   rewards: { title: "Consumer Rewards", color: "#22c55e" },
   travel: { title: "Reward Intelligence", color: "#06b6d4" },
+  locational: { title: "Locational Experience", color: "#0891b2" },
   lifeEvents: { title: "Financial Journey — Next Best Product", color: "#ec4899" },
-  wealth: { title: "Wealth Management — Life Event Intelligence", color: "#a855f7" },
+  lifeEventIntel: { title: "Life Event Intelligence", color: "#ec4899" },
+  wealth: { title: "Wealth Management", color: "#8b5cf6" },
   engine: { title: "Ventus AI Engine — Enrichment Output", color: "#6366f1" },
   profiling: { title: "Profiling — Pillar Summary", color: "#3b82f6" },
   predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
   phase: { title: "Phase — Life Event Detection", color: "#a855f7" },
 };
 
-const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth"]);
+const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth", "outflow", "locational", "lifeEventIntel"]);
 
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",
+  outflow: "dashboard",
   travel: "rewards-intelligence",
+  locational: "rewards-intelligence",
+  lifeEventIntel: "life-events",
   wealth: "life-events",
 };
 
