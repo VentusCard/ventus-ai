@@ -206,19 +206,30 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               );
             })}
 
-            {/* Bank column → Consumer column */}
+            {/* Bank column → Consumer column (one line per bank node) */}
             {PILLAR_ROWS.map((pillar, pi) => {
-              const rowCenterY = getRowCenterY(pi);
+              const totalGridH = ROW_HEIGHT * 3;
+              const gTopY = midY - totalGridH / 2;
+              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const bankNodesH = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+              const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
+              const cTop = rCenterY - cHeight / 2;
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
               const consumerLeft = consumerColLeftX;
-              const cpX = (bankRight + consumerLeft) / 2;
-              const path = `M ${bankRight} ${rowCenterY} C ${cpX} ${rowCenterY}, ${cpX} ${rowCenterY}, ${consumerLeft} ${rowCenterY}`;
+              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
               const pillarReady = engineReady;
-              return (
-                <g key={`bank-cons-${pi}`}>
-                  <path d={path} stroke={pillar.consumerNode.color} strokeWidth={pillarReady ? 2 : 1} fill="none" opacity={pillarReady ? 0.6 : 0.15} strokeDasharray={pillarReady ? "none" : "4 3"} className="line-transition" />
-                </g>
-              );
+
+              return pillar.bankNodes.map((node, ni) => {
+                const bankNodeY = cTop + ni * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2;
+                const cpX1 = bankRight + (consumerLeft - bankRight) * 0.4;
+                const cpX2 = bankRight + (consumerLeft - bankRight) * 0.6;
+                const path = `M ${bankRight} ${bankNodeY} C ${cpX1} ${bankNodeY}, ${cpX2} ${consumerCenterY}, ${consumerLeft} ${consumerCenterY}`;
+                return (
+                  <g key={`bank-cons-${pi}-${ni}`}>
+                    <path d={path} stroke={pillar.consumerNode.color} strokeWidth={pillarReady ? 2 : 1} fill="none" opacity={pillarReady ? 0.6 : 0.15} strokeDasharray={pillarReady ? "none" : "4 3"} className="line-transition" />
+                  </g>
+                );
+              });
             })}
           </>
         )}
