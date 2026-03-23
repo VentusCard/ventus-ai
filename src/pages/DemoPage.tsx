@@ -182,6 +182,12 @@ export default function DemoPage() {
           >
             Next Step →
           </button>
+        </div>
+      )}
+
+      {/* Exit button — top-right */}
+      {!activeNode && (
+        <div className="absolute top-4 right-4 z-50">
           <button
             onClick={() => {
               sessionStorage.removeItem("demo_access");
