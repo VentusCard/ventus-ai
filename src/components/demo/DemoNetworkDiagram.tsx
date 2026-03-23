@@ -288,15 +288,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
           zIndex: 2,
         }}
       >
-        {/* Column Headers */}
-        <div className="flex" style={{ height: GRID_HEADER_HEIGHT }}>
-          <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Consumer Facing</span>
-          </div>
-          <div style={{ width: '50%' }} className="flex items-end justify-center pb-1">
-            <span className={`font-bold uppercase tracking-widest text-slate-400 ${centered ? "text-[12px]" : "text-[10px]"}`}>Bank Facing</span>
-          </div>
-        </div>
+        {/* Spacer */}
+        <div style={{ height: GRID_HEADER_HEIGHT }} />
 
         {/* 3 Rows */}
         {PILLARS.map((pillar, pi) => {
