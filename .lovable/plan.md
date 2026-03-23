@@ -1,18 +1,20 @@
 
 
-## Rename Engine Node to "Advanced Enrichment" & Redesign Card
+## Remove Icon & Make Engine Card Content-Fitted
 
 **File: `src/components/demo/DemoNetworkDiagram.tsx`**
 
-### Changes (lines ~259–275)
+### Changes
 
-1. **Remove the "V" logo block** — delete the `div` with the rounded-xl indigo square containing the bold "V" letter (lines 260-262).
-2. **Rename title** — change `"Ventus AI Engine"` to `"Advanced Enrichment"` (line 263).
-3. **Adjust card design** — without the large logo icon taking up space, add a small `Layers` icon inline next to the title text instead, keeping the card compact. Reduce top padding since the big square icon is gone.
+1. **Remove Layers icon** (line 261): Delete the `<Layers>` icon from the header. Keep just the text "Advanced Enrichment".
+
+2. **Reduce ENGINE_MIN_HEIGHT** (line 82): Change `BASE_ENGINE_MIN_HEIGHT` from `200` to `140` so the card hugs its content instead of being a tall square with excess whitespace.
+
+3. **Tighten padding** (line 250): Remove `justify-center` from the button class (which vertically centers content in excess space) and add compact padding like `py-3 px-2` instead. Keep `items-center` for horizontal centering.
+
+4. **Reduce header margin** (line 260): Change `mb-3` to `mb-2` on the title div.
 
 ### Result
-The engine card will show:
-- A compact header: small Layers icon + "Advanced Enrichment" title
-- The three capability rows below (Semantic Enrichment, Cross-category Patterns, Deep Purchase Analysis) unchanged
-- Same interaction behavior (click when ready, processing animation, etc.)
+- No icon before "Advanced Enrichment"
+- Card shrinks vertically to fit its content (title + 3 capability rows) with minimal padding
 
