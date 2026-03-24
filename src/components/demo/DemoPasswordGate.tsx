@@ -352,51 +352,41 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                     {/* Phase 1: Fan out to reveal possibilities */}
                     <div className="transition-all duration-700 ease-out" style={{ opacity: beat3Phase >= 1 ? 1 : 0, transform: beat3Phase >= 1 ? 'translateY(0)' : 'translateY(16px)' }}>
-                      <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none" className="max-w-md">
-                        <line x1="150" y1="0" x2="50" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                        <line x1="150" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                        <line x1="150" y1="0" x2="250" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                      <svg width="100%" height="60" viewBox="0 0 600 60" preserveAspectRatio="none" className="max-w-2xl mx-auto">
+                        <line x1="300" y1="0" x2="50" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="300" y1="0" x2="150" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="300" y1="0" x2="250" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="300" y1="0" x2="350" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="300" y1="0" x2="450" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="300" y1="0" x2="550" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                       </svg>
-                      <div className="flex justify-center w-full max-w-md mx-auto mt-2">
-                        <div className="flex-1 flex flex-col items-center gap-3">
-                          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                            <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
-                              <ellipse cx="11" cy="23" rx="3.5" ry="2.5" fill="#94A3B8" />
-                              <line x1="14.5" y1="23" x2="14.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
-                              <ellipse cx="21" cy="19" rx="3.5" ry="2.5" fill="#94A3B8" />
-                              <line x1="24.5" y1="19" x2="24.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
-                              <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 w-full max-w-2xl mx-auto mt-2">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🎵</div>
+                          <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
                         </div>
-                        <div className="flex-1 flex flex-col items-center gap-3">
-                          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                            <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
-                              <circle cx="16" cy="16" r="10" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                              <path d="M6 16C6 16 10 12 16 12C22 12 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
-                              <path d="M6 16C6 16 10 20 16 20C22 20 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
-                              <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🏀</div>
+                          <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
                         </div>
-                        <div className="flex-1 flex flex-col items-center gap-3">
-                          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                            <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
-                              <rect x="6" y="12" width="20" height="8" rx="2" fill="#94A3B8" />
-                              <path d="M8 12L12 6H20L24 12" fill="#94A3B8" />
-                              <rect x="13" y="7" width="6" height="4" rx="1" fill="#CBD5E1" />
-                              <circle cx="10" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
-                              <circle cx="10" cy="22" r="1.5" fill="#94A3B8" />
-                              <circle cx="22" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
-                              <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🚗</div>
+                          <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🎭</div>
+                          <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Broadway<br />Show</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🎤</div>
+                          <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Stand-up<br />Comedy</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🎪</div>
+                          <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Cirque du<br />Soleil</span>
                         </div>
                       </div>
-                      <p className="text-center text-sm mt-4" style={{ color: "#94A3B8" }}>It could mean any of these — the bank can't tell</p>
+                      <p className="text-center text-sm mt-4" style={{ color: "#94A3B8" }}>One code, six wildly different people — the bank can't tell</p>
                     </div>
                   </div>
                 </div>
