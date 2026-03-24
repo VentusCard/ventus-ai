@@ -517,20 +517,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
                   </div>
 
-                  {/* Downward arrow to actions */}
-                  <div
-                    className="mt-4 ml-6 transition-all duration-500"
-                    style={{
-                      opacity: beat5Phase >= 1 ? 1 : 0,
-                      transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(-8px)'
-                    }}
-                  >
-                    <svg width="24" height="28" viewBox="0 0 24 28" fill="none">
-                      <line x1="12" y1="0" x2="12" y2="20" stroke="#3B82F6" strokeWidth="2" />
-                      <path d="M6 16L12 24L18 16" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-
                   {/* Three vertically stacked action cards */}
                   <div
                     className="flex flex-col gap-4 w-full max-w-xl mt-3 transition-all duration-700"
