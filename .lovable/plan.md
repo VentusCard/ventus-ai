@@ -1,25 +1,23 @@
 
 
-## Update Analytics Signal → Personalized UX
+## Compact Beat 5 Cards — Keep Vertical, Remove Bloat
 
-Replace the static "Analytics Signal" card (lines 624–639) with a "Personalized UX" card that shows a mini spending pillar tracker for a new "Family & Foundation" category, visualizing baby/pregnancy-related spending as a trackable lifestyle pillar.
+The user wants to keep the vertically stacked layout but make each card compact — just mentioning the functions, no expanding details or progress bars.
 
 ### Changes to `src/components/demo/DemoPasswordGate.tsx`
 
-**Lines 624–639** — Replace the Analytics Signal card content:
+**1. Simplify beat5Phase logic (line 49)**
+- Change `beat5Phase < 3` → `beat5Phase < 1` — only two phases: 0 (signal+demographics) and 1 (all cards appear).
 
-- Rename to **Personalized UX** with a 📱 icon
-- Subtitle: "New lifestyle pillar activated from detected signal"
-- Show a mini pillar card labeled **"Family & Foundation"** with:
-  - A spending bar showing e.g. `$1,840 / $3,200` (57%) with a green progress fill
-  - 3–4 sub-line items showing categorized baby/pregnancy spend:
-    - 🍼 Baby & Nursery — $680
-    - 🏥 Prenatal Care — $520  
-    - 📚 Parenting Resources — $380
-    - 🛡️ Family Protection — $260
-  - A subtle "Pillar auto-created from life event signal" label at the bottom
+**2. Replace lines 542–664** — compact all three cards:
 
-This transforms the card from a vague "cluster updated" message into a concrete demonstration: the detected signal creates a new trackable spending pillar in the customer's personalized UX, grouping all family-related transactions together.
+Each card becomes a simple block: icon + title + 1-line subtitle. No expanding phases, no inner containers, no progress bars, no dollar amounts.
 
-**File**: `src/components/demo/DemoPasswordGate.tsx` (lines 624–639)
+- **🎁 Personalized Rewards** — "Hyper-targeted deals matched to life stage & location"
+- **🤝 Personalized Relationship** — "Advisor intelligence triggered with life event context"
+- **📱 Personalized UX** — "New 'Family & Foundation' spending pillar auto-created"
+
+Remove all phase 2/3 gating, expansion animations, inner bullet lists, progress bars, and the nested white card. Each card is ~6 lines of JSX: a `rounded-xl border p-4` div with icon+title row and a subtitle line.
+
+**File**: `src/components/demo/DemoPasswordGate.tsx`
 
