@@ -1,14 +1,42 @@
 
 
-## Update Beat 5 Signal + Demographics Pills
+## Expand Beat 5 Cards — Full Width with Example Sub-Cards
 
 **File**: `src/components/demo/DemoPasswordGate.tsx`
 
-**Lines 489–517** — Replace the current life event badge and plain-text demographics with two matching pill badges:
+**Lines 526–553** — Replace the three compact stacked cards with three full-width cards, each containing a title row and a grid of 4 small nested example cards.
 
-1. **Life Event pill** (keep existing style, update text): "Life Event: Expecting a Baby" with the heart icon
-2. **Plus sign** (keep as-is)
-3. **Demographics pill** (new, matching style): "Demographic Information: Age, Income, ZIP Code" with a `Users` lucide icon — same `rounded-full px-5 py-2.5` styling, same blue color scheme as the life event pill
+### Card structure (each card):
+```text
+┌─────────────────────────────────────────────────────┐
+│ 🎁  Personalized Rewards                            │
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
+│ │ 🍼 Baby      │ │ 📚 Pregnancy │ │ 🧸 Strollers │ │ 🏥 Prenatal  │ │
+│ │ Monitors     │ │ Books &      │ │ & Car Seats  │ │ Classes &    │ │
+│ │              │ │ Audiobooks   │ │              │ │ Services     │ │
+│ └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
 
-Remove the plain-text demographic items (Age 32 · HHI $145K · ZIP 60614 · Married).
+### Content for each card:
+
+**🎁 Personalized Rewards** — life-stage matched offers:
+- 🍼 Baby Monitors & Gear
+- 📚 Pregnancy Books & Audiobooks
+- 🧸 Strollers & Car Seats
+- 🏥 Prenatal Classes & Services
+
+**🤝 Personalized Relationship** — advisor talking points:
+- 📋 529 Plan Setup
+- 🏠 Home Space Planning
+- 🛡️ Life Insurance Review
+- 💰 Emergency Fund Boost
+
+**📱 Personalized UX** — app experience changes:
+- 📊 "Family & Foundation" Pillar
+- 🎯 Baby Budget Tracker
+- 🔔 Parenting Milestone Alerts
+- 🏷️ Family Deal Highlights
+
+Each nested card: white background, rounded-lg border, small emoji + bold label, ~2-word subtitle. Grid is `grid-cols-2 sm:grid-cols-4 gap-2`.
 
