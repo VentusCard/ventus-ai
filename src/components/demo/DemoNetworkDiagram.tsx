@@ -249,6 +249,28 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                 );
               });
             })}
+
+            {/* Consumer column → Impact column */}
+            {PILLAR_ROWS.map((pillar, pi) => {
+              const totalGridH = ROW_HEIGHT * 3;
+              const gTopY = midY - totalGridH / 2;
+              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
+              const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
+              const cTop = rCenterY - cHeight / 2;
+              const consumerRight = consumerColLeftX + CONSUMER_COL_WIDTH;
+              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
+              const impactLeft = impactColLeftX;
+              const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
+              const cpX1 = consumerRight + (impactLeft - consumerRight) * 0.4;
+              const cpX2 = consumerRight + (impactLeft - consumerRight) * 0.6;
+              const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
+              return (
+                <g key={`cons-impact-${pi}`}>
+                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0.1} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
+                </g>
+              );
+            })}
           </>
         )}
       </svg>
