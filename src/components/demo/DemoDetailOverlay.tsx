@@ -111,7 +111,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
   const showCustomerHeaders = !isBankWide && node !== "engine";
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
+    <div className="tepilot-theme absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
         <div className="flex items-center gap-3">
