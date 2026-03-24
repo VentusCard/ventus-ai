@@ -267,7 +267,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
               return (
                 <g key={`cons-impact-${pi}`}>
-                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0.1} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
+                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
                 </g>
               );
             })}
@@ -451,7 +451,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
               width: IMPACT_COL_WIDTH,
               height: CONSUMER_NODE_HEIGHT,
-              opacity: consumerReady ? 1 : 0.3,
+              opacity: consumerReady ? 1 : 0,
               zIndex: 2,
             }}
           >
@@ -489,8 +489,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         Consumer-Facing
       </div>
       <div
-        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-emerald-600 uppercase tracking-wider text-center`}
-        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-emerald-600 uppercase tracking-wider text-center transition-opacity duration-500`}
+        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 24, zIndex: 2, opacity: PILLAR_ROWS.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
       >
         Impact
       </div>
