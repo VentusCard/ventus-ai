@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot";
 
 interface Props {
   customerA: DemoCustomer | null;
@@ -71,6 +71,7 @@ const PILLAR_ROWS: PillarRow[] = [
     bankNodes: [
       { id: "lifeEventIntel", label: "Life Event Intelligence", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
       { id: "lifeEvents", label: "Financial Journey", icon: TrendingUp, color: "#a855f7", audience: "bank" },
+      { id: "wmCopilot", label: "WM CoPilot", icon: Briefcase, color: "#7c3aed", audience: "bank" },
     ],
     consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
   },
@@ -188,7 +189,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             {/* Engine → Bank column rows */}
             {PILLAR_ROWS.map((pillar, pi) => {
               const rowCenterY = getRowCenterY(pi);
-              const bankNodesH = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+              const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
               const contentTop = rowCenterY - cHeight / 2;
               const engineRight = engineCenterX + ENGINE_WIDTH / 2;
@@ -218,7 +219,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               const totalGridH = ROW_HEIGHT * 3;
               const gTopY = midY - totalGridH / 2;
               const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
-              const bankNodesH = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+              const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
               const cTop = rCenterY - cHeight / 2;
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
@@ -285,7 +286,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       {PILLAR_ROWS.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const PillarIcon = pillar.icon;
-        const bankNodesHeight = BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP;
+        const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
         const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
         const labelTop = rowCenterY - contentHeight / 2 - QUESTION_LABEL_HEIGHT - 2;
         const contentTop = rowCenterY - contentHeight / 2;

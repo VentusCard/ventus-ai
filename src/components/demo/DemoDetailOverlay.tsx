@@ -13,6 +13,7 @@ import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
 import DemoEnrichmentTableView from "./DemoEnrichmentTableView";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
+import { BankwideWMCopilotView } from "@/components/tepilot/insights/BankwideWMCopilotView";
 
 interface Props {
   node: DemoNodeType;
@@ -45,9 +46,10 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   profiling: { title: "Profiling — Pillar Summary", color: "#3b82f6" },
   predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
   phase: { title: "Phase — Life Event Detection", color: "#a855f7" },
+  wmCopilot: { title: "Wealth Management CoPilot", color: "#7c3aed" },
 };
 
-const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth", "outflow", "locational", "lifeEventIntel"]);
+const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot"]);
 
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",
@@ -66,6 +68,9 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
   const isBankWide = BANK_WIDE_NODES.has(node);
 
   const renderContent = () => {
+    if (node === "wmCopilot") {
+      return <BankwideWMCopilotView />;
+    }
     if (isBankWide) {
       return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} />;
     }

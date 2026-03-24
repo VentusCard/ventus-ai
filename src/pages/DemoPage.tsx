@@ -18,7 +18,7 @@ export default function DemoPage() {
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
-  const NODE_ORDER: DemoNodeType[] = ["engine", "analytics", "outflow", "engagement", "travel", "locational", "rewards", "lifeEventIntel", "lifeEvents", "wealth"];
+  const NODE_ORDER: DemoNodeType[] = ["engine", "analytics", "outflow", "engagement", "travel", "locational", "rewards", "lifeEventIntel", "lifeEvents", "wmCopilot", "wealth"];
   const activeIdx = activeNode ? NODE_ORDER.indexOf(activeNode) : -1;
   const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
   const nextNode = activeIdx >= 0 && activeIdx < NODE_ORDER.length - 1 ? NODE_ORDER[activeIdx + 1] : null;

@@ -33,9 +33,10 @@ const INITIAL_READINESS: NodeReadiness = {
   outflow: "idle",
   locational: "idle",
   lifeEventIntel: "idle",
+  wmCopilot: "idle",
 };
 
-const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel"];
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot"];
 
 export interface DetectedLifeEventEvidence {
   merchant: string;
@@ -301,6 +302,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         outflow: "processing",
         locational: "processing",
         lifeEventIntel: "processing",
+        wmCopilot: "processing",
       });
     }, 100);
 
@@ -463,10 +465,10 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         lifestylePromise
           .then(() => {
-            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready" });
-          })
-          .catch(() => {
-            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready" });
+             setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
+           })
+           .catch(() => {
+             setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
           });
 
         Promise.all([lifestylePromise, tipsPromise])
