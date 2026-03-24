@@ -267,7 +267,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
               const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
               return (
                 <g key={`cons-impact-${pi}`}>
-                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" /> strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
+                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
                 </g>
               );
             })}
