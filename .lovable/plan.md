@@ -1,38 +1,25 @@
 
 
-## Redesign Beat 5 — Signal Activation Layout & Content
+## Update Analytics Signal → Personalized UX
 
-Rework the Beat 5 section (lines 476–654) with these changes:
+Replace the static "Analytics Signal" card (lines 624–639) with a "Personalized UX" card that shows a mini spending pillar tracker for a new "Family & Foundation" category, visualizing baby/pregnancy-related spending as a trackable lifestyle pillar.
 
-### Layout: Signal + Demographics at top-left, three vertical cards below
+### Changes to `src/components/demo/DemoPasswordGate.tsx`
 
-**Phase 0 — Signal floats to top-left + demographics fade in:**
-- Remove the centered column layout. Instead, position the "Expecting a Baby" badge at the top-left with a smooth upward/left animation (CSS transition on mount).
-- Demographics card appears below/beside it with anonymous data: **Age 32 · HHI $145K · ZIP 60614 · Married** (no name — keep it anonymous per user request).
-- Keep the "+" merge connector between signal and demographics.
+**Lines 624–639** — Replace the Analytics Signal card content:
 
-**Phase 1+ — Three vertically stacked cards (not 3-column grid):**
-- Change from `grid grid-cols-3` to a vertical stack (`flex flex-col gap-4`), full width.
-- Order: **Personalized Rewards**, **Personalized Relationship**, **Analytics Signal**.
+- Rename to **Personalized UX** with a 📱 icon
+- Subtitle: "New lifestyle pillar activated from detected signal"
+- Show a mini pillar card labeled **"Family & Foundation"** with:
+  - A spending bar showing e.g. `$1,840 / $3,200` (57%) with a green progress fill
+  - 3–4 sub-line items showing categorized baby/pregnancy spend:
+    - 🍼 Baby & Nursery — $680
+    - 🏥 Prenatal Care — $520  
+    - 📚 Parenting Resources — $380
+    - 🛡️ Family Protection — $260
+  - A subtle "Pillar auto-created from life event signal" label at the bottom
 
-### Content updates:
+This transforms the card from a vague "cluster updated" message into a concrete demonstration: the detected signal creates a new trackable spending pillar in the customer's personalized UX, grouping all family-related transactions together.
 
-**Personalized Rewards (Phase 2 expand):**
-- Replace current items with baby-specific, location-aware examples:
-  - "Buy Buy Baby — 15% off nursery furniture (2.3 mi away)"
-  - "Prenatal wellness package at Northwestern Medicine"  
-  - "Baby gear trade-in program — local Chicago partner"
-  - "Upsell: Family protection insurance bundle"
-
-**Personalized Relationship (Phase 3 expand):**
-- Keep current content (wealth manager alert, automated prep, next-step recommendations) — user said it looks fine.
-
-**Analytics Signal:**
-- Keep as static card, no changes needed.
-
-### File: `src/components/demo/DemoPasswordGate.tsx`
-- Lines 476–654: Rework Beat 5 JSX
-- Demographics: Remove "Sarah M." name, use anonymous format: "Age 32 · HHI $145K · ZIP 60614 · Married"
-- Layout: Signal badge aligned top-left with `items-start` instead of `items-center`
-- Cards: Vertical stack instead of horizontal grid
+**File**: `src/components/demo/DemoPasswordGate.tsx` (lines 624–639)
 
