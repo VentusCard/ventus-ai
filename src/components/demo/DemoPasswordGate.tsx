@@ -462,7 +462,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                           <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
                         </svg>
-                        <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>Life Event: Expecting a Baby</span>
+                        <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>Behavioral Pattern: Expecting a Baby</span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     </div>
@@ -495,7 +495,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                         <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
                       </svg>
-                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Life Event: Expecting a Baby</span>
+                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Behavioral Pattern: Expecting a Baby</span>
                     </div>
 
                     <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>+</span>
