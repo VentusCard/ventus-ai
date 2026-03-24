@@ -581,7 +581,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
-                    {beat6Phase === 0 ? "Patterns can't be extended." : "Until they're connected."}
+                    {beat6Phase === 0 ? "Siloed Transactions and Demographics" : "Until they're connected."}
                   </h2>
                   <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                     {beat6Phase === 0 ?
