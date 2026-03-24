@@ -125,16 +125,20 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const gap1 = centered ? 50 : Math.max(14, dims.w * 0.018);
   const gap2 = centered ? 60 : Math.max(28, dims.w * 0.035);
   const gap3 = centered ? 55 : Math.max(24, dims.w * 0.03);
+  const gap4 = centered ? 45 : Math.max(18, dims.w * 0.022);
+
+  const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
   // Always center the block in the available width
   const pad = Math.max(8, dims.w * 0.01);
-  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
   const bankColLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
   const consumerColLeftX = bankColLeftX + BANK_COL_WIDTH + gap3;
+  const impactColLeftX = consumerColLeftX + CONSUMER_COL_WIDTH + gap4;
 
   // Vertical layout
   const midY = dims.h * 0.5;
