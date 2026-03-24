@@ -1,18 +1,16 @@
 
 
-## Visual Tweaks to Beat 3 Icon Grid
+## Plan: Remove Beat 7 and Add "Enter Demo" Button to Beat 6
 
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+### What changes
+1. **Reduce `TOTAL_BEATS` from 8 to 7** (line 7)
+2. **Remove Beat 7 block** (lines 738-769) — the "One AI-Native layer..." reveal section
+3. **Remove Beat 7 useEffect** (lines 104-110) that controls `revealLogo`/`revealInput` timers
+4. **Update keyboard handler** — remove the `step === 7` special case (lines 119-126); instead, when on step 6 and `beat6Phase >= 1`, pressing right/space/enter enters the demo
+5. **Update click handler** — change `step < 7` to `step < 6` (line 180-182)
+6. **Add "Enter Demo" button to Beat 6** — after the flow diagram in the `beat6Phase >= 1` state, add the blue "Enter Demo →" button that grants access
+7. **Update `advance()` for step 6** — when `beat6Phase` reaches 1, stop advancing to next step (it's the last beat now); the "Enter Demo" button handles navigation forward
 
-### Changes
-
-1. **Ellipsis color**: Change both `…` spans from `text-amber-400` to `text-slate-400` (grey dots).
-
-2. **Icon spacing**: Increase the grid gap from `gap-4` to `gap-6` and widen the container from `max-w-2xl` to `max-w-3xl` so icons spread out more. Also widen the outer flex wrapper from `max-w-3xl` to `max-w-4xl`.
-
-### Lines affected
-- Line 363: outer flex wrapper — change `max-w-3xl` → `max-w-4xl`
-- Line 364: left ellipsis — change `text-amber-400` → `text-slate-400`
-- Line 365: grid — change `gap-4` → `gap-6`, `max-w-2xl` → `max-w-3xl`
-- Line 391: right ellipsis — change `text-amber-400` → `text-slate-400`
+### Files modified
+- `src/components/demo/DemoPasswordGate.tsx`
 
