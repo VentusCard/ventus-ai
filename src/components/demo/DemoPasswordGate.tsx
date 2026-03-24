@@ -116,7 +116,14 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         goBack();
         return;
       }
-      if (step === 7) return;
+      if (step === 7) {
+        if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
+          e.preventDefault();
+          sessionStorage.setItem("demo_access", "true");
+          setGranted(true);
+        }
+        return;
+      }
       if (e.code === "Space" || e.code === "ArrowRight" || e.code === "Enter") {
         e.preventDefault();
         advance();
