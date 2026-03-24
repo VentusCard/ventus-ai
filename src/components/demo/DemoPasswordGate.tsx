@@ -621,7 +621,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       </div>
                     </div>
 
-                    {/* Analytics Signal (static) */}
+                    {/* Personalized UX */}
                     <div
                       className="rounded-xl border p-5"
                       style={{
@@ -629,12 +629,37 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         backgroundColor: "#FAFBFC"
                       }}
                     >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl">📊</span>
-                        <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Analytics Signal</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl">📱</span>
+                        <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized UX</span>
                       </div>
-                      <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                        Behavioral cluster updated · Segment migration triggered
+                      <p className="text-xs mb-3" style={{ color: "#64748B" }}>
+                        New lifestyle pillar activated from detected signal
+                      </p>
+                      <div className="rounded-lg border p-3" style={{ borderColor: "#E2E8F0", backgroundColor: "#FFFFFF" }}>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-xs font-bold" style={{ color: "#0F172A" }}>👨‍👩‍👧 Family & Foundation</span>
+                          <span className="text-xs" style={{ color: "#64748B" }}>$1,840 / $3,200</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full overflow-hidden mb-3" style={{ backgroundColor: "#E2E8F0" }}>
+                          <div className="h-full rounded-full" style={{ width: "57%", backgroundColor: "#22c55e" }} />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          {[
+                            { icon: "🍼", label: "Baby & Nursery", amount: "$680" },
+                            { icon: "🏥", label: "Prenatal Care", amount: "$520" },
+                            { icon: "📚", label: "Parenting Resources", amount: "$380" },
+                            { icon: "🛡️", label: "Family Protection", amount: "$260" },
+                          ].map((item) => (
+                            <div key={item.label} className="flex justify-between items-center text-xs">
+                              <span style={{ color: "#334155" }}>{item.icon} {item.label}</span>
+                              <span className="font-medium" style={{ color: "#0F172A" }}>{item.amount}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-[10px] mt-2 italic" style={{ color: "#94A3B8" }}>
+                        Pillar auto-created from life event signal
                       </p>
                     </div>
                   </div>
