@@ -465,10 +465,10 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         lifestylePromise
           .then(() => {
-            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready" });
-          })
-          .catch(() => {
-            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready" });
+             setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
+           })
+           .catch(() => {
+             setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
           });
 
         Promise.all([lifestylePromise, tipsPromise])
