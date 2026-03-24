@@ -510,7 +510,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       }}
                     >
                       <Users size={18} className="text-blue-500" />
-                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Demographic Information: Age, Income, ZIP Code</span>
+                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Demographic: Age, Income, ZIP Code, etc.</span>
                     </div>
                   </div>
 
