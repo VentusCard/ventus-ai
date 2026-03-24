@@ -83,6 +83,12 @@ const ENGINE_CAPABILITIES = [
   { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
 ];
 
+const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
+  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#f59e0b" },
+  { metrics: ["Higher Redemption", "Higher Spend Lift", "Higher Loyalty"], color: "#22c55e" },
+  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value"], color: "#8b5cf6" },
+];
+
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
