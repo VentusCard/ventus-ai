@@ -526,29 +526,65 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   >
                     {/* Personalized Rewards */}
                     <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">🎁</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Rewards</span>
                       </div>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Hyper-targeted deals matched to life stage &amp; location</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { emoji: "🍼", label: "Baby Monitors & Gear" },
+                          { emoji: "📚", label: "Pregnancy Books & Audiobooks" },
+                          { emoji: "🧸", label: "Strollers & Car Seats" },
+                          { emoji: "🏥", label: "Prenatal Classes & Services" },
+                        ].map((item) => (
+                          <div key={item.label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
+                            <span className="text-xl mb-1">{item.emoji}</span>
+                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Personalized Relationship */}
                     <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">🤝</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Relationship</span>
                       </div>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Advisor intelligence triggered with life event context</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { emoji: "📋", label: "529 Plan Setup" },
+                          { emoji: "🏠", label: "Home Space Planning" },
+                          { emoji: "🛡️", label: "Life Insurance Review" },
+                          { emoji: "💰", label: "Emergency Fund Boost" },
+                        ].map((item) => (
+                          <div key={item.label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
+                            <span className="text-xl mb-1">{item.emoji}</span>
+                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Personalized UX */}
                     <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">📱</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized UX</span>
                       </div>
-                      <p className="text-xs" style={{ color: "#64748B" }}>New "Family &amp; Foundation" spending pillar auto-created</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { emoji: "📊", label: "\"Family & Foundation\" Pillar" },
+                          { emoji: "🎯", label: "Baby Budget Tracker" },
+                          { emoji: "🔔", label: "Parenting Milestone Alerts" },
+                          { emoji: "🏷️", label: "Family Deal Highlights" },
+                        ].map((item) => (
+                          <div key={item.label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
+                            <span className="text-xl mb-1">{item.emoji}</span>
+                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
