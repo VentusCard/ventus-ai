@@ -160,6 +160,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
+     <div className="absolute inset-0" style={{ transform: `translateX(${centeringShift}px)`, transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
       <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
