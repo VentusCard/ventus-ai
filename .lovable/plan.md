@@ -1,20 +1,20 @@
 
 
-## Plan: Add Static Headers for First Two Columns
-
-### What
-Add "Transactions" and "Enrichment Engine" column headers above the first two columns, matching the existing header style used by "Bank-Facing", "Consumer-Facing", and "Impact".
+## Plan: Update Impact Metrics Text and Adjust Purple Row Layout
 
 ### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
 
-Add two new header `<div>`s in the Column Headers section (before the existing "Bank-Facing" header around line 482):
+**1. Text updates (line 86-90)**
+- Change `"Higher Loyalty"` → `"High Profitability"` in the green row
+- Add `"Higher Advisor Effectiveness"` as a 4th metric in the purple row
 
-1. **"Transactions" header** — positioned at `left: txCenterX - TX_CARD_WIDTH/2`, `width: TX_CARD_WIDTH`, `top: gridTopY - 24`. Same class styling as the other headers.
+**2. Adjust connector line for purple row (line 258-276)**
+The purple row (index 2) will now have 4 impact cards instead of 3. The connector line currently targets `consumerCenterY` which is the center of the consumer node. This stays the same — the line connects consumer node center to the center of the 4-card stack. The impact card container height needs to increase to fit 4 items, so we adjust the `height` style for the impact column when `impactData.metrics.length > 3` — or simply remove the fixed `CONSUMER_NODE_HEIGHT` constraint and let flexbox handle it. The connector line endpoint Y should target the visual center of the 4 cards.
 
-2. **"Enrichment Engine" header** — positioned at `left: engineCenterX - ENGINE_WIDTH/2`, `width: ENGINE_WIDTH`, `top: gridTopY - 24`. Same class styling.
+**Specifically:**
+- Remove the fixed `height: CONSUMER_NODE_HEIGHT` from the impact container and let it auto-size, keeping `top` adjusted so the group is vertically centered in the row.
+- For the connector line, keep targeting `consumerCenterY` (center of the row) which will naturally align with the center of 4 cards since both are centered on the same row center.
 
-Both use the existing `centered ? "text-[13px]" : "text-[11px]"` size pattern and `text-slate-500 uppercase tracking-wider` styling.
-
-### Single file modified
+### Files modified
 - `src/components/demo/DemoNetworkDiagram.tsx`
 
