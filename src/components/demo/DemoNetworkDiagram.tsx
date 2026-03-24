@@ -505,7 +505,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         Consumer-Facing
       </div>
       <div
-        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-emerald-600 uppercase tracking-wider text-center transition-opacity duration-500`}
+        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center transition-opacity duration-500`}
         style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 24, zIndex: 2, opacity: PILLAR_ROWS.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
       >
         Impact
