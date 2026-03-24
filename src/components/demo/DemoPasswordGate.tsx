@@ -10,7 +10,7 @@ const BEAT_SUMMARIES = [
 "Ventus AI — AI Customer Intelligence Layer that Powers Banking Personalization Across Functions.",
 "Billions in personalization spend — zero customer understanding.",
 "Built on MCC — a 1974 taxonomy for routing, not intelligence.",
-"MCCs are blind — same code for symphony, Celtics, and Monster Jam.",
+"MCCs are blind — one code that could mean symphony, Celtics, or Monster Jam.",
 "MCCs can't see patterns — three ski purchases, three generic codes.",
 "One signal activates personalized rewards, relationship management, and analytics.",
 "Disconnected data — no demographics, no actionable intelligence."];
@@ -338,61 +338,65 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
                   <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    Three customers. Three purchases: Symphony Orchestra, Celtics tickets, Monster Jam.
-                    Three completely different people — invisible to the bank.
+                    A customer spends $120 on entertainment. The bank sees one code.
+                    But what does it actually mean?
                   </p>
                   <div className="mt-8 flex flex-col items-center gap-6">
-                    <div className="flex justify-center w-full max-w-md mx-auto">
-                       <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
-                            <ellipse cx="11" cy="23" rx="3.5" ry="2.5" fill="#94A3B8" />
-                            <line x1="14.5" y1="23" x2="14.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
-                            <ellipse cx="21" cy="19" rx="3.5" ry="2.5" fill="#94A3B8" />
-                            <line x1="24.5" y1="19" x2="24.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
-                            <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                          </svg>
-                        </div>
-                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
+                    {/* Phase 0: MCC badge always visible */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="px-6 py-3 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
+                        <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment</span>
                       </div>
-                      <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
-                            <circle cx="16" cy="16" r="10" stroke="#94A3B8" strokeWidth="2" fill="none" />
-                            <path d="M6 16C6 16 10 12 16 12C22 12 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
-                            <path d="M6 16C6 16 10 20 16 20C22 20 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
-                            <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
-                          </svg>
-                        </div>
-                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
-                      </div>
-                      <div className="flex-1 flex flex-col items-center gap-3 animate-fade-slide" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
-                          <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
-                            <rect x="6" y="12" width="20" height="8" rx="2" fill="#94A3B8" />
-                            <path d="M8 12L12 6H20L24 12" fill="#94A3B8" />
-                            <rect x="13" y="7" width="6" height="4" rx="1" fill="#CBD5E1" />
-                            <circle cx="10" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
-                            <circle cx="10" cy="22" r="1.5" fill="#94A3B8" />
-                            <circle cx="22" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
-                            <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
-                          </svg>
-                        </div>
-                        <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
-                      </div>
+                      <span className="text-sm" style={{ color: "#94A3B8" }}>This is all the bank sees</span>
                     </div>
+
+                    {/* Phase 1: Fan out to reveal possibilities */}
                     <div className="transition-all duration-700 ease-out" style={{ opacity: beat3Phase >= 1 ? 1 : 0, transform: beat3Phase >= 1 ? 'translateY(0)' : 'translateY(16px)' }}>
                       <svg width="100%" height="40" viewBox="0 0 300 40" preserveAspectRatio="none" className="max-w-md">
-                        <line x1="50" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="150" y1="0" x2="50" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                         <line x1="150" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
-                        <line x1="250" y1="0" x2="150" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="150" y1="0" x2="250" y2="36" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                       </svg>
-                      <div className="flex flex-col items-center gap-2 mt-2">
-                         <div className="px-6 py-3 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
-                           <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment</span>
-                         </div>
-                         <span className="text-sm" style={{ color: "#94A3B8" }}>Same code for all three</span>
+                      <div className="flex justify-center w-full max-w-md mx-auto mt-2">
+                        <div className="flex-1 flex flex-col items-center gap-3">
+                          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                            <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+                              <ellipse cx="11" cy="23" rx="3.5" ry="2.5" fill="#94A3B8" />
+                              <line x1="14.5" y1="23" x2="14.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
+                              <ellipse cx="21" cy="19" rx="3.5" ry="2.5" fill="#94A3B8" />
+                              <line x1="24.5" y1="19" x2="24.5" y2="9" stroke="#94A3B8" strokeWidth="2" />
+                              <path d="M14.5 9C14.5 9 19 7 24.5 9" stroke="#94A3B8" strokeWidth="2" fill="none" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-3">
+                          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                            <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+                              <circle cx="16" cy="16" r="10" stroke="#94A3B8" strokeWidth="2" fill="none" />
+                              <path d="M6 16C6 16 10 12 16 12C22 12 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
+                              <path d="M6 16C6 16 10 20 16 20C22 20 26 16 26 16" stroke="#94A3B8" strokeWidth="1.5" fill="none" />
+                              <line x1="16" y1="6" x2="16" y2="26" stroke="#94A3B8" strokeWidth="1.5" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Celtics<br />Tickets</span>
+                        </div>
+                        <div className="flex-1 flex flex-col items-center gap-3">
+                          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F1F5F9" }}>
+                            <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+                              <rect x="6" y="12" width="20" height="8" rx="2" fill="#94A3B8" />
+                              <path d="M8 12L12 6H20L24 12" fill="#94A3B8" />
+                              <rect x="13" y="7" width="6" height="4" rx="1" fill="#CBD5E1" />
+                              <circle cx="10" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
+                              <circle cx="10" cy="22" r="1.5" fill="#94A3B8" />
+                              <circle cx="22" cy="22" r="3.5" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
+                              <circle cx="22" cy="22" r="1.5" fill="#94A3B8" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>Monster<br />Jam</span>
+                        </div>
                       </div>
+                      <p className="text-center text-sm mt-4" style={{ color: "#94A3B8" }}>It could mean any of these — the bank can't tell</p>
                     </div>
                   </div>
                 </div>
