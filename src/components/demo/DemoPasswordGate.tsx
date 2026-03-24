@@ -360,9 +360,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <line x1="300" y1="0" x2="450" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                         <line x1="300" y1="0" x2="550" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                       </svg>
-                      <div className="flex items-center justify-center gap-3 w-full max-w-3xl mx-auto mt-2">
-                        <span className="text-3xl font-bold tracking-widest text-amber-400 select-none">…</span>
-                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 flex-1 max-w-2xl">
+                      <div className="flex items-center justify-center gap-3 w-full max-w-4xl mx-auto mt-2">
+                        <span className="text-3xl font-bold tracking-widest text-slate-400 select-none">…</span>
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-6 flex-1 max-w-3xl">
                           <div className="flex flex-col items-center gap-2">
                             <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: "#F1F5F9" }}>🎵</div>
                             <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Symphony<br />Orchestra</span>
@@ -388,7 +388,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                             <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Cirque du<br />Soleil</span>
                           </div>
                         </div>
-                        <span className="text-3xl font-bold tracking-widest text-amber-400 select-none">…</span>
+                        <span className="text-3xl font-bold tracking-widest text-slate-400 select-none">…</span>
                       </div>
                       
                     </div>
