@@ -1,23 +1,33 @@
 
 
-## Reverse Beat 3: Show MCC First, Then Reveal What It Could Mean
+## Add "..." Ellipsis Indicators to Beat 3 Icon Grid
 
 **File**: `src/components/demo/DemoPasswordGate.tsx`
 
-### Concept
+### What
 
-Flip the reveal order of Beat 3. Currently it shows three icons (Symphony, Celtics, Monster Jam) first, then converges them into "MCC 7922 · Entertainment". The new flow:
+Add large, visible "…" indicators on the left and right sides of the 6-icon row to visually signal there are countless more possibilities beyond the six shown.
 
-- **Phase 0 (initial)**: Show the MCC code prominently at the top — `MCC 7922 · Entertainment`. A single opaque code. The audience sees what the bank sees: one generic label.
-- **Phase 1 (on advance)**: The three possibilities fan out below — Symphony Orchestra, Celtics Tickets, Monster Jam — revealing that this single code could mean any of these wildly different experiences. The "it could mean anything" moment.
+### How
 
-### Technical details
+Wrap the existing grid (line 363) in a flex container with ellipsis elements on each side:
 
-- **beat3Phase** already supports 0→1 progression (lines 34-40). No state changes needed.
-- Restructure the Beat 3 JSX (lines 332-398):
-  - Move the MCC 7922 badge to the top, always visible (phase 0).
-  - Update heading/copy to set up the reveal: "What does MCC 7922 mean?" or similar.
-  - Move the three icon circles below, gated by `beat3Phase >= 1` with diverging connector lines from the MCC badge down to each icon.
-  - Connector lines fan outward (reverse of current convergence).
-- Update `BEAT_SUMMARIES[3]` if needed to match the new narrative direction.
+```tsx
+<div className="flex items-center justify-center gap-3 w-full max-w-3xl mx-auto mt-2">
+  {/* Left ellipsis */}
+  <span className="text-3xl font-bold tracking-widest text-amber-400 select-none">…</span>
+  
+  {/* Existing 6-icon grid */}
+  <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 flex-1 max-w-2xl">
+    {/* existing 6 icons unchanged */}
+  </div>
+  
+  {/* Right ellipsis */}
+  <span className="text-3xl font-bold tracking-widest text-amber-400 select-none">…</span>
+</div>
+```
+
+- Styled in `text-amber-400` to match the existing yellow/amber connector lines
+- `text-3xl font-bold` for high visibility
+- Vertically centered with the icon row via `items-center`
 
