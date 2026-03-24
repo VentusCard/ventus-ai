@@ -406,7 +406,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs can't detect life events.</h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs are Siloed but Signals are Connected</h2>
                     <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                       Five transactions across five different MCC codes. To the bank, these are completely unrelated purchases.
                     </p>
