@@ -621,6 +621,17 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <div
                       className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
                       style={{
+                        borderColor: beat6Phase >= 1 ? "#3B82F6" : "#E2E8F0",
+                        backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
+                        minWidth: 160
+                      }}>
+                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
+                          Transactions
+                        </span>
+                      </div>
+                      <div
+                      className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
+                      style={{
                         borderColor: beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1",
                         borderStyle: beat6Phase >= 1 ? "solid" : "dashed",
                         backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
@@ -628,17 +639,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       }}>
                         <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}>
                           Demographics
-                        </span>
-                      </div>
-                      <div
-                      className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
-                      style={{
-                        borderColor: beat6Phase >= 1 ? "#3B82F6" : "#E2E8F0",
-                        backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
-                        minWidth: 160
-                      }}>
-                        <span className="text-sm font-bold tracking-wider uppercase" style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}>
-                          Transactions
                         </span>
                       </div>
                     </div>
