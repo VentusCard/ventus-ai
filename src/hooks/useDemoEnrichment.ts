@@ -302,6 +302,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         outflow: "processing",
         locational: "processing",
         lifeEventIntel: "processing",
+        wmCopilot: "processing",
       });
     }, 100);
 
