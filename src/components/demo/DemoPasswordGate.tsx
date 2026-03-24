@@ -518,7 +518,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                   {/* Three vertically stacked action cards */}
                   <div
-                    className="flex flex-col gap-4 w-full max-w-xl mt-3 transition-all duration-700"
+                    className="flex flex-col gap-4 w-full mt-3 transition-all duration-700"
                     style={{
                       opacity: beat5Phase >= 1 ? 1 : 0,
                       transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(16px)'
@@ -531,15 +531,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Rewards</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {[
-                          { emoji: "🍼", label: "Baby Monitors & Gear" },
-                          { emoji: "📚", label: "Pregnancy Books & Audiobooks" },
-                          { emoji: "🧸", label: "Strollers & Car Seats" },
-                          { emoji: "🏥", label: "Prenatal Classes & Services" },
-                        ].map((item) => (
-                          <div key={item.label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
-                            <span className="text-xl mb-1">{item.emoji}</span>
-                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{item.label}</span>
+                        {["Baby Monitors & Gear", "Pregnancy Books & Audiobooks", "Strollers & Car Seats", "Prenatal Classes & Services"].map((label) => (
+                          <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
+                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{label}</span>
                           </div>
                         ))}
                       </div>
@@ -552,15 +546,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Relationship</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {[
-                          { emoji: "📋", label: "529 Plan Setup" },
-                          { emoji: "🏠", label: "Home Space Planning" },
-                          { emoji: "🛡️", label: "Life Insurance Review" },
-                          { emoji: "💰", label: "Emergency Fund Boost" },
-                        ].map((item) => (
-                          <div key={item.label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
-                            <span className="text-xl mb-1">{item.emoji}</span>
-                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{item.label}</span>
+                        {["529 Plan Setup", "Home Space Planning", "Life Insurance Review", "Emergency Fund Boost"].map((label) => (
+                          <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
+                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{label}</span>
                           </div>
                         ))}
                       </div>
@@ -573,15 +561,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized UX</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {[
-                          { emoji: "📊", label: "\"Family & Foundation\" Pillar" },
-                          { emoji: "🎯", label: "Baby Budget Tracker" },
-                          { emoji: "🔔", label: "Parenting Milestone Alerts" },
-                          { emoji: "🏷️", label: "Family Deal Highlights" },
-                        ].map((item) => (
-                          <div key={item.label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
-                            <span className="text-xl mb-1">{item.emoji}</span>
-                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{item.label}</span>
+                        {["\"Family & Foundation\" Pillar", "Baby Budget Tracker", "Parenting Milestone Alerts", "Family Deal Highlights"].map((label) => (
+                          <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
+                            <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{label}</span>
                           </div>
                         ))}
                       </div>
