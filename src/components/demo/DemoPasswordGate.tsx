@@ -386,7 +386,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>Cirque du<br />Soleil</span>
                         </div>
                       </div>
-                      <p className="text-center text-sm mt-4" style={{ color: "#94A3B8" }}>One code, six wildly different people — the bank can't tell</p>
+                      
                     </div>
                   </div>
                 </div>
