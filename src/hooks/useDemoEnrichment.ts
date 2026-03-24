@@ -33,9 +33,10 @@ const INITIAL_READINESS: NodeReadiness = {
   outflow: "idle",
   locational: "idle",
   lifeEventIntel: "idle",
+  wmCopilot: "idle",
 };
 
-const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel"];
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot"];
 
 export interface DetectedLifeEventEvidence {
   merchant: string;
