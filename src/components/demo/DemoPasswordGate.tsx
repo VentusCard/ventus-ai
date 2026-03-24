@@ -4,7 +4,7 @@ import { Monitor, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 8;
+const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
 "Ventus AI — AI Customer Intelligence Layer that Powers Banking Personalization Across Functions.",
@@ -21,8 +21,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [step, setStep] = useState(0);
   const [displayStep, setDisplayStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [revealLogo, setRevealLogo] = useState(false);
-  const [revealInput, setRevealInput] = useState(false);
   const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
@@ -57,7 +55,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
           setBeat6Phase((p) => p + 1);
           return s;
         }
-        setBeat6Phase(0);
+        // Beat 6 is the last beat — don't advance further
+        return s;
       }
       const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
       if (next !== s) {
@@ -94,20 +93,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         setIsTransitioning(false);
       }, 150);
     }
-    setRevealLogo(false);
-    setRevealInput(false);
     setBeat4Phase(0);
     setBeat5Phase(0);
     setBeat6Phase(0);
   }, [step, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
 
-  useEffect(() => {
-    if (step === 7) {
-      const t1 = setTimeout(() => setRevealLogo(true), 1500);
-      const t2 = setTimeout(() => setRevealInput(true), 2200);
-      return () => {clearTimeout(t1);clearTimeout(t2);};
-    }
-  }, [step]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -116,7 +106,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         goBack();
         return;
       }
-      if (step === 7) {
+      if (step === 6 && beat6Phase >= 1) {
         if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
           sessionStorage.setItem("demo_access", "true");
@@ -177,9 +167,9 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step < 7 ? "pointer" : "default"
+        cursor: (step === 6 && beat6Phase >= 1) ? "default" : "pointer"
       }}
-      onClick={() => step < 7 && advance()}>
+      onClick={() => !(step === 6 && beat6Phase >= 1) && advance()}>
       
       <style>{`
         @keyframes ambientShift {
@@ -732,39 +722,23 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </div>
 
                   </div>
-                </div>
-              }
 
-              {/* Beat 7 — Reveal */}
-              {displayStep === 7 &&
-              <div className="text-center py-8">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" style={{ color: "#0F172A" }}>
-                    One AI-Native layer that enables personalized banking across functions.
-                  </h1>
-                  <div
-                  className="mt-12 transition-all duration-700 ease-out flex flex-col items-center"
-                  style={{ opacity: revealLogo ? 1 : 0, transform: revealLogo ? "translateY(0)" : "translateY(20px)" }}>
-                    
-                    <p className="mt-2 text-lg" style={{ color: "#64748B" }}>
-                      Transform banking experiences — no core overhaul required.
-                    </p>
-                  </div>
-                  <div
-                  className="mt-10 transition-all duration-500 ease-out"
-                  style={{ opacity: revealInput ? 1 : 0, transform: revealInput ? "translateY(0)" : "translateY(12px)" }}
-                  onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => {
-                        sessionStorage.setItem("demo_access", "true");
-                        setGranted(true);
-                      }}
-                      className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
-                      style={{ backgroundColor: "#3B82F6" }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#2563EB"}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3B82F6"}>
-                      Enter Demo →
-                    </button>
-                  </div>
+                  {/* Enter Demo button — appears after phase 1 */}
+                  {beat6Phase >= 1 && (
+                    <div className="mt-8 flex justify-center" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => {
+                          sessionStorage.setItem("demo_access", "true");
+                          setGranted(true);
+                        }}
+                        className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
+                        style={{ backgroundColor: "#3B82F6", animation: "fadeSlideIn 0.5s ease-out" }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#2563EB"}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3B82F6"}>
+                        Enter Demo →
+                      </button>
+                    </div>
+                  )}
                 </div>
               }
 
