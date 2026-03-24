@@ -597,7 +597,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     </p>
                     <div style={{ width: 44 }} />
                     <p className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0" style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}>
-                      {beat6Phase >= 1 ? "We can then provide a deeply personalized experience" : "We provide a generic experience"}
+                      {beat6Phase >= 1 ? "We can then provide a personalized banking experience" : "We provide a generic experience"}
                     </p>
                   </div>
                   <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6 w-full">
