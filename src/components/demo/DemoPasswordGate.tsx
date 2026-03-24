@@ -311,10 +311,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight" style={{ color: "#0F172A" }}>
                     Billions spent in personalized banking doesn't (truly) work.
                   </h1>
-                  <p className="mt-6 text-xl sm:text-2xl max-w-3xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
-                    Your customers see irrelevant offers. Random campaigns. Wasted spend.
-                    Everyone knows this. The question is <span className="font-semibold" style={{ color: "#0F172A" }}>why</span>.
-                  </p>
                 </div>
               }
 
@@ -325,11 +321,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     The answer is three letters:{" "}
                     <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
-                  <p className="mt-6 text-xl sm:text-2xl max-w-3xl mx-auto leading-relaxed" style={{ color: "#64748B" }}>
-                    Every bank runs on Merchant Category Codes — a four-digit taxonomy from{" "}
-                    <span className="font-semibold" style={{ color: "#0F172A" }}>1974</span>{" "}
-                    designed for interchange routing, not customer understanding.
-                  </p>
                 </div>
               }
 
@@ -341,10 +332,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
-                  <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    A customer spends $120 on a ticket. The bank sees one code.
-                    But what does it actually mean?
-                  </p>
                   <div className="mt-8 flex flex-col items-center gap-6">
                     {/* Phase 0: MCC badge always visible */}
                     <div className="flex flex-col items-center gap-2">
@@ -409,9 +396,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Purchase Patterns Are Hidden by Blind MCCs</h2>
-                    <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                      Five transactions across five different MCC codes. To the bank, these are completely unrelated purchases.
-                    </p>
                     <div className="mt-8">
                       <div className="space-y-3">
                         {[
@@ -482,9 +466,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Behavioral Signal + Demographics= Personalization</h2>
-                  <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    Combine the behavioral pattern with the customer's demographics — every downstream system activates.
-                  </p>
 
                   {/* Phase 0: Signal + Demographics — top-left aligned */}
                   <div className="mt-8 flex items-center gap-3 flex-wrap" style={{ animation: "slideInLeft 0.5s ease-out both" }}>
@@ -587,12 +568,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
                     {beat6Phase === 0 ? "Siloed Transactions and Demographics" : "Ventus Innovates the Entire Stack"}
                   </h2>
-                  <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    {beat6Phase === 0 ?
-                  "Demographics and transaction data sit in separate silos. Downstream systems get generic, disconnected signals." :
-                  "Dynamic Personas & Behavioral Insights brackets demographics and transactions into a single intelligence layer. Every downstream system upgrades."
-                  }
-                  </p>
 
                   {/* Horizontal flow diagram */}
                   <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 w-full">
