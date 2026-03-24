@@ -479,7 +479,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>03</span>
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
-                  <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>One signal. Three personalized actions.</h2>
+                  <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Behavioral Signal + Demographics= Personalization</h2>
                   <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
                     Combine the life event with the customer's demographics — every downstream system activates.
                   </p>
