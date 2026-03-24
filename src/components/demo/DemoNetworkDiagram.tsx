@@ -433,6 +433,48 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         );
       })}
 
+      {/* Impact Column */}
+      {PILLAR_ROWS.map((pillar, pi) => {
+        const rowCenterY = getRowCenterY(pi);
+        const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
+        const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
+        const contentTop = rowCenterY - contentHeight / 2;
+        const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
+        const impactData = IMPACT_METRICS[pi];
+
+        return (
+          <div
+            key={`impact-${pi}`}
+            className="absolute flex flex-col justify-center gap-1 transition-opacity duration-500"
+            style={{
+              left: impactColLeftX,
+              top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
+              width: IMPACT_COL_WIDTH,
+              height: CONSUMER_NODE_HEIGHT,
+              opacity: consumerReady ? 1 : 0.3,
+              zIndex: 2,
+            }}
+          >
+            {impactData.metrics.map((metric, mi) => (
+              <div
+                key={mi}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 border transition-all duration-500"
+                style={{
+                  background: consumerReady ? `${impactData.color}12` : "transparent",
+                  borderColor: consumerReady ? `${impactData.color}30` : "#e2e8f020",
+                  opacity: consumerReady ? 1 : 0,
+                  transform: consumerReady ? "translateX(0)" : "translateX(-8px)",
+                  transitionDelay: consumerReady ? `${mi * 200}ms` : "0ms",
+                }}
+              >
+                <ArrowUpRight className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: "#22c55e" }} />
+                <span className={`font-semibold text-slate-700 ${centered ? "text-[12px]" : "text-[10px]"} whitespace-nowrap`}>{metric}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
       {/* Column Headers */}
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
@@ -445,6 +487,12 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         style={{ left: consumerColLeftX, width: CONSUMER_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
       >
         Consumer-Facing
+      </div>
+      <div
+        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-emerald-600 uppercase tracking-wider text-center`}
+        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+      >
+        Impact
       </div>
     </div>
   );
