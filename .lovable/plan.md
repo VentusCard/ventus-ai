@@ -1,29 +1,32 @@
 
 
-## Remove Education Beat (Beat 5) from Demo Opener
+## Replace Skiing Example with Expecting-a-Baby Life Event (Beat 4)
 
-Beat 5 (College Planning / 529 Opportunity, lines 471-526) will be removed entirely. The subsequent beats will shift down by one.
+### Current mechanism (3 phases via `beat4Phase`)
+- **Phase 0**: Show MCC badge + amount (merchant name hidden)
+- **Phase 1**: Reveal merchant name
+- **Phase 2**: Reveal behavioral insight label
+
+This exact 3-phase click-through mechanism stays. Only the data and labels change.
 
 ### Changes to `src/components/demo/DemoPasswordGate.tsx`
 
-1. **Reduce `TOTAL_BEATS`** from `8` to `7`
+**1. Replace transaction data array** (lines 397-400):
+```
+{ merchant: "CVS Pharmacy",               mcc: "5912", mccLabel: "Drug Stores & Pharmacies",      amount: "$48.70",  delay: "0.15s" }
+{ merchant: "Motherhood Maternity",        mcc: "5621", mccLabel: "Women's Ready-to-Wear",         amount: "$127.00", delay: "0.3s" }
+{ merchant: "Dr. Reyes OB/GYN Associates", mcc: "N/A",  mccLabel: "Check #1087",                   amount: "$350.00", delay: "0.45s" }
+{ merchant: "Pottery Barn",                mcc: "5712", mccLabel: "Furniture & Home Furnishings",   amount: "$890.00", delay: "0.6s" }
+{ merchant: "Babies R Us",                 mcc: "5999", mccLabel: "Miscellaneous Retail",           amount: "$156.75", delay: "0.75s" }
+```
 
-2. **Remove `BEAT_SUMMARIES[5]`** — the "Semantic enrichment reveals life events" entry. Renumber remaining entries.
+**2. Update heading** (line 391): "MCCs can't detect life events."
 
-3. **Remove `beat5Phase` state** and all references to it in `advance`, `goBack`, reset logic, and dependency arrays.
+**3. Update subtitle** (lines 392-394): "Five transactions across five different MCC codes. To the bank, these are completely unrelated purchases."
 
-4. **Delete Beat 5 JSX block** (lines 471-526) — the College Planning card.
+**4. Update insight label** (line 449): Change "Behavioral Insight: Skiing" → "Life Event: Expecting a Baby"
 
-5. **Renumber remaining beats**:
-   - Old Beat 6 (Disconnected data) → new Beat 5 (card label stays "04")
-   - Old Beat 7 (Reveal / Enter Demo) → new Beat 6
-   - Update all `displayStep === 6` checks to `5`, and `displayStep === 7` to `6`
-   - Update `beat6Phase` references to `beat5Phase` (reuse the freed state variable name)
+**5. Update SVG icon** to a heart/baby-appropriate shape instead of the ski diamond.
 
-6. **Update card numbering** inside the remaining beats:
-   - Beat 3 card: "01" (unchanged)
-   - Beat 4 card: "02" (unchanged)  
-   - New Beat 5 (was 6): change label from "04" to "03"
-
-**File**: `src/components/demo/DemoPasswordGate.tsx`
+**6. Update `beat4Phase` max** from `2` to `2` — stays the same (phase 0 = MCC+amount, phase 1 = merchant description, phase 2 = life event reveal).
 
