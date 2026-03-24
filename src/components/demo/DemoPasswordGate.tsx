@@ -485,50 +485,35 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </p>
 
                   {/* Phase 0: Signal + Demographics — top-left aligned */}
-                  <div className="mt-8 flex items-start gap-5">
-                    <div className="flex flex-col items-start gap-3">
-                      {/* Life event signal badge */}
-                      <div
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-full"
-                        style={{
-                          backgroundColor: "#EFF6FF",
-                          border: "1px solid #BFDBFE",
-                          animation: "slideInLeft 0.5s ease-out both",
-                        }}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-                          <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
-                        </svg>
-                        <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Expecting a Baby</span>
-                      </div>
+                  <div className="mt-8 flex items-center gap-3 flex-wrap" style={{ animation: "slideInLeft 0.5s ease-out both" }}>
+                    {/* Life event signal badge */}
+                    <div
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full"
+                      style={{
+                        backgroundColor: "#EFF6FF",
+                        border: "1px solid #BFDBFE",
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+                        <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
+                      </svg>
+                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Expecting a Baby</span>
+                    </div>
 
-                      {/* Merge connector */}
-                      <div className="flex items-center gap-2 ml-6">
-                        <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>+</span>
-                      </div>
+                    <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>+</span>
 
-                      {/* Demographics card — anonymous */}
-                      <div
-                        className="px-5 py-3 rounded-xl border flex items-center gap-3"
-                        style={{
-                          borderColor: "#BFDBFE",
-                          backgroundColor: "#F8FAFF",
-                          animation: "fadeIn 0.6s ease-out 0.3s both",
-                        }}
-                      >
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#DBEAFE" }}>
-                          <span className="text-sm">👤</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-wrap text-sm" style={{ color: "#64748B" }}>
-                          <span className="font-semibold" style={{ color: "#0F172A" }}>Age 32</span>
-                          <span>·</span>
-                          <span>HHI $145K</span>
-                          <span>·</span>
-                          <span>ZIP 60614</span>
-                          <span>·</span>
-                          <span>Married</span>
-                        </div>
-                      </div>
+                    {/* Demographics — inline */}
+                    <div
+                      className="flex items-center gap-1.5 text-sm"
+                      style={{ color: "#64748B", animation: "fadeIn 0.6s ease-out 0.3s both" }}
+                    >
+                      <span className="font-semibold" style={{ color: "#0F172A" }}>Age 32</span>
+                      <span>·</span>
+                      <span>HHI $145K</span>
+                      <span>·</span>
+                      <span>ZIP 60614</span>
+                      <span>·</span>
+                      <span>Married</span>
                     </div>
                   </div>
 
