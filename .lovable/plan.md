@@ -1,20 +1,19 @@
 
 
-## Plan: Update Impact Metrics Text and Adjust Purple Row Layout
+## Plan: Remove Grey Subheader Text from Demo Beats
 
-### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
+The grey subtitle paragraphs (`color: #64748B`) below the bold black headers on each beat of the demo opener will be removed. Only the bold black header text will remain.
 
-**1. Text updates (line 86-90)**
-- Change `"Higher Loyalty"` → `"High Profitability"` in the green row
-- Add `"Higher Advisor Effectiveness"` as a 4th metric in the purple row
+### File: `src/components/demo/DemoPasswordGate.tsx`
 
-**2. Adjust connector line for purple row (line 258-276)**
-The purple row (index 2) will now have 4 impact cards instead of 3. The connector line currently targets `consumerCenterY` which is the center of the consumer node. This stays the same — the line connects consumer node center to the center of the 4-card stack. The impact card container height needs to increase to fit 4 items, so we adjust the `height` style for the impact column when `impactData.metrics.length > 3` — or simply remove the fixed `CONSUMER_NODE_HEIGHT` constraint and let flexbox handle it. The connector line endpoint Y should target the visual center of the 4 cards.
+Remove the following `<p>` elements:
 
-**Specifically:**
-- Remove the fixed `height: CONSUMER_NODE_HEIGHT` from the impact container and let it auto-size, keeping `top` adjusted so the group is vertically centered in the row.
-- For the connector line, keep targeting `consumerCenterY` (center of the row) which will naturally align with the center of 4 cards since both are centered on the same row center.
+1. **Beat 1** (line 314-317): Remove the paragraph "Your customers see irrelevant offers..."
+2. **Beat 2** (line 328-332): Remove the paragraph "Every bank runs on Merchant Category Codes..."
+3. **Beat 3** (line 344-347): Remove the paragraph "A customer spends $120 on a ticket..."
+4. **Beat 4** (line 412-414): Remove the paragraph "Five transactions across five different MCC codes..."
+5. **Beat 5** (line 485-487): Remove the paragraph "Combine the behavioral pattern with the customer's demographics..."
+6. **Beat 6** (lines 590-594): Remove the paragraph that toggles between "Demographics and transaction data..." / "Dynamic Personas & Behavioral Insights..."
 
-### Files modified
-- `src/components/demo/DemoNetworkDiagram.tsx`
+All six beats will show only the bold black `<h1>`/`<h2>` header. No other elements are affected.
 
