@@ -484,170 +484,173 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     Combine the life event with the customer's demographics — every downstream system activates.
                   </p>
 
-                  {/* Phase 0: Signal + Demographics merge */}
-                  <div className="mt-8 flex flex-col items-center gap-5">
-                    {/* Life event signal badge */}
-                    <div
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full animate-fade-slide"
-                      style={{
-                        backgroundColor: "#EFF6FF",
-                        border: "1px solid #BFDBFE",
-                        animation: beat5Phase >= 1 ? "mergeGlow 2s ease infinite" : undefined,
-                        animationDelay: "0.1s",
-                        animationFillMode: "both"
-                      }}
-                    >
-                      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-                        <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
-                      </svg>
-                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Expecting a Baby</span>
-                    </div>
-
-                    {/* Merge connector */}
-                    <div className="flex items-center gap-2">
-                      <div className="w-px h-6" style={{ backgroundColor: "#3B82F6" }} />
-                      <span className="text-lg font-bold" style={{ color: "#3B82F6" }}>+</span>
-                      <div className="w-px h-6" style={{ backgroundColor: "#3B82F6" }} />
-                    </div>
-
-                    {/* Demographics card */}
-                    <div
-                      className="px-6 py-4 rounded-xl border animate-fade-slide flex items-center gap-4"
-                      style={{
-                        borderColor: "#BFDBFE",
-                        backgroundColor: "#F8FAFF",
-                        animationDelay: "0.4s",
-                        animationFillMode: "both"
-                      }}
-                    >
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "#DBEAFE" }}>
-                        <span className="text-base">👤</span>
-                      </div>
-                      <div>
-                        <span className="text-base font-semibold" style={{ color: "#0F172A" }}>Sarah M.</span>
-                        <span className="text-sm ml-2" style={{ color: "#64748B" }}>· 45 · Chicago, IL · Technology · HHI $145K · Married</span>
-                      </div>
-                    </div>
-
-                    {/* Downward arrow to actions */}
-                    <div
-                      className="transition-all duration-500"
-                      style={{
-                        opacity: beat5Phase >= 1 ? 1 : 0,
-                        transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(-8px)'
-                      }}
-                    >
-                      <svg width="24" height="32" viewBox="0 0 24 32" fill="none">
-                        <line x1="12" y1="0" x2="12" y2="24" stroke="#3B82F6" strokeWidth="2" />
-                        <path d="M6 20L12 28L18 20" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-
-                    {/* Three action cards */}
-                    <div
-                      className="grid grid-cols-3 gap-4 w-full max-w-3xl transition-all duration-700"
-                      style={{
-                        opacity: beat5Phase >= 1 ? 1 : 0,
-                        transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(16px)'
-                      }}
-                    >
-                      {/* Personalized Rewards */}
+                  {/* Phase 0: Signal + Demographics — top-left aligned */}
+                  <div className="mt-8 flex items-start gap-5">
+                    <div className="flex flex-col items-start gap-3">
+                      {/* Life event signal badge */}
                       <div
-                        className="rounded-xl border p-5 transition-all duration-500"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-full"
                         style={{
-                          borderColor: beat5Phase >= 2 ? "#3B82F6" : "#E2E8F0",
-                          backgroundColor: beat5Phase >= 2 ? "#F8FAFF" : "#FAFBFC",
-                          boxShadow: beat5Phase >= 2 ? "0 4px 16px rgba(59,130,246,0.1)" : "none"
+                          backgroundColor: "#EFF6FF",
+                          border: "1px solid #BFDBFE",
+                          animation: "slideInLeft 0.5s ease-out both",
                         }}
                       >
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">🎁</span>
-                          <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Rewards</span>
-                        </div>
-                        <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                          Hyper-targeted deals matched to life stage
-                        </p>
-                        {/* Phase 2 expansion */}
-                        <div
-                          className="mt-3 space-y-2 transition-all duration-500 overflow-hidden"
-                          style={{
-                            maxHeight: beat5Phase >= 2 ? 200 : 0,
-                            opacity: beat5Phase >= 2 ? 1 : 0,
-                          }}
-                        >
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs mt-0.5">📍</span>
-                            <span className="text-xs" style={{ color: "#1E40AF" }}>Chicago-area baby boutique deals & nursery offers</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs mt-0.5">💬</span>
-                            <span className="text-xs" style={{ color: "#1E40AF" }}>Personalized messaging: "Congrats on the new addition, Sarah!"</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs mt-0.5">🎯</span>
-                            <span className="text-xs" style={{ color: "#1E40AF" }}>Lifestyle-matched offers near you</span>
-                          </div>
-                        </div>
+                        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+                          <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
+                        </svg>
+                        <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Expecting a Baby</span>
                       </div>
 
-                      {/* Personalized Relationship */}
-                      <div
-                        className="rounded-xl border p-5 transition-all duration-500"
-                        style={{
-                          borderColor: beat5Phase >= 3 ? "#3B82F6" : "#E2E8F0",
-                          backgroundColor: beat5Phase >= 3 ? "#F8FAFF" : "#FAFBFC",
-                          boxShadow: beat5Phase >= 3 ? "0 4px 16px rgba(59,130,246,0.1)" : "none"
-                        }}
-                      >
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">🤝</span>
-                          <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Relationship</span>
-                        </div>
-                        <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                          Advisor intelligence triggered automatically
-                        </p>
-                        {/* Phase 3 expansion */}
-                        <div
-                          className="mt-3 space-y-2 transition-all duration-500 overflow-hidden"
-                          style={{
-                            maxHeight: beat5Phase >= 3 ? 200 : 0,
-                            opacity: beat5Phase >= 3 ? 1 : 0,
-                          }}
-                        >
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs mt-0.5">🔔</span>
-                            <span className="text-xs" style={{ color: "#1E40AF" }}>Wealth manager alerted with life event context</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs mt-0.5">📋</span>
-                            <span className="text-xs" style={{ color: "#1E40AF" }}>Automated event prep: 529 plans, insurance review</span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs mt-0.5">➡️</span>
-                            <span className="text-xs" style={{ color: "#1E40AF" }}>Next-step recommendations for the relationship</span>
-                          </div>
-                        </div>
+                      {/* Merge connector */}
+                      <div className="flex items-center gap-2 ml-6">
+                        <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>+</span>
                       </div>
 
-                      {/* Analytics Signal (static) */}
+                      {/* Demographics card — anonymous */}
                       <div
-                        className="rounded-xl border p-5"
+                        className="px-5 py-3 rounded-xl border flex items-center gap-3"
                         style={{
-                          borderColor: "#E2E8F0",
-                          backgroundColor: "#FAFBFC"
+                          borderColor: "#BFDBFE",
+                          backgroundColor: "#F8FAFF",
+                          animation: "fadeIn 0.6s ease-out 0.3s both",
                         }}
                       >
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xl">📊</span>
-                          <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Analytics Signal</span>
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#DBEAFE" }}>
+                          <span className="text-sm">👤</span>
                         </div>
-                        <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                          Behavioral cluster updated
-                        </p>
-                        <p className="text-xs leading-relaxed mt-1" style={{ color: "#64748B" }}>
-                          Segment migration triggered
-                        </p>
+                        <div className="flex items-center gap-1.5 flex-wrap text-sm" style={{ color: "#64748B" }}>
+                          <span className="font-semibold" style={{ color: "#0F172A" }}>Age 32</span>
+                          <span>·</span>
+                          <span>HHI $145K</span>
+                          <span>·</span>
+                          <span>ZIP 60614</span>
+                          <span>·</span>
+                          <span>Married</span>
+                        </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Downward arrow to actions */}
+                  <div
+                    className="mt-4 ml-6 transition-all duration-500"
+                    style={{
+                      opacity: beat5Phase >= 1 ? 1 : 0,
+                      transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(-8px)'
+                    }}
+                  >
+                    <svg width="24" height="28" viewBox="0 0 24 28" fill="none">
+                      <line x1="12" y1="0" x2="12" y2="20" stroke="#3B82F6" strokeWidth="2" />
+                      <path d="M6 16L12 24L18 16" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+
+                  {/* Three vertically stacked action cards */}
+                  <div
+                    className="flex flex-col gap-4 w-full max-w-xl mt-3 transition-all duration-700"
+                    style={{
+                      opacity: beat5Phase >= 1 ? 1 : 0,
+                      transform: beat5Phase >= 1 ? 'translateY(0)' : 'translateY(16px)'
+                    }}
+                  >
+                    {/* Personalized Rewards */}
+                    <div
+                      className="rounded-xl border p-5 transition-all duration-500"
+                      style={{
+                        borderColor: beat5Phase >= 2 ? "#3B82F6" : "#E2E8F0",
+                        backgroundColor: beat5Phase >= 2 ? "#F8FAFF" : "#FAFBFC",
+                        boxShadow: beat5Phase >= 2 ? "0 4px 16px rgba(59,130,246,0.1)" : "none"
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">🎁</span>
+                        <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Rewards</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
+                        Hyper-targeted deals matched to life stage &amp; location
+                      </p>
+                      {/* Phase 2 expansion */}
+                      <div
+                        className="mt-3 space-y-2 transition-all duration-500 overflow-hidden"
+                        style={{
+                          maxHeight: beat5Phase >= 2 ? 220 : 0,
+                          opacity: beat5Phase >= 2 ? 1 : 0,
+                        }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">🛒</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Buy Buy Baby — 15% off nursery furniture (2.3 mi away)</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">🏥</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Prenatal wellness package at Northwestern Medicine</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">♻️</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Baby gear trade-in program — local Chicago partner</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">🛡️</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Upsell: Family protection insurance bundle</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Personalized Relationship */}
+                    <div
+                      className="rounded-xl border p-5 transition-all duration-500"
+                      style={{
+                        borderColor: beat5Phase >= 3 ? "#3B82F6" : "#E2E8F0",
+                        backgroundColor: beat5Phase >= 3 ? "#F8FAFF" : "#FAFBFC",
+                        boxShadow: beat5Phase >= 3 ? "0 4px 16px rgba(59,130,246,0.1)" : "none"
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">🤝</span>
+                        <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Relationship</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
+                        Advisor intelligence triggered automatically
+                      </p>
+                      {/* Phase 3 expansion */}
+                      <div
+                        className="mt-3 space-y-2 transition-all duration-500 overflow-hidden"
+                        style={{
+                          maxHeight: beat5Phase >= 3 ? 200 : 0,
+                          opacity: beat5Phase >= 3 ? 1 : 0,
+                        }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">🔔</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Wealth manager alerted with life event context</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">📋</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Automated event prep: 529 plans, insurance review</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">➡️</span>
+                          <span className="text-xs" style={{ color: "#1E40AF" }}>Next-step recommendations for the relationship</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Analytics Signal (static) */}
+                    <div
+                      className="rounded-xl border p-5"
+                      style={{
+                        borderColor: "#E2E8F0",
+                        backgroundColor: "#FAFBFC"
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">📊</span>
+                        <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Analytics Signal</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
+                        Behavioral cluster updated · Segment migration triggered
+                      </p>
                     </div>
                   </div>
                 </div>
