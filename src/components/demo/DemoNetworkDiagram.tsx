@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot";
@@ -83,6 +83,12 @@ const ENGINE_CAPABILITIES = [
   { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
 ];
 
+const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
+  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#f59e0b" },
+  { metrics: ["Higher Redemption", "Higher Spend Lift", "Higher Loyalty"], color: "#22c55e" },
+  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value"], color: "#8b5cf6" },
+];
+
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
@@ -119,16 +125,20 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
   const gap1 = centered ? 50 : Math.max(14, dims.w * 0.018);
   const gap2 = centered ? 60 : Math.max(28, dims.w * 0.035);
   const gap3 = centered ? 55 : Math.max(24, dims.w * 0.03);
+  const gap4 = centered ? 45 : Math.max(18, dims.w * 0.022);
+
+  const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
   // Always center the block in the available width
   const pad = Math.max(8, dims.w * 0.01);
-  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
   const bankColLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
   const consumerColLeftX = bankColLeftX + BANK_COL_WIDTH + gap3;
+  const impactColLeftX = consumerColLeftX + CONSUMER_COL_WIDTH + gap4;
 
   // Vertical layout
   const midY = dims.h * 0.5;
@@ -238,6 +248,28 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
                   </g>
                 );
               });
+            })}
+
+            {/* Consumer column → Impact column */}
+            {PILLAR_ROWS.map((pillar, pi) => {
+              const totalGridH = ROW_HEIGHT * 3;
+              const gTopY = midY - totalGridH / 2;
+              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
+              const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
+              const cTop = rCenterY - cHeight / 2;
+              const consumerRight = consumerColLeftX + CONSUMER_COL_WIDTH;
+              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
+              const impactLeft = impactColLeftX;
+              const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
+              const cpX1 = consumerRight + (impactLeft - consumerRight) * 0.4;
+              const cpX2 = consumerRight + (impactLeft - consumerRight) * 0.6;
+              const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
+              return (
+                <g key={`cons-impact-${pi}`}>
+                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0.1} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
+                </g>
+              );
             })}
           </>
         )}
@@ -401,6 +433,48 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         );
       })}
 
+      {/* Impact Column */}
+      {PILLAR_ROWS.map((pillar, pi) => {
+        const rowCenterY = getRowCenterY(pi);
+        const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
+        const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
+        const contentTop = rowCenterY - contentHeight / 2;
+        const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
+        const impactData = IMPACT_METRICS[pi];
+
+        return (
+          <div
+            key={`impact-${pi}`}
+            className="absolute flex flex-col justify-center gap-1 transition-opacity duration-500"
+            style={{
+              left: impactColLeftX,
+              top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
+              width: IMPACT_COL_WIDTH,
+              height: CONSUMER_NODE_HEIGHT,
+              opacity: consumerReady ? 1 : 0.3,
+              zIndex: 2,
+            }}
+          >
+            {impactData.metrics.map((metric, mi) => (
+              <div
+                key={mi}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 border transition-all duration-500"
+                style={{
+                  background: consumerReady ? `${impactData.color}12` : "transparent",
+                  borderColor: consumerReady ? `${impactData.color}30` : "#e2e8f020",
+                  opacity: consumerReady ? 1 : 0,
+                  transform: consumerReady ? "translateX(0)" : "translateX(-8px)",
+                  transitionDelay: consumerReady ? `${mi * 200}ms` : "0ms",
+                }}
+              >
+                <ArrowUpRight className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: "#22c55e" }} />
+                <span className={`font-semibold text-slate-700 ${centered ? "text-[12px]" : "text-[10px]"} whitespace-nowrap`}>{metric}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
       {/* Column Headers */}
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
@@ -413,6 +487,12 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         style={{ left: consumerColLeftX, width: CONSUMER_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
       >
         Consumer-Facing
+      </div>
+      <div
+        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-emerald-600 uppercase tracking-wider text-center`}
+        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+      >
+        Impact
       </div>
     </div>
   );
