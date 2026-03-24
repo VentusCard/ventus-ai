@@ -498,6 +498,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       >
         Impact
       </div>
+     </div>
     </div>
   );
 }
