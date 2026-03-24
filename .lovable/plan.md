@@ -1,42 +1,14 @@
 
 
-## Expand Beat 5 Cards — Full Width with Example Sub-Cards
+## Remove Emojis from Nested Sub-Cards, Keep Cards Full Width
 
 **File**: `src/components/demo/DemoPasswordGate.tsx`
 
-**Lines 526–553** — Replace the three compact stacked cards with three full-width cards, each containing a title row and a grid of 4 small nested example cards.
+### Changes
 
-### Card structure (each card):
-```text
-┌─────────────────────────────────────────────────────┐
-│ 🎁  Personalized Rewards                            │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
-│ │ 🍼 Baby      │ │ 📚 Pregnancy │ │ 🧸 Strollers │ │ 🏥 Prenatal  │ │
-│ │ Monitors     │ │ Books &      │ │ & Car Seats  │ │ Classes &    │ │
-│ │              │ │ Audiobooks   │ │              │ │ Services     │ │
-│ └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘ │
-└─────────────────────────────────────────────────────┘
-```
+**Lines 521**: Remove `max-w-xl` from the container so the three cards span the full width of the beat section.
 
-### Content for each card:
+**Lines 530, 541, 551, 561–562, 571–572, 582–583**: Keep the header emojis (🎁, 🤝, 📱) on the three main cards, but remove the emoji `<span>` from each nested sub-card — leaving only the bold text label.
 
-**🎁 Personalized Rewards** — life-stage matched offers:
-- 🍼 Baby Monitors & Gear
-- 📚 Pregnancy Books & Audiobooks
-- 🧸 Strollers & Car Seats
-- 🏥 Prenatal Classes & Services
-
-**🤝 Personalized Relationship** — advisor talking points:
-- 📋 529 Plan Setup
-- 🏠 Home Space Planning
-- 🛡️ Life Insurance Review
-- 💰 Emergency Fund Boost
-
-**📱 Personalized UX** — app experience changes:
-- 📊 "Family & Foundation" Pillar
-- 🎯 Baby Budget Tracker
-- 🔔 Parenting Milestone Alerts
-- 🏷️ Family Deal Highlights
-
-Each nested card: white background, rounded-lg border, small emoji + bold label, ~2-word subtitle. Grid is `grid-cols-2 sm:grid-cols-4 gap-2`.
+Result: three full-width cards, each with a 4-column grid of text-only nested cards.
 
