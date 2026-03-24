@@ -185,7 +185,7 @@ function scoreOpportunities(
       for (const [keyword, products] of Object.entries(EVENT_PRODUCT_AFFINITY)) {
         if (words.some(w => w.includes(keyword)) && products.includes(product.name)) {
           score += Math.round(event.confidence * 0.3);
-          signals.push(`Life event: ${event.event_name} (${event.confidence}%)`);
+          signals.push(`Behavioral Pattern: ${event.event_name} (${event.confidence}%)`);
           break;
         }
       }
@@ -426,7 +426,7 @@ function NextProductCard({
   );
 
   const topEvent = detectedEvents[0];
-  const sourceLabel = topEvent ? `Life Event: ${topEvent.event_name}` : "Spending Pattern Analysis";
+  const sourceLabel = topEvent ? `Behavioral Pattern: ${topEvent.event_name}` : "Spending Pattern Analysis";
   const borderColor = CATEGORY_BORDER_COLOR[opp.product.category] || "#3b82f6";
 
   return (

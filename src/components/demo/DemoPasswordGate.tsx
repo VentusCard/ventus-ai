@@ -479,7 +479,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>Behavioral Signal + Demographics= Personalization</h2>
                   <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    Combine the life event with the customer's demographics — every downstream system activates.
+                    Combine the behavioral pattern with the customer's demographics — every downstream system activates.
                   </p>
 
                   {/* Phase 0: Signal + Demographics — top-left aligned */}
@@ -697,7 +697,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                           {[...Array(2)].map((_, dupeIdx) =>
                         [
                         { label: "Smart Rewards with Personalized Offers", icon: "🎁" },
-                        { label: "Life Event Detection & Anticipation", icon: "💫" },
+                        { label: "Behavioral Pattern Detection & Anticipation", icon: "💫" },
                         { label: "AI-Powered Campaign Targeting", icon: "📣" },
                         { label: "Behavioral Segment Builder", icon: "👥" },
                         { label: "Travel Detection & Local Deals", icon: "✈️" },
