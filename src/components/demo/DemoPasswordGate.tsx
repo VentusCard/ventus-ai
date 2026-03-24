@@ -534,7 +534,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span className="text-[11px] text-slate-400">— Delivered within deals page with ranking, message, and CTA personalized</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {["Baby Monitors & Gear", "Pregnancy Books & Audiobooks", "Strollers & Car Seats", "Prenatal Classes & Services"].map((label) => (
+                        {["Baby Monitors & Gear", "Pregnancy Books & Audiobooks", "Strollers & Car Seats", "Local Classes & Services"].map((label) => (
                           <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
                             <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{label}</span>
                           </div>
