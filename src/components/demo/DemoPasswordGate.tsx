@@ -550,7 +550,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         <span className="text-[11px] text-slate-400">— Triggers automation for regular customers and notification & automated prep for wealth managers</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {["529 Plan Setup", "Home Space Planning", "Life Insurance Review", "Emergency Fund Boost"].map((label) => (
+                        {["529 Plan Setup", "Local Advisor Notified ", "Life Insurance Review", "Emergency Fund Boost"].map((label) => (
                           <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
                             <span className="text-[10px] font-bold leading-tight" style={{ color: "#0F172A" }}>{label}</span>
                           </div>
