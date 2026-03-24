@@ -49,7 +49,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   wmCopilot: { title: "Wealth Management CoPilot", color: "#7c3aed" },
 };
 
-const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot"]);
+const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot"]);
 
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",
@@ -57,7 +57,7 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   travel: "rewards-intelligence",
   locational: "location-experience",
   lifeEventIntel: "life-events",
-  wealth: "targeting",
+  lifeEvents: "targeting",
 };
 
 export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, tipA, tipB, onClose }: Props) {
@@ -95,7 +95,7 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         />
       );
     }
-    if (node === "lifeEvents") {
+    if (node === "wealth") {
       return (
         <DemoFinancialJourneyView
           customerA={customerA}
