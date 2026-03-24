@@ -1,35 +1,36 @@
 
 
-## Plan: Add WM CoPilot as a Bank-Facing Node Below Financial Journey
+## Plan: Add "Impact" Column to Network Diagram
 
-### Approach
-Add `wmCopilot` as a 3rd bank-facing node in the 3rd pillar row (Phase), stacked below "Life Event Intelligence" and "Financial Journey". This requires adjusting the layout to support 3 bank nodes in that row.
+### What
+Add a 5th column to the right of the consumer-facing nodes showing business outcomes. Each row gets 3 "Higher ___" metric badges that fade in once the consumer node is ready.
 
-### Changes
+### Content
 
-**1. `src/components/demo/DemoNetworkDiagram.tsx`**
-- Add `"wmCopilot"` to `DemoNodeType` union
-- Add a 3rd entry to the Phase row's `bankNodes` array: `{ id: "wmCopilot", label: "WM CoPilot", icon: Briefcase, color: "#7c3aed", audience: "bank" }`
-- Import `Briefcase` from lucide-react
-- The existing rendering loop already iterates `pillar.bankNodes` dynamically, so adding a 3rd node will auto-render it — but the fixed `BANK_NODE_HEIGHT * 2 + BANK_NODE_GAP` calculation needs to become dynamic: `BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1)`
-- The SVG connection lines from engine→bank and bank→consumer also iterate dynamically, so they'll auto-include the new node
+| Row | Consumer Node | Impact Metrics |
+|-----|--------------|----------------|
+| 1 | Personalized UX | Higher Engagement · Higher App Usage · Higher NPS |
+| 2 | Personalized Rewards | Higher Redemption · Higher Spend Lift · Higher Loyalty |
+| 3 | Personalized Relationship | Higher Cross-Sell · Higher AUM Growth · Higher Lifetime Value |
 
-**2. `src/hooks/useDemoEnrichment.ts`**
-- Add `wmCopilot: "idle"` to `INITIAL_READINESS`
-- Add `"wmCopilot"` to `PERIPHERAL_NODES` array
+### Layout
+```text
+[TX Cards] → [Engine] → [Bank-Facing] → [Consumer-Facing] → [Impact]
+```
 
-**3. `src/components/demo/DemoDetailOverlay.tsx`**
-- Add `wmCopilot` to `NODE_TITLES`: `{ title: "Wealth Management CoPilot", color: "#7c3aed" }`
-- Add render case: `if (node === "wmCopilot") return <BankwideWMCopilotView />`
-- Add `"wmCopilot"` to `BANK_WIDE_NODES` set (so it gets full-width layout, no customer A/B headers)
-- Import `BankwideWMCopilotView`
+### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
 
-**4. `src/pages/DemoPage.tsx`**
-- Add `"wmCopilot"` to `NODE_ORDER` array (after `"wealth"`)
+1. **Add Impact column data** — define `IMPACT_METRICS` array mapping each pillar row index to its 3 metrics with colors
+2. **Expand layout math** — add `IMPACT_COL_WIDTH` and `gap4`, include them in `totalContentWidth` and compute `impactColLeftX = consumerColLeftX + CONSUMER_COL_WIDTH + gap4`
+3. **Add SVG connector lines** — draw a short curved line from each consumer node to its impact card (same pattern as bank→consumer lines)
+4. **Render impact cards** — for each pillar row, render a card at `impactColLeftX` containing 3 stacked "Higher ___" badges with upward-arrow icons. Cards use a fade/slide-in transition triggered when the consumer node's readiness is `"ready"`
+5. **Add "Impact" column header** — positioned above the impact column, matching the style of "Bank-Facing" and "Consumer-Facing" headers
 
-### Files modified
-- `src/components/demo/DemoNetworkDiagram.tsx`
-- `src/components/demo/DemoDetailOverlay.tsx`
-- `src/hooks/useDemoEnrichment.ts`
-- `src/pages/DemoPage.tsx`
+### Visual Style
+- Each metric badge: small green upward arrow icon + "Higher ___" text
+- Card background: subtle green tint when active, grey when waiting
+- Staggered fade-in animation (each badge delays 200ms after the previous)
+
+### Files Modified
+- `src/components/demo/DemoNetworkDiagram.tsx` (only file)
 
