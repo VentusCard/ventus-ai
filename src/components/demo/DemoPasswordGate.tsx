@@ -21,8 +21,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   const [step, setStep] = useState(0);
   const [displayStep, setDisplayStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [revealLogo, setRevealLogo] = useState(false);
-  const [revealInput, setRevealInput] = useState(false);
   const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
@@ -95,8 +93,6 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         setIsTransitioning(false);
       }, 150);
     }
-    setRevealLogo(false);
-    setRevealInput(false);
     setBeat4Phase(0);
     setBeat5Phase(0);
     setBeat6Phase(0);
