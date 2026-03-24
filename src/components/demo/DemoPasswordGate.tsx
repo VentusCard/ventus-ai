@@ -338,7 +338,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs are blind.</h2>
                   <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                    A customer spends $120 on entertainment. The bank sees one code.
+                    A customer spends $120 on a ticket. The bank sees one code.
                     But what does it actually mean?
                   </p>
                   <div className="mt-8 flex flex-col items-center gap-6">
