@@ -129,13 +129,13 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
 
   const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
-  // Dynamic centering: exclude impact column width when not visible
+  // Dynamic centering: shift everything right when impact column is hidden
   const anyImpactVisible = PILLAR_ROWS.some(p => nodeReadiness[p.consumerNode.id] === "ready");
   const pad = Math.max(8, dims.w * 0.01);
-  const totalContentWidthFull = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
-  const totalContentWidthNoImpact = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
-  const totalContentWidth = anyImpactVisible ? totalContentWidthFull : totalContentWidthNoImpact;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
+  // When impact is hidden, shift diagram right to center the visible 4 columns
+  const centeringShift = anyImpactVisible ? 0 : (gap4 + IMPACT_COL_WIDTH) / 2;
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
