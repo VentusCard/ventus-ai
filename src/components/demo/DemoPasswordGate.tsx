@@ -10,7 +10,7 @@ const BEAT_SUMMARIES = [
 "Ventus AI — AI Customer Intelligence Layer that Powers Banking Personalization Across Functions.",
 "Billions in personalization spend — zero customer understanding.",
 "Built on MCC — a 1974 taxonomy for routing, not intelligence.",
-"MCCs are blind — same code for symphony, Celtics, and Monster Jam.",
+"MCCs are blind — one code that could mean symphony, Celtics, or Monster Jam.",
 "MCCs can't see patterns — three ski purchases, three generic codes.",
 "One signal activates personalized rewards, relationship management, and analytics.",
 "Disconnected data — no demographics, no actionable intelligence."];
