@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
-import { Monitor } from "lucide-react";
+import { Monitor, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
@@ -497,23 +497,22 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                         <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
                       </svg>
-                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Expecting a Baby</span>
+                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Life Event: Expecting a Baby</span>
                     </div>
 
                     <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>+</span>
 
-                    {/* Demographics — inline */}
+                    {/* Demographics pill — matching style */}
                     <div
-                      className="flex items-center gap-1.5 text-sm"
-                      style={{ color: "#64748B", animation: "fadeIn 0.6s ease-out 0.3s both" }}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full"
+                      style={{
+                        backgroundColor: "#EFF6FF",
+                        border: "1px solid #BFDBFE",
+                        animation: "fadeIn 0.6s ease-out 0.3s both",
+                      }}
                     >
-                      <span className="font-semibold" style={{ color: "#0F172A" }}>Age 32</span>
-                      <span>·</span>
-                      <span>HHI $145K</span>
-                      <span>·</span>
-                      <span>ZIP 60614</span>
-                      <span>·</span>
-                      <span>Married</span>
+                      <Users size={18} className="text-blue-500" />
+                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>Demographic Information: Age, Income, ZIP Code</span>
                     </div>
                   </div>
 
