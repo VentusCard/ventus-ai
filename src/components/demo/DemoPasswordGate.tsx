@@ -46,7 +46,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
         setBeat4Phase(0);
       }
       if (s === 5) {
-        if (beat5Phase < 3) {
+        if (beat5Phase < 1) {
           setBeat5Phase((p) => p + 1);
           return s;
         }
@@ -540,127 +540,30 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     }}
                   >
                     {/* Personalized Rewards */}
-                    <div
-                      className="rounded-xl border p-5 transition-all duration-500"
-                      style={{
-                        borderColor: beat5Phase >= 2 ? "#3B82F6" : "#E2E8F0",
-                        backgroundColor: beat5Phase >= 2 ? "#F8FAFF" : "#FAFBFC",
-                        boxShadow: beat5Phase >= 2 ? "0 4px 16px rgba(59,130,246,0.1)" : "none"
-                      }}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl">🎁</span>
+                    <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">🎁</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Rewards</span>
                       </div>
-                      <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                        Hyper-targeted deals matched to life stage &amp; location
-                      </p>
-                      {/* Phase 2 expansion */}
-                      <div
-                        className="mt-3 space-y-2 transition-all duration-500 overflow-hidden"
-                        style={{
-                          maxHeight: beat5Phase >= 2 ? 220 : 0,
-                          opacity: beat5Phase >= 2 ? 1 : 0,
-                        }}
-                      >
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">🛒</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Buy Buy Baby — 15% off nursery furniture (2.3 mi away)</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">🏥</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Prenatal wellness package at Northwestern Medicine</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">♻️</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Baby gear trade-in program — local Chicago partner</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">🛡️</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Upsell: Family protection insurance bundle</span>
-                        </div>
-                      </div>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Hyper-targeted deals matched to life stage &amp; location</p>
                     </div>
 
                     {/* Personalized Relationship */}
-                    <div
-                      className="rounded-xl border p-5 transition-all duration-500"
-                      style={{
-                        borderColor: beat5Phase >= 3 ? "#3B82F6" : "#E2E8F0",
-                        backgroundColor: beat5Phase >= 3 ? "#F8FAFF" : "#FAFBFC",
-                        boxShadow: beat5Phase >= 3 ? "0 4px 16px rgba(59,130,246,0.1)" : "none"
-                      }}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl">🤝</span>
+                    <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">🤝</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Relationship</span>
                       </div>
-                      <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
-                        Advisor intelligence triggered automatically
-                      </p>
-                      {/* Phase 3 expansion */}
-                      <div
-                        className="mt-3 space-y-2 transition-all duration-500 overflow-hidden"
-                        style={{
-                          maxHeight: beat5Phase >= 3 ? 200 : 0,
-                          opacity: beat5Phase >= 3 ? 1 : 0,
-                        }}
-                      >
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">🔔</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Wealth manager alerted with life event context</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">📋</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Automated event prep: 529 plans, insurance review</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">➡️</span>
-                          <span className="text-xs" style={{ color: "#1E40AF" }}>Next-step recommendations for the relationship</span>
-                        </div>
-                      </div>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Advisor intelligence triggered with life event context</p>
                     </div>
 
                     {/* Personalized UX */}
-                    <div
-                      className="rounded-xl border p-5"
-                      style={{
-                        borderColor: "#E2E8F0",
-                        backgroundColor: "#FAFBFC"
-                      }}
-                    >
+                    <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl">📱</span>
+                        <span className="text-lg">📱</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized UX</span>
                       </div>
-                      <p className="text-xs mb-3" style={{ color: "#64748B" }}>
-                        New lifestyle pillar activated from detected signal
-                      </p>
-                      <div className="rounded-lg border p-3" style={{ borderColor: "#E2E8F0", backgroundColor: "#FFFFFF" }}>
-                        <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-xs font-bold" style={{ color: "#0F172A" }}>👨‍👩‍👧 Family & Foundation</span>
-                          <span className="text-xs" style={{ color: "#64748B" }}>$1,840 / $3,200</span>
-                        </div>
-                        <div className="h-1.5 w-full rounded-full overflow-hidden mb-3" style={{ backgroundColor: "#E2E8F0" }}>
-                          <div className="h-full rounded-full" style={{ width: "57%", backgroundColor: "#22c55e" }} />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          {[
-                            { icon: "🍼", label: "Baby & Nursery", amount: "$680" },
-                            { icon: "🏥", label: "Prenatal Care", amount: "$520" },
-                            { icon: "📚", label: "Parenting Resources", amount: "$380" },
-                            { icon: "🛡️", label: "Family Protection", amount: "$260" },
-                          ].map((item) => (
-                            <div key={item.label} className="flex justify-between items-center text-xs">
-                              <span style={{ color: "#334155" }}>{item.icon} {item.label}</span>
-                              <span className="font-medium" style={{ color: "#0F172A" }}>{item.amount}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-[10px] mt-2 italic" style={{ color: "#94A3B8" }}>
-                        Pillar auto-created from life event signal
-                      </p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>New "Family &amp; Foundation" spending pillar auto-created</p>
                     </div>
                   </div>
                 </div>
