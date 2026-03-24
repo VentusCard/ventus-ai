@@ -397,7 +397,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                         {[
                       { merchant: "CVS Pharmacy", mcc: "5912", mccLabel: "Drug Stores & Pharmacies", amount: "$48.70", delay: "0.15s" },
                       { merchant: "Motherhood Maternity", mcc: "5621", mccLabel: "Women's Ready-to-Wear", amount: "$127.00", delay: "0.3s" },
-                      { merchant: "Dr. Reyes OB/GYN Associates", mcc: "N/A", mccLabel: "Check #1087", amount: "$350.00", delay: "0.45s" },
+                      { merchant: "Dr. Reyes OB/GYN Associates", mcc: "N/A", mccLabel: "Check #1087", amount: "$1350.00", delay: "0.45s" },
                       { merchant: "Pottery Barn", mcc: "5712", mccLabel: "Furniture & Home Furnishings", amount: "$890.00", delay: "0.6s" },
                       { merchant: "Babies R Us", mcc: "5999", mccLabel: "Miscellaneous Retail", amount: "$156.75", delay: "0.75s" }].
                       map((tx, i) =>
