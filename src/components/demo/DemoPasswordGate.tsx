@@ -388,16 +388,18 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                       <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>02</span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs can't identify patterns.</h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>MCCs can't detect life events.</h2>
                     <p className="mt-3 text-lg sm:text-xl" style={{ color: "#64748B" }}>
-                      Three transactions across three different MCC codes. To the bank, these are completely unrelated purchases.
+                      Five transactions across five different MCC codes. To the bank, these are completely unrelated purchases.
                     </p>
                     <div className="mt-8">
                       <div className="space-y-3">
                         {[
-                      { merchant: "Vail Resorts — EPIC Pass", mcc: "7941", mccLabel: "Sports & Entertainment", amount: "$979.00", delay: "0.2s" },
-                      { merchant: "Burton Snowboards", mcc: "5941", mccLabel: "Sporting Goods", amount: "$649.00", delay: "0.5s" },
-                      { merchant: "The North Face", mcc: "5699", mccLabel: "Apparel", amount: "$389.00", delay: "0.8s" }].
+                      { merchant: "CVS Pharmacy", mcc: "5912", mccLabel: "Drug Stores & Pharmacies", amount: "$48.70", delay: "0.15s" },
+                      { merchant: "Motherhood Maternity", mcc: "5621", mccLabel: "Women's Ready-to-Wear", amount: "$127.00", delay: "0.3s" },
+                      { merchant: "Dr. Reyes OB/GYN Associates", mcc: "N/A", mccLabel: "Check #1087", amount: "$350.00", delay: "0.45s" },
+                      { merchant: "Pottery Barn", mcc: "5712", mccLabel: "Furniture & Home Furnishings", amount: "$890.00", delay: "0.6s" },
+                      { merchant: "Babies R Us", mcc: "5999", mccLabel: "Miscellaneous Retail", amount: "$156.75", delay: "0.75s" }].
                       map((tx, i) =>
                       <div
                         key={i}
@@ -441,12 +443,10 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                     <div className="flex items-center gap-3">
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                       <div className="flex items-center gap-2 px-5 py-2.5 rounded-full" style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
-                        <svg width="22" height="22" viewBox="0 0 18 18" fill="none">
-                          <path d="M9 2L11 7L9 12L7 7L9 2Z" fill="#3B82F6" />
-                          <path d="M5 8L9 12L13 8" stroke="#3B82F6" strokeWidth="1.5" fill="none" />
-                          <line x1="9" y1="12" x2="9" y2="16" stroke="#3B82F6" strokeWidth="1.5" />
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                          <path d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z" fill="#3B82F6" />
                         </svg>
-                        <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>Behavioral Insight: Skiing</span>
+                        <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>Life Event: Expecting a Baby</span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     </div>
