@@ -85,8 +85,8 @@ const ENGINE_CAPABILITIES = [
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
   { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#f59e0b" },
-  { metrics: ["Higher Redemption", "Higher Spend Lift", "Higher Loyalty"], color: "#22c55e" },
-  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value"], color: "#8b5cf6" },
+  { metrics: ["Higher Redemption", "Higher Spend Lift", "High Profitability"], color: "#22c55e" },
+  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#8b5cf6" },
 ];
 
 export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
@@ -452,9 +452,8 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
             className="absolute flex flex-col justify-center gap-1 transition-opacity duration-500"
             style={{
               left: impactColLeftX,
-              top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
+              top: rowCenterY - (impactData.metrics.length * 28 + (impactData.metrics.length - 1) * 4) / 2,
               width: IMPACT_COL_WIDTH,
-              height: CONSUMER_NODE_HEIGHT,
               opacity: consumerReady ? 1 : 0,
               zIndex: 2,
             }}
