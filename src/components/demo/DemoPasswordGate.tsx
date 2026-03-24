@@ -526,11 +526,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   >
                     {/* Personalized Rewards */}
                     <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">🎁</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Rewards</span>
+                        <span className="text-[11px] text-slate-400">— Delivered within deals page with ranking, message, and CTA personalized</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 mb-3 ml-7">Delivered within deals page with ranking, message, and CTA personalized</p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {["Baby Monitors & Gear", "Pregnancy Books & Audiobooks", "Strollers & Car Seats", "Prenatal Classes & Services"].map((label) => (
                           <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
@@ -542,11 +542,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                     {/* Personalized Relationship */}
                     <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">🤝</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized Relationship</span>
+                        <span className="text-[11px] text-slate-400">— Triggers automation for regular customers and notification & automated prep for wealth managers</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 mb-3 ml-7">Triggers automation for regular customers and notification & automated prep for wealth managers</p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {["529 Plan Setup", "Home Space Planning", "Life Insurance Review", "Emergency Fund Boost"].map((label) => (
                           <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
@@ -558,11 +558,11 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
                     {/* Personalized UX */}
                     <div className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg">📱</span>
                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>Personalized UX</span>
+                        <span className="text-[11px] text-slate-400">— Supported by backend analytics and orchestrates other features</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 mb-3 ml-7">Supported by backend analytics and orchestrates other features</p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {["\"Family & Foundation\" Pillar", "Baby Budget Tracker", "Parenting Milestone Alerts", "Family Deal Highlights"].map((label) => (
                           <div key={label} className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center">
