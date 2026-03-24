@@ -100,6 +100,13 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
 
 
   useEffect(() => {
+    if (step === 6 && beat6Phase === 0) {
+      const t = setTimeout(() => setBeat6Phase(1), 1800);
+      return () => clearTimeout(t);
+    }
+  }, [step, beat6Phase]);
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.code === "ArrowLeft") {
         e.preventDefault();
