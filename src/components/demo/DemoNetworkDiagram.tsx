@@ -482,6 +482,18 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
       {/* Column Headers */}
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
+        style={{ left: txCenterX - TX_CARD_WIDTH / 2, width: TX_CARD_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+      >
+        Transactions
+      </div>
+      <div
+        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
+        style={{ left: engineCenterX - ENGINE_WIDTH / 2, width: ENGINE_WIDTH, top: gridTopY - 24, zIndex: 2 }}
+      >
+        Enrichment Engine
+      </div>
+      <div
+        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: bankColLeftX, width: BANK_COL_WIDTH, top: gridTopY - 24, zIndex: 2 }}
       >
         Bank-Facing
