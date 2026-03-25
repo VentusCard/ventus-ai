@@ -44,7 +44,7 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    team: "Analytics Team",
+    team: "Analytics",
     subtitle: "Where do our customers spend their money?",
     icon: Search,
     color: "#3b82f6",
@@ -57,7 +57,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "predictive",
-    team: "Reward Team",
+    team: "Rewards",
     subtitle: "How can we support and reward their life style?",
     icon: Sparkles,
     color: "#22c55e",
@@ -70,7 +70,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "phase",
-    team: "Growth and Wealth Team",
+    team: "Growth & Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
     color: "#a855f7",
@@ -358,7 +358,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             >
               <PillarIcon className={`${centered ? "w-4 h-4" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
               <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
-              <span style={{ color: pillar.color }}>·</span>
+              <span style={{ color: pillar.color }}>:</span>
               <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
