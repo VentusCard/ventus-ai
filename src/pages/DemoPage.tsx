@@ -119,6 +119,7 @@ export default function DemoPage() {
           nodeReadiness={nodeReadiness}
           inputReady={inputReady}
           centered={panelCollapsed}
+          onTxCardClick={() => setPanelCollapsed(false)}
         />
 
         {activeNode && customer && (
