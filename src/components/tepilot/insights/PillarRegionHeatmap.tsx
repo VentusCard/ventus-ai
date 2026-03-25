@@ -50,6 +50,7 @@ export function PillarRegionHeatmap({ filters }: Props) {
 
   return (
     <CollapsibleCard
+      defaultExpanded={true}
       title="Pillar × Region Analysis"
       description="Spending intensity across lifestyle pillars by geographic region"
       icon={<MapPin className="h-5 w-5 text-primary" />}

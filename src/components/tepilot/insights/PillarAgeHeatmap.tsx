@@ -59,6 +59,7 @@ export function PillarAgeHeatmap({ filters }: Props) {
 
   return (
     <CollapsibleCard
+      defaultExpanded={true}
       title="Pillar × Age Group Analysis"
       description="Spend index by lifestyle pillar and demographics — 100 = average, higher = over-indexes"
       icon={<Users className="h-5 w-5 text-primary" />}

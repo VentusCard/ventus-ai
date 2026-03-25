@@ -324,6 +324,7 @@ export function RevenueOpportunitiesCard({ opportunities }: RevenueOpportunities
 
   return (
     <CollapsibleCard
+      defaultExpanded={true}
       title="Revenue Opportunities & Partner Insights"
       description="Actionable partnership pitches that address spending gaps with win-win merchant deals"
       icon={<Sparkles className="h-5 w-5 text-primary" />}
