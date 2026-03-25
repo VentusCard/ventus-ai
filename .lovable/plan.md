@@ -1,64 +1,60 @@
 
+I rechecked the actual code paths, and I agree the previous diagnosis was too narrow.
 
-## Plan: Convert Demo to Single-Customer Input
+What I rechecked
+- In `src/components/demo/DemoNetworkDiagram.tsx`, the customer → enrichment connector is always rendered inside the first SVG group (`lines 183-199`).
+- In `src/hooks/useDemoEnrichment.ts`, `nodeReadiness.engine` is explicitly set to `"ready"` early in phase 2 (`setNodeReady({ engine: "ready", ... })`), so this is not a missing-state / missing-render bug.
+- The only thing that changes when the engine becomes ready is:
+  - stroke switches from `url(#lineGrad)` to `url(#lineGradSolid)`
+  - dash switches from `"6 4"` to `"none"`
+  - width/opacity change
+  - the animated processing dot disappears
 
-The demo currently supports two customers (A/B comparison). This plan converts it to a single-customer flow throughout.
+Revised diagnosis
+- The real problem is not that the path stops rendering.
+- The problem is that the “finished” state still relies on the same subtle background connector treatment, and once the moving dot disappears there is no strong dedicated completion indicator left.
+- So retrying opacity/width alone is unlikely to solve it reliably.
 
-### Scope of Changes
+Implementation plan
+1. Replace the single-state connector with a two-layer connector
+- Keep a faint background/base path for idle + processing.
+- Add a separate “completed connection” overlay path that only renders when `engineReady` is true.
 
-**8 files** need modification. All detail views already have null-safety for missing customers, so mostly we're removing Customer B state/UI.
+2. Make the completed connector visually distinct
+- Use a solid, high-contrast stroke instead of the current gradient-only finish state.
+- Add `strokeLinecap="round"` so the line reads as intentional, not clipped.
+- Add endpoint dots/caps at the customer exit and engine entry so the connection is obvious even without animation.
 
-### 1. `src/pages/DemoPage.tsx`
-- Remove `customerB` state, `parsedB` memo
-- Remove all `*B` props passed to child components
-- Update `handleEnrich` to call `startEnrichment(customer, null)`
-- Remove `customerB`/`enrichedB`/`personalizedDealsB`/`detectedEventB`/`tipB` from `DemoDetailOverlay` props
+3. Move the completed connector out of the generic background treatment
+- Keep the base connector in the background SVG.
+- Render the completed overlay in its own SVG/group above the background lines but still below interactive overlays/cards.
+- This avoids the “processing looks active, ready looks absent” problem.
 
-### 2. `src/components/demo/DemoCustomerPanel.tsx`
-- Remove Customer B slot entirely (the second `CustomerSlot` + divider)
-- Remove `customerB`, `parsedTransactionsB`, `onSelectB`, `excludeId` from props
-- Rename remaining props: `customerA` → `customer`, `parsedTransactionsA` → `parsedTransactions`, `onSelectA` → `onSelect`
-- Update subtitle: "Select a customer to enrich"
-- Simplify button labels (remove "Both" variants)
+4. Slightly adjust the anchor points
+- Inset the start/end a few pixels so the finished connector is visibly attached rather than visually dying at the card edges.
+- Keep the current layout math; only adjust the connector anchors, not the whole grid.
 
-### 3. `src/hooks/useDemoEnrichment.ts`
-- Remove `enrichB` SSE hook instance
-- Remove all `*B` state (`personalizedDealsB`, `detectedEventB`, `tipB`)
-- Remove `classifiedResults.b` logic and dual-customer branching
-- Simplify `startEnrichment` signature to `(customer: DemoCustomer | null)`
-- Remove `apiPayloads.*B` entries
-- Simplify `statusMessage` (no more "A: ... | B: ..." format)
-- Return interface drops all `*B` fields
+5. Preserve the current processing animation
+- Keep the moving particle during processing.
+- When `engineReady` becomes true, remove the particle and show the dedicated completed connector instead of just changing the same path’s styling.
 
-### 4. `src/components/demo/DemoNetworkDiagram.tsx`
-- Remove Customer B `TxCard` and its SVG input line
-- Remove `customerB` from props
-- Show single centered TX card instead of two stacked cards
-- Remove the second input bezier path (line to engine from B card)
+Files to update
+- `src/components/demo/DemoNetworkDiagram.tsx`
 
-### 5. `src/components/demo/DemoDetailOverlay.tsx`
-- Remove `customerB`, `enrichedB`, `personalizedDealsB`, `detectedEventB`, `tipB` from props
-- Remove "Side-by-side comparison" label
-- Remove dual customer header row (grid-cols-2 with A/B avatars)
-- Pass only single-customer data to child views
+Technical details
+```text
+Current:
+base path handles idle + processing + ready
 
-### 6. Detail view components (each gets simplified)
-All these use `grid-cols-2` with A/B columns. Convert to single-column:
-- **`DemoEngagementView.tsx`** — remove B column, single-column layout
-- **`DemoRewardsView.tsx`** — remove B column
-- **`DemoFinancialJourneyView.tsx`** — remove B column
-- **`DemoEnrichmentTableView.tsx`** — remove B tab/column
-- **`DemoPillarCodeView.tsx`** — remove B panel
-- **`DemoEngineProfileView.tsx`** — remove B column
-- **`DemoTravelView.tsx`** — remove B column
-- **`DemoLifeEventsView.tsx`** — remove B column
-- **`DemoWealthView.tsx`** — remove B column
-- **`DemoAnalyticsView.tsx`** — remove B column
+Proposed:
+base path = idle/processing track
+processing dot = processing only
+completion path + endpoint dots = ready only
+```
 
-### 7. `src/lib/demoData.ts`
-- No structural changes needed (customers list stays the same, just selection is single)
-
-### Migration approach
-- Rename all `customerA`/`enrichedA` etc. to `customer`/`enriched` throughout for clarity
-- All detail views switch from `grid-cols-2` to full-width single-column layouts
-
+Validation
+- Enrich a customer and confirm the connector is clearly visible after the engine flips to ready and after the full flow completes.
+- Check both states:
+  - panel collapsed (`centered = true`)
+  - panel open (`centered = false`)
+- Confirm the finished connector still looks correct after the diagram shifts for the Impact column.
