@@ -1,27 +1,43 @@
 
 
-## Fix: Bank→Consumer connector lines should not light up before consumer nodes are ready
+## Redesign Custom Input: One-Shot Copy-Paste with 1 Life Event
 
-### Problem
-On line 257 of `DemoNetworkDiagram.tsx`, the variable `pillarReady` for bank→consumer connectors is set to `engineReady`. This means these lines become solid and fully lit as soon as the enrichment engine finishes, even though the consumer-facing nodes (Personalized UX, Personalized Rewards, Personalized Relationship) haven't reached "ready" status yet.
+### Concept
+Single prompt → single paste. User describes a persona, copies a tailored prompt into ChatGPT/Claude, pastes the full output back, loads in one click. The prompt instructs the LLM to embed **1 realistic life-event transaction cluster** matching the persona.
 
-### Fix — `src/components/demo/DemoNetworkDiagram.tsx`
+### Output Format the LLM Returns
+```
+=== PROFILE ===
+name: Sarah Chen
+age: 45
+occupation: VP of Engineering
+family: Married with Kids
+income: $150,000
+segment: Premier
+industry: Technology
+zip: 94102
 
-**Line 257**: Change the readiness check to also require the consumer node to be ready:
-
-```tsx
-// Before
-const pillarReady = engineReady;
-
-// After
-const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
+=== TRANSACTIONS ===
+date,merchant_name,amount,mcc,merchant_zip
+2026-01-15,Whole Foods,87.50,5411,94102
+...
 ```
 
-Then on **line 266**, replace `pillarReady` with `consumerReady`:
+### UX — `DemoCustomerPanel.tsx`
+When "Custom" is selected from the dropdown:
+1. **Persona textarea** — short description (e.g. "55-year-old executive, married, kids in college")
+2. **Copy Prompt** button — generates dynamic prompt incorporating the persona, instructs LLM to include **1 life-event cluster**
+3. **Paste Output** textarea — single field for the combined PROFILE + TRANSACTIONS block
+4. **Load Customer** button
 
-```tsx
-<path d={path} stroke={pillar.consumerNode.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.6 : 0.15} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
-```
+### Data — `demoData.ts`
+- Expand `CustomDemographics` with `incomeLevel`, `segment`, `industry`
+- Add `parseUnifiedOutput(text)` — splits on `=== PROFILE ===` / `=== TRANSACTIONS ===`, extracts demographics + CSV
+- Update `buildCustomDemoCustomer` to use expanded fields
 
-This ensures the bank→consumer connector lines stay dashed/dim until their specific consumer node transitions to "ready", matching the gating behavior of the rest of the diagram.
+### Files
+| File | Change |
+|------|--------|
+| `src/lib/demoData.ts` | Add parser, expand demographics type, update builder |
+| `src/components/demo/DemoCustomerPanel.tsx` | New prompt-based custom UX, dynamic prompt with 1 life event |
 
