@@ -158,7 +158,7 @@ export function AvailableDealsGrid() {
       )}
 
       {/* Category Filter Pills */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category) => {
           const isSelected = selectedCategory === category;
           const categoryConfig = category !== 'All' ? DEAL_CATEGORIES[category as DealCategory] : null;
@@ -169,7 +169,7 @@ export function AvailableDealsGrid() {
               variant={isSelected ? "default" : "outline"}
               size="sm"
               onClick={() => handleCategoryChange(category)}
-              className={`rounded-full text-xs transition-all ${
+              className={`shrink-0 rounded-full text-xs transition-all ${
                  isSelected 
                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
                    : 'hover:bg-slate-100'
