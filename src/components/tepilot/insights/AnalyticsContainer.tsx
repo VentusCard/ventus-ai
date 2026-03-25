@@ -99,7 +99,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
             </div>
             <div>
               <h1 className="text-sm font-bold text-slate-900 leading-tight">TCBY Bank (This Could Your Bank)</h1>
-              <p className="text-[11px] text-slate-400 leading-tight">Intelligence Platform</p>
+              <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
             </div>
           </div>
         </div>
