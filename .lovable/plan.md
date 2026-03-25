@@ -1,25 +1,31 @@
 
 
-## Add Team Labels to Pillar Row Headers
+## Add Professional Bank Dashboard Header to Analytics Page
 
-### Change
-Update each pillar row's question label from a single line to two rows:
-- **Row 1**: Pillar icon + Team name (e.g., "Analytics Team", "Reward Team", "Growth and Wealth Team")
-- **Row 2**: Current question text
+### What
+Replace the simple "Bank-wide Analytics" title (line 1162-1168) and the AnalyticsContainer's plain layout with a professional bank dashboard header — the kind you'd see in enterprise fintech tools — branded with "Powered by Ventus AI".
 
-### Data Change
-Add a `team` field to each `PillarRow` in the `PILLAR_ROWS` array:
-- profiling → "Analytics Team"
-- predictive → "Reward Team"  
-- phase → "Growth and Wealth Team"
+### Design
+A top header bar above the sidebar + content area with:
+- **Left**: Bank logo placeholder (building icon) + "First National Bank" (or generic bank name) + "Intelligence Platform"
+- **Right**: "Powered by Ventus AI" branding with sparkle icon, plus a subtle timestamp ("Last updated: Mar 25, 2026")
+- Clean white background, bottom border, compact height (~56px)
+- Professional enterprise aesthetic matching the light-theme policy
 
-### Rendering Change
-Update the question label `div` (around line 344-357) to render two lines instead of one:
-- Line 1: icon + team name (smaller, muted style)
-- Line 2: question subtitle (current styling)
+### Implementation
 
-Increase `QUESTION_LABEL_HEIGHT` constant to accommodate two lines.
+**File: `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+- Add a header bar at the top of the container (above the sidebar + content flex layout)
+- Header contains:
+  - Left side: `Building2` icon + "First National Bank" (bold) + "Intelligence Platform" (muted)
+  - Right side: `Sparkles` icon + "Powered by Ventus AI" badge + current date display
+- Styled with `bg-white border-b border-slate-200 px-4 py-3`
+
+**File: `src/pages/TePilot.tsx`** (lines 1161-1168)
+- Remove the existing "Bank-wide Analytics" h2 heading since it will be redundant with the new header
+- Keep the back button but move it into the header or remove it since the sidebar provides navigation
 
 ### Files Modified
-- `src/components/demo/DemoNetworkDiagram.tsx`
+- `src/components/tepilot/insights/AnalyticsContainer.tsx`
+- `src/pages/TePilot.tsx`
 
