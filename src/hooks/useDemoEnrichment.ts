@@ -89,7 +89,7 @@ interface DemoEnrichmentResult {
   apiPayloads: ApiPayloads;
   tipA: FinancialTip | null;
   tipB: FinancialTip | null;
-  startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
+  startEnrichment: (customerA: DemoCustomer | null, customerB: DemoCustomer | null) => void;
 }
 
 function buildSpendingSummary(txns: EnrichedTransaction[]) {
@@ -249,10 +249,14 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           ? `B: ${enrichB.statusMessage}`
           : enrichA.statusMessage || enrichB.statusMessage || phase2Status || "";
 
-  const startEnrichment = useCallback((customerA: DemoCustomer, customerB: DemoCustomer) => {
+  const startEnrichment = useCallback((customerA: DemoCustomer | null, customerB: DemoCustomer | null) => {
+    if (!customerA && !customerB) return;
+
+    const idA = customerA?.id ?? "__none__";
+    const idB = customerB?.id ?? "__none__";
     if (
-      lastEnrichedRef.current?.a === customerA.id &&
-      lastEnrichedRef.current?.b === customerB.id &&
+      lastEnrichedRef.current?.a === idA &&
+      lastEnrichedRef.current?.b === idB &&
       nodeReadiness.analytics === "ready" &&
       nodeReadiness.travel === "ready"
     ) {
@@ -260,7 +264,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       return;
     }
 
-    lastEnrichedRef.current = { a: customerA.id, b: customerB.id };
+    lastEnrichedRef.current = { a: idA, b: idB };
 
     // Reset state
     setNodeReadiness({ ...INITIAL_READINESS });
@@ -283,8 +287,6 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
     pendingConsumerRef.current = new Set();
-
-    // Engine ready is now set in maybeStartPhase2 when classifications complete
 
     // Set all to processing
     setTimeout(() => {
@@ -315,40 +317,40 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     };
 
     try {
-      const txnsA = parseCSV(customerA);
-      const txnsB = parseCSV(customerB);
+      const txnsA = customerA ? parseCSV(customerA) : null;
+      const txnsB = customerB ? parseCSV(customerB) : null;
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const headers = getHeaders();
 
-      // Track whether phase2 already started (from whichever classification finishes first)
+      const hasA = !!customerA && !!txnsA;
+      const hasB = !!customerB && !!txnsB;
+
+      // Track whether phase2 already started
       let classifiedResults: { a?: EnrichedTransaction[]; b?: EnrichedTransaction[] } = {};
+      // If a customer is missing, pre-fill their classification as done
+      if (!hasA) classifiedResults.a = [];
+      if (!hasB) classifiedResults.b = [];
       let phase2Started = false;
 
       const maybeStartPhase2 = () => {
-        // Need both classifications to start lifestyle signals
         if (!classifiedResults.a || !classifiedResults.b || phase2Started) return;
         phase2Started = true;
 
         const classifiedA = classifiedResults.a;
         const classifiedB = classifiedResults.b;
 
-        const allClassified = [...classifiedA, ...classifiedB];
-
-        // Mark input lines solid + analytics & engine ready
         setInputReady(true);
         setNodeReady({ engine: "ready", analytics: "ready", outflow: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
-        // Fire deal personalization from enriched data
+        // Fire deal personalization
         const fireRewardsPersonalization = async () => {
           try {
-            const profileA = deriveCustomerProfile(classifiedA);
-            const profileB = deriveCustomerProfile(classifiedB);
-            const dealsSelA = getRelevantDeals(profileA, 10);
-            const dealsSelB = getRelevantDeals(profileB, 10);
-
-            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer, label: "A" | "B") => {
+            const results: [PersonalizedDealData | null, PersonalizedDealData | null] = [null, null];
+            const personalize = async (customer: DemoCustomer, classified: EnrichedTransaction[], label: "A" | "B") => {
+              const profile = deriveCustomerProfile(classified);
+              const deals = getRelevantDeals(profile, 10);
               const payload = {
                 deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
                 profile: {
@@ -375,12 +377,12 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
               return { deals, personalized: map } as PersonalizedDealData;
             };
 
-            const [resultA, resultB] = await Promise.all([
-              personalize(dealsSelA, profileA, customerA, "A"),
-              personalize(dealsSelB, profileB, customerB, "B"),
-            ]);
-            setPersonalizedDealsA(resultA);
-            setPersonalizedDealsB(resultB);
+            const promises: Promise<void>[] = [];
+            if (hasA && customerA) promises.push(personalize(customerA, classifiedA, "A").then(r => { results[0] = r; }));
+            if (hasB && customerB) promises.push(personalize(customerB, classifiedB, "B").then(r => { results[1] = r; }));
+            await Promise.all(promises);
+            setPersonalizedDealsA(results[0]);
+            setPersonalizedDealsB(results[1]);
           } catch (err) {
             console.warn("[Phase2] Deal personalization failed:", err);
           }
@@ -389,7 +391,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
         fireRewardsPersonalization();
 
-        // Fire lifestyle signals for EACH customer separately
+        // Fire lifestyle signals
         const fireLifestyleForCustomer = async (
           customer: DemoCustomer,
           txns: EnrichedTransaction[],
@@ -425,7 +427,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           }
         };
 
-        // Fire coaching tips for both customers
+        // Fire coaching tips
         const fireCoachingTips = async () => {
           const fetchTipFor = async (customer: DemoCustomer, txns: EnrichedTransaction[]): Promise<FinancialTip | null> => {
             try {
@@ -448,19 +450,17 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
               return null;
             }
           };
-          const [tA, tB] = await Promise.all([
-            fetchTipFor(customerA, classifiedA),
-            fetchTipFor(customerB, classifiedB),
-          ]);
-          setTipA(tA);
-          setTipB(tB);
+          const promises: Promise<void>[] = [];
+          if (hasA && customerA) promises.push(fetchTipFor(customerA, classifiedA).then(t => setTipA(t)));
+          if (hasB && customerB) promises.push(fetchTipFor(customerB, classifiedB).then(t => setTipB(t)));
+          await Promise.all(promises);
         };
 
-        // Run lifestyle + tips in parallel, gate engagement on both
-        const lifestylePromise = Promise.all([
-          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA, "A"),
-          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB, "B"),
-        ]);
+        // Run lifestyle + tips in parallel
+        const lifestylePromises: Promise<void>[] = [];
+        if (hasA && customerA) lifestylePromises.push(fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA, "A"));
+        if (hasB && customerB) lifestylePromises.push(fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB, "B"));
+        const lifestylePromise = Promise.all(lifestylePromises);
         const tipsPromise = fireCoachingTips();
 
         lifestylePromise
@@ -486,18 +486,18 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       const onClassifiedA = (classified: EnrichedTransaction[]) => {
         classifiedResults.a = classified;
-        setApiPayloads(prev => ({ ...prev, classificationA: { request: { transactions: txnsA.length + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
+        setApiPayloads(prev => ({ ...prev, classificationA: { request: { transactions: (txnsA?.length ?? 0) + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
         maybeStartPhase2();
       };
       const onClassifiedB = (classified: EnrichedTransaction[]) => {
         classifiedResults.b = classified;
-        setApiPayloads(prev => ({ ...prev, classificationB: { request: { transactions: txnsB.length + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
+        setApiPayloads(prev => ({ ...prev, classificationB: { request: { transactions: (txnsB?.length ?? 0) + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
         maybeStartPhase2();
       };
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // Track travel readiness: both local-experiences AND travel-detection must complete
+      // Track travel readiness
       let localExperiencesDone = false;
       let travelDetectionDone = false;
       const maybeSetTravelReady = () => {
@@ -506,14 +506,20 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         }
       };
 
-      // 1. Classify + travel-detection — pass customer.zip as homeZip
-      const promiseA = enrichA.startEnrichment(txnsA, customerA.zip, onClassifiedA);
-      const promiseB = enrichB.startEnrichment(txnsB, customerB.zip, onClassifiedB);
+      // 1. Classify + travel-detection
+      const classifyPromises: Promise<void>[] = [];
+      if (hasA && txnsA && customerA) classifyPromises.push(enrichA.startEnrichment(txnsA, customerA.zip, onClassifiedA));
+      if (hasB && txnsB && customerB) classifyPromises.push(enrichB.startEnrichment(txnsB, customerB.zip, onClassifiedB));
 
-      // When both enrichments fully complete (including travel-detection), mark travel-detection done
-      Promise.all([promiseA, promiseB])
+      // If no classifications needed (shouldn't happen but safety), trigger phase2
+      if (classifyPromises.length === 0) {
+        travelDetectionDone = true;
+        maybeStartPhase2();
+      }
+
+      Promise.all(classifyPromises)
         .then(() => {
-          console.log("[Travel Detection] Both customers complete");
+          console.log("[Travel Detection] Complete");
           travelDetectionDone = true;
           maybeSetTravelReady();
         })
@@ -522,9 +528,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           maybeSetTravelReady();
         });
 
-      // 2. Deal personalization — now handled inside maybeStartPhase2 after classification
-
-      // 3. Local experiences — fire at t=0 for each customer's first trip destination
+      // 3. Local experiences
       const CATEGORIES = ["dining", "entertainment", "shopping"];
       const fetchLocalExperiences = async (customer: DemoCustomer) => {
         const trip = customer.trips[0];
@@ -551,24 +555,31 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         return { customerId: customer.id, results };
       };
 
-      Promise.all([fetchLocalExperiences(customerA), fetchLocalExperiences(customerB)])
-        .then(([resA, resB]) => {
-          setLocalExperiences({
-            [resA.customerId]: resA.results,
-            [resB.customerId]: resB.results,
+      const localExpPromises: Promise<{ customerId: string; results: { destination: string; deals: LocalExperienceDeal[] }[] }>[] = [];
+      if (customerA) localExpPromises.push(fetchLocalExperiences(customerA));
+      if (customerB) localExpPromises.push(fetchLocalExperiences(customerB));
+
+      if (localExpPromises.length === 0) {
+        localExperiencesDone = true;
+        maybeSetTravelReady();
+      } else {
+        Promise.all(localExpPromises)
+          .then((results) => {
+            const expData: LocalExperiencesData = {};
+            results.forEach(r => { expData[r.customerId] = r.results; });
+            setLocalExperiences(expData);
+            const payloadUpdates: Partial<ApiPayloads> = {};
+            if (customerA) payloadUpdates.localExperiencesA = { request: { city: customerA.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: results.find(r => r.customerId === customerA.id)?.results ?? [] };
+            if (customerB) payloadUpdates.localExperiencesB = { request: { city: customerB.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: results.find(r => r.customerId === customerB.id)?.results ?? [] };
+            setApiPayloads(prev => ({ ...prev, ...payloadUpdates }));
+            localExperiencesDone = true;
+            maybeSetTravelReady();
+          })
+          .catch(() => {
+            localExperiencesDone = true;
+            maybeSetTravelReady();
           });
-          setApiPayloads(prev => ({
-            ...prev,
-            localExperiencesA: { request: { city: customerA.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resA.results },
-            localExperiencesB: { request: { city: customerB.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: resB.results },
-          }));
-          localExperiencesDone = true;
-          maybeSetTravelReady();
-        })
-        .catch(() => {
-          localExperiencesDone = true;
-          maybeSetTravelReady();
-        });
+      }
 
     } catch (err: any) {
       toast.error(err.message);
