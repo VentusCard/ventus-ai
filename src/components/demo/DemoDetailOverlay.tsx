@@ -55,6 +55,7 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   locational: "location-experience",
   lifeEventIntel: "life-events",
   lifeEvents: "targeting",
+  dealPersonalization: "deal-management",
 };
 
 const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization: null, localExperiences: null, lifestyleSignals: null };
