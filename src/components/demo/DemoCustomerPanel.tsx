@@ -74,7 +74,7 @@ export default function DemoCustomerPanel({
       <div className="mt-auto pt-6 space-y-3">
         <Button
           onClick={onEnrich}
-          disabled={isProcessing || !customerA || !customerB}
+          disabled={isProcessing || (!customerA && !customerB)}
           variant="ai"
           size="sm"
           className="w-full"
@@ -87,12 +87,12 @@ export default function DemoCustomerPanel({
           ) : currentPhase === "complete" ? (
             <>
               <CheckCircle2 className="h-4 w-4" />
-              Re-Enrich Both
+              Re-Enrich {customerA && customerB ? "Both" : "Customer"}
             </>
           ) : (
             <>
               <Sparkles className="h-4 w-4" />
-              Enrich Both Customers
+              Enrich {customerA && customerB ? "Both Customers" : "Customer"}
             </>
           )}
         </Button>

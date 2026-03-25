@@ -54,7 +54,7 @@ export default function DemoPage() {
   } = useDemoEnrichment();
 
   const handleEnrich = () => {
-    if (customerA && customerB) {
+    if (customerA || customerB) {
       setPanelCollapsed(true);
       startEnrichment(customerA, customerB);
     }
