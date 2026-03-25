@@ -254,7 +254,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
               const consumerLeft = consumerColLeftX;
               const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
-              const pillarReady = engineReady;
+              const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
 
               return pillar.bankNodes.map((node, ni) => {
                 const bankNodeY = cTop + ni * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2;
@@ -263,7 +263,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 const path = `M ${bankRight} ${bankNodeY} C ${cpX1} ${bankNodeY}, ${cpX2} ${consumerCenterY}, ${consumerLeft} ${consumerCenterY}`;
                 return (
                   <g key={`bank-cons-${pi}-${ni}`}>
-                    <path d={path} stroke={pillar.consumerNode.color} strokeWidth={pillarReady ? 2 : 1} fill="none" opacity={pillarReady ? 0.6 : 0.15} strokeDasharray={pillarReady ? "none" : "4 3"} className="line-transition" />
+                    <path d={path} stroke={pillar.consumerNode.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.6 : 0.15} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
                   </g>
                 );
               });
