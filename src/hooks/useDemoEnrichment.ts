@@ -507,7 +507,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       };
 
       // 1. Classify + travel-detection
-      const classifyPromises: Promise<void>[] = [];
+      const classifyPromises: Promise<any>[] = [];
       if (hasA && txnsA && customerA) classifyPromises.push(enrichA.startEnrichment(txnsA, customerA.zip, onClassifiedA));
       if (hasB && txnsB && customerB) classifyPromises.push(enrichB.startEnrichment(txnsB, customerB.zip, onClassifiedB));
 
