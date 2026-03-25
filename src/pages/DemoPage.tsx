@@ -17,6 +17,7 @@ export default function DemoPage() {
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
+  const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"]);
   const NODE_ORDER: DemoNodeType[] = ["engine", "analytics", "outflow", "aiFinancialInsights", "engagement", "travel", "locational", "dealPersonalization", "rewards", "lifeEventIntel", "lifeEvents", "wmCopilot", "wealth"];
   const activeIdx = activeNode ? NODE_ORDER.indexOf(activeNode) : -1;
   const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
@@ -138,7 +139,7 @@ export default function DemoPage() {
       </div>
 
       {/* Bottom-right navigation */}
-      {activeNode ? (
+      {activeNode && !BANK_WIDE_NODES.has(activeNode) ? (
         <div className="absolute bottom-4 right-4 z-[60] flex items-center gap-2">
           {prevNode && (
             <button
