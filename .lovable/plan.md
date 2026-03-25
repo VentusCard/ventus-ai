@@ -1,19 +1,13 @@
 
 
-## Plan: Remove Grey Subheader Text from Demo Beats
+## Plan: Remove Auto-Advance on Beat 6
 
-The grey subtitle paragraphs (`color: #64748B`) below the bold black headers on each beat of the demo opener will be removed. Only the bold black header text will remain.
+### What changes
+Remove the `useEffect` at lines 102-107 that automatically transitions `beat6Phase` from 0 to 1 after 1.8 seconds. The user will need to click or press a key to advance instead.
 
 ### File: `src/components/demo/DemoPasswordGate.tsx`
 
-Remove the following `<p>` elements:
+1. **Delete lines 102-107** — the `useEffect` that runs `setTimeout(() => setBeat6Phase(1), 1800)` when `step === 6 && beat6Phase === 0`.
 
-1. **Beat 1** (line 314-317): Remove the paragraph "Your customers see irrelevant offers..."
-2. **Beat 2** (line 328-332): Remove the paragraph "Every bank runs on Merchant Category Codes..."
-3. **Beat 3** (line 344-347): Remove the paragraph "A customer spends $120 on a ticket..."
-4. **Beat 4** (line 412-414): Remove the paragraph "Five transactions across five different MCC codes..."
-5. **Beat 5** (line 485-487): Remove the paragraph "Combine the behavioral pattern with the customer's demographics..."
-6. **Beat 6** (lines 590-594): Remove the paragraph that toggles between "Demographics and transaction data..." / "Dynamic Personas & Behavioral Insights..."
-
-All six beats will show only the bold black `<h1>`/`<h2>` header. No other elements are affected.
+That's it. The advance/click handler already supports progressing `beat6Phase` manually (lines 53-56), so no other changes are needed.
 
