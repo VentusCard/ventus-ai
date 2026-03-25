@@ -124,11 +124,17 @@ industry: [industry name]
 zip: [realistic US zip code matching the persona's location]
 
 === TRANSACTIONS ===
-date,merchant_name,amount,mcc,merchant_zip
-[30 rows of realistic transactions from the last 3 months in YYYY-MM-DD format]
+transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
+1,Whole Foods Market,Grocery shopping,5411,87.50,2026-01-15,94102,Premium Card
+2,Delta Air Lines,Round-trip flight,3058,450.00,2026-01-18,94102,Travel Card
+[continue for 30 rows total]
 
 Rules:
+- CRITICAL: Never use commas inside any field value. Amounts must be plain numbers without commas (e.g. 1450.00 not 1,450.00)
+- transaction_id is a sequential number 1-30
+- description is a short 2-4 word phrase describing the purchase
 - Amounts $5-$2000, realistic MCC codes (5411=grocery, 5812=dining, 3000-3299=airlines, 5977=cosmetics, 7941=sports, etc.)
+- source should be one of: Premium Card, Travel Card, Cashback Card, Checking
 - Include 1 realistic life-event transaction cluster that matches this persona (e.g. baby prep purchases, retirement advisor visits, home improvement, college application fees, wedding planning, relocation expenses — pick whichever fits best)
 - Spread the life-event transactions across 3-5 rows so the pattern is detectable
 - Use zip codes near the persona's stated or implied location
