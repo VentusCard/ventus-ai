@@ -145,7 +145,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const impactColLeftX = consumerColLeftX + CONSUMER_COL_WIDTH + gap4;
 
   // Vertical layout
-  const midY = dims.h * 0.5;
+  const midY = dims.h * 0.53;
   const totalGridHeight = ROW_HEIGHT * 3;
   const gridTopY = midY - totalGridHeight / 2;
 
