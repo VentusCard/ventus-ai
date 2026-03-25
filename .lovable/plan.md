@@ -1,19 +1,20 @@
 
 
-## Change Rewards Header to Location-Based Welcome
+## Make Transaction Card Clickable to Expand Left Panel
 
-### Change — `src/components/demo/DemoRewardsView.tsx`
+### Problem
+When the left panel is collapsed and the user clicks the transaction/user node in the network diagram, nothing happens — it's a plain `div`.
 
-**Line 238**: Replace `"Your Rewards, {firstName}"` with `"Welcome to {city}, {firstName}"`.
+### Changes
 
-The `city` variable is already passed into `RewardsPhoneMockup` and derived from `getCityFromZip(customer.zip)`.
+**1. `src/components/demo/DemoNetworkDiagram.tsx`**
+- Add a new callback prop `onTxCardClick?: () => void`
+- Change the TxCard wrapper (line 297) from a `div` to a clickable `button`/`div` with `onClick={() => onTxCardClick?.()}` and a pointer cursor when customer exists
 
-Single line change:
-```tsx
-// Before
-<p className="text-base font-bold text-slate-900">Your Rewards, {firstName}</p>
+**2. `src/components/demo/DemoPage.tsx`**
+- Pass `onTxCardClick={() => setPanelCollapsed(false)}` to `DemoNetworkDiagram`
+- This re-expands the left customer panel when the user clicks the transaction card node
 
-// After
-<p className="text-base font-bold text-slate-900">Welcome to {city}, {firstName}</p>
-```
+### Result
+Clicking the user/transaction node in the network diagram expands the left panel back out, giving intuitive access to customer details from the diagram.
 
