@@ -38,16 +38,16 @@ PERSONALIZATION STRATEGY:
 - Keep it practical and benefit-focused — what does the customer GET?
 
 Examples of GREAT deal personalization:
-| Context | Merchant | Reward | Message |
-| Coffee lover | Starbucks | 5% back | "Your daily brew now earns 5% back every visit" |
-| Fitness enthusiast | Lululemon | 15% off | "Gear up for your next workout — 15% off awaits" |
-| Parent + Dining out | DoorDash | $5 off $25+ | "Easy family dinners delivered — save $5 on orders $25+" |
-| Home cook | Williams-Sonoma | 7% cashback | "Stock your kitchen and earn 7% cashback on every purchase" |
-| Traveler | Delta | 3x points | "Earn triple points on your next getaway" |
+| Context | Merchant | Reward | Message | CTA |
+| Coffee lover | Starbucks | 5% back | "Your daily brew now earns 5% back every visit" | "Fuel Your Mornings" |
+| Fitness enthusiast | Lululemon | 15% off | "Gear up for your next workout — 15% off awaits" | "Power Your Workout" |
+| Parent + Dining out | DoorDash | $5 off $25+ | "Easy family dinners delivered — save $5 on orders $25+" | "Simplify Family Night" |
+| Home cook | Williams-Sonoma | 7% cashback | "Stock your kitchen and earn 7% cashback on every purchase" | "Elevate Your Kitchen" |
+| Traveler | Delta | 3x points | "Earn triple points on your next getaway" | "Keep Exploring" |
 
-CTAs — keep them short (2-4 words) and action-oriented for RETAIL DEALS:
-Good: "Shop Now", "Claim Offer", "Get Cashback", "Redeem Now", "Start Earning", "Grab Deal", "Save Now"
-Bad: "Request Access", "Schedule Consultation", "Speak With an Advisor" (these are for banking products, NOT deals)
+CTAs — keep them short (2-4 words) and LIFESTYLE-DRIVEN. The CTA should feel like the deal supports how the customer already lives:
+Good: "Fuel Your Passion", "Treat the Family", "Elevate Your Style", "Power Your Routine", "Keep Exploring", "Level Up Game Day", "Upgrade Date Night"
+Bad: "Shop Now", "Claim Offer", "Get Cashback" (too transactional), "Request Access", "Schedule Consultation" (banking products, NOT deals)
 
 OUTPUT: Valid JSON array with EXACTLY ${dealCount} entries:
 {"recs":[{"id":"deal_id","msg":"short personal message","cta":"2-4 word CTA"},...]}
