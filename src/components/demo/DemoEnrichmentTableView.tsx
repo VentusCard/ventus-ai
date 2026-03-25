@@ -163,25 +163,17 @@ function CustomerHeader({ customer, color }: { customer: DemoCustomer; color: "b
 }
 
 interface Props {
-  customerA: DemoCustomer | null;
-  customerB: DemoCustomer | null;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
+  customer: DemoCustomer | null;
+  enriched?: EnrichedTransaction[];
 }
 
-export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+export default function DemoEnrichmentTableView({ customer, enriched }: Props) {
   return (
     <div className="flex flex-col gap-3 h-full">
-      {customerA && (
+      {customer && (
         <div className="flex-1 min-h-0 flex flex-col">
-          <CustomerHeader customer={customerA} color="blue" />
-          <CustomerTable transactions={enrichedA ?? []} />
-        </div>
-      )}
-      {customerB && (
-        <div className="flex-1 min-h-0 flex flex-col">
-          <CustomerHeader customer={customerB} color="emerald" />
-          <CustomerTable transactions={enrichedB ?? []} />
+          <CustomerHeader customer={customer} color="blue" />
+          <CustomerTable transactions={enriched ?? []} />
         </div>
       )}
     </div>

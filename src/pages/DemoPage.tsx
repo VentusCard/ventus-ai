@@ -12,8 +12,7 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
 export default function DemoPage() {
-  const [customerA, setCustomerA] = useState<DemoCustomer | null>(null);
-  const [customerB, setCustomerB] = useState<DemoCustomer | null>(null);
+  const [customer, setCustomer] = useState<DemoCustomer | null>(null);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
@@ -23,40 +22,30 @@ export default function DemoPage() {
   const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
   const nextNode = activeIdx >= 0 && activeIdx < NODE_ORDER.length - 1 ? NODE_ORDER[activeIdx + 1] : null;
 
-  const parsedA = useMemo<Transaction[]>(() => {
-    if (!customerA) return [];
-    const result = parsePastedText(customerA.csv);
+  const parsedTransactions = useMemo<Transaction[]>(() => {
+    if (!customer) return [];
+    const result = parsePastedText(customer.csv);
     return result.transactions ?? [];
-  }, [customerA?.csv]);
-
-  const parsedB = useMemo<Transaction[]>(() => {
-    if (!customerB) return [];
-    const result = parsePastedText(customerB.csv);
-    return result.transactions ?? [];
-  }, [customerB?.csv]);
+  }, [customer?.csv]);
 
   const {
     nodeReadiness,
     inputReady,
     isProcessing,
     statusMessage,
-    enrichedA,
-    enrichedB,
+    enriched,
     localExperiences,
-    personalizedDealsA,
-    personalizedDealsB,
-    detectedEventA,
-    detectedEventB,
+    personalizedDeals,
+    detectedEvents,
     apiPayloads,
-    tipA,
-    tipB,
+    tip,
     startEnrichment,
   } = useDemoEnrichment();
 
   const handleEnrich = () => {
-    if (customerA || customerB) {
+    if (customer) {
       setPanelCollapsed(true);
-      startEnrichment(customerA, customerB);
+      startEnrichment(customer);
     }
   };
 
@@ -110,12 +99,9 @@ export default function DemoPage() {
           </button>
         )}
         <DemoCustomerPanel
-          customerA={customerA}
-          customerB={customerB}
-          parsedTransactionsA={parsedA}
-          parsedTransactionsB={parsedB}
-          onSelectA={setCustomerA}
-          onSelectB={setCustomerB}
+          customer={customer}
+          parsedTransactions={parsedTransactions}
+          onSelect={setCustomer}
           onEnrich={handleEnrich}
           isProcessing={isProcessing}
           statusMessage={statusMessage}
@@ -127,8 +113,7 @@ export default function DemoPage() {
       {/* Right Panel — 70% */}
       <div className="flex-1 relative">
         <DemoNetworkDiagram
-          customerA={customerA}
-          customerB={customerB}
+          customer={customer}
           activeNode={activeNode}
           onNodeClick={(node) => setActiveNode(node)}
           nodeReadiness={nodeReadiness}
@@ -136,21 +121,16 @@ export default function DemoPage() {
           centered={panelCollapsed}
         />
 
-        {activeNode && (customerA || customerB) && (
+        {activeNode && customer && (
           <DemoDetailOverlay
             node={activeNode}
-            customerA={customerA}
-            customerB={customerB}
-            enrichedA={enrichedA}
-            enrichedB={enrichedB}
+            customer={customer}
+            enriched={enriched}
             localExperiences={localExperiences}
-            personalizedDealsA={personalizedDealsA}
-            personalizedDealsB={personalizedDealsB}
-            detectedEventA={detectedEventA}
-            detectedEventB={detectedEventB}
+            personalizedDeals={personalizedDeals}
+            detectedEvents={detectedEvents}
             apiPayloads={apiPayloads}
-            tipA={tipA}
-            tipB={tipB}
+            tip={tip}
             onClose={() => setActiveNode(null)}
           />
         )}

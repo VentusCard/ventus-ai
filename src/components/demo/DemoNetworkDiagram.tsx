@@ -6,8 +6,7 @@ import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot";
 
 interface Props {
-  customerA: DemoCustomer | null;
-  customerB: DemoCustomer | null;
+  customer: DemoCustomer | null;
   activeNode: DemoNodeType | null;
   onNodeClick: (node: DemoNodeType) => void;
   nodeReadiness: NodeReadiness;
@@ -89,7 +88,7 @@ const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
   { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#8b5cf6" },
 ];
 
-export default function DemoNetworkDiagram({ customerA, customerB, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
+export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -182,7 +181,7 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         {dims.w > 0 && (
           <>
             {/* Input lines: TX cards → engine */}
-            {[inputAY, inputBY].map((y, i) => {
+            {[midY].map((y, i) => {
               const txRight = txCenterX + TX_CARD_WIDTH / 2;
               const engineLeft = engineCenterX - ENGINE_WIDTH / 2;
               const path = `M ${txRight} ${y} C ${(txRight + engineLeft) / 2} ${y}, ${(txRight + engineLeft) / 2} ${midY}, ${engineLeft} ${midY}`;
@@ -279,12 +278,9 @@ export default function DemoNetworkDiagram({ customerA, customerB, activeNode, o
         )}
       </svg>
 
-      {/* Transaction Cards */}
-      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputAY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
-        <TxCard customer={customerA} color="#3b82f6" label="Customer A" scaled={centered} />
-      </div>
-      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: inputBY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
-        <TxCard customer={customerB} color="#10b981" label="Customer B" scaled={centered} />
+      {/* Transaction Card */}
+      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: midY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
+        <TxCard customer={customer} color="#3b82f6" label="Customer" scaled={centered} />
       </div>
 
       {/* Engine Node */}

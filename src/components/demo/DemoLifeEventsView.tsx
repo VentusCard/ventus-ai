@@ -11,10 +11,8 @@ import { EventSummaryEmailDialog } from "@/components/tepilot/advisor-console/Ev
 import type { EventPreparationData, DetectedLifeEvent, DashboardClient, CardTransaction } from "@/types/dashboardClient";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  detectedEventA: DetectedLifeEventResult[];
-  detectedEventB: DetectedLifeEventResult[];
+  customer: DemoCustomer;
+  detectedEvents: DetectedLifeEventResult[];
 }
 
 const EVENT_NAME_TO_TYPE: Record<string, DetectedLifeEvent['eventType']> = {
@@ -83,24 +81,10 @@ function buildEventPreparationData(
   };
 }
 
-export default function DemoLifeEventsView({ customerA, customerB, detectedEventA, detectedEventB }: Props) {
+export default function DemoLifeEventsView({ customer, detectedEvents }: Props) {
   const navigate = useNavigate();
 
-  return (
-    <div className="grid grid-cols-2 gap-6">
-      <CustomerEventsColumn events={detectedEventA} customer={customerA} otherCustomer={customerB} navigate={navigate} />
-      <CustomerEventsColumn events={detectedEventB} customer={customerB} otherCustomer={customerA} navigate={navigate} />
-    </div>
-  );
-}
-
-function CustomerEventsColumn({ events, customer, otherCustomer, navigate }: {
-  events: DetectedLifeEventResult[];
-  customer: DemoCustomer;
-  otherCustomer: DemoCustomer;
-  navigate: ReturnType<typeof useNavigate>;
-}) {
-  if (!events || events.length === 0) {
+  if (!detectedEvents || detectedEvents.length === 0) {
     return (
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 flex items-center justify-center">
         <p className="text-sm text-slate-400">No life event detected</p>
@@ -110,17 +94,16 @@ function CustomerEventsColumn({ events, customer, otherCustomer, navigate }: {
 
   return (
     <div className="space-y-4">
-      {events.map((event, idx) => (
-        <LifeEventCard key={idx} event={event} customer={customer} otherCustomer={otherCustomer} navigate={navigate} />
+      {detectedEvents.map((event, idx) => (
+        <LifeEventCard key={idx} event={event} customer={customer} navigate={navigate} />
       ))}
     </div>
   );
 }
 
-function LifeEventCard({ event, customer, otherCustomer, navigate }: {
+function LifeEventCard({ event, customer, navigate }: {
   event: DetectedLifeEventResult;
   customer: DemoCustomer;
-  otherCustomer: DemoCustomer;
   navigate: ReturnType<typeof useNavigate>;
 }) {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
@@ -145,7 +128,6 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
   };
 
   const handlePrepareWithVentus = () => {
-    // Store client profile for AdvisorConsole
     sessionStorage.setItem("tepilot_client_profile", JSON.stringify(customer.profile));
     sessionStorage.setItem("tepilot_detected_events", JSON.stringify(
       [buildEventPreparationData(customer, event).event]
@@ -155,7 +137,7 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
       state: {
         initialView: "client" as const,
         demoCustomerA: customer,
-        demoCustomerB: otherCustomer,
+        demoCustomerB: null,
         activeCustomerId: customer.id,
       },
     });
@@ -163,7 +145,6 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      {/* Header */}
       <div className="px-5 py-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-1.5">
           <h4 className="text-sm font-bold text-slate-900">{event.event_name}</h4>
@@ -190,7 +171,6 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
         )}
       </div>
 
-      {/* Supporting Transactions */}
       <div className="px-5 py-3 border-b border-slate-100">
         <h5 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
           <CreditCard className="h-3.5 w-3.5 text-slate-400" />
@@ -212,7 +192,6 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
         </div>
       </div>
 
-      {/* AI Talking Points as Insights + Next Steps */}
       {talkingPoints.length > 0 && (
         <div className="px-5 py-3 border-b border-slate-100 grid grid-cols-1 gap-3">
           <div>
@@ -244,7 +223,6 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
         </div>
       )}
 
-      {/* Action Buttons */}
       <div className="px-5 py-3 flex items-center gap-2 flex-wrap">
         <Button
           variant="outline"
@@ -274,7 +252,6 @@ function LifeEventCard({ event, customer, otherCustomer, navigate }: {
         </Button>
       </div>
 
-      {/* Email Dialog */}
       {emailDialogData && (
         <EventSummaryEmailDialog
           open={emailDialogOpen}
