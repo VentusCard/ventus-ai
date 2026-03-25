@@ -44,7 +44,7 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    team: "Analytics Team",
+    team: "Analytics",
     subtitle: "Where do our customers spend their money?",
     icon: Search,
     color: "#3b82f6",
@@ -57,7 +57,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "predictive",
-    team: "Reward Team",
+    team: "Rewards",
     subtitle: "How can we support and reward their life style?",
     icon: Sparkles,
     color: "#22c55e",
@@ -70,7 +70,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "phase",
-    team: "Growth and Wealth Team",
+    team: "Growth & Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
     color: "#a855f7",
