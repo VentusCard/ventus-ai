@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight, Brain, Target } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 
-export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot";
+export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot" | "aiFinancialInsights" | "dealPersonalization";
 
 interface Props {
   customer: DemoCustomer | null;
@@ -48,6 +48,7 @@ const PILLAR_ROWS: PillarRow[] = [
     bankNodes: [
       { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
       { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
+      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#2563eb", audience: "bank" },
     ],
     consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
   },
@@ -59,6 +60,7 @@ const PILLAR_ROWS: PillarRow[] = [
     bankNodes: [
       { id: "travel", label: "Next-Purchase Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
       { id: "locational", label: "Travel & Perk Aggregation", icon: MapPin, color: "#0891b2", audience: "bank" },
+      { id: "dealPersonalization", label: "Deal Personalization", icon: Target, color: "#16a34a", audience: "bank" },
     ],
     consumerNode: { id: "rewards", label: "Personalized Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
   },

@@ -42,9 +42,11 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
   phase: { title: "Phase — Life Event Detection", color: "#a855f7" },
   wmCopilot: { title: "Wealth Management CoPilot", color: "#7c3aed" },
+  aiFinancialInsights: { title: "AI Financial Insights", color: "#2563eb" },
+  dealPersonalization: { title: "Deal Personalization", color: "#16a34a" },
 };
 
-const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot"]);
+const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"]);
 
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",

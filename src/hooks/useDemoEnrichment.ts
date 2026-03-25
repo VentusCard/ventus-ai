@@ -34,9 +34,11 @@ const INITIAL_READINESS: NodeReadiness = {
   locational: "idle",
   lifeEventIntel: "idle",
   wmCopilot: "idle",
+  aiFinancialInsights: "idle",
+  dealPersonalization: "idle",
 };
 
-const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot"];
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"];
 
 export interface DetectedLifeEventEvidence {
   merchant: string;
@@ -127,8 +129,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const pendingConsumerRef = useRef<Set<DemoNodeType>>(new Set());
 
   const CONSUMER_DEPS: Record<string, DemoNodeType[]> = {
-    engagement: ["analytics", "outflow"],
-    rewards: ["travel", "locational"],
+    engagement: ["analytics", "outflow", "aiFinancialInsights"],
+    rewards: ["travel", "locational", "dealPersonalization"],
     wealth: ["lifeEventIntel", "lifeEvents"],
   };
   const CONSUMER_NODES = new Set(Object.keys(CONSUMER_DEPS));
@@ -274,6 +276,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         locational: "processing",
         lifeEventIntel: "processing",
         wmCopilot: "processing",
+        aiFinancialInsights: "processing",
+        dealPersonalization: "processing",
       });
     }, 100);
 
@@ -297,7 +301,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         phase2Started = true;
 
         setInputReady(true);
-        setNodeReady({ engine: "ready", analytics: "ready", outflow: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready", outflow: "ready", aiFinancialInsights: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
@@ -333,7 +337,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           } catch (err) {
             console.warn("[Phase2] Deal personalization failed:", err);
           }
-          setNodeReady({ rewards: "ready" });
+          setNodeReady({ rewards: "ready", dealPersonalization: "ready" });
         };
 
         fireRewardsPersonalization();
