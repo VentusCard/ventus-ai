@@ -189,7 +189,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const isProcessingLine = inputState === "processing";
               return (
                 <g key={`in-${i}`}>
-                  <path d={path} stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"} strokeWidth={isReady ? 2 : 1.5} fill="none" opacity={isReady ? 0.7 : 0.25} strokeDasharray={isReady ? "none" : "6 4"} className="line-transition" />
+                  <path d={path} stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"} strokeWidth={isReady ? 2 : 1.5} fill="none" opacity={isReady ? 0.7 : 0.5} strokeDasharray={isReady ? "none" : "6 4"} className="line-transition" />
                   {isProcessingLine && (
                     <circle r="2.5" fill="#3b82f6">
                       <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
