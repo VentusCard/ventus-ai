@@ -347,7 +347,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
           <div key={pillar.id}>
             {/* Question label spanning both columns */}
             <div
-              className="absolute flex flex-col justify-center px-2"
+              className="absolute flex items-center gap-1.5 px-2"
               style={{
                 left: bankColLeftX,
                 top: labelTop,
@@ -356,11 +356,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 zIndex: 2,
               }}
             >
-              <div className="flex items-center gap-1.5">
-                <PillarIcon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
-                <span className={`font-medium leading-tight opacity-70 ${centered ? "text-[12px]" : "text-[10px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
-              </div>
-              <span className={`font-semibold leading-tight mt-0.5 ${centered ? "text-[14px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              <PillarIcon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
+              <span className={`font-medium leading-tight opacity-70 ${centered ? "text-[12px]" : "text-[10px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
+              <span className="opacity-30" style={{ color: pillar.color }}>·</span>
+              <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
             {/* 2 stacked bank nodes */}
