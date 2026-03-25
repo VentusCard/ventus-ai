@@ -125,7 +125,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const BANK_NODE_HEIGHT = Math.max(32, 36 * scale);
   const BANK_NODE_GAP = Math.max(4, 6 * scale);
   const CONSUMER_NODE_HEIGHT = Math.max(54, 70 * scale);
-  const QUESTION_LABEL_HEIGHT = centered ? 46 : 36;
+  const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
 
   // Horizontal gaps — tight on left, generous on right
   const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
