@@ -55,7 +55,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "predictive",
-    subtitle: "What will they spend on next & how do we reward it?",
+    subtitle: "How can we support and reward their life style?",
     icon: Sparkles,
     color: "#22c55e",
     bankNodes: [
