@@ -181,23 +181,34 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         {dims.w > 0 && (
           <>
             {/* Input lines: TX cards → engine */}
-            {[midY].map((y, i) => {
-              const txRight = txCenterX + TX_CARD_WIDTH / 2;
-              const engineLeft = engineCenterX - ENGINE_WIDTH / 2;
-              const path = `M ${txRight} ${y} C ${(txRight + engineLeft) / 2} ${y}, ${(txRight + engineLeft) / 2} ${midY}, ${engineLeft} ${midY}`;
+            {(() => {
+              const txRight = txCenterX + TX_CARD_WIDTH / 2 + 4;
+              const engineLeft = engineCenterX - ENGINE_WIDTH / 2 - 4;
+              const path = `M ${txRight} ${midY} C ${(txRight + engineLeft) / 2} ${midY}, ${(txRight + engineLeft) / 2} ${midY}, ${engineLeft} ${midY}`;
               const isReady = inputState === "ready";
               const isProcessingLine = inputState === "processing";
               return (
-                <g key={`in-${i}`}>
-                  <path d={path} stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"} strokeWidth={isReady ? 2.5 : 1.5} fill="none" opacity={isReady ? 1 : 0.5} strokeDasharray={isReady ? "none" : "6 4"} className="line-transition" />
+                <g>
+                  {/* Base track (idle/processing) */}
+                  {!isReady && (
+                    <path d={path} stroke="url(#lineGrad)" strokeWidth={1.5} fill="none" opacity={0.5} strokeDasharray="6 4" className="line-transition" />
+                  )}
                   {isProcessingLine && (
                     <circle r="2.5" fill="#3b82f6">
-                      <animateMotion dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" path={path} />
+                      <animateMotion dur="2.5s" repeatCount="indefinite" path={path} />
                     </circle>
+                  )}
+                  {/* Completed connection overlay */}
+                  {isReady && (
+                    <>
+                      <path d={path} stroke="url(#lineGradSolid)" strokeWidth={3} fill="none" opacity={1} strokeLinecap="round" />
+                      <circle cx={txRight} cy={midY} r={4} fill="#3b82f6" opacity={0.9} />
+                      <circle cx={engineLeft} cy={midY} r={4} fill="#a855f7" opacity={0.9} />
+                    </>
                   )}
                 </g>
               );
-            })}
+            })()}
 
             {/* Engine → Bank column rows */}
             {PILLAR_ROWS.map((pillar, pi) => {
