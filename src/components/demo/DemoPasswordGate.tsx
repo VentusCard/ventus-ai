@@ -44,7 +44,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat4Phase(0);
       }
       if (s === 5) {
-        if (beat5Phase < 1) {
+        if (beat5Phase < 3) {
           setBeat5Phase((p) => p + 1);
           return s;
         }
