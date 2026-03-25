@@ -1,13 +1,10 @@
 
 
-## Plan: Remove Auto-Advance on Beat 6
+## Plan: Increase Text Size in Personalization Cards
 
-### What changes
-Remove the `useEffect` at lines 102-107 that automatically transitions `beat6Phase` from 0 to 1 after 1.8 seconds. The user will need to click or press a key to advance instead.
+The three personalization cards (Rewards, Relationship, UX) each contain a 4-column grid of items. The label text inside those items currently uses `text-[10px]`. This will be increased to `text-xs` (12px) for better readability.
 
 ### File: `src/components/demo/DemoPasswordGate.tsx`
 
-1. **Delete lines 102-107** — the `useEffect` that runs `setTimeout(() => setBeat6Phase(1), 1800)` when `step === 6 && beat6Phase === 0`.
-
-That's it. The advance/click handler already supports progressing `beat6Phase` manually (lines 53-56), so no other changes are needed.
+**Lines 515, 531, 547** — Change `text-[10px]` to `text-xs` on the `<span>` inside each grid item across all three cards.
 
