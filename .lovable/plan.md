@@ -1,18 +1,26 @@
 
 
-## Fix: Input connector line invisible after enrichment
+## Update All-in-one Suite Tool Labels
 
-### Root Cause
-After extensive code review, the input connector (customer → engine) renders correctly in the DOM, but uses `stroke="url(#lineGradSolid)"` (an SVG gradient reference) while every other working connector in the diagram uses a **direct color string** like `stroke={pillar.color}` (e.g. `"#3b82f6"`). SVG gradient references with `url(#...)` can silently fail to render under certain conditions (gradient bounding box, re-render timing, or transform context issues). This is the key difference between the working connectors and the broken one.
+Rename the 7 bank-facing node labels in the network diagram to be more explicit about what each tool does.
 
-### Changes in `src/components/demo/DemoNetworkDiagram.tsx`
+### Current → Proposed Labels
 
-**1. Replace gradient stroke with a direct color** (lines 192-199)
-- Change `stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"}` to `stroke="#6366f1"` (indigo, a blend of the blue-to-purple the gradient was trying to achieve)
-- Keep all other properties identical to the other connectors: `strokeWidth={isReady ? 2.5 : 1.5}`, `opacity={isReady ? 0.7 : 0.2}`, `strokeDasharray={isReady ? "none" : "6 4"}`
+| # | Current Label | Proposed Label |
+|---|---|---|
+| 1 | Behavioral Analytics | Category Consolidation & Budgeting |
+| 2 | Outflow Analysis | Competitor Outflow Detection |
+| 3 | Reward Intelligence | Reward & Trip Detection |
+| 4 | Locational Experience | Locational Perk Aggregation |
+| 5 | Life Event Intelligence | Life Event Detection |
+| 6 | Financial Journey | Next-Best Product Engine |
+| 7 | WM CoPilot | WM CoPilot *(keep)* |
 
-**2. Add a flowing particle on ready state** (matching engine→bank connectors)
-- The engine→bank connectors show a subtle flowing particle when `pillarReady` (lines 230-232). Add the same for the input connector when ready, so the connection feels alive and matches the rest of the diagram.
+I've inferred more descriptive names based on what each tool actually does in the codebase. Please let me know if you'd like to adjust any of these before I implement.
 
-This makes the input connector use the exact same rendering approach as every other visible connector in the diagram — direct color, no gradient references.
+### File to update
+- `src/components/demo/DemoNetworkDiagram.tsx` — lines 49-73, update the `label` strings in `PILLAR_ROWS`
+
+### Also update matching labels in the analytics sidebar
+- `src/components/tepilot/insights/AnalyticsContainer.tsx` — update sidebar tab labels to stay consistent (e.g. "Location Experience" → "Locational Perk Aggregation")
 
