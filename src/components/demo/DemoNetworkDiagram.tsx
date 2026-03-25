@@ -57,7 +57,7 @@ const PILLAR_ROWS: PillarRow[] = [
     icon: Sparkles,
     color: "#22c55e",
     bankNodes: [
-      { id: "travel", label: "Reward & Trip Detection", icon: Plane, color: "#06b6d4", audience: "bank" },
+      { id: "travel", label: "Next-Purchase Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
       { id: "locational", label: "Travel & Perk Aggregation", icon: MapPin, color: "#0891b2", audience: "bank" },
     ],
     consumerNode: { id: "rewards", label: "Personalized Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
