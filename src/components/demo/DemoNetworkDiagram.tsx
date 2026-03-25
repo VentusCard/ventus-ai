@@ -497,7 +497,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: consumerColLeftX, width: CONSUMER_COL_WIDTH, top: gridTopY - 32, zIndex: 2 }}
       >
-        Consumer-Facing
+        Personalized Banking
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center transition-opacity duration-500`}
