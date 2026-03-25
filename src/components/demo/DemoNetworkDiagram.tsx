@@ -31,7 +31,7 @@ interface PillarRow {
   consumerNode: NodeDef;
 }
 
-const BASE_TX_CARD_HEIGHT = 110;
+const BASE_TX_CARD_HEIGHT = 60;
 const BASE_ENGINE_MIN_HEIGHT = 140;
 
 const AUDIENCE_ACCENT = {
