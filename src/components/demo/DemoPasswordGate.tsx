@@ -711,8 +711,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                        </div>
                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                          {[
-                           "529 Plan Setup",
-                           "Local Advisor Notified ",
+                            "Local Advisor Notified",
+                            "529 Plan Setup",
                            "Life Insurance Review",
                            "Emergency Fund Boost",
                          ].map((label) => (
