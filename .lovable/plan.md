@@ -1,24 +1,21 @@
 
 
-## Plan: Add Subheader Text to Beats 1 and 2
+## Plan: Require an extra click to reveal the "Enter Demo →" button
 
-**File: `src/components/demo/DemoPasswordGate.tsx`**
+Currently, when the user clicks on step 6, `beat6Phase` advances from 0 to 1, simultaneously showing the "Ventus Innovates the Entire Stack" content **and** the "Enter Demo →" button.
 
-### Beat 1 (lines 316-323)
-Add a grey subheader below the `<h1>`:
-```tsx
-<p className="mt-4 text-lg text-slate-400 font-medium">
-  Do you consider your banking experience as a personalized one?
-</p>
-```
+**Change**: Add a `beat6Phase` value of 2, so:
+- Phase 0 → "The Status Quo" (current)
+- Phase 1 → "Ventus Innovates the Entire Stack" content appears, but **no button yet**
+- Phase 2 → "Enter Demo →" button fades in
 
-### Beat 2 (lines 328-335)
-Add a grey subheader below the `<h1>`:
-```tsx
-<p className="mt-4 text-lg text-slate-400 font-medium">
-  Merchant Category Code
-</p>
-```
+**File**: `src/components/demo/DemoPasswordGate.tsx`
 
-Both use the same muted slate-400 styling for consistency.
+1. Update the advance logic (line 54): change `beat6Phase < 1` to `beat6Phase < 2` so an extra click is needed
+2. Update the goBack logic (line 83): adjust to handle the new phase count
+3. Update the keyboard handler (line 108): change `beat6Phase >= 1` to `beat6Phase >= 2` for enter-demo behavior
+4. Update the cursor/click guard (lines 172-174): change `beat6Phase >= 1` to `beat6Phase >= 2`
+5. Change the button condition (line 956): from `beat6Phase >= 1` to `beat6Phase >= 2`
+
+All existing visual transitions (phase 0→1 content changes) remain unchanged.
 
