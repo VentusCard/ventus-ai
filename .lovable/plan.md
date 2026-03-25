@@ -1,10 +1,16 @@
 
 
-## Make Bank Node Cards Slightly Shorter
+## Tighten Vertical Spacing in Network Diagram
 
-### Change
-In `src/components/demo/DemoNetworkDiagram.tsx`, reduce `BANK_NODE_HEIGHT` from `Math.max(36, 42 * scale)` to `Math.max(32, 38 * scale)` — reverting to the previous value. This makes the "All-in-one Suite" bank node cards a tiny bit shorter vertically, closer in proportion to the consumer-facing cards like "Events in Richmond."
+### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
 
-### File: `src/components/demo/DemoNetworkDiagram.tsx`
-- Line 120: Change `Math.max(36, 42 * scale)` → `Math.max(32, 36 * scale)`
+Reduce three spacing constants:
+
+| Constant | Current | New |
+|---|---|---|
+| `ROW_HEIGHT` | `Math.max(145, 170 * scale)` | `Math.max(125, 148 * scale)` |
+| `BANK_NODE_GAP` | `Math.max(7, 10 * scale)` | `Math.max(4, 6 * scale)` |
+| `CONSUMER_NODE_HEIGHT` | `Math.max(62, 80 * scale)` | `Math.max(54, 70 * scale)` |
+
+This compresses the three pillar rows closer together, tightens gaps between bank nodes within each row, and slightly shortens consumer node cards — all producing a more compact vertical layout. No other files affected.
 
