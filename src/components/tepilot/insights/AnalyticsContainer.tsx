@@ -84,8 +84,35 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
   };
 
   return (
-    <div className="flex w-full min-h-[600px]">
-      {/* Sidebar */}
+    <div className="w-full min-h-[600px] rounded-xl border border-slate-200 overflow-hidden bg-white">
+      {/* Professional Header */}
+      <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
+              <Building2 className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-slate-900 leading-tight">First National Bank</h1>
+              <p className="text-[11px] text-slate-400 leading-tight">Intelligence Platform</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-[11px] text-slate-400">Last updated: {today}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+            <Sparkles className="w-3 h-3 text-blue-500" />
+            <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex min-h-[560px]">
       <div
         className={cn(
           "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
