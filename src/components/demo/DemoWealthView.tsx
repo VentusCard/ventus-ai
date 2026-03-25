@@ -2,17 +2,11 @@ import type { DemoCustomer } from "@/lib/demoData";
 import { TrendingUp, Shield, DollarSign, PieChart } from "lucide-react";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customer: DemoCustomer;
 }
 
-export default function DemoWealthView({ customerA, customerB }: Props) {
-  return (
-    <div className="grid grid-cols-2 gap-4">
-      <CustomerWealth customer={customerA} color="#3b82f6" />
-      <CustomerWealth customer={customerB} color="#10b981" />
-    </div>
-  );
+export default function DemoWealthView({ customer }: Props) {
+  return <CustomerWealth customer={customer} color="#3b82f6" />;
 }
 
 function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: string }) {
@@ -26,7 +20,6 @@ function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: st
     { label: "Investments", value: holdings.investments, icon: TrendingUp },
   ];
 
-  // Derive advisor actions from life events
   const advisorActions = customer.lifeEvents.slice(0, 2).map(event => ({
     action: `Review ${event.name.toLowerCase()} implications`,
     timing: event.timing,
@@ -37,7 +30,6 @@ function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: st
     <div className="space-y-3">
       <p className="text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color }}>Wealth Management Copilot</p>
 
-      {/* Client Snapshot */}
       <div className="rounded-lg border border-slate-200 p-3 bg-white">
         <div className="flex items-center gap-2 mb-2">
           <PieChart className="w-3.5 h-3.5 text-slate-400" />
@@ -55,7 +47,6 @@ function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: st
         </div>
       </div>
 
-      {/* Holdings */}
       <div className="rounded-lg border border-slate-200 p-3 bg-white">
         <div className="flex items-center gap-2 mb-2">
           <DollarSign className="w-3.5 h-3.5 text-slate-400" />
@@ -71,7 +62,6 @@ function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: st
         </div>
       </div>
 
-      {/* Risk & Compliance */}
       <div className="rounded-lg border border-slate-200 p-3 bg-white">
         <div className="flex items-center gap-2 mb-2">
           <Shield className="w-3.5 h-3.5 text-slate-400" />
@@ -97,7 +87,6 @@ function CustomerWealth({ customer, color }: { customer: DemoCustomer; color: st
         </div>
       </div>
 
-      {/* Advisor Actions */}
       {advisorActions.length > 0 && (
         <div className="rounded-lg p-3 border" style={{ background: `${color}04`, borderColor: `${color}20` }}>
           <p className="text-[10px] font-semibold mb-2" style={{ color }}>Recommended Actions</p>

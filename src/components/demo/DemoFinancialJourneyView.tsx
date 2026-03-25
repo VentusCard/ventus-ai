@@ -33,15 +33,11 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-/* ── Props ── */
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  detectedEventA: DetectedLifeEventResult[];
-  detectedEventB: DetectedLifeEventResult[];
+  customer: DemoCustomer;
+  detectedEvents: DetectedLifeEventResult[];
 }
 
-/* ── Source → Product name mapping ── */
 const SOURCE_TO_PRODUCT: Record<string, string> = {
   "Premium Card": "World Elite",
   "Cashback Card": "Basic Cashback",
@@ -53,7 +49,6 @@ const SOURCE_TO_PRODUCT: Record<string, string> = {
   "Student Card": "Student Card",
 };
 
-/* ── Source pill colors ── */
 const SOURCE_PILL_COLORS: Record<string, string> = {
   "Premium Card": "bg-purple-50 text-purple-700",
   "Cashback Card": "bg-emerald-50 text-emerald-700",
@@ -65,7 +60,6 @@ const SOURCE_PILL_COLORS: Record<string, string> = {
   "Student Card": "bg-pink-50 text-pink-700",
 };
 
-/* ── Category icons ── */
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   credit_cards: CreditCard,
   deposit_accounts: Landmark,
@@ -76,7 +70,6 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   estate_trust: Scale,
 };
 
-/* ── Pillar → product affinity boosts ── */
 const PILLAR_PRODUCT_AFFINITY: Record<string, string[]> = {
   travel: ["Travel Rewards", "Premium Travel", "Airline Co-Brand", "Hotel Co-Brand", "Travel Insurance"],
   dining: ["Basic Cashback", "Custom Cashback", "Co-Branded Retail"],
@@ -87,7 +80,6 @@ const PILLAR_PRODUCT_AFFINITY: Record<string, string[]> = {
   entertainment: ["Custom Cashback", "Travel Rewards"],
 };
 
-/* ── Life event → product affinity ── */
 const EVENT_PRODUCT_AFFINITY: Record<string, string[]> = {
   home: ["Home Mortgage", "HELOC", "Home Insurance", "Home Mortgage Refi", "Construction Loan"],
   house: ["Home Mortgage", "HELOC", "Home Insurance"],
@@ -102,7 +94,6 @@ const EVENT_PRODUCT_AFFINITY: Record<string, string[]> = {
   education: ["529 Plan", "Student Loan Refi", "Education Trust"],
 };
 
-/* ── Derive held products from transaction sources ── */
 function getHeldProducts(customer: DemoCustomer): Set<string> {
   const held = new Set<string>();
   held.add("Checking");
@@ -116,7 +107,6 @@ function getHeldProducts(customer: DemoCustomer): Set<string> {
   return held;
 }
 
-/* ── Derive held source names (for display) ── */
 function getHeldSources(customer: DemoCustomer): string[] {
   const sources = new Set<string>();
   sources.add("Checking");
@@ -127,7 +117,6 @@ function getHeldSources(customer: DemoCustomer): string[] {
   return Array.from(sources);
 }
 
-/* ── Scored opportunity ── */
 interface ScoredOpportunity {
   product: JourneyProduct;
   confidence: number;
@@ -135,7 +124,6 @@ interface ScoredOpportunity {
   nextSteps: string[];
 }
 
-/* ── Confidence scoring engine ── */
 function scoreOpportunities(
   customer: DemoCustomer,
   heldProducts: Set<string>,
@@ -143,14 +131,10 @@ function scoreOpportunities(
   allProducts: JourneyProduct[]
 ): ScoredOpportunity[] {
   const results: ScoredOpportunity[] = [];
-
-  // Pre-compute pillar map
   const pillarMap: Record<string, number> = {};
   for (const p of customer.topPillars) {
     pillarMap[p.name.toLowerCase()] = p.pct;
   }
-
-  // Pre-compute event keywords
   const eventKeywords = detectedEvents.map(e => ({
     event: e,
     words: e.event_name.toLowerCase().split(/\s+/),
@@ -158,11 +142,8 @@ function scoreOpportunities(
 
   for (const product of allProducts) {
     if (heldProducts.has(product.name)) continue;
-
-    let score = 15; // base
+    let score = 15;
     const signals: string[] = [];
-
-    // 1. Adjacent product boost — if any held product lists this as nextProductOpportunity
     const adjacentBoost = allProducts
       .filter(p => heldProducts.has(p.name))
       .some(p => p.nextProductOpportunities.includes(product.name));
@@ -170,8 +151,6 @@ function scoreOpportunities(
       score += 25;
       signals.push("Adjacent to currently held products");
     }
-
-    // 2. Pillar affinity
     for (const [pillar, pct] of Object.entries(pillarMap)) {
       const affinityProducts = PILLAR_PRODUCT_AFFINITY[pillar] ?? [];
       if (affinityProducts.includes(product.name)) {
@@ -179,8 +158,6 @@ function scoreOpportunities(
         signals.push(`${pillar.charAt(0).toUpperCase() + pillar.slice(1)} spending at ${pct}%`);
       }
     }
-
-    // 3. Life event match
     for (const { event, words } of eventKeywords) {
       for (const [keyword, products] of Object.entries(EVENT_PRODUCT_AFFINITY)) {
         if (words.some(w => w.includes(keyword)) && products.includes(product.name)) {
@@ -190,8 +167,6 @@ function scoreOpportunities(
         }
       }
     }
-
-    // 4. Segment/AUM tier boost for wealth products
     const aum = parseInt(customer.profile.aum?.replace(/[^0-9]/g, "") || "0");
     if (product.category === "wealth_management" || product.category === "estate_trust") {
       if (aum >= 500000) {
@@ -202,19 +177,11 @@ function scoreOpportunities(
         signals.push(`AUM ${customer.profile.aum} — growth potential`);
       }
     }
-
-    // 5. Penetration rate as a small factor (popular products slightly boosted)
     score += Math.round(product.penetrationRate * 0.15);
-
-    // Cap at 95
     const confidence = Math.min(Math.max(score, 10), 95);
-
-    // Generate next steps
     const nextSteps = generateNextSteps(product, confidence);
-
     results.push({ product, confidence, signals: signals.slice(0, 3), nextSteps });
   }
-
   return results.sort((a, b) => b.confidence - a.confidence);
 }
 
@@ -245,14 +212,10 @@ function confidenceLabel(c: number) {
   return "Low";
 }
 
-/* ── Financial categories (exclude digital_services) ── */
 const FINANCIAL_CATEGORIES = JOURNEY_CATEGORIES.filter(c => c.id !== "digital_services");
 const FINANCIAL_PRODUCTS = JOURNEY_PRODUCTS.filter(p => p.category !== "digital_services");
-
-/* ── Category color lookup ── */
 const CATEGORY_META_MAP = Object.fromEntries(JOURNEY_CATEGORIES.map(c => [c.id, c]));
 
-/* ── Category left-border color map (can't use dynamic Tailwind classes) ── */
 const CATEGORY_BORDER_COLOR: Record<string, string> = {
   credit_cards: "#1d4ed8",
   deposit_accounts: "#059669",
@@ -264,7 +227,6 @@ const CATEGORY_BORDER_COLOR: Record<string, string> = {
   estate_trust: "#9333ea",
 };
 
-/* ── Personalized message generation ── */
 function generatePersonalizedMessages(
   customer: DemoCustomer,
   product: JourneyProduct,
@@ -301,17 +263,12 @@ function generatePersonalizedMessages(
   };
 }
 
-/* ── Main component ── */
-export default function DemoFinancialJourneyView({ customerA, customerB, detectedEventA, detectedEventB }: Props) {
+export default function DemoFinancialJourneyView({ customer, detectedEvents }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-6">
-      <CustomerOpportunities customer={customerA} detectedEvents={detectedEventA} />
-      <CustomerOpportunities customer={customerB} detectedEvents={detectedEventB} />
-    </div>
+    <CustomerOpportunities customer={customer} detectedEvents={detectedEvents} />
   );
 }
 
-/* ── Per-customer column ── */
 function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCustomer; detectedEvents: DetectedLifeEventResult[] }) {
   const heldProducts = useMemo(() => getHeldProducts(customer), [customer]);
   const heldSources = useMemo(() => getHeldSources(customer), [customer]);
@@ -326,7 +283,6 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
 
   const topOpportunity = opportunities[0] ?? null;
 
-  // Group by category
   const byCategory = useMemo(() => {
     const map = new Map<JourneyCategory, ScoredOpportunity[]>();
     for (const opp of opportunities) {
@@ -339,7 +295,6 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
 
   return (
     <div className="space-y-4">
-      {/* Summary header */}
       <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -351,15 +306,11 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
             <p className="text-[9px] text-slate-500 uppercase tracking-wider">Opportunities</p>
           </div>
         </div>
-
-        {/* Confidence breakdown */}
         <div className="flex items-center gap-2">
           <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold">{highCount} High</span>
           <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold">{medCount} Medium</span>
           <span className="text-[9px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-semibold">{lowCount} Low</span>
         </div>
-
-        {/* Held products */}
         <div>
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Currently Held</p>
           <div className="flex flex-wrap gap-1">
@@ -373,7 +324,6 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
         </div>
       </div>
 
-      {/* Next Best Product card */}
       {topOpportunity && (
         <NextProductCard
           opp={topOpportunity}
@@ -382,7 +332,6 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
         />
       )}
 
-      {/* Category sections */}
       {FINANCIAL_CATEGORIES.map(cat => {
         const catOpps = byCategory.get(cat.id);
         if (!catOpps || catOpps.length === 0) return null;
@@ -407,7 +356,6 @@ function CustomerOpportunities({ customer, detectedEvents }: { customer: DemoCus
   );
 }
 
-/* ── Next Best Product card ── */
 function NextProductCard({
   opp,
   customer,
@@ -434,7 +382,6 @@ function NextProductCard({
       className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
       style={{ borderLeftWidth: 3, borderLeftColor: borderColor }}
     >
-      {/* Header */}
       <div className="px-4 pt-3 pb-2 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -453,108 +400,72 @@ function NextProductCard({
           </span>
         </div>
 
-        {/* Confidence bar */}
         <div className="flex items-center gap-2">
           <div className="h-1.5 rounded-full bg-slate-100 flex-1">
             <div
-              className={cn("h-1.5 rounded-full transition-all", opp.confidence >= 70 ? "bg-emerald-500" : opp.confidence >= 40 ? "bg-amber-500" : "bg-slate-400")}
-              style={{ width: `${opp.confidence}%` }}
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${opp.confidence}%`,
+                background: opp.confidence >= 70 ? "#22c55e" : opp.confidence >= 40 ? "#f59e0b" : "#94a3b8",
+              }}
             />
           </div>
-          <span className={cn("text-[9px] font-semibold", cc.text)}>{confidenceLabel(opp.confidence)}</span>
-        </div>
-
-        {/* Source badge */}
-        <div className="flex items-center gap-1.5">
-          <Zap className="w-2.5 h-2.5 text-purple-500" />
-          <span className="text-[9px] text-purple-600 font-medium">{sourceLabel}</span>
-        </div>
-
-        {/* Signals */}
-        {opp.signals.length > 0 && (
-          <div className="space-y-0.5">
-            {opp.signals.map((sig, i) => (
-              <div key={i} className="flex items-start gap-1.5 text-[10px] text-slate-600 leading-snug">
-                <Zap className="w-2.5 h-2.5 text-purple-400 mt-0.5 shrink-0" />
-                <span>{sig}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Revenue */}
-        <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-          <span className="text-[9px] text-slate-400">
-            Est. Annual Revenue: <span className="font-semibold text-emerald-600 text-[10px]">${opp.product.revenuePerCustomer.toLocaleString()}</span>
-          </span>
         </div>
       </div>
 
-      {/* Personalized messages */}
-      <div className="bg-slate-50/80 px-4 py-3 space-y-2 border-t border-slate-100">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Personalized Outreach</p>
-
-        <div className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <Mail className="w-3 h-3 text-blue-500" />
-              <span className="text-[9px] font-semibold text-slate-700">Email Campaign</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-5 px-2 text-[8px] rounded-md"
-              onClick={() => toast.success(`Email campaign queued for ${firstName} — ${opp.product.name}`)}
-            >
-              Push to Campaign
-            </Button>
+      <div className="px-4 py-2 border-t border-slate-100 space-y-2">
+        <div>
+          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Why this product</p>
+          <div className="space-y-1">
+            {opp.signals.map((signal, si) => (
+              <div key={si} className="flex items-start gap-1.5 text-[10px]">
+                <Zap className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
+                <span className="text-slate-600">{signal}</span>
+              </div>
+            ))}
           </div>
-          <p className="text-[10px] text-slate-600 leading-relaxed italic">"{messages.email}"</p>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <MessageSquare className="w-3 h-3 text-emerald-500" />
-              <span className="text-[9px] font-semibold text-slate-700">SMS Outreach</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-5 px-2 text-[8px] rounded-md"
-              onClick={() => toast.success(`SMS outreach scheduled for ${firstName} — ${opp.product.name}`)}
-            >
-              Push to Campaign
-            </Button>
-          </div>
-          <p className="text-[10px] text-slate-600 leading-relaxed italic">"{messages.sms}"</p>
-        </div>
-
-        <div className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <Bell className="w-3 h-3 text-amber-500" />
-              <span className="text-[9px] font-semibold text-slate-700">In-App Notification</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-5 px-2 text-[8px] rounded-md"
-              onClick={() => toast.success(`In-app notification set for ${firstName} — ${opp.product.name}`)}
-            >
-              Push to Campaign
-            </Button>
-          </div>
-          <p className="text-[10px] text-slate-600 leading-relaxed italic">"{messages.inApp}"</p>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5 space-y-2">
+          <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">Personalized Outreach</p>
+          <OutreachPreview icon={<Mail className="w-3 h-3" />} label="Email" message={messages.email} />
+          <OutreachPreview icon={<MessageSquare className="w-3 h-3" />} label="SMS" message={messages.sms} />
+          <OutreachPreview icon={<Bell className="w-3 h-3" />} label="In-App" message={messages.inApp} />
         </div>
       </div>
     </div>
   );
 }
 
-/* ── Category collapsible section ── */
+function OutreachPreview({ icon, label, message }: { icon: React.ReactNode; label: string; message: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div>
+      <button
+        className="flex items-center gap-1.5 text-[10px] font-medium text-slate-600 hover:text-slate-800 transition-colors w-full text-left"
+        onClick={() => setExpanded(!expanded)}
+      >
+        {icon}
+        <span>{label}</span>
+        <ChevronRight className={cn("w-3 h-3 ml-auto transition-transform", expanded && "rotate-90")} />
+      </button>
+      {expanded && (
+        <p className="text-[10px] text-slate-500 leading-relaxed mt-1 pl-5 italic">"{message}"</p>
+      )}
+    </div>
+  );
+}
+
 function CategorySection({
-  label, icon, color, textColor, count, topConfidence, opportunities, customerName,
+  label,
+  icon,
+  color,
+  textColor,
+  count,
+  topConfidence,
+  opportunities,
+  customerName,
 }: {
   label: string;
   icon: React.ReactNode;
@@ -565,151 +476,39 @@ function CategorySection({
   opportunities: ScoredOpportunity[];
   customerName: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const cc = confidenceColor(topConfidence);
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger asChild>
-        <button className={cn(
-          "w-full flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left",
-          open && "bg-slate-50"
-        )}>
-          <div className="flex items-center gap-2">
-            <span className={cn("p-1.5 rounded-md", color, textColor)}>{icon}</span>
-            <span className="text-xs font-semibold text-slate-800">{label}</span>
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">{count}</span>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className="w-full">
+        <div className={cn("flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors hover:bg-slate-50", cc.border)}>
+          <div className={cn("w-7 h-7 rounded-md flex items-center justify-center", color)}>
+            <span className={textColor}>{icon}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", cc.bg, cc.text)}>
-              Top: {topConfidence}%
-            </span>
-            <ChevronRight className={cn("w-3.5 h-3.5 text-slate-400 transition-transform", open && "rotate-90")} />
+          <div className="text-left flex-1 min-w-0">
+            <p className="text-xs font-semibold text-slate-900">{label}</p>
+            <p className="text-[9px] text-slate-400">{count} opportunities · Top: {topConfidence}%</p>
           </div>
-        </button>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="space-y-2 mt-2 pl-2">
-          {opportunities.map((opp, idx) => (
-            <ProductCard key={idx} opp={opp} customerName={customerName} />
-          ))}
+          <span className={cn("text-[9px] font-bold px-2 py-0.5 rounded-full", cc.bg, cc.text)}>
+            {confidenceLabel(topConfidence)}
+          </span>
+          <ChevronRight className={cn("w-4 h-4 text-slate-400 transition-transform", isOpen && "rotate-90")} />
         </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-/* ── Individual product opportunity card ── */
-function ProductCard({ opp, customerName }: { opp: ScoredOpportunity; customerName: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const cc = confidenceColor(opp.confidence);
-  const firstName = customerName.split(" ")[0];
-
-  return (
-    <Collapsible open={expanded} onOpenChange={setExpanded}>
-      <CollapsibleTrigger asChild>
-        <button className={cn(
-          "w-full flex items-center justify-between rounded-lg border px-3 py-2 hover:shadow-sm transition-all text-left",
-          cc.border, "bg-white"
-        )}>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[11px] font-medium text-slate-800 truncate">{opp.product.name}</span>
-            {opp.signals.length > 0 && (
-              <Badge variant="outline" className="text-[8px] border-transparent bg-purple-50 text-purple-600 shrink-0">
-                <Zap className="w-2 h-2 mr-0.5" />
-                {opp.signals.length} signal{opp.signals.length > 1 ? "s" : ""}
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", cc.bg, cc.text)}>
-              {opp.confidence}%
-            </span>
-            <ChevronRight className={cn("w-3 h-3 text-slate-400 transition-transform", expanded && "rotate-90")} />
-          </div>
-        </button>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="rounded-b-lg border border-t-0 border-slate-200 bg-white px-3 py-3 space-y-3">
-          {/* Confidence + label */}
-          <div className="flex items-center gap-2">
-            <div className={cn("h-1.5 rounded-full bg-slate-100 flex-1")}>
-              <div
-                className={cn("h-1.5 rounded-full transition-all", opp.confidence >= 70 ? "bg-emerald-500" : opp.confidence >= 40 ? "bg-amber-500" : "bg-slate-400")}
-                style={{ width: `${opp.confidence}%` }}
-              />
-            </div>
-            <span className={cn("text-[9px] font-semibold", cc.text)}>{confidenceLabel(opp.confidence)} Confidence</span>
-          </div>
-
-          {/* Signals */}
-          {opp.signals.length > 0 && (
-            <div>
-              <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Signals Detected</p>
-              <ul className="space-y-0.5">
-                {opp.signals.map((sig, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-[10px] text-slate-600 leading-snug">
-                    <Zap className="w-2.5 h-2.5 text-purple-400 mt-0.5 shrink-0" />
-                    <span>{sig}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Next steps */}
-          <div>
-            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Recommended Next Steps</p>
-            <ul className="space-y-0.5">
-              {opp.nextSteps.map((step, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-[10px] text-slate-600 leading-snug">
-                  <ChevronRight className="w-2.5 h-2.5 text-slate-300 mt-0.5 shrink-0" />
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Est. value */}
-          <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-            <span className="text-[9px] text-slate-400">
-              Est. Annual Revenue: <span className="font-semibold text-emerald-600 text-[10px]">${opp.product.revenuePerCustomer.toLocaleString()}</span>
-            </span>
-          </div>
-
-          {/* Downstream personalization */}
-          <div>
-            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Push to Personalization</p>
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2.5 text-[9px] rounded-md"
-                onClick={(e) => { e.stopPropagation(); toast.success(`Email campaign queued for ${firstName} — ${opp.product.name}`); }}
-              >
-                <Mail className="w-3 h-3 mr-1" />
-                Email Campaign
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2.5 text-[9px] rounded-md"
-                onClick={(e) => { e.stopPropagation(); toast.success(`SMS outreach scheduled for ${firstName} — ${opp.product.name}`); }}
-              >
-                <MessageSquare className="w-3 h-3 mr-1" />
-                SMS
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2.5 text-[9px] rounded-md"
-                onClick={(e) => { e.stopPropagation(); toast.success(`In-app notification set for ${firstName} — ${opp.product.name}`); }}
-              >
-                <Bell className="w-3 h-3 mr-1" />
-                In-App
-              </Button>
-            </div>
-          </div>
+        <div className="mt-1 ml-4 space-y-1">
+          {opportunities.map((opp) => {
+            const oppCC = confidenceColor(opp.confidence);
+            return (
+              <div key={opp.product.name} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-slate-100 hover:bg-slate-50">
+                <p className="text-[11px] text-slate-700 flex-1 truncate">{opp.product.name}</p>
+                <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full", oppCC.bg, oppCC.text)}>
+                  {opp.confidence}%
+                </span>
+              </div>
+            );
+          })}
         </div>
       </CollapsibleContent>
     </Collapsible>

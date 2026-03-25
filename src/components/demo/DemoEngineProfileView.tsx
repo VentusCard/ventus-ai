@@ -4,10 +4,8 @@ import type { EnrichedTransaction } from "@/types/transaction";
 import { ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
+  customer: DemoCustomer;
+  enriched?: EnrichedTransaction[];
 }
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -19,7 +17,6 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
   const merchantMap: Record<string, number> = {};
   const subcatMap: Record<string, number> = {};
 
-  // Extended: tier, frequency, month tracking per pillar
   const pillarTiers: Record<string, Record<string, number>> = {};
   const pillarFreqs: Record<string, Record<string, number>> = {};
   const pillarMonths: Record<string, Record<number, number>> = {};
@@ -38,24 +35,20 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
     const subcat = t.subcategory || "Other";
     subcatMap[subcat] = (subcatMap[subcat] || 0) + Math.abs(t.amount || 0);
 
-    // Tier tallying
     const tier = t.spending_tier || "N/A";
     if (!pillarTiers[pillar]) pillarTiers[pillar] = {};
     pillarTiers[pillar][tier] = (pillarTiers[pillar][tier] || 0) + 1;
 
-    // Frequency tallying
     const freq = t.purchase_frequency || "One-Time";
     if (!pillarFreqs[pillar]) pillarFreqs[pillar] = {};
     pillarFreqs[pillar][freq] = (pillarFreqs[pillar][freq] || 0) + 1;
 
-    // Month clustering
     if (t.date) {
       const month = new Date(t.date).getMonth();
       if (!pillarMonths[pillar]) pillarMonths[pillar] = {};
       pillarMonths[pillar][month] = (pillarMonths[pillar][month] || 0) + 1;
     }
 
-    // Spend for tier avg
     if (!pillarSpendForTier[pillar]) pillarSpendForTier[pillar] = { total: 0, count: 0 };
     pillarSpendForTier[pillar].total += Math.abs(t.amount || 0);
     pillarSpendForTier[pillar].count += 1;
@@ -68,7 +61,6 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
     ? enriched.reduce((s, t) => s + (t.confidence || 0), 0) / enriched.length
     : 0;
 
-  // --- Build spending_intelligence ---
   const mode = (map: Record<string, number>) => {
     let best = ""; let max = 0;
     for (const [k, v] of Object.entries(map)) { if (v > max) { max = v; best = k; } }
@@ -94,15 +86,9 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
         : dominantTier === "Budget"
           ? `Budget-conscious ${pillarLower}, prefers value options`
           : `Standard ${pillarLower} spending patterns`;
-      return {
-        pillar,
-        dominant_tier: dominantTier,
-        avg_spend: `$${avg.toFixed(0)}`,
-        insight,
-      };
+      return { pillar, dominant_tier: dominantTier, avg_spend: `$${avg.toFixed(0)}`, insight };
     });
 
-  // --- Build temporal_patterns ---
   const seasonalBehaviors = pillarEntries
     .filter(([p]) => p !== "Miscellaneous & Unclassified" && p !== "Unknown")
     .map(([pillar]) => {
@@ -115,7 +101,6 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
       const dominantFreq = mode(pillarFreqs[pillar] || {});
       const dominantTier = mode(pillarTiers[pillar] || {});
 
-      // Build narrative
       const tierAdj = dominantTier === "Premium" ? "premium " : dominantTier === "Budget" ? "budget " : "";
       const pillarLower = pillar.toLowerCase();
       let narrative: string;
@@ -130,16 +115,10 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
         narrative = `Occasional ${tierAdj}${pillarLower} spending`;
       }
 
-      return {
-        pillar,
-        peak_months: peakMonthNames,
-        frequency: dominantFreq,
-        narrative,
-      };
+      return { pillar, peak_months: peakMonthNames, frequency: dominantFreq, narrative };
     })
     .filter(Boolean);
 
-  // Monthly heatmap
   const monthlyHeatmap: Record<string, number> = {};
   for (const m of MONTH_NAMES) monthlyHeatmap[m] = 0;
   for (const t of enriched) {
@@ -149,7 +128,6 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
     }
   }
 
-  // --- dynamic_profile_summary ---
   const dynamicSummary = seasonalBehaviors.map((b: any) => b.narrative as string);
 
   return {
@@ -179,13 +157,8 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
         tx_count: data.count,
       })),
     },
-    spending_intelligence: {
-      tier_profile: tierProfile,
-    },
-    temporal_patterns: {
-      seasonal_behaviors: seasonalBehaviors,
-      monthly_activity_heatmap: monthlyHeatmap,
-    },
+    spending_intelligence: { tier_profile: tierProfile },
+    temporal_patterns: { seasonal_behaviors: seasonalBehaviors, monthly_activity_heatmap: monthlyHeatmap },
     behavioral_patterns: {
       unique_merchants: Object.keys(merchantMap).length,
       top_merchants_by_spend: topMerchants.map(([name, spend]) => ({
@@ -320,11 +293,8 @@ function ProfilePanel({ customer, enriched, accentColor }: { customer: DemoCusto
   );
 }
 
-export default function DemoEngineProfileView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+export default function DemoEngineProfileView({ customer, enriched }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <ProfilePanel customer={customerA} enriched={enrichedA} accentColor="#3b82f6" />
-      <ProfilePanel customer={customerB} enriched={enrichedB} accentColor="#10b981" />
-    </div>
+    <ProfilePanel customer={customer} enriched={enriched} accentColor="#3b82f6" />
   );
 }

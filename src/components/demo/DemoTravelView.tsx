@@ -24,7 +24,6 @@ function groupByTrips(transactions: EnrichedTransaction[]): DetectedTrip[] {
   }
 
   return Array.from(tripMap.entries()).map(([label, txns]) => {
-    // Parse trip_label format: "YYMMDD:YYMMDD Destination Trip"
     const dateMatch = label.match(/^(\d{6}):(\d{6})\s+(.+)$/);
     let destination = label;
     let dateRange = "";
@@ -53,23 +52,17 @@ function groupByTrips(transactions: EnrichedTransaction[]): DetectedTrip[] {
 }
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
-  localExperiencesA?: { destination: string; deals: LocalExperienceDeal[] }[];
-  localExperiencesB?: { destination: string; deals: LocalExperienceDeal[] }[];
+  customer: DemoCustomer;
+  enriched?: EnrichedTransaction[];
+  localExperiences?: { destination: string; deals: LocalExperienceDeal[] }[];
 }
 
-export default function DemoTravelView({ customerA, customerB, enrichedA, enrichedB, localExperiencesA, localExperiencesB }: Props) {
-  const tripsA = useMemo(() => groupByTrips(enrichedA || []), [enrichedA]);
-  const tripsB = useMemo(() => groupByTrips(enrichedB || []), [enrichedB]);
+export default function DemoTravelView({ customer, enriched, localExperiences }: Props) {
+  const trips = useMemo(() => groupByTrips(enriched || []), [enriched]);
+  const color = "#3b82f6";
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <CustomerTravel customer={customerA} color="#3b82f6" localExperiences={localExperiencesA} detectedTrips={tripsA} />
-      <CustomerTravel customer={customerB} color="#10b981" localExperiences={localExperiencesB} detectedTrips={tripsB} />
-    </div>
+    <CustomerTravel customer={customer} color={color} localExperiences={localExperiences} detectedTrips={trips} />
   );
 }
 
@@ -83,7 +76,6 @@ function CustomerTravel({ customer, color, localExperiences, detectedTrips }: {
 
   return (
     <div className="space-y-3">
-      {/* AI-Detected Trips */}
       {hasDetectedTrips && (
         <>
           <div className="flex items-center gap-2">
@@ -134,7 +126,6 @@ function CustomerTravel({ customer, color, localExperiences, detectedTrips }: {
         </>
       )}
 
-      {/* Hardcoded Trips (fallback/supplement) */}
       <p className="text-[10px] font-bold tracking-[0.12em] uppercase" style={{ color }}>
         {hasDetectedTrips ? "Trip Profiles" : "Detected Trips"}
       </p>
@@ -172,7 +163,6 @@ function CustomerTravel({ customer, color, localExperiences, detectedTrips }: {
         </div>
       ))}
 
-      {/* AI-generated Local Experiences */}
       {localExperiences && localExperiences.length > 0 && (
         <div className="rounded-lg border overflow-hidden" style={{ borderColor: `${color}30` }}>
           <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ background: `${color}08`, borderColor: `${color}20` }}>

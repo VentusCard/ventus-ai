@@ -17,18 +17,13 @@ import { BankwideWMCopilotView } from "@/components/tepilot/insights/BankwideWMC
 
 interface Props {
   node: DemoNodeType;
-  customerA: DemoCustomer | null;
-  customerB: DemoCustomer | null;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
+  customer: DemoCustomer;
+  enriched?: EnrichedTransaction[];
   localExperiences?: LocalExperiencesData;
-  personalizedDealsA?: PersonalizedDealData | null;
-  personalizedDealsB?: PersonalizedDealData | null;
-  detectedEventA?: DetectedLifeEventResult[];
-  detectedEventB?: DetectedLifeEventResult[];
+  personalizedDeals?: PersonalizedDealData | null;
+  detectedEvents?: DetectedLifeEventResult[];
   apiPayloads?: ApiPayloads;
-  tipA?: FinancialTip | null;
-  tipB?: FinancialTip | null;
+  tip?: FinancialTip | null;
   onClose: () => void;
 }
 
@@ -60,10 +55,10 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   lifeEvents: "targeting",
 };
 
-export default function DemoDetailOverlay({ node, customerA, customerB, enrichedA, enrichedB, localExperiences, personalizedDealsA, personalizedDealsB, detectedEventA, detectedEventB, apiPayloads, tipA, tipB, onClose }: Props) {
-  const { title, color } = NODE_TITLES[node];
+const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization: null, localExperiences: null, lifestyleSignals: null };
 
-  const defaultPayloads: ApiPayloads = { classificationA: null, classificationB: null, dealPersonalizationA: null, dealPersonalizationB: null, localExperiencesA: null, localExperiencesB: null, lifestyleSignalsA: null, lifestyleSignalsB: null };
+export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose }: Props) {
+  const { title, color } = NODE_TITLES[node];
 
   const isBankWide = BANK_WIDE_NODES.has(node);
 
@@ -75,40 +70,33 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
       return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} />;
     }
     if (node === "engine") {
-      return <DemoEnrichmentTableView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} />;
+      return <DemoEnrichmentTableView customer={customer} enriched={enriched} />;
     }
     if (node === "profiling" || node === "predictive" || node === "phase") {
-      return <DemoPillarCodeView mode={node} customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} apiPayloads={apiPayloads ?? defaultPayloads} />;
+      return <DemoPillarCodeView mode={node} customer={customer} enriched={enriched} apiPayloads={apiPayloads ?? defaultPayloads} />;
     }
     if (node === "engagement") {
-      return <DemoEngagementView customerA={customerA} customerB={customerB} enrichedA={enrichedA} enrichedB={enrichedB} tipA={tipA} tipB={tipB} />;
+      return <DemoEngagementView customer={customer} enriched={enriched} tip={tip} />;
     }
     if (node === "rewards") {
       return (
         <DemoRewardsView
-          customerA={customerA}
-          customerB={customerB}
-          enrichedA={enrichedA}
-          enrichedB={enrichedB}
-          precomputedA={personalizedDealsA}
-          precomputedB={personalizedDealsB}
+          customer={customer}
+          enriched={enriched}
+          precomputed={personalizedDeals}
         />
       );
     }
     if (node === "wealth") {
       return (
         <DemoFinancialJourneyView
-          customerA={customerA}
-          customerB={customerB}
-          detectedEventA={detectedEventA ?? []}
-          detectedEventB={detectedEventB ?? []}
+          customer={customer}
+          detectedEvents={detectedEvents ?? []}
         />
       );
     }
     return null;
   };
-
-  const showCustomerHeaders = !isBankWide && node !== "engine";
 
   return (
     <div className="tepilot-theme absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
@@ -117,7 +105,14 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
         <div className="flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}40` }} />
           <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-          {!isBankWide && <span className="text-[10px] text-slate-400 ml-2">Side-by-side comparison</span>}
+          {!isBankWide && (
+            <div className="flex items-center gap-2 ml-2">
+              <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
+                <span className="text-[8px] font-bold text-blue-600">{customer.profile.name.split(" ").map(w => w[0]).join("")}</span>
+              </div>
+              <span className="text-xs font-semibold text-blue-600">{customer.profile.name}</span>
+            </div>
+          )}
         </div>
         <button
           onClick={onClose}
@@ -126,28 +121,6 @@ export default function DemoDetailOverlay({ node, customerA, customerB, enriched
           <X className="w-4 h-4" />
         </button>
       </div>
-
-      {/* Column Headers */}
-      {showCustomerHeaders && (
-        <div className="grid grid-cols-2 gap-4 px-6 pt-3 pb-1">
-          {customerA && (
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
-                <span className="text-[8px] font-bold text-blue-600">{customerA.profile.name.split(" ").map(w => w[0]).join("")}</span>
-              </div>
-              <span className="text-xs font-semibold text-blue-600">{customerA.profile.name}</span>
-            </div>
-          )}
-          {customerB && (
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                <span className="text-[8px] font-bold text-emerald-600">{customerB.profile.name.split(" ").map(w => w[0]).join("")}</span>
-              </div>
-              <span className="text-xs font-semibold text-emerald-600">{customerB.profile.name}</span>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Content */}
       <div className={`flex-1 overflow-y-auto ${isBankWide ? '' : 'px-6 pb-6 pt-2'}`}>

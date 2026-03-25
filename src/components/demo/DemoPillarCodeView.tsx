@@ -8,10 +8,8 @@ type ViewMode = "engine" | "profiling" | "predictive" | "phase";
 
 interface Props {
   mode: ViewMode;
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
+  customer: DemoCustomer;
+  enriched?: EnrichedTransaction[];
   apiPayloads: ApiPayloads;
 }
 
@@ -165,17 +163,14 @@ function DataPanel({ title, accentColor, data, emptyMsg }: { title: string; acce
   );
 }
 
-export default function DemoPillarCodeView({ mode, customerA, customerB, enrichedA, enrichedB, apiPayloads }: Props) {
+export default function DemoPillarCodeView({ mode, customer, enriched, apiPayloads }: Props) {
   const meta = MODE_META[mode];
   const Icon = meta.icon;
 
-  const getDataForMode = (label: "A" | "B") => {
-    const enriched = label === "A" ? enrichedA : enrichedB;
-    const customer = label === "A" ? customerA : customerB;
-
+  const getData = () => {
     switch (mode) {
       case "engine": {
-        const payload = label === "A" ? apiPayloads.classificationA : apiPayloads.classificationB;
+        const payload = apiPayloads.classification;
         if (!payload) return null;
         return {
           edge_function: "classify-transactions",
@@ -206,8 +201,8 @@ export default function DemoPillarCodeView({ mode, customerA, customerB, enriche
         };
       }
       case "predictive": {
-        const dealPayload = label === "A" ? apiPayloads.dealPersonalizationA : apiPayloads.dealPersonalizationB;
-        const localPayload = label === "A" ? apiPayloads.localExperiencesA : apiPayloads.localExperiencesB;
+        const dealPayload = apiPayloads.dealPersonalization;
+        const localPayload = apiPayloads.localExperiences;
         if (!dealPayload && !localPayload) return null;
         return {
           deal_personalization: dealPayload ? {
@@ -225,7 +220,7 @@ export default function DemoPillarCodeView({ mode, customerA, customerB, enriche
         };
       }
       case "phase": {
-        const payload = label === "A" ? apiPayloads.lifestyleSignalsA : apiPayloads.lifestyleSignalsB;
+        const payload = apiPayloads.lifestyleSignals;
         if (!payload) return null;
         return {
           edge_function: "analyze-lifestyle-signals",
@@ -253,21 +248,13 @@ export default function DemoPillarCodeView({ mode, customerA, customerB, enriche
         </div>
       </div>
 
-      {/* Two-column panels */}
-      <div className="grid grid-cols-2 gap-4">
-        <DataPanel
-          title={customerA.profile.name}
-          accentColor="#3b82f6"
-          data={getDataForMode("A")}
-          emptyMsg="Run enrichment to see data"
-        />
-        <DataPanel
-          title={customerB.profile.name}
-          accentColor="#10b981"
-          data={getDataForMode("B")}
-          emptyMsg="Run enrichment to see data"
-        />
-      </div>
+      {/* Single panel */}
+      <DataPanel
+        title={customer.profile.name}
+        accentColor="#3b82f6"
+        data={getData()}
+        emptyMsg="Run enrichment to see data"
+      />
     </div>
   );
 }
