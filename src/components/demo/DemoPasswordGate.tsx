@@ -8,7 +8,7 @@ const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
   "AI-powered banking personalization engine.",
-  "Personalized banking doesn't truly work.",
+  "Banking personalization doesn't work.",
   "The root cause is three letters: MCC.",
   "One MCC code. Countless possible meanings. Zero clarity.",
   "Blind MCCs Hide purchase patterns(behavorial insights).",
@@ -315,13 +315,13 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
               {displayStep === 1 && (
                 <div className="text-center py-8">
                   <h1
-                    className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
+                    className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight text-primary-foreground lg:text-7xl"
                     style={{ color: "#0F172A" }}
                   >
-                    Billions spent in personalized banking doesn't (truly) work.
+                    Billions spent in banking personalization doesn't work.
                   </h1>
                   <p className="mt-4 text-lg text-slate-400 font-medium">
-                    Do you consider your banking experience as a personalized one?
+                    Do you consider your banking experience as a truly personalized one?
                   </p>
                 </div>
               )}
