@@ -132,54 +132,27 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
 }
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
-}
-
-function CustomerHeader({ customer, color }: { customer: DemoCustomer; color: "blue" | "emerald" }) {
-  const sources = [...new Set(customer.sampleTransactions.map(t => t.source).filter(Boolean))];
-  const colors = color === "blue"
-    ? "bg-blue-50 border-blue-200 text-blue-800"
-    : "bg-emerald-50 border-emerald-200 text-emerald-800";
-
-  return (
-    <div className={`flex items-center gap-2 px-2 py-1.5 rounded-t-lg border ${colors} text-[10px] shrink-0`}>
-      <span className="font-semibold">{customer.profile.name}</span>
-      <span className="text-slate-400">·</span>
-      <span><span className="font-semibold">{customer.txnCount}</span> txns</span>
-      <span className="text-slate-400">·</span>
-      <span>{customer.txnTotal}</span>
-      {customer.dateRange && (
-        <>
-          <span className="text-slate-400">·</span>
-          <span className="opacity-70">{customer.dateRange}</span>
-        </>
-      )}
-      {sources.length > 0 && (
-        <>
-          <span className="text-slate-400">·</span>
-          {sources.map(s => (
-            <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${SOURCE_COLORS[s!] ?? "bg-slate-50 text-slate-500"}`}>{s}</span>
-          ))}
-        </>
-      )}
-    </div>
-  );
 }
 
 export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
     <div className="flex flex-col gap-3 h-full">
-      <div className="flex-1 min-h-0 flex flex-col">
-        <CustomerHeader customer={customerA} color="blue" />
-        <CustomerTable transactions={enrichedA ?? []} />
-      </div>
-      <div className="flex-1 min-h-0 flex flex-col">
-        <CustomerHeader customer={customerB} color="emerald" />
-        <CustomerTable transactions={enrichedB ?? []} />
-      </div>
+      {customerA && (
+        <div className="flex-1 min-h-0 flex flex-col">
+          <CustomerHeader customer={customerA} color="blue" />
+          <CustomerTable transactions={enrichedA ?? []} />
+        </div>
+      )}
+      {customerB && (
+        <div className="flex-1 min-h-0 flex flex-col">
+          <CustomerHeader customer={customerB} color="emerald" />
+          <CustomerTable transactions={enrichedB ?? []} />
+        </div>
+      )}
     </div>
   );
 }
