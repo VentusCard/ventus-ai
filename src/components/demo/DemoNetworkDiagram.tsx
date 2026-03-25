@@ -70,7 +70,7 @@ const PILLAR_ROWS: PillarRow[] = [
     bankNodes: [
       { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
       { id: "lifeEvents", label: "Next-Best Product Engine", icon: TrendingUp, color: "#a855f7", audience: "bank" },
-      { id: "wmCopilot", label: "WM CoPilot", icon: Briefcase, color: "#7c3aed", audience: "bank" },
+      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#7c3aed", audience: "bank" },
     ],
     consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
   },
