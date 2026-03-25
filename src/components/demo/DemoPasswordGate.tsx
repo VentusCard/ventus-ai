@@ -11,7 +11,7 @@ const BEAT_SUMMARIES = [
   "Personalized banking doesn't truly work.",
   "The root cause is three letters: MCC.",
   "One MCC code. Countless possible meanings. Zero clarity.",
-  "Blind MCCs Hide purchase patterns.",
+  "Blind MCCs Hide purchase patterns(behavorial insights).",
   "Signal + demographics activates full personalization.",
   "From generic banking to full-stack personalization.",
 ];
