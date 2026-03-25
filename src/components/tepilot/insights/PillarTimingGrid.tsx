@@ -37,6 +37,7 @@ export function PillarTimingGrid() {
 
   return (
     <CollapsibleCard
+      defaultExpanded={true}
       title="Pillar Seasonal Timing Intelligence"
       description="Monthly spending distribution and optimal deal deployment windows per lifestyle pillar"
       icon={<Calendar className="h-5 w-5 text-primary" />}

@@ -128,6 +128,7 @@ export function BankwidePillarExplorer({ filters }: BankwidePillarExplorerProps)
 
   return (
     <CollapsibleCard
+      defaultExpanded={true}
       title="Spending Distribution by Lifestyle Pillar"
       description={viewMode === 'grid' 
         ? "Click any pillar to explore detailed breakdown by card product, region, and demographics"
