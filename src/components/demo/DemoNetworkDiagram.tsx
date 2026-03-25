@@ -46,7 +46,7 @@ const PILLAR_ROWS: PillarRow[] = [
     icon: Search,
     color: "#3b82f6",
     bankNodes: [
-      { id: "analytics", label: "Category Consolidation & Budgeting", icon: BarChart3, color: "#3b82f6", audience: "bank" },
+      { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
       { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
     ],
     consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
