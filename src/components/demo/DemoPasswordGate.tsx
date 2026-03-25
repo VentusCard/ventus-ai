@@ -318,7 +318,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                     className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight text-primary-foreground lg:text-7xl"
                     style={{ color: "#0F172A" }}
                   >
-                    Billions spent in banking personalization doesn't work.
+                    Billions Spent in Banking Personalization 
+                    <br />
+                    Doesn't Work.
                   </h1>
                   <p className="mt-4 text-lg text-slate-400 font-medium">
                     Do you consider your banking experience as a truly personalized one?
