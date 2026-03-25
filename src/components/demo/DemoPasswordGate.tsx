@@ -330,11 +330,8 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
                   <div className="mt-8 flex flex-col items-center gap-6">
                     {/* Phase 0: MCC badge always visible */}
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-full max-w-md bg-white rounded-lg border px-4 py-3 font-mono text-xs flex items-center gap-6" style={{ borderColor: "#E2E8F0" }}>
-                        <span style={{ color: "#94A3B8" }}>TXN-48291</span>
-                        <span style={{ color: "#94A3B8" }}>08/14/2025</span>
-                        <span className="font-semibold" style={{ color: "#0F172A" }}>MCC 7922</span>
-                        <span className="ml-auto font-semibold" style={{ color: "#0F172A" }}>−$185.00</span>
+                      <div className="px-6 py-3 rounded-lg border-2 border-dashed" style={{ borderColor: "#F59E0B", color: "#F59E0B" }}>
+                        <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment</span>
                       </div>
                       <span className="text-sm" style={{ color: "#94A3B8" }}>This is all the bank sees</span>
                     </div>
