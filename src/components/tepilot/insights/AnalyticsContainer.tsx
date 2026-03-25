@@ -12,11 +12,13 @@ import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
-  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package
+  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
+  Building2, ArrowLeft
 } from "lucide-react";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
 
