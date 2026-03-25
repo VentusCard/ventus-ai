@@ -311,7 +311,7 @@ function CustomerSlot({
 
           {/* Compact transaction table */}
           <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-            <div className="max-h-[180px] overflow-y-auto">
+            <div className="max-h-[360px] overflow-y-auto">
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-slate-50">
                   <tr className="border-b border-slate-100">
