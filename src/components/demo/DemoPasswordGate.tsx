@@ -763,7 +763,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                     <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
-                    {beat6Phase === 0 ? "Currently Landscape" : "Ventus Innovates the Entire Stack"}
+                    {beat6Phase === 0 ? "The Status Quo" : "Ventus Innovates the Entire Stack"}
                   </h2>
 
                   {/* Horizontal flow diagram */}
