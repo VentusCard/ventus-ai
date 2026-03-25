@@ -1,37 +1,16 @@
 
 
-## Make Deal CTAs Lifestyle-Driven
+## Fix Rewards Mockup Scroll & Height
 
 ### Problem
-Current CTA examples ("Shop Now", "Claim Offer", "Get Cashback") are generic retail actions. The user wants CTAs that feel like the deal is **helping the customer live their lifestyle** — not just transacting.
+1. `max-h-[400px] overflow-y-auto` on line 245 creates a scroll container **only around the deals section** — the user wants one scroll for the entire phone content
+2. When "Local Experiences" collapses, the phone mockup shrinks in height instead of staying fixed
 
-### Fix — `supabase/functions/deal-personalization/index.ts`
+### Fix — `src/components/demo/DemoRewardsView.tsx`
 
-Update the CTA guidance section (lines 48-50) to replace generic retail CTAs with lifestyle-driven ones:
+1. **Move the scroll to the entire app content area** (line 236): Give the content `div` a fixed max-height and `overflow-y-auto`, e.g. `max-h-[520px] overflow-y-auto`
+2. **Remove `max-h-[400px] overflow-y-auto`** from the deals wrapper (line 245) — just keep it as a normal `space-y-1.5` div
+3. **Set a `min-h` on the phone content area** so it doesn't shrink when Local Experiences collapses — e.g. `min-h-[520px]`
 
-**Before:**
-```
-Good: "Shop Now", "Claim Offer", "Get Cashback", "Redeem Now", "Start Earning", "Grab Deal", "Save Now"
-```
-
-**After — lifestyle-driven CTAs tied to the customer's signals:**
-```
-CTAs should feel lifestyle-driven — like the deal supports how the customer already lives.
-Good: "Fuel Your Passion", "Treat the Family", "Elevate Your Style", "Power Your Routine", "Keep Exploring", "Level Up Game Day", "Upgrade Date Night"
-Bad: "Shop Now", "Claim Offer", "Get Cashback" (too transactional), "Request Access", "Schedule Consultation" (banking products)
-```
-
-Also update the examples table to show lifestyle CTAs:
-
-| Context | Merchant | CTA |
-|---|---|---|
-| Coffee lover | Starbucks | "Fuel Your Mornings" |
-| Fitness enthusiast | Lululemon | "Power Your Workout" |
-| Parent + Dining out | DoorDash | "Simplify Family Night" |
-| Home cook | Williams-Sonoma | "Elevate Your Kitchen" |
-| Traveler | Delta | "Keep Exploring" |
-
-### What stays the same
-- Message copy rules (short, reward-focused, privacy-safe)
-- Everything else in the edge function
+This gives the mockup a consistent height with one unified scrollbar for all content (header, local experiences, deals, footer).
 
