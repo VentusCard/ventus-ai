@@ -1,60 +1,28 @@
 
-I rechecked the actual code paths, and I agree the previous diagnosis was too narrow.
 
-What I rechecked
-- In `src/components/demo/DemoNetworkDiagram.tsx`, the customer → enrichment connector is always rendered inside the first SVG group (`lines 183-199`).
-- In `src/hooks/useDemoEnrichment.ts`, `nodeReadiness.engine` is explicitly set to `"ready"` early in phase 2 (`setNodeReady({ engine: "ready", ... })`), so this is not a missing-state / missing-render bug.
-- The only thing that changes when the engine becomes ready is:
-  - stroke switches from `url(#lineGrad)` to `url(#lineGradSolid)`
-  - dash switches from `"6 4"` to `"none"`
-  - width/opacity change
-  - the animated processing dot disappears
+## Fix: Match input connector to the same style as all other diagram connectors
 
-Revised diagnosis
-- The real problem is not that the path stops rendering.
-- The problem is that the “finished” state still relies on the same subtle background connector treatment, and once the moving dot disappears there is no strong dedicated completion indicator left.
-- So retrying opacity/width alone is unlikely to solve it reliably.
+The current "ready" state for the customer→engine connector renders oversized dots (r=4) and an overly thick line (strokeWidth=3), which looks completely different from every other connector in the diagram. The other connectors (engine→bank, bank→consumer, consumer→impact) all use the same consistent pattern:
 
-Implementation plan
-1. Replace the single-state connector with a two-layer connector
-- Keep a faint background/base path for idle + processing.
-- Add a separate “completed connection” overlay path that only renders when `engineReady` is true.
-
-2. Make the completed connector visually distinct
-- Use a solid, high-contrast stroke instead of the current gradient-only finish state.
-- Add `strokeLinecap="round"` so the line reads as intentional, not clipped.
-- Add endpoint dots/caps at the customer exit and engine entry so the connection is obvious even without animation.
-
-3. Move the completed connector out of the generic background treatment
-- Keep the base connector in the background SVG.
-- Render the completed overlay in its own SVG/group above the background lines but still below interactive overlays/cards.
-- This avoids the “processing looks active, ready looks absent” problem.
-
-4. Slightly adjust the anchor points
-- Inset the start/end a few pixels so the finished connector is visibly attached rather than visually dying at the card edges.
-- Keep the current layout math; only adjust the connector anchors, not the whole grid.
-
-5. Preserve the current processing animation
-- Keep the moving particle during processing.
-- When `engineReady` becomes true, remove the particle and show the dedicated completed connector instead of just changing the same path’s styling.
-
-Files to update
-- `src/components/demo/DemoNetworkDiagram.tsx`
-
-Technical details
-```text
-Current:
-base path handles idle + processing + ready
-
-Proposed:
-base path = idle/processing track
-processing dot = processing only
-completion path + endpoint dots = ready only
+```
+strokeWidth: 2.5 when ready, 1.5 when not
+opacity: 0.7 when ready, 0.2 when not  
+strokeDasharray: "none" when ready, "6 4" when not
 ```
 
-Validation
-- Enrich a customer and confirm the connector is clearly visible after the engine flips to ready and after the full flow completes.
-- Check both states:
-  - panel collapsed (`centered = true`)
-  - panel open (`centered = false`)
-- Confirm the finished connector still looks correct after the diagram shifts for the Impact column.
+### Changes in `src/components/demo/DemoNetworkDiagram.tsx`
+
+Replace the entire input connector block (lines 190-210) with a single consistent treatment that matches the other connectors:
+
+- **Remove** the conditional `{!isReady && ...}` / `{isReady && ...}` split
+- **Remove** the two endpoint circles entirely
+- **Use one `<path>`** with the same ready/idle styling as lines 228-229:
+  - `strokeWidth={isReady ? 2.5 : 1.5}`
+  - `opacity={isReady ? 0.7 : 0.2}`  
+  - `strokeDasharray={isReady ? "none" : "6 4"}`
+  - `stroke="url(#lineGradSolid)"` when ready, `"url(#lineGrad)"` when not
+- **Keep** the processing particle dot as-is (lines 196-199)
+- **Remove** the 4px offset on `txRight`/`engineLeft` — revert to `txRight = txCenterX + TX_CARD_WIDTH / 2` and `engineLeft = engineCenterX - ENGINE_WIDTH / 2` to match how other connectors anchor flush to card edges
+
+This makes the input connector identical in style to every other connector in the diagram.
+
