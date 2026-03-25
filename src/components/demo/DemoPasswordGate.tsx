@@ -51,7 +51,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat5Phase(0);
       }
       if (s === 6) {
-        if (beat6Phase < 1) {
+        if (beat6Phase < 2) {
           setBeat6Phase((p) => p + 1);
           return s;
         }
@@ -105,7 +105,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         goBack();
         return;
       }
-      if (step === 6 && beat6Phase >= 1) {
+      if (step === 6 && beat6Phase >= 2) {
         if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
           sessionStorage.setItem("demo_access", "true");
@@ -169,9 +169,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step === 6 && beat6Phase >= 1 ? "default" : "pointer",
+        cursor: step === 6 && beat6Phase >= 2 ? "default" : "pointer",
       }}
-      onClick={() => !(step === 6 && beat6Phase >= 1) && advance()}
+      onClick={() => !(step === 6 && beat6Phase >= 2) && advance()}
     >
       <style>{`
         @keyframes ambientShift {
@@ -953,7 +953,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                   </div>
 
                   {/* Enter Demo button — appears after phase 1 */}
-                  {beat6Phase >= 1 && (
+                  {beat6Phase >= 2 && (
                     <div className="mt-8 flex justify-center" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => {
