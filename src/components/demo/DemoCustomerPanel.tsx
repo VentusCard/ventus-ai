@@ -18,12 +18,9 @@ Rules:
 - Output ONLY the CSV with header row, no explanation`;
 
 interface Props {
-  customerA: DemoCustomer | null;
-  customerB: DemoCustomer | null;
-  parsedTransactionsA: Transaction[];
-  parsedTransactionsB: Transaction[];
-  onSelectA: (c: DemoCustomer) => void;
-  onSelectB: (c: DemoCustomer) => void;
+  customer: DemoCustomer | null;
+  parsedTransactions: Transaction[];
+  onSelect: (c: DemoCustomer) => void;
   onEnrich: () => void;
   isProcessing: boolean;
   statusMessage: string;
@@ -32,8 +29,8 @@ interface Props {
 }
 
 export default function DemoCustomerPanel({
-  customerA, customerB, parsedTransactionsA, parsedTransactionsB,
-  onSelectA, onSelectB,
+  customer, parsedTransactions,
+  onSelect,
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
 }: Props) {
   return (
@@ -43,38 +40,24 @@ export default function DemoCustomerPanel({
         <h2 className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
           Ventus AI
         </h2>
-        <p className="text-[11px] text-slate-500 mt-0.5">Select Two Users to Compare Personalization</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">Select a customer to enrich</p>
       </div>
 
-      {/* Customer A */}
+      {/* Customer */}
       <CustomerSlot
-        label="Customer A"
+        label="Customer"
         color="#3b82f6"
         customId="custom-a"
-        selected={customerA}
-        onSelect={onSelectA}
-        excludeId={customerB?.id}
-        transactions={parsedTransactionsA}
-      />
-
-      <div className="my-4 border-t border-slate-200" />
-
-      {/* Customer B */}
-      <CustomerSlot
-        label="Customer B"
-        color="#10b981"
-        customId="custom-b"
-        selected={customerB}
-        onSelect={onSelectB}
-        excludeId={customerA?.id}
-        transactions={parsedTransactionsB}
+        selected={customer}
+        onSelect={onSelect}
+        transactions={parsedTransactions}
       />
 
       {/* Enrich button */}
       <div className="mt-auto pt-6 space-y-3">
         <Button
           onClick={onEnrich}
-          disabled={isProcessing || !customerA || !customerB}
+          disabled={isProcessing || !customer}
           variant="ai"
           size="sm"
           className="w-full"
@@ -87,12 +70,12 @@ export default function DemoCustomerPanel({
           ) : currentPhase === "complete" ? (
             <>
               <CheckCircle2 className="h-4 w-4" />
-              Re-Enrich Both
+              Re-Enrich Customer
             </>
           ) : (
             <>
               <Sparkles className="h-4 w-4" />
-              Enrich Both Customers
+              Enrich Customer
             </>
           )}
         </Button>
@@ -134,7 +117,6 @@ function CustomerSlot({
   customId,
   selected,
   onSelect,
-  excludeId,
   transactions,
 }: {
   label: string;
@@ -142,7 +124,6 @@ function CustomerSlot({
   customId: string;
   selected: DemoCustomer | null;
   onSelect: (c: DemoCustomer) => void;
-  excludeId: string | undefined;
   transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -192,7 +173,7 @@ function CustomerSlot({
         onChange={(e) => handleDropdownChange(e.target.value)}
       >
         {!selected && !isCustomMode && <option value="" disabled>Select a customer…</option>}
-        {DEMO_CUSTOMERS.filter((d) => d.id !== excludeId).map((d) => (
+        {DEMO_CUSTOMERS.map((d) => (
           <option key={d.id} value={d.id}>{d.profile.name}</option>
         ))}
         <option value="custom">✏️ Custom</option>
@@ -282,6 +263,20 @@ function CustomerSlot({
         <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
       ) : (
         <>
+          {/* Bank-available demographics */}
+          {(selected.profile.demographics.industry || selected.profile.demographics.incomeLevel) && (
+            <div className="mb-2 flex items-center gap-2 border-t border-slate-100 pt-2 text-[10px] text-slate-500">
+              {selected.profile.demographics.industry && (
+                <span>Industry: <span className="font-medium text-slate-600">{selected.profile.demographics.industry}</span></span>
+              )}
+              {selected.profile.demographics.industry && selected.profile.demographics.incomeLevel && (
+                <span className="text-slate-300">·</span>
+              )}
+              {selected.profile.demographics.incomeLevel && (
+                <span>Income: <span className="font-medium text-slate-600">{selected.profile.demographics.incomeLevel}</span></span>
+              )}
+            </div>
+          )}
           {/* Summary stats */}
           <div className="flex items-center gap-1.5 flex-wrap mb-1.5 text-[11px] text-slate-500">
             <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
@@ -316,7 +311,7 @@ function CustomerSlot({
 
           {/* Compact transaction table */}
           <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-            <div className="max-h-[180px] overflow-y-auto">
+            <div className="max-h-[360px] overflow-y-auto">
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-slate-50">
                   <tr className="border-b border-slate-100">

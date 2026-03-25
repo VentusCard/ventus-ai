@@ -1,17 +1,11 @@
 import type { DemoCustomer } from "@/lib/demoData";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customer: DemoCustomer;
 }
 
-export default function DemoAnalyticsView({ customerA, customerB }: Props) {
-  return (
-    <div className="grid grid-cols-2 gap-4">
-      <CustomerAnalytics customer={customerA} color="#3b82f6" />
-      <CustomerAnalytics customer={customerB} color="#10b981" />
-    </div>
-  );
+export default function DemoAnalyticsView({ customer }: Props) {
+  return <CustomerAnalytics customer={customer} color="#3b82f6" />;
 }
 
 function CustomerAnalytics({ customer, color }: { customer: DemoCustomer; color: string }) {

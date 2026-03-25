@@ -4,6 +4,7 @@ import { parsePastedText } from "@/lib/parsers";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { toast } from "sonner";
 import { deriveCustomerProfile, getRelevantDeals, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
 
@@ -26,9 +27,18 @@ const INITIAL_READINESS: NodeReadiness = {
   lifeEvents: "idle",
   wealth: "idle",
   engine: "idle",
+  profiling: "idle",
+  predictive: "idle",
+  phase: "idle",
+  outflow: "idle",
+  locational: "idle",
+  lifeEventIntel: "idle",
+  wmCopilot: "idle",
+  aiFinancialInsights: "idle",
+  dealPersonalization: "idle",
 };
 
-const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
+const PERIPHERAL_NODES: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"];
 
 export interface DetectedLifeEventEvidence {
   merchant: string;
@@ -50,19 +60,30 @@ export interface PersonalizedDealData {
   personalized: Record<string, { msg: string; cta: string }>;
 }
 
+export interface ApiPayloadEntry {
+  request: any;
+  response: any;
+}
+
+export interface ApiPayloads {
+  classification: ApiPayloadEntry | null;
+  dealPersonalization: ApiPayloadEntry | null;
+  localExperiences: ApiPayloadEntry | null;
+  lifestyleSignals: ApiPayloadEntry | null;
+}
+
 interface DemoEnrichmentResult {
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
   isProcessing: boolean;
   statusMessage: string;
-  enrichedA: EnrichedTransaction[];
-  enrichedB: EnrichedTransaction[];
+  enriched: EnrichedTransaction[];
   localExperiences: LocalExperiencesData;
-  personalizedDealsA: PersonalizedDealData | null;
-  personalizedDealsB: PersonalizedDealData | null;
-  detectedEventA: DetectedLifeEventResult[];
-  detectedEventB: DetectedLifeEventResult[];
-  startEnrichment: (customerA: DemoCustomer, customerB: DemoCustomer) => void;
+  personalizedDeals: PersonalizedDealData | null;
+  detectedEvents: DetectedLifeEventResult[];
+  apiPayloads: ApiPayloads;
+  tip: FinancialTip | null;
+  startEnrichment: (customer: DemoCustomer) => void;
 }
 
 function buildSpendingSummary(txns: EnrichedTransaction[]) {
@@ -94,57 +115,122 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [phase2Processing, setPhase2Processing] = useState(false);
   const [phase2Status, setPhase2Status] = useState("");
   const [localExperiences, setLocalExperiences] = useState<LocalExperiencesData>({});
-  const [personalizedDealsA, setPersonalizedDealsA] = useState<PersonalizedDealData | null>(null);
-  const [personalizedDealsB, setPersonalizedDealsB] = useState<PersonalizedDealData | null>(null);
-  const [detectedEventA, setDetectedEventA] = useState<DetectedLifeEventResult[]>([]);
-  const [detectedEventB, setDetectedEventB] = useState<DetectedLifeEventResult[]>([]);
+  const [personalizedDeals, setPersonalizedDeals] = useState<PersonalizedDealData | null>(null);
+  const [detectedEvents, setDetectedEvents] = useState<DetectedLifeEventResult[]>([]);
+  const [tip, setTip] = useState<FinancialTip | null>(null);
+  const [apiPayloads, setApiPayloads] = useState<ApiPayloads>({
+    classification: null,
+    dealPersonalization: null,
+    localExperiences: null,
+    lifestyleSignals: null,
+  });
   const pendingReadyRef = useRef<Partial<NodeReadiness>>({});
   const engineReadyRef = useRef(false);
+  const pendingConsumerRef = useRef<Set<DemoNodeType>>(new Set());
 
-  // Helper: gate peripheral updates behind engine readiness
+  const CONSUMER_DEPS: Record<string, DemoNodeType[]> = {
+    engagement: ["analytics", "outflow", "aiFinancialInsights"],
+    rewards: ["travel", "locational", "dealPersonalization"],
+    wealth: ["lifeEventIntel", "lifeEvents"],
+  };
+  const CONSUMER_NODES = new Set(Object.keys(CONSUMER_DEPS));
+
   const setNodeReady = useCallback((updates: Partial<NodeReadiness>) => {
-    // Filter out engine from peripheral gating logic
     const { engine: engineUpdate, ...peripheralUpdates } = updates;
 
     if (engineUpdate === "ready") {
-      // Engine is becoming ready — flush all pending peripheral updates too
       engineReadyRef.current = true;
       const flushed = { ...pendingReadyRef.current };
       pendingReadyRef.current = {};
-      setNodeReadiness(prev => ({ ...prev, engine: "ready", ...flushed, ...peripheralUpdates }));
+      setNodeReadiness(prev => {
+        const next = { ...prev, engine: "ready" as const, ...flushed, ...peripheralUpdates };
+        const toFlush: DemoNodeType[] = [];
+        for (const cn of pendingConsumerRef.current) {
+          if (CONSUMER_DEPS[cn]?.every(dep => next[dep] === "ready")) {
+            toFlush.push(cn);
+          }
+        }
+        if (toFlush.length > 0) {
+          toFlush.forEach(cn => pendingConsumerRef.current.delete(cn));
+          setTimeout(() => {
+            setNodeReadiness(p => {
+              const u: Partial<NodeReadiness> = {};
+              toFlush.forEach(cn => { u[cn] = "ready"; });
+              return { ...p, ...u };
+            });
+          }, 300);
+        }
+        return next;
+      });
       return;
     }
 
     if (!engineReadyRef.current && Object.keys(peripheralUpdates).length > 0) {
-      // Engine not ready yet — queue peripheral updates
       pendingReadyRef.current = { ...pendingReadyRef.current, ...peripheralUpdates };
       return;
     }
 
-    // Engine already ready — apply immediately
-    setNodeReadiness(prev => ({ ...prev, ...updates }));
+    const bankUpdates: Partial<NodeReadiness> = {};
+    const consumerUpdates: DemoNodeType[] = [];
+
+    for (const [key, val] of Object.entries(peripheralUpdates)) {
+      if (val === "ready" && CONSUMER_NODES.has(key)) {
+        consumerUpdates.push(key as DemoNodeType);
+      } else {
+        bankUpdates[key as DemoNodeType] = val;
+      }
+    }
+
+    setNodeReadiness(prev => {
+      const next = { ...prev, ...bankUpdates };
+
+      const immediateFlush: DemoNodeType[] = [];
+      for (const cn of consumerUpdates) {
+        if (CONSUMER_DEPS[cn]?.every(dep => next[dep] === "ready")) {
+          immediateFlush.push(cn);
+        } else {
+          pendingConsumerRef.current.add(cn);
+        }
+      }
+
+      for (const cn of pendingConsumerRef.current) {
+        if (CONSUMER_DEPS[cn]?.every(dep => next[dep] === "ready")) {
+          immediateFlush.push(cn);
+          pendingConsumerRef.current.delete(cn);
+        }
+      }
+
+      if (immediateFlush.length > 0) {
+        setTimeout(() => {
+          setNodeReadiness(p => {
+            const u: Partial<NodeReadiness> = {};
+            immediateFlush.forEach(cn => { u[cn] = "ready"; });
+            return { ...p, ...u };
+          });
+        }, 300);
+      }
+
+      return next;
+    });
   }, []);
-  const lastEnrichedRef = useRef<{ a: string; b: string } | null>(null);
 
-  const enrichA = useSSEEnrichment();
-  const enrichB = useSSEEnrichment();
+  const lastEnrichedRef = useRef<string | null>(null);
 
-  const isProcessing = enrichA.isProcessing || enrichB.isProcessing || phase2Processing;
+  const enrich = useSSEEnrichment();
+
+  const isProcessing = enrich.isProcessing || phase2Processing;
 
   const statusMessage = phase2Processing
     ? phase2Status
-    : enrichA.isProcessing && enrichB.isProcessing
-      ? `A: ${enrichA.statusMessage} | B: ${enrichB.statusMessage}`
-      : enrichA.isProcessing
-        ? `A: ${enrichA.statusMessage}`
-        : enrichB.isProcessing
-          ? `B: ${enrichB.statusMessage}`
-          : enrichA.statusMessage || enrichB.statusMessage || phase2Status || "";
+    : enrich.isProcessing
+      ? enrich.statusMessage
+      : enrich.statusMessage || phase2Status || "";
 
-  const startEnrichment = useCallback((customerA: DemoCustomer, customerB: DemoCustomer) => {
+  const startEnrichment = useCallback((customer: DemoCustomer) => {
+    if (!customer) return;
+
     if (
-      lastEnrichedRef.current?.a === customerA.id &&
-      lastEnrichedRef.current?.b === customerB.id &&
+      lastEnrichedRef.current === customer.id &&
       nodeReadiness.analytics === "ready" &&
       nodeReadiness.travel === "ready"
     ) {
@@ -152,7 +238,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       return;
     }
 
-    lastEnrichedRef.current = { a: customerA.id, b: customerB.id };
+    lastEnrichedRef.current = customer.id;
 
     // Reset state
     setNodeReadiness({ ...INITIAL_READINESS });
@@ -160,14 +246,18 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPhase2Processing(false);
     setPhase2Status("");
     setLocalExperiences({});
-    setPersonalizedDealsA(null);
-    setPersonalizedDealsB(null);
-    setDetectedEventA([]);
-    setDetectedEventB([]);
+    setPersonalizedDeals(null);
+    setDetectedEvents([]);
+    setTip(null);
+    setApiPayloads({
+      classification: null,
+      dealPersonalization: null,
+      localExperiences: null,
+      lifestyleSignals: null,
+    });
     engineReadyRef.current = false;
     pendingReadyRef.current = {};
-
-    // Engine ready is now set in maybeStartPhase2 when classifications complete
+    pendingConsumerRef.current = new Set();
 
     // Set all to processing
     setTimeout(() => {
@@ -179,133 +269,150 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         lifeEvents: "processing",
         wealth: "processing",
         engine: "processing",
+        profiling: "processing",
+        predictive: "processing",
+        phase: "processing",
+        outflow: "processing",
+        locational: "processing",
+        lifeEventIntel: "processing",
+        wmCopilot: "processing",
+        aiFinancialInsights: "processing",
+        dealPersonalization: "processing",
       });
     }, 100);
 
-    const parseCSV = (customer: DemoCustomer) => {
-      const result = parsePastedText(customer.csv);
+    const parseCSV = (c: DemoCustomer) => {
+      const result = parsePastedText(c.csv);
       if (result.needsMapping || !result.transactions) {
-        throw new Error(`Failed to parse CSV for ${customer.profile.name}`);
+        throw new Error(`Failed to parse CSV for ${c.profile.name}`);
       }
       return result.transactions;
     };
 
     try {
-      const txnsA = parseCSV(customerA);
-      const txnsB = parseCSV(customerB);
+      const txns = parseCSV(customer);
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const headers = getHeaders();
 
-      // Track whether phase2 already started (from whichever classification finishes first)
-      let classifiedResults: { a?: EnrichedTransaction[]; b?: EnrichedTransaction[] } = {};
       let phase2Started = false;
 
-      const maybeStartPhase2 = () => {
-        // Need both classifications to start lifestyle signals
-        if (!classifiedResults.a || !classifiedResults.b || phase2Started) return;
+      const maybeStartPhase2 = (classified: EnrichedTransaction[]) => {
+        if (phase2Started) return;
         phase2Started = true;
 
-        const classifiedA = classifiedResults.a;
-        const classifiedB = classifiedResults.b;
-
-        const allClassified = [...classifiedA, ...classifiedB];
-
-        // Mark input lines solid + analytics & engine ready
         setInputReady(true);
-        setNodeReady({ engine: "ready", analytics: "ready" });
+        setNodeReady({ engine: "ready", analytics: "ready", outflow: "ready", aiFinancialInsights: "ready", profiling: "ready", predictive: "ready", phase: "ready" });
         setPhase2Processing(true);
         setPhase2Status("Running lifestyle analysis...");
 
-        // Fire deal personalization from enriched data
+        // Fire deal personalization
         const fireRewardsPersonalization = async () => {
           try {
-            const profileA = deriveCustomerProfile(classifiedA);
-            const profileB = deriveCustomerProfile(classifiedB);
-            const dealsSelA = getRelevantDeals(profileA, 10);
-            const dealsSelB = getRelevantDeals(profileB, 10);
-
-            const personalize = async (deals: BankDeal[], profile: DerivedCustomerProfile, customer: DemoCustomer) => {
-              const payload = {
-                deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
-                profile: {
-                  pillars: profile.topPillars.map(p => ({ name: p.pillar, spend: Math.round(p.annualSpend), pct: Math.round((p.annualSpend / (profile.totalSpend || 1)) * 100) })),
-                  signals: profile.lifestyleSignals,
+            const profile = deriveCustomerProfile(classified);
+            const deals = getRelevantDeals(profile, 10);
+            const payload = {
+              deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
+              profile: {
+                pillars: profile.topPillars.map(p => ({ name: p.pillar, spend: Math.round(p.annualSpend), pct: Math.round((p.annualSpend / (profile.totalSpend || 1)) * 100) })),
+                signals: profile.lifestyleSignals,
+              },
+              ctx: {
+                demo: {
+                  occ: customer.profile.demographics.occupation,
+                  fam: customer.profile.demographics.familyStatus,
+                  inc: customer.profile.aum,
+                  tier: customer.profile.segment,
                 },
-                ctx: {
-                  demo: {
-                    occ: customer.profile.demographics.occupation,
-                    fam: customer.profile.demographics.familyStatus,
-                    inc: customer.profile.aum,
-                    tier: customer.profile.segment,
-                  },
-                  persona: { traits: profile.lifestyleSignals, interests: profile.topPillars.map(p => p.pillar) },
-                },
-                txCount: profile.topPillars.reduce((s, p) => s + p.transactionCount, 0),
-              };
-              const res = await fetch(`${supabaseUrl}/functions/v1/deal-personalization`, { method: "POST", headers, body: JSON.stringify(payload) });
-              if (!res.ok) throw new Error(`deals: ${res.status}`);
-              const data = await res.json();
-              const map: Record<string, { msg: string; cta: string }> = {};
-              (data?.recs || []).forEach((r: any) => { map[r.id] = { msg: r.msg, cta: r.cta }; });
-              return { deals, personalized: map } as PersonalizedDealData;
+                persona: { traits: profile.lifestyleSignals, interests: profile.topPillars.map(p => p.pillar) },
+              },
+              txCount: profile.topPillars.reduce((s, p) => s + p.transactionCount, 0),
             };
-
-            const [resultA, resultB] = await Promise.all([
-              personalize(dealsSelA, profileA, customerA),
-              personalize(dealsSelB, profileB, customerB),
-            ]);
-            setPersonalizedDealsA(resultA);
-            setPersonalizedDealsB(resultB);
+            const res = await fetch(`${supabaseUrl}/functions/v1/deal-personalization`, { method: "POST", headers, body: JSON.stringify(payload) });
+            if (!res.ok) throw new Error(`deals: ${res.status}`);
+            const data = await res.json();
+            setApiPayloads(prev => ({ ...prev, dealPersonalization: { request: payload, response: data } }));
+            const map: Record<string, { msg: string; cta: string }> = {};
+            (data?.recs || []).forEach((r: any) => { map[r.id] = { msg: r.msg, cta: r.cta }; });
+            setPersonalizedDeals({ deals, personalized: map });
           } catch (err) {
             console.warn("[Phase2] Deal personalization failed:", err);
           }
-          setNodeReady({ rewards: "ready" });
+          setNodeReady({ rewards: "ready", dealPersonalization: "ready" });
         };
 
         fireRewardsPersonalization();
 
-        // Fire lifestyle signals for EACH customer separately
-        const fireLifestyleForCustomer = async (
-          customer: DemoCustomer,
-          txns: EnrichedTransaction[],
-          setResult: (r: DetectedLifeEventResult[]) => void,
-        ) => {
-          const summary = buildSpendingSummary(txns);
+        // Fire lifestyle signals
+        const fireLifestyle = async () => {
+          const summary = buildSpendingSummary(classified);
+          const requestPayload = {
+            client: {
+              name: customer.profile.name,
+              age: customer.profile.demographics.age,
+              occupation: customer.profile.demographics.occupation,
+              family_status: customer.profile.demographics.familyStatus,
+            },
+            transactions: classified,
+            spending_summary: summary,
+          };
           try {
             const res = await fetch(`${supabaseUrl}/functions/v1/analyze-lifestyle-signals`, {
               method: "POST",
               headers,
-              body: JSON.stringify({
-                client: {
-                  name: customer.profile.name,
-                  age: customer.profile.demographics.age,
-                  occupation: customer.profile.demographics.occupation,
-                  family_status: customer.profile.demographics.familyStatus,
-                },
-                transactions: txns,
-                spending_summary: summary,
-              }),
+              body: JSON.stringify(requestPayload),
             });
             if (!res.ok) throw new Error(`lifestyle: ${res.status}`);
             const data = await res.json();
-            console.log(`[Phase2] Lifestyle signals for ${customer.profile.name}:`, data);
+            setApiPayloads(prev => ({ ...prev, lifestyleSignals: { request: requestPayload, response: data } }));
             const events: DetectedLifeEventResult[] = (data?.detected_events ?? []).slice(0, 3);
-            setResult(events);
+            setDetectedEvents(events);
           } catch (err) {
-            console.warn(`[Phase2] Lifestyle failed for ${customer.profile.name}:`, err);
-            setResult([]);
+            console.warn(`[Phase2] Lifestyle failed:`, err);
+            setDetectedEvents([]);
           }
         };
 
-        Promise.all([
-          fireLifestyleForCustomer(customerA, classifiedA, setDetectedEventA),
-          fireLifestyleForCustomer(customerB, classifiedB, setDetectedEventB),
-        ])
+        // Fire coaching tips
+        const fireCoachingTips = async () => {
+          try {
+            const customerContext = {
+              name: customer.profile.name,
+              lifestyleType: customer.lifestyleType,
+              segment: customer.profile.segment,
+              demographics: customer.profile.demographics,
+              holdings: customer.profile.holdings,
+            };
+            const res = await fetch(`${supabaseUrl}/functions/v1/generate-financial-tip`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({ transactions: classified, customer: customerContext }),
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            setTip(data);
+          } catch (e) {
+            console.warn(`[Phase2] Tip generation failed:`, e);
+          }
+        };
+
+        // Run lifestyle + tips in parallel
+        const lifestylePromise = fireLifestyle();
+        const tipsPromise = fireCoachingTips();
+
+        lifestylePromise
           .then(() => {
-            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
           })
           .catch(() => {
-            setNodeReady({ wealth: "ready", engagement: "ready", lifeEvents: "ready" });
+            setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
+          });
+
+        Promise.all([lifestylePromise, tipsPromise])
+          .then(() => {
+            setNodeReady({ engagement: "ready" });
+          })
+          .catch(() => {
+            setNodeReady({ engagement: "ready" });
           })
           .finally(() => {
             setPhase2Processing(false);
@@ -313,32 +420,40 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           });
       };
 
-      const onClassifiedA = (classified: EnrichedTransaction[]) => {
-        classifiedResults.a = classified;
-        maybeStartPhase2();
-      };
-      const onClassifiedB = (classified: EnrichedTransaction[]) => {
-        classifiedResults.b = classified;
-        maybeStartPhase2();
+      const onClassified = (classified: EnrichedTransaction[]) => {
+        setApiPayloads(prev => ({ ...prev, classification: { request: { transactions: (txns?.length ?? 0) + " transactions" }, response: { enriched_count: classified.length, sample: classified.slice(0, 3) } } }));
+        maybeStartPhase2(classified);
       };
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // 1. Classify only (no travel-detection) — pass undefined for homeZip
-      const promiseA = enrichA.startEnrichment(txnsA, undefined, onClassifiedA);
-      const promiseB = enrichB.startEnrichment(txnsB, undefined, onClassifiedB);
+      // Track travel readiness
+      let localExperiencesDone = false;
+      let travelDetectionDone = false;
+      const maybeSetTravelReady = () => {
+        if (localExperiencesDone && travelDetectionDone) {
+          setNodeReady({ travel: "ready", locational: "ready" });
+        }
+      };
 
-      // 2. Deal personalization — now handled inside maybeStartPhase2 after classification
+      // 1. Classify + travel-detection
+      enrich.startEnrichment(txns, customer.zip, onClassified)
+        .then(() => {
+          travelDetectionDone = true;
+          maybeSetTravelReady();
+        })
+        .catch(() => {
+          travelDetectionDone = true;
+          maybeSetTravelReady();
+        });
 
-      // 3. Local experiences — fire at t=0 for each customer's first trip destination
+      // 2. Local experiences
       const CATEGORIES = ["dining", "entertainment", "shopping"];
-      const fetchLocalExperiences = async (customer: DemoCustomer) => {
+      const fetchLocalExperiences = async () => {
         const trip = customer.trips[0];
-        if (!trip) return { customerId: customer.id, results: [] };
+        if (!trip) return [];
 
         const city = trip.destination.split(",")[0].trim();
-        const results: { destination: string; deals: LocalExperienceDeal[] }[] = [];
-
         try {
           const responses = await Promise.all(
             CATEGORIES.map(cat =>
@@ -350,42 +465,43 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             )
           );
           const allDeals = responses.flatMap(r => r.deals || []);
-          results.push({ destination: city, deals: allDeals });
+          return [{ destination: city, deals: allDeals }];
         } catch (err) {
           console.warn(`[LocalExp] Failed for ${city}:`, err);
+          return [];
         }
-        return { customerId: customer.id, results };
       };
 
-      Promise.all([fetchLocalExperiences(customerA), fetchLocalExperiences(customerB)])
-        .then(([resA, resB]) => {
-          setLocalExperiences({
-            [resA.customerId]: resA.results,
-            [resB.customerId]: resB.results,
-          });
-          setNodeReady({ travel: "ready" });
+      fetchLocalExperiences()
+        .then((results) => {
+          const expData: LocalExperiencesData = {};
+          expData[customer.id] = results;
+          setLocalExperiences(expData);
+          setApiPayloads(prev => ({ ...prev, localExperiences: { request: { city: customer.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: results } }));
+          localExperiencesDone = true;
+          maybeSetTravelReady();
         })
         .catch(() => {
-          setNodeReady({ travel: "ready" });
+          localExperiencesDone = true;
+          maybeSetTravelReady();
         });
 
     } catch (err: any) {
       toast.error(err.message);
     }
-  }, [enrichA, enrichB, nodeReadiness, setNodeReady]);
+  }, [enrich, nodeReadiness, setNodeReady]);
 
   return {
     nodeReadiness,
     inputReady,
     isProcessing,
     statusMessage,
-    enrichedA: enrichA.enrichedTransactions,
-    enrichedB: enrichB.enrichedTransactions,
+    enriched: enrich.enrichedTransactions,
     localExperiences,
-    personalizedDealsA,
-    personalizedDealsB,
-    detectedEventA,
-    detectedEventB,
+    personalizedDeals,
+    detectedEvents,
+    apiPayloads,
+    tip,
     startEnrichment,
   };
 }

@@ -3,26 +3,26 @@ import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { calculateAchievements, calculateHealthScore, getLevel } from "@/lib/achievementEngine";
+import { hashString, getBudgetStatus, initializeBudgets } from "@/lib/budgetUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
-
-interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
-}
+import { Switch } from "@/components/ui/switch";
+import { PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   PiggyBank, Shield, TrendingDown, LayoutGrid, Plane, Heart, Lightbulb, Trophy, Star,
 };
 
-export default function DemoEngagementView({ customerA, customerB, enrichedA, enrichedB }: Props) {
+interface Props {
+  customer: DemoCustomer;
+  enriched?: EnrichedTransaction[];
+  tip?: FinancialTip | null;
+}
+
+export default function DemoEngagementView({ customer, enriched, tip: prefetchedTip }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <PhoneMockup customer={customerA} color="#3b82f6" enrichedTransactions={enrichedA} />
-      <PhoneMockup customer={customerB} color="#10b981" enrichedTransactions={enrichedB} />
+    <div className="flex justify-center">
+      <PhoneMockup customer={customer} color="#3b82f6" enrichedTransactions={enriched} prefetchedTip={prefetchedTip} />
     </div>
   );
 }
@@ -31,26 +31,31 @@ interface SpendingItem {
   name: string;
   icon: string;
   spend: number;
-  budget: number;
-  subcategories: { subcategory: string; count: number; total: number }[];
+  pct: number;
+  subcategories: { category: string; count: number; total: number }[];
 }
 
 function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[]): SpendingItem[] {
   if (enriched && enriched.length > 0) {
-    const pillarMap = new Map<string, { total: number; subcats: Map<string, { count: number; total: number }> }>();
+    const pillarMap = new Map<string, { total: number; categories: Map<string, { count: number; total: number }> }>();
+    let grandTotal = 0;
     enriched.forEach((t) => {
-      const entry = pillarMap.get(t.pillar) || { total: 0, subcats: new Map() };
-      entry.total += Math.abs(t.amount);
-      const sub = entry.subcats.get(t.subcategory) || { count: 0, total: 0 };
-      sub.count += 1;
-      sub.total += Math.abs(t.amount);
-      entry.subcats.set(t.subcategory, sub);
+      const amt = Math.abs(t.amount);
+      grandTotal += amt;
+      const entry = pillarMap.get(t.pillar) || { total: 0, categories: new Map() };
+      entry.total += amt;
+      const catKey = t.category || "General";
+      const cat = entry.categories.get(catKey) || { count: 0, total: 0 };
+      cat.count += 1;
+      cat.total += amt;
+      entry.categories.set(catKey, cat);
       pillarMap.set(t.pillar, entry);
     });
     const pillarIcons: Record<string, string> = {
       "Travel": "✈️", "Dining": "🍽️", "Shopping": "🛍️", "Wellness": "💪",
       "Entertainment": "🎬", "Home": "🏠", "Transportation": "🚗", "Subscriptions": "📱",
       "Health": "❤️", "Education": "📚", "Groceries": "🛒", "Personal Care": "💆",
+      "Food": "🍽️", "Active Living": "🏃",
     };
     return Array.from(pillarMap.entries())
       .sort((a, b) => b[1].total - a[1].total)
@@ -59,9 +64,9 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
         name,
         icon: pillarIcons[name] || "📊",
         spend: Math.round(data.total),
-        budget: Math.round(data.total * (1 + Math.random() * 0.3)),
-        subcategories: Array.from(data.subcats.entries())
-          .map(([subcategory, s]) => ({ subcategory, count: s.count, total: Math.round(s.total) }))
+        pct: grandTotal > 0 ? Math.round((data.total / grandTotal) * 100) : 0,
+        subcategories: Array.from(data.categories.entries())
+          .map(([category, s]) => ({ category, count: s.count, total: Math.round(s.total) }))
           .sort((a, b) => b.total - a.total),
       }));
   }
@@ -69,15 +74,51 @@ function computeSpending(customer: DemoCustomer, enriched?: EnrichedTransaction[
     name: p.name,
     icon: p.icon,
     spend: parseInt(p.spend.replace(/[$,]/g, "")),
-    budget: Math.round(parseInt(p.spend.replace(/[$,]/g, "")) * (1 + Math.random() * 0.3)),
+    pct: p.pct,
     subcategories: [],
   }));
 }
 
-function PhoneMockup({ customer, color, enrichedTransactions }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[] }) {
-  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[]): { destination: string; spend: number }[] {
+  if (enriched && enriched.length > 0) {
+    const tripMap = new Map<string, number>();
+    enriched.forEach((t) => {
+      if (t.trip_label) {
+        const labelParts = t.trip_label.split(" ");
+        const dest = labelParts.slice(1).join(" ");
+        if (dest) {
+          tripMap.set(dest, (tripMap.get(dest) || 0) + Math.abs(t.amount));
+        }
+      }
+    });
+    if (tripMap.size > 0) {
+      return Array.from(tripMap.entries())
+        .map(([destination, spend]) => ({ destination, spend: Math.round(spend) }))
+        .sort((a, b) => b.spend - a.spend);
+    }
+  }
+  if (customer.trips.length > 0) {
+    return customer.trips.map((t) => ({
+      destination: t.destination,
+      spend: parseInt(t.spend.replace(/[$,]/g, "")),
+    }));
+  }
+  return [];
+}
+
+function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[]; prefetchedTip?: FinancialTip | null }) {
   const firstName = customer.profile.name.split(" ")[0];
-  const budgets = computeSpending(customer, enrichedTransactions);
+  const spending = computeSpending(customer, enrichedTransactions);
+  const tripRows = computeTripRows(customer, enrichedTransactions);
+  const hasTravel = spending.some((b) => b.name === "Travel");
+  const [expandedPillars, setExpandedPillars] = useState<Set<string>>(() => new Set(spending.slice(0, 4).map(s => s.name)));
+  const [tripViewOn, setTripViewOn] = useState(true);
+
+  const budgetMap = initializeBudgets(spending.map((s) => ({ pillar: s.name, totalSpend: s.spend })));
+  const budgets = spending.map((s) => ({
+    ...s,
+    budget: budgetMap[s.name] || Math.round(s.spend * 1.2),
+  }));
 
   const achievements = enrichedTransactions?.length ? calculateAchievements(enrichedTransactions) : [];
   const healthScore = calculateHealthScore(achievements);
@@ -88,6 +129,11 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
   const [isLoadingTip, setIsLoadingTip] = useState(false);
 
   useEffect(() => {
+    if (prefetchedTip !== undefined) {
+      setTip(prefetchedTip);
+      setIsLoadingTip(false);
+      return;
+    }
     if (!enrichedTransactions?.length) {
       setTip(null);
       return;
@@ -117,168 +163,199 @@ function PhoneMockup({ customer, color, enrichedTransactions }: { customer: Demo
     };
     fetchTip();
     return () => { cancelled = true; };
-  }, [enrichedTransactions, customer]);
+  }, [enrichedTransactions, customer, prefetchedTip]);
 
   const TipIcon = tip ? ICON_MAP[tip.icon] || Lightbulb : Lightbulb;
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-[340px]">
-        {/* Phone frame */}
-        <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          {/* Browser bar */}
-          <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-200 bg-slate-50">
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-red-300" />
-              <span className="w-2 h-2 rounded-full bg-yellow-300" />
-              <span className="w-2 h-2 rounded-full bg-green-300" />
-            </div>
-            <div className="flex-1 flex justify-center">
-              <span className="text-[8px] text-slate-400 font-mono bg-white rounded px-2 py-0.5 border border-slate-200">
-                yourbank.com/app
-              </span>
-            </div>
+    <div className="w-full max-w-[480px]">
+      {/* Phone frame */}
+      <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+        {/* Browser bar */}
+        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-200 bg-slate-50">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-red-300" />
+            <span className="w-2 h-2 rounded-full bg-yellow-300" />
+            <span className="w-2 h-2 rounded-full bg-green-300" />
+          </div>
+          <div className="flex-1 flex justify-center">
+            <span className="text-[8px] text-slate-400 font-mono bg-white rounded px-2 py-0.5 border border-slate-200">
+              yourbank.com/app
+            </span>
+          </div>
+        </div>
+
+        {/* App content */}
+        <div className="p-4 space-y-2.5 bg-white">
+          <div>
+            <p className="text-base font-bold text-slate-900">Good morning, {firstName}</p>
+            <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
           </div>
 
-          {/* App content */}
-          <div className="p-4 space-y-3 bg-white">
-            <div>
-              <p className="text-base font-bold text-slate-900">Good morning, {firstName}</p>
-              <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
-            </div>
+          {/* Lifestyle banner */}
+          <div
+            className="rounded-lg px-3 py-2.5"
+            style={{ background: `linear-gradient(135deg, ${color}, ${color}90)` }}
+          >
+            <p className="text-[8px] font-bold tracking-[0.15em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Your Lifestyle
+            </p>
+            <p className="text-sm font-bold text-white uppercase">{customer.lifestyleType}</p>
+            <p className="text-[10px] text-white/70 mt-0.5">
+              Top spending: {budgets[0]?.name} & {budgets[1]?.name}
+            </p>
+          </div>
 
-            {/* Lifestyle banner */}
-            <div
-              className="rounded-lg px-3 py-3"
-              style={{ background: `linear-gradient(135deg, ${color}, ${color}90)` }}
-            >
-              <p className="text-[8px] font-bold tracking-[0.15em] uppercase" style={{ color: "rgba(255,255,255,0.6)" }}>
-                Your Lifestyle
-              </p>
-              <p className="text-sm font-bold text-white uppercase">{customer.lifestyleType}</p>
-              <p className="text-[10px] text-white/70 mt-0.5">
-                Top spending: {budgets[0]?.name} & {budgets[1]?.name}
-              </p>
-            </div>
+          {/* Lifestyle Spending */}
+          <div>
+            <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-1.5">Your Lifestyle Spending</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {budgets.slice(0, 4).map((b) => {
+                const isTravel = b.name === "Travel";
+                const isExpanded = expandedPillars.has(b.name);
+                const hasSubcats = b.subcategories.length > 0;
+                const showTripView = isTravel && tripViewOn && tripRows.length > 0;
+                const ratio = b.budget > 0 ? b.spend / b.budget : 0;
+                const { color: barColor, label: statusLabel } = getBudgetStatus(b.spend, b.budget);
 
-            {/* Lifestyle Spending — main content */}
-            <div>
-              <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-2">Your Lifestyle Spending</p>
-              <div className="grid grid-cols-2 gap-1.5">
-                {budgets.slice(0, 4).map((b) => {
-                  const pct = Math.min((b.spend / b.budget) * 100, 100);
-                  const isOver = b.spend > b.budget;
-                  const barColor = isOver ? "#ef4444" : pct > 80 ? "#f59e0b" : "#22c55e";
-                  const isExpanded = expandedPillar === b.name;
-                  const hasSubcats = b.subcategories.length > 0;
-                  return (
-                    <div
-                      key={b.name}
-                      className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats ? "cursor-pointer hover:border-slate-300" : ""}`}
-                      onClick={() => hasSubcats && setExpandedPillar(isExpanded ? null : b.name)}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-sm">{b.icon}</span>
-                        <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
-                        {hasSubcats && (
-                          isExpanded
-                            ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
-                            : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
-                        )}
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-slate-200 mb-1">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: barColor }} />
-                      </div>
-                      <p className="text-[8px] text-slate-400">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
-                      {isExpanded && (
-                        <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-0.5">
-                          {b.subcategories.slice(0, 5).map((sub) => (
-                            <div key={sub.subcategory} className="flex items-center justify-between text-[8px]">
-                              <span className="text-slate-500 truncate mr-1">{sub.subcategory}</span>
-                              <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
-                            </div>
-                          ))}
+                return (
+                  <div
+                    key={b.name}
+                    className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats || isTravel ? "cursor-pointer hover:border-slate-300" : ""}`}
+                    onClick={() => (hasSubcats || isTravel) && setExpandedPillars(prev => { const next = new Set(prev); if (next.has(b.name)) next.delete(b.name); else next.add(b.name); return next; })}
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-sm">{b.icon}</span>
+                      <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
+                      {isTravel && tripRows.length > 0 && (
+                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <span className="text-[7px] text-slate-400">Trips</span>
+                          <Switch
+                            checked={tripViewOn}
+                            onCheckedChange={setTripViewOn}
+                            className="h-3 w-6 data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-slate-300"
+                          />
                         </div>
                       )}
+                      {(hasSubcats || isTravel) && (
+                        isExpanded
+                          ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
+                          : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
+                      )}
                     </div>
-                  );
-                })}
+
+                    {/* Budget bar */}
+                    <div className="flex items-center justify-between mb-0.5">
+                      <p className="text-[9px] text-slate-500">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
+                      <span className="text-[7px] font-semibold px-1 py-0.5 rounded" style={{ background: `${barColor}18`, color: barColor }}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-100 mb-0.5">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(ratio * 100, 100)}%`, background: barColor }}
+                      />
+                    </div>
+
+                    {isExpanded && (
+                      <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-1">
+                        {showTripView ? (
+                          tripRows.slice(0, 4).map((trip) => (
+                            <div key={trip.destination} className="flex items-center gap-1.5 text-[9px]">
+                              <MapPin className="w-2.5 h-2.5 shrink-0" style={{ color }} />
+                              <span className="text-slate-600 truncate flex-1">{trip.destination}</span>
+                              <span className="text-slate-900 font-semibold whitespace-nowrap">${trip.spend.toLocaleString()}</span>
+                            </div>
+                          ))
+                        ) : (
+                          b.subcategories.slice(0, 5).map((sub) => (
+                            <div key={sub.category} className="flex items-center justify-between text-[9px]">
+                              <span className="text-slate-500 truncate mr-1">{sub.category}</span>
+                              <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Achievement Card */}
+          {featuredAchievement && (
+            <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-2.5">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                    {level.label}
+                  </span>
+                  <span className="text-[8px] font-semibold text-amber-600">{healthScore}/100</span>
+                </div>
+              </div>
+              <p className="text-[11px] font-semibold text-slate-900">{featuredAchievement.title}</p>
+              <p className="text-[8px] text-slate-500 mb-1">{featuredAchievement.description}</p>
+              <div className="w-full h-1.5 rounded-full bg-slate-200">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${(featuredAchievement.progress.current / featuredAchievement.progress.target) * 100}%`,
+                    background: featuredAchievement.status === "unlocked" ? "#22c55e" : color,
+                  }}
+                />
+              </div>
+              <p className="text-[7px] text-slate-400 mt-0.5">
+                {featuredAchievement.progress.current}/{featuredAchievement.progress.target}
+                {featuredAchievement.status === "unlocked" && " ✓ Complete"}
+              </p>
+            </div>
+          )}
+
+          {/* Coaching Tip Card */}
+          {isLoadingTip && (
+            <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5 space-y-2">
+              <div className="flex items-center gap-1.5">
+                <Skeleton className="w-5 h-5 rounded-full" />
+                <Skeleton className="w-16 h-4 rounded-full" />
+              </div>
+              <Skeleton className="w-full h-3" />
+              <Skeleton className="w-3/4 h-3" />
+              <div className="flex gap-1.5 pt-1">
+                <Skeleton className="w-12 h-5 rounded-full" />
+                <Skeleton className="w-16 h-5 rounded-full" />
               </div>
             </div>
-
-            {/* Achievement Card */}
-            {featuredAchievement && (
-              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <Trophy className="w-3.5 h-3.5 text-amber-500" />
-                    <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                      {level.label}
-                    </span>
-                    <span className="text-[8px] font-semibold text-amber-600">{healthScore}/100</span>
-                  </div>
+          )}
+          {!isLoadingTip && tip && (
+            <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5">
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
+                  <TipIcon className="w-3 h-3" style={{ color }} />
                 </div>
-                <p className="text-[11px] font-semibold text-slate-900">{featuredAchievement.title}</p>
-                <p className="text-[8px] text-slate-500 mb-1.5">{featuredAchievement.description}</p>
-                <div className="w-full h-1.5 rounded-full bg-slate-200">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width: `${(featuredAchievement.progress.current / featuredAchievement.progress.target) * 100}%`,
-                      background: featuredAchievement.status === "unlocked" ? "#22c55e" : color,
-                    }}
-                  />
-                </div>
-                <p className="text-[7px] text-slate-400 mt-0.5">
-                  {featuredAchievement.progress.current}/{featuredAchievement.progress.target}
-                  {featuredAchievement.status === "unlocked" && " ✓ Complete"}
-                </p>
+                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${color}12`, color }}>
+                  {tip.category}
+                </span>
+                {tip.potentialSavings && (
+                  <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save {tip.potentialSavings}</span>
+                )}
               </div>
-            )}
-
-            {/* Coaching Tip Card */}
-            {isLoadingTip && (
-              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3 space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <Skeleton className="w-5 h-5 rounded-full" />
-                  <Skeleton className="w-16 h-4 rounded-full" />
-                </div>
-                <Skeleton className="w-full h-3" />
-                <Skeleton className="w-3/4 h-3" />
-                <div className="flex gap-1.5 pt-1">
-                  <Skeleton className="w-12 h-5 rounded-full" />
-                  <Skeleton className="w-16 h-5 rounded-full" />
-                </div>
+              <p className="text-[10px] text-slate-700 leading-relaxed mb-1.5">{tip.message}</p>
+              <div className="flex gap-1.5">
+                <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
+                  Got it
+                </button>
+                <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full text-white transition-colors" style={{ background: color }}>
+                  Need help
+                </button>
               </div>
-            )}
-            {!isLoadingTip && tip && (
-              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-3">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
-                    <TipIcon className="w-3 h-3" style={{ color }} />
-                  </div>
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${color}12`, color }}>
-                    {tip.category}
-                  </span>
-                  {tip.potentialSavings && (
-                    <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save {tip.potentialSavings}</span>
-                  )}
-                </div>
-                <p className="text-[10px] text-slate-700 leading-relaxed mb-2">{tip.message}</p>
-                <div className="flex gap-1.5">
-                  <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
-                    Got it
-                  </button>
-                  <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full text-white transition-colors" style={{ background: color }}>
-                    Need help
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

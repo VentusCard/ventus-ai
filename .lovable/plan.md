@@ -1,37 +1,19 @@
 
 
+## Remove WM Copilot Sign-In Gate
 
-## Financial Wellness Intelligence — Two-Sided Feature (financial-tip-chat)
+### What changes
+Currently, clicking "WM Copilot" in the sidebar opens a sign-in dialog that blocks access if no client profile exists. We'll remove the dialog entirely and instead render `BankwideWMCopilotView` directly as a tab, just like the other sidebar items.
 
-### Implemented
+### File: `src/components/tepilot/insights/AnalyticsContainer.tsx`
 
-**Shared Engine** (`src/lib/wellnessIntelligenceEngine.ts`):
-- Tip generator rotating 5 contextual tips based on transactions
-- Mock customer insight logs (12 entries) and wellness alerts (10 signals)
-- KPI data for banker dashboard
+1. **Add `wm-copilot` to the `TabValue` type** and add it to the Relationship nav group with the Briefcase icon
+2. **Add case in `renderContent`**: `case 'wm-copilot': return <BankwideWMCopilotView />;`
+3. **Remove** the standalone WM Copilot button at the bottom of the sidebar (the one that calls `setShowSignIn(true)`)
+4. **Remove** the `WMCopilotSignInDialog` component render and its `showSignIn` state
+5. **Remove** the `WMCopilotSignInDialog` import
 
-**AI-Powered Coaching Tips** (`supabase/functions/generate-financial-tip/index.ts`):
-- Edge function using Lovable AI (gemini-3-flash-preview) to generate contextual tips
-- Analyzes real enriched transactions: pillar distribution, merchants, spending tiers, frequencies
-- Incorporates customer profile (demographics, holdings, lifestyle type) when available
-- Structured output via tool calling returning FinancialTip object
-- Strict guardrails: only bank-observable data, no usage metrics or external balances
-- Replaces hardcoded tip generation in DemoEngagementView with async call + loading skeleton
+### Technical details
+- `BankwideWMCopilotView` already generates its own dashboard clients internally, so it works standalone without any client profile dependency
+- The sign-in dialog file (`WMCopilotSignInDialog.tsx`) can remain on disk but will no longer be referenced
 
-**Side A — Customer: FinancialTipCard** (`src/components/tepilot/insights/FinancialTipCard.tsx`):
-- Single financial tip card displayed side-by-side with Financial Achievements (2-col grid)
-- Two preset responses: "Got it, I'll do that" / "I don't have enough funds"
-- Opens chat dialog powered by advisor-chat edge function with financial-tip-chat mode
-- Response logged indicator shown after interaction
-
-**Side B — Banker: WellnessAlertsDashboard** (`src/components/tepilot/insights/WellnessAlertsDashboard.tsx`):
-- New "Customer Insights" tab in AnalyticsContainer
-- Two-sided loop visualization diagram
-- 4 KPI cards (Tips Delivered, Response Rate, Need Help Signals, Engagement Score)
-- Customer Tip Responses table with sentiment, takeaways, and banker actions
-- Financial Wellness Signals table with severity, status management, recommended actions
-- Configurable alert thresholds (severity cutoff, auto-coaching toggle, min deposit)
-
-### Layout Changes
-- `TePilot.tsx`: FinancialAchievements + FinancialTipCard in `grid-cols-1 lg:grid-cols-2`
-- `AnalyticsContainer.tsx`: Added "Customer Insights" tab with Heart icon

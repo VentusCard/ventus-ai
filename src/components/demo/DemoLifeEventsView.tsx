@@ -1,28 +1,90 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
 import { CreditCard, Sparkles, CheckCircle2, MessageSquare, Download, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { exportEventPreparationPDF } from "@/lib/eventPreparationPdfExport";
+import { EventSummaryEmailDialog } from "@/components/tepilot/advisor-console/EventSummaryEmailDialog";
+import type { EventPreparationData, DetectedLifeEvent, DashboardClient, CardTransaction } from "@/types/dashboardClient";
 
 interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  detectedEventA: DetectedLifeEventResult[];
-  detectedEventB: DetectedLifeEventResult[];
+  customer: DemoCustomer;
+  detectedEvents: DetectedLifeEventResult[];
 }
 
-export default function DemoLifeEventsView({ customerA, customerB, detectedEventA, detectedEventB }: Props) {
-  return (
-    <div className="grid grid-cols-2 gap-6">
-      <CustomerEventsColumn events={detectedEventA} customer={customerA} />
-      <CustomerEventsColumn events={detectedEventB} customer={customerB} />
-    </div>
-  );
+const EVENT_NAME_TO_TYPE: Record<string, DetectedLifeEvent['eventType']> = {
+  "retirement planning": "retirement",
+  "retirement": "retirement",
+  "education funding": "education",
+  "education": "education",
+  "college planning": "education",
+  "home purchase": "home_purchase",
+  "home buying": "home_purchase",
+  "wealth transfer": "wealth_transfer",
+  "estate planning": "wealth_transfer",
+  "business liquidity": "business_liquidity",
+  "business exit": "business_liquidity",
+  "family formation": "family_formation",
+  "new baby": "family_formation",
+  "elder care": "elder_care",
+  "eldercare": "elder_care",
+};
+
+function deriveEventType(eventName: string): DetectedLifeEvent['eventType'] {
+  const lower = eventName.toLowerCase();
+  for (const [key, type] of Object.entries(EVENT_NAME_TO_TYPE)) {
+    if (lower.includes(key)) return type;
+  }
+  return "retirement";
 }
 
-function CustomerEventsColumn({ events, customer }: { events: DetectedLifeEventResult[]; customer: DemoCustomer }) {
-  if (!events || events.length === 0) {
+function buildEventPreparationData(
+  customer: DemoCustomer,
+  event: DetectedLifeEventResult
+): EventPreparationData {
+  const eventType = deriveEventType(event.event_name);
+
+  const detectedEvent: DetectedLifeEvent = {
+    eventType,
+    eventName: event.event_name,
+    confidence: event.confidence,
+    estimatedTiming: "Next 6-12 months",
+    keyEvidence: event.evidence.map(e => `${e.merchant}: ${e.relevance}`),
+    urgencyScore: event.confidence >= 85 ? 4 : event.confidence >= 70 ? 3 : 2,
+  };
+
+  const transactions: CardTransaction[] = event.evidence.map(e => ({
+    cardType: "Premium Card",
+    cardLast4: "4821",
+    merchant: e.merchant,
+    amount: e.amount,
+    date: e.date,
+    relevance: e.relevance,
+  }));
+
+  const dashboardClient: DashboardClient = {
+    id: customer.id,
+    profile: customer.profile,
+    detectedEvents: [detectedEvent],
+    lastContactDate: new Date(),
+    engagementStatus: "active",
+  };
+
+  return {
+    client: dashboardClient,
+    event: detectedEvent,
+    transactions,
+    recommendedSteps: event.talking_points.slice(1),
+  };
+}
+
+export default function DemoLifeEventsView({ customer, detectedEvents }: Props) {
+  const navigate = useNavigate();
+
+  if (!detectedEvents || detectedEvents.length === 0) {
     return (
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 flex items-center justify-center">
         <p className="text-sm text-slate-400">No life event detected</p>
@@ -32,23 +94,57 @@ function CustomerEventsColumn({ events, customer }: { events: DetectedLifeEventR
 
   return (
     <div className="space-y-4">
-      {events.map((event, idx) => (
-        <LifeEventCard key={idx} event={event} customer={customer} />
+      {detectedEvents.map((event, idx) => (
+        <LifeEventCard key={idx} event={event} customer={customer} navigate={navigate} />
       ))}
     </div>
   );
 }
 
-function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; customer: DemoCustomer }) {
+function LifeEventCard({ event, customer, navigate }: {
+  event: DetectedLifeEventResult;
+  customer: DemoCustomer;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailDialogData, setEmailDialogData] = useState<EventPreparationData | null>(null);
+
   const sortedEvidence = [...event.evidence].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const talkingPoints = event.talking_points ?? [];
 
   const formatAmount = (amount: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 
+  const handleDownloadPDF = () => {
+    const data = buildEventPreparationData(customer, event);
+    exportEventPreparationPDF(data);
+    toast.success("PDF downloaded", { description: `Event preparation summary for ${customer.profile.name}` });
+  };
+
+  const handleEmailSummary = () => {
+    const data = buildEventPreparationData(customer, event);
+    setEmailDialogData(data);
+    setEmailDialogOpen(true);
+  };
+
+  const handlePrepareWithVentus = () => {
+    sessionStorage.setItem("tepilot_client_profile", JSON.stringify(customer.profile));
+    sessionStorage.setItem("tepilot_detected_events", JSON.stringify(
+      [buildEventPreparationData(customer, event).event]
+    ));
+
+    navigate("/tepilot/advisor-console", {
+      state: {
+        initialView: "client" as const,
+        demoCustomerA: customer,
+        demoCustomerB: null,
+        activeCustomerId: customer.id,
+      },
+    });
+  };
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      {/* Header */}
       <div className="px-5 py-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-1.5">
           <h4 className="text-sm font-bold text-slate-900">{event.event_name}</h4>
@@ -75,7 +171,6 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
         )}
       </div>
 
-      {/* Supporting Transactions */}
       <div className="px-5 py-3 border-b border-slate-100">
         <h5 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
           <CreditCard className="h-3.5 w-3.5 text-slate-400" />
@@ -97,10 +192,8 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
         </div>
       </div>
 
-      {/* AI Talking Points as Insights + Next Steps */}
       {talkingPoints.length > 0 && (
         <div className="px-5 py-3 border-b border-slate-100 grid grid-cols-1 gap-3">
-          {/* Ventus AI Insights — first talking point as narrative */}
           <div>
             <h5 className="text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
@@ -109,7 +202,6 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
             <p className="text-[11px] text-slate-600 leading-relaxed">{talkingPoints[0]}</p>
           </div>
 
-          {/* Recommended Next Steps — remaining talking points */}
           {talkingPoints.length > 1 && (
             <div>
               <h5 className="text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
@@ -131,13 +223,12 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
         </div>
       )}
 
-      {/* Action Buttons */}
       <div className="px-5 py-3 flex items-center gap-2 flex-wrap">
         <Button
           variant="outline"
           size="sm"
           className="gap-1.5 text-[11px] h-8"
-          onClick={() => toast.success("Opening Ventus WM Co-Pilot...", { description: "AI context pre-loaded with event details" })}
+          onClick={handlePrepareWithVentus}
         >
           <MessageSquare className="h-3 w-3" />
           Prepare with Ventus
@@ -146,7 +237,7 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
           variant="outline"
           size="sm"
           className="gap-1.5 text-[11px] h-8"
-          onClick={() => toast.success("PDF downloaded", { description: `Event preparation summary for ${customer.profile.name}` })}
+          onClick={handleDownloadPDF}
         >
           <Download className="h-3 w-3" />
           Download PDF
@@ -154,12 +245,20 @@ function LifeEventCard({ event, customer }: { event: DetectedLifeEventResult; cu
         <Button
           size="sm"
           className="gap-1.5 text-[11px] h-8"
-          onClick={() => toast.success("Email sent", { description: `Summary emailed for ${event.event_name}` })}
+          onClick={handleEmailSummary}
         >
           <Mail className="h-3 w-3" />
           Email Me Summary
         </Button>
       </div>
+
+      {emailDialogData && (
+        <EventSummaryEmailDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          data={emailDialogData}
+        />
+      )}
     </div>
   );
 }

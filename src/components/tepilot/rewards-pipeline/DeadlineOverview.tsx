@@ -40,22 +40,22 @@ const urgencyConfig = {
   overdue: {
     icon: AlertTriangle,
     label: 'Overdue',
-    className: 'text-rose-600 bg-rose-50 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800'
+    className: 'text-rose-600 bg-rose-50 border-rose-200'
   },
   this_week: {
     icon: Clock,
     label: 'This Week',
-    className: 'text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800'
+    className: 'text-amber-600 bg-amber-50 border-amber-200'
   },
   this_month: {
     icon: CalendarClock,
     label: 'This Month',
-    className: 'text-blue-600 bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
+    className: 'text-blue-600 bg-blue-50 border-blue-200'
   },
   upcoming: {
     icon: CheckCircle2,
     label: 'Upcoming',
-    className: 'text-emerald-600 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800'
+    className: 'text-emerald-600 bg-emerald-50 border-emerald-200'
   }
 };
 
@@ -99,8 +99,8 @@ export function DeadlineOverview({ opportunities }: DeadlineOverviewProps) {
               key={`${item.merchantName}-${idx}`}
               className={cn(
                 "flex items-center justify-between p-3 rounded-lg border",
-                item.urgency === 'overdue' && "bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-800",
-                item.urgency === 'this_week' && "bg-amber-50/50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800",
+                item.urgency === 'overdue' && "bg-rose-50/50 border-rose-200",
+                item.urgency === 'this_week' && "bg-amber-50/50 border-amber-200",
                 item.urgency === 'this_month' && "bg-slate-50 border-slate-200",
                 item.urgency === 'upcoming' && "bg-slate-50/50 border-slate-200"
               )}

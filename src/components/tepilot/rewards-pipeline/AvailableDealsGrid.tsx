@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import IntegrationDiagramButton from "@/components/technology/IntegrationDiagramButton";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,7 +89,7 @@ export function AvailableDealsGrid() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-slate-900">Available Deals Library</h1>
-            <IntegrationDiagramButton variant="rewards" />
+            
           </div>
           <p className="text-slate-500 text-sm mt-1">
             {filteredDeals.length} merchant deals across {Object.keys(DEAL_CATEGORIES).length} categories
@@ -170,10 +170,10 @@ export function AvailableDealsGrid() {
               size="sm"
               onClick={() => handleCategoryChange(category)}
               className={`rounded-full text-xs transition-all ${
-                isSelected 
-                  ? 'bg-slate-900 text-white hover:bg-slate-800' 
-                  : 'hover:bg-slate-100'
-              }`}
+                 isSelected 
+                   ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                   : 'hover:bg-slate-100'
+               }`}
             >
               {categoryConfig && (
                 <span className="mr-1">{categoryConfig.icon}</span>

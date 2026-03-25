@@ -7,52 +7,45 @@ import DemoPasswordGate from "@/components/demo/DemoPasswordGate";
 import { useDemoEnrichment } from "@/hooks/useDemoEnrichment";
 import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
-import { PanelLeft, ArrowRight } from "lucide-react";
+import { PanelLeft, ArrowRight, X } from "lucide-react";
 import ContactFormDialog from "@/components/ContactFormDialog";
+import ventusLogo from "@/assets/ventus-logo-blue.png";
 
 export default function DemoPage() {
-  const [customerA, setCustomerA] = useState<DemoCustomer | null>(null);
-  const [customerB, setCustomerB] = useState<DemoCustomer | null>(null);
+  const [customer, setCustomer] = useState<DemoCustomer | null>(null);
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
 
-  const NODE_ORDER: DemoNodeType[] = ["engagement", "analytics", "rewards", "travel", "lifeEvents", "wealth"];
+  const NODE_ORDER: DemoNodeType[] = ["engine", "analytics", "outflow", "aiFinancialInsights", "engagement", "travel", "locational", "dealPersonalization", "rewards", "lifeEventIntel", "lifeEvents", "wmCopilot", "wealth"];
   const activeIdx = activeNode ? NODE_ORDER.indexOf(activeNode) : -1;
   const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
   const nextNode = activeIdx >= 0 && activeIdx < NODE_ORDER.length - 1 ? NODE_ORDER[activeIdx + 1] : null;
 
-  const parsedA = useMemo<Transaction[]>(() => {
-    if (!customerA) return [];
-    const result = parsePastedText(customerA.csv);
+  const parsedTransactions = useMemo<Transaction[]>(() => {
+    if (!customer) return [];
+    const result = parsePastedText(customer.csv);
     return result.transactions ?? [];
-  }, [customerA?.csv]);
-
-  const parsedB = useMemo<Transaction[]>(() => {
-    if (!customerB) return [];
-    const result = parsePastedText(customerB.csv);
-    return result.transactions ?? [];
-  }, [customerB?.csv]);
+  }, [customer?.csv]);
 
   const {
     nodeReadiness,
     inputReady,
     isProcessing,
     statusMessage,
-    enrichedA,
-    enrichedB,
+    enriched,
     localExperiences,
-    personalizedDealsA,
-    personalizedDealsB,
-    detectedEventA,
-    detectedEventB,
+    personalizedDeals,
+    detectedEvents,
+    apiPayloads,
+    tip,
     startEnrichment,
   } = useDemoEnrichment();
 
   const handleEnrich = () => {
-    if (customerA && customerB) {
+    if (customer) {
       setPanelCollapsed(true);
-      startEnrichment(customerA, customerB);
+      startEnrichment(customer);
     }
   };
 
@@ -68,22 +61,21 @@ export default function DemoPage() {
   return (
     <DemoPasswordGate>
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
-      {/* Exit to keynote button */}
-      <button
-        onClick={() => {
-          sessionStorage.removeItem("demo_access");
-          window.location.reload();
-        }}
-        className="absolute top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
-      >
-        ✕ Exit Demo
-      </button>
+      {/* Logo + one-liner when panel collapsed */}
+      {panelCollapsed && (
+        <div className="absolute top-6 left-6 z-40">
+          <img src={ventusLogo} className="h-6 mb-2" alt="Ventus" />
+          <p className="text-[14px] text-slate-500 whitespace-nowrap">
+            One AI-Native layer that enables personalized banking across functions.
+          </p>
+        </div>
+      )}
 
-      {/* Floating expand button — visible when panel is collapsed */}
+      {/* Show Panel — bottom-left when collapsed */}
       {panelCollapsed && (
         <button
           onClick={() => setPanelCollapsed(false)}
-          className="absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
+          className="absolute bottom-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
         >
           <PanelLeft className="h-3.5 w-3.5" />
           Show Panel
@@ -107,12 +99,9 @@ export default function DemoPage() {
           </button>
         )}
         <DemoCustomerPanel
-          customerA={customerA}
-          customerB={customerB}
-          parsedTransactionsA={parsedA}
-          parsedTransactionsB={parsedB}
-          onSelectA={setCustomerA}
-          onSelectB={setCustomerB}
+          customer={customer}
+          parsedTransactions={parsedTransactions}
+          onSelect={setCustomer}
           onEnrich={handleEnrich}
           isProcessing={isProcessing}
           statusMessage={statusMessage}
@@ -124,8 +113,7 @@ export default function DemoPage() {
       {/* Right Panel — 70% */}
       <div className="flex-1 relative">
         <DemoNetworkDiagram
-          customerA={customerA}
-          customerB={customerB}
+          customer={customer}
           activeNode={activeNode}
           onNodeClick={(node) => setActiveNode(node)}
           nodeReadiness={nodeReadiness}
@@ -133,18 +121,16 @@ export default function DemoPage() {
           centered={panelCollapsed}
         />
 
-        {activeNode && customerA && customerB && (
+        {activeNode && customer && (
           <DemoDetailOverlay
             node={activeNode}
-            customerA={customerA}
-            customerB={customerB}
-            enrichedA={enrichedA}
-            enrichedB={enrichedB}
+            customer={customer}
+            enriched={enriched}
             localExperiences={localExperiences}
-            personalizedDealsA={personalizedDealsA}
-            personalizedDealsB={personalizedDealsB}
-            detectedEventA={detectedEventA}
-            detectedEventB={detectedEventB}
+            personalizedDeals={personalizedDeals}
+            detectedEvents={detectedEvents}
+            apiPayloads={apiPayloads}
+            tip={tip}
             onClose={() => setActiveNode(null)}
           />
         )}
@@ -169,15 +155,30 @@ export default function DemoPage() {
           </button>
         </div>
       ) : (
-        <button
-          onClick={() => setContactOpen(true)}
-          className="absolute bottom-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
-        >
-          Next Step →
-        </button>
+        <div className="absolute bottom-4 right-4 z-50 flex items-center gap-2">
+          <button
+            onClick={() => setContactOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+          >
+            Next Step →
+          </button>
+        </div>
       )}
 
-      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
+      {/* Exit button — top-right */}
+      {!activeNode && (
+        <div className="absolute top-4 right-4 z-50">
+          <button
+            onClick={() => {
+              sessionStorage.removeItem("demo_access");
+              window.location.reload();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+          >
+            <X className="h-3 w-3" /> Exit
+          </button>
+        </div>
+      )}
     </div>
     </DemoPasswordGate>
   );

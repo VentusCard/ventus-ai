@@ -255,3 +255,36 @@ export interface WalletShareTrendPoint {
   flightRate: number;
   winBackRate: number;
 }
+
+export interface MerchantDetail {
+  name: string;
+  product: string;
+  msrp: string;
+  link: string;
+}
+
+// Category Extension Opportunity — behaviorally adjacent deals that MCC codes can't connect
+export interface CategoryExtensionOpportunity {
+  id: string;
+  sourcePillar: string;
+  sourceCategory: string;
+  sourceSubcategory: string;
+  behavioralSignal: string;
+  extensionProduct: string;
+  extensionMerchant: string;
+  extensionCategory: string;
+  whyItFits: string;
+  mccDisconnectNote: string;
+  addressableUsers: number;
+  estimatedRevenue: number;
+  projectedConversionRate: number;
+  confidenceScore: number;
+  matchingPersonas: string[];
+  topAgeRanges: string[];
+  topRegions: string[];
+  peakSpendingWeeks: string;
+  optimalDeploymentWindow: string;
+  deploymentRationale: string;
+  priority: 'high' | 'medium' | 'low';
+  merchantDetails: MerchantDetail[];
+}

@@ -71,143 +71,112 @@ async function runWithConcurrency<T, R>(
 }
 
 // Classification Prompt with Examples
-const CLASSIFICATION_PROMPT = `Classify transactions into lifestyle pillars and specific subcategories based on merchant names.
+const CLASSIFICATION_PROMPT = `Classify transactions into lifestyle pillars, categories, and subcategory labels based on merchant names.
 
-PILLARS & SUBCATEGORIES:
+PILLARS & CATEGORIES (category = primary behavioral identifier within the pillar):
 
-1. Sports & Active Living: Gym & Fitness, Outdoor Recreation, Sports Equipment, Athletic Apparel, Fitness Classes, Team Sports & Leagues, General
-
-2. Health & Wellness: Medical & Doctor Visits, Pharmacy & Prescriptions, Mental Health & Therapy, Spa & Massage, Vitamins & Supplements, Health Insurance, General
-
-3. Food & Dining: Grocery, Dining Out, Delivery & Takeout, Coffee & Cafes, Fast Food, Meal Kits & Subscriptions, General
-
+1. Sports & Active Living: Golf, Running, Tennis, Skiing & Snowboarding, Cycling, Water Sports, Gym & Fitness, Outdoor & Adventure, Team Sports, General
+2. Health & Wellness: Medical & Doctor, Pharmacy, Mental Health, Spa & Massage, Vitamins & Supplements, Health Insurance, General
+3. Food & Dining: Grocery, Coffee & Cafes, Dining Out, Fast Food, Delivery & Takeout, Meal Kits & Subscriptions, Bars & Nightlife, General
 4. Travel & Exploration: Flights, Hotels & Lodging, Car Rentals, Travel Transportation, Tours & Activities, Travel Insurance, General
-
-5. Home & Living: Rent & Mortgage, Utilities, Home Improvement, Furniture & Decor, Household Supplies, Local Commuting (Gas, Parking, Transit), General
-
+5. Home & Living: Rent & Mortgage, Utilities, Home Improvement, Furniture & Decor, Household Supplies, Local Commuting, General
 6. Style & Beauty: Clothing, Shoes & Accessories, Beauty Products, Hair Salon, Nail Salon, Jewelry, General
-
 7. Pets: Pet Food, Veterinary Care, Pet Supplies, Grooming, Pet Insurance, Pet Services, General
-
 8. Entertainment & Culture: Movies & Theater, Concerts & Events, Museums & Exhibitions, Books & Magazines, Hobbies & Crafts, Gaming, General
-
 9. Technology & Digital Life: Electronics & Devices, Software & Apps, Streaming Services, Internet & Phone, Cloud Storage, Tech Accessories, General
-
 10. Family & Community: Childcare & Education, Gifts & Donations, Religious Organizations, Community Events, Kids Activities, Elder Care, General
-
 11. Financial & Aspirational: Investments, Savings & Deposits, Insurance, Professional Development, Courses & Certifications, Financial Services, General
-
 12. Miscellaneous & Unclassified: Unclear Merchants, General Services, One-Time Purchases, Unknown, Mixed Categories, General
 
-CLASSIFICATION EXAMPLES (use these patterns):
+SUBCATEGORY LABELS (1-3 per transaction):
+Return 1 to 3 short labels that describe what you can ACTUALLY INFER from the merchant name. These are independent tags, not a hierarchy.
+Only tag what the merchant name tells you. Do NOT guess what the customer bought if the merchant sells many things.
+
+CLASSIFICATION EXAMPLES (Pillar / Category / Subcategory Labels):
 
 Sports & Active Living:
-- "EQUINOX" → Gym & Fitness
-- "24 HOUR FITNESS" → Gym & Fitness
-- "LULULEMON" → Athletic Apparel
-- "NIKE STORE" → Athletic Apparel
-- "REI CO-OP" → Outdoor Recreation
-- "DICK'S SPORTING GOODS" → Sports Equipment
-- "ORANGETHEORY" → Fitness Classes
-- "BARRYS BOOTCAMP" → Fitness Classes
+- "EQUINOX" → Gym & Fitness / ["Membership"]
+- "24 HOUR FITNESS" → Gym & Fitness / ["Membership"]
+- "LULULEMON" → Gym & Fitness / ["Apparel", "Athletic"]
+- "NIKE STORE" → Gym & Fitness / ["Apparel", "Equipment"]
+- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Apparel"]
+- "DICK'S SPORTING GOODS" → General / ["Equipment"]
+- "ORANGETHEORY" → Gym & Fitness / ["Classes"]
+- "TAYLORMADE" → Golf / ["Equipment"]
+- "TITLEIST PRO SHOP" → Golf / ["Equipment", "Apparel"]
+- "BROOKS RUNNING" → Running / ["Footwear"]
 
 Health & Wellness:
-- "CVS PHARMACY" → Pharmacy & Prescriptions
-- "WALGREENS" → Pharmacy & Prescriptions
-- "GNC" → Vitamins & Supplements
-- "VITAMIN SHOPPE" → Vitamins & Supplements
-- "MASSAGE ENVY" → Spa & Massage
-- "DRY BAR" → Spa & Massage
-- "TALKSPACE" → Mental Health & Therapy
-- "BLUE CROSS" → Health Insurance
+- "CVS PHARMACY" → Pharmacy / ["Prescription", "OTC"]
+- "WALGREENS" → Pharmacy / ["Prescription", "OTC"]
+- "GNC" → Vitamins & Supplements / ["Supplements"]
+- "MASSAGE ENVY" → Spa & Massage / ["Massage"]
+- "TALKSPACE" → Mental Health / ["Therapy"]
+- "BLUE CROSS" → Health Insurance / ["Monthly"]
 
 Food & Dining:
-- "WHOLE FOODS" → Grocery
-- "TRADER JOES" → Grocery
-- "SAFEWAY" → Grocery
-- "KROGER" → Grocery
-- "STARBUCKS" → Coffee & Cafes
-- "DUNKIN" → Coffee & Cafes
-- "CHIPOTLE" → Dining Out
-- "PIZZA HUT" → Dining Out
-- "DOMINOS PIZZA" → Dining Out
-- "PAPA JOHNS" → Dining Out
-- "LOCAL PIZZA CO" → Dining Out
-- "MARCOS PIZZA" → Dining Out
-- "UBER EATS" → Delivery & Takeout
-- "DOORDASH" → Delivery & Takeout
-- "MCDONALDS" → Fast Food
-- "HELLO FRESH" → Meal Kits & Subscriptions
+- "WHOLE FOODS" → Grocery / ["Organic & Natural"]
+- "TRADER JOES" → Grocery / ["Specialty"]
+- "SAFEWAY" → Grocery / ["Conventional"]
+- "STARBUCKS" → Coffee & Cafes / ["Chain"]
+- "BLUE BOTTLE COFFEE" → Coffee & Cafes / ["Specialty"]
+- "CHIPOTLE" → Dining Out / ["Casual", "Mexican"]
+- "DOMINOS PIZZA" → Dining Out / ["Italian", "Casual"]
+- "MARIO'S PIZZA" → Dining Out / ["Italian", "Casual"]
+- "UBER EATS" → Delivery & Takeout / ["Platform"]
+- "MCDONALDS" → Fast Food / ["Chain"]
+- "HELLO FRESH" → Meal Kits & Subscriptions / ["Ingredient Kits"]
 
 Travel & Exploration:
-- "DELTA AIR LINES" → Flights
-- "UNITED AIRLINES" → Flights
-- "MARRIOTT" → Hotels & Lodging
-- "HILTON" → Hotels & Lodging
-- "HERTZ" → Car Rentals
-- "ENTERPRISE" → Car Rentals
-- "UBER" → Travel Transportation
-- "LYFT" → Travel Transportation
+- "DELTA AIR LINES" → Flights / ["Domestic"]
+- "UNITED AIRLINES" → Flights / ["Domestic"]
+- "MARRIOTT" → Hotels & Lodging / ["Full-Service"]
+- "FOUR SEASONS" → Hotels & Lodging / ["Full-Service"]
+- "HERTZ" → Car Rentals / ["Airport"]
+- "UBER" → Travel Transportation / ["Rideshare"]
+- "LYFT" → Travel Transportation / ["Rideshare"]
 
 Home & Living:
-- "HOME DEPOT" → Home Improvement
-- "LOWES" → Home Improvement
-- "IKEA" → Furniture & Decor
-- "TARGET" → Household Supplies
-- "SHELL" → Local Commuting (Gas, Parking, Transit)
-- "CHEVRON" → Local Commuting (Gas, Parking, Transit)
-- "METRO TRANSIT" → Local Commuting (Gas, Parking, Transit)
-- "PG&E" → Utilities
+- "HOME DEPOT" → Home Improvement / ["Renovation", "Tools"]
+- "LOWES" → Home Improvement / ["Renovation", "Tools"]
+- "IKEA" → Furniture & Decor / ["Furniture", "Self-Assembly"]
+- "SHELL" → Local Commuting / ["Gas"]
+- "CHEVRON" → Local Commuting / ["Gas"]
+- "PG&E" → Utilities / ["Electric", "Gas"]
 
 Style & Beauty:
-- "ZARA" → Clothing
-- "H&M" → Clothing
-- "NORDSTROM" → Clothing
-- "SEPHORA" → Beauty Products
-- "ULTA" → Beauty Products
-- "SUPERCUTS" → Hair Salon
-- "DRYBAR" → Hair Salon
-- "TIFFANY & CO" → Jewelry
+- "ZARA" → Clothing / ["Fast Fashion"]
+- "NORDSTROM" → Clothing / ["Department Store"]
+- "SEPHORA" → Beauty Products / ["Makeup", "Skincare"]
+- "ULTA" → Beauty Products / ["Makeup", "Skincare"]
+- "TIFFANY & CO" → Jewelry / ["Fine Jewelry"]
 
 Pets:
-- "PETCO" → Pet Supplies
-- "PETSMART" → Pet Supplies
-- "CHEWY.COM" → Pet Food
-- "VCA ANIMAL HOSPITAL" → Veterinary Care
-- "BANFIELD PET HOSPITAL" → Veterinary Care
+- "PETCO" → Pet Supplies / ["Supplies"]
+- "CHEWY.COM" → Pet Food / ["Online"]
+- "VCA ANIMAL HOSPITAL" → Veterinary Care / ["Wellness"]
 
 Entertainment & Culture:
-- "AMC THEATRES" → Movies & Theater
-- "NETFLIX" → Streaming Services (should be Tech)
-- "TICKETMASTER" → Concerts & Events
-- "BARNES & NOBLE" → Books & Magazines
-- "STEAM GAMES" → Gaming
-- "PLAYSTATION STORE" → Gaming
+- "AMC THEATRES" → Movies & Theater / ["Cinema"]
+- "TICKETMASTER" → Concerts & Events / ["Tickets"]
+- "BARNES & NOBLE" → Books & Magazines / ["Physical"]
+- "STEAM GAMES" → Gaming / ["PC"]
 
 Technology & Digital Life:
-- "APPLE.COM" → Electronics & Devices
-- "BEST BUY" → Electronics & Devices
-- "MICROSOFT" → Software & Apps
-- "ADOBE" → Software & Apps
-- "SPOTIFY" → Streaming Services
-- "NETFLIX" → Streaming Services
-- "VERIZON" → Internet & Phone
-- "COMCAST" → Internet & Phone
+- "APPLE.COM" → Electronics & Devices / ["Phone", "Computer"]
+- "BEST BUY" → Electronics & Devices / ["Electronics"]
+- "SPOTIFY" → Streaming Services / ["Music"]
+- "NETFLIX" → Streaming Services / ["Video"]
+- "VERIZON" → Internet & Phone / ["Mobile Carrier"]
 
 Family & Community:
-- "KINDERCARE" → Childcare & Education
-- "YMCA" → Community Events
-- "RED CROSS" → Gifts & Donations
-- "GOFUNDME" → Gifts & Donations
-- "COURSERA" → Professional Development (should be Financial)
+- "KINDERCARE" → Childcare & Education / ["Daycare"]
+- "RED CROSS" → Gifts & Donations / ["Charity"]
 
 Financial & Aspirational:
-- "VANGUARD" → Investments
-- "FIDELITY" → Investments
-- "UDEMY" → Courses & Certifications
-- "LINKEDIN LEARNING" → Courses & Certifications
-- "GEICO" → Insurance
-- "STATE FARM" → Insurance
+- "VANGUARD" → Investments / ["Brokerage"]
+- "UDEMY" → Courses & Certifications / ["Online"]
+- "GEICO" → Insurance / ["Auto"]
 
 CONFIDENCE EXAMPLES:
 These merchants all deserve 0.9 confidence even if you've never heard of them:
@@ -225,37 +194,32 @@ MERCHANT PARSING:
 • Remove payment prefixes: Apple Pay, PayPal, Venmo, SQ, Cash App, Zelle
 • Extract true merchant (e.g., "SQ *Chipotle" → "Chipotle")
 
-SUBCATEGORY RULES:
-• Match merchants to the MOST SPECIFIC subcategory shown in examples
-• Only use "General" when the merchant doesn't fit any specific subcategory
+CATEGORY RULES:
+• The category is the PRIMARY behavioral identifier — for Sports it's the sport, for Food it's the venue type, for Travel it's the transport/stay type
+• Only use "General" when the merchant doesn't fit any specific category
 • Be decisive - choose the best match even if not 100% certain
 • Category obviousness is MORE IMPORTANT than brand recognition
-• Examples: ANY pizza place = Dining Out (0.9), ANY gym = Gym & Fitness (0.9), ANY grocery store = Grocery (0.9)
 • If the business type is obvious from the name, assign high confidence regardless of whether you recognize the specific brand
 
+SUBCATEGORY LABEL RULES:
+• Return 1-3 short labels that you can ACTUALLY INFER from the merchant name
+• Do NOT guess what the customer bought if the merchant sells many things
+• One label is perfectly fine — do not force multiple labels
+• Labels are independent tags, not a hierarchy
+• Do NOT use tier/price-level labels (Premium, Budget, Luxury, Mid-Range, High-End, Value, Discount). These are covered by the spending_tier field.
+
 CONFIDENCE LEVELS:
-• High (0.9): 
-  - Well-known brand matches (Nike, Starbucks, Target)
-  - OR business category is obvious from merchant name (any pizza place, any gym, any grocery store, any salon)
-  - Examples: "Joe's Pizzeria" = 0.9 (obviously Dining Out), "Main Street Fitness" = 0.9 (obviously Gym)
-  
-• Moderate (0.7): 
-  - Business type is somewhat clear but subcategory is ambiguous
-  - Generic restaurant names without cuisine indicators
-  
-• Low (0.4): 
-  - Completely ambiguous merchant names (abbreviations, unclear)
-  - Use "General" subcategory within best-guess pillar
+• High (0.9): Well-known brand matches OR business category is obvious from merchant name
+• Moderate (0.7): Business type is somewhat clear but category is ambiguous
+• Low (0.4): Completely ambiguous merchant names — use "General" category
 
 SPENDING TIER:
-Classify each transaction's spending tier based on the merchant's market positioning:
 - "Premium": Luxury brands, fine dining, first-class travel, high-end retailers (Equinox, Tiffany, Nordstrom, Four Seasons, Whole Foods, Lululemon)
 - "Standard": Mid-range, mainstream brands, casual dining (Target, Chipotle, Marriott, Nike, Safeway, Hilton)
 - "Budget": Discount stores, fast food, budget options, dollar stores (McDonald's, Dollar Tree, Walmart, Spirit Airlines, Aldi, Planet Fitness)
 - "N/A": Utilities, insurance, medical, financial services, rent — where tier doesn't meaningfully apply
 
 PURCHASE FREQUENCY:
-Infer how often a typical customer would transact with this type of merchant:
 - "Weekly": Habitual, multiple times per month — coffee shops, gas stations, grocery stores, fast food, transit, gym visits
 - "Monthly": Regular monthly cadence — subscriptions, streaming, rent, utilities, phone bills, insurance, meal kits, memberships
 - "Occasional": A few times per year, irregular — haircuts, clothing stores, dentist, seasonal dining, oil changes, home improvement
@@ -296,11 +260,21 @@ const CLASSIFICATION_TOOL = [
                     "Miscellaneous & Unclassified",
                   ],
                 },
-                subcategory: { type: "string" },
+                category: {
+                  type: "string",
+                  description: "Primary behavioral identifier within the pillar (e.g. Golf, Grocery, Coffee & Cafes, Flights)",
+                },
+                subcategories: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 1,
+                  maxItems: 3,
+                  description: "1-3 labels describing what can be inferred from the merchant name. Only tag what is obvious — do not guess.",
+                },
                 confidence: {
                   type: "number",
                   description:
-                    "Confidence score: 0.9 for recognized brands (Nike, Starbucks) OR obvious categories (any pizzeria, any gym, any grocery), 0.7 for somewhat clear merchants, 0.4 for ambiguous",
+                    "Confidence score: 0.9 for recognized brands OR obvious categories, 0.7 for somewhat clear merchants, 0.4 for ambiguous",
                   minimum: 0.4,
                   maximum: 0.9,
                 },
@@ -312,10 +286,10 @@ const CLASSIFICATION_TOOL = [
                 purchase_frequency: {
                   type: "string",
                   enum: ["Weekly", "Monthly", "Occasional", "Annually", "One-Time"],
-                  description: "How often a typical customer transacts with this merchant type: Weekly (habitual), Monthly (subscriptions/bills), Occasional (few times/year), Annually (once/year), One-Time (unlikely to repeat)",
+                  description: "How often a typical customer transacts with this merchant type",
                 },
               },
-              required: ["transaction_id", "pillar", "confidence", "spending_tier", "purchase_frequency"],
+              required: ["transaction_id", "pillar", "category", "subcategories", "confidence", "spending_tier", "purchase_frequency"],
             },
           },
         },
@@ -620,6 +594,8 @@ Deno.serve(async (req) => {
                 ...original,
                 normalized_merchant: original.merchant_name,
                 pillar: "Miscellaneous & Unclassified",
+                category: "General",
+                subcategories: ["General"],
                 subcategory: "General",
                 confidence: 0.1,
                 spending_tier: "N/A",
@@ -629,11 +605,17 @@ Deno.serve(async (req) => {
               };
             }
 
+            const subs = Array.isArray(classification.subcategories)
+              ? classification.subcategories
+              : [classification.subcategory || "General"];
+
             return {
               ...original,
               normalized_merchant: classification.normalized_merchant || original.merchant_name,
               pillar: classification.pillar,
-              subcategory: classification.subcategory || "General",
+              category: classification.category || "General",
+              subcategories: subs,
+              subcategory: subs[0],
               confidence: classification.confidence || 0.8,
               spending_tier: classification.spending_tier || "N/A",
               purchase_frequency: classification.purchase_frequency || "One-Time",

@@ -100,7 +100,7 @@ function checkDiversifiedSpender(txns: EnrichedTransaction[]): Achievement {
 }
 
 function checkTravelPlanner(txns: EnrichedTransaction[]): Achievement {
-  const travelTxns = txns.filter((t) => t.travel_context?.is_travel_related);
+  const travelTxns = txns.filter((t) => t.trip_label);
   // Check for advance bookings: transactions dated well before travel period
   let advanceBookings = 0;
   travelTxns.forEach((t) => {
@@ -173,7 +173,7 @@ function checkLocalChampion(txns: EnrichedTransaction[]): Achievement {
   }
 
   // Local = home_zip matches zip_code or no travel context
-  const localTxns = diningRetail.filter((t) => !t.travel_context?.is_travel_related);
+  const localTxns = diningRetail.filter((t) => !t.trip_label);
   const localPct = Math.round((localTxns.length / diningRetail.length) * 100);
   const target = 60;
   return {
