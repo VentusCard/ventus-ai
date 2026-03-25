@@ -17,8 +17,8 @@ import { BankwideWMCopilotView } from "@/components/tepilot/insights/BankwideWMC
 
 interface Props {
   node: DemoNodeType;
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
   enrichedA?: EnrichedTransaction[];
   enrichedB?: EnrichedTransaction[];
   localExperiences?: LocalExperiencesData;
