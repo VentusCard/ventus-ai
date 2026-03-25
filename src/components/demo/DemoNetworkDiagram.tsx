@@ -67,7 +67,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "phase",
-    subtitle: "Where are they in their journey & what's their next product?",
+    subtitle: "What's their next product to live a better life?",
     icon: Heart,
     color: "#a855f7",
     bankNodes: [
