@@ -1,48 +1,79 @@
 
 
-## Holistic ACH Outflow Analysis
+## Redesign "Category Consolidation & Budgeting" Tab — Pillar-Centric Intelligence
+
+### Goal
+Transform this tab from a generic bank-wide dashboard into a **pillar-driven insights hub** for bank leaders, showing how the 12 lifestyle pillars vary across regions, age groups, and seasonal timing.
 
 ### Current State
-The Wallet Share Intelligence section focuses narrowly on **competitor financial institutions** (Marcus, Ally, Robinhood, etc.). The outflow categories are limited to: High-Yield Savings, Mortgage Refinance, Investment/Brokerage, Credit Cards, BNPL/Lending, Insurance.
+The tab has: intro banner → filters → 6 metric cards → card product matrix → pillar grid → demographics → revenue opportunities → cross-sell matrix. The pillar grid exists but is one section among many generic analytics. Card Product Matrix and Demographics are separate, disconnected from pillars.
 
-### What Changes
-Expand to a **holistic ACH transaction analysis** covering all major outbound payment categories — not just competitor products but everyday obligations that represent the full picture of where customer money goes.
+### New Layout
 
-#### 1. Expand `getCompetitorOutflows()` in `src/lib/mockBankwideData.ts`
-Add new entries for:
-- **Rent/Property Management** (Zelle to landlords, property mgmt companies, RentCafe, Apartments.com)
-- **Auto Loans** (Toyota Financial, Capital One Auto, Ally Auto)
-- **Student Loans** (Navient, Nelnet, FedLoan, SoFi Student)
-- **Utilities** (electric, gas, water — detected via payee name)
-- **Insurance Premiums** (Geico, Progressive, State Farm — auto/home/life)
-- **Childcare/Tuition** (daycare, private school, university tuition)
-- **Subscription Platforms** (aggregated — streaming, SaaS, fitness memberships)
+```text
+┌─────────────────────────────────────────────────────────┐
+│  Intro Banner (updated: pillar-focused messaging)       │
+├─────────────────────────────────────────────────────────┤
+│  Filters (existing — keep as-is)                        │
+├─────────────────────────────────────────────────────────┤
+│  Headline Metrics (keep existing 6 cards)               │
+├─────────────────────────────────────────────────────────┤
+│  12-Pillar Explorer (existing — keep, it's the core)    │
+├──────────────────────────┬──────────────────────────────┤
+│  NEW: Pillar × Region   │  NEW: Pillar × Age Group     │
+│  Heatmap                │  Heatmap                     │
+│  Rows=pillars, Cols=5   │  Rows=pillars, Cols=5 age    │
+│  regions, color=spend   │  ranges, color=spend index   │
+├──────────────────────────┴──────────────────────────────┤
+│  NEW: Pillar Seasonal Timing Grid                       │
+│  12 compact cards, each with monthly mini-bar sparkline │
+│  + peak quarter label + deployment window annotation    │
+├─────────────────────────────────────────────────────────┤
+│  Revenue Opportunities (keep existing)                  │
+├─────────────────────────────────────────────────────────┤
+│  Cross-Sell Matrix (keep existing)                      │
+└─────────────────────────────────────────────────────────┘
+```
 
-Add new `type` values to the `CompetitorOutflow` type: `'rent'`, `'auto_loan'`, `'student_loan'`, `'utility'`, `'insurance'`, `'childcare'`, `'subscription'`.
+**Removed sections**: Card Product Matrix and Demographic Breakdown (their data is now integrated into the pillar heatmaps).
 
-#### 2. Update `CompetitorOutflow` type in `src/types/bankwide.ts`
-- Expand the `type` union to include the new categories
-- Keep existing types intact
+### New Components
 
-#### 3. Update `getOutflowByCategory()` in `src/lib/mockBankwideData.ts`
-Add new category bars: Rent/Housing, Auto Loans, Student Loans, Utilities, Childcare/Tuition, Subscriptions.
+**1. `PillarRegionHeatmap.tsx`**
+- Grid: 12 pillar rows × 5 region columns (Northeast, Southeast, Midwest, West, Southwest)
+- Cell shows spend volume with color intensity (white → pillar color)
+- Hover tooltip: exact spend, user count, % of region total
+- Row header = pillar name with color dot; column header = region name
 
-#### 4. Update `CompetitorOutflowTable.tsx`
-- Rename from "Competitor Outflow Rankings" to **"ACH Outflow Analysis"**
-- Update subtitle to reflect holistic analysis
-- Add `typeColors` entries for new category types
+**2. `PillarAgeHeatmap.tsx`**
+- Grid: 12 pillar rows × 5 age columns (18-24, 25-34, 35-44, 45-54, 55+)
+- Cell shows spend index (100 = average; >100 = over-indexes for that age group)
+- Color scale: blue (low) → green (average) → orange/red (high)
+- Helps leaders see which pillars skew young vs. old
 
-#### 5. Update `WalletShareView.tsx`
-- Rename the Ventus Advantage banner text to reference holistic ACH intelligence rather than just competitor detection
+**3. `PillarTimingGrid.tsx`**
+- 3×4 grid of compact cards, one per pillar
+- Each card: pillar name + color accent, 12 mini-bars (Jan–Dec) showing monthly spend distribution
+- Peak quarter badge (e.g., "Q4 Peak")
+- One-line deployment insight (e.g., "Activate deals in Sept for holiday ramp")
 
-#### 6. Add win-back recommendations for new categories
-- Rent: offer direct deposit incentives to capture rent-paying customers
-- Auto loans: refi opportunities
-- Student loans: consolidation products
+### Data Functions in `mockBankwideData.ts`
 
-### Files Modified
-- `src/types/bankwide.ts` — expand `type` union
-- `src/lib/mockBankwideData.ts` — add data rows + categories
-- `src/components/tepilot/insights/CompetitorOutflowTable.tsx` — rename headers, add type colors
-- `src/components/tepilot/insights/WalletShareView.tsx` — update banner copy
+**`getPillarRegionMatrix(filters)`** — returns `{ pillar, region, spend, userCount, percentOfRegion }[]`
+- Derive from existing state spending data which already has per-state pillar breakdowns and region assignments
+
+**`getPillarAgeMatrix(filters)`** — returns `{ pillar, ageGroup, spendIndex, spend }[]`
+- Use existing age breakdown percentages from `getPillarDetails`, vary by pillar to show realistic skews (e.g., Technology skews 25-34, Pets skews 35-44)
+
+**`getPillarTimingData()`** — returns `{ pillar, monthly: number[12], peakQuarter, deploymentTip }[]`
+- Mock seasonal patterns (Travel peaks summer, Entertainment peaks Q4, etc.)
+
+### Files to Create
+- `src/components/tepilot/insights/PillarRegionHeatmap.tsx`
+- `src/components/tepilot/insights/PillarAgeHeatmap.tsx`
+- `src/components/tepilot/insights/PillarTimingGrid.tsx`
+
+### Files to Modify
+- `src/lib/mockBankwideData.ts` — add 3 data functions
+- `src/components/tepilot/insights/BankwideView.tsx` — replace Card Product Matrix and Demographics with the 3 new pillar-centric sections, update intro banner copy
 
