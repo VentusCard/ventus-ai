@@ -99,12 +99,7 @@ export default function DemoPasswordGate({ children }: {children: ReactNode;}) {
   }, [step, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
 
 
-  useEffect(() => {
-    if (step === 6 && beat6Phase === 0) {
-      const t = setTimeout(() => setBeat6Phase(1), 1800);
-      return () => clearTimeout(t);
-    }
-  }, [step, beat6Phase]);
+
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
