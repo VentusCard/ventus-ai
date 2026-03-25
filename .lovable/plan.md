@@ -1,16 +1,19 @@
 
 
-## Tighten Vertical Spacing in Network Diagram
+## Remove WM Copilot Sign-In Gate
 
-### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
+### What changes
+Currently, clicking "WM Copilot" in the sidebar opens a sign-in dialog that blocks access if no client profile exists. We'll remove the dialog entirely and instead render `BankwideWMCopilotView` directly as a tab, just like the other sidebar items.
 
-Reduce three spacing constants:
+### File: `src/components/tepilot/insights/AnalyticsContainer.tsx`
 
-| Constant | Current | New |
-|---|---|---|
-| `ROW_HEIGHT` | `Math.max(145, 170 * scale)` | `Math.max(125, 148 * scale)` |
-| `BANK_NODE_GAP` | `Math.max(7, 10 * scale)` | `Math.max(4, 6 * scale)` |
-| `CONSUMER_NODE_HEIGHT` | `Math.max(62, 80 * scale)` | `Math.max(54, 70 * scale)` |
+1. **Add `wm-copilot` to the `TabValue` type** and add it to the Relationship nav group with the Briefcase icon
+2. **Add case in `renderContent`**: `case 'wm-copilot': return <BankwideWMCopilotView />;`
+3. **Remove** the standalone WM Copilot button at the bottom of the sidebar (the one that calls `setShowSignIn(true)`)
+4. **Remove** the `WMCopilotSignInDialog` component render and its `showSignIn` state
+5. **Remove** the `WMCopilotSignInDialog` import
 
-This compresses the three pillar rows closer together, tightens gaps between bank nodes within each row, and slightly shortens consumer node cards — all producing a more compact vertical layout. No other files affected.
+### Technical details
+- `BankwideWMCopilotView` already generates its own dashboard clients internally, so it works standalone without any client profile dependency
+- The sign-in dialog file (`WMCopilotSignInDialog.tsx`) can remain on disk but will no longer be referenced
 
