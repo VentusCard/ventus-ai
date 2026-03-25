@@ -841,6 +841,7 @@ txn_ny129,TRADER JOES,Weekly groceries,5411,92.34,2025-05-05,10003,Cashback Card
 txn_ny130,LULULEMON NYC,Summer workout gear,5655,156.00,2025-05-06,10003,Premium Card
 txn_ny131,UNDER ARMOUR NYC,Athletic shirts,5655,87.50,2025-05-07,10003,Cashback Card
 txn_ny132,SWEETGREEN,Healthy lunch,5814,17.25,2025-05-08,10003,Cashback Card
+txn_ny239,WEIL GOTSHAL ESTATE,Estate attorney consultation,8111,1500.00,2025-05-10,10153,Checking
 txn_ny133,WHOLE FOODS UNION SQ,Weekly shopping,5411,142.78,2025-05-12,10003,Cashback Card
 txn_ny134,WEST ELM,Throw pillows,5712,98.00,2025-05-13,10003,Premium Card
 txn_ny135,VITAMIN SHOPPE,Summer supplements,5499,72.40,2025-05-14,10003,Cashback Card
@@ -879,6 +880,7 @@ txn_ny167,WHOLE FOODS UNION SQ,Groceries,5411,138.78,2025-07-07,10003,Cashback C
 txn_ny168,CONED,Electric bill,4900,145.89,2025-07-09,10003,Checking
 txn_ny169,NIKE STORE NYC,Training gear,5661,112.50,2025-07-10,10001,Cashback Card
 txn_ny170,CHIPOTLE NYC,Dinner,5814,13.75,2025-07-11,10003,Cashback Card
+txn_ny240,KPMG TAX ADVISORY,Inheritance tax planning,8721,2500.00,2025-07-12,10154,Checking
 txn_ny171,TRADER JOES,Weekly shopping,5411,96.78,2025-07-14,10003,Cashback Card
 txn_ny172,BROOKLYN BOULDERS,Climbing day pass,7997,32.00,2025-07-15,11206,Cashback Card
 txn_ny173,SEAMLESS,Dinner delivery,5814,39.60,2025-07-16,10003,Cashback Card
