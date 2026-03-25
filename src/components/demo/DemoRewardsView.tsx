@@ -233,7 +233,7 @@ function RewardsPhoneMockup({
         </div>
 
         {/* App content */}
-        <div className="p-3 space-y-2 bg-white">
+        <div className="p-3 space-y-2 bg-white max-h-[520px] min-h-[520px] overflow-y-auto">
           <div className="flex items-baseline justify-between">
             <p className="text-base font-bold text-slate-900">Your Rewards, {firstName}</p>
           </div>
@@ -242,7 +242,7 @@ function RewardsPhoneMockup({
             <LocalPerksSection city={city} perks={perks} color={color} />
           )}
 
-          <div className="max-h-[400px] overflow-y-auto space-y-1.5 -mx-1 px-1">
+          <div className="space-y-1.5">
             {hasEnriched && deals.length > 0 ? (
               deals.map((deal, i) => {
                 const p = personalized[deal.id];
