@@ -1694,6 +1694,7 @@ export function getWinBackRecommendations(): WinBackRecommendation[] {
       confidence: 72,
       segmentTags: ['Student Debt', 'Young Professionals', 'Consolidation'],
     },
+  ];
 }
 
 export function getWalletShareTrend(): WalletShareTrendPoint[] {
