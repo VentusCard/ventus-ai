@@ -60,11 +60,13 @@ interface AnalyticsContainerProps {
   defaultTab?: TabValue;
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
+  onBack?: () => void;
 }
 
-export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
     switch (activeTab) {
