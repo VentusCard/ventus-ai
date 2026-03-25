@@ -12,6 +12,7 @@ interface Props {
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
   centered?: boolean;
+  onTxCardClick?: () => void;
 }
 
 interface NodeDef {
