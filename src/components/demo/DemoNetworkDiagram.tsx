@@ -191,7 +191,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 <g>
                   <path
                     d={path}
-                    stroke={isReady ? "url(#lineGradSolid)" : "url(#lineGrad)"}
+                    stroke="#6366f1"
                     strokeWidth={isReady ? 2.5 : 1.5}
                     fill="none"
                     opacity={isReady ? 0.7 : 0.2}
@@ -199,8 +199,13 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                     className="line-transition"
                   />
                   {isProcessingLine && (
-                    <circle r="2.5" fill="#3b82f6">
+                    <circle r="2.5" fill="#6366f1">
                       <animateMotion dur="2.5s" repeatCount="indefinite" path={path} />
+                    </circle>
+                  )}
+                  {isReady && (
+                    <circle r="2" fill="#6366f1" opacity="0.5">
+                      <animateMotion dur="4s" repeatCount="indefinite" path={path} />
                     </circle>
                   )}
                 </g>
