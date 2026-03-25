@@ -1,43 +1,28 @@
 
 
-## Redesign Custom Input: One-Shot Copy-Paste with 1 Life Event
+## Fix: Panel breaks after loading custom customer
 
-### Concept
-Single prompt → single paste. User describes a persona, copies a tailored prompt into ChatGPT/Claude, pastes the full output back, loads in one click. The prompt instructs the LLM to embed **1 realistic life-event transaction cluster** matching the persona.
+### Root Cause
+In `handleLoad` (line 152), after successfully parsing and selecting the custom customer, `isCustomMode` is set to `false`. The dropdown then tries to use `selected?.id` (`"custom-a"`) as its value, but no `<option>` exists for that ID — only the preset DEMO_CUSTOMERS and `"custom"`.
 
-### Output Format the LLM Returns
-```
-=== PROFILE ===
-name: Sarah Chen
-age: 45
-occupation: VP of Engineering
-family: Married with Kids
-income: $150,000
-segment: Premier
-industry: Technology
-zip: 94102
+This causes the `<select>` to show a blank/broken state, and the panel renders the customer details view but with a disconnected dropdown.
 
-=== TRANSACTIONS ===
-date,merchant_name,amount,mcc,merchant_zip
-2026-01-15,Whole Foods,87.50,5411,94102
-...
-```
+### Fix — `src/components/demo/DemoCustomerPanel.tsx`
 
-### UX — `DemoCustomerPanel.tsx`
-When "Custom" is selected from the dropdown:
-1. **Persona textarea** — short description (e.g. "55-year-old executive, married, kids in college")
-2. **Copy Prompt** button — generates dynamic prompt incorporating the persona, instructs LLM to include **1 life-event cluster**
-3. **Paste Output** textarea — single field for the combined PROFILE + TRANSACTIONS block
-4. **Load Customer** button
+1. **Track custom-loaded state separately**: After loading a custom customer, keep the dropdown showing "Custom" by detecting if `selected?.id` starts with `"custom-"`.
 
-### Data — `demoData.ts`
-- Expand `CustomDemographics` with `incomeLevel`, `segment`, `industry`
-- Add `parseUnifiedOutput(text)` — splits on `=== PROFILE ===` / `=== TRANSACTIONS ===`, extracts demographics + CSV
-- Update `buildCustomDemoCustomer` to use expanded fields
+2. **Change dropdown value logic** (line 169):
+   ```tsx
+   // Before
+   value={isCustomMode ? "custom" : (selected?.id ?? "")}
+   
+   // After — treat loaded custom customers as "custom" in the dropdown
+   const isCustomCustomer = selected?.id?.startsWith("custom-");
+   value={isCustomMode ? "custom" : isCustomCustomer ? "custom" : (selected?.id ?? "")}
+   ```
 
-### Files
-| File | Change |
-|------|--------|
-| `src/lib/demoData.ts` | Add parser, expand demographics type, update builder |
-| `src/components/demo/DemoCustomerPanel.tsx` | New prompt-based custom UX, dynamic prompt with 1 life event |
+3. **Show customer details after custom load**: When `isCustomCustomer` is true and `isCustomMode` is false, render the customer details view (demographics, stats, transaction table) — which already works, we just need the dropdown value to be valid.
+
+### Single change location
+`src/components/demo/DemoCustomerPanel.tsx` — lines 167-170, update the `value` prop of the `<select>`.
 
