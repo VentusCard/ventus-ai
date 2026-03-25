@@ -124,10 +124,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
 
   // Horizontal gaps — tight on left, generous on right
-  const gap1 = centered ? 50 : Math.max(14, dims.w * 0.018);
-  const gap2 = centered ? 60 : Math.max(28, dims.w * 0.035);
-  const gap3 = centered ? 55 : Math.max(24, dims.w * 0.03);
-  const gap4 = centered ? 45 : Math.max(18, dims.w * 0.022);
+  const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
+  const gap2 = centered ? 80 : Math.max(28, dims.w * 0.035);
+  const gap3 = centered ? 75 : Math.max(24, dims.w * 0.03);
+  const gap4 = centered ? 65 : Math.max(18, dims.w * 0.022);
 
   const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
