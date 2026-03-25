@@ -1158,15 +1158,8 @@ const TePilot = () => {
               </>}
 
             {/* Bank-wide Dashboard View */}
-            {insightType === 'bankwide' && <div className="space-y-6 pt-6">
-                <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-9 w-9" onClick={() => setInsightType(null)}>
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                  <h2 className="text-3xl font-extrabold text-slate-900">Bank-wide Analytics</h2>
-                  
-                </div>
-                <AnalyticsContainer defaultTab={analyticsDefaultTab} userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />
+            {insightType === 'bankwide' && <div className="pt-6">
+                <AnalyticsContainer defaultTab={analyticsDefaultTab} userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onBack={() => setInsightType(null)} />
               </div>}
 
             {insightType === 'revenue' && <div className="space-y-6 pt-6">
