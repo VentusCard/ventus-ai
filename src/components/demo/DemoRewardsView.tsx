@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const CATEGORY_HEX: Record<string, string> = {
   Sports: "#16a34a",
@@ -271,8 +272,9 @@ function RewardsPhoneMockup({
                         <div className="flex items-end justify-between gap-2 mt-0.5">
                           <p className="text-[10px] leading-relaxed text-slate-600 italic line-clamp-2 flex-1">"{p.msg}"</p>
                           <button
-                            className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0"
+                            className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0 cursor-pointer transition-all hover:opacity-90 active:scale-95"
                             style={{ background: color }}
+                            onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
                           >
                             {p.cta}
                           </button>
@@ -303,7 +305,16 @@ function RewardsPhoneMockup({
                       <span className="text-[8px] font-semibold text-slate-400">{deal.match}%</span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-500">{deal.offer}</p>
+                  <div className="flex items-end justify-between gap-2">
+                    <p className="text-[10px] text-slate-500 flex-1">{deal.offer}</p>
+                    <button
+                      className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0 cursor-pointer transition-all hover:opacity-90 active:scale-95"
+                      style={{ background: color }}
+                      onClick={() => toast.info(`Demo — ${deal.brand} deal would activate here`)}
+                    >
+                      View Deal
+                    </button>
+                  </div>
                 </div>
               ))
             )}
