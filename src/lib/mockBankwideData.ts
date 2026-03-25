@@ -1585,6 +1585,7 @@ export function getWalletShareMetrics(): WalletShareMetricsData {
 
 export function getCompetitorOutflows(): CompetitorOutflow[] {
   return [
+    // Competitor financial institutions
     { institution: 'Marcus by Goldman Sachs', type: 'neobank', productCategory: 'High-Yield Savings', estimatedOutflow: 4_800_000_000, affectedCustomers: 1_240_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 3_870, riskLevel: 'high' },
     { institution: 'Ally Bank', type: 'neobank', productCategory: 'High-Yield Savings', estimatedOutflow: 3_200_000_000, affectedCustomers: 980_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 3_265, riskLevel: 'high' },
     { institution: 'Rocket Mortgage', type: 'fintech', productCategory: 'Mortgage Refinance', estimatedOutflow: 2_900_000_000, affectedCustomers: 145_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 1_680, riskLevel: 'high' },
@@ -1593,6 +1594,24 @@ export function getCompetitorOutflows(): CompetitorOutflow[] {
     { institution: 'Robinhood', type: 'brokerage', productCategory: 'Investment', estimatedOutflow: 1_400_000_000, affectedCustomers: 890_000, trend: 'stable', detectionMethod: 'ACH pattern analysis', avgTransferAmount: 1_573, riskLevel: 'medium' },
     { institution: 'Apple Card', type: 'fintech', productCategory: 'Credit Cards', estimatedOutflow: 1_300_000_000, affectedCustomers: 760_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_711, riskLevel: 'medium' },
     { institution: 'Affirm', type: 'bnpl', productCategory: 'BNPL / Lending', estimatedOutflow: 1_200_000_000, affectedCustomers: 1_100_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_091, riskLevel: 'low' },
+    // Rent & Housing
+    { institution: 'RentCafe / Yardi', type: 'rent', productCategory: 'Rent / Housing', estimatedOutflow: 6_200_000_000, affectedCustomers: 2_850_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 1_820, riskLevel: 'high' },
+    { institution: 'Apartments.com (CoStar)', type: 'rent', productCategory: 'Rent / Housing', estimatedOutflow: 3_100_000_000, affectedCustomers: 1_420_000, trend: 'growing', detectionMethod: 'ACH payee analysis', avgTransferAmount: 1_760, riskLevel: 'high' },
+    // Auto Loans
+    { institution: 'Toyota Financial Services', type: 'auto_loan', productCategory: 'Auto Loans', estimatedOutflow: 2_400_000_000, affectedCustomers: 680_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 485, riskLevel: 'medium' },
+    { institution: 'Capital One Auto Finance', type: 'auto_loan', productCategory: 'Auto Loans', estimatedOutflow: 1_900_000_000, affectedCustomers: 540_000, trend: 'stable', detectionMethod: 'ACH routing number', avgTransferAmount: 510, riskLevel: 'medium' },
+    // Student Loans
+    { institution: 'Navient', type: 'student_loan', productCategory: 'Student Loans', estimatedOutflow: 1_700_000_000, affectedCustomers: 920_000, trend: 'declining', detectionMethod: 'Payee name match', avgTransferAmount: 340, riskLevel: 'medium' },
+    { institution: 'Nelnet', type: 'student_loan', productCategory: 'Student Loans', estimatedOutflow: 1_300_000_000, affectedCustomers: 710_000, trend: 'declining', detectionMethod: 'Payee name match', avgTransferAmount: 310, riskLevel: 'low' },
+    // Utilities
+    { institution: 'ConEdison / Duke Energy', type: 'utility', productCategory: 'Utilities', estimatedOutflow: 2_100_000_000, affectedCustomers: 3_200_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 185, riskLevel: 'low' },
+    // Insurance Premiums
+    { institution: 'Geico / Progressive', type: 'insurance', productCategory: 'Insurance Premiums', estimatedOutflow: 1_900_000_000, affectedCustomers: 1_650_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 220, riskLevel: 'low' },
+    { institution: 'State Farm', type: 'insurance', productCategory: 'Insurance Premiums', estimatedOutflow: 1_400_000_000, affectedCustomers: 1_180_000, trend: 'stable', detectionMethod: 'ACH payee analysis', avgTransferAmount: 245, riskLevel: 'low' },
+    // Childcare & Tuition
+    { institution: 'Bright Horizons / KinderCare', type: 'childcare', productCategory: 'Childcare / Tuition', estimatedOutflow: 1_600_000_000, affectedCustomers: 380_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_420, riskLevel: 'medium' },
+    // Subscriptions
+    { institution: 'Streaming & SaaS (aggregated)', type: 'subscription', productCategory: 'Subscriptions', estimatedOutflow: 1_100_000_000, affectedCustomers: 4_100_000, trend: 'growing', detectionMethod: 'Recurring pattern detection', avgTransferAmount: 45, riskLevel: 'low' },
   ];
 }
 
@@ -1642,6 +1661,39 @@ export function getWinBackRecommendations(): WinBackRecommendation[] {
       confidence: 82,
       segmentTags: ['BNPL Users', 'E-Commerce', 'Gen Z'],
     },
+    {
+      id: 'wb-5',
+      outflowPattern: '2.85M customers with monthly rent ACH to property management platforms',
+      competitor: 'RentCafe / Yardi / Apartments.com',
+      affectedCustomers: 2_850_000,
+      behavioralContext: 'Renters aged 22-38, 41% show income growth signals. TEpilot detects "Aspirational Homeowner" persona — high savings rate alongside rent payments suggests mortgage readiness.',
+      recommendedAction: 'Offer rent-reporting to credit bureaus as a free perk. Cross-sell first-time homebuyer mortgage products to renters with 12+ months of on-time ACH rent payments.',
+      estimatedRecapture: 1_860_000_000,
+      confidence: 76,
+      segmentTags: ['Renters', 'Homebuyer Pipeline', 'Credit Building'],
+    },
+    {
+      id: 'wb-6',
+      outflowPattern: '1.22M customers with auto loan payments to external lenders',
+      competitor: 'Toyota Financial / Capital One Auto',
+      affectedCustomers: 1_220_000,
+      behavioralContext: 'Auto loan holders with avg remaining balance of $18K. TEpilot detects 34% have improved credit scores since origination — prime candidates for refinancing at lower rates.',
+      recommendedAction: 'Launch auto refi campaign targeting customers whose credit profile has improved since original loan. Offer 0.5% rate reduction with automatic payment from checking.',
+      estimatedRecapture: 720_000_000,
+      confidence: 81,
+      segmentTags: ['Auto Refi', 'Credit Improved', 'Rate Reduction'],
+    },
+    {
+      id: 'wb-7',
+      outflowPattern: '920K customers with student loan payments to Navient/Nelnet',
+      competitor: 'Navient / Nelnet',
+      affectedCustomers: 920_000,
+      behavioralContext: 'Graduates aged 24-35 with avg $32K remaining balance. TEpilot shows "Career Ascender" persona — rising income but debt burden limiting investment and savings growth.',
+      recommendedAction: 'Offer student loan consolidation with employer contribution matching program. Bundle with high-yield savings to redirect freed-up cash flow.',
+      estimatedRecapture: 540_000_000,
+      confidence: 72,
+      segmentTags: ['Student Debt', 'Young Professionals', 'Consolidation'],
+    },
   ];
 }
 
@@ -1664,12 +1716,18 @@ export function getWalletShareTrend(): WalletShareTrendPoint[] {
 
 export function getOutflowByCategory(): Array<{ category: string; volume: number; color: string }> {
   return [
+    { category: 'Rent / Housing', volume: 9_300_000_000, color: 'hsl(20, 90%, 55%)' },
     { category: 'High-Yield Savings', volume: 8_000_000_000, color: 'hsl(217, 91%, 60%)' },
-    { category: 'Mortgage Refinance', volume: 2_900_000_000, color: 'hsl(142, 71%, 45%)' },
+    { category: 'Auto Loans', volume: 4_300_000_000, color: 'hsl(35, 92%, 50%)' },
+    { category: 'Insurance Premiums', volume: 3_300_000_000, color: 'hsl(48, 96%, 53%)' },
+    { category: 'Student Loans', volume: 3_000_000_000, color: 'hsl(280, 70%, 55%)' },
     { category: 'Investment / Brokerage', volume: 3_000_000_000, color: 'hsl(262, 83%, 58%)' },
-    { category: 'Credit Cards', volume: 1_300_000_000, color: 'hsl(25, 95%, 53%)' },
+    { category: 'Mortgage Refinance', volume: 2_900_000_000, color: 'hsl(142, 71%, 45%)' },
+    { category: 'Utilities', volume: 2_100_000_000, color: 'hsl(180, 60%, 45%)' },
     { category: 'BNPL / Lending', volume: 1_800_000_000, color: 'hsl(340, 82%, 52%)' },
-    { category: 'Insurance', volume: 1_200_000_000, color: 'hsl(48, 96%, 53%)' },
+    { category: 'Childcare / Tuition', volume: 1_600_000_000, color: 'hsl(310, 65%, 50%)' },
+    { category: 'Credit Cards', volume: 1_300_000_000, color: 'hsl(25, 95%, 53%)' },
+    { category: 'Subscriptions', volume: 1_100_000_000, color: 'hsl(200, 75%, 50%)' },
   ];
 }
 

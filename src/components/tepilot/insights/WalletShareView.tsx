@@ -21,7 +21,7 @@ export function WalletShareView() {
         <div>
           <p className="text-sm font-medium text-foreground">Ventus Advantage</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Other platforms detect where money is leaving. Ventus AI tells you <em>why</em> — connecting outflow patterns to customer personas, life events, and behavioral signals to power precision win-back campaigns.
+            Beyond competitor detection — Ventus AI analyzes <em>every</em> ACH outflow: rent, auto loans, student debt, utilities, insurance, and subscriptions. By connecting outflow patterns to personas, life events, and behavioral signals, we turn obligation data into cross-sell and retention opportunities.
           </p>
         </div>
       </div>
