@@ -1,24 +1,37 @@
 
 
-## Fix Deal Personalization CTAs and Messages
+## Make Deal CTAs Lifestyle-Driven
 
 ### Problem
-The tier-aware CTA system is designed for **financial products** (savings accounts, trusts, 529 plans) but is being applied to **retail cashback deals**. This produces absurd results like "Request Access" on a Williams-Sonoma 7% cashback offer, and overly flowery messages that don't match a simple retail deal.
-
-The prompt has two conflicting CTA instructions:
-- **Line 47-50**: Tier-aware CTAs like "Request Access", "Schedule Consultation" (designed for banking products)
-- **Line 72**: Generic CTAs like "Claim Now", "Start Earning" (more appropriate for deals)
+Current CTA examples ("Shop Now", "Claim Offer", "Get Cashback") are generic retail actions. The user wants CTAs that feel like the deal is **helping the customer live their lifestyle** — not just transacting.
 
 ### Fix — `supabase/functions/deal-personalization/index.ts`
 
-1. **Remove the tier-aware CTA section entirely** (lines 47-50) — these CTAs are for financial products, not retail deals
-2. **Remove the tier-aware differentiation section** (lines 41-56) — the tier tone guidance ("exclusivity", "legacy", "white-glove service") produces nonsensical messaging for cashback offers at Target or Williams-Sonoma
-3. **Replace with deal-appropriate CTA guidance**: CTAs should match the deal type — e.g., "Shop Now", "Claim Offer", "Start Saving", "Get Cashback", "Redeem Now"
-4. **Simplify message guidance**: Keep messages short, practical, and tied to the actual reward — not aspirational fluff about "culinary masterpieces"
-5. **Remove the generic CTA line** (line 72) and consolidate into one clear CTA section
+Update the CTA guidance section (lines 48-50) to replace generic retail CTAs with lifestyle-driven ones:
 
-### Also — `src/components/demo/DemoRewardsView.tsx`
-- Add a CTA button to fallback deal cards with "View Deal" text
-- Add `onClick` + toast to all CTA buttons for demo interactivity
-- Add hover/active styles
+**Before:**
+```
+Good: "Shop Now", "Claim Offer", "Get Cashback", "Redeem Now", "Start Earning", "Grab Deal", "Save Now"
+```
+
+**After — lifestyle-driven CTAs tied to the customer's signals:**
+```
+CTAs should feel lifestyle-driven — like the deal supports how the customer already lives.
+Good: "Fuel Your Passion", "Treat the Family", "Elevate Your Style", "Power Your Routine", "Keep Exploring", "Level Up Game Day", "Upgrade Date Night"
+Bad: "Shop Now", "Claim Offer", "Get Cashback" (too transactional), "Request Access", "Schedule Consultation" (banking products)
+```
+
+Also update the examples table to show lifestyle CTAs:
+
+| Context | Merchant | CTA |
+|---|---|---|
+| Coffee lover | Starbucks | "Fuel Your Mornings" |
+| Fitness enthusiast | Lululemon | "Power Your Workout" |
+| Parent + Dining out | DoorDash | "Simplify Family Night" |
+| Home cook | Williams-Sonoma | "Elevate Your Kitchen" |
+| Traveler | Delta | "Keep Exploring" |
+
+### What stays the same
+- Message copy rules (short, reward-focused, privacy-safe)
+- Everything else in the edge function
 
