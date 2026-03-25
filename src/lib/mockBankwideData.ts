@@ -1758,3 +1758,156 @@ export function getGamificationMetrics(): GamificationMetrics {
     ],
   };
 }
+
+// ─── Pillar × Region Matrix ───────────────────────────────────────────────
+
+export interface PillarRegionCell {
+  pillar: string;
+  region: string;
+  spend: number;
+  userCount: number;
+  percentOfRegion: number;
+  color: string;
+}
+
+export function getPillarRegionMatrix(_filters: BankwideFilters): PillarRegionCell[] {
+  const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+  const regionSpends = [32_000_000_000, 38_000_000_000, 35_000_000_000, 33_000_000_000, 42_000_000_000];
+  const regionUsers = [8_000_000, 10_000_000, 9_000_000, 8_000_000, 10_000_000];
+
+  // Skew multipliers per pillar per region (relative to average)
+  const skews: Record<string, number[]> = {
+    'Food & Dining':              [1.1, 1.0, 1.05, 0.95, 1.15],
+    'Travel & Exploration':       [0.9, 1.1, 0.7,  0.85, 1.4],
+    'Style & Beauty':             [1.3, 0.9, 0.85, 0.95, 1.1],
+    'Home & Living':              [0.85, 1.15, 1.2, 1.1, 0.8],
+    'Entertainment & Culture':    [1.2, 0.95, 0.9, 1.0, 1.15],
+    'Health & Wellness':          [1.0, 0.9, 0.95, 1.1, 1.3],
+    'Financial & Aspirational':   [1.25, 0.85, 0.9, 0.95, 1.15],
+    'Family & Community':         [0.9, 1.2, 1.15, 1.1, 0.8],
+    'Sports & Active Living':     [0.85, 1.0, 1.2, 1.15, 1.1],
+    'Technology & Digital Life':   [1.15, 0.85, 0.9, 0.95, 1.35],
+    'Pets':                       [0.9, 1.1, 1.15, 1.05, 0.9],
+    'Miscellaneous & Unclassified': [1.0, 1.0, 1.0, 1.0, 1.0],
+  };
+
+  // Base pillar share of total spend
+  const pillarShares: Record<string, number> = {
+    'Food & Dining': 0.16,
+    'Travel & Exploration': 0.14,
+    'Style & Beauty': 0.13,
+    'Home & Living': 0.09,
+    'Entertainment & Culture': 0.10,
+    'Health & Wellness': 0.06,
+    'Financial & Aspirational': 0.04,
+    'Family & Community': 0.05,
+    'Sports & Active Living': 0.12,
+    'Technology & Digital Life': 0.05,
+    'Pets': 0.04,
+    'Miscellaneous & Unclassified': 0.02,
+  };
+
+  const result: PillarRegionCell[] = [];
+  for (const pillar of PILLARS) {
+    const baseShare = pillarShares[pillar] || 0.05;
+    const pillarSkews = skews[pillar] || [1, 1, 1, 1, 1];
+    for (let r = 0; r < regions.length; r++) {
+      const spend = Math.round(regionSpends[r] * baseShare * pillarSkews[r]);
+      const userCount = Math.round(regionUsers[r] * baseShare * pillarSkews[r] * 0.6);
+      const percentOfRegion = +((spend / regionSpends[r]) * 100).toFixed(1);
+      result.push({
+        pillar,
+        region: regions[r],
+        spend,
+        userCount,
+        percentOfRegion,
+        color: PILLAR_COLORS[pillar] || '#64748b',
+      });
+    }
+  }
+  return result;
+}
+
+// ─── Pillar × Age Matrix ──────────────────────────────────────────────────
+
+export interface PillarAgeCell {
+  pillar: string;
+  ageGroup: string;
+  spend: number;
+  spendIndex: number; // 100 = average
+  color: string;
+}
+
+export function getPillarAgeMatrix(_filters: BankwideFilters): PillarAgeCell[] {
+  const ageGroups = ['18-24', '25-34', '35-44', '45-54', '55+'];
+  const ageBaseSpend = [10_800_000_000, 46_800_000_000, 51_200_000_000, 51_000_000_000, 33_000_000_000];
+
+  // Index multipliers: which pillars over/under-index by age (100 = avg)
+  const indices: Record<string, number[]> = {
+    'Food & Dining':              [130, 120, 100, 90, 85],
+    'Travel & Exploration':       [60,  90,  110, 135, 140],
+    'Style & Beauty':             [155, 130, 95,  80, 70],
+    'Home & Living':              [40,  80,  130, 120, 110],
+    'Entertainment & Culture':    [145, 125, 95,  80, 65],
+    'Health & Wellness':          [70,  85,  100, 115, 145],
+    'Financial & Aspirational':   [45,  80,  110, 130, 135],
+    'Family & Community':         [50,  90,  140, 120, 95],
+    'Sports & Active Living':     [120, 130, 105, 85, 65],
+    'Technology & Digital Life':   [150, 140, 100, 70, 50],
+    'Pets':                       [80,  100, 120, 110, 95],
+    'Miscellaneous & Unclassified': [100, 100, 100, 100, 100],
+  };
+
+  const pillarShares: Record<string, number> = {
+    'Food & Dining': 0.16, 'Travel & Exploration': 0.14, 'Style & Beauty': 0.13,
+    'Home & Living': 0.09, 'Entertainment & Culture': 0.10, 'Health & Wellness': 0.06,
+    'Financial & Aspirational': 0.04, 'Family & Community': 0.05,
+    'Sports & Active Living': 0.12, 'Technology & Digital Life': 0.05,
+    'Pets': 0.04, 'Miscellaneous & Unclassified': 0.02,
+  };
+
+  const result: PillarAgeCell[] = [];
+  for (const pillar of PILLARS) {
+    const baseShare = pillarShares[pillar] || 0.05;
+    const pillarIndices = indices[pillar] || [100, 100, 100, 100, 100];
+    for (let a = 0; a < ageGroups.length; a++) {
+      const idx = pillarIndices[a];
+      const spend = Math.round(ageBaseSpend[a] * baseShare * (idx / 100));
+      result.push({
+        pillar,
+        ageGroup: ageGroups[a],
+        spend,
+        spendIndex: idx,
+        color: PILLAR_COLORS[pillar] || '#64748b',
+      });
+    }
+  }
+  return result;
+}
+
+// ─── Pillar Timing / Seasonality ──────────────────────────────────────────
+
+export interface PillarTimingEntry {
+  pillar: string;
+  monthly: number[]; // 12 values (Jan-Dec), normalized 0-100
+  peakQuarter: string;
+  deploymentTip: string;
+  color: string;
+}
+
+export function getPillarTimingData(): PillarTimingEntry[] {
+  return [
+    { pillar: 'Food & Dining', monthly: [70, 65, 72, 78, 82, 85, 88, 90, 80, 75, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Activate holiday dining deals in Oct for seasonal ramp', color: PILLAR_COLORS['Food & Dining'] },
+    { pillar: 'Travel & Exploration', monthly: [40, 45, 60, 75, 85, 100, 95, 90, 70, 50, 45, 55], peakQuarter: 'Q2-Q3', deploymentTip: 'Launch travel promotions by April to capture summer bookings', color: PILLAR_COLORS['Travel & Exploration'] },
+    { pillar: 'Style & Beauty', monthly: [65, 60, 75, 80, 85, 78, 72, 88, 92, 85, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Back-to-school Aug push + holiday gifting Nov-Dec', color: PILLAR_COLORS['Style & Beauty'] },
+    { pillar: 'Home & Living', monthly: [55, 60, 80, 90, 95, 100, 85, 80, 75, 70, 65, 60], peakQuarter: 'Q2', deploymentTip: 'Spring home improvement surge — activate deals by March', color: PILLAR_COLORS['Home & Living'] },
+    { pillar: 'Entertainment & Culture', monthly: [60, 55, 65, 70, 80, 90, 95, 85, 75, 80, 90, 100], peakQuarter: 'Q4', deploymentTip: 'Summer concerts + holiday entertainment peak — dual activation', color: PILLAR_COLORS['Entertainment & Culture'] },
+    { pillar: 'Health & Wellness', monthly: [100, 95, 85, 75, 70, 72, 68, 65, 80, 78, 70, 60], peakQuarter: 'Q1', deploymentTip: 'New Year resolution surge — activate wellness deals in Jan', color: PILLAR_COLORS['Health & Wellness'] },
+    { pillar: 'Financial & Aspirational', monthly: [90, 85, 95, 100, 60, 55, 50, 55, 70, 80, 75, 85], peakQuarter: 'Q1', deploymentTip: 'Tax season Q1 drives financial product interest', color: PILLAR_COLORS['Financial & Aspirational'] },
+    { pillar: 'Family & Community', monthly: [55, 60, 65, 70, 85, 90, 80, 100, 95, 75, 70, 80], peakQuarter: 'Q3', deploymentTip: 'Back-to-school Aug peak — family spending surge', color: PILLAR_COLORS['Family & Community'] },
+    { pillar: 'Sports & Active Living', monthly: [85, 80, 90, 95, 100, 95, 90, 85, 92, 88, 70, 60], peakQuarter: 'Q2', deploymentTip: 'Spring/summer sports seasons — activate by March', color: PILLAR_COLORS['Sports & Active Living'] },
+    { pillar: 'Technology & Digital Life', monthly: [70, 65, 68, 72, 75, 78, 80, 82, 90, 95, 100, 98], peakQuarter: 'Q4', deploymentTip: 'Product launches Sept-Nov drive tech spending peak', color: PILLAR_COLORS['Technology & Digital Life'] },
+    { pillar: 'Pets', monthly: [80, 75, 78, 82, 88, 90, 85, 80, 85, 90, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Holiday pet gifting + consistent year-round spend', color: PILLAR_COLORS['Pets'] },
+    { pillar: 'Miscellaneous & Unclassified', monthly: [80, 80, 85, 85, 90, 90, 85, 85, 90, 90, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Seasonal general spending follows retail calendar', color: PILLAR_COLORS['Miscellaneous & Unclassified'] },
+  ];
+}
