@@ -131,13 +131,6 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
   );
 }
 
-interface Props {
-  customerA: DemoCustomer;
-  customerB: DemoCustomer;
-  enrichedA?: EnrichedTransaction[];
-  enrichedB?: EnrichedTransaction[];
-}
-
 function CustomerHeader({ customer, color }: { customer: DemoCustomer; color: "blue" | "emerald" }) {
   const sources = [...new Set(customer.sampleTransactions.map(t => t.source).filter(Boolean))];
   const colors = color === "blue"
@@ -169,17 +162,28 @@ function CustomerHeader({ customer, color }: { customer: DemoCustomer; color: "b
   );
 }
 
+interface Props {
+  customerA: DemoCustomer | null;
+  customerB: DemoCustomer | null;
+  enrichedA?: EnrichedTransaction[];
+  enrichedB?: EnrichedTransaction[];
+}
+
 export default function DemoEnrichmentTableView({ customerA, customerB, enrichedA, enrichedB }: Props) {
   return (
     <div className="flex flex-col gap-3 h-full">
-      <div className="flex-1 min-h-0 flex flex-col">
-        <CustomerHeader customer={customerA} color="blue" />
-        <CustomerTable transactions={enrichedA ?? []} />
-      </div>
-      <div className="flex-1 min-h-0 flex flex-col">
-        <CustomerHeader customer={customerB} color="emerald" />
-        <CustomerTable transactions={enrichedB ?? []} />
-      </div>
+      {customerA && (
+        <div className="flex-1 min-h-0 flex flex-col">
+          <CustomerHeader customer={customerA} color="blue" />
+          <CustomerTable transactions={enrichedA ?? []} />
+        </div>
+      )}
+      {customerB && (
+        <div className="flex-1 min-h-0 flex flex-col">
+          <CustomerHeader customer={customerB} color="emerald" />
+          <CustomerTable transactions={enrichedB ?? []} />
+        </div>
+      )}
     </div>
   );
 }
