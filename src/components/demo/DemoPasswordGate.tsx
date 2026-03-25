@@ -320,6 +320,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                   >
                     Billions spent in personalized banking doesn't (truly) work.
                   </h1>
+                  <p className="mt-4 text-lg text-slate-400 font-medium">
+                    Do you consider your banking experience as a personalized one?
+                  </p>
                 </div>
               )}
 
@@ -332,6 +335,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                   >
                     The answer is three letters: <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
+                  <p className="mt-4 text-lg text-slate-400 font-medium">
+                    Merchant Category Code
+                  </p>
                 </div>
               )}
 
