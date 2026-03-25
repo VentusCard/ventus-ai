@@ -86,41 +86,7 @@ export function WellnessAlertsDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Two-sided loop diagram */}
-      <Card className="border-slate-200 bg-gradient-to-r from-blue-50 to-emerald-50">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center gap-3 flex-wrap text-xs text-slate-600">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-slate-200 shadow-sm">
-              <Activity className="h-3 w-3 text-blue-500" />
-              Customer Behavior
-            </div>
-            <span className="text-slate-400">→</span>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-slate-200 shadow-sm">
-              <Zap className="h-3 w-3 text-amber-500" />
-              TEpilot Enrichment
-            </div>
-            <span className="text-slate-400">→</span>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full shadow-sm">
-              <Heart className="h-3 w-3" />
-              Wellness Engine
-            </div>
-            <span className="text-slate-400">→</span>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full border border-emerald-200 text-[10px]">
-                Customer Coaching
-              </div>
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full border border-blue-200 text-[10px]">
-                Banker Alerts
-              </div>
-            </div>
-            <span className="text-slate-400">→</span>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-slate-200 shadow-sm">
-              <RefreshCw className="h-3 w-3 text-emerald-500" />
-              Feedback Loop
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Loop diagram removed */}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
