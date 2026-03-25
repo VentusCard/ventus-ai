@@ -233,7 +233,7 @@ function RewardsPhoneMockup({
         </div>
 
         {/* App content */}
-        <div className="p-3 space-y-2 bg-white max-h-[520px] min-h-[520px] overflow-y-auto">
+        <div className="p-3 space-y-2 bg-white max-h-[680px] min-h-[680px] overflow-y-auto">
           <div className="flex items-baseline justify-between">
             <p className="text-base font-bold text-slate-900">Your Rewards, {firstName}</p>
           </div>
