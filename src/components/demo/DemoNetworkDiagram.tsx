@@ -356,9 +356,9 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 zIndex: 2,
               }}
             >
-              <PillarIcon className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: pillar.color }} />
-              <span className={`font-medium leading-tight opacity-70 ${centered ? "text-[12px]" : "text-[10px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
-              <span className="opacity-30" style={{ color: pillar.color }}>·</span>
+              <PillarIcon className={`${centered ? "w-4 h-4" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
+              <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
+              <span style={{ color: pillar.color }}>·</span>
               <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
