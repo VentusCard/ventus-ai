@@ -192,7 +192,7 @@ function CustomerSlot({
 
           {/* Step 3: Paste output */}
           <div>
-            <span className="text-[10px] font-medium text-slate-500 mb-1 block">3. Paste the full LLM output below</span>
+            <span className="text-[10px] font-medium text-slate-500 mb-1 block">2. Paste the full LLM output below</span>
             <textarea
               className="w-full bg-white text-slate-900 text-[10px] font-mono rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
               rows={6}
