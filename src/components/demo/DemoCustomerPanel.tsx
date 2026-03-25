@@ -115,7 +115,6 @@ function CustomerSlot({
   transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
-  const [personaText, setPersonaText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [copied, setCopied] = useState(false);
   const [parseError, setParseError] = useState("");
@@ -133,7 +132,7 @@ function CustomerSlot({
   };
 
   const handleCopyPrompt = async () => {
-    const prompt = buildCustomerPrompt(personaText.trim() || "a typical bank customer");
+    const prompt = buildCustomerPrompt("a typical bank customer");
     await navigator.clipboard.writeText(prompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -150,7 +149,6 @@ function CustomerSlot({
     const customer = buildCustomDemoCustomer(customId, parsed.csv, parsed.demographics, parsed.zip);
     onSelect(customer);
     setIsCustomMode(false);
-    setPersonaText("");
     setOutputText("");
   };
 
@@ -178,21 +176,9 @@ function CustomerSlot({
 
       {isCustomMode ? (
         <div className="space-y-2.5">
-          {/* Step 1: Persona description */}
+          {/* Step 1: Copy prompt */}
           <div>
-            <span className="text-[10px] font-medium text-slate-500 mb-1 block">1. Describe your customer</span>
-            <textarea
-              className="w-full bg-white text-slate-900 text-[11px] rounded-md px-2.5 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
-              rows={2}
-              placeholder="e.g. 55-year-old executive in Manhattan, married, kids in college"
-              value={personaText}
-              onChange={(e) => setPersonaText(e.target.value)}
-            />
-          </div>
-
-          {/* Step 2: Copy prompt */}
-          <div>
-            <span className="text-[10px] font-medium text-slate-500 mb-1 block">2. Copy prompt → paste into ChatGPT / Claude</span>
+            <span className="text-[10px] font-medium text-slate-500 mb-1 block">1. Copy prompt → paste into ChatGPT / Claude</span>
             <Button
               size="sm"
               variant="outline"
