@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const CATEGORY_HEX: Record<string, string> = {
   Sports: "#16a34a",
