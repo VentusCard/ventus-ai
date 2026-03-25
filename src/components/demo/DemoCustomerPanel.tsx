@@ -1,21 +1,9 @@
 import { useState } from "react";
-import { DEMO_CUSTOMERS, buildCustomDemoCustomer, type DemoCustomer, type CustomDemographics } from "@/lib/demoData";
+import { DEMO_CUSTOMERS, buildCustomDemoCustomer, buildCustomerPrompt, parseUnifiedOutput, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, CheckCircle2, HelpCircle, Copy, Check } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, Sparkles, CheckCircle2, Copy, Check } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import type { Transaction } from "@/types/transaction";
-
-const LLM_PROMPT = `Generate 30 rows of realistic bank transaction CSV data with these exact columns:
-date,merchant_name,amount,mcc,merchant_zip
-
-Rules:
-- Dates in the last 3 months (YYYY-MM-DD format)
-- Amounts from $5-$2000
-- Include varied merchants across travel, dining, grocery, shopping, wellness, and entertainment
-- Use realistic MCC codes (5411=grocery, 5812=dining, 3000-3299=airlines, 5977=cosmetics, 7941=sports, etc.)
-- Use realistic US zip codes
-- Output ONLY the CSV with header row, no explanation`;
 
 interface Props {
   customer: DemoCustomer | null;
@@ -127,34 +115,41 @@ function CustomerSlot({
   transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
-  const [csvText, setCsvText] = useState("");
-  const [demographics, setDemographics] = useState<CustomDemographics>({
-    name: "", age: "", occupation: "", familyStatus: "Single",
-  });
-  const [zipCode, setZipCode] = useState("");
+  const [outputText, setOutputText] = useState("");
   const [copied, setCopied] = useState(false);
+  const [parseError, setParseError] = useState("");
 
   const handleDropdownChange = (value: string) => {
     if (value === "custom") {
       setIsCustomMode(true);
+      setParseError("");
     } else {
       setIsCustomMode(false);
+      setParseError("");
       const c = DEMO_CUSTOMERS.find((d) => d.id === value);
       if (c) onSelect(c);
     }
   };
 
-  const handleLoad = () => {
-    if (!csvText.trim()) return;
-    const customer = buildCustomDemoCustomer(customId, csvText.trim(), demographics, zipCode);
-    onSelect(customer);
-    setIsCustomMode(false);
-  };
-
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(LLM_PROMPT);
+    const prompt = buildCustomerPrompt("a typical bank customer");
+    await navigator.clipboard.writeText(prompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleLoad = () => {
+    setParseError("");
+    if (!outputText.trim()) return;
+    const parsed = parseUnifiedOutput(outputText);
+    if (!parsed) {
+      setParseError("Could not parse output. Make sure it contains === PROFILE === and === TRANSACTIONS === sections.");
+      return;
+    }
+    const customer = buildCustomDemoCustomer(customId, parsed.csv, parsed.demographics, parsed.zip);
+    onSelect(customer);
+    setIsCustomMode(false);
+    setOutputText("");
   };
 
   const totalSpend = transactions.reduce((sum, t) => sum + t.amount, 0);
@@ -169,7 +164,7 @@ function CustomerSlot({
 
       <select
         className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 mb-3"
-        value={isCustomMode ? "custom" : (selected?.id ?? "")}
+        value={isCustomMode ? "custom" : selected?.id?.startsWith("custom-") ? "custom" : (selected?.id ?? "")}
         onChange={(e) => handleDropdownChange(e.target.value)}
       >
         {!selected && !isCustomMode && <option value="" disabled>Select a customer…</option>}
@@ -180,83 +175,39 @@ function CustomerSlot({
       </select>
 
       {isCustomMode ? (
-        <div className="space-y-2">
-          {/* Demographics */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <input
-              className="col-span-1 bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
-              placeholder="Name"
-              value={demographics.name}
-              onChange={(e) => setDemographics(d => ({ ...d, name: e.target.value }))}
-            />
-            <input
-              className="col-span-1 bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
-              placeholder="Age"
-              type="number"
-              value={demographics.age}
-              onChange={(e) => setDemographics(d => ({ ...d, age: e.target.value }))}
-            />
-          </div>
-          <input
-            className="w-full bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
-            placeholder="Occupation"
-            value={demographics.occupation}
-            onChange={(e) => setDemographics(d => ({ ...d, occupation: e.target.value }))}
-          />
-          <div className="grid grid-cols-2 gap-1.5">
-            <select
-              className="bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
-              value={demographics.familyStatus}
-              onChange={(e) => setDemographics(d => ({ ...d, familyStatus: e.target.value }))}
+        <div className="space-y-2.5">
+          {/* Step 1: Copy prompt */}
+          <div>
+            <span className="text-[10px] font-medium text-slate-500 mb-1 block">1. Copy prompt → paste into ChatGPT / Claude</span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full h-7 text-[11px]"
+              onClick={handleCopyPrompt}
             >
-              <option>Single</option>
-              <option>Married</option>
-              <option>Married with Kids</option>
-              <option>Divorced</option>
-            </select>
-            <input
-              className="bg-white text-slate-900 text-[11px] rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500"
-              placeholder="Zip Code"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-            />
+              {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+              {copied ? "Copied!" : "Copy Prompt"}
+            </Button>
           </div>
 
-          {/* CSV textarea with LLM prompt helper */}
+          {/* Step 3: Paste output */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-medium text-slate-500">Transactions CSV</span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="text-slate-400 hover:text-blue-500 transition-colors">
-                    <HelpCircle className="h-3.5 w-3.5" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-72 p-3 bg-white border-slate-200" side="left">
-                  <p className="text-[11px] font-medium text-slate-700 mb-2">
-                    Paste this into ChatGPT / Claude to generate sample data:
-                  </p>
-                  <pre className="text-[9px] bg-slate-50 border border-slate-200 rounded-md p-2 whitespace-pre-wrap text-slate-600 max-h-32 overflow-y-auto mb-2" style={{ scrollbarWidth: "thin", scrollbarColor: "hsl(215 15% 82%) transparent" }}>
-                    {LLM_PROMPT}
-                  </pre>
-                  <Button size="sm" variant="outline" className="w-full h-7 text-[11px]" onClick={handleCopyPrompt}>
-                    {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                    {copied ? "Copied!" : "Copy Prompt"}
-                  </Button>
-                </PopoverContent>
-              </Popover>
-            </div>
+            <span className="text-[10px] font-medium text-slate-500 mb-1 block">2. Paste the full LLM output below</span>
             <textarea
               className="w-full bg-white text-slate-900 text-[10px] font-mono rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
-              rows={5}
-              placeholder={"date,merchant_name,amount,mcc,merchant_zip\n2025-01-15,Whole Foods,87.50,5411,94102\n..."}
-              value={csvText}
-              onChange={(e) => setCsvText(e.target.value)}
+              rows={6}
+              placeholder={"=== PROFILE ===\nname: ...\n\n=== TRANSACTIONS ===\ndate,merchant_name,amount,mcc,merchant_zip\n..."}
+              value={outputText}
+              onChange={(e) => { setOutputText(e.target.value); setParseError(""); }}
             />
           </div>
 
-          <Button size="sm" className="w-full h-7 text-[11px]" onClick={handleLoad} disabled={!csvText.trim()}>
-            Load Data
+          {parseError && (
+            <p className="text-[10px] text-red-500">{parseError}</p>
+          )}
+
+          <Button size="sm" className="w-full h-7 text-[11px]" onClick={handleLoad} disabled={!outputText.trim()}>
+            Load Customer
           </Button>
         </div>
       ) : !selected ? (

@@ -12,6 +12,7 @@ interface Props {
   nodeReadiness: NodeReadiness;
   inputReady: boolean;
   centered?: boolean;
+  onTxCardClick?: () => void;
 }
 
 interface NodeDef {
@@ -90,7 +91,7 @@ const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
   { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#8b5cf6" },
 ];
 
-export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false }: Props) {
+export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -123,10 +124,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
 
   // Horizontal gaps — tight on left, generous on right
-  const gap1 = centered ? 50 : Math.max(14, dims.w * 0.018);
-  const gap2 = centered ? 60 : Math.max(28, dims.w * 0.035);
-  const gap3 = centered ? 55 : Math.max(24, dims.w * 0.03);
-  const gap4 = centered ? 45 : Math.max(18, dims.w * 0.022);
+  const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
+  const gap2 = centered ? 80 : Math.max(28, dims.w * 0.035);
+  const gap3 = centered ? 75 : Math.max(24, dims.w * 0.03);
+  const gap4 = centered ? 65 : Math.max(18, dims.w * 0.022);
 
   const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
@@ -253,7 +254,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
               const consumerLeft = consumerColLeftX;
               const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
-              const pillarReady = engineReady;
+              const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
 
               return pillar.bankNodes.map((node, ni) => {
                 const bankNodeY = cTop + ni * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2;
@@ -262,7 +263,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 const path = `M ${bankRight} ${bankNodeY} C ${cpX1} ${bankNodeY}, ${cpX2} ${consumerCenterY}, ${consumerLeft} ${consumerCenterY}`;
                 return (
                   <g key={`bank-cons-${pi}-${ni}`}>
-                    <path d={path} stroke={pillar.consumerNode.color} strokeWidth={pillarReady ? 2 : 1} fill="none" opacity={pillarReady ? 0.6 : 0.15} strokeDasharray={pillarReady ? "none" : "4 3"} className="line-transition" />
+                    <path d={path} stroke={pillar.consumerNode.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.6 : 0.15} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
                   </g>
                 );
               });
@@ -294,7 +295,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </svg>
 
       {/* Transaction Card */}
-      <div className="absolute" style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: midY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }}>
+      <div className={`absolute ${customer ? "cursor-pointer" : ""}`} style={{ left: txCenterX - TX_CARD_WIDTH / 2, top: midY - TX_CARD_HEIGHT / 2, width: TX_CARD_WIDTH, zIndex: 1 }} onClick={() => { if (customer) onTxCardClick?.(); }}>
         <TxCard customer={customer} color="#3b82f6" label="Customer" scaled={centered} />
       </div>
 

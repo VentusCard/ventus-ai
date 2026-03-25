@@ -72,6 +72,73 @@ export interface CustomDemographics {
   age: string;
   occupation: string;
   familyStatus: string;
+  incomeLevel?: string;
+  segment?: string;
+  industry?: string;
+}
+
+/** Parse the unified LLM output block into demographics + CSV */
+export function parseUnifiedOutput(text: string): { demographics: CustomDemographics; zip: string; csv: string } | null {
+  const profileMatch = text.match(/===\s*PROFILE\s*===([\s\S]*?)===\s*TRANSACTIONS\s*===/i);
+  const txnMatch = text.match(/===\s*TRANSACTIONS\s*===([\s\S]*)/i);
+  if (!profileMatch || !txnMatch) return null;
+
+  const profileBlock = profileMatch[1].trim();
+  const csv = txnMatch[1].trim();
+
+  const get = (key: string): string => {
+    const m = profileBlock.match(new RegExp(`^${key}:\\s*(.+)$`, "mi"));
+    return m ? m[1].trim() : "";
+  };
+
+  return {
+    demographics: {
+      name: get("name"),
+      age: get("age"),
+      occupation: get("occupation"),
+      familyStatus: get("family") || get("familyStatus") || "Single",
+      incomeLevel: get("income"),
+      segment: get("segment"),
+      industry: get("industry"),
+    },
+    zip: get("zip"),
+    csv,
+  };
+}
+
+/** Build a dynamic LLM prompt from a persona description */
+export function buildCustomerPrompt(persona: string): string {
+  return `Generate a complete customer profile and 30 realistic bank transactions for this persona:
+"${persona}"
+
+Output EXACTLY this format (no extra text):
+
+=== PROFILE ===
+name: [realistic full name]
+age: [number]
+occupation: [job title]
+family: [Single / Married / Married with Kids / Divorced]
+income: [$amount]
+segment: [Preferred / Premier / Private]
+industry: [industry name]
+zip: [realistic US zip code matching the persona's location]
+
+=== TRANSACTIONS ===
+transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
+1,Whole Foods Market,Grocery shopping,5411,87.50,2026-01-15,94102,Premium Card
+2,Delta Air Lines,Round-trip flight,3058,450.00,2026-01-18,94102,Travel Card
+[continue for 30 rows total]
+
+Rules:
+- CRITICAL: Never use commas inside any field value. Amounts must be plain numbers without commas (e.g. 1450.00 not 1,450.00)
+- transaction_id is a sequential number 1-30
+- description is a short 2-4 word phrase describing the purchase
+- Amounts $5-$2000, realistic MCC codes (5411=grocery, 5812=dining, 3000-3299=airlines, 5977=cosmetics, 7941=sports, etc.)
+- source should be one of: Premium Card, Travel Card, Cashback Card, Checking
+- Include 1 realistic life-event transaction cluster that matches this persona (e.g. baby prep purchases, retirement advisor visits, home improvement, college application fees, wedding planning, relocation expenses — pick whichever fits best)
+- Spread the life-event transactions across 3-5 rows so the pattern is detectable
+- Use zip codes near the persona's stated or implied location
+- Output ONLY the formatted block above, no explanation`;
 }
 
 export function buildCustomDemoCustomer(
@@ -81,11 +148,12 @@ export function buildCustomDemoCustomer(
   zip: string
 ): DemoCustomer {
   const summary = summarizeCsv(csv);
+  const segment = (demographics.segment as ClientProfileData["segment"]) || "Preferred";
   return {
     id,
     profile: {
       name: demographics.name || "Custom Customer",
-      segment: "Preferred",
+      segment,
       aum: "$100,000",
       tenure: "1 year",
       contact: { email: "custom@example.com", phone: "000-000-0000", address: `ZIP ${zip || "00000"}` },
@@ -93,8 +161,8 @@ export function buildCustomDemoCustomer(
         age: demographics.age || "35",
         occupation: demographics.occupation || "Professional",
         familyStatus: demographics.familyStatus || "Single",
-        incomeLevel: "$100,000",
-        industry: "Other",
+        incomeLevel: demographics.incomeLevel || "$100,000",
+        industry: demographics.industry || "Other",
       },
       holdings: { deposit: "$50,000", credit: "$10,000", mortgage: "$0", investments: "$40,000" },
       compliance: { kycStatus: "Current", lastReview: "2025-01-01", nextReview: "2026-01-01", riskProfile: "Moderate" },

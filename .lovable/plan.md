@@ -1,19 +1,22 @@
 
 
-## Remove WM Copilot Sign-In Gate
+## Remove "Describe Your Customer" Section from Custom Flow
 
 ### What changes
-Currently, clicking "WM Copilot" in the sidebar opens a sign-in dialog that blocks access if no client profile exists. We'll remove the dialog entirely and instead render `BankwideWMCopilotView` directly as a tab, just like the other sidebar items.
+In `src/components/demo/DemoCustomerPanel.tsx`, simplify the custom customer mode by removing:
+- **Step 1** — the "Describe your customer" textarea and `personaText` state
+- **Step 2** — the "Copy prompt" button (renumber step 3 → step 1)
 
-### File: `src/components/tepilot/insights/AnalyticsContainer.tsx`
+The `handleCopyPrompt` function and `personaText` state become unused and should be removed. The `buildCustomerPrompt` call will use a default persona string instead of user input.
 
-1. **Add `wm-copilot` to the `TabValue` type** and add it to the Relationship nav group with the Briefcase icon
-2. **Add case in `renderContent`**: `case 'wm-copilot': return <BankwideWMCopilotView />;`
-3. **Remove** the standalone WM Copilot button at the bottom of the sidebar (the one that calls `setShowSignIn(true)`)
-4. **Remove** the `WMCopilotSignInDialog` component render and its `showSignIn` state
-5. **Remove** the `WMCopilotSignInDialog` import
+Update the remaining steps:
+- **Step 1** (was 3): "Copy prompt → paste into ChatGPT / Claude" with the copy button (uses default persona)
+- **Step 2** (was 3): "Paste the full LLM output below" textarea + Load button
 
-### Technical details
-- `BankwideWMCopilotView` already generates its own dashboard clients internally, so it works standalone without any client profile dependency
-- The sign-in dialog file (`WMCopilotSignInDialog.tsx`) can remain on disk but will no longer be referenced
+### File
+`src/components/demo/DemoCustomerPanel.tsx`
+- Remove `personaText` state
+- Remove Step 1 `<div>` block (lines 181-190)
+- Update `handleCopyPrompt` to use a hardcoded default persona
+- Renumber remaining steps from 1/2
 
