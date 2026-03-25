@@ -218,7 +218,7 @@ export interface PipelineStatus {
 // Wallet Share Intelligence Types
 export interface CompetitorOutflow {
   institution: string;
-  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto';
+  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto' | 'rent' | 'auto_loan' | 'student_loan' | 'utility' | 'insurance' | 'childcare' | 'subscription';
   productCategory: string;
   estimatedOutflow: number;
   affectedCustomers: number;
