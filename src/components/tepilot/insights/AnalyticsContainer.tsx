@@ -169,6 +169,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       <div className="flex-1 min-w-0 overflow-y-auto p-4">
         {renderContent()}
       </div>
+      </div>
     </div>
   );
 }
