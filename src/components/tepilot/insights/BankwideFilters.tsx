@@ -42,141 +42,120 @@ export function BankwideFilters({ filters, onChange }: BankwideFiltersProps) {
     filters.ageRanges.length > 0;
 
   return (
-    <Card className="p-6 space-y-4 bg-white border-slate-200">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-slate-900">Filters</h3>
+    <Card className="px-4 py-3 bg-white border-slate-200">
+      <div className="flex items-center gap-4 flex-wrap">
+        {/* Title + Reset */}
+        <div className="flex items-center gap-2 shrink-0">
+          <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
+          {hasActiveFilters && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={resetFilters}
+              className="h-6 px-2 text-xs text-slate-700 hover:bg-slate-100"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Reset
+            </Button>
+          )}
+        </div>
+
+        <div className="h-5 w-px bg-slate-200 shrink-0" />
+
+        {/* Card Products */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs font-medium text-slate-500">Cards:</span>
+          {CARD_PRODUCTS.map((product) => {
+            const isActive = filters.cardProducts.includes(product.name);
+            return (
+              <button
+                key={product.name}
+                onClick={() => toggleCardProduct(product.name)}
+                className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {product.name}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="h-5 w-px bg-slate-200 shrink-0" />
+
+        {/* Regions */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs font-medium text-slate-500">Regions:</span>
+          {GEOGRAPHIC_REGIONS.map((region) => {
+            const isActive = filters.regions.includes(region.name);
+            return (
+              <button
+                key={region.name}
+                onClick={() => toggleRegion(region.name)}
+                className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {region.name}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="h-5 w-px bg-slate-200 shrink-0" />
+
+        {/* Age Ranges */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs font-medium text-slate-500">Age:</span>
+          {AGE_RANGES.map((ageRange) => {
+            const isActive = filters.ageRanges.includes(ageRange.range);
+            return (
+              <button
+                key={ageRange.range}
+                onClick={() => toggleAgeRange(ageRange.range)}
+                className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {ageRange.range}
+                <span className={`ml-1 text-[10px] ${isActive ? 'opacity-70' : 'text-slate-400'}`}>
+                  {ageRange.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active summary badges */}
         {hasActiveFilters && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={resetFilters}
-            className="h-8 text-slate-700 hover:bg-slate-100"
-          >
-            <X className="h-4 w-4 mr-2" />
-            Reset All
-          </Button>
-        )}
-      </div>
-
-      {/* Card Products */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-500 min-w-[120px]">
-            Card Products:
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {CARD_PRODUCTS.map((product) => {
-              const isActive = filters.cardProducts.includes(product.name);
-              return (
-                <button
-                  key={product.name}
-                  onClick={() => toggleCardProduct(product.name)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                  }`}
-                >
-                  {product.name}
-                  {isActive && (
-                    <span className="ml-1.5 opacity-70">
-                      ({(product.accountCount / 1_000_000).toFixed(0)}M)
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Geographic Regions */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-500 min-w-[120px]">
-            Regions:
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {GEOGRAPHIC_REGIONS.map((region) => {
-              const isActive = filters.regions.includes(region.name);
-              return (
-                <button
-                  key={region.name}
-                  onClick={() => toggleRegion(region.name)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                  }`}
-                >
-                  {region.name}
-                  {isActive && (
-                    <span className="ml-1.5 opacity-70">
-                      ({(region.userCount / 1_000_000).toFixed(0)}M)
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Age Ranges */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-500 min-w-[120px]">
-            Age Ranges:
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {AGE_RANGES.map((ageRange) => {
-              const isActive = filters.ageRanges.includes(ageRange.range);
-              return (
-                <button
-                  key={ageRange.range}
-                  onClick={() => toggleAgeRange(ageRange.range)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                  }`}
-                >
-                  {ageRange.range}
-                  <span className={`ml-1.5 text-xs ${isActive ? 'opacity-70' : ''}`}>
-                    {ageRange.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Active Filters Summary */}
-      {hasActiveFilters && (
-        <div className="pt-2 border-t border-slate-200">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span>Active:</span>
-            <div className="flex flex-wrap gap-1">
+          <>
+            <div className="h-5 w-px bg-slate-200 shrink-0" />
+            <div className="flex items-center gap-1">
               {filters.cardProducts.length > 0 && (
-                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700 border-slate-200">
+                <Badge variant="secondary" className="text-[10px] h-5 bg-slate-100 text-slate-700 border-slate-200">
                   {filters.cardProducts.length} Card{filters.cardProducts.length !== 1 ? 's' : ''}
                 </Badge>
               )}
               {filters.regions.length > 0 && (
-                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700 border-slate-200">
+                <Badge variant="secondary" className="text-[10px] h-5 bg-slate-100 text-slate-700 border-slate-200">
                   {filters.regions.length} Region{filters.regions.length !== 1 ? 's' : ''}
                 </Badge>
               )}
               {filters.ageRanges.length > 0 && (
-                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-700 border-slate-200">
-                  {filters.ageRanges.length} Age Range{filters.ageRanges.length !== 1 ? 's' : ''}
+                <Badge variant="secondary" className="text-[10px] h-5 bg-slate-100 text-slate-700 border-slate-200">
+                  {filters.ageRanges.length} Age{filters.ageRanges.length !== 1 ? 's' : ''}
                 </Badge>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </Card>
   );
 }
