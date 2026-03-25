@@ -46,8 +46,8 @@ const PILLAR_ROWS: PillarRow[] = [
     icon: Search,
     color: "#3b82f6",
     bankNodes: [
-      { id: "analytics", label: "Behavioral Analytics", icon: BarChart3, color: "#3b82f6", audience: "bank" },
-      { id: "outflow", label: "Outflow Analysis", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
+      { id: "analytics", label: "Category Consolidation & Budgeting", icon: BarChart3, color: "#3b82f6", audience: "bank" },
+      { id: "outflow", label: "Competitor Outflow Detection", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
     ],
     consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
   },
@@ -57,8 +57,8 @@ const PILLAR_ROWS: PillarRow[] = [
     icon: Sparkles,
     color: "#22c55e",
     bankNodes: [
-      { id: "travel", label: "Reward Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
-      { id: "locational", label: "Locational Experience", icon: MapPin, color: "#0891b2", audience: "bank" },
+      { id: "travel", label: "Reward & Trip Detection", icon: Plane, color: "#06b6d4", audience: "bank" },
+      { id: "locational", label: "Locational Perk Aggregation", icon: MapPin, color: "#0891b2", audience: "bank" },
     ],
     consumerNode: { id: "rewards", label: "Personalized Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
   },
@@ -68,8 +68,8 @@ const PILLAR_ROWS: PillarRow[] = [
     icon: Heart,
     color: "#a855f7",
     bankNodes: [
-      { id: "lifeEventIntel", label: "Life Event Intelligence", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
-      { id: "lifeEvents", label: "Financial Journey", icon: TrendingUp, color: "#a855f7", audience: "bank" },
+      { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
+      { id: "lifeEvents", label: "Next-Best Product Engine", icon: TrendingUp, color: "#a855f7", audience: "bank" },
       { id: "wmCopilot", label: "WM CoPilot", icon: Briefcase, color: "#7c3aed", audience: "bank" },
     ],
     consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },

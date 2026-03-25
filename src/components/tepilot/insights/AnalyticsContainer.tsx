@@ -30,25 +30,25 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Analytics",
     items: [
-      { value: "dashboard", label: "Analytics Dashboard", icon: BarChart3 },
-      { value: "wallet-share", label: "Wallet Share Intelligence", icon: Wallet },
+      { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
+      { value: "wallet-share", label: "Competitor Outflow Detection", icon: Wallet },
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
   },
   {
     label: "Rewards",
     items: [
-      { value: "rewards-intelligence", label: "Rewards Intelligence", icon: Sparkles },
+      { value: "rewards-intelligence", label: "Reward & Trip Detection", icon: Sparkles },
       { value: "deal-management", label: "Deal Management", icon: Package },
-      { value: "location-experience", label: "Location Experience", icon: MapPin },
+      { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
   {
     label: "Relationship",
     items: [
-      { value: "life-events", label: "Life Events Intelligence", icon: CalendarHeart },
-      { value: "targeting", label: "Financial Journey", icon: Route },
+      { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
+      { value: "targeting", label: "Next-Best Product Engine", icon: Route },
     ],
   },
 ];
