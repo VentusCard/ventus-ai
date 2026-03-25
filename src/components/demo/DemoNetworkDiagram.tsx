@@ -43,7 +43,7 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    subtitle: "Who are they, where do they spend & move money?",
+    subtitle: "Where do our customers spend their money?",
     icon: Search,
     color: "#3b82f6",
     bankNodes: [
