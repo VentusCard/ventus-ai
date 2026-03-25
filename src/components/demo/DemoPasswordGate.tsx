@@ -380,68 +380,20 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       <svg
                         width="100%"
                         height="60"
-                        viewBox="0 0 600 60"
+                        viewBox="0 0 800 60"
                         preserveAspectRatio="none"
-                        className="max-w-2xl mx-auto"
+                        className="max-w-5xl mx-auto"
                       >
-                        <line
-                          x1="300"
-                          y1="0"
-                          x2="50"
-                          y2="56"
-                          stroke="#F59E0B"
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                        />
-                        <line
-                          x1="300"
-                          y1="0"
-                          x2="150"
-                          y2="56"
-                          stroke="#F59E0B"
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                        />
-                        <line
-                          x1="300"
-                          y1="0"
-                          x2="250"
-                          y2="56"
-                          stroke="#F59E0B"
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                        />
-                        <line
-                          x1="300"
-                          y1="0"
-                          x2="350"
-                          y2="56"
-                          stroke="#F59E0B"
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                        />
-                        <line
-                          x1="300"
-                          y1="0"
-                          x2="450"
-                          y2="56"
-                          stroke="#F59E0B"
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                        />
-                        <line
-                          x1="300"
-                          y1="0"
-                          x2="550"
-                          y2="56"
-                          stroke="#F59E0B"
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                        />
+                        <line x1="400" y1="0" x2="67" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="400" y1="0" x2="200" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="400" y1="0" x2="333" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="400" y1="0" x2="467" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="400" y1="0" x2="600" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
+                        <line x1="400" y1="0" x2="733" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                       </svg>
-                      <div className="flex items-center justify-center gap-3 w-full max-w-4xl mx-auto mt-2">
+                      <div className="flex items-center justify-center gap-3 w-full max-w-5xl mx-auto mt-2">
                         <span className="text-3xl font-bold tracking-widest text-slate-400 select-none">…</span>
-                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-6 flex-1 max-w-3xl">
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-10 flex-1 max-w-4xl">
                           <div className="flex flex-col items-center gap-2">
                             <div
                               className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
