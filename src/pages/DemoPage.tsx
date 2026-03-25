@@ -136,7 +136,7 @@ export default function DemoPage() {
           centered={panelCollapsed}
         />
 
-        {activeNode && customerA && customerB && (
+        {activeNode && (customerA || customerB) && (
           <DemoDetailOverlay
             node={activeNode}
             customerA={customerA}
