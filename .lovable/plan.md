@@ -1,21 +1,37 @@
 
 
-## Make Personalized UX pillar cards bigger and more readable
+## Upgrade Win-Back Recommendations Cards
 
-The 4 lifestyle spending pillar cards in `DemoEngagementView.tsx` (lines 217–289) are currently in a 2×2 grid with small text sizes. The plan increases sizing across the board for better readability.
+The current cards are minimal — each has a competitor name, a single-line detected pattern, behavioral context, recommended action, segment tags, and an estimated recapture figure. The goal is to make them richer, more visually polished, and more detailed.
 
-### Changes (single file: `src/components/demo/DemoEngagementView.tsx`)
+### Changes
 
-1. **Switch grid to single column** — Change `grid grid-cols-2 gap-1.5` to `grid grid-cols-2 gap-2.5` (keep 2-col but with more spacing), or optionally go single-column for maximum readability
-2. **Increase card padding** — `px-2.5 py-2` → `px-3.5 py-3`
-3. **Increase pillar icon size** — `text-sm` → `text-lg`
-4. **Increase pillar name text** — `text-[10px]` → `text-[13px]`
-5. **Increase budget text** — `text-[9px]` → `text-[11px]`
-6. **Increase status badge** — `text-[7px]` → `text-[9px]`
-7. **Increase budget bar height** — `h-1.5` → `h-2`
-8. **Increase subcategory/trip row text** — `text-[9px]` → `text-[11px]`
-9. **Increase Trip toggle label** — `text-[7px]` → `text-[9px]`
-10. **Increase chevron icons** — `w-2.5 h-2.5` → `w-3 h-3`
+**1. Expand the data model** (`src/types/bankwide.ts`)
+Add new fields to `WinBackRecommendation`:
+- `outflowVolume: number` — estimated dollar volume flowing to this competitor
+- `avgTransferAmount: number` — per-customer average
+- `topPersona: string` — dominant TEpilot persona archetype
+- `timeToAction: string` — urgency window (e.g. "Act within 30 days")
+- `channelStrategy: string[]` — recommended channels (e.g. ["In-App", "Email", "Branch"])
+- `successMetric: string` — how to measure win-back (e.g. "Deposit return within 60 days")
+- `trend: 'growing' | 'stable' | 'declining'` — outflow trend direction
 
-All changes are confined to the pillar card section within `PhoneMockup`. The 2-column layout is preserved to keep the 4-card grid compact but each card gets more breathing room and larger text.
+**2. Enrich the mock data** (`src/lib/mockBankwideData.ts`)
+Populate all 7 existing win-back entries with the new fields — realistic values for each competitor.
+
+**3. Redesign the card component** (`src/components/tepilot/insights/WinBackRecommendations.tsx`)
+- **Larger card header** — bigger competitor name, icon with competitor-type color coding, confidence badge + trend indicator arrow
+- **Metrics row** — 3-column mini-stat bar: Affected Customers | Est. Outflow Volume | Avg Transfer per Customer
+- **Detected Pattern** section — keep red-tinted box but increase text size
+- **Why They're Leaving** section — add "Top Persona" badge inline
+- **Recommended Action** section — keep green box, add channel strategy chips below it
+- **Urgency & Success** row — "Act within X days" badge + success metric text
+- **Footer** — segment tags + estimated recapture value (keep existing)
+- Increase overall text sizes (xs → sm where appropriate) and padding for readability
+
+### Technical details
+
+- 3 files modified: `types/bankwide.ts`, `mockBankwideData.ts`, `WinBackRecommendations.tsx`
+- No new dependencies
+- Grid stays `grid-cols-1 lg:grid-cols-2` but cards will be taller with richer content
 
