@@ -214,7 +214,7 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
           {/* Lifestyle Spending */}
           <div>
             <p className="text-[9px] font-bold tracking-[0.12em] text-slate-400 uppercase mb-1.5">Your Lifestyle Spending</p>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-2.5">
               {budgets.slice(0, 4).map((b) => {
                 const isTravel = b.name === "Travel";
                 const isExpanded = expandedPillars.has(b.name);
@@ -226,15 +226,15 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
                 return (
                   <div
                     key={b.name}
-                    className={`rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-200 transition-all ${hasSubcats || isTravel ? "cursor-pointer hover:border-slate-300" : ""}`}
+                    className={`rounded-lg px-3.5 py-3 bg-slate-50 border border-slate-200 transition-all ${hasSubcats || isTravel ? "cursor-pointer hover:border-slate-300" : ""}`}
                     onClick={() => (hasSubcats || isTravel) && setExpandedPillars(prev => { const next = new Set(prev); if (next.has(b.name)) next.delete(b.name); else next.add(b.name); return next; })}
                   >
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-sm">{b.icon}</span>
-                      <span className="text-[10px] font-semibold text-slate-900 flex-1">{b.name}</span>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-lg">{b.icon}</span>
+                      <span className="text-[13px] font-semibold text-slate-900 flex-1">{b.name}</span>
                       {isTravel && tripRows.length > 0 && (
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          <span className="text-[7px] text-slate-400">Trips</span>
+                          <span className="text-[9px] text-slate-400">Trips</span>
                           <Switch
                             checked={tripViewOn}
                             onCheckedChange={setTripViewOn}
@@ -244,19 +244,19 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
                       )}
                       {(hasSubcats || isTravel) && (
                         isExpanded
-                          ? <ChevronUp className="w-2.5 h-2.5 text-slate-400" />
-                          : <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
+                          ? <ChevronUp className="w-3 h-3 text-slate-400" />
+                          : <ChevronDown className="w-3 h-3 text-slate-400" />
                       )}
                     </div>
 
                     {/* Budget bar */}
-                    <div className="flex items-center justify-between mb-0.5">
-                      <p className="text-[9px] text-slate-500">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
-                      <span className="text-[7px] font-semibold px-1 py-0.5 rounded" style={{ background: `${barColor}18`, color: barColor }}>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[11px] text-slate-500">${b.spend.toLocaleString()} / ${b.budget.toLocaleString()}</p>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${barColor}18`, color: barColor }}>
                         {statusLabel}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full bg-slate-100 mb-0.5">
+                    <div className="w-full h-2 rounded-full bg-slate-100 mb-0.5">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(ratio * 100, 100)}%`, background: barColor }}
@@ -264,18 +264,18 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
                     </div>
 
                     {isExpanded && (
-                      <div className="mt-1.5 pt-1.5 border-t border-slate-200 space-y-1">
+                      <div className="mt-2 pt-2 border-t border-slate-200 space-y-1.5">
                         {showTripView ? (
                           tripRows.slice(0, 4).map((trip) => (
-                            <div key={trip.destination} className="flex items-center gap-1.5 text-[9px]">
-                              <MapPin className="w-2.5 h-2.5 shrink-0" style={{ color }} />
+                            <div key={trip.destination} className="flex items-center gap-1.5 text-[11px]">
+                              <MapPin className="w-3 h-3 shrink-0" style={{ color }} />
                               <span className="text-slate-600 truncate flex-1">{trip.destination}</span>
                               <span className="text-slate-900 font-semibold whitespace-nowrap">${trip.spend.toLocaleString()}</span>
                             </div>
                           ))
                         ) : (
                           b.subcategories.slice(0, 5).map((sub) => (
-                            <div key={sub.category} className="flex items-center justify-between text-[9px]">
+                            <div key={sub.category} className="flex items-center justify-between text-[11px]">
                               <span className="text-slate-500 truncate mr-1">{sub.category}</span>
                               <span className="text-slate-400 whitespace-nowrap">{sub.count}x · ${sub.total.toLocaleString()}</span>
                             </div>
