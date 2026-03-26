@@ -330,7 +330,7 @@ function RewardsPhoneMockup({
                         </div>
                       ) : (
                         <div className="flex items-end justify-between gap-2 mt-0.5">
-                          <p className="text-[10px] text-slate-400 flex-1 line-clamp-2">{deal.dealDescription || "Exclusive reward"}</p>
+                          <p className="text-[10px] leading-relaxed text-slate-600 italic line-clamp-2 flex-1">"{getFallbackMessage(deal.merchantCategory, i)}"</p>
                           <button
                             className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0 cursor-pointer transition-all hover:opacity-90 active:scale-95"
                             style={{ background: color }}
