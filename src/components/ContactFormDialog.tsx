@@ -39,7 +39,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           <div className="grid grid-cols-1 md:grid-cols-2 min-h-[400px]">
             {/* Left panel — Mission */}
             <div className="bg-slate-50 p-10 md:p-14 flex flex-col items-center justify-start text-center border-b md:border-b-0 md:border-r border-slate-200 pt-10">
-              <h3 className="text-lg font-bold uppercase tracking-wider text-slate-700 mb-6">Mission</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wider text-slate-700 mb-6 -mt-2">Mission</h3>
 
               <div className="space-y-10 flex flex-col justify-center">
                 <div>
@@ -61,7 +61,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
 
             {/* Right panel — Deck buttons */}
             <div className="p-10 md:p-14 flex flex-col items-center justify-start text-center pt-10">
-              <h3 className="text-lg font-bold uppercase tracking-wider text-slate-700 mb-6">Learn More</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wider text-slate-700 mb-6 -mt-2">Learn More</h3>
 
               <div className="space-y-5 w-full max-w-sm">
                 {DECK_PAGES.map((deck) => (
