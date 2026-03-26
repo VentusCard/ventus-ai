@@ -50,10 +50,10 @@ const PILLAR_ROWS: PillarRow[] = [
     color: "#3b82f6",
     bankNodes: [
       { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
-      { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
-      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#2563eb", audience: "bank" },
+      { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
+      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
     ],
-    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
+    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
   },
   {
     id: "predictive",
@@ -62,9 +62,9 @@ const PILLAR_ROWS: PillarRow[] = [
     icon: Sparkles,
     color: "#22c55e",
       bankNodes: [
-       { id: "travel", label: "Next-Purchase Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
-       { id: "locational", label: "Travel & Perk Aggregation", icon: MapPin, color: "#0891b2", audience: "bank" },
-       { id: "dealPersonalization", label: "Deep Personalization", icon: Target, color: "#16a34a", audience: "bank" },
+       { id: "travel", label: "Next-Purchase Intelligence", icon: Plane, color: "#22c55e", audience: "bank" },
+       { id: "locational", label: "Travel & Perk Aggregation", icon: MapPin, color: "#22c55e", audience: "bank" },
+       { id: "dealPersonalization", label: "Deep Personalization", icon: Target, color: "#22c55e", audience: "bank" },
      ],
     consumerNode: { id: "rewards", label: "Personalized Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
   },
@@ -73,13 +73,13 @@ const PILLAR_ROWS: PillarRow[] = [
     team: "Growth & Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
-    color: "#a855f7",
+    color: "#f43f5e",
     bankNodes: [
-      { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
-      { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#a855f7", audience: "bank" },
-      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#7c3aed", audience: "bank" },
+      { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#f43f5e", audience: "bank" },
+      { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#f43f5e", audience: "bank" },
+      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#f43f5e", audience: "bank" },
     ],
-    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
+    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#f43f5e", audience: "consumer" },
   },
 ];
 
@@ -90,9 +90,9 @@ const ENGINE_CAPABILITIES = [
 ];
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
-  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#f59e0b" },
+  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#3b82f6" },
   { metrics: ["Higher Redemption", "Higher Spend Lift", "High Profitability"], color: "#22c55e" },
-  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#8b5cf6" },
+  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#f43f5e" },
 ];
 
 export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick }: Props) {
