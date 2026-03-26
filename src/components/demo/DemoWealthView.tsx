@@ -164,15 +164,8 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                       const deal = customer.deals[0];
                       return (
                         <div className="rounded-lg border border-slate-100 p-2">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="text-[11px] font-semibold text-slate-900">{deal.brand}</span>
-                            <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600 font-medium">{deal.tag}</span>
-                          </div>
+                          <p className="text-[11px] font-semibold text-slate-900 mb-0.5">{deal.brand}</p>
                           <p className="text-[10px] text-slate-500 leading-snug">{deal.offer}</p>
-                          <div className="flex items-center justify-between mt-1.5">
-                            <span className="text-[9px] text-emerald-600 font-medium">{deal.match}% match</span>
-                            <button className="text-[8px] font-semibold text-purple-600 hover:text-purple-700">Activate →</button>
-                          </div>
                         </div>
                       );
                     })()}
