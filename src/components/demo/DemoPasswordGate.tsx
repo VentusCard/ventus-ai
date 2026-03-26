@@ -93,7 +93,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         goBack();
         return;
       }
-      if (step === 6 && beat6Phase >= 2) {
+      if (step === 5 && beat5Phase >= 4) {
         if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
           sessionStorage.setItem("demo_access", "true");
@@ -108,7 +108,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [granted, step, advance, goBack, beat6Phase]);
+  }, [granted, step, advance, goBack, beat5Phase]);
 
   const isSmallScreen = useIsMobile() || useIsTablet();
 
@@ -157,9 +157,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step === 6 && beat6Phase >= 2 ? "default" : "pointer",
+        cursor: step === 5 && beat5Phase >= 4 ? "default" : "pointer",
       }}
-      onClick={() => !(step === 6 && beat6Phase >= 2) && advance()}
+      onClick={() => !(step === 5 && beat5Phase >= 4) && advance()}
     >
       <style>{`
         @keyframes ambientShift {
