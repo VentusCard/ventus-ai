@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Microscope, TrendingUp, TrendingDown, CalendarIcon } from "lucide-react";
+import { Microscope, TrendingUp, TrendingDown, CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +33,7 @@ const AGE_GROUPS = ["18-24", "25-34", "35-44", "45-54", "55+"];
 
 export function PillarDeepDiveHeatmap() {
   const [selectedPillar, setSelectedPillar] = useState("Sports & Active Living");
+  const [isExpanded, setIsExpanded] = useState(true);
   const [fromDate, setFromDate] = useState<Date>(new Date(2025, 0, 1));
   const [toDate, setToDate] = useState<Date>(new Date(2025, 11, 31));
 
@@ -63,16 +64,28 @@ export function PillarDeepDiveHeatmap() {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-3">
-        <div className="flex items-center gap-2 mb-3">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: pillarColor }}
-          >
-            <Microscope className="h-4 w-4 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: pillarColor }}
+            >
+              <Microscope className="h-4 w-4 text-white" />
+            </div>
+            <CardTitle className="text-lg">Pillar Deep Dive</CardTitle>
           </div>
-          <CardTitle className="text-lg">Pillar Deep Dive</CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="gap-1 text-xs text-muted-foreground"
+          >
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {isExpanded ? "Collapse" : "Expand"}
+          </Button>
         </div>
 
+        {isExpanded && <>
         {/* Controls */}
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[200px]">
@@ -139,9 +152,10 @@ export function PillarDeepDiveHeatmap() {
             </Popover>
           </div>
         </div>
+        </>}
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      {isExpanded && <CardContent className="space-y-4">
         {/* Key Insight Banner */}
         {topCell && (
           <div
@@ -298,7 +312,7 @@ export function PillarDeepDiveHeatmap() {
           </div>
           <span className="ml-2">| Cells with index &gt;130 are highlighted</span>
         </div>
-      </CardContent>
+      </CardContent>}
     </Card>
   );
 }
