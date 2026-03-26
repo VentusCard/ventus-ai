@@ -125,7 +125,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const BANK_NODE_HEIGHT = Math.max(32, 36 * scale);
   const BANK_NODE_GAP = Math.max(4, 6 * scale);
   const CONSUMER_NODE_HEIGHT = Math.max(54, 70 * scale);
-  const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
+  const QUESTION_LABEL_HEIGHT = centered ? 32 : 24;
 
   // Horizontal gaps — tight on left, generous on right
   const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
@@ -356,10 +356,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 zIndex: 2,
               }}
             >
-              <PillarIcon className={`${centered ? "w-4 h-4" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
-              <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
+              <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-4 h-4"} shrink-0`} style={{ color: pillar.color }} />
+              <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
               <span style={{ color: pillar.color }}>:</span>
-              <span className={`font-semibold leading-tight ${centered ? "text-[13px]" : "text-[11px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
             {/* 2 stacked bank nodes */}
