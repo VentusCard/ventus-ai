@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BankwideView } from "./BankwideView";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
@@ -74,6 +74,11 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    contentRef.current?.scrollTo(0, 0);
+  }, [activeTab]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
@@ -198,7 +203,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 overflow-y-auto p-4">
+      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4">
         {renderContent()}
       </div>
       </div>
