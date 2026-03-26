@@ -168,25 +168,30 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
   const TipIcon = tip ? ICON_MAP[tip.icon] || Lightbulb : Lightbulb;
 
   return (
-    <div className="w-full max-w-[480px]">
-      {/* Phone frame */}
-      <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-        {/* Browser bar */}
-        <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-200 bg-slate-50">
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-300" />
-            <span className="w-2 h-2 rounded-full bg-yellow-300" />
-            <span className="w-2 h-2 rounded-full bg-green-300" />
-          </div>
-          <div className="flex-1 flex justify-center">
-            <span className="text-[8px] text-slate-400 font-mono bg-white rounded px-2 py-0.5 border border-slate-200">
-              yourbank.com/app
-            </span>
-          </div>
+    <div className="w-full max-w-[820px]">
+      {/* iPad frame */}
+      <div className="rounded-[2rem] border-[10px] border-slate-300 overflow-hidden bg-slate-200" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+        {/* Camera */}
+        <div className="flex justify-center py-1 bg-slate-200">
+          <div className="w-2.5 h-2.5 rounded-full bg-slate-300 border border-slate-400" />
         </div>
 
-        {/* App content */}
-        <div className="p-4 space-y-2.5 bg-white">
+        {/* Screen */}
+        <div className="bg-slate-50 rounded-sm overflow-hidden">
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-5 py-1 bg-white border-b border-slate-100">
+            <span className="text-[9px] font-semibold text-slate-500">9:41 AM</span>
+            <span className="text-[9px] text-slate-400 font-mono">TCBY Bank</span>
+            <div className="flex items-center gap-1">
+              <div className="w-3.5 h-2 rounded-sm border border-slate-400 relative">
+                <div className="absolute inset-0.5 bg-green-500 rounded-[1px]" style={{ width: '70%' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* App content */}
+          <div className="p-4">
+            <div className="max-w-2xl mx-auto space-y-2.5">
           <div>
             <p className="text-base font-bold text-slate-900">Good morning, {firstName}</p>
             <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
@@ -356,6 +361,8 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
               </div>
             </div>
           )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
