@@ -211,7 +211,7 @@ export function PillarDeepDiveHeatmap() {
                                   boxShadow: isHot
                                     ? `0 0 12px color-mix(in srgb, ${pillarColor} 20%, transparent)`
                                     : undefined,
-                                  ringColor: isHot ? pillarColor : undefined,
+                                  
                                 }}
                               >
                                 <div className="text-sm font-bold text-slate-800">
