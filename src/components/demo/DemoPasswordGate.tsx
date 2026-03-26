@@ -292,9 +292,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                     className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight animate-fade-slide"
                     style={{ color: "#0F172A", animationDelay: "0.5s", animationFillMode: "both", lineHeight: 1.25 }}
                   >
-                    AI Banking Personalization and
-                    <br />
-                    Customer Intelligence Engine
+                    AI Customer Intelligence Platform for Banking
                   </h1>
                 </div>
               )}
