@@ -3,14 +3,14 @@
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
 // Configuration
-const BATCH_SIZE = 30;
-const CONCURRENCY_LIMIT = 2;
+const BATCH_SIZE = 15;
+const CONCURRENCY_LIMIT = 3;
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
 
 // Models
-const PRIMARY_MODEL = "google/gemini-2.5-pro";
-const FALLBACK_MODEL = "openai/gpt-5-mini";
+const PRIMARY_MODEL = "openai/gpt-5-mini";
+const FALLBACK_MODEL = "google/gemini-2.5-flash";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
