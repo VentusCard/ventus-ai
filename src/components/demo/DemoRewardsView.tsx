@@ -293,7 +293,7 @@ function RewardsPhoneMockup({
                           <span className="text-[9px] text-slate-300">Personalizing…</span>
                         </div>
                       ) : (
-                        <p className="text-[10px] text-slate-400 mt-0.5">{deal.rewardDescription || "Exclusive reward"}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{deal.dealDescription || "Exclusive reward"}</p>
                       )}
                     </div>
                   </div>
