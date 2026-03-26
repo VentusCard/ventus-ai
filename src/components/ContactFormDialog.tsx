@@ -27,7 +27,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
 
   return (
     <>
-      <Dialog open={open} onOpenChange={handleClose}>
+      <Dialog open={open && !activeDeck} onOpenChange={(v) => { if (!v) { setActiveDeck(null); onOpenChange(false); } }}>
         <DialogContent className="sm:max-w-5xl bg-white p-0 overflow-hidden rounded-2xl">
           {/* Full-width header */}
           <div className="flex items-center gap-4 px-12 pt-10 pb-8 border-b border-slate-200">
