@@ -129,6 +129,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, sendMessage } = useAdvisorChat({
     advisorContext: PLATFORM_CONTEXT,
+    functionName: "bankwide-chat",
   });
 
   useEffect(() => {
