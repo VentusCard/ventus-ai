@@ -4,7 +4,7 @@ import { Monitor, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 7;
+const TOTAL_BEATS = 6;
 
 const BEAT_SUMMARIES = [
   "AI-powered banking personalization engine.",
@@ -13,7 +13,6 @@ const BEAT_SUMMARIES = [
   "One MCC code. Countless possible meanings. Zero clarity.",
   "Blind MCCs Hide purchase patterns(behavorial insights).",
   "Signal + demographics activates full personalization.",
-  "From generic banking to full-stack personalization.",
 ];
 
 export default function DemoPasswordGate({ children }: { children: ReactNode }) {
@@ -24,7 +23,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
   const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
-  const [beat6Phase, setBeat6Phase] = useState(0);
+  
 
   const advance = useCallback(() => {
     if (isTransitioning) return;
@@ -44,18 +43,11 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat4Phase(0);
       }
       if (s === 5) {
-        if (beat5Phase < 3) {
+        if (beat5Phase < 4) {
           setBeat5Phase((p) => p + 1);
           return s;
         }
-        setBeat5Phase(0);
-      }
-      if (s === 6) {
-        if (beat6Phase < 2) {
-          setBeat6Phase((p) => p + 1);
-          return s;
-        }
-        // Beat 6 is the last beat — don't advance further
+        // Beat 5 is the last beat — don't advance further
         return s;
       }
       const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
@@ -68,7 +60,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
       }
       return next;
     });
-  }, [beat3Phase, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
+  }, [beat3Phase, beat4Phase, beat5Phase, isTransitioning]);
 
   const goBack = useCallback(() => {
     if (isTransitioning) return;
@@ -78,10 +70,6 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     }
     if (step === 5 && beat5Phase > 0) {
       setBeat5Phase((p) => p - 1);
-      return;
-    }
-    if (step === 6 && beat6Phase > 0) {
-      setBeat6Phase((p) => p - 1);
       return;
     }
     if (step > 0) {
@@ -95,8 +83,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     }
     setBeat4Phase(0);
     setBeat5Phase(0);
-    setBeat6Phase(0);
-  }, [step, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
+  }, [step, beat4Phase, beat5Phase, isTransitioning]);
 
   useEffect(() => {
     if (granted) return;
