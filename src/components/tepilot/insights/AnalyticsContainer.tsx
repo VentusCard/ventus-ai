@@ -47,7 +47,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Rewards",
     items: [
-      { value: "rewards-intelligence", label: "Reward & Trip Detection", icon: Sparkles },
+      { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
       { value: "deal-management", label: "Deal Management", icon: Package },
       { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
