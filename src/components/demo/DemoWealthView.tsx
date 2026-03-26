@@ -106,15 +106,8 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
             <div className="p-4">
               <div className="max-w-2xl mx-auto space-y-3">
 
-                {/* Greeting Header */}
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">Welcome back, {firstName}</p>
-                      <p className="text-[10px] text-slate-500">{customer.profile.segment} Member · {customer.profile.tenure}</p>
-                    </div>
-                  </div>
-                </div>
+                {/* Greeting */}
+                <p className="text-sm font-semibold text-slate-900 px-1">Welcome back, {firstName} <span className="font-normal text-slate-400">· {customer.profile.segment} Member</span></p>
 
                 {/* Dedicated Advisor Card */}
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
