@@ -1,24 +1,41 @@
 
 
-## Fix iPad Mockup: Lighter Frame + Content Fit
+## Brainstorm: Next-Gen Personalized Banking Experience
 
-### Problems
-1. **Too dark** — `border-slate-800` and `bg-slate-800` bezels make the frame look black/heavy against the light overlay
-2. **Content doesn't fit** — `max-h-[600px]` on the content area is too restrictive; life event cards + snapshot get cut off
+Here are ideas for new sections to add inside the iPad mockup, drawing on the customer data we already have (name, segment, tenure, demographics, holdings, life events, contact info):
 
-### Changes — `src/components/demo/DemoWealthView.tsx`
+---
 
-1. **Lighten the iPad frame** to match the light-theme policy:
-   - Bezel: `border-slate-300` (light silver) instead of `border-slate-800`
-   - Camera dot: `bg-slate-200 border-slate-300` instead of dark
-   - Bottom home indicator bar: `bg-slate-300` on a light background
-   - Shadow: softer, lighter shadow
+### 1. Your Dedicated Advisor Card
+A warm, personal card with the advisor's photo (avatar placeholder), name, title, and a personalized quote like *"Hi Sarah, let's plan your next chapter together."* Includes a **Schedule a Meeting** button and a small **Message** icon. This makes the banking app feel like a relationship, not a transaction.
 
-2. **Fix content fitting**:
-   - Remove the `max-h-[600px]` constraint so the content flows naturally within the overlay's own scroll
-   - Remove `overflow-y-auto` from the content div (the overlay already handles scrolling)
-   - Reduce padding from `p-6` to `p-4` to use space more efficiently
-   - Reduce `space-y-5` to `space-y-4` for tighter spacing
+### 2. Relationship Tenure Banner
+A subtle badge or ribbon: *"Valued member since 2016 — 8 years with TCBY Bank"*. Could include a small loyalty milestone like a star or shield icon. Reinforces long-term trust.
 
-Result: a clean silver/light iPad frame that fits the light-theme overlay, with all content visible without double-scrolling.
+### 3. Proactive Financial Wellness Score
+A circular gauge or progress ring (e.g., 78/100) labeled "Your Financial Wellness." Brief callouts beneath: *"Emergency fund: Strong"*, *"Debt ratio: Improving"*, *"Savings rate: On track."* Positions the bank as a partner in financial health, not just a product seller.
+
+### 4. Personalized Quick Actions Row
+A horizontal row of contextual shortcuts based on the customer's profile. Examples: "Transfer to Savings", "Review Mortgage Rate", "Explore 529 Plans", "Schedule Tax Review". These adapt based on life events and holdings.
+
+### 5. Upcoming Milestones Timeline
+A compact horizontal timeline showing the customer's milestones (from `profile.milestones`): *"Mar 2025 — Mortgage renewal"*, *"Sep 2025 — College tuition due"*. Visual dots connected by a line. Makes the bank feel anticipatory.
+
+### 6. Local Community / Branch Card
+A card showing the nearest branch with hours, plus a local community perk: *"Your Westfield branch — Open until 6pm today"* or *"Exclusive: Local farmers market partnership — 2x rewards this Saturday."*
+
+---
+
+### Proposed Implementation
+
+**File: `src/components/demo/DemoWealthView.tsx`**
+
+Add these new sections between the existing Greeting Header and the Life Events section:
+
+1. **Advisor Card** — hardcoded advisor data (name, title, quote using `firstName`), avatar placeholder, "Schedule Meeting" button
+2. **Tenure + Wellness row** — two side-by-side compact cards: tenure badge (pulled from `customer.profile.tenure`) and a static wellness score gauge
+3. **Quick Actions** — horizontal scroll row of 4 contextual action chips
+4. **Milestones Timeline** — render `customer.profile.milestones` as a horizontal dot-timeline
+
+Keep the existing Life Events hero cards and Financial Snapshot below these new sections. No data model changes needed — all info comes from the existing `ClientProfileData` or is hardcoded for the demo.
 
