@@ -1,17 +1,17 @@
 
 
-## Merge Pillar × Region and Pillar × Age heatmaps into Pillar Deep Dive
+## Fix WM Copilot full-height in overlay
 
-The existing `PillarRegionHeatmap` and `PillarAgeHeatmap` are redundant now that `PillarDeepDiveHeatmap` already shows **Age × Region** for a selected pillar — combining both dimensions in one view. We'll remove the two old components and keep only the Deep Dive.
+**Problem**: `BankwideWMCopilotView` sets `height: calc(100vh - 200px)` — a value designed for the standalone page context. Inside the `DemoDetailOverlay`, this creates a mismatch because the overlay already manages height via flexbox (`flex-1`).
 
-### Changes
+**Fix** — two changes:
 
-**`src/components/tepilot/insights/BankwideView.tsx`**
-- Remove imports and rendering of `PillarRegionHeatmap` and `PillarAgeHeatmap`
-- The `PillarDeepDiveHeatmap` stays in its current position (between Pillar Explorer and Timing Grid)
+1. **`src/components/tepilot/insights/BankwideWMCopilotView.tsx`**
+   - Change the root div from `style={{ height: 'calc(100vh - 200px)' }}` to `className="flex flex-col h-full"`
+   - This lets it fill whatever parent container it's in (overlay or standalone page)
 
-**No other files need changes** — the old components can remain in the codebase as dead code, or be deleted for cleanliness. The mock data functions they call (`getPillarRegionMatrix`, `getPillarAgeMatrix`) stay since they don't hurt anything.
+2. **`src/components/demo/DemoDetailOverlay.tsx`**
+   - The `isBankWide` content div already skips padding — but ensure it also passes height. Currently: `className="flex-1 overflow-y-auto"` — this is already correct for flexbox height propagation, no change needed here.
 
-### Result
-The Bankwide view goes from three separate heatmap sections to one unified **Pillar Deep Dive** that covers both age and region dimensions simultaneously, with richer subcategory insights.
+**Result**: The WM Copilot dashboard and client view will stretch to fill the full overlay height.
 
