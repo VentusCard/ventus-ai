@@ -293,7 +293,16 @@ function RewardsPhoneMockup({
                           <span className="text-[9px] text-slate-300">Personalizing…</span>
                         </div>
                       ) : (
-                        <p className="text-[10px] text-slate-400 mt-0.5">{deal.dealDescription || "Exclusive reward"}</p>
+                        <div className="flex items-end justify-between gap-2 mt-0.5">
+                          <p className="text-[10px] text-slate-400 flex-1 line-clamp-2">{deal.dealDescription || "Exclusive reward"}</p>
+                          <button
+                            className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0 cursor-pointer transition-all hover:opacity-90 active:scale-95"
+                            style={{ background: color }}
+                            onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
+                          >
+                            View Deal
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
