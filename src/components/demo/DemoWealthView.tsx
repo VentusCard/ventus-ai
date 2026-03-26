@@ -164,12 +164,12 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                 <div className="grid grid-cols-3 gap-3">
                   {/* Relationship + Branch */}
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 mb-2">
                       <Star className="w-3.5 h-3.5 text-amber-500" />
                       <span className="text-[10px] font-semibold text-slate-700">Your Relationship</span>
                     </div>
                     <p className="text-xs text-slate-600">Valued member since <span className="font-semibold text-slate-900">{sinceYear}</span></p>
-                    <div className="flex items-center gap-1.5 mt-1">
+                    <div className="flex items-center gap-1.5 mt-2">
                       <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
                       <p className="text-[10px] text-slate-500">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
                     </div>
