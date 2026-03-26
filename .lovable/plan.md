@@ -1,23 +1,33 @@
 
 
-## Add Subtle Gradient to Bank-Facing Cards
+## Fix: Misaligned Connection Lines
 
-### What
-Apply a subtle gradient background to each of the 3 bank-facing cards per row, similar to how the Advanced Enrichment engine capability cards look — but using a gradient from `color + 08` to `color + 18` (light wash to slightly stronger wash).
+### Root cause
 
-### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
-
-**Line 391** — Replace the flat `background` on bank node buttons:
-
-```typescript
-// Before
-background: canOpen ? `${node.color}15` : "#ffffff",
-
-// After
-background: canOpen
-  ? `linear-gradient(135deg, ${node.color}08 0%, ${node.color}20 100%)`
-  : "#ffffff",
+On line 155, the grid top is calculated as:
+```ts
+const gridTopY = midY - totalGridHeight / 2 + 20;
 ```
 
-Single line change. No structural changes needed.
+But the bank→consumer lines (line 253) and consumer→impact lines (line 279) both recalculate it without the `+ 20`:
+```ts
+const gTopY = midY - totalGridH / 2;  // missing + 20
+```
+
+This causes the SVG lines to target the wrong Y positions.
+
+### Fix — `src/components/demo/DemoNetworkDiagram.tsx`
+
+**Lines 252-253** — Replace local `gTopY` with `gridTopY`:
+```ts
+const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+```
+Remove the `totalGridH` and `gTopY` local variables.
+
+**Lines 278-280** — Same fix:
+```ts
+const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+```
+
+Two small edits, no structural changes.
 
