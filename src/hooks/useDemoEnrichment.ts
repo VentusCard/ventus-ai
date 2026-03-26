@@ -130,7 +130,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
   const CONSUMER_DEPS: Record<string, DemoNodeType[]> = {
     engagement: ["analytics", "outflow", "aiFinancialInsights"],
-    rewards: ["travel", "locational", "dealPersonalization"],
+    rewards: ["dealPersonalization"],
     wealth: ["lifeEventIntel", "lifeEvents"],
   };
   const CONSUMER_NODES = new Set(Object.keys(CONSUMER_DEPS));
