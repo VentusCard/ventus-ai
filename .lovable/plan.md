@@ -1,45 +1,51 @@
 
 
-## Ventus AI Welcome Tab — with Hot Trends & Spending Intelligence
+## New Edge Function: `bankwide-chat` — Executive-Grade Banking Intelligence
 
-### Overview
-Create a "Ventus AI" welcome tab as the first tab in bank analytics. It features a dark gradient hero, an AI chatbot pre-loaded with platform-wide context including **hot spending trends and need-to-know insights**, and navigation cards to all other tabs.
+### Why a new function
+The existing `advisor-chat` is tailored for individual client wealth management (psychology profiles, RMDs, Monte Carlo results). The Ventus AI welcome tab serves **bank leadership** analyzing portfolio-wide trends. A dedicated function delivers a sharply different system prompt, tone, and context formatting without cluttering the advisor function.
 
-### New File: `src/components/tepilot/insights/VentusAIWelcomeView.tsx`
+### New file: `supabase/functions/bankwide-chat/index.ts`
 
-**Layout (top to bottom):**
-1. **Gradient hero header** — dark `slate-900 → blue-900` with Sparkles icon, "Ventus AI" title, subtitle "Your Intelligent Banking Co-Pilot"
-2. **Hot Trends & Need-to-Know strip** — a horizontal row of 4-5 compact insight cards auto-generated from `mockBankwideData` showing:
-   - Top trending spending pillar (e.g. "Travel & Exploration ↑ 12% MoM")
-   - Highest outflow category
-   - Emerging life event signal (e.g. "Home Purchase signals up 8%")
-   - Seasonal alert (e.g. "Holiday spending wave starting")
-   - Portfolio-wide metric (e.g. "$385B annual spend across 75M users")
-   These are static/computed from existing mock data, styled as small gradient-bordered cards on the dark background.
-3. **Chat window** — white card with:
-   - Messages rendered with `ReactMarkdown`
-   - Uses `useAdvisorChat` hook with a rich `advisorContext` object describing all 10 platform modules + bankwide metrics + hot trends so the AI can answer any question
-   - 4 suggested starter prompts as clickable chips: "What are the hot spending trends?", "Key risks I should know about", "Which segments need attention?", "Summarize platform capabilities"
-   - Input bar at bottom
-4. **Quick Navigation grid** — 2-row, 5-column grid of compact cards, one per tab (all 10 tabs), each with icon + label + one-line description. Clicking calls `onNavigate(tabValue)`.
+**System prompt — ultra-professional executive tone:**
+- Persona: "Ventus Intelligence Briefing" — a senior banking strategy analyst
+- Audience: C-suite, SVPs, heads of consumer banking
+- Tone: authoritative, data-driven, concise, no filler — McKinsey-grade
+- Output style: executive briefing bullets, bold headline insights, quantified impact
+- When discussing trends: always cite figures, growth rates, affected user counts
+- When identifying risks: lead with severity, quantify exposure, recommend mitigation
+- Structured sections: "Key Finding", "Supporting Data", "Recommended Action"
 
-**Chat context will include:**
-- Bankwide metrics (total accounts, users, annual spend)
-- Top pillar spending distribution from `CARD_PRODUCTS`
-- Hot trends: computed MoM changes, seasonal patterns
-- Platform module descriptions (what each tab does)
-- This ensures the chatbot can discuss trends, spending patterns, and direct users to relevant tabs
+**Context formatting:**
+- Accepts a `context` object with `bankwideMetrics`, `hotTrends`, `modules`, `cardProducts`
+- Formats into a structured executive data brief with sections: Portfolio Overview, Spending Trends, Competitive Landscape, Life Event Signals, Product Distribution
+- Richer than the current freeform pass-through — structured for leadership questions
 
-### Update: `src/components/tepilot/insights/AnalyticsContainer.tsx`
-- Add `'ventus-ai'` to `TabValue` union
-- Insert new "Home" nav group at top of `NAV_GROUPS` with single item `{ value: "ventus-ai", label: "Ventus AI", icon: Sparkles }`
-- Change default tab from `'dashboard'` to `'ventus-ai'`
-- Add `renderContent()` case: `case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />`
+**Technical details:**
+- Same CORS pattern as `advisor-chat`
+- Same Lovable AI gateway call (`google/gemini-2.5-flash`)
+- Same error handling (429/402/500)
+- Non-streaming (matches current `useAdvisorChat` pattern)
+- `verify_jwt = false` in config.toml
 
-### Technical Details
-- Reuses existing `useAdvisorChat` hook → calls `advisor-chat` edge function (no new backend needed)
-- Hot trends are computed client-side from `mockBankwideData.ts` constants
-- Navigation cards reuse the same icon imports from `AnalyticsContainer`
-- The gradient hero uses `bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900`
-- Trend cards use `TrendingUp`/`TrendingDown` icons with green/red accents
+### Update: `supabase/config.toml`
+Add:
+```toml
+[functions.bankwide-chat]
+verify_jwt = false
+```
+
+### Update: `src/hooks/useAdvisorChat.ts`
+Add an optional `functionName` prop (default: `"advisor-chat"`) so the welcome view can call `"bankwide-chat"` instead, without duplicating hook logic.
+
+### Update: `src/components/tepilot/insights/VentusAIWelcomeView.tsx`
+- Pass `functionName: "bankwide-chat"` to `useAdvisorChat`
+- No other changes needed — the context object is already being passed
+
+### System prompt key behaviors
+1. **Hot trends**: When asked about trends, structure response as a ranked briefing with magnitude, affected segments, and strategic implications
+2. **Need-to-knows**: Proactively flag deposit flight risk, seasonal patterns, underperforming segments, and cross-sell gaps
+3. **Navigation guidance**: When a question maps to a specific module, mention it by name and suggest the user explore it
+4. **Competitor intelligence**: Frame outflow data as strategic risk with retention ROI estimates
+5. **Executive summary style**: Every response opens with a bold one-line takeaway before supporting detail
 
