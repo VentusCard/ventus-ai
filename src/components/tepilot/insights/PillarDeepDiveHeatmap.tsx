@@ -312,7 +312,7 @@ export function PillarDeepDiveHeatmap() {
           </div>
           <span className="ml-2">| Cells with index &gt;130 are highlighted</span>
         </div>
-      </CardContent>
+      </CardContent>}
     </Card>
   );
 }
