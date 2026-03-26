@@ -164,7 +164,7 @@ export function buildCustomDemoCustomer(
         incomeLevel: demographics.incomeLevel || "$100,000",
         industry: demographics.industry || "Other",
       },
-      holdings: { deposit: "$50,000", credit: "$10,000", mortgage: "$0", investments: "$40,000" },
+      holdings: { deposit: "$190,000", credit: "$10,000", mortgage: "$0", investments: "$40,000" },
       compliance: { kycStatus: "Current", lastReview: "2025-01-01", nextReview: "2026-01-01", riskProfile: "Moderate" },
       milestones: [],
     },
