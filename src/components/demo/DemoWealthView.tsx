@@ -109,29 +109,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                 {/* Greeting */}
                 <p className="text-sm font-semibold text-slate-900 px-1">Welcome back, {firstName} <span className="font-normal text-slate-400">· {customer.profile.segment} Member</span></p>
 
-                {/* Dedicated Advisor Card */}
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-blue-700">JR</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-900">James Rivera</p>
-                      <p className="text-[10px] text-slate-400">Senior Relationship Manager</p>
-                      <p className="text-xs text-slate-600 mt-1.5 italic">
-                        "Hi {firstName}, let's plan your next chapter together."
-                      </p>
-                      <div className="flex gap-2 mt-2.5">
-                        <button className="flex items-center gap-1.5 text-[10px] font-semibold text-white bg-blue-600 rounded-lg px-3 py-1.5 hover:bg-blue-700 transition-colors">
-                          <Calendar className="w-3 h-3" /> Schedule Meeting
-                        </button>
-                        <button className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-600 bg-blue-50 rounded-lg px-3 py-1.5 hover:bg-blue-100 transition-colors">
-                          <MessageCircle className="w-3 h-3" /> Message
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Tenure + Wellness Row */}
                 <div className="grid grid-cols-2 gap-3">
@@ -204,6 +181,7 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                           style={{ borderColor: `${meta.color}30` }}
                         >
                           <div className="p-4">
+                            {/* Event header */}
                             <div className="flex items-start gap-3 mb-3">
                               <div
                                 className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -216,23 +194,38 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                                 <p className="text-xs text-slate-500 mt-0.5">{meta.description}</p>
                               </div>
                             </div>
-                            <div className="rounded-lg p-3 mb-3" style={{ background: `${meta.color}06` }}>
-                              <p className="text-[10px] font-semibold text-slate-700 mb-2">How we can help</p>
-                              <div className="space-y-1.5">
-                                {meta.suggestions.map((s, j) => (
-                                  <div key={j} className="flex items-center gap-2">
-                                    <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: meta.color }} />
-                                    <span className="text-xs text-slate-600">{s}</span>
-                                  </div>
-                                ))}
+                            {/* Two-column: suggestions + advisor */}
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="rounded-lg p-3" style={{ background: `${meta.color}06` }}>
+                                <p className="text-[10px] font-semibold text-slate-700 mb-2">How we can help</p>
+                                <div className="space-y-1.5">
+                                  {meta.suggestions.map((s, j) => (
+                                    <div key={j} className="flex items-center gap-2">
+                                      <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: meta.color }} />
+                                      <span className="text-xs text-slate-600">{s}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="rounded-lg bg-slate-50 p-3 flex flex-col items-center text-center">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center mb-1.5">
+                                  <span className="text-[10px] font-bold text-blue-700">JR</span>
+                                </div>
+                                <p className="text-[10px] font-semibold text-slate-900">James Rivera</p>
+                                <p className="text-[8px] text-slate-400">Senior Relationship Manager</p>
+                                <p className="text-[10px] text-slate-500 mt-1 italic leading-tight">
+                                  "Hi {firstName}, let's plan together."
+                                </p>
+                                <div className="flex gap-1.5 mt-2">
+                                  <button className="flex items-center gap-1 text-[9px] font-semibold text-white bg-blue-600 rounded-md px-2 py-1 hover:bg-blue-700 transition-colors">
+                                    <Calendar className="w-2.5 h-2.5" /> Schedule
+                                  </button>
+                                  <button className="flex items-center gap-1 text-[9px] font-semibold text-blue-600 bg-blue-50 rounded-md px-2 py-1 hover:bg-blue-100 transition-colors">
+                                    <MessageCircle className="w-2.5 h-2.5" /> Message
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                            <button
-                              className="w-full flex items-center justify-center gap-2 text-xs font-semibold py-2 rounded-lg transition-colors"
-                              style={{ color: meta.color, background: `${meta.color}08` }}
-                            >
-                              Explore Options <ArrowRight className="w-3 h-3" />
-                            </button>
                           </div>
                         </div>
                       );
