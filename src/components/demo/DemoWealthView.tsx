@@ -7,7 +7,7 @@ interface Props {
   detectedEvents?: DetectedLifeEventResult[];
 }
 
-const EVENT_META: Record<string, { icon: React.ElementType; color: string; description: string; suggestions: string[] }> = {
+const EVENT_META: Record<string, { icon: React.ElementType; color: string; description: string; suggestions: string[]; ctas: string[] }> = {
   "Retirement Planning": {
     icon: Sunset, color: "#f59e0b",
     description: "It looks like you're planning for the next chapter. We're here to help you get there confidently.",
