@@ -432,20 +432,20 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                     height: CONSUMER_NODE_HEIGHT,
                     cursor: canOpen ? "pointer" : "not-allowed",
                     opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                    background: canOpen ? `${node.color}12` : "#ffffff",
-                    borderColor: canOpen ? `${node.color}70` : "#e2e8f0",
+                    background: canOpen ? node.color : "#ffffff",
+                    borderColor: canOpen ? node.color : "#e2e8f0",
                     boxShadow: canOpen ? `0 0 16px ${node.color}18` : "0 1px 3px rgba(0,0,0,0.04)",
                     zIndex: 2,
                   }}
                 >
                   <div
                     className={`${centered ? "w-9 h-9" : "w-7 h-7"} rounded-lg flex items-center justify-center mb-1`}
-                    style={{ background: canOpen ? `${node.color}20` : `${node.color}10`, border: `1px solid ${canOpen ? `${node.color}40` : `${node.color}20`}` }}
+                    style={{ background: canOpen ? "rgba(255,255,255,0.25)" : `${node.color}10`, border: `1px solid ${canOpen ? "rgba(255,255,255,0.4)" : `${node.color}20`}` }}
                   >
-                    <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: node.color }} />
+                    <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: canOpen ? "#ffffff" : node.color }} />
                   </div>
-                  <p className={`font-semibold text-slate-900 ${centered ? "text-[14px]" : "text-[13px]"}`}>{node.label}</p>
-                  <p className={`text-slate-500 ${centered ? "text-[12px]" : "text-[11px]"}`}>
+                  <p className={`font-semibold ${canOpen ? "text-white" : "text-slate-900"} ${centered ? "text-[14px]" : "text-[13px]"}`}>{node.label}</p>
+                  <p className={`${canOpen ? "text-white/80" : "text-slate-500"} ${centered ? "text-[12px]" : "text-[11px]"}`}>
                     {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
                   </p>
                 </button>
@@ -481,15 +481,15 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 key={mi}
                 className="flex items-center gap-1.5 rounded-md px-2 py-1 border transition-all duration-500"
                 style={{
-                  background: consumerReady ? `${impactData.color}12` : "transparent",
-                  borderColor: consumerReady ? `${impactData.color}30` : "#e2e8f020",
+                  background: consumerReady ? impactData.color : "transparent",
+                  borderColor: consumerReady ? impactData.color : "#e2e8f020",
                   opacity: consumerReady ? 1 : 0,
                   transform: consumerReady ? "translateX(0)" : "translateX(-8px)",
                   transitionDelay: consumerReady ? `${mi * 200}ms` : "0ms",
                 }}
               >
-                <ArrowUpRight className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: "#22c55e" }} />
-                <span className={`font-semibold text-slate-700 ${centered ? "text-[12px]" : "text-[10px]"} whitespace-nowrap`}>{metric}</span>
+                <ArrowUpRight className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0 text-white`} />
+                <span className={`font-semibold text-white ${centered ? "text-[12px]" : "text-[10px]"} whitespace-nowrap`}>{metric}</span>
               </div>
             ))}
           </div>
