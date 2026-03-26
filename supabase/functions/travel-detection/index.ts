@@ -3,7 +3,7 @@
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
 // Configuration
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 15;
 const CONCURRENCY_LIMIT = 2;
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
