@@ -1,44 +1,31 @@
 
 
-## Redesign "Next Step" Popup
+## Fix "Next Step" Popup Spacing & Typography
 
-### Overview
-Replace the current contact-form dialog with a larger, two-panel closing slide. Left panel shows the brand message; right panel has 3 buttons that open the uploaded deck pages as full-screen image overlays.
+Looking at the screenshot, the issues are: cramped header, thin separator, small tagline text, Mission section labels too small, body text too small, cards on right need more breathing room, and the overall dialog feels tight.
 
-### Changes
+### Changes — `src/components/ContactFormDialog.tsx`
 
-**1. Copy deck page images into project**
-Copy the 3 full-page screenshots to `src/assets/deck/`:
-- `go-to-market.jpg` (Go-to-Market Strategy)
-- `team-traction.jpg` (Team & Traction)
-- `competitive-landscape.jpg` (Competitive Landscape)
+**Header (lines 33-37)**
+- Increase padding: `px-10 pt-8 pb-6` → `px-12 pt-10 pb-8`
+- Logo: `w-36` → `w-44` (bigger)
+- Separator: `h-6 w-px` → `h-8 w-px bg-slate-300` (taller, darker)
+- Tagline: `text-lg font-semibold text-slate-700` → `text-xl font-bold text-slate-800`
 
-**2. Rewrite `src/components/ContactFormDialog.tsx`**
+**Left panel — Mission (lines 41-60)**
+- More padding: `p-10 md:p-12` → `p-10 md:p-14`
+- "MISSION" label: `text-xs` → `text-[13px]`, add `text-slate-500` and `mb-10`
+- Section labels ("RIGHT NOW", etc.): `text-[11px]` → `text-[12px]`, `mb-1.5` → `mb-2`
+- Body text: `text-[15px]` → `text-base` (16px)
+- Increase vertical gaps: `space-y-8` → `space-y-10`
 
-- Widen dialog: `sm:max-w-4xl` (up from `3xl`)
-- Two-column layout:
+**Right panel — Deck buttons (lines 63-82)**
+- More padding: `p-10 md:p-12` → `p-10 md:p-14`
+- "Learn More" heading: `text-xl mb-6` → `text-2xl mb-8`
+- Cards: `px-5 py-4` → `px-6 py-5`, gap `space-y-4` → `space-y-5`
+- Icon container: `w-10 h-10` → `w-11 h-11`
+- Card label text: `text-[15px]` → `text-base`
 
-**Left panel** (slate-50 background):
-- Bigger Ventus logo (`w-36` instead of `w-24`)
-- New tagline: **"Banking Should be Deeply Personal"** in large bold text below the logo
-- Keep the 3 narrative blocks (Right now / With VentusAI / What's next) but give them more vertical breathing room and slightly larger text
-
-**Right panel**:
-- Remove the contact form entirely
-- Replace with heading "Learn More" and 3 large styled buttons:
-  1. "Go-to-Market Strategy"
-  2. "Team & Traction"  
-  3. "Competitive Landscape"
-- Each button opens a full-screen image overlay showing the corresponding deck page screenshot
-- Overlay has a close button and semi-transparent dark backdrop
-
-**3. Internal state for deck viewer**
-- Add `activeDeck: string | null` state to track which deck image to show
-- When a button is clicked, set `activeDeck` to the corresponding image import
-- Render a fixed full-screen overlay with the deck image centered and a close/X button
-
-### Result
-- "Next Step" opens a polished closing slide instead of a contact form
-- 3 clickable buttons let the presenter show GTM, Team, and Competitive slides inline
-- No navigation away from the demo page
+**Dialog min-height**
+- `min-h-[360px]` → `min-h-[400px]`
 
