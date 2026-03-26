@@ -78,7 +78,7 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
             {/* Status bar */}
             <div className="flex items-center justify-between px-5 py-1 bg-white border-b border-slate-100">
               <span className="text-[9px] font-semibold text-slate-500">9:41 AM</span>
-              <span className="text-[9px] text-slate-400 font-mono">yourbank.com/banking</span>
+              <span className="text-[9px] text-slate-400 font-mono">TCBY Bank</span>
               <div className="flex items-center gap-1">
                 <div className="w-3.5 h-2 rounded-sm border border-slate-400 relative">
                   <div className="absolute inset-0.5 bg-green-500 rounded-[1px]" style={{ width: '70%' }} />
