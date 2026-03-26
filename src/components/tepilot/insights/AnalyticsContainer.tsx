@@ -93,7 +93,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   };
 
   return (
-    <div className="w-full min-h-[600px] rounded-xl border border-slate-200 overflow-hidden bg-white">
+    <div className="w-full h-screen flex flex-col border border-slate-200 overflow-hidden bg-white">
       {/* Professional Header */}
       <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200">
         <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </div>
       </div>
 
-      <div className="flex min-h-[560px]">
+      <div className="flex flex-1 min-h-0">
       <div
         className={cn(
           "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
