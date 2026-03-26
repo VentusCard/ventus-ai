@@ -150,7 +150,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
           {/* Header */}
           <div className="flex items-center gap-3 mb-2">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30">
-              <Sparkles className="w-5 h-5 text-blue-400" />
+              <span className="text-lg font-black text-blue-400 leading-none">V</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-tight">Ventus AI</h1>
