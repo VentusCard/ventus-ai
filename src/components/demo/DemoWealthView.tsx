@@ -139,8 +139,8 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                   </div>
                 </div>
 
-                {/* Tenure + Wellness Row */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Tenure + Deals + Wellness Row */}
+                <div className="grid grid-cols-3 gap-3">
                   {/* Relationship + Branch */}
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
                     <div className="flex items-center gap-2 mb-1.5">
@@ -152,6 +152,30 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                       <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
                       <p className="text-[10px] text-slate-500">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
                     </div>
+                  </div>
+
+                  {/* Deals for You */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Gift className="w-3.5 h-3.5 text-purple-500" />
+                      <span className="text-[10px] font-semibold text-slate-700">Deals for You</span>
+                    </div>
+                    {customer.deals.length > 0 && (() => {
+                      const deal = customer.deals[0];
+                      return (
+                        <div className="rounded-lg border border-slate-100 p-2">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-[11px] font-semibold text-slate-900">{deal.brand}</span>
+                            <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600 font-medium">{deal.tag}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 leading-snug">{deal.offer}</p>
+                          <div className="flex items-center justify-between mt-1.5">
+                            <span className="text-[9px] text-emerald-600 font-medium">{deal.match}% match</span>
+                            <button className="text-[8px] font-semibold text-purple-600 hover:text-purple-700">Activate →</button>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Wellness Score */}
