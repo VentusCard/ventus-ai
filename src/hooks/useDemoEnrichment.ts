@@ -130,7 +130,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
   const CONSUMER_DEPS: Record<string, DemoNodeType[]> = {
     engagement: ["analytics", "outflow", "aiFinancialInsights"],
-    rewards: ["travel", "locational", "dealPersonalization"],
+    rewards: ["dealPersonalization"],
     wealth: ["lifeEventIntel", "lifeEvents"],
   };
   const CONSUMER_NODES = new Set(Object.keys(CONSUMER_DEPS));
@@ -232,7 +232,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     if (
       lastEnrichedRef.current === customer.id &&
       nodeReadiness.analytics === "ready" &&
-      nodeReadiness.travel === "ready"
+      nodeReadiness.dealPersonalization === "ready"
     ) {
       toast.info("Already enriched. Change a customer to re-enrich.");
       return;
@@ -337,7 +337,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           } catch (err) {
             console.warn("[Phase2] Deal personalization failed:", err);
           }
-          setNodeReady({ rewards: "ready", dealPersonalization: "ready" });
+          setNodeReady({ rewards: "ready", dealPersonalization: "ready", travel: "ready", locational: "ready" });
         };
 
         fireRewardsPersonalization();
@@ -427,25 +427,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
 
       // === FIRE EVERYTHING IN PARALLEL ===
 
-      // Track travel readiness
-      let localExperiencesDone = false;
-      let travelDetectionDone = false;
-      const maybeSetTravelReady = () => {
-        if (localExperiencesDone && travelDetectionDone) {
-          setNodeReady({ travel: "ready", locational: "ready" });
-        }
-      };
-
-      // 1. Classify + travel-detection
-      enrich.startEnrichment(txns, customer.zip, onClassified)
-        .then(() => {
-          travelDetectionDone = true;
-          maybeSetTravelReady();
-        })
-        .catch(() => {
-          travelDetectionDone = true;
-          maybeSetTravelReady();
-        });
+      // 1. Classify + travel-detection (readiness already set via dealPersonalization)
+      enrich.startEnrichment(txns, customer.zip, onClassified);
 
       // 2. Local experiences
       const CATEGORIES = ["dining", "entertainment", "shopping"];
@@ -478,13 +461,8 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           expData[customer.id] = results;
           setLocalExperiences(expData);
           setApiPayloads(prev => ({ ...prev, localExperiences: { request: { city: customer.trips[0]?.destination.split(",")[0].trim(), categories: CATEGORIES }, response: results } }));
-          localExperiencesDone = true;
-          maybeSetTravelReady();
         })
-        .catch(() => {
-          localExperiencesDone = true;
-          maybeSetTravelReady();
-        });
+        .catch(() => {});
 
     } catch (err: any) {
       toast.error(err.message);

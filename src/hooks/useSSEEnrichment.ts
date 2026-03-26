@@ -15,7 +15,7 @@ interface UseSSEEnrichmentReturn {
 }
 
 // Constants for resilience
-const FETCH_TIMEOUT_MS = 60000; // 60 seconds
+const FETCH_TIMEOUT_MS = 120000; // 120 seconds
 const RETRY_DELAY_MS = 2000; // 2 seconds
 const MAX_RETRIES = 1;
 

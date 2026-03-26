@@ -21,10 +21,15 @@ const CATEGORY_HEX: Record<string, string> = {
   Travel: "#0284c7",
 };
 
+function getFallbackMessage(deal: BankDeal): string {
+  return `Unlock exclusive savings: ${deal.rewardValue} at ${deal.merchantName}, save today!`;
+}
+
 interface Props {
   customer: DemoCustomer;
   enriched?: EnrichedTransaction[];
   precomputed?: PersonalizedDealData | null;
+  travelCity?: string;
 }
 
 async function fetchPersonalization(
@@ -66,7 +71,7 @@ async function fetchPersonalization(
   }
 }
 
-export default function DemoRewardsView({ customer, enriched, precomputed }: Props) {
+export default function DemoRewardsView({ customer, enriched, precomputed, travelCity }: Props) {
   const hasEnriched = (enriched?.length ?? 0) > 0;
 
   const profile = useMemo(() => hasEnriched && enriched ? deriveCustomerProfile(enriched) : null, [enriched, hasEnriched]);
@@ -84,7 +89,8 @@ export default function DemoRewardsView({ customer, enriched, precomputed }: Pro
     }
   }, [deals, profile, customer, precomputed]);
 
-  const city = getCityFromZip(customer.zip);
+  const homeCity = getCityFromZip(customer.zip);
+  const city = travelCity || homeCity;
   const perks = useMemo(() => getPerksForCity(city), [city]);
   const color = "#3b82f6";
 
@@ -248,7 +254,7 @@ function RewardsPhoneMockup({
             <LocalPerksSection city={city} perks={perks} color={color} />
           )}
 
-          <div className="space-y-1.5">
+          <div className="grid grid-cols-2 gap-1.5">
             {hasEnriched && deals.length > 0 ? (
               deals.map((deal, i) => {
                 const p = personalized[deal.id];
@@ -274,7 +280,7 @@ function RewardsPhoneMockup({
                         </span>
                       </div>
 
-                      {p ? (
+                      {p?.msg ? (
                         <div className="flex items-end justify-between gap-2 mt-0.5">
                           <p className="text-[10px] leading-relaxed text-slate-600 italic line-clamp-2 flex-1">"{p.msg}"</p>
                           <button
@@ -282,7 +288,7 @@ function RewardsPhoneMockup({
                             style={{ background: color }}
                             onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
                           >
-                            {p.cta}
+                            {p.cta || "View Deal"}
                           </button>
                         </div>
                       ) : loading ? (
@@ -290,7 +296,18 @@ function RewardsPhoneMockup({
                           <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
                           <span className="text-[9px] text-slate-300">Personalizing…</span>
                         </div>
-                      ) : null}
+                      ) : (
+                        <div className="flex items-end justify-between gap-2 mt-0.5">
+                          <p className="text-[10px] leading-relaxed text-slate-600 italic line-clamp-2 flex-1">"{getFallbackMessage(deal)}"</p>
+                          <button
+                            className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-white shrink-0 cursor-pointer transition-all hover:opacity-90 active:scale-95"
+                            style={{ background: color }}
+                            onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
+                          >
+                            Save Today
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

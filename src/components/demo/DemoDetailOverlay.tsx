@@ -84,11 +84,13 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
       return <DemoEngagementView customer={customer} enriched={enriched} tip={tip} />;
     }
     if (node === "rewards") {
+      const travelCity = localExperiences?.[customer.id]?.[0]?.destination;
       return (
         <DemoRewardsView
           customer={customer}
           enriched={enriched}
           precomputed={personalizedDeals}
+          travelCity={travelCity}
         />
       );
     }
