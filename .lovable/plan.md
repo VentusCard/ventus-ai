@@ -1,51 +1,20 @@
 
 
-## Plan: Normalize Travel Destination Names
+## Updated Plan: Normalize Network Diagram Node Colors
 
-### Problem
-The AI model returns inconsistent destination names across batches — e.g., "New York" vs "New York City" — which creates duplicate trips in the timeline because `trip_label` uses the raw destination string.
+Same approach as before — one color per row shared across bank nodes, consumer node, and impact metric — but replacing purple for Row 3 since the engine capabilities column already uses purple/indigo tones.
 
-### Solution
-Add a destination normalization step in `supabase/functions/travel-detection/index.ts` after all batches complete, before trip labels are built.
+### Color assignments
 
-### Changes — `supabase/functions/travel-detection/index.ts`
+| Row | Color | Hex | Applies to |
+|-----|-------|-----|------------|
+| Analytics | Blue | `#3b82f6` | 3 bank nodes + Personalized UX + impact row 1 |
+| Rewards | Green | `#22c55e` | 3 bank nodes + Personalized Rewards + impact row 2 |
+| Growth & Wealth | **Rose/Pink** | `#f43f5e` | 3 bank nodes + Personalized Relationship + impact row 3 |
 
-**1. Add a normalization map (~line 360, before the trip-grouping logic)**
+Engine capabilities stay as-is (`#6366f1`, `#8b5cf6`, `#a78bfa`).
 
-```typescript
-const DESTINATION_ALIASES: Record<string, string> = {
-  "new york city": "New York",
-  "nyc": "New York",
-  "manhattan": "New York",
-  "brooklyn": "New York",
-  "los angeles": "Los Angeles",
-  "la": "Los Angeles",
-  "san francisco": "San Francisco",
-  "sf": "San Francisco",
-  "washington dc": "Washington D.C.",
-  "washington d.c.": "Washington D.C.",
-  "dc": "Washington D.C.",
-  // Add more as needed
-};
+### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
 
-function normalizeDestination(dest: string): string {
-  return DESTINATION_ALIASES[dest.toLowerCase().trim()] || dest.trim();
-}
-```
-
-**2. Apply normalization to all updates before trip grouping (~line 368)**
-
-After raw updates are collected from all batches, normalize every `travel_destination`:
-
-```typescript
-updates.forEach(u => {
-  if (u.travel_destination) {
-    u.travel_destination = normalizeDestination(u.travel_destination);
-  }
-});
-```
-
-This runs before the `seenTrips` dedup logic and before `trip_label` construction, so all downstream grouping uses consistent names.
-
-**3. Redeploy the edge function**
+Update ~12 color strings across `PILLAR_ROWS` and `IMPACT_METRICS`. No structural changes.
 
