@@ -67,20 +67,24 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
     <div className="flex justify-center">
       <div className="w-full max-w-[820px]">
         {/* iPad frame */}
-        <div className="rounded-2xl border-2 border-slate-200 overflow-hidden bg-white" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-          {/* Browser bar */}
-          <div className="flex items-center gap-2.5 px-4 py-2 border-b border-slate-200 bg-slate-50">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-300" />
-              <span className="w-2.5 h-2.5 rounded-full bg-yellow-300" />
-              <span className="w-2.5 h-2.5 rounded-full bg-green-300" />
-            </div>
-            <div className="flex-1 flex justify-center">
-              <span className="text-[9px] text-slate-400 font-mono bg-white rounded px-3 py-0.5 border border-slate-200">
-                yourbank.com/banking
-              </span>
-            </div>
+        <div className="rounded-[2rem] border-[12px] border-slate-800 overflow-hidden bg-slate-800" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.18), inset 0 0 0 2px rgba(255,255,255,0.05)" }}>
+          {/* Camera */}
+          <div className="flex justify-center py-1 bg-slate-800">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-700 border border-slate-600" />
           </div>
+
+          {/* Screen */}
+          <div className="bg-slate-50 rounded-sm overflow-hidden">
+            {/* Status bar */}
+            <div className="flex items-center justify-between px-5 py-1 bg-white border-b border-slate-100">
+              <span className="text-[9px] font-semibold text-slate-500">9:41 AM</span>
+              <span className="text-[9px] text-slate-400 font-mono">yourbank.com/banking</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3.5 h-2 rounded-sm border border-slate-400 relative">
+                  <div className="absolute inset-0.5 bg-green-500 rounded-[1px]" style={{ width: '70%' }} />
+                </div>
+              </div>
+            </div>
 
           {/* Content area */}
           <div className="max-h-[600px] overflow-y-auto p-6">
