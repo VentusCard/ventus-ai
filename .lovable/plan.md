@@ -1,16 +1,15 @@
 
 
-## Fix sidebar to screen height, scroll only main content
+## Fix AnalyticsContainer to fill available space instead of overflowing
 
 ### Problem
-Currently the entire container (sidebar + content) scrolls together. The left sidebar should be fixed to the full screen height while only the right panel scrolls.
+`AnalyticsContainer` uses `h-screen` but it's rendered inside `DemoDetailOverlay` which already has a header bar (~56px). This means the container is 100vh tall inside a space that's already 100vh minus the overlay header — causing the "spill over" effect.
 
-### Changes (single file: `src/components/tepilot/insights/AnalyticsContainer.tsx`)
+### Fix (single file: `src/components/tepilot/insights/AnalyticsContainer.tsx`)
 
-1. **Outer container** (line 96): Change from `min-h-[600px]` to `h-screen flex flex-col` so it fills the viewport
-2. **Inner flex wrapper** (line 124): Change `min-h-[560px]` to `flex-1 min-h-0` so it fills remaining space after the header
-3. **Sidebar** (line 125-198): Add `h-full overflow-hidden` — the nav inside already has `overflow-y-auto` so sidebar nav scrolls independently if needed
-4. **Content area** (line 201): Already has `overflow-y-auto` — just ensure it works with the new height constraint by keeping `flex-1 min-h-0`
+Change the outer container class from `h-screen` to `h-full` so it fills whatever parent space is available rather than forcing viewport height. The parent (`DemoDetailOverlay`) already handles the full-screen layout with `absolute inset-0` and gives the content area `flex-1 overflow-y-auto`.
 
-This makes the sidebar stick to the viewport height while the main content panel scrolls independently.
+**Line 96**: `h-screen` → `h-full`
+
+This single change makes the dashboard fit within the overlay's content area without exceeding it, while still working correctly in other contexts (like `TePilot.tsx`).
 
