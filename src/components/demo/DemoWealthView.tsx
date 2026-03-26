@@ -1,6 +1,6 @@
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
-import { Heart, GraduationCap, Home, Briefcase, Baby, Sunset, Gift, DollarSign, TrendingUp, Sparkles, ArrowRight, Shield } from "lucide-react";
+import { Heart, GraduationCap, Home, Briefcase, Baby, Sunset, Gift, DollarSign, TrendingUp, Sparkles, ArrowRight, Shield, Calendar, MessageCircle, Star, Activity, PiggyBank, FileText, Send, Clock, MapPin } from "lucide-react";
 
 interface Props {
   customer: DemoCustomer;
@@ -51,10 +51,26 @@ const DEFAULT_META = {
   suggestions: ["Personalized financial consultation", "Tailored product recommendations", "Schedule a call with an advisor"],
 };
 
+const WELLNESS_ITEMS = [
+  { label: "Emergency fund", status: "Strong", color: "#22c55e" },
+  { label: "Debt ratio", status: "Improving", color: "#3b82f6" },
+  { label: "Savings rate", status: "On track", color: "#22c55e" },
+];
+
 export default function DemoWealthView({ customer, detectedEvents }: Props) {
   const holdings = customer.profile.holdings;
   const events = detectedEvents ?? [];
   const firstName = customer.profile.name.split(" ")[0];
+  const tenureYears = parseInt(customer.profile.tenure) || 8;
+  const sinceYear = new Date().getFullYear() - tenureYears;
+  const milestones = customer.profile.milestones ?? [];
+
+  const quickActions = [
+    { icon: PiggyBank, label: "Transfer to Savings" },
+    { icon: Home, label: "Review Mortgage Rate" },
+    { icon: GraduationCap, label: "Explore 529 Plans" },
+    { icon: FileText, label: "Schedule Tax Review" },
+  ];
 
   const holdingItems = [
     { label: "Savings & Deposits", value: holdings.deposit, icon: DollarSign, color: "#3b82f6" },
@@ -86,111 +102,220 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
               </div>
             </div>
 
-          {/* Content area */}
-          <div className="p-4">
-            <div className="max-w-2xl mx-auto space-y-4">
-              {/* Greeting Header */}
-              <div className="rounded-xl border border-slate-200 bg-white p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
-                    <span className="text-sm font-bold text-blue-600">
-                      {customer.profile.name.split(" ").map(w => w[0]).join("")}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-slate-900">Welcome back, {firstName}</p>
-                    <p className="text-xs text-slate-500">{customer.profile.segment} Member · {customer.profile.tenure}</p>
+            {/* Content area */}
+            <div className="p-4">
+              <div className="max-w-2xl mx-auto space-y-3">
+
+                {/* Greeting Header */}
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
+                      <span className="text-xs font-bold text-blue-600">
+                        {customer.profile.name.split(" ").map(w => w[0]).join("")}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Welcome back, {firstName}</p>
+                      <p className="text-[10px] text-slate-500">{customer.profile.segment} Member · {customer.profile.tenure}</p>
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-slate-600 mt-2">
-                  Based on your recent activity, we've put together personalized insights and recommendations just for you.
-                </p>
-              </div>
 
-              {/* Life Events — Hero Section */}
-              {events.length > 0 && (
-                <div className="space-y-3">
-                  <p className="text-xs font-bold tracking-widest uppercase text-slate-400 px-1">Your Upcoming Milestones</p>
-                  {events.map((event, i) => {
-                    const meta = EVENT_META[event.event_name] ?? DEFAULT_META;
-                    const Icon = meta.icon;
-                    return (
-                      <div
-                        key={i}
-                        className="rounded-xl border bg-white overflow-hidden"
-                        style={{ borderColor: `${meta.color}30` }}
-                      >
-                        <div className="p-4">
-                          <div className="flex items-start gap-3 mb-3">
-                            <div
-                              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                              style={{ background: `${meta.color}12` }}
-                            >
-                              <Icon className="w-4.5 h-4.5" style={{ color: meta.color }} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-slate-900">{event.event_name}</p>
-                              <p className="text-xs text-slate-500 mt-0.5">{meta.description}</p>
-                            </div>
-                          </div>
-
-                          <div className="rounded-lg p-3 mb-3" style={{ background: `${meta.color}06` }}>
-                            <p className="text-[10px] font-semibold text-slate-700 mb-2">How we can help</p>
-                            <div className="space-y-1.5">
-                              {meta.suggestions.map((s, j) => (
-                                <div key={j} className="flex items-center gap-2">
-                                  <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: meta.color }} />
-                                  <span className="text-xs text-slate-600">{s}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <button
-                            className="w-full flex items-center justify-center gap-2 text-xs font-semibold py-2 rounded-lg transition-colors"
-                            style={{ color: meta.color, background: `${meta.color}08` }}
-                          >
-                            Explore Options <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </div>
+                {/* Dedicated Advisor Card */}
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-bold text-blue-700">JR</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-slate-900">James Rivera</p>
+                      <p className="text-[10px] text-slate-400">Senior Relationship Manager</p>
+                      <p className="text-xs text-slate-600 mt-1.5 italic">
+                        "Hi {firstName}, let's plan your next chapter together."
+                      </p>
+                      <div className="flex gap-2 mt-2.5">
+                        <button className="flex items-center gap-1.5 text-[10px] font-semibold text-white bg-blue-600 rounded-lg px-3 py-1.5 hover:bg-blue-700 transition-colors">
+                          <Calendar className="w-3 h-3" /> Schedule Meeting
+                        </button>
+                        <button className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-600 bg-blue-50 rounded-lg px-3 py-1.5 hover:bg-blue-100 transition-colors">
+                          <MessageCircle className="w-3 h-3" /> Message
+                        </button>
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
                 </div>
-              )}
 
-              {/* Financial Snapshot */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Shield className="w-4 h-4 text-slate-400" />
-                  <p className="text-xs font-semibold text-slate-700">Your Financial Snapshot</p>
-                </div>
+                {/* Tenure + Wellness Row */}
                 <div className="grid grid-cols-2 gap-3">
-                  {holdingItems.map(item => {
-                    const Icon = item.icon;
-                    return (
-                      <div key={item.label} className="rounded-lg border border-slate-100 p-3">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <Icon className="w-3 h-3" style={{ color: item.color }} />
-                          <span className="text-[10px] text-slate-400">{item.label}</span>
-                        </div>
-                        <p className="text-sm font-semibold text-slate-900">{item.value}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                  {/* Tenure Banner */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Star className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-[10px] font-semibold text-slate-700">Your Relationship</span>
+                    </div>
+                    <p className="text-xs text-slate-600">Valued member since <span className="font-semibold text-slate-900">{sinceYear}</span></p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{tenureYears} years with TCBY Bank</p>
+                  </div>
 
-              {/* No events fallback */}
-              {events.length === 0 && (
-                <div className="rounded-xl border border-slate-200 bg-white p-5 text-center">
-                  <Sparkles className="w-6 h-6 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-700">Your personalized insights are on the way</p>
-                  <p className="text-xs text-slate-400 mt-1">We're analyzing your activity to bring you tailored recommendations.</p>
+                  {/* Wellness Score */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-[10px] font-semibold text-slate-700">Financial Wellness</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-9 h-9">
+                        <svg viewBox="0 0 36 36" className="w-9 h-9 -rotate-90">
+                          <circle cx="18" cy="18" r="15" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+                          <circle cx="18" cy="18" r="15" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray={`${78 * 0.942} 100`} strokeLinecap="round" />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-slate-800">78</span>
+                      </div>
+                      <div className="space-y-0.5">
+                        {WELLNESS_ITEMS.map(w => (
+                          <div key={w.label} className="flex items-center gap-1">
+                            <div className="w-1 h-1 rounded-full" style={{ background: w.color }} />
+                            <span className="text-[9px] text-slate-500">{w.label}: <span className="font-medium" style={{ color: w.color }}>{w.status}</span></span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Quick Actions */}
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                  <p className="text-[10px] font-semibold text-slate-700 mb-2">Quick Actions</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {quickActions.map(action => {
+                      const Icon = action.icon;
+                      return (
+                        <button key={action.label} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <Icon className="w-3.5 h-3.5 text-blue-600" />
+                          </div>
+                          <span className="text-[9px] text-slate-600 text-center leading-tight">{action.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Milestones Timeline */}
+                {milestones.length > 0 && (
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <p className="text-[10px] font-semibold text-slate-700">Upcoming Milestones</p>
+                    </div>
+                    <div className="relative flex items-start gap-0">
+                      {/* Connecting line */}
+                      <div className="absolute top-[7px] left-[7px] right-[7px] h-px bg-slate-200" />
+                      {milestones.slice(0, 4).map((m, i) => (
+                        <div key={i} className="flex-1 flex flex-col items-center relative z-10">
+                          <div className="w-3.5 h-3.5 rounded-full bg-blue-100 border-2 border-blue-400 flex items-center justify-center">
+                            <div className="w-1 h-1 rounded-full bg-blue-500" />
+                          </div>
+                          <p className="text-[9px] font-medium text-slate-700 mt-1.5 text-center leading-tight">{m.event}</p>
+                          <p className="text-[8px] text-slate-400 mt-0.5">{m.date}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Life Events — Hero Section */}
+                {events.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-xs font-bold tracking-widest uppercase text-slate-400 px-1">Your Upcoming Milestones</p>
+                    {events.map((event, i) => {
+                      const meta = EVENT_META[event.event_name] ?? DEFAULT_META;
+                      const Icon = meta.icon;
+                      return (
+                        <div
+                          key={i}
+                          className="rounded-xl border bg-white overflow-hidden"
+                          style={{ borderColor: `${meta.color}30` }}
+                        >
+                          <div className="p-4">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div
+                                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                                style={{ background: `${meta.color}12` }}
+                              >
+                                <Icon className="w-4.5 h-4.5" style={{ color: meta.color }} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">{event.event_name}</p>
+                                <p className="text-xs text-slate-500 mt-0.5">{meta.description}</p>
+                              </div>
+                            </div>
+                            <div className="rounded-lg p-3 mb-3" style={{ background: `${meta.color}06` }}>
+                              <p className="text-[10px] font-semibold text-slate-700 mb-2">How we can help</p>
+                              <div className="space-y-1.5">
+                                {meta.suggestions.map((s, j) => (
+                                  <div key={j} className="flex items-center gap-2">
+                                    <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: meta.color }} />
+                                    <span className="text-xs text-slate-600">{s}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <button
+                              className="w-full flex items-center justify-center gap-2 text-xs font-semibold py-2 rounded-lg transition-colors"
+                              style={{ color: meta.color, background: `${meta.color}08` }}
+                            >
+                              Explore Options <ArrowRight className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Financial Snapshot */}
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Shield className="w-4 h-4 text-slate-400" />
+                    <p className="text-xs font-semibold text-slate-700">Your Financial Snapshot</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {holdingItems.map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className="rounded-lg border border-slate-100 p-3">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Icon className="w-3 h-3" style={{ color: item.color }} />
+                            <span className="text-[10px] text-slate-400">{item.label}</span>
+                          </div>
+                          <p className="text-sm font-semibold text-slate-900">{item.value}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Local Branch Card */}
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="text-[10px] font-semibold text-slate-700">Your Branch</span>
+                  </div>
+                  <p className="text-xs text-slate-600">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
+                  <p className="text-[10px] text-slate-400 mt-1">🎯 Local perk: 2× rewards at Westfield Farmers Market this Saturday</p>
+                </div>
+
+                {/* No events fallback */}
+                {events.length === 0 && (
+                  <div className="rounded-xl border border-slate-200 bg-white p-5 text-center">
+                    <Sparkles className="w-6 h-6 text-slate-300 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-slate-700">Your personalized insights are on the way</p>
+                    <p className="text-xs text-slate-400 mt-1">We're analyzing your activity to bring you tailored recommendations.</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           </div>
 
           {/* Bottom bezel / home indicator */}
