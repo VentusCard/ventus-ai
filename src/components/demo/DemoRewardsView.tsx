@@ -335,7 +335,7 @@ function RewardsPhoneMockup({
                             style={{ background: color }}
                             onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
                           >
-                            View Deal
+                            Save Today
                           </button>
                         </div>
                       )}
