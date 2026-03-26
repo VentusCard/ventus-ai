@@ -289,78 +289,81 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
             </div>
           </div>
 
-          {/* Achievement Card */}
-          {featuredAchievement && (
-            <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-2.5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1.5">
-                  <Trophy className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
+          {/* Achievement + Coaching Tip — side by side */}
+          <div className="grid grid-cols-2 gap-1.5">
+            {/* Achievement Card */}
+            {featuredAchievement && (
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-amber-50 to-white p-2.5">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-[9px] font-bold tracking-[0.1em] text-slate-400 uppercase">Achievement</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                      {level.label}
+                    </span>
+                    <span className="text-[8px] font-semibold text-amber-600">{healthScore}/100</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                    {level.label}
-                  </span>
-                  <span className="text-[8px] font-semibold text-amber-600">{healthScore}/100</span>
+                <p className="text-[11px] font-semibold text-slate-900">{featuredAchievement.title}</p>
+                <p className="text-[8px] text-slate-500 mb-1">{featuredAchievement.description}</p>
+                <div className="w-full h-1.5 rounded-full bg-slate-200">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${(featuredAchievement.progress.current / featuredAchievement.progress.target) * 100}%`,
+                      background: featuredAchievement.status === "unlocked" ? "#22c55e" : color,
+                    }}
+                  />
                 </div>
+                <p className="text-[7px] text-slate-400 mt-0.5">
+                  {featuredAchievement.progress.current}/{featuredAchievement.progress.target}
+                  {featuredAchievement.status === "unlocked" && " ✓ Complete"}
+                </p>
               </div>
-              <p className="text-[11px] font-semibold text-slate-900">{featuredAchievement.title}</p>
-              <p className="text-[8px] text-slate-500 mb-1">{featuredAchievement.description}</p>
-              <div className="w-full h-1.5 rounded-full bg-slate-200">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${(featuredAchievement.progress.current / featuredAchievement.progress.target) * 100}%`,
-                    background: featuredAchievement.status === "unlocked" ? "#22c55e" : color,
-                  }}
-                />
-              </div>
-              <p className="text-[7px] text-slate-400 mt-0.5">
-                {featuredAchievement.progress.current}/{featuredAchievement.progress.target}
-                {featuredAchievement.status === "unlocked" && " ✓ Complete"}
-              </p>
-            </div>
-          )}
+            )}
 
-          {/* Coaching Tip Card */}
-          {isLoadingTip && (
-            <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5 space-y-2">
-              <div className="flex items-center gap-1.5">
-                <Skeleton className="w-5 h-5 rounded-full" />
-                <Skeleton className="w-16 h-4 rounded-full" />
-              </div>
-              <Skeleton className="w-full h-3" />
-              <Skeleton className="w-3/4 h-3" />
-              <div className="flex gap-1.5 pt-1">
-                <Skeleton className="w-12 h-5 rounded-full" />
-                <Skeleton className="w-16 h-5 rounded-full" />
-              </div>
-            </div>
-          )}
-          {!isLoadingTip && tip && (
-            <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
-                  <TipIcon className="w-3 h-3" style={{ color }} />
+            {/* Coaching Tip Card */}
+            {isLoadingTip && (
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <Skeleton className="w-5 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-4 rounded-full" />
                 </div>
-                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${color}12`, color }}>
-                  {tip.category}
-                </span>
-                {tip.potentialSavings && (
-                  <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save {tip.potentialSavings}</span>
-                )}
+                <Skeleton className="w-full h-3" />
+                <Skeleton className="w-3/4 h-3" />
+                <div className="flex gap-1.5 pt-1">
+                  <Skeleton className="w-12 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-5 rounded-full" />
+                </div>
               </div>
-              <p className="text-[10px] text-slate-700 leading-relaxed mb-1.5">{tip.message}</p>
-              <div className="flex gap-1.5">
-                <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
-                  Got it
-                </button>
-                <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full text-white transition-colors" style={{ background: color }}>
-                  Need help
-                </button>
+            )}
+            {!isLoadingTip && tip && (
+              <div className="rounded-lg border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-2.5">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
+                    <TipIcon className="w-3 h-3" style={{ color }} />
+                  </div>
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${color}12`, color }}>
+                    {tip.category}
+                  </span>
+                  {tip.potentialSavings && (
+                    <span className="text-[8px] font-semibold text-emerald-600 ml-auto">Save {tip.potentialSavings}</span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-700 leading-relaxed mb-1.5">{tip.message}</p>
+                <div className="flex gap-1.5">
+                  <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">
+                    Got it
+                  </button>
+                  <button className="text-[8px] font-semibold px-2.5 py-1 rounded-full text-white transition-colors" style={{ background: color }}>
+                    Need help
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
             </div>
           </div>
         </div>
