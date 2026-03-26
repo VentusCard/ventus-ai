@@ -2,15 +2,13 @@
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-// Configuration
-const BATCH_SIZE = 15;
-const CONCURRENCY_LIMIT = 3;
+// Configuration — one-shot, no batching
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
 
-// Models
-const PRIMARY_MODEL = "openai/gpt-5-mini";
-const FALLBACK_MODEL = "google/gemini-2.5-flash";
+// Models — flash primary for speed, gpt-5-mini fallback for reliability
+const PRIMARY_MODEL = "google/gemini-2.5-flash";
+const FALLBACK_MODEL = "openai/gpt-5-mini";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -43,58 +41,15 @@ function getDelayMs(attempt: number): number {
   return Math.min(baseDelay + jitter, 8000);
 }
 
-// Concurrency-limited runner
-async function runWithConcurrency<T, R>(
-  items: T[],
-  limit: number,
-  worker: (item: T, index: number) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let currentIndex = 0;
-
-  async function processNext(): Promise<void> {
-    while (currentIndex < items.length) {
-      const index = currentIndex++;
-      results[index] = await worker(items[index], index);
-    }
-  }
-
-  const workers = Array(Math.min(limit, items.length))
-    .fill(null)
-    .map(() => processNext());
-
-  await Promise.all(workers);
-  return results;
-}
-
 // Airline keywords for flight detection
 const AIRLINE_KEYWORDS = [
-  "airline",
-  "airways",
-  "delta",
-  "united",
-  "southwest",
-  "american airlines",
-  "jetblue",
-  "british airways",
-  "air france",
-  "lufthansa",
-  "easyjet",
-  "ryanair",
-  "emirates",
-  "qatar airways",
-  "singapore airlines",
-  "cathay",
-  "klm",
-  "virgin atlantic",
-  "spirit",
-  "frontier",
-  "alaska air",
-  "hawaiian air",
-  "sun country",
+  "airline", "airways", "delta", "united", "southwest", "american airlines", "jetblue",
+  "british airways", "air france", "lufthansa", "easyjet", "ryanair",
+  "emirates", "qatar airways", "singapore airlines", "cathay", "klm", "virgin atlantic",
+  "spirit", "frontier", "alaska air", "hawaiian air", "sun country",
 ];
 
-// Enhanced Travel Detection Prompt with trip examples and flight-to-trip matching
+// Enhanced Travel Detection Prompt
 const TRAVEL_DETECTION_PROMPT = `You are analyzing PRE-FILTERED transactions that were flagged as potential travel because they:
 1. Have zip codes different from home (home zip: {homeZip})
 2. Are travel anchors (hotels, flights, car rentals)
@@ -216,16 +171,14 @@ const TRAVEL_DETECTION_TOOL = [
   },
 ];
 
-// Core AI call for a batch
+// Single AI call — no batching
 async function callTravelDetectionAI(
   model: string,
-  batch: any[],
+  transactions: any[],
   homeZip: string,
-  batchNum: number,
   attempt: number,
 ): Promise<any[]> {
   const isOpenAI = model.startsWith("openai/");
-  const isGemini = model.startsWith("google/");
 
   const tokenParam = isOpenAI ? { max_completion_tokens: 8000 } : { max_tokens: 8000 };
 
@@ -236,7 +189,7 @@ async function callTravelDetectionAI(
       { role: "system", content: TRAVEL_DETECTION_PROMPT.replace("{homeZip}", homeZip) },
       {
         role: "user",
-        content: `Analyze these ${batch.length} PRE-FILTERED travel candidates and call detect_travel_patterns:\n\n${JSON.stringify(batch, null, 2)}`,
+        content: `Analyze these ${transactions.length} PRE-FILTERED travel candidates and call detect_travel_patterns:\n\n${JSON.stringify(transactions, null, 2)}`,
       },
     ],
     tools: TRAVEL_DETECTION_TOOL,
@@ -244,7 +197,7 @@ async function callTravelDetectionAI(
 
   if (isOpenAI) {
     requestBody.tool_choice = { type: "function", function: { name: "detect_travel_patterns" } };
-  } else if (isGemini) {
+  } else {
     requestBody.tool_choice = "auto";
   }
 
@@ -259,7 +212,7 @@ async function callTravelDetectionAI(
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
-    console.error(`[BATCH ${batchNum}] ${model} failed (${response.status}): ${errorText.slice(0, 200)}`);
+    console.error(`[Travel] ${model} failed (${response.status}): ${errorText.slice(0, 200)}`);
     return [];
   }
 
@@ -267,14 +220,14 @@ async function callTravelDetectionAI(
   const choice = data.choices?.[0];
 
   if (choice?.finish_reason === "error" || choice?.native_finish_reason === "MALFORMED_FUNCTION_CALL") {
-    console.error(`[BATCH ${batchNum}] ${model} malformed function call`);
+    console.error(`[Travel] ${model} malformed function call`);
     return [];
   }
 
   const toolCalls = choice?.message?.tool_calls;
   if (!toolCalls || toolCalls.length === 0) {
     const rawStr = JSON.stringify(data).slice(0, 200);
-    console.warn(`[BATCH ${batchNum}] ${model} no tool calls (attempt ${attempt}): ${rawStr}`);
+    console.warn(`[Travel] ${model} no tool calls (attempt ${attempt}): ${rawStr}`);
     return [];
   }
 
@@ -283,58 +236,51 @@ async function callTravelDetectionAI(
     const results = typeof args === "string" ? JSON.parse(args) : args;
     return results.travel_updates || [];
   } catch (parseError: any) {
-    console.error(`[BATCH ${batchNum}] JSON parse error: ${parseError.message}`);
+    console.error(`[Travel] JSON parse error: ${parseError.message}`);
     return [];
   }
 }
 
-// Single batch processing with retries and model fallback
-async function processBatch(
-  batch: any[],
-  batchIndex: number,
-  totalBatches: number,
+// Process all transactions with retries and model fallback
+async function processTransactions(
+  transactions: any[],
   homeZip: string,
   sendEvent: (event: string, data: any) => void,
 ): Promise<any[]> {
-  const batchNum = batchIndex + 1;
-
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const startTime = Date.now();
     const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : PRIMARY_MODEL;
 
     if (attempt > 0) {
       const delay = getDelayMs(attempt - 1);
-      console.log(
-        `[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`,
-      );
+      console.log(`[Travel] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`);
       await new Promise((r) => setTimeout(r, delay));
     }
 
     sendEvent("status", {
-      message: `Analyzing travel batch ${batchNum}/${totalBatches}${attempt > 0 ? ` (retry ${attempt})` : ""}...`,
+      message: `Analyzing ${transactions.length} travel candidates${attempt > 0 ? ` (retry ${attempt})` : ""}...`,
     });
 
     try {
-      const updates = await callTravelDetectionAI(model, batch, homeZip, batchNum, attempt);
+      const updates = await callTravelDetectionAI(model, transactions, homeZip, attempt);
 
       if (updates.length === 0) {
-        console.warn(`[BATCH ${batchNum}] Empty results (attempt ${attempt}, model ${model})`);
+        console.warn(`[Travel] Empty results (attempt ${attempt}, model ${model})`);
         continue;
       }
 
       const elapsed = Date.now() - startTime;
-      console.log(`[BATCH ${batchNum}] ✓ ${updates.length}/${batch.length} in ${elapsed}ms (model: ${model})`);
-
+      console.log(`[Travel] ✓ ${updates.length}/${transactions.length} in ${elapsed}ms (model: ${model})`);
       return updates;
     } catch (error: any) {
-      console.error(`[BATCH ${batchNum}] Exception (attempt ${attempt}):`, error.message);
+      console.error(`[Travel] Exception (attempt ${attempt}):`, error.message);
     }
   }
 
-  console.error(`[BATCH ${batchNum}] All ${MAX_RETRIES + 1} attempts failed`);
+  console.error(`[Travel] All ${MAX_RETRIES + 1} attempts failed`);
 
-  // Return fallback for failed batch
-  return batch.map((t) => ({
+  // Return fallback for complete failure
+  return transactions.map((t) => ({
     transaction_id: t.id,
     is_travel_related: false,
     travel_destination: null,
@@ -349,7 +295,6 @@ async function processBatch(
 
 // Post-processing: reconcile orphaned flights with detected trips
 function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]): any[] {
-  // Build a lookup of original transaction amounts by id
   const txAmountMap = new Map<string, number>();
   const txMerchantMap = new Map<string, string>();
   originalTransactions.forEach((t) => {
@@ -357,7 +302,6 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
     txMerchantMap.set(t.id, (t.merchant || "").toLowerCase());
   });
 
-  // Identify detected trips (unique destination + date windows)
   const trips: Array<{
     destination: string;
     start: string;
@@ -374,41 +318,11 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
         seenTrips.add(key);
         const dest = u.travel_destination.toLowerCase();
         const internationalKeywords = [
-          "london",
-          "paris",
-          "rome",
-          "berlin",
-          "tokyo",
-          "sydney",
-          "dubai",
-          "amsterdam",
-          "barcelona",
-          "munich",
-          "vienna",
-          "prague",
-          "lisbon",
-          "madrid",
-          "milan",
-          "dublin",
-          "brussels",
-          "zurich",
-          "geneva",
-          "singapore",
-          "hong kong",
-          "bangkok",
-          "toronto",
-          "vancouver",
-          "montreal",
-          "cancun",
-          "mexico",
-          "caribbean",
-          "bahamas",
-          "jamaica",
-          "europe",
-          "asia",
-          "africa",
-          "australia",
-          "south america",
+          "london", "paris", "rome", "berlin", "tokyo", "sydney", "dubai", "amsterdam",
+          "barcelona", "munich", "vienna", "prague", "lisbon", "madrid", "milan", "dublin",
+          "brussels", "zurich", "geneva", "singapore", "hong kong", "bangkok", "toronto",
+          "vancouver", "montreal", "cancun", "mexico", "caribbean", "bahamas", "jamaica",
+          "europe", "asia", "africa", "australia", "south america",
         ];
         const isInternational = internationalKeywords.some((kw) => dest.includes(kw));
         trips.push({
@@ -424,22 +338,17 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
 
   if (trips.length === 0) return updates;
 
-  // Find orphaned flight transactions (not assigned to a trip but are airline charges)
   return updates.map((u) => {
     const merchant = txMerchantMap.get(u.transaction_id) || "";
     const isAirline = AIRLINE_KEYWORDS.some((kw) => merchant.includes(kw));
 
-    // Skip non-airline transactions or already-assigned ones
     if (!isAirline) return u;
     if (u.is_travel_related && u.travel_destination && u.fare_match_confidence) return u;
 
     const amount = txAmountMap.get(u.transaction_id) || 0;
-
-    // Find the original transaction date
     const origTx = originalTransactions.find((t) => t.id === u.transaction_id);
     const txDate = origTx ? new Date(origTx.date).getTime() : 0;
 
-    // Score each trip for this fare
     let bestTrip: (typeof trips)[0] | null = null;
     let bestScore = -Infinity;
     let bestReason = "";
@@ -448,7 +357,6 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
       let score = 0;
       const reasons: string[] = [];
 
-      // Price-distance heuristic
       if (trip.isInternational && amount >= 500) {
         score += 3;
         reasons.push(`fare $${amount} matches international destination`);
@@ -463,7 +371,6 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
         reasons.push(`fare $${amount} unusually high for domestic`);
       }
 
-      // Date proximity (closer = better)
       if (txDate > 0) {
         const tripStart = new Date(trip.start).getTime();
         const daysDiff = Math.abs(txDate - tripStart) / (1000 * 60 * 60 * 24);
@@ -486,7 +393,6 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
       }
     });
 
-    // If we found a matching trip, assign the flight to it
     if (bestTrip && bestScore > 0) {
       const confidence = bestScore >= 5 ? "high" : bestScore >= 3 ? "medium" : "low";
       return {
@@ -502,7 +408,6 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
       };
     }
 
-    // Check if this is a surplus fare (more flights than trips × 2)
     const allAirlineIds = updates
       .filter((upd) => {
         const m = txMerchantMap.get(upd.transaction_id) || "";
@@ -525,6 +430,22 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
   });
 }
 
+// Destination normalization
+const DESTINATION_ALIASES: Record<string, string> = {
+  "new york city": "New York", "nyc": "New York", "manhattan": "New York",
+  "brooklyn": "New York", "queens": "New York", "bronx": "New York",
+  "los angeles": "Los Angeles", "la": "Los Angeles", "hollywood": "Los Angeles",
+  "san francisco": "San Francisco", "sf": "San Francisco", "san fran": "San Francisco",
+  "washington dc": "Washington D.C.", "washington d.c.": "Washington D.C.",
+  "washington, d.c.": "Washington D.C.", "dc": "Washington D.C.",
+  "las vegas": "Las Vegas", "vegas": "Las Vegas",
+  "chicago, il": "Chicago", "miami beach": "Miami", "fort lauderdale": "Fort Lauderdale",
+};
+
+function normalizeDestination(dest: string): string {
+  return DESTINATION_ALIASES[dest.toLowerCase().trim()] || dest.trim();
+}
+
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
@@ -535,34 +456,27 @@ Deno.serve(async (req) => {
   try {
     const { transactions } = await req.json();
 
-    // Input validation
     if (!Array.isArray(transactions)) {
       return new Response(JSON.stringify({ error: "Invalid input format" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
     if (transactions.length === 0) {
       return new Response(JSON.stringify({ error: "Empty transactions array" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
     if (transactions.length > 1000) {
       return new Response(JSON.stringify({ error: "Too many transactions (max 1000)" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log(`[Travel Detection] Starting for ${transactions.length} pre-classified transactions`);
+    console.log(`[Travel Detection] Starting one-shot for ${transactions.length} transactions`);
 
     const homeZip =
       transactions.find((t) => t.home_zip)?.home_zip || transactions.find((t) => t.zip_code)?.zip_code || "Unknown";
 
-    // Create SSE stream
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
@@ -575,7 +489,6 @@ Deno.serve(async (req) => {
           sendEvent("status", { message: "Analyzing travel patterns..." });
           const startTime = Date.now();
 
-          // Prepare transaction summary (include amount for fare matching)
           const transactionSummary = transactions.map((t) => ({
             id: t.transaction_id,
             date: t.date,
@@ -587,66 +500,28 @@ Deno.serve(async (req) => {
             anchor_type: t.anchor_type || null,
           }));
 
-          // Split into batches
-          const batches: any[][] = [];
-          for (let i = 0; i < transactionSummary.length; i += BATCH_SIZE) {
-            batches.push(transactionSummary.slice(i, i + BATCH_SIZE));
-          }
+          console.log(`[Travel Detection] Sending ${transactionSummary.length} transactions in one shot (model: ${PRIMARY_MODEL})`);
 
-          console.log(
-            `[Travel Detection] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`,
-          );
+          // One-shot processing with retry + model fallback
+          let rawUpdates = await processTransactions(transactionSummary, homeZip, sendEvent);
 
-          // Process batches with limited concurrency
-          const batchResults = await runWithConcurrency(batches, CONCURRENCY_LIMIT, (batch, idx) =>
-            processBatch(batch, idx, batches.length, homeZip, sendEvent),
-          );
-
-          let rawUpdates = batchResults.flat();
-
-          // Normalize destination names to prevent duplicates from model inconsistency
-          const DESTINATION_ALIASES: Record<string, string> = {
-            "new york city": "New York",
-            "nyc": "New York",
-            "manhattan": "New York",
-            "brooklyn": "New York",
-            "queens": "New York",
-            "bronx": "New York",
-            "los angeles": "Los Angeles",
-            "la": "Los Angeles",
-            "hollywood": "Los Angeles",
-            "san francisco": "San Francisco",
-            "sf": "San Francisco",
-            "washington dc": "Washington D.C.",
-            "washington d.c.": "Washington D.C.",
-            "washington, d.c.": "Washington D.C.",
-            "dc": "Washington D.C.",
-            "las vegas": "Las Vegas",
-            "vegas": "Las Vegas",
-            "chicago, il": "Chicago",
-            "miami beach": "Miami",
-            "fort lauderdale": "Fort Lauderdale",
-            "san fran": "San Francisco",
-          };
-          const normalizeDestination = (dest: string): string =>
-            DESTINATION_ALIASES[dest.toLowerCase().trim()] || dest.trim();
-
+          // Normalize destinations
           rawUpdates.forEach((u: any) => {
             if (u.travel_destination) {
               u.travel_destination = normalizeDestination(u.travel_destination);
             }
           });
 
-          // Phase 2: Reconcile orphaned flights with detected trips
+          // Reconcile orphaned flights
           sendEvent("status", { message: "Reconciling flight fares with trips..." });
           rawUpdates = reconcileFlightsWithTrips(rawUpdates, transactionSummary);
 
-          // Build trip_label for each travel-related update
+          // Build trip_label
           const travelUpdates = rawUpdates.map((u: any) => {
             if (!u.is_travel_related || !u.travel_destination || !u.travel_period_start) {
               return { ...u, trip_label: null };
             }
-            const start = u.travel_period_start.replace(/-/g, "").slice(2); // "260301"
+            const start = u.travel_period_start.replace(/-/g, "").slice(2);
             const end = (u.travel_period_end || u.travel_period_start).replace(/-/g, "").slice(2);
             const dest = u.travel_destination;
             return { ...u, trip_label: `${start}:${end} ${dest} Trip` };
@@ -656,10 +531,9 @@ Deno.serve(async (req) => {
           const travelCount = travelUpdates.filter((u: any) => u.is_travel_related).length;
           const thirdPartyCount = travelUpdates.filter((u: any) => u.third_party_likely).length;
           console.log(
-            `[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related, ${thirdPartyCount} third-party flagged) in ${totalTime}ms`,
+            `[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel, ${thirdPartyCount} third-party) in ${totalTime}ms`,
           );
 
-          // Send travel updates
           sendEvent("travel_updates", { travel_updates: travelUpdates });
           sendEvent("done", { message: "Travel detection complete" });
           controller.close();
@@ -682,8 +556,7 @@ Deno.serve(async (req) => {
   } catch (error: any) {
     console.error("[Travel Detection] Error:", error);
     return new Response(JSON.stringify({ error: "Service error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
