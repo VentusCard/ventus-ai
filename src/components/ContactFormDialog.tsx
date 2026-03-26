@@ -33,7 +33,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           <div className="flex items-center gap-4 px-12 pt-10 pb-8 border-b border-slate-200">
             <img src={ventusLogo} alt="Ventus AI" className="w-44" />
             <div className="h-8 w-px bg-slate-300" />
-            <p className="text-xl font-bold text-slate-800">Banking Should be Deeply Personal</p>
+            <p className="font-bold text-slate-800 text-2xl">Banking Should be Deeply Personal</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 min-h-[400px]">
