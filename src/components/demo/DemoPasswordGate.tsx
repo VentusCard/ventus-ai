@@ -664,7 +664,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                        </div>
                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                          {[
-                           "Baby Monitors & Gear",
+                            "Baby Monitors",
                            "Pregnancy Books & Audiobooks",
                            "Strollers & Car Seats",
                            "Local Classes & Services",

@@ -1,24 +1,17 @@
 
 
-## One-Shot Travel Detection with gemini-2.5-flash
+## Add Feedback & Settings sections to bank dashboard sidebar
 
-### Why it works
-- `google/gemini-2.5-flash` handles large structured outputs fast (~5-10s for 34 transactions vs 80s+ with batched gpt-5-mini)
-- Already proven reliable in this project (used by classify-transactions and as current fallback)
-- Strong at tool-calling / structured JSON extraction
+### What
+Add two new nav items — **Feedback** and **Settings** — pinned to the bottom of the left sidebar in `AnalyticsContainer.tsx`. They sit below the scrollable nav groups and stay fixed at the bottom regardless of scroll.
 
-### Changes — `supabase/functions/travel-detection/index.ts`
+### Changes (single file: `src/components/tepilot/insights/AnalyticsContainer.tsx`)
 
-1. **Switch primary model** to `google/gemini-2.5-flash`, fallback to `openai/gpt-5-mini`
-2. **Remove batching entirely** — send all transactions (up to ~50) in a single API call
-3. **Remove `BATCH_SIZE`, `CONCURRENCY_LIMIT`, `runWithConcurrency`** and the batch-splitting logic
-4. **Simplify to a single call** with retry (keep `MAX_RETRIES` + exponential backoff)
-5. **Keep the SSE streaming response format** — just emit one `travel_updates` event with all results, then `done`
-6. **Keep salvage/regex fallback** for malformed responses
-7. **Keep `max_tokens: 8000`** token budget
-
-### Result
-- ~5-10s total instead of ~80s+ across batches
-- No timeout risk — single call well within 60s edge function limit
-- Simpler code, fewer failure modes
+1. **Import icons** — Add `MessageSquare` (Feedback) and `Settings` (Settings) from lucide-react
+2. **Split sidebar into two sections**:
+   - The existing `<nav>` with `flex-1 overflow-y-auto` stays as-is for the main nav groups
+   - Add a new `<div>` after the nav, pinned to the bottom with `mt-auto border-t border-slate-200 py-2`
+   - Contains two buttons styled identically to existing nav items: Feedback and Settings
+3. **Button behavior** — For now these will show a `toast.info("Coming soon")` since no content views exist yet. They won't be part of the `TabValue` type or `activeTab` state.
+4. **Collapsed state** — When sidebar is collapsed, show only icons (same pattern as existing nav items) with tooltip via `title` attribute.
 

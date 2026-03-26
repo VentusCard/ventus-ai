@@ -503,13 +503,13 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: engineCenterX - ENGINE_WIDTH / 2, width: ENGINE_WIDTH, top: gridTopY - 48, zIndex: 2 }}
       >
-        Enrichment Engine
+        Customer Intelligence
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: bankColLeftX, width: BANK_COL_WIDTH, top: gridTopY - 48, zIndex: 2 }}
       >
-        All-in-one Suite
+        AI-Native Platform
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
