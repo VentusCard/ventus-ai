@@ -1,18 +1,16 @@
 
 
-## Fix: Reset scroll to top when switching tabs
+## Replace Sparkles icon with "V" in VentusAIWelcomeView header
 
-### Problem
-When clicking the "Ventus AI" tab (or any tab), the right content panel retains the scroll position from the previous tab, making it appear scrolled down.
+### Change
+In `src/components/tepilot/insights/VentusAIWelcomeView.tsx` line 153, replace:
+```tsx
+<Sparkles className="w-5 h-5 text-blue-400" />
+```
+with:
+```tsx
+<span className="text-lg font-black text-blue-400 leading-none">V</span>
+```
 
-### Fix (single file: `src/components/tepilot/insights/AnalyticsContainer.tsx`)
-
-1. Add a `useRef` on the content `<div>` (line 201)
-2. Add a `useEffect` that watches `activeTab` — when it changes, reset `contentRef.current.scrollTop = 0`
-
-### Technical detail
-- Add `useRef` to the React imports
-- Create `const contentRef = useRef<HTMLDivElement>(null)`
-- Add `useEffect(() => { contentRef.current?.scrollTo(0, 0); }, [activeTab])`
-- Attach `ref={contentRef}` to the content div on line 201
+This matches the sidebar's "V" branding and replaces the sparkles icon in the welcome view header.
 
