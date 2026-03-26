@@ -94,7 +94,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
     }
     if (node === "wealth") {
       return (
-        <DemoFinancialJourneyView
+        <DemoWealthView
           customer={customer}
           detectedEvents={detectedEvents ?? []}
         />
