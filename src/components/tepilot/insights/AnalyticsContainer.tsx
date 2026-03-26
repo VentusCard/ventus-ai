@@ -40,7 +40,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Analytics",
     items: [
       { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
-      { value: "wallet-share", label: "Competitor Outflow Detection", icon: Wallet },
+      { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
   },
