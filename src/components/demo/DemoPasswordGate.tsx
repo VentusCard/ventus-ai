@@ -749,7 +749,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                            '"Family & Foundation" Pillar',
                            "Baby Budget Tracker",
                            "Parenting Milestone Alerts",
-                           "Family Deal Highlights",
+                            "Orchestrate Other Features",
                          ].map((label) => (
                            <div
                              key={label}
