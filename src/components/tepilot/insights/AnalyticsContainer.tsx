@@ -13,14 +13,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft
+  Building2, ArrowLeft, Bot
 } from "lucide-react";
+import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
 
 interface NavItem {
   value: TabValue;
@@ -29,6 +30,12 @@ interface NavItem {
 }
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Home",
+    items: [
+      { value: "ventus-ai", label: "Ventus AI", icon: Bot },
+    ],
+  },
   {
     label: "Analytics",
     items: [
@@ -63,13 +70,14 @@ interface AnalyticsContainerProps {
   onBack?: () => void;
 }
 
-export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
