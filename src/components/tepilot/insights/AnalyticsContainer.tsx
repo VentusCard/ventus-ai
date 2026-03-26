@@ -70,14 +70,14 @@ interface AnalyticsContainerProps {
   onBack?: () => void;
 }
 
-export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <BankwideView />;
+      case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
       case 'wallet-share': return <WalletShareView />;
