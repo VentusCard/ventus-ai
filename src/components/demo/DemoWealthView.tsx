@@ -7,41 +7,48 @@ interface Props {
   detectedEvents?: DetectedLifeEventResult[];
 }
 
-const EVENT_META: Record<string, { icon: React.ElementType; color: string; description: string; suggestions: string[] }> = {
+const EVENT_META: Record<string, { icon: React.ElementType; color: string; description: string; suggestions: string[]; ctas: string[] }> = {
   "Retirement Planning": {
     icon: Sunset, color: "#f59e0b",
     description: "It looks like you're planning for the next chapter. We're here to help you get there confidently.",
     suggestions: ["Retirement savings options tailored to your timeline", "Tax-advantaged investment strategies", "Income planning for your future"],
+    ctas: ["Open HY Savings", "Review IRA Options"],
   },
   "Education Funding": {
     icon: GraduationCap, color: "#3b82f6",
     description: "Education is a big step — let's make sure you're set up for success.",
     suggestions: ["Education savings accounts with tax benefits", "Flexible payment planning", "Scholarship and grant guidance"],
+    ctas: ["Open HY Savings", "Apply for 529"],
   },
   "Home Purchase": {
     icon: Home, color: "#22c55e",
     description: "Buying a home is exciting! We can help make the process smoother.",
     suggestions: ["Pre-approval with competitive rates", "Down payment assistance programs", "Home buying cost calculator"],
+    ctas: ["Open HY Savings", "Get Pre-Approved"],
   },
   "Wealth Transfer": {
     icon: Gift, color: "#8b5cf6",
     description: "Planning for your family's future is one of the most meaningful things you can do.",
     suggestions: ["Estate planning consultation", "Trust and gifting strategies", "Legacy planning tools"],
+    ctas: ["Open HY Savings", "Plan Your Legacy"],
   },
   "Business Liquidity": {
     icon: Briefcase, color: "#64748b",
     description: "Your business is growing — let's keep your finances moving with it.",
     suggestions: ["Business line of credit options", "Cash flow optimization tools", "Commercial banking solutions"],
+    ctas: ["Open HY Savings", "Apply for Credit Line"],
   },
   "Family Formation": {
     icon: Baby, color: "#ec4899",
     description: "Congratulations on this new chapter! Let us help you prepare financially.",
     suggestions: ["Family budgeting tools", "Insurance and protection plans", "Savings accounts for your growing family"],
+    ctas: ["Open HY Savings", "Family Planning Tools"],
   },
   "Elder Care": {
     icon: Heart, color: "#ef4444",
     description: "Caring for loved ones matters. We have resources to support you.",
     suggestions: ["Long-term care planning", "Flexible savings options", "Caregiver support resources"],
+    ctas: ["Open HY Savings", "Care Planning"],
   },
 };
 
@@ -49,6 +56,7 @@ const DEFAULT_META = {
   icon: Sparkles, color: "#6366f1",
   description: "We've noticed something important in your financial journey. Let's explore how we can help.",
   suggestions: ["Personalized financial consultation", "Tailored product recommendations", "Schedule a call with an advisor"],
+  ctas: ["Open HY Savings", "Learn More"],
 };
 
 const WELLNESS_ITEMS = [
@@ -229,6 +237,14 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                                       <span className="text-xs text-slate-600">{s}</span>
                                     </div>
                                   ))}
+                                </div>
+                                <div className="flex gap-2 mt-3">
+                                  <button className="text-[9px] font-semibold text-white rounded-md px-2.5 py-1.5 transition-colors" style={{ background: meta.color }}>
+                                    {meta.ctas[0]}
+                                  </button>
+                                  <button className="text-[9px] font-semibold rounded-md px-2.5 py-1.5 border transition-colors" style={{ color: meta.color, borderColor: `${meta.color}40` }}>
+                                    {meta.ctas[1]}
+                                  </button>
                                 </div>
                               </div>
                               <div className="rounded-lg bg-slate-50 p-3 flex flex-col items-center text-center">
