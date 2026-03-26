@@ -133,7 +133,7 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
 
                 {/* Tenure + Wellness Row */}
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Tenure Banner */}
+                  {/* Relationship + Branch */}
                   <div className="rounded-xl border border-slate-200 bg-white p-3">
                     <div className="flex items-center gap-2 mb-1.5">
                       <Star className="w-3.5 h-3.5 text-amber-500" />
@@ -141,6 +141,12 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                     </div>
                     <p className="text-xs text-slate-600">Valued member since <span className="font-semibold text-slate-900">{sinceYear}</span></p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{tenureYears} years with TCBY Bank</p>
+                    <div className="border-t border-slate-100 my-2" />
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <p className="text-xs text-slate-600">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-[18px]">🎯 Local perk: 2× rewards at Westfield Farmers Market this Saturday</p>
                   </div>
 
                   {/* Wellness Score */}
@@ -255,15 +261,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                 )}
 
 
-                {/* Local Branch Card */}
-                <div className="rounded-xl border border-slate-200 bg-white p-3">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-[10px] font-semibold text-slate-700">Your Branch</span>
-                  </div>
-                  <p className="text-xs text-slate-600">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
-                  <p className="text-[10px] text-slate-400 mt-1">🎯 Local perk: 2× rewards at Westfield Farmers Market this Saturday</p>
-                </div>
 
                 {/* No events fallback */}
                 {events.length === 0 && (
