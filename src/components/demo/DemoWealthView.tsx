@@ -109,6 +109,27 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                 {/* Greeting */}
                 <p className="text-sm font-semibold text-slate-900 px-1">Welcome back, {firstName} <span className="font-normal text-slate-400">· {customer.profile.segment} Member</span></p>
 
+                {/* Financial Snapshot */}
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-3.5 h-3.5 text-slate-400" />
+                    <p className="text-[10px] font-semibold text-slate-700">Your Financial Snapshot</p>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {holdingItems.map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className="rounded-lg border border-slate-100 p-2">
+                          <div className="flex items-center gap-1 mb-0.5">
+                            <Icon className="w-3 h-3" style={{ color: item.color }} />
+                            <span className="text-[9px] text-slate-400">{item.label}</span>
+                          </div>
+                          <p className="text-xs font-semibold text-slate-900">{item.value}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 {/* Tenure + Wellness Row */}
                 <div className="grid grid-cols-2 gap-3">
@@ -233,27 +254,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                   </div>
                 )}
 
-                {/* Financial Snapshot */}
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Shield className="w-4 h-4 text-slate-400" />
-                    <p className="text-xs font-semibold text-slate-700">Your Financial Snapshot</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {holdingItems.map(item => {
-                      const Icon = item.icon;
-                      return (
-                        <div key={item.label} className="rounded-lg border border-slate-100 p-3">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Icon className="w-3 h-3" style={{ color: item.color }} />
-                            <span className="text-[10px] text-slate-400">{item.label}</span>
-                          </div>
-                          <p className="text-sm font-semibold text-slate-900">{item.value}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
 
                 {/* Local Branch Card */}
                 <div className="rounded-xl border border-slate-200 bg-white p-3">
