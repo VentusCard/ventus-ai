@@ -1912,3 +1912,172 @@ export function getPillarTimingData(): PillarTimingEntry[] {
     { pillar: 'Miscellaneous & Unclassified', monthly: [80, 80, 85, 85, 90, 90, 85, 85, 90, 90, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Seasonal general spending follows retail calendar', color: PILLAR_COLORS['Miscellaneous & Unclassified'] },
   ];
 }
+
+// ─── Pillar Deep Dive — Age × Region Heatmap ──────────────────────────────
+
+const AGE_GROUPS = ['18-24', '25-34', '35-44', '45-54', '55+'] as const;
+const GEN_LABELS: Record<string, string> = {
+  '18-24': 'Gen-Z',
+  '25-34': 'Millennials',
+  '35-44': 'Gen-X',
+  '45-54': 'Boomers I',
+  '55+': 'Boomers II',
+};
+const REGIONS_DD = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'] as const;
+
+// Curated subcategory insights per pillar → ageGroup → region
+const SUBCATEGORY_MAP: Record<string, Record<string, Record<string, { sub: string; growth: number }>>> = {
+  'Sports & Active Living': {
+    '18-24': { Northeast: { sub: 'Rock Climbing', growth: 28 }, Southeast: { sub: 'Surfing', growth: 22 }, Midwest: { sub: 'CrossFit', growth: 19 }, Southwest: { sub: 'Pickleball', growth: 34 }, West: { sub: 'Skateboarding', growth: 25 } },
+    '25-34': { Northeast: { sub: 'Golf', growth: 12 }, Southeast: { sub: 'Tennis', growth: 15 }, Midwest: { sub: 'Cycling', growth: 20 }, Southwest: { sub: 'Trail Running', growth: 18 }, West: { sub: 'Surfing', growth: 16 } },
+    '35-44': { Northeast: { sub: 'Golf', growth: 8 }, Southeast: { sub: 'Boating', growth: 14 }, Midwest: { sub: 'Running', growth: 18 }, Southwest: { sub: 'Mountain Biking', growth: 21 }, West: { sub: 'Skiing', growth: 11 } },
+    '45-54': { Northeast: { sub: 'Tennis', growth: 6 }, Southeast: { sub: 'Golf', growth: 9 }, Midwest: { sub: 'Fishing', growth: 7 }, Southwest: { sub: 'Golf', growth: 10 }, West: { sub: 'Hiking', growth: 15 } },
+    '55+': { Northeast: { sub: 'Golf', growth: 4 }, Southeast: { sub: 'Fishing', growth: 5 }, Midwest: { sub: 'Bowling', growth: 3 }, Southwest: { sub: 'Walking Clubs', growth: 8 }, West: { sub: 'Hiking', growth: 22 } },
+  },
+  'Food & Dining': {
+    '18-24': { Northeast: { sub: 'Ramen Shops', growth: 28 }, Southeast: { sub: 'Boba Tea', growth: 32 }, Midwest: { sub: 'Food Trucks', growth: 24 }, Southwest: { sub: 'Taco Joints', growth: 18 }, West: { sub: 'Poke Bowls', growth: 30 } },
+    '25-34': { Northeast: { sub: 'Farm-to-Table', growth: 15 }, Southeast: { sub: 'Craft BBQ', growth: 12 }, Midwest: { sub: 'Brewpubs', growth: 17 }, Southwest: { sub: 'Mexican Fine Dining', growth: 20 }, West: { sub: 'Sushi', growth: 14 } },
+    '35-44': { Northeast: { sub: 'Wine Bars', growth: 10 }, Southeast: { sub: 'Steakhouses', growth: 8 }, Midwest: { sub: 'Supper Clubs', growth: 6 }, Southwest: { sub: 'Tex-Mex', growth: 9 }, West: { sub: 'Organic Cafes', growth: 13 } },
+    '45-54': { Northeast: { sub: 'Fine Dining', growth: 5 }, Southeast: { sub: 'Seafood', growth: 7 }, Midwest: { sub: 'Steakhouses', growth: 4 }, Southwest: { sub: 'Southwestern', growth: 6 }, West: { sub: 'Wine Country', growth: 11 } },
+    '55+': { Northeast: { sub: 'Bakeries', growth: 3 }, Southeast: { sub: 'Southern Comfort', growth: 4 }, Midwest: { sub: 'Diners', growth: 2 }, Southwest: { sub: 'Comfort Food', growth: 5 }, West: { sub: 'Farmers Markets', growth: 8 } },
+  },
+  'Travel & Exploration': {
+    '18-24': { Northeast: { sub: 'Hostels', growth: 35 }, Southeast: { sub: 'Beach Resorts', growth: 22 }, Midwest: { sub: 'Road Trips', growth: 28 }, Southwest: { sub: 'National Parks', growth: 31 }, West: { sub: 'Backpacking', growth: 26 } },
+    '25-34': { Northeast: { sub: 'Boutique Hotels', growth: 18 }, Southeast: { sub: 'Cruises', growth: 14 }, Midwest: { sub: 'Lake Cabins', growth: 16 }, Southwest: { sub: 'Glamping', growth: 24 }, West: { sub: 'International', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Family Resorts', growth: 12 }, Southeast: { sub: 'Disney', growth: 10 }, Midwest: { sub: 'Waterpark Resorts', growth: 15 }, Southwest: { sub: 'Dude Ranches', growth: 19 }, West: { sub: 'Hawaii', growth: 11 } },
+    '45-54': { Northeast: { sub: 'European Tours', growth: 8 }, Southeast: { sub: 'Caribbean', growth: 9 }, Midwest: { sub: 'National Parks', growth: 7 }, Southwest: { sub: 'Mexico Resorts', growth: 10 }, West: { sub: 'Alaska Cruises', growth: 13 } },
+    '55+': { Northeast: { sub: 'River Cruises', growth: 6 }, Southeast: { sub: 'Gulf Coast', growth: 4 }, Midwest: { sub: 'Bus Tours', growth: 3 }, Southwest: { sub: 'RV Travel', growth: 9 }, West: { sub: 'Wine Tours', growth: 7 } },
+  },
+  'Health & Wellness': {
+    '18-24': { Northeast: { sub: 'Pilates', growth: 32 }, Southeast: { sub: 'Yoga Studios', growth: 25 }, Midwest: { sub: 'Gym Memberships', growth: 18 }, Southwest: { sub: 'Hot Yoga', growth: 28 }, West: { sub: 'Meditation Apps', growth: 35 } },
+    '25-34': { Northeast: { sub: 'Boutique Fitness', growth: 20 }, Southeast: { sub: 'Spin Classes', growth: 16 }, Midwest: { sub: 'CrossFit', growth: 14 }, Southwest: { sub: 'Wellness Retreats', growth: 22 }, West: { sub: 'Acupuncture', growth: 18 } },
+    '35-44': { Northeast: { sub: 'Personal Training', growth: 10 }, Southeast: { sub: 'Spa Days', growth: 12 }, Midwest: { sub: 'Chiropractic', growth: 8 }, Southwest: { sub: 'Functional Medicine', growth: 15 }, West: { sub: 'Naturopathy', growth: 13 } },
+    '45-54': { Northeast: { sub: 'Physical Therapy', growth: 6 }, Southeast: { sub: 'Golf Fitness', growth: 7 }, Midwest: { sub: 'Swimming', growth: 5 }, Southwest: { sub: 'Holistic Health', growth: 9 }, West: { sub: 'Supplements', growth: 11 } },
+    '55+': { Northeast: { sub: 'Senior Yoga', growth: 4 }, Southeast: { sub: 'Water Aerobics', growth: 5 }, Midwest: { sub: 'Walking Groups', growth: 3 }, Southwest: { sub: 'Tai Chi', growth: 7 }, West: { sub: 'Senior Fitness', growth: 6 } },
+  },
+  'Style & Beauty': {
+    '18-24': { Northeast: { sub: 'Thrift Stores', growth: 30 }, Southeast: { sub: 'Fast Fashion', growth: 22 }, Midwest: { sub: 'Sneakers', growth: 26 }, Southwest: { sub: 'Streetwear', growth: 28 }, West: { sub: 'Vintage', growth: 32 } },
+    '25-34': { Northeast: { sub: 'Designer Brands', growth: 14 }, Southeast: { sub: 'Athleisure', growth: 18 }, Midwest: { sub: 'Workwear', growth: 12 }, Southwest: { sub: 'Western Wear', growth: 16 }, West: { sub: 'Sustainable Fashion', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Luxury Bags', growth: 8 }, Southeast: { sub: 'Jewelry', growth: 10 }, Midwest: { sub: 'Department Stores', growth: 5 }, Southwest: { sub: 'Boutiques', growth: 11 }, West: { sub: 'Skincare', growth: 15 } },
+    '45-54': { Northeast: { sub: 'Fine Jewelry', growth: 6 }, Southeast: { sub: 'Cosmetics', growth: 7 }, Midwest: { sub: 'Classic Brands', growth: 4 }, Southwest: { sub: 'Spas', growth: 8 }, West: { sub: 'Anti-Aging', growth: 12 } },
+    '55+': { Northeast: { sub: 'Classic Fashion', growth: 3 }, Southeast: { sub: 'Beauty Salons', growth: 4 }, Midwest: { sub: 'Catalog Shopping', growth: 2 }, Southwest: { sub: 'Comfort Brands', growth: 5 }, West: { sub: 'Dermatology', growth: 6 } },
+  },
+  'Home & Living': {
+    '18-24': { Northeast: { sub: 'IKEA', growth: 24 }, Southeast: { sub: 'Apartment Decor', growth: 20 }, Midwest: { sub: 'Thrift Furniture', growth: 22 }, Southwest: { sub: 'Smart Home', growth: 28 }, West: { sub: 'Plant Shops', growth: 30 } },
+    '25-34': { Northeast: { sub: 'Home Renovation', growth: 16 }, Southeast: { sub: 'Patio Furniture', growth: 14 }, Midwest: { sub: 'Hardware Stores', growth: 12 }, Southwest: { sub: 'Solar Panels', growth: 22 }, West: { sub: 'Interior Design', growth: 18 } },
+    '35-44': { Northeast: { sub: 'Kitchen Remodel', growth: 10 }, Southeast: { sub: 'Pool Install', growth: 12 }, Midwest: { sub: 'Landscaping', growth: 8 }, Southwest: { sub: 'Outdoor Living', growth: 15 }, West: { sub: 'Smart Home', growth: 14 } },
+    '45-54': { Northeast: { sub: 'Custom Furniture', growth: 6 }, Southeast: { sub: 'Deck Building', growth: 7 }, Midwest: { sub: 'Garage Systems', growth: 5 }, Southwest: { sub: 'Xeriscape', growth: 9 }, West: { sub: 'Wine Cellars', growth: 8 } },
+    '55+': { Northeast: { sub: 'Downsizing', growth: 4 }, Southeast: { sub: 'Garden Centers', growth: 5 }, Midwest: { sub: 'Home Security', growth: 3 }, Southwest: { sub: 'Retirement Homes', growth: 7 }, West: { sub: 'Accessibility', growth: 6 } },
+  },
+  'Entertainment & Culture': {
+    '18-24': { Northeast: { sub: 'Concert Tickets', growth: 30 }, Southeast: { sub: 'Music Festivals', growth: 26 }, Midwest: { sub: 'Gaming', growth: 24 }, Southwest: { sub: 'EDM Events', growth: 28 }, West: { sub: 'Streaming', growth: 22 } },
+    '25-34': { Northeast: { sub: 'Broadway', growth: 14 }, Southeast: { sub: 'Live Music', growth: 16 }, Midwest: { sub: 'Sports Events', growth: 18 }, Southwest: { sub: 'Comedy Shows', growth: 15 }, West: { sub: 'Film Festivals', growth: 12 } },
+    '35-44': { Northeast: { sub: 'Museums', growth: 8 }, Southeast: { sub: 'Theme Parks', growth: 10 }, Midwest: { sub: 'Family Shows', growth: 7 }, Southwest: { sub: 'Art Galleries', growth: 11 }, West: { sub: 'Wine Events', growth: 9 } },
+    '45-54': { Northeast: { sub: 'Opera', growth: 5 }, Southeast: { sub: 'Jazz Clubs', growth: 6 }, Midwest: { sub: 'Symphony', growth: 4 }, Southwest: { sub: 'Art Shows', growth: 7 }, West: { sub: 'Theater', growth: 8 } },
+    '55+': { Northeast: { sub: 'Classical Music', growth: 3 }, Southeast: { sub: 'Book Clubs', growth: 4 }, Midwest: { sub: 'Community Theater', growth: 2 }, Southwest: { sub: 'Cultural Tours', growth: 5 }, West: { sub: 'Art Classes', growth: 6 } },
+  },
+  'Technology & Digital Life': {
+    '18-24': { Northeast: { sub: 'Gaming PCs', growth: 28 }, Southeast: { sub: 'VR Headsets', growth: 32 }, Midwest: { sub: 'Streaming Gear', growth: 24 }, Southwest: { sub: 'Drones', growth: 26 }, West: { sub: 'AI Tools', growth: 38 } },
+    '25-34': { Northeast: { sub: 'Smart Watches', growth: 16 }, Southeast: { sub: 'Home Automation', growth: 18 }, Midwest: { sub: 'Laptops', growth: 12 }, Southwest: { sub: 'Electric Vehicles', growth: 22 }, West: { sub: 'SaaS Tools', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Home Office', growth: 10 }, Southeast: { sub: 'Security Cams', growth: 12 }, Midwest: { sub: 'Networking', growth: 8 }, Southwest: { sub: 'Solar Tech', growth: 14 }, West: { sub: 'Apple Products', growth: 11 } },
+    '45-54': { Northeast: { sub: 'Tablets', growth: 5 }, Southeast: { sub: 'Smart TVs', growth: 7 }, Midwest: { sub: 'Printers', growth: 4 }, Southwest: { sub: 'Smart Thermostats', growth: 9 }, West: { sub: 'Phones', growth: 6 } },
+    '55+': { Northeast: { sub: 'E-Readers', growth: 3 }, Southeast: { sub: 'Medical Devices', growth: 5 }, Midwest: { sub: 'Basic Phones', growth: 2 }, Southwest: { sub: 'Voice Assistants', growth: 7 }, West: { sub: 'Health Trackers', growth: 8 } },
+  },
+  'Family & Community': {
+    '18-24': { Northeast: { sub: 'Volunteer Orgs', growth: 20 }, Southeast: { sub: 'Church Groups', growth: 15 }, Midwest: { sub: 'Youth Sports', growth: 18 }, Southwest: { sub: 'Community Gardens', growth: 22 }, West: { sub: 'Co-ops', growth: 24 } },
+    '25-34': { Northeast: { sub: 'Daycare', growth: 16 }, Southeast: { sub: 'Preschool', growth: 14 }, Midwest: { sub: 'Family Outings', growth: 12 }, Southwest: { sub: 'Kids Activities', growth: 18 }, West: { sub: 'Nannies', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Private School', growth: 10 }, Southeast: { sub: 'Tutoring', growth: 12 }, Midwest: { sub: 'Sports Leagues', growth: 8 }, Southwest: { sub: 'Summer Camps', growth: 14 }, West: { sub: 'Music Lessons', growth: 11 } },
+    '45-54': { Northeast: { sub: 'College Prep', growth: 6 }, Southeast: { sub: 'Family Vacations', growth: 7 }, Midwest: { sub: 'Community Events', growth: 5 }, Southwest: { sub: 'Family Reunions', growth: 8 }, West: { sub: 'College Tuition', growth: 9 } },
+    '55+': { Northeast: { sub: 'Grandkids Gifts', growth: 4 }, Southeast: { sub: 'Church Donations', growth: 5 }, Midwest: { sub: 'Community Center', growth: 3 }, Southwest: { sub: 'Senior Groups', growth: 6 }, West: { sub: 'Estate Planning', growth: 7 } },
+  },
+  'Financial & Aspirational': {
+    '18-24': { Northeast: { sub: 'Crypto', growth: 35 }, Southeast: { sub: 'Investing Apps', growth: 28 }, Midwest: { sub: 'Savings Apps', growth: 22 }, Southwest: { sub: 'Side Hustles', growth: 30 }, West: { sub: 'Stock Trading', growth: 32 } },
+    '25-34': { Northeast: { sub: 'Index Funds', growth: 18 }, Southeast: { sub: 'Real Estate', growth: 16 }, Midwest: { sub: '401k', growth: 14 }, Southwest: { sub: 'REITs', growth: 20 }, West: { sub: 'Venture', growth: 22 } },
+    '35-44': { Northeast: { sub: 'Tax Planning', growth: 10 }, Southeast: { sub: 'Insurance', growth: 8 }, Midwest: { sub: 'College Savings', growth: 12 }, Southwest: { sub: 'Property', growth: 14 }, West: { sub: 'Advisory', growth: 11 } },
+    '45-54': { Northeast: { sub: 'Retirement Planning', growth: 6 }, Southeast: { sub: 'Annuities', growth: 5 }, Midwest: { sub: 'Estate Planning', growth: 7 }, Southwest: { sub: 'Downsizing', growth: 8 }, West: { sub: 'Wealth Mgmt', growth: 9 } },
+    '55+': { Northeast: { sub: 'Fixed Income', growth: 3 }, Southeast: { sub: 'Medicare', growth: 4 }, Midwest: { sub: 'Social Security', growth: 2 }, Southwest: { sub: 'Pension', growth: 5 }, West: { sub: 'Trust Services', growth: 6 } },
+  },
+  'Pets': {
+    '18-24': { Northeast: { sub: 'Dog Adoption', growth: 28 }, Southeast: { sub: 'Pet Costumes', growth: 22 }, Midwest: { sub: 'Cat Cafes', growth: 24 }, Southwest: { sub: 'Reptile Supplies', growth: 18 }, West: { sub: 'Pet Insurance', growth: 30 } },
+    '25-34': { Northeast: { sub: 'Vet Care', growth: 16 }, Southeast: { sub: 'Dog Parks', growth: 14 }, Midwest: { sub: 'Pet Food', growth: 12 }, Southwest: { sub: 'Pet Tech', growth: 20 }, West: { sub: 'Premium Food', growth: 18 } },
+    '35-44': { Northeast: { sub: 'Pet Sitting', growth: 10 }, Southeast: { sub: 'Boarding', growth: 8 }, Midwest: { sub: 'Grooming', growth: 7 }, Southwest: { sub: 'Dog Training', growth: 12 }, West: { sub: 'Holistic Pet Care', growth: 14 } },
+    '45-54': { Northeast: { sub: 'Vet Specialists', growth: 5 }, Southeast: { sub: 'Pet Pharmacy', growth: 6 }, Midwest: { sub: 'Pet Supplies', growth: 4 }, Southwest: { sub: 'Horse Care', growth: 8 }, West: { sub: 'Pet Wellness', growth: 7 } },
+    '55+': { Northeast: { sub: 'Companion Pets', growth: 3 }, Southeast: { sub: 'Bird Supplies', growth: 4 }, Midwest: { sub: 'Pet Meds', growth: 2 }, Southwest: { sub: 'Pet Grooming', growth: 5 }, West: { sub: 'Senior Pet Care', growth: 6 } },
+  },
+  'Miscellaneous & Unclassified': {
+    '18-24': { Northeast: { sub: 'Subscriptions', growth: 20 }, Southeast: { sub: 'Gig Economy', growth: 18 }, Midwest: { sub: 'Online Shopping', growth: 16 }, Southwest: { sub: 'Marketplace Apps', growth: 22 }, West: { sub: 'Digital Services', growth: 24 } },
+    '25-34': { Northeast: { sub: 'Delivery Services', growth: 14 }, Southeast: { sub: 'Moving Services', growth: 12 }, Midwest: { sub: 'Storage Units', growth: 10 }, Southwest: { sub: 'Auto Services', growth: 15 }, West: { sub: 'Ride Shares', growth: 16 } },
+    '35-44': { Northeast: { sub: 'Dry Cleaning', growth: 6 }, Southeast: { sub: 'Lawn Care', growth: 8 }, Midwest: { sub: 'Car Wash', growth: 5 }, Southwest: { sub: 'Home Services', growth: 10 }, West: { sub: 'Cleaning Services', growth: 9 } },
+    '45-54': { Northeast: { sub: 'Professional Services', growth: 4 }, Southeast: { sub: 'Auto Repair', growth: 5 }, Midwest: { sub: 'Handyman', growth: 3 }, Southwest: { sub: 'Pest Control', growth: 6 }, West: { sub: 'Landscaping', growth: 7 } },
+    '55+': { Northeast: { sub: 'Tax Prep', growth: 2 }, Southeast: { sub: 'Legal Services', growth: 3 }, Midwest: { sub: 'Postal Services', growth: 1 }, Southwest: { sub: 'Notary', growth: 4 }, West: { sub: 'Accounting', growth: 5 } },
+  },
+};
+
+// Base spend amounts by age group (younger = lower base, older = higher)
+const AGE_BASE_SPEND: Record<string, number> = {
+  '18-24': 1_800_000,
+  '25-34': 4_200_000,
+  '35-44': 5_600_000,
+  '45-54': 4_800_000,
+  '55+': 3_200_000,
+};
+
+// Region multipliers
+const REGION_MULT: Record<string, number> = {
+  Northeast: 1.15,
+  Southeast: 0.95,
+  Midwest: 0.85,
+  Southwest: 1.05,
+  West: 1.20,
+};
+
+// Spend index variation seeds per pillar (deterministic)
+const PILLAR_INDEX_SEEDS: Record<string, number[][]> = {};
+function seedIndex(pillar: string): number[][] {
+  if (PILLAR_INDEX_SEEDS[pillar]) return PILLAR_INDEX_SEEDS[pillar];
+  let h = 0;
+  for (let i = 0; i < pillar.length; i++) h = (h * 31 + pillar.charCodeAt(i)) | 0;
+  const matrix: number[][] = [];
+  for (let a = 0; a < 5; a++) {
+    const row: number[] = [];
+    for (let r = 0; r < 5; r++) {
+      h = (h * 1103515245 + 12345) & 0x7fffffff;
+      row.push(70 + (h % 80)); // 70-149
+    }
+    matrix.push(row);
+  }
+  PILLAR_INDEX_SEEDS[pillar] = matrix;
+  return matrix;
+}
+
+export function getPillarDeepDive(pillar: string): PillarDeepDiveCell[] {
+  const color = PILLAR_COLORS[pillar] || '#64748b';
+  const indexMatrix = seedIndex(pillar);
+  const subMap = SUBCATEGORY_MAP[pillar] || SUBCATEGORY_MAP['Miscellaneous & Unclassified'];
+  const cells: PillarDeepDiveCell[] = [];
+
+  AGE_GROUPS.forEach((age, ai) => {
+    REGIONS_DD.forEach((region, ri) => {
+      const idx = indexMatrix[ai][ri];
+      const baseSpend = AGE_BASE_SPEND[age] * REGION_MULT[region];
+      const spend = Math.round(baseSpend * (idx / 100));
+      const subEntry = subMap[age]?.[region] || { sub: 'General', growth: 5 };
+      const yoy = Math.round((idx - 100) * 0.3 + subEntry.growth * 0.4);
+      
+      cells.push({
+        ageGroup: age,
+        generationLabel: GEN_LABELS[age],
+        region,
+        totalSpend: spend,
+        spendIndex: idx,
+        yoyGrowth: yoy,
+        topSubcategory: subEntry.sub,
+        subcategoryGrowth: subEntry.growth,
+        userCount: Math.round(spend / 42),
+        color,
+      });
+    });
+  });
+
+  return cells;
+}
