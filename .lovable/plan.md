@@ -1,51 +1,65 @@
 
 
-## New Edge Function: `bankwide-chat` — Executive-Grade Banking Intelligence
+## Pillar Deep Dive — Age × Region Heatmap with Subcategory Insights
 
-### Why a new function
-The existing `advisor-chat` is tailored for individual client wealth management (psychology profiles, RMDs, Monte Carlo results). The Ventus AI welcome tab serves **bank leadership** analyzing portfolio-wide trends. A dedicated function delivers a sharply different system prompt, tone, and context formatting without cluttering the advisor function.
+### Overview
+Add a "Pillar Deep Dive" button to the Category Consolidation page. When clicked, the user selects a pillar and date range, then sees a smooth gradient heatmap with **Age Range** (rows) × **Region** (columns) showing spend intensity, growth, and — crucially — **subcategory callouts** (e.g. "Pickleball ↑ 34%" for Gen-Z in Southwest under Sports & Active Living).
 
-### New file: `supabase/functions/bankwide-chat/index.ts`
+### New file: `src/components/tepilot/insights/PillarDeepDiveHeatmap.tsx`
 
-**System prompt — ultra-professional executive tone:**
-- Persona: "Ventus Intelligence Briefing" — a senior banking strategy analyst
-- Audience: C-suite, SVPs, heads of consumer banking
-- Tone: authoritative, data-driven, concise, no filler — McKinsey-grade
-- Output style: executive briefing bullets, bold headline insights, quantified impact
-- When discussing trends: always cite figures, growth rates, affected user counts
-- When identifying risks: lead with severity, quantify exposure, recommend mitigation
-- Structured sections: "Key Finding", "Supporting Data", "Recommended Action"
+**Controls bar:**
+- Pillar selector — dropdown of 12 pillars (default: Sports & Active Living)
+- Date range picker — two date pickers (From / To), cosmetic only since data is mock
+- A "Deep Dive" title with the selected pillar's color accent
 
-**Context formatting:**
-- Accepts a `context` object with `bankwideMetrics`, `hotTrends`, `modules`, `cardProducts`
-- Formats into a structured executive data brief with sections: Portfolio Overview, Spending Trends, Competitive Landscape, Life Event Signals, Product Distribution
-- Richer than the current freeform pass-through — structured for leadership questions
+**Heatmap grid:**
+- Rows: 5 age groups (`18-24`, `25-34`, `35-44`, `45-54`, `55+`) with generational labels (Gen-Z, Millennials, Gen-X, Boomers I, Boomers II)
+- Columns: 5 regions (`Northeast`, `Southeast`, `Midwest`, `Southwest`, `West`)
+- Each cell is a smooth gradient-colored rectangle:
+  - Color intensity from white → pillar color based on spend index
+  - Shows: spend amount, spend index, YoY growth %
+  - On hover tooltip: detailed breakdown
+- **Subcategory callout** inside each cell — the top trending subcategory for that age×region intersection (e.g. "Pickleball ↑ 34%", "Golf ↑ 12%", "Yoga ↑ 18%")
+- Cells with strong over-indexes (>130) get a subtle glow/border highlight
 
-**Technical details:**
-- Same CORS pattern as `advisor-chat`
-- Same Lovable AI gateway call (`google/gemini-2.5-flash`)
-- Same error handling (429/402/500)
-- Non-streaming (matches current `useAdvisorChat` pattern)
-- `verify_jwt = false` in config.toml
+**Key insight banner** at top:
+- Auto-generated sentence summarizing the most notable finding (e.g. "Gen-Z in the Southwest are driving a 34% surge in Pickleball spending — the strongest subcategory growth in Sports & Active Living")
 
-### Update: `supabase/config.toml`
-Add:
-```toml
-[functions.bankwide-chat]
-verify_jwt = false
+### New data: `src/lib/mockBankwideData.ts`
+
+Add a `getPillarDeepDive(pillar, filters)` function returning:
+```ts
+interface PillarDeepDiveCell {
+  ageGroup: string;
+  generationLabel: string;
+  region: string;
+  totalSpend: number;
+  spendIndex: number;
+  yoyGrowth: number;
+  topSubcategory: string;
+  subcategoryGrowth: number;
+  userCount: number;
+  color: string;
+}
 ```
 
-### Update: `src/hooks/useAdvisorChat.ts`
-Add an optional `functionName` prop (default: `"advisor-chat"`) so the welcome view can call `"bankwide-chat"` instead, without duplicating hook logic.
+Each pillar gets a curated map of subcategory insights per age×region. For example, Sports & Active Living:
+- 18-24 × Southwest → "Pickleball ↑ 34%"
+- 25-34 × Northeast → "Golf ↑ 12%"
+- 35-44 × Midwest → "Running ↑ 18%"
+- 55+ × West → "Hiking ↑ 22%"
 
-### Update: `src/components/tepilot/insights/VentusAIWelcomeView.tsx`
-- Pass `functionName: "bankwide-chat"` to `useAdvisorChat`
-- No other changes needed — the context object is already being passed
+Similar curated subcategories for all 12 pillars (e.g. Food & Dining: "Ramen Shops ↑ 28%" for Gen-Z, "Farm-to-Table ↑ 15%" for Millennials).
 
-### System prompt key behaviors
-1. **Hot trends**: When asked about trends, structure response as a ranked briefing with magnitude, affected segments, and strategic implications
-2. **Need-to-knows**: Proactively flag deposit flight risk, seasonal patterns, underperforming segments, and cross-sell gaps
-3. **Navigation guidance**: When a question maps to a specific module, mention it by name and suggest the user explore it
-4. **Competitor intelligence**: Frame outflow data as strategic risk with retention ROI estimates
-5. **Executive summary style**: Every response opens with a bold one-line takeaway before supporting detail
+### Update: `src/components/tepilot/insights/BankwideView.tsx`
+
+Add a "Pillar Deep Dive" button (with `Microscope` icon) between the Pillar Explorer and the Region Heatmap. Clicking it toggles visibility of `<PillarDeepDiveHeatmap />`. This keeps the existing heatmaps intact while adding the new interactive view.
+
+### Technical Details
+- Heatmap uses CSS grid with smooth `background-color` interpolation via HSL
+- Uses existing `CollapsibleCard` wrapper for consistency
+- Date pickers use the Shadcn `Popover` + `Calendar` pattern with `pointer-events-auto`
+- Pillar selector uses Shadcn `Select`
+- All data is deterministic mock — no backend calls
+- Subcategory data is a static lookup table keyed by `pillar → ageGroup → region`
 
