@@ -10,7 +10,7 @@ const BASE_DELAY_MS = 1000;
 
 // Models
 const PRIMARY_MODEL = "google/gemini-2.5-pro";
-const FALLBACK_MODEL = "google/gemini-2.5-pro";
+const FALLBACK_MODEL = "openai/gpt-5-mini";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -227,7 +227,7 @@ async function callTravelDetectionAI(
   const isOpenAI = model.startsWith("openai/");
   const isGemini = model.startsWith("google/");
 
-  const tokenParam = isOpenAI ? { max_completion_tokens: 8000 } : { max_tokens: 4000 };
+  const tokenParam = isOpenAI ? { max_completion_tokens: 8000 } : { max_tokens: 8000 };
 
   const requestBody: any = {
     model,
