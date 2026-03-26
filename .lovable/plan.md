@@ -1,22 +1,29 @@
 
 
-## Fix Content Positioning & Header Sizing
+## Ungate "Next-Purchase Intelligence" & "Travel & Perk Aggregation" from Travel Algorithm
 
 ### Problem
-Content in both panels sits too low because `justify-center` on the outer container fights with `flex-1 justify-center` on the inner content div. The "Mission" and "Learn More" labels are too small at 13px.
+Currently, the `travel` and `locational` nodes only become "ready" after both the travel-detection AI call and local-experiences fetch complete. This makes them appear slow. The user wants them to light up as soon as `dealPersonalization` is ready (which fires earlier, after classification).
 
-### Changes — `src/components/ContactFormDialog.tsx`
+### Change — `src/hooks/useDemoEnrichment.ts`
 
-**Make "Mission" and "Learn More" bigger and bold (lines 42, 64):**
-- Change from `text-[13px] font-bold uppercase tracking-widest text-slate-500` to `text-lg font-bold uppercase tracking-wider text-slate-700`
-- Reduce bottom margin from `mb-10` to `mb-6` so content doesn't push down as much
+**Set `travel` and `locational` to "ready" alongside `dealPersonalization`** (~line 340):
+- Where rewards/dealPersonalization are set ready, also set `travel` and `locational` ready:
+  ```ts
+  setNodeReady({ rewards: "ready", dealPersonalization: "ready", travel: "ready", locational: "ready" });
+  ```
 
-**Fix vertical positioning — left panel (lines 41, 44):**
-- Change outer div from `justify-center` to `justify-start pt-10` (keep `items-center text-center`)
-- Remove `flex-1` from inner content div so it doesn't stretch and push content down
+**Keep the travel/local-experiences fetches running** — they still populate data (detected trips, local experiences), but they no longer gate the node's visual readiness.
 
-**Fix vertical positioning — right panel (line 63):**
-- Change from `justify-center` to `justify-start pt-10` to match left panel
+**Remove the `maybeSetTravelReady` gating logic** (~lines 431-487):
+- Remove the `localExperiencesDone`/`travelDetectionDone` booleans and the `maybeSetTravelReady` function
+- Keep the actual fetch calls (travel-detection, local-experiences) — just remove the `setNodeReady` calls from their `.then()` blocks since readiness is already set earlier
 
-This aligns both sections to start from a consistent top position rather than being pushed to vertical center of a tall container.
+**Update the "already enriched" guard** (~line 235):
+- Change `nodeReadiness.travel === "ready"` check to `nodeReadiness.dealPersonalization === "ready"` (or just `rewards`) since travel readiness now fires earlier with deal personalization
+
+### Result
+- "Next-Purchase Intelligence" and "Travel & Perk Aggregation" light up at the same time as "Deep Personalization"
+- Travel data still loads in the background and populates when ready
+- No visual delay waiting for the travel algorithm
 
