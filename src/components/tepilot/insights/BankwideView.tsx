@@ -3,8 +3,6 @@ import { Microscope } from "lucide-react";
 import { BankwideFilters } from "./BankwideFilters";
 import { BankwideMetrics } from "./BankwideMetrics";
 import { BankwidePillarExplorer } from "./BankwidePillarExplorer";
-import { PillarRegionHeatmap } from "./PillarRegionHeatmap";
-import { PillarAgeHeatmap } from "./PillarAgeHeatmap";
 import { PillarTimingGrid } from "./PillarTimingGrid";
 import { RevenueOpportunitiesCard } from "./RevenueOpportunitiesCard";
 import { CrossSellMatrix } from "./CrossSellMatrix";
@@ -53,12 +51,6 @@ export function BankwideView() {
 
       {/* Pillar Deep Dive Heatmap */}
       <PillarDeepDiveHeatmap />
-
-      {/* Pillar × Region Heatmap */}
-      <PillarRegionHeatmap filters={filters} />
-
-      {/* Pillar × Age Heatmap */}
-      <PillarAgeHeatmap filters={filters} />
 
       {/* Pillar Seasonal Timing */}
       <PillarTimingGrid />
