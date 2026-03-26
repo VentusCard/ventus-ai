@@ -99,6 +99,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
   }, [step, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
 
   useEffect(() => {
+    if (granted) return;
     const handler = (e: KeyboardEvent) => {
       if (e.code === "ArrowLeft") {
         e.preventDefault();
@@ -120,7 +121,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [step, advance, goBack]);
+  }, [granted, step, advance, goBack, beat6Phase]);
 
   const isSmallScreen = useIsMobile() || useIsTablet();
 
