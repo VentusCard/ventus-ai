@@ -21,37 +21,6 @@ const CATEGORY_HEX: Record<string, string> = {
   Travel: "#0284c7",
 };
 
-const FALLBACK_MESSAGES: Record<string, string[]> = {
-  Sports: [
-    "Gear up for your next game day — your active lifestyle deserves great rewards.",
-    "From weekend leagues to stadium nights, keep your competitive edge sharp.",
-  ],
-  Dining: [
-    "Your next favorite meal is waiting — discover flavors that match your taste.",
-    "Whether it's date night or a quick bite, make every meal count.",
-  ],
-  Shopping: [
-    "Refresh your style with picks curated around your personal taste.",
-    "Smart shoppers earn smart rewards — make your next haul go further.",
-  ],
-  Entertainment: [
-    "From live shows to streaming nights, keep the good times rolling.",
-    "Your entertainment calendar just got more rewarding.",
-  ],
-  Fitness: [
-    "Keep your wellness momentum going with rewards that fuel your routine.",
-    "Your dedication to health deserves perks that keep up with you.",
-  ],
-  Travel: [
-    "Adventure is calling — unlock exclusive savings for your next getaway.",
-    "From flights to stays, make every mile more rewarding.",
-  ],
-  default: [
-    "Unlock exclusive savings tailored to your spending habits.",
-    "A reward picked just for you — because your loyalty deserves more.",
-  ],
-};
-
 function getFallbackMessage(deal: BankDeal): string {
   return `Unlock exclusive savings: ${deal.rewardValue} at ${deal.merchantName}, save today!`;
 }
