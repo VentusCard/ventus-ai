@@ -1,23 +1,23 @@
 
 
-## Add Subtle Gradient to Bank-Facing Cards
+## Make Consumer Nodes & Impact Cards Full Color
 
 ### What
-Apply a subtle gradient background to each of the 3 bank-facing cards per row, similar to how the Advanced Enrichment engine capability cards look — but using a gradient from `color + 08` to `color + 18` (light wash to slightly stronger wash).
+Change the "Personalized UX/Rewards/Relationship" cards and the impact metric cards from light tinted backgrounds to **solid colored backgrounds with white text**.
 
 ### Changes — `src/components/demo/DemoNetworkDiagram.tsx`
 
-**Line 391** — Replace the flat `background` on bank node buttons:
+**Consumer nodes (lines ~434-449)**:
+- `background`: from `${node.color}12` → `${node.color}` (solid color)
+- `borderColor`: from `${node.color}70` → `${node.color}`
+- Icon container: solid white/translucent-white background instead of tinted
+- Icon color: white instead of `node.color`
+- Text: `text-white` instead of `text-slate-900` / `text-slate-500`
 
-```typescript
-// Before
-background: canOpen ? `${node.color}15` : "#ffffff",
+**Impact metric cards (lines ~483-492)**:
+- `background`: from `${impactData.color}12` → `${impactData.color}` (solid)
+- `borderColor`: from `${impactData.color}30` → `${impactData.color}`
+- Arrow icon + text: white instead of green/slate
 
-// After
-background: canOpen
-  ? `linear-gradient(135deg, ${node.color}08 0%, ${node.color}20 100%)`
-  : "#ffffff",
-```
-
-Single line change. No structural changes needed.
+~10 style property changes total. No structural changes.
 
