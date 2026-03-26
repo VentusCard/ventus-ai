@@ -604,6 +604,39 @@ Deno.serve(async (req) => {
 
           let rawUpdates = batchResults.flat();
 
+          // Normalize destination names to prevent duplicates from model inconsistency
+          const DESTINATION_ALIASES: Record<string, string> = {
+            "new york city": "New York",
+            "nyc": "New York",
+            "manhattan": "New York",
+            "brooklyn": "New York",
+            "queens": "New York",
+            "bronx": "New York",
+            "los angeles": "Los Angeles",
+            "la": "Los Angeles",
+            "hollywood": "Los Angeles",
+            "san francisco": "San Francisco",
+            "sf": "San Francisco",
+            "washington dc": "Washington D.C.",
+            "washington d.c.": "Washington D.C.",
+            "washington, d.c.": "Washington D.C.",
+            "dc": "Washington D.C.",
+            "las vegas": "Las Vegas",
+            "vegas": "Las Vegas",
+            "chicago, il": "Chicago",
+            "miami beach": "Miami",
+            "fort lauderdale": "Fort Lauderdale",
+            "san fran": "San Francisco",
+          };
+          const normalizeDestination = (dest: string): string =>
+            DESTINATION_ALIASES[dest.toLowerCase().trim()] || dest.trim();
+
+          rawUpdates.forEach((u: any) => {
+            if (u.travel_destination) {
+              u.travel_destination = normalizeDestination(u.travel_destination);
+            }
+          });
+
           // Phase 2: Reconcile orphaned flights with detected trips
           sendEvent("status", { message: "Reconciling flight fares with trips..." });
           rawUpdates = reconcileFlightsWithTrips(rawUpdates, transactionSummary);
