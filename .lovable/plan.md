@@ -1,18 +1,24 @@
 
 
-## Wrap "Personalized Banking Relationship" in an iPad Mockup
+## Fix iPad Mockup: Lighter Frame + Content Fit
 
-### What changes
+### Problems
+1. **Too dark** — `border-slate-800` and `bg-slate-800` bezels make the frame look black/heavy against the light overlay
+2. **Content doesn't fit** — `max-h-[600px]` on the content area is too restrictive; life event cards + snapshot get cut off
 
-**`src/components/demo/DemoWealthView.tsx`**
+### Changes — `src/components/demo/DemoWealthView.tsx`
 
-Wrap the existing consumer-facing content in an iPad-style device frame:
+1. **Lighten the iPad frame** to match the light-theme policy:
+   - Bezel: `border-slate-300` (light silver) instead of `border-slate-800`
+   - Camera dot: `bg-slate-200 border-slate-300` instead of dark
+   - Bottom home indicator bar: `bg-slate-300` on a light background
+   - Shadow: softer, lighter shadow
 
-- **Outer container**: centered, `max-w-[820px]` wide (iPad landscape proportion)
-- **Device bezel**: rounded-2xl with slightly thicker border than the phone mockups to convey a tablet form factor, subtle shadow
-- **Browser bar**: same pattern as the phone mockups (traffic-light dots + URL bar showing `yourbank.com/banking`) but slightly larger to match tablet scale
-- **Content area**: scrollable inner div with `max-h-[600px]` containing the existing greeting header, life events hero cards, financial snapshot, and fallback — all content stays the same, just wrapped in the iPad frame
-- **Sizing**: text and spacing remain the same since the content was already designed for a wider layout (`max-w-2xl`)
+2. **Fix content fitting**:
+   - Remove the `max-h-[600px]` constraint so the content flows naturally within the overlay's own scroll
+   - Remove `overflow-y-auto` from the content div (the overlay already handles scrolling)
+   - Reduce padding from `p-6` to `p-4` to use space more efficiently
+   - Reduce `space-y-5` to `space-y-4` for tighter spacing
 
-No other files need to change. The same pattern will later be reusable when the user updates the other 2 views.
+Result: a clean silver/light iPad frame that fits the light-theme overlay, with all content visible without double-scrolling.
 
