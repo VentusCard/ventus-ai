@@ -13,6 +13,7 @@ import type {
   RevenueOpportunity,
   GamificationMetrics,
   ManagedAchievement,
+  PillarDeepDiveCell,
 } from '@/types/bankwide';
 import { PILLAR_COLORS, LIFESTYLE_PILLARS } from '@/lib/sampleData';
 
