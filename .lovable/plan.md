@@ -1,22 +1,33 @@
 
 
-## Remove "Describe Your Customer" Section from Custom Flow
+## Fix: Misaligned Connection Lines
 
-### What changes
-In `src/components/demo/DemoCustomerPanel.tsx`, simplify the custom customer mode by removing:
-- **Step 1** — the "Describe your customer" textarea and `personaText` state
-- **Step 2** — the "Copy prompt" button (renumber step 3 → step 1)
+### Root cause
 
-The `handleCopyPrompt` function and `personaText` state become unused and should be removed. The `buildCustomerPrompt` call will use a default persona string instead of user input.
+On line 155, the grid top is calculated as:
+```ts
+const gridTopY = midY - totalGridHeight / 2 + 20;
+```
 
-Update the remaining steps:
-- **Step 1** (was 3): "Copy prompt → paste into ChatGPT / Claude" with the copy button (uses default persona)
-- **Step 2** (was 3): "Paste the full LLM output below" textarea + Load button
+But the bank→consumer lines (line 253) and consumer→impact lines (line 279) both recalculate it without the `+ 20`:
+```ts
+const gTopY = midY - totalGridH / 2;  // missing + 20
+```
 
-### File
-`src/components/demo/DemoCustomerPanel.tsx`
-- Remove `personaText` state
-- Remove Step 1 `<div>` block (lines 181-190)
-- Update `handleCopyPrompt` to use a hardcoded default persona
-- Renumber remaining steps from 1/2
+This causes the SVG lines to target the wrong Y positions.
+
+### Fix — `src/components/demo/DemoNetworkDiagram.tsx`
+
+**Lines 252-253** — Replace local `gTopY` with `gridTopY`:
+```ts
+const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+```
+Remove the `totalGridH` and `gTopY` local variables.
+
+**Lines 278-280** — Same fix:
+```ts
+const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+```
+
+Two small edits, no structural changes.
 

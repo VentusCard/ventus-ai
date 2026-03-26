@@ -4,6 +4,7 @@ import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
+import DemoWealthView from "./DemoWealthView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
 import DemoTravelView from "./DemoTravelView";
@@ -36,7 +37,7 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
   locational: { title: "Locational Experience", color: "#0891b2" },
   lifeEvents: { title: "Financial Journey — Next Best Product", color: "#ec4899" },
   lifeEventIntel: { title: "Life Event Intelligence", color: "#ec4899" },
-  wealth: { title: "Wealth Management", color: "#8b5cf6" },
+  wealth: { title: "Personalized Banking Relationship", color: "#8b5cf6" },
   engine: { title: "Ventus AI Engine — Enrichment Output", color: "#6366f1" },
   profiling: { title: "Profiling — Pillar Summary", color: "#3b82f6" },
   predictive: { title: "Predictive — Personalization + Travel", color: "#22c55e" },
@@ -93,7 +94,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
     }
     if (node === "wealth") {
       return (
-        <DemoFinancialJourneyView
+        <DemoWealthView
           customer={customer}
           detectedEvents={detectedEvents ?? []}
         />

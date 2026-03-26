@@ -9,7 +9,7 @@ const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
 
 // Models
-const PRIMARY_MODEL = "google/gemini-2.5-flash";
+const PRIMARY_MODEL = "google/gemini-2.5-pro";
 const FALLBACK_MODEL = "google/gemini-2.5-pro";
 
 // Allowed origins for CORS
@@ -47,7 +47,7 @@ function getDelayMs(attempt: number): number {
 async function runWithConcurrency<T, R>(
   items: T[],
   limit: number,
-  worker: (item: T, index: number) => Promise<R>
+  worker: (item: T, index: number) => Promise<R>,
 ): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let currentIndex = 0;
@@ -69,10 +69,29 @@ async function runWithConcurrency<T, R>(
 
 // Airline keywords for flight detection
 const AIRLINE_KEYWORDS = [
-  'airline', 'airways', 'delta', 'united', 'southwest', 'american airlines', 'jetblue',
-  'british airways', 'air france', 'lufthansa', 'easyjet', 'ryanair',
-  'emirates', 'qatar airways', 'singapore airlines', 'cathay', 'klm', 'virgin atlantic',
-  'spirit', 'frontier', 'alaska air', 'hawaiian air', 'sun country',
+  "airline",
+  "airways",
+  "delta",
+  "united",
+  "southwest",
+  "american airlines",
+  "jetblue",
+  "british airways",
+  "air france",
+  "lufthansa",
+  "easyjet",
+  "ryanair",
+  "emirates",
+  "qatar airways",
+  "singapore airlines",
+  "cathay",
+  "klm",
+  "virgin atlantic",
+  "spirit",
+  "frontier",
+  "alaska air",
+  "hawaiian air",
+  "sun country",
 ];
 
 // Enhanced Travel Detection Prompt with trip examples and flight-to-trip matching
@@ -203,14 +222,12 @@ async function callTravelDetectionAI(
   batch: any[],
   homeZip: string,
   batchNum: number,
-  attempt: number
+  attempt: number,
 ): Promise<any[]> {
   const isOpenAI = model.startsWith("openai/");
   const isGemini = model.startsWith("google/");
 
-  const tokenParam = isOpenAI
-    ? { max_completion_tokens: 8000 }
-    : { max_tokens: 4000 };
+  const tokenParam = isOpenAI ? { max_completion_tokens: 8000 } : { max_tokens: 4000 };
 
   const requestBody: any = {
     model,
@@ -277,7 +294,7 @@ async function processBatch(
   batchIndex: number,
   totalBatches: number,
   homeZip: string,
-  sendEvent: (event: string, data: any) => void
+  sendEvent: (event: string, data: any) => void,
 ): Promise<any[]> {
   const batchNum = batchIndex + 1;
 
@@ -287,7 +304,9 @@ async function processBatch(
 
     if (attempt > 0) {
       const delay = getDelayMs(attempt - 1);
-      console.log(`[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`);
+      console.log(
+        `[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`,
+      );
       await new Promise((r) => setTimeout(r, delay));
     }
 
@@ -313,7 +332,7 @@ async function processBatch(
   }
 
   console.error(`[BATCH ${batchNum}] All ${MAX_RETRIES + 1} attempts failed`);
-  
+
   // Return fallback for failed batch
   return batch.map((t) => ({
     transaction_id: t.id,
@@ -329,10 +348,7 @@ async function processBatch(
 }
 
 // Post-processing: reconcile orphaned flights with detected trips
-function reconcileFlightsWithTrips(
-  updates: any[],
-  originalTransactions: any[]
-): any[] {
+function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]): any[] {
   // Build a lookup of original transaction amounts by id
   const txAmountMap = new Map<string, number>();
   const txMerchantMap = new Map<string, string>();
@@ -358,11 +374,41 @@ function reconcileFlightsWithTrips(
         seenTrips.add(key);
         const dest = u.travel_destination.toLowerCase();
         const internationalKeywords = [
-          'london', 'paris', 'rome', 'berlin', 'tokyo', 'sydney', 'dubai', 'amsterdam',
-          'barcelona', 'munich', 'vienna', 'prague', 'lisbon', 'madrid', 'milan', 'dublin',
-          'brussels', 'zurich', 'geneva', 'singapore', 'hong kong', 'bangkok', 'toronto',
-          'vancouver', 'montreal', 'cancun', 'mexico', 'caribbean', 'bahamas', 'jamaica',
-          'europe', 'asia', 'africa', 'australia', 'south america',
+          "london",
+          "paris",
+          "rome",
+          "berlin",
+          "tokyo",
+          "sydney",
+          "dubai",
+          "amsterdam",
+          "barcelona",
+          "munich",
+          "vienna",
+          "prague",
+          "lisbon",
+          "madrid",
+          "milan",
+          "dublin",
+          "brussels",
+          "zurich",
+          "geneva",
+          "singapore",
+          "hong kong",
+          "bangkok",
+          "toronto",
+          "vancouver",
+          "montreal",
+          "cancun",
+          "mexico",
+          "caribbean",
+          "bahamas",
+          "jamaica",
+          "europe",
+          "asia",
+          "africa",
+          "australia",
+          "south america",
         ];
         const isInternational = internationalKeywords.some((kw) => dest.includes(kw));
         trips.push({
@@ -547,16 +593,49 @@ Deno.serve(async (req) => {
             batches.push(transactionSummary.slice(i, i + BATCH_SIZE));
           }
 
-          console.log(`[Travel Detection] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`);
+          console.log(
+            `[Travel Detection] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`,
+          );
 
           // Process batches with limited concurrency
-          const batchResults = await runWithConcurrency(
-            batches,
-            CONCURRENCY_LIMIT,
-            (batch, idx) => processBatch(batch, idx, batches.length, homeZip, sendEvent)
+          const batchResults = await runWithConcurrency(batches, CONCURRENCY_LIMIT, (batch, idx) =>
+            processBatch(batch, idx, batches.length, homeZip, sendEvent),
           );
 
           let rawUpdates = batchResults.flat();
+
+          // Normalize destination names to prevent duplicates from model inconsistency
+          const DESTINATION_ALIASES: Record<string, string> = {
+            "new york city": "New York",
+            "nyc": "New York",
+            "manhattan": "New York",
+            "brooklyn": "New York",
+            "queens": "New York",
+            "bronx": "New York",
+            "los angeles": "Los Angeles",
+            "la": "Los Angeles",
+            "hollywood": "Los Angeles",
+            "san francisco": "San Francisco",
+            "sf": "San Francisco",
+            "washington dc": "Washington D.C.",
+            "washington d.c.": "Washington D.C.",
+            "washington, d.c.": "Washington D.C.",
+            "dc": "Washington D.C.",
+            "las vegas": "Las Vegas",
+            "vegas": "Las Vegas",
+            "chicago, il": "Chicago",
+            "miami beach": "Miami",
+            "fort lauderdale": "Fort Lauderdale",
+            "san fran": "San Francisco",
+          };
+          const normalizeDestination = (dest: string): string =>
+            DESTINATION_ALIASES[dest.toLowerCase().trim()] || dest.trim();
+
+          rawUpdates.forEach((u: any) => {
+            if (u.travel_destination) {
+              u.travel_destination = normalizeDestination(u.travel_destination);
+            }
+          });
 
           // Phase 2: Reconcile orphaned flights with detected trips
           sendEvent("status", { message: "Reconciling flight fares with trips..." });
@@ -567,8 +646,8 @@ Deno.serve(async (req) => {
             if (!u.is_travel_related || !u.travel_destination || !u.travel_period_start) {
               return { ...u, trip_label: null };
             }
-            const start = u.travel_period_start.replace(/-/g, '').slice(2); // "260301"
-            const end = (u.travel_period_end || u.travel_period_start).replace(/-/g, '').slice(2);
+            const start = u.travel_period_start.replace(/-/g, "").slice(2); // "260301"
+            const end = (u.travel_period_end || u.travel_period_start).replace(/-/g, "").slice(2);
             const dest = u.travel_destination;
             return { ...u, trip_label: `${start}:${end} ${dest} Trip` };
           });
@@ -576,7 +655,9 @@ Deno.serve(async (req) => {
           const totalTime = Date.now() - startTime;
           const travelCount = travelUpdates.filter((u: any) => u.is_travel_related).length;
           const thirdPartyCount = travelUpdates.filter((u: any) => u.third_party_likely).length;
-          console.log(`[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related, ${thirdPartyCount} third-party flagged) in ${totalTime}ms`);
+          console.log(
+            `[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related, ${thirdPartyCount} third-party flagged) in ${totalTime}ms`,
+          );
 
           // Send travel updates
           sendEvent("travel_updates", { travel_updates: travelUpdates });

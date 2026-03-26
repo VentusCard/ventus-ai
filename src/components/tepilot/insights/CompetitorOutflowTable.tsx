@@ -27,14 +27,21 @@ const typeColors: Record<string, string> = {
   bnpl: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
   traditional: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
   crypto: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+  rent: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+  auto_loan: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+  student_loan: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
+  utility: 'bg-teal-500/20 text-teal-300 border-teal-500/30',
+  insurance: 'bg-lime-500/20 text-lime-300 border-lime-500/30',
+  childcare: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+  subscription: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
 };
 
 export function CompetitorOutflowTable({ data }: Props) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="p-4 border-b border-border">
-        <h3 className="text-sm font-semibold text-foreground">Competitor Outflow Rankings</h3>
-        <p className="text-xs text-muted-foreground mt-1">Institutions capturing the most customer outflows based on transaction metadata analysis</p>
+        <h3 className="text-sm font-semibold text-foreground">ACH Outflow Analysis</h3>
+        <p className="text-xs text-muted-foreground mt-1">Holistic view of where customer money flows — competitor products, recurring obligations, and everyday expenses detected via ACH metadata</p>
       </div>
       <Table>
         <TableHeader>

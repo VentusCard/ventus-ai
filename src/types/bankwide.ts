@@ -218,7 +218,7 @@ export interface PipelineStatus {
 // Wallet Share Intelligence Types
 export interface CompetitorOutflow {
   institution: string;
-  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto';
+  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto' | 'rent' | 'auto_loan' | 'student_loan' | 'utility' | 'insurance' | 'childcare' | 'subscription';
   productCategory: string;
   estimatedOutflow: number;
   affectedCustomers: number;
@@ -287,4 +287,18 @@ export interface CategoryExtensionOpportunity {
   deploymentRationale: string;
   priority: 'high' | 'medium' | 'low';
   merchantDetails: MerchantDetail[];
+}
+
+// Pillar Deep Dive Heatmap Types
+export interface PillarDeepDiveCell {
+  ageGroup: string;
+  generationLabel: string;
+  region: string;
+  totalSpend: number;
+  spendIndex: number;
+  yoyGrowth: number;
+  topSubcategory: string;
+  subcategoryGrowth: number;
+  userCount: number;
+  color: string;
 }

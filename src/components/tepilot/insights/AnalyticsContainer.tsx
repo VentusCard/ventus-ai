@@ -12,13 +12,16 @@ import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
-  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package
+  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
+  Building2, ArrowLeft, Bot
 } from "lucide-react";
+import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
 
 interface NavItem {
   value: TabValue;
@@ -28,17 +31,23 @@ interface NavItem {
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
+    label: "Home",
+    items: [
+      { value: "ventus-ai", label: "Ventus AI", icon: Bot },
+    ],
+  },
+  {
     label: "Analytics",
     items: [
       { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
-      { value: "wallet-share", label: "Competitor Outflow Detection", icon: Wallet },
+      { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
   },
   {
     label: "Rewards",
     items: [
-      { value: "rewards-intelligence", label: "Reward & Trip Detection", icon: Sparkles },
+      { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
       { value: "deal-management", label: "Deal Management", icon: Package },
       { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
@@ -58,14 +67,17 @@ interface AnalyticsContainerProps {
   defaultTab?: TabValue;
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
+  onBack?: () => void;
 }
 
-export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics, lifestyleSignals }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
@@ -80,8 +92,35 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
   };
 
   return (
-    <div className="flex w-full min-h-[600px]">
-      {/* Sidebar */}
+    <div className="w-full min-h-[600px] rounded-xl border border-slate-200 overflow-hidden bg-white">
+      {/* Professional Header */}
+      <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
+              <Building2 className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-slate-900 leading-tight">TCBY Bank (This Could Your Bank)</h1>
+              <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-[11px] text-slate-400">Last updated: {today}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+            <Sparkles className="w-3 h-3 text-blue-500" />
+            <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex min-h-[560px]">
       <div
         className={cn(
           "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
@@ -137,6 +176,7 @@ export function AnalyticsContainer({ defaultTab = 'dashboard', userDemographics,
       {/* Content */}
       <div className="flex-1 min-w-0 overflow-y-auto p-4">
         {renderContent()}
+      </div>
       </div>
     </div>
   );

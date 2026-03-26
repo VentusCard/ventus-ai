@@ -4,7 +4,7 @@ import { Monitor, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 7;
+const TOTAL_BEATS = 6;
 
 const BEAT_SUMMARIES = [
   "AI-powered banking personalization engine.",
@@ -13,7 +13,6 @@ const BEAT_SUMMARIES = [
   "One MCC code. Countless possible meanings. Zero clarity.",
   "Blind MCCs Hide purchase patterns(behavorial insights).",
   "Signal + demographics activates full personalization.",
-  "From generic banking to full-stack personalization.",
 ];
 
 export default function DemoPasswordGate({ children }: { children: ReactNode }) {
@@ -24,7 +23,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
   const [beat3Phase, setBeat3Phase] = useState(0);
   const [beat4Phase, setBeat4Phase] = useState(0);
   const [beat5Phase, setBeat5Phase] = useState(0);
-  const [beat6Phase, setBeat6Phase] = useState(0);
+  
 
   const advance = useCallback(() => {
     if (isTransitioning) return;
@@ -44,18 +43,11 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat4Phase(0);
       }
       if (s === 5) {
-        if (beat5Phase < 3) {
+        if (beat5Phase < 4) {
           setBeat5Phase((p) => p + 1);
           return s;
         }
-        setBeat5Phase(0);
-      }
-      if (s === 6) {
-        if (beat6Phase < 2) {
-          setBeat6Phase((p) => p + 1);
-          return s;
-        }
-        // Beat 6 is the last beat — don't advance further
+        // Beat 5 is the last beat — don't advance further
         return s;
       }
       const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
@@ -68,7 +60,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
       }
       return next;
     });
-  }, [beat3Phase, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
+  }, [beat3Phase, beat4Phase, beat5Phase, isTransitioning]);
 
   const goBack = useCallback(() => {
     if (isTransitioning) return;
@@ -78,10 +70,6 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     }
     if (step === 5 && beat5Phase > 0) {
       setBeat5Phase((p) => p - 1);
-      return;
-    }
-    if (step === 6 && beat6Phase > 0) {
-      setBeat6Phase((p) => p - 1);
       return;
     }
     if (step > 0) {
@@ -95,17 +83,17 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     }
     setBeat4Phase(0);
     setBeat5Phase(0);
-    setBeat6Phase(0);
-  }, [step, beat4Phase, beat5Phase, beat6Phase, isTransitioning]);
+  }, [step, beat4Phase, beat5Phase, isTransitioning]);
 
   useEffect(() => {
+    if (granted) return;
     const handler = (e: KeyboardEvent) => {
       if (e.code === "ArrowLeft") {
         e.preventDefault();
         goBack();
         return;
       }
-      if (step === 6 && beat6Phase >= 2) {
+      if (step === 5 && beat5Phase >= 4) {
         if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
           sessionStorage.setItem("demo_access", "true");
@@ -120,7 +108,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [step, advance, goBack]);
+  }, [granted, step, advance, goBack, beat5Phase]);
 
   const isSmallScreen = useIsMobile() || useIsTablet();
 
@@ -169,9 +157,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step === 6 && beat6Phase >= 2 ? "default" : "pointer",
+        cursor: step === 5 && beat5Phase >= 4 ? "default" : "pointer",
       }}
-      onClick={() => !(step === 6 && beat6Phase >= 2) && advance()}
+      onClick={() => !(step === 5 && beat5Phase >= 4) && advance()}
     >
       <style>{`
         @keyframes ambientShift {
@@ -712,7 +700,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                          {[
                             "Local Advisor Notified",
-                            "529 Plan Setup",
+                            "Automated 529 Draft",
                            "Life Insurance Review",
                            "Emergency Fund Boost",
                          ].map((label) => (
@@ -748,7 +736,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                            '"Family & Foundation" Pillar',
                            "Baby Budget Tracker",
                            "Parenting Milestone Alerts",
-                           "Family Deal Highlights",
+                            "Orchestrate Other Features",
                          ].map((label) => (
                            <div
                              key={label}
@@ -760,210 +748,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                        </div>
                      </div>
                    </div>
-                </div>
-              )}
 
-              {/* Beat 6 — Disconnected data */}
-              {displayStep === 6 && (
-                <div>
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="text-sm font-bold tracking-widest uppercase" style={{ color: "#94A3B8" }}>
-                      04
-                    </span>
-                    <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
-                    {beat6Phase === 0 ? "The Status Quo" : "Personalized Banking, Made Possible"}
-                  </h2>
-
-                  {/* Horizontal flow diagram */}
-                  <div className="mt-8 flex items-center justify-center gap-4 sm:gap-6 w-full">
-                    <p
-                      className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0"
-                      style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}
-                    >
-                      {beat6Phase >= 1
-                        ? "If we truly understand our customers"
-                        : "We don't really understand our customers"}
-                    </p>
-                    <div style={{ width: 44 }} />
-                    <p
-                      className="text-sm font-bold tracking-widest uppercase text-center leading-relaxed transition-all duration-500 flex-1 min-w-0"
-                      style={{ color: beat6Phase >= 1 ? "#2563EB" : "#94A3B8", letterSpacing: "0.1em" }}
-                    >
-                      {beat6Phase >= 1
-                        ? "We can then provide a personalized banking experience"
-                        : "We provide a generic experience"}
-                    </p>
-                  </div>
-                  <div className="mt-8 mb-5 flex items-center justify-center gap-4 sm:gap-6 w-full">
-                    {/* LEFT — Input boxes */}
-                    <div className="flex flex-col items-stretch gap-4 relative flex-1 min-w-0">
-                      <div
-                        className="absolute -inset-4 rounded-xl border-2 transition-all duration-500"
-                        style={{
-                          borderColor: "#3B82F6",
-                          backgroundColor: "rgba(59,130,246,0.04)",
-                          opacity: beat6Phase >= 1 ? 1 : 0,
-                          transform: beat6Phase >= 1 ? "translateY(0)" : "translateY(8px)",
-                        }}
-                      >
-                        <span
-                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
-                          style={{ backgroundColor: "#3B82F6", color: "#FFFFFF" }}
-                        >
-                          Dynamic Personas & Behavioral Insights
-                        </span>
-                      </div>
-                      <div
-                        className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
-                        style={{
-                          borderColor: beat6Phase >= 1 ? "#3B82F6" : "#E2E8F0",
-                          backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#FFFFFF",
-                          minWidth: 160,
-                        }}
-                      >
-                        <span
-                          className="text-sm font-bold tracking-wider uppercase"
-                          style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#64748B" }}
-                        >
-                          Transactions
-                        </span>
-                      </div>
-                      <div
-                        className="px-5 py-4 rounded-lg border text-center transition-all duration-500"
-                        style={{
-                          borderColor: beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1",
-                          borderStyle: beat6Phase >= 1 ? "solid" : "dashed",
-                          backgroundColor: beat6Phase >= 1 ? "#EFF6FF" : "#F8FAFC",
-                          minWidth: 160,
-                        }}
-                      >
-                        <span
-                          className="text-sm font-bold tracking-wider uppercase"
-                          style={{ color: beat6Phase >= 1 ? "#3B82F6" : "#94A3B8" }}
-                        >
-                          Demographics
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* MIDDLE — Arrow */}
-                    <div className="flex items-center px-1">
-                      <svg
-                        width="48"
-                        height="24"
-                        viewBox="0 0 48 24"
-                        fill="none"
-                        className="transition-colors duration-500"
-                      >
-                        <line
-                          x1="0"
-                          y1="12"
-                          x2="38"
-                          y2="12"
-                          stroke={beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1"}
-                          strokeWidth="2"
-                          strokeDasharray={beat6Phase >= 1 ? "none" : "4 3"}
-                          className="transition-all duration-500"
-                        />
-                        <path
-                          d="M36 6L44 12L36 18"
-                          stroke={beat6Phase >= 1 ? "#3B82F6" : "#CBD5E1"}
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="transition-all duration-500"
-                        />
-                      </svg>
-                    </div>
-
-                    {/* RIGHT — Output items */}
-                    <div className="flex-1 min-w-0 relative">
-                      {/* Phase 0: static labels */}
-                      <div
-                        className="flex flex-col gap-2.5 transition-all duration-500"
-                        style={{
-                          opacity: beat6Phase === 0 ? 1 : 0,
-                          transform: beat6Phase === 0 ? "translateY(0)" : "translateY(-10px)",
-                          position: beat6Phase === 0 ? "relative" : "absolute",
-                          inset: 0,
-                          pointerEvents: beat6Phase === 0 ? "auto" : "none",
-                        }}
-                      >
-                        {[
-                          { label: "Analytics", icon: "📊" },
-                          { label: "UX", icon: "🖥️" },
-                          { label: "Rewards", icon: "🎁" },
-                          { label: "Relationship", icon: "🤝" },
-                        ].map((item) => (
-                          <div
-                            key={item.label}
-                            className="flex items-center gap-2.5 px-5 py-3 rounded-lg border"
-                            style={{ borderColor: "#E2E8F0", backgroundColor: "#FAFBFC" }}
-                          >
-                            <span className="text-lg">{item.icon}</span>
-                            <span className="text-base font-medium whitespace-nowrap" style={{ color: "#64748B" }}>
-                              {item.label}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Phase 1: rolling carousel */}
-                      <div
-                        className="transition-all duration-700"
-                        style={{
-                          opacity: beat6Phase >= 1 ? 1 : 0,
-                          transform: beat6Phase >= 1 ? "translateY(0)" : "translateY(10px)",
-                          position: beat6Phase >= 1 ? "relative" : "absolute",
-                          inset: 0,
-                          pointerEvents: beat6Phase >= 1 ? "auto" : "none",
-                          height: 200,
-                          overflow: "hidden",
-                          maskImage:
-                            "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
-                          WebkitMaskImage:
-                            "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
-                        }}
-                      >
-                        <div className="animate-scroll-up flex flex-col gap-2.5">
-                          {[...Array(2)].map((_, dupeIdx) =>
-                            [
-                              { label: "Smart Rewards with Personalized Offers", icon: "🎁" },
-                              { label: "Behavioral Pattern Detection & Anticipation", icon: "💫" },
-                              { label: "AI-Powered Campaign Targeting", icon: "📣" },
-                              { label: "Behavioral Segment Builder", icon: "👥" },
-                              { label: "Travel Detection & Local Deals", icon: "✈️" },
-                              { label: "Wealth Copilot for Advisors", icon: "📈" },
-                              { label: "Personalized Customer Engagement", icon: "💎" },
-                              { label: "Bank-Wide Behavioral Analytics", icon: "📊" },
-                              { label: "Automated Relationship Intelligence", icon: "🤝" },
-                              { label: "Financial Wellness Coaching", icon: "🌱" },
-                              { label: "Cross-Sell Opportunity Matrix", icon: "🔗" },
-                              { label: "Geo-Targeted Merchant Partnerships", icon: "📍" },
-                              { label: "Gamification and Achievements", icon: "🏆" },
-                              { label: "Fund Outflow and Competitor Analysis", icon: "💸" },
-                            ].map((item, i) => (
-                              <div
-                                key={`${dupeIdx}-${i}`}
-                                className="flex items-center gap-2.5 px-5 py-3 rounded-lg border"
-                                style={{ borderColor: "#BFDBFE", backgroundColor: "#F8FAFF" }}
-                              >
-                                <span className="text-lg flex-shrink-0">{item.icon}</span>
-                                <span className="text-base font-medium whitespace-nowrap" style={{ color: "#1E40AF" }}>
-                                  {item.label}
-                                </span>
-                              </div>
-                            )),
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Enter Demo button — appears after phase 1 */}
-                  {beat6Phase >= 2 && (
+                  {/* Enter Demo button — appears at beat5Phase >= 4 */}
+                  {beat5Phase >= 4 && (
                     <div className="mt-8 flex justify-center" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => {

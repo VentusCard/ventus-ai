@@ -26,6 +26,7 @@ interface NodeDef {
 interface PillarRow {
   id: string;
   subtitle: string;
+  team: string;
   icon: typeof Search;
   color: string;
   bankNodes: NodeDef[];
@@ -43,39 +44,42 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    subtitle: "Who are they, where do they spend & move money?",
+    team: "Analytics",
+    subtitle: "Where do our customers spend their money?",
     icon: Search,
     color: "#3b82f6",
     bankNodes: [
       { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
-      { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#1d4ed8", audience: "bank" },
-      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#2563eb", audience: "bank" },
+      { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
+      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
     ],
-    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#f59e0b", audience: "consumer" },
+    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
   },
   {
     id: "predictive",
-    subtitle: "What will they spend on next & how do we reward it?",
+    team: "Rewards",
+    subtitle: "How can we support and reward their life style?",
     icon: Sparkles,
     color: "#22c55e",
-    bankNodes: [
-      { id: "travel", label: "Next-Purchase Intelligence", icon: Plane, color: "#06b6d4", audience: "bank" },
-      { id: "locational", label: "Travel & Perk Aggregation", icon: MapPin, color: "#0891b2", audience: "bank" },
-      { id: "dealPersonalization", label: "Deal Personalization", icon: Target, color: "#16a34a", audience: "bank" },
-    ],
+      bankNodes: [
+       { id: "travel", label: "Next-Purchase Intelligence", icon: Plane, color: "#22c55e", audience: "bank" },
+       { id: "locational", label: "Travel & Perk Aggregation", icon: MapPin, color: "#22c55e", audience: "bank" },
+       { id: "dealPersonalization", label: "Deep Personalization", icon: Target, color: "#22c55e", audience: "bank" },
+     ],
     consumerNode: { id: "rewards", label: "Personalized Rewards", icon: Gift, color: "#22c55e", audience: "consumer" },
   },
   {
     id: "phase",
-    subtitle: "Where are they in their journey & what's their next product?",
+    team: "Growth & Wealth",
+    subtitle: "What's their next product to live a better life?",
     icon: Heart,
-    color: "#a855f7",
+    color: "#ec4899",
     bankNodes: [
       { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
-      { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#a855f7", audience: "bank" },
-      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#7c3aed", audience: "bank" },
+      { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#ec4899", audience: "bank" },
+      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#ec4899", audience: "bank" },
     ],
-    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#8b5cf6", audience: "consumer" },
+    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#ec4899", audience: "consumer" },
   },
 ];
 
@@ -86,9 +90,9 @@ const ENGINE_CAPABILITIES = [
 ];
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
-  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#f59e0b" },
+  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#3b82f6" },
   { metrics: ["Higher Redemption", "Higher Spend Lift", "High Profitability"], color: "#22c55e" },
-  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#8b5cf6" },
+  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#ec4899" },
 ];
 
 export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick }: Props) {
@@ -117,11 +121,11 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
   const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
 
-  const ROW_HEIGHT = Math.max(125, 148 * scale);
+  const ROW_HEIGHT = Math.max(145, 168 * scale);
   const BANK_NODE_HEIGHT = Math.max(32, 36 * scale);
   const BANK_NODE_GAP = Math.max(4, 6 * scale);
   const CONSUMER_NODE_HEIGHT = Math.max(54, 70 * scale);
-  const QUESTION_LABEL_HEIGHT = centered ? 28 : 20;
+  const QUESTION_LABEL_HEIGHT = centered ? 32 : 24;
 
   // Horizontal gaps — tight on left, generous on right
   const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
@@ -148,7 +152,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   // Vertical layout
   const midY = dims.h * 0.5;
   const totalGridHeight = ROW_HEIGHT * 3;
-  const gridTopY = midY - totalGridHeight / 2;
+  const gridTopY = midY - totalGridHeight / 2 + 20;
 
   const txSpread = centered ? 85 : 55;
   const inputAY = midY - txSpread;
@@ -245,9 +249,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
             {/* Bank column → Consumer column (one line per bank node) */}
             {PILLAR_ROWS.map((pillar, pi) => {
-              const totalGridH = ROW_HEIGHT * 3;
-              const gTopY = midY - totalGridH / 2;
-              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
               const cTop = rCenterY - cHeight / 2;
@@ -271,9 +273,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
             {/* Consumer column → Impact column */}
             {PILLAR_ROWS.map((pillar, pi) => {
-              const totalGridH = ROW_HEIGHT * 3;
-              const gTopY = midY - totalGridH / 2;
-              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
               const cTop = rCenterY - cHeight / 2;
@@ -352,8 +352,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 zIndex: 2,
               }}
             >
-              <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: pillar.color }} />
-              <span className={`font-semibold leading-tight ${centered ? "text-[15px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
+              <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-4 h-4"} shrink-0`} style={{ color: pillar.color }} />
+              <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
+              <span style={{ color: pillar.color }}>:</span>
+              <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
             {/* 2 stacked bank nodes */}
@@ -382,7 +384,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                       height: BANK_NODE_HEIGHT,
                       cursor: canOpen ? "pointer" : "not-allowed",
                       opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                      background: canOpen ? `${node.color}15` : "#ffffff",
+                      background: canOpen ? `linear-gradient(135deg, ${node.color}08 0%, ${node.color}20 100%)` : "#ffffff",
                       borderColor: canOpen ? `${node.color}80` : "#e2e8f0",
                       boxShadow: canOpen ? `0 0 12px ${node.color}15` : "0 1px 3px rgba(0,0,0,0.04)",
                       marginBottom: BANK_NODE_GAP,
