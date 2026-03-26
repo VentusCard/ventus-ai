@@ -302,4 +302,3 @@ export interface PillarDeepDiveCell {
   userCount: number;
   color: string;
 }
-}
