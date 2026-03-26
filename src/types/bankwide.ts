@@ -247,6 +247,13 @@ export interface WinBackRecommendation {
   estimatedRecapture: number;
   confidence: number;
   segmentTags: string[];
+  outflowVolume: number;
+  avgTransferAmount: number;
+  topPersona: string;
+  timeToAction: string;
+  channelStrategy: string[];
+  successMetric: string;
+  trend: 'growing' | 'stable' | 'declining';
 }
 
 export interface WalletShareTrendPoint {
