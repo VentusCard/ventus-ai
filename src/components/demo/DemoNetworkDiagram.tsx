@@ -249,9 +249,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
             {/* Bank column → Consumer column (one line per bank node) */}
             {PILLAR_ROWS.map((pillar, pi) => {
-              const totalGridH = ROW_HEIGHT * 3;
-              const gTopY = midY - totalGridH / 2;
-              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
               const cTop = rCenterY - cHeight / 2;
@@ -275,9 +273,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
             {/* Consumer column → Impact column */}
             {PILLAR_ROWS.map((pillar, pi) => {
-              const totalGridH = ROW_HEIGHT * 3;
-              const gTopY = midY - totalGridH / 2;
-              const rCenterY = gTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
+              const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
               const cTop = rCenterY - cHeight / 2;
