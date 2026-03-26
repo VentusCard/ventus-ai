@@ -1,29 +1,24 @@
 
 
-## Ungate "Next-Purchase Intelligence" & "Travel & Perk Aggregation" from Travel Algorithm
+## One-Shot Travel Detection with gemini-2.5-flash
 
-### Problem
-Currently, the `travel` and `locational` nodes only become "ready" after both the travel-detection AI call and local-experiences fetch complete. This makes them appear slow. The user wants them to light up as soon as `dealPersonalization` is ready (which fires earlier, after classification).
+### Why it works
+- `google/gemini-2.5-flash` handles large structured outputs fast (~5-10s for 34 transactions vs 80s+ with batched gpt-5-mini)
+- Already proven reliable in this project (used by classify-transactions and as current fallback)
+- Strong at tool-calling / structured JSON extraction
 
-### Change — `src/hooks/useDemoEnrichment.ts`
+### Changes — `supabase/functions/travel-detection/index.ts`
 
-**Set `travel` and `locational` to "ready" alongside `dealPersonalization`** (~line 340):
-- Where rewards/dealPersonalization are set ready, also set `travel` and `locational` ready:
-  ```ts
-  setNodeReady({ rewards: "ready", dealPersonalization: "ready", travel: "ready", locational: "ready" });
-  ```
-
-**Keep the travel/local-experiences fetches running** — they still populate data (detected trips, local experiences), but they no longer gate the node's visual readiness.
-
-**Remove the `maybeSetTravelReady` gating logic** (~lines 431-487):
-- Remove the `localExperiencesDone`/`travelDetectionDone` booleans and the `maybeSetTravelReady` function
-- Keep the actual fetch calls (travel-detection, local-experiences) — just remove the `setNodeReady` calls from their `.then()` blocks since readiness is already set earlier
-
-**Update the "already enriched" guard** (~line 235):
-- Change `nodeReadiness.travel === "ready"` check to `nodeReadiness.dealPersonalization === "ready"` (or just `rewards`) since travel readiness now fires earlier with deal personalization
+1. **Switch primary model** to `google/gemini-2.5-flash`, fallback to `openai/gpt-5-mini`
+2. **Remove batching entirely** — send all transactions (up to ~50) in a single API call
+3. **Remove `BATCH_SIZE`, `CONCURRENCY_LIMIT`, `runWithConcurrency`** and the batch-splitting logic
+4. **Simplify to a single call** with retry (keep `MAX_RETRIES` + exponential backoff)
+5. **Keep the SSE streaming response format** — just emit one `travel_updates` event with all results, then `done`
+6. **Keep salvage/regex fallback** for malformed responses
+7. **Keep `max_tokens: 8000`** token budget
 
 ### Result
-- "Next-Purchase Intelligence" and "Travel & Perk Aggregation" light up at the same time as "Deep Personalization"
-- Travel data still loads in the background and populates when ready
-- No visual delay waiting for the travel algorithm
+- ~5-10s total instead of ~80s+ across batches
+- No timeout risk — single call well within 60s edge function limit
+- Simpler code, fewer failure modes
 
