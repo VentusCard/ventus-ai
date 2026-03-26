@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, Rocket, Users, Crosshair } from "lucide-react";
+import { X, Users, Crosshair, Rocket } from "lucide-react";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 import goToMarketImg from "@/assets/deck/go-to-market.jpg";
 import teamTractionImg from "@/assets/deck/team-traction.jpg";
@@ -12,9 +12,9 @@ interface ContactFormDialogProps {
 }
 
 const DECK_PAGES = [
-  { label: "Go-to-Market Strategy", icon: Rocket, image: goToMarketImg },
   { label: "Team & Traction", icon: Users, image: teamTractionImg },
   { label: "Competitive Landscape", icon: Crosshair, image: competitiveLandscapeImg },
+  { label: "Go-to-Market Strategy", icon: Rocket, image: goToMarketImg },
 ] as const;
 
 export default function ContactFormDialog({ open, onOpenChange }: ContactFormDialogProps) {
@@ -29,13 +29,17 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
     <>
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-5xl bg-white p-0 overflow-hidden rounded-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 min-h-[480px]">
-            {/* Left panel */}
-            <div className="bg-slate-50 p-10 md:p-14 flex flex-col border-b md:border-b-0 md:border-r border-slate-200">
-              <img src={ventusLogo} alt="Ventus AI" className="w-36 mb-6" />
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-10">
-                Banking Should be<br />Deeply Personal
-              </h2>
+          {/* Full-width header */}
+          <div className="flex items-center gap-4 px-10 pt-8 pb-6 border-b border-slate-200">
+            <img src={ventusLogo} alt="Ventus AI" className="w-36" />
+            <div className="h-6 w-px bg-slate-200" />
+            <p className="text-lg font-semibold text-slate-700">Banking Should be Deeply Personal</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 min-h-[360px]">
+            {/* Left panel — Mission */}
+            <div className="bg-slate-50 p-10 md:p-12 flex flex-col border-b md:border-b-0 md:border-r border-slate-200">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-8">Mission</h3>
 
               <div className="space-y-8 flex-1 flex flex-col justify-center">
                 <div>
@@ -55,10 +59,9 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
               </div>
             </div>
 
-            {/* Right panel */}
-            <div className="p-10 md:p-14 flex flex-col justify-center">
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Learn More</h3>
-              <p className="text-slate-500 text-sm mb-8">Explore our strategy, team, and positioning.</p>
+            {/* Right panel — Deck buttons */}
+            <div className="p-10 md:p-12 flex flex-col justify-center">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Learn More</h3>
 
               <div className="space-y-4">
                 {DECK_PAGES.map((deck) => (
