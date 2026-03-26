@@ -1,26 +1,41 @@
 
 
-## Speed Up Travel Detection
+## Ungate Rewards from Travel Detection
 
 ### Problem
-The primary model is `google/gemini-2.5-pro` — the slowest, most expensive model. With batch size 30, concurrency 2, and up to 3 attempts per batch, this can easily take 30-90+ seconds.
+The `rewards` consumer node depends on `["travel", "locational", "dealPersonalization"]`. This means the Rewards overlay stays locked until travel detection completes — even though the Rewards view already derives its city from `getCityFromZip(customer.zip)` (home city) and doesn't need travel data at all.
 
-### Fix — `supabase/functions/travel-detection/index.ts`
+### What changes
 
-1. **Switch primary model to `openai/gpt-5-mini`** (line 12) — fast, strong at structured JSON extraction, reliable with tool calling. Keep `google/gemini-2.5-flash` as fallback.
+**1. `src/hooks/useDemoEnrichment.ts` — Remove travel deps from rewards consumer**
 
-2. **Reduce batch size from 30 → 15** (line 6) — smaller batches complete faster and are less likely to produce malformed output, reducing retries.
+Change line 133:
+```ts
+// Before
+rewards: ["travel", "locational", "dealPersonalization"],
+// After  
+rewards: ["dealPersonalization"],
+```
 
-3. **Increase concurrency from 2 → 3** (line 7) — more parallel batches to offset smaller batch size.
+This lets Rewards become ready as soon as deal personalization completes (~4s), independent of travel detection.
 
-These three line changes should cut travel detection time from 30-90s down to ~5-15s.
+**2. `src/components/demo/DemoRewardsView.tsx` — Add travel city update**
 
-### Changes Summary
+Currently the welcome header shows: `Welcome to {city}, {firstName}!` where `city = getCityFromZip(customer.zip)` (home city).
 
-| Line | Before | After |
-|------|--------|-------|
-| 6 | `BATCH_SIZE = 30` | `BATCH_SIZE = 15` |
-| 7 | `CONCURRENCY_LIMIT = 2` | `CONCURRENCY_LIMIT = 3` |
-| 12 | `"google/gemini-2.5-pro"` | `"openai/gpt-5-mini"` |
-| 13 | `"openai/gpt-5-mini"` | `"google/gemini-2.5-flash"` |
+Add an optional `travelCity` prop. When travel detection later finds a destination, the parent passes it down and the header updates to show the travel city, with Local Perks updating to show travel-destination perks.
+
+- Accept optional `travelCity?: string` prop
+- Use `travelCity || homeCity` for the welcome message and perks lookup
+- This means on initial load it shows home city; when travel detection finishes, it reactively updates to the detected travel destination
+
+**3. `src/components/demo/DemoDetailOverlay.tsx` — Pass travel city to rewards**
+
+Extract the first travel destination from `localExperiences` data and pass it as `travelCity` to `DemoRewardsView`. Since `localExperiences` state updates asynchronously when local-experiences API returns, the rewards view will reactively update.
+
+### Result
+- Rewards unlocks in ~4s (after deal personalization only)
+- Initially shows home city perks
+- When travel detection / local experiences finish, the city and perks update automatically
+- No change to travel node gating — it still waits for both local-experiences and travel-detection independently
 
