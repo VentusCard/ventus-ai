@@ -85,6 +85,7 @@ export function PillarDeepDiveHeatmap() {
           </Button>
         </div>
 
+        {isExpanded && <>
         {/* Controls */}
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[200px]">
