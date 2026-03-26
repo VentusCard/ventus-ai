@@ -1,26 +1,22 @@
 
 
-## Fix Parallel Layout Between Mission & Learn More
+## Fix Content Positioning & Header Sizing
 
 ### Problem
-The two sections look asymmetric: "Mission" uses a small uppercase label while "Learn More" uses a large heading. Content isn't vertically centered consistently across both panels.
+Content in both panels sits too low because `justify-center` on the outer container fights with `flex-1 justify-center` on the inner content div. The "Mission" and "Learn More" labels are too small at 13px.
 
 ### Changes — `src/components/ContactFormDialog.tsx`
 
-**Make both section headers identical style:**
-- Both "Mission" and "Learn More" use the same: `text-[13px] font-bold uppercase tracking-widest text-slate-500 mb-10`
-- Remove the current `text-2xl font-bold text-slate-900` from "Learn More"
+**Make "Mission" and "Learn More" bigger and bold (lines 42, 64):**
+- Change from `text-[13px] font-bold uppercase tracking-widest text-slate-500` to `text-lg font-bold uppercase tracking-wider text-slate-700`
+- Reduce bottom margin from `mb-10` to `mb-6` so content doesn't push down as much
 
-**Center content in both panels:**
-- Both panels: `flex flex-col items-center justify-center text-center`
-- Same padding on both: `p-10 md:p-14`
-- Right panel gets the same `bg-white` with matching structure
-- Left panel content blocks centered with `text-center`
+**Fix vertical positioning — left panel (lines 41, 44):**
+- Change outer div from `justify-center` to `justify-start pt-10` (keep `items-center text-center`)
+- Remove `flex-1` from inner content div so it doesn't stretch and push content down
 
-**Right panel buttons centered:**
-- Buttons stay full-width but the container is centered within the panel
-- Add `w-full max-w-sm mx-auto` to the button group so they don't stretch edge-to-edge
+**Fix vertical positioning — right panel (line 63):**
+- Change from `justify-center` to `justify-start pt-10` to match left panel
 
-### Result
-Both panels mirror each other: identical small uppercase section headers at top, content vertically and horizontally centered, creating visual symmetry.
+This aligns both sections to start from a consistent top position rather than being pushed to vertical center of a tall container.
 
