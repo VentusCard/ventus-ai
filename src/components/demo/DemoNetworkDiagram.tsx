@@ -73,7 +73,7 @@ const PILLAR_ROWS: PillarRow[] = [
     team: "Growth & Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
-    color: "#a855f7",
+    color: "#f43f5e",
     bankNodes: [
       { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#f43f5e", audience: "bank" },
       { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#f43f5e", audience: "bank" },
