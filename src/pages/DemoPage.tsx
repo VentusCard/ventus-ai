@@ -181,6 +181,7 @@ export default function DemoPage() {
           </button>
         </div>
       )}
+      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
     </DemoPasswordGate>
   );
