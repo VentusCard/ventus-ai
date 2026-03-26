@@ -1,41 +1,44 @@
 
 
-## Ungate Rewards from Travel Detection
+## Redesign "Next Step" Popup
 
-### Problem
-The `rewards` consumer node depends on `["travel", "locational", "dealPersonalization"]`. This means the Rewards overlay stays locked until travel detection completes — even though the Rewards view already derives its city from `getCityFromZip(customer.zip)` (home city) and doesn't need travel data at all.
+### Overview
+Replace the current contact-form dialog with a larger, two-panel closing slide. Left panel shows the brand message; right panel has 3 buttons that open the uploaded deck pages as full-screen image overlays.
 
-### What changes
+### Changes
 
-**1. `src/hooks/useDemoEnrichment.ts` — Remove travel deps from rewards consumer**
+**1. Copy deck page images into project**
+Copy the 3 full-page screenshots to `src/assets/deck/`:
+- `go-to-market.jpg` (Go-to-Market Strategy)
+- `team-traction.jpg` (Team & Traction)
+- `competitive-landscape.jpg` (Competitive Landscape)
 
-Change line 133:
-```ts
-// Before
-rewards: ["travel", "locational", "dealPersonalization"],
-// After  
-rewards: ["dealPersonalization"],
-```
+**2. Rewrite `src/components/ContactFormDialog.tsx`**
 
-This lets Rewards become ready as soon as deal personalization completes (~4s), independent of travel detection.
+- Widen dialog: `sm:max-w-4xl` (up from `3xl`)
+- Two-column layout:
 
-**2. `src/components/demo/DemoRewardsView.tsx` — Add travel city update**
+**Left panel** (slate-50 background):
+- Bigger Ventus logo (`w-36` instead of `w-24`)
+- New tagline: **"Banking Should be Deeply Personal"** in large bold text below the logo
+- Keep the 3 narrative blocks (Right now / With VentusAI / What's next) but give them more vertical breathing room and slightly larger text
 
-Currently the welcome header shows: `Welcome to {city}, {firstName}!` where `city = getCityFromZip(customer.zip)` (home city).
+**Right panel**:
+- Remove the contact form entirely
+- Replace with heading "Learn More" and 3 large styled buttons:
+  1. "Go-to-Market Strategy"
+  2. "Team & Traction"  
+  3. "Competitive Landscape"
+- Each button opens a full-screen image overlay showing the corresponding deck page screenshot
+- Overlay has a close button and semi-transparent dark backdrop
 
-Add an optional `travelCity` prop. When travel detection later finds a destination, the parent passes it down and the header updates to show the travel city, with Local Perks updating to show travel-destination perks.
-
-- Accept optional `travelCity?: string` prop
-- Use `travelCity || homeCity` for the welcome message and perks lookup
-- This means on initial load it shows home city; when travel detection finishes, it reactively updates to the detected travel destination
-
-**3. `src/components/demo/DemoDetailOverlay.tsx` — Pass travel city to rewards**
-
-Extract the first travel destination from `localExperiences` data and pass it as `travelCity` to `DemoRewardsView`. Since `localExperiences` state updates asynchronously when local-experiences API returns, the rewards view will reactively update.
+**3. Internal state for deck viewer**
+- Add `activeDeck: string | null` state to track which deck image to show
+- When a button is clicked, set `activeDeck` to the corresponding image import
+- Render a fixed full-screen overlay with the deck image centered and a close/X button
 
 ### Result
-- Rewards unlocks in ~4s (after deal personalization only)
-- Initially shows home city perks
-- When travel detection / local experiences finish, the city and perks update automatically
-- No change to travel node gating — it still waits for both local-experiences and travel-detection independently
+- "Next Step" opens a polished closing slide instead of a contact form
+- 3 clickable buttons let the presenter show GTM, Team, and Competitive slides inline
+- No navigation away from the demo page
 
