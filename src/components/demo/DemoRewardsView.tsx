@@ -276,7 +276,7 @@ function RewardsPhoneMockup({
                         </span>
                       </div>
 
-                      {p ? (
+                      {p?.msg ? (
                         <div className="flex items-end justify-between gap-2 mt-0.5">
                           <p className="text-[10px] leading-relaxed text-slate-600 italic line-clamp-2 flex-1">"{p.msg}"</p>
                           <button
@@ -284,7 +284,7 @@ function RewardsPhoneMockup({
                             style={{ background: color }}
                             onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
                           >
-                            {p.cta}
+                            {p.cta || "View Deal"}
                           </button>
                         </div>
                       ) : loading ? (
@@ -292,7 +292,9 @@ function RewardsPhoneMockup({
                           <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
                           <span className="text-[9px] text-slate-300">Personalizing…</span>
                         </div>
-                      ) : null}
+                      ) : (
+                        <p className="text-[10px] text-slate-400 mt-0.5">{deal.rewardDescription || "Exclusive reward"}</p>
+                      )}
                     </div>
                   </div>
                 );
