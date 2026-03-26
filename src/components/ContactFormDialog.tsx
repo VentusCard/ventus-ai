@@ -61,7 +61,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
 
             {/* Right panel — Deck buttons */}
             <div className="p-10 md:p-14 flex flex-col items-center justify-start text-center pt-10">
-              <h3 className="text-lg font-bold uppercase tracking-wider text-slate-700 mb-6">Learn More</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wider text-slate-700 mb-6 -mt-2">Learn More</h3>
 
               <div className="space-y-5 w-full max-w-sm">
                 {DECK_PAGES.map((deck) => (
