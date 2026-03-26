@@ -1,17 +1,16 @@
 
 
-## Add Feedback & Settings sections to bank dashboard sidebar
+## Replace Sparkles icon with "V" in VentusAIWelcomeView header
 
-### What
-Add two new nav items — **Feedback** and **Settings** — pinned to the bottom of the left sidebar in `AnalyticsContainer.tsx`. They sit below the scrollable nav groups and stay fixed at the bottom regardless of scroll.
+### Change
+In `src/components/tepilot/insights/VentusAIWelcomeView.tsx` line 153, replace:
+```tsx
+<Sparkles className="w-5 h-5 text-blue-400" />
+```
+with:
+```tsx
+<span className="text-lg font-black text-blue-400 leading-none">V</span>
+```
 
-### Changes (single file: `src/components/tepilot/insights/AnalyticsContainer.tsx`)
-
-1. **Import icons** — Add `MessageSquare` (Feedback) and `Settings` (Settings) from lucide-react
-2. **Split sidebar into two sections**:
-   - The existing `<nav>` with `flex-1 overflow-y-auto` stays as-is for the main nav groups
-   - Add a new `<div>` after the nav, pinned to the bottom with `mt-auto border-t border-slate-200 py-2`
-   - Contains two buttons styled identically to existing nav items: Feedback and Settings
-3. **Button behavior** — For now these will show a `toast.info("Coming soon")` since no content views exist yet. They won't be part of the `TabValue` type or `activeTab` state.
-4. **Collapsed state** — When sidebar is collapsed, show only icons (same pattern as existing nav items) with tooltip via `title` attribute.
+This matches the sidebar's "V" branding and replaces the sparkles icon in the welcome view header.
 

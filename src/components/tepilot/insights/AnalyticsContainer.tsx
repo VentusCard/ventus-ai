@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BankwideView } from "./BankwideView";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
@@ -34,7 +34,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Home",
     items: [
-      { value: "ventus-ai", label: "Ventus AI", icon: Bot },
+      { value: "ventus-ai", label: "Ventus AI", icon: () => <span className="text-xs font-black leading-none">V</span> },
     ],
   },
   {
@@ -74,6 +74,11 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    contentRef.current?.scrollTo(0, 0);
+  }, [activeTab]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
@@ -93,7 +98,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   };
 
   return (
-    <div className="w-full min-h-[600px] rounded-xl border border-slate-200 overflow-hidden bg-white">
+    <div className="w-full h-full flex flex-col border border-slate-200 overflow-hidden bg-white">
       {/* Professional Header */}
       <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200">
         <div className="flex items-center gap-3">
@@ -121,7 +126,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </div>
       </div>
 
-      <div className="flex min-h-[560px]">
+      <div className="flex flex-1 min-h-0">
       <div
         className={cn(
           "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
@@ -198,7 +203,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 overflow-y-auto p-4">
+      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4">
         {renderContent()}
       </div>
       </div>
