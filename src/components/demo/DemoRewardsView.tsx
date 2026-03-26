@@ -52,9 +52,8 @@ const FALLBACK_MESSAGES: Record<string, string[]> = {
   ],
 };
 
-function getFallbackMessage(category: string, index: number): string {
-  const msgs = FALLBACK_MESSAGES[category] || FALLBACK_MESSAGES.default;
-  return msgs[index % msgs.length];
+function getFallbackMessage(deal: BankDeal): string {
+  return `Unlock exclusive savings: ${deal.rewardValue} at ${deal.merchantName}, save today!`;
 }
 
 interface Props {
