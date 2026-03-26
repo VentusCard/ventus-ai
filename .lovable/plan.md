@@ -1,22 +1,19 @@
 
 
-## Fix: Travel Detection Reliability
+## Two Deal Cards Per Row
 
-### Problem
-1. **No real fallback** — `FALLBACK_MODEL` is the same as `PRIMARY_MODEL` (`google/gemini-2.5-pro`), so retries just repeat the same failing call.
-2. **Gemini max_tokens too low** — `max_tokens: 4000` for 30 travel candidates with detailed structured output is likely hitting output truncation, causing empty tool calls.
+### Change — `src/components/demo/DemoRewardsView.tsx`
 
-### Changes — `supabase/functions/travel-detection/index.ts`
+**Line 251**: Change the deal cards container from a vertical stack to a 2-column grid:
+```tsx
+// Before
+<div className="space-y-1.5">
 
-**Line 13** — Set a real fallback model:
-```ts
-const FALLBACK_MODEL = "openai/gpt-5-mini";
+// After
+<div className="grid grid-cols-2 gap-1.5">
 ```
 
-**Line 230** — Increase Gemini max_tokens to 8000:
-```ts
-const tokenParam = isOpenAI ? { max_completion_tokens: 8000 } : { max_tokens: 8000 };
-```
+This applies to the enriched deals section (line 251). The fallback/static deals section (line 298+) should get the same treatment for consistency.
 
-Two line edits. Batch size stays at 30.
+Deal card internals stay the same — they'll just render narrower in the 2-col grid. The personalized message may need `line-clamp-2` kept tight to avoid overflow in the narrower cards.
 
