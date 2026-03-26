@@ -121,7 +121,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
   const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
 
-  const ROW_HEIGHT = Math.max(125, 148 * scale);
+  const ROW_HEIGHT = Math.max(145, 168 * scale);
   const BANK_NODE_HEIGHT = Math.max(32, 36 * scale);
   const BANK_NODE_GAP = Math.max(4, 6 * scale);
   const CONSUMER_NODE_HEIGHT = Math.max(54, 70 * scale);
@@ -152,7 +152,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   // Vertical layout
   const midY = dims.h * 0.5;
   const totalGridHeight = ROW_HEIGHT * 3;
-  const gridTopY = midY - totalGridHeight / 2;
+  const gridTopY = midY - totalGridHeight / 2 + 20;
 
   const txSpread = centered ? 85 : 55;
   const inputAY = midY - txSpread;
