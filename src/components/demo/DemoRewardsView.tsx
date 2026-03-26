@@ -25,6 +25,7 @@ interface Props {
   customer: DemoCustomer;
   enriched?: EnrichedTransaction[];
   precomputed?: PersonalizedDealData | null;
+  travelCity?: string;
 }
 
 async function fetchPersonalization(
@@ -66,7 +67,7 @@ async function fetchPersonalization(
   }
 }
 
-export default function DemoRewardsView({ customer, enriched, precomputed }: Props) {
+export default function DemoRewardsView({ customer, enriched, precomputed, travelCity }: Props) {
   const hasEnriched = (enriched?.length ?? 0) > 0;
 
   const profile = useMemo(() => hasEnriched && enriched ? deriveCustomerProfile(enriched) : null, [enriched, hasEnriched]);
@@ -84,7 +85,8 @@ export default function DemoRewardsView({ customer, enriched, precomputed }: Pro
     }
   }, [deals, profile, customer, precomputed]);
 
-  const city = getCityFromZip(customer.zip);
+  const homeCity = getCityFromZip(customer.zip);
+  const city = travelCity || homeCity;
   const perks = useMemo(() => getPerksForCity(city), [city]);
   const color = "#3b82f6";
 
