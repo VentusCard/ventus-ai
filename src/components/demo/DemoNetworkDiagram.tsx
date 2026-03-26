@@ -73,13 +73,13 @@ const PILLAR_ROWS: PillarRow[] = [
     team: "Growth & Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
-    color: "#f43f5e",
+    color: "#ec4899",
     bankNodes: [
-      { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#f43f5e", audience: "bank" },
-      { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#f43f5e", audience: "bank" },
-      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#f43f5e", audience: "bank" },
+      { id: "lifeEventIntel", label: "Life Event Detection", icon: CalendarHeart, color: "#ec4899", audience: "bank" },
+      { id: "lifeEvents", label: "Next-Product Automation", icon: TrendingUp, color: "#ec4899", audience: "bank" },
+      { id: "wmCopilot", label: "Advisor CoPilot Suite", icon: Briefcase, color: "#ec4899", audience: "bank" },
     ],
-    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#f43f5e", audience: "consumer" },
+    consumerNode: { id: "wealth", label: "Personalized Relationship", icon: TrendingUp, color: "#ec4899", audience: "consumer" },
   },
 ];
 
@@ -92,7 +92,7 @@ const ENGINE_CAPABILITIES = [
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
   { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#3b82f6" },
   { metrics: ["Higher Redemption", "Higher Spend Lift", "High Profitability"], color: "#22c55e" },
-  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#f43f5e" },
+  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#ec4899" },
 ];
 
 export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick }: Props) {
