@@ -144,8 +144,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                       <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
                       <p className="text-[10px] text-slate-500">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
                     </div>
-                    </div>
-                    
                   </div>
 
                   {/* Wellness Score */}
