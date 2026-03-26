@@ -201,28 +201,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                   </div>
                 </div>
 
-                {/* Milestones Timeline */}
-                {milestones.length > 0 && (
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <p className="text-[10px] font-semibold text-slate-700">Upcoming Milestones</p>
-                    </div>
-                    <div className="relative flex items-start gap-0">
-                      {/* Connecting line */}
-                      <div className="absolute top-[7px] left-[7px] right-[7px] h-px bg-slate-200" />
-                      {milestones.slice(0, 4).map((m, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center relative z-10">
-                          <div className="w-3.5 h-3.5 rounded-full bg-blue-100 border-2 border-blue-400 flex items-center justify-center">
-                            <div className="w-1 h-1 rounded-full bg-blue-500" />
-                          </div>
-                          <p className="text-[9px] font-medium text-slate-700 mt-1.5 text-center leading-tight">{m.event}</p>
-                          <p className="text-[8px] text-slate-400 mt-0.5">{m.date}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* Life Events — Hero Section */}
                 {events.length > 0 && (
