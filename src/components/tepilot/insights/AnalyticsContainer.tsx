@@ -21,7 +21,7 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
 
 interface NavItem {
   value: TabValue;
@@ -30,6 +30,12 @@ interface NavItem {
 }
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Home",
+    items: [
+      { value: "ventus-ai", label: "Ventus AI", icon: Bot },
+    ],
+  },
   {
     label: "Analytics",
     items: [
