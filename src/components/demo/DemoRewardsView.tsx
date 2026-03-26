@@ -248,7 +248,7 @@ function RewardsPhoneMockup({
             <LocalPerksSection city={city} perks={perks} color={color} />
           )}
 
-          <div className="space-y-1.5">
+          <div className="grid grid-cols-2 gap-1.5">
             {hasEnriched && deals.length > 0 ? (
               deals.map((deal, i) => {
                 const p = personalized[deal.id];
