@@ -194,7 +194,7 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
             <div className="max-w-2xl mx-auto space-y-2.5">
           <div>
             <p className="text-base font-bold text-slate-900">Good morning, {firstName}</p>
-            <p className="text-[10px] text-slate-400">Your personalized banking experience</p>
+            
           </div>
 
           {/* Lifestyle banner */}
