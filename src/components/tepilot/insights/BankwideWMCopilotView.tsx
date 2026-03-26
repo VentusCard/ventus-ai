@@ -57,7 +57,7 @@ export function BankwideWMCopilotView() {
   }, []);
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
+    <div className="flex flex-col h-full">
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
