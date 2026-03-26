@@ -59,6 +59,27 @@ const DEFAULT_META = {
   ctas: ["Open HY Savings", "Learn More"],
 };
 
+const EVENT_KEYWORD_MAP: { keywords: string[]; key: string }[] = [
+  { keywords: ["college", "education", "529", "tuition", "school", "university"], key: "Education Funding" },
+  { keywords: ["retire", "retirement"], key: "Retirement Planning" },
+  { keywords: ["home", "house", "mortgage", "property"], key: "Home Purchase" },
+  { keywords: ["baby", "expecting", "family formation", "newborn", "child"], key: "Family Formation" },
+  { keywords: ["elder", "care", "aging"], key: "Elder Care" },
+  { keywords: ["wealth transfer", "estate", "legacy", "inheritance"], key: "Wealth Transfer" },
+  { keywords: ["business", "liquidity"], key: "Business Liquidity" },
+];
+
+function resolveEventMeta(eventName: string) {
+  if (EVENT_META[eventName]) return EVENT_META[eventName];
+  const lower = eventName.toLowerCase();
+  for (const entry of EVENT_KEYWORD_MAP) {
+    if (entry.keywords.some(kw => lower.includes(kw))) {
+      return EVENT_META[entry.key];
+    }
+  }
+  return DEFAULT_META;
+}
+
 const WELLNESS_ITEMS = [
   { label: "Emergency fund", status: "Strong", color: "#22c55e" },
   { label: "Debt ratio", status: "Improving", color: "#3b82f6" },
@@ -215,13 +236,12 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                   </div>
                 </div>
 
-
                 {/* Life Events — Hero Section */}
                 {events.length > 0 && (
                   <div className="space-y-3">
                     <p className="text-xs font-bold tracking-widest uppercase text-slate-400 px-1">Your Upcoming Milestones</p>
                     {events.map((event, i) => {
-                      const meta = EVENT_META[event.event_name] ?? DEFAULT_META;
+                      const meta = resolveEventMeta(event.event_name);
                       const Icon = meta.icon;
                       return (
                         <div
@@ -289,8 +309,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                     })}
                   </div>
                 )}
-
-
 
                 {/* No events fallback */}
                 {events.length === 0 && (
