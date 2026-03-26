@@ -1,17 +1,42 @@
 
 
-## Fix WM Copilot full-height in overlay
+## Redesign "Personalized Banking Relationship" as a Consumer-Facing, Life-Event-Driven View
 
-**Problem**: `BankwideWMCopilotView` sets `height: calc(100vh - 200px)` — a value designed for the standalone page context. Inside the `DemoDetailOverlay`, this creates a mismatch because the overlay already manages height via flexbox (`flex-1`).
+### Problem
+The current "wealth" node view renders `DemoFinancialJourneyView` — a bank-side cross-sell dashboard showing advisor language ("Next Best Product", confidence scores, outreach templates). Two issues:
+1. **Not consumer-facing** — it reads like an internal tool, not what a customer would see in their banking app
+2. **Life events are buried** — detected events only influence product scoring behind the scenes; they should be the hero content
 
-**Fix** — two changes:
+### Approach
+Replace the `DemoWealthView` component (currently unused dead code) with a new **consumer-facing "Personalized Banking Relationship"** view that puts detected life events front and center, styled like a banking app screen (similar to how `DemoEngagementView` uses a phone mockup pattern).
 
-1. **`src/components/tepilot/insights/BankwideWMCopilotView.tsx`**
-   - Change the root div from `style={{ height: 'calc(100vh - 200px)' }}` to `className="flex flex-col h-full"`
-   - This lets it fill whatever parent container it's in (overlay or standalone page)
+### Design
+The view will show:
 
-2. **`src/components/demo/DemoDetailOverlay.tsx`**
-   - The `isBankWide` content div already skips padding — but ensure it also passes height. Currently: `className="flex-1 overflow-y-auto"` — this is already correct for flexbox height propagation, no change needed here.
+1. **Relationship Summary Header** — Customer name, segment, a warm greeting framing the personalized relationship
+2. **Life Events as Hero Cards** — Each detected life event displayed prominently as a consumer-facing "We're here for you" moment:
+   - Event name + friendly description (not confidence scores)
+   - "How we can help" section with 2-3 relevant product/service suggestions, framed as benefits not cross-sell
+   - A CTA like "Explore options" or "Talk to an advisor"
+3. **Your Financial Snapshot** — Holdings summary (deposits, credit, mortgage, investments) in a clean consumer-friendly layout
+4. **Personalized Recommendations** — Top 2-3 product suggestions driven by life events, shown as benefit cards (not outreach templates)
 
-**Result**: The WM Copilot dashboard and client view will stretch to fill the full overlay height.
+### File Changes
+
+**`src/components/demo/DemoWealthView.tsx`** — Complete rewrite:
+- Accept `customer` and `detectedEvents` props (same as other demo views)
+- Build a consumer-facing layout with life events as the primary content
+- Use friendly language: "Your upcoming milestones", "We noticed you might be planning...", "Here's how we can help"
+- Show holdings in a clean summary grid
+- Style with the same card/border patterns used in other demo views
+- No confidence percentages, no "outreach preview", no advisor-facing language
+
+**`src/components/demo/DemoDetailOverlay.tsx`** — Update the `wealth` node rendering:
+- Change from rendering `DemoFinancialJourneyView` to rendering `DemoWealthView`
+- Pass `detectedEvents` to the new component
+
+### What stays the same
+- `DemoFinancialJourneyView` remains intact — it's used by the `lifeEvents` node ("Financial Journey — Next Best Product") which IS bank-facing
+- The overlay title "Personalized Banking Relationship" stays as-is
+- The node routing and color remain unchanged
 
