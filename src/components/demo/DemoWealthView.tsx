@@ -67,10 +67,10 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
     <div className="flex justify-center">
       <div className="w-full max-w-[820px]">
         {/* iPad frame */}
-        <div className="rounded-[2rem] border-[12px] border-slate-800 overflow-hidden bg-slate-800" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.18), inset 0 0 0 2px rgba(255,255,255,0.05)" }}>
+        <div className="rounded-[2rem] border-[10px] border-slate-300 overflow-hidden bg-slate-200" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
           {/* Camera */}
-          <div className="flex justify-center py-1 bg-slate-800">
-            <div className="w-2.5 h-2.5 rounded-full bg-slate-700 border border-slate-600" />
+          <div className="flex justify-center py-1 bg-slate-200">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-300 border border-slate-400" />
           </div>
 
           {/* Screen */}
@@ -87,8 +87,8 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
             </div>
 
           {/* Content area */}
-          <div className="max-h-[600px] overflow-y-auto p-6">
-            <div className="max-w-2xl mx-auto space-y-5">
+          <div className="p-4">
+            <div className="max-w-2xl mx-auto space-y-4">
               {/* Greeting Header */}
               <div className="rounded-xl border border-slate-200 bg-white p-5">
                 <div className="flex items-center gap-3 mb-2">
@@ -194,8 +194,8 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
           </div>
 
           {/* Bottom bezel / home indicator */}
-          <div className="flex justify-center py-2 bg-slate-800">
-            <div className="w-16 h-1 rounded-full bg-slate-600" />
+          <div className="flex justify-center py-2 bg-slate-200">
+            <div className="w-16 h-1 rounded-full bg-slate-400" />
           </div>
         </div>
       </div>
