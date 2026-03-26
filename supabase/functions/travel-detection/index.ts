@@ -3,7 +3,7 @@
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
 // Configuration
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 15;
 const CONCURRENCY_LIMIT = 2;
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
@@ -250,7 +250,22 @@ async function callTravelDetectionAI(
   const choice = data.choices?.[0];
 
   if (choice?.finish_reason === "error" || choice?.native_finish_reason === "MALFORMED_FUNCTION_CALL") {
-    console.error(`[BATCH ${batchNum}] ${model} malformed function call`);
+    // Try to salvage content from malformed call
+    const rawContent = choice?.message?.content || choice?.message?.tool_calls?.[0]?.function?.arguments || "";
+    console.error(`[BATCH ${batchNum}] ${model} malformed function call. Raw: ${String(rawContent).slice(0, 500)}`);
+    
+    // Attempt to parse content as JSON anyway
+    try {
+      const rawStr = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+      const match = rawStr.match(/\{[\s\S]*"travel_updates"[\s\S]*\}/);
+      if (match) {
+        const parsed = JSON.parse(match[0]);
+        if (parsed.travel_updates?.length > 0) {
+          console.log(`[BATCH ${batchNum}] Salvaged ${parsed.travel_updates.length} updates from malformed call`);
+          return parsed.travel_updates;
+        }
+      }
+    } catch { /* ignore salvage failure */ }
     return [];
   }
 
