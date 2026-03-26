@@ -1,17 +1,16 @@
 
 
-## Add Feedback & Settings sections to bank dashboard sidebar
+## Fix sidebar to screen height, scroll only main content
 
-### What
-Add two new nav items — **Feedback** and **Settings** — pinned to the bottom of the left sidebar in `AnalyticsContainer.tsx`. They sit below the scrollable nav groups and stay fixed at the bottom regardless of scroll.
+### Problem
+Currently the entire container (sidebar + content) scrolls together. The left sidebar should be fixed to the full screen height while only the right panel scrolls.
 
 ### Changes (single file: `src/components/tepilot/insights/AnalyticsContainer.tsx`)
 
-1. **Import icons** — Add `MessageSquare` (Feedback) and `Settings` (Settings) from lucide-react
-2. **Split sidebar into two sections**:
-   - The existing `<nav>` with `flex-1 overflow-y-auto` stays as-is for the main nav groups
-   - Add a new `<div>` after the nav, pinned to the bottom with `mt-auto border-t border-slate-200 py-2`
-   - Contains two buttons styled identically to existing nav items: Feedback and Settings
-3. **Button behavior** — For now these will show a `toast.info("Coming soon")` since no content views exist yet. They won't be part of the `TabValue` type or `activeTab` state.
-4. **Collapsed state** — When sidebar is collapsed, show only icons (same pattern as existing nav items) with tooltip via `title` attribute.
+1. **Outer container** (line 96): Change from `min-h-[600px]` to `h-screen flex flex-col` so it fills the viewport
+2. **Inner flex wrapper** (line 124): Change `min-h-[560px]` to `flex-1 min-h-0` so it fills remaining space after the header
+3. **Sidebar** (line 125-198): Add `h-full overflow-hidden` — the nav inside already has `overflow-y-auto` so sidebar nav scrolls independently if needed
+4. **Content area** (line 201): Already has `overflow-y-auto` — just ensure it works with the new height constraint by keeping `flex-1 min-h-0`
+
+This makes the sidebar stick to the viewport height while the main content panel scrolls independently.
 
