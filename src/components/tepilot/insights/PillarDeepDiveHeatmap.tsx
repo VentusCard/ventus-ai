@@ -152,9 +152,10 @@ export function PillarDeepDiveHeatmap() {
             </Popover>
           </div>
         </div>
+        </>}
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      {isExpanded && <CardContent className="space-y-4">
         {/* Key Insight Banner */}
         {topCell && (
           <div
