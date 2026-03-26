@@ -13,8 +13,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot
+  Building2, ArrowLeft, Bot, MessageSquare, Settings
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
@@ -171,6 +172,29 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
             </Collapsible>
           ))}
         </nav>
+
+        <div className="mt-auto border-t border-slate-200 py-2">
+          {[
+            { label: "Feedback", icon: MessageSquare },
+            { label: "Settings", icon: Settings },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => toast({ title: item.label, description: "Coming soon" })}
+                title={collapsed ? item.label : undefined}
+                className={cn(
+                  "w-full flex items-center gap-2.5 text-left text-sm transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
+                  collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2"
+                )}
+              >
+                <Icon className="w-4 h-4 shrink-0 text-slate-400" />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Content */}
