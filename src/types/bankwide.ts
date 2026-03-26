@@ -288,3 +288,17 @@ export interface CategoryExtensionOpportunity {
   priority: 'high' | 'medium' | 'low';
   merchantDetails: MerchantDetail[];
 }
+
+// Pillar Deep Dive Heatmap Types
+export interface PillarDeepDiveCell {
+  ageGroup: string;
+  generationLabel: string;
+  region: string;
+  totalSpend: number;
+  spendIndex: number;
+  yoyGrowth: number;
+  topSubcategory: string;
+  subcategoryGrowth: number;
+  userCount: number;
+  color: string;
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Microscope } from "lucide-react";
 import { BankwideFilters } from "./BankwideFilters";
 import { BankwideMetrics } from "./BankwideMetrics";
 import { BankwidePillarExplorer } from "./BankwidePillarExplorer";
@@ -7,6 +8,8 @@ import { PillarAgeHeatmap } from "./PillarAgeHeatmap";
 import { PillarTimingGrid } from "./PillarTimingGrid";
 import { RevenueOpportunitiesCard } from "./RevenueOpportunitiesCard";
 import { CrossSellMatrix } from "./CrossSellMatrix";
+import { PillarDeepDiveHeatmap } from "./PillarDeepDiveHeatmap";
+import { Button } from "@/components/ui/button";
 
 import {
   getBankwideMetrics,
@@ -21,6 +24,7 @@ export function BankwideView() {
     regions: [],
     ageRanges: [],
   });
+  const [showDeepDive, setShowDeepDive] = useState(false);
 
   const metrics = getBankwideMetrics(filters);
   const crossSellMatrix = getCrossSellMatrix(filters);
@@ -46,6 +50,21 @@ export function BankwideView() {
 
       {/* 12-Pillar Interactive Grid */}
       <BankwidePillarExplorer filters={filters} />
+
+      {/* Pillar Deep Dive Toggle */}
+      <div className="flex justify-center">
+        <Button
+          variant={showDeepDive ? "default" : "outline"}
+          onClick={() => setShowDeepDive(!showDeepDive)}
+          className="gap-2"
+        >
+          <Microscope className="h-4 w-4" />
+          {showDeepDive ? "Hide Pillar Deep Dive" : "Pillar Deep Dive"}
+        </Button>
+      </div>
+
+      {/* Pillar Deep Dive Heatmap */}
+      {showDeepDive && <PillarDeepDiveHeatmap />}
 
       {/* Pillar × Region Heatmap */}
       <PillarRegionHeatmap filters={filters} />
