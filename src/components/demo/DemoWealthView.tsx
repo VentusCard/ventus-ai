@@ -109,11 +109,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                 {/* Greeting Header */}
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
                   <div className="flex items-center gap-3 mb-1.5">
-                    <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
-                      <span className="text-xs font-bold text-blue-600">
-                        {customer.profile.name.split(" ").map(w => w[0]).join("")}
-                      </span>
-                    </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-900">Welcome back, {firstName}</p>
                       <p className="text-[10px] text-slate-500">{customer.profile.segment} Member · {customer.profile.tenure}</p>
