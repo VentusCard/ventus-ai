@@ -140,13 +140,10 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                       <span className="text-[10px] font-semibold text-slate-700">Your Relationship</span>
                     </div>
                     <p className="text-xs text-slate-600">Valued member since <span className="font-semibold text-slate-900">{sinceYear}</span></p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{tenureYears} years with TCBY Bank</p>
-                    <div className="border-t border-slate-100 my-2" />
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 mt-1">
                       <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                      <p className="text-xs text-slate-600">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
+                      <p className="text-[10px] text-slate-500">TCBY Westfield — <span className="text-emerald-600 font-medium">Open until 6:00 PM</span></p>
                     </div>
-                    
                   </div>
 
                   {/* Wellness Score */}
