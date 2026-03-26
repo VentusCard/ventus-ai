@@ -191,6 +191,12 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
               )}
             </div>
           </div>
+          </div>
+
+          {/* Bottom bezel / home indicator */}
+          <div className="flex justify-center py-2 bg-slate-800">
+            <div className="w-16 h-1 rounded-full bg-slate-600" />
+          </div>
         </div>
       </div>
     </div>
