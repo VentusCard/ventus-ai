@@ -1,30 +1,22 @@
-## Plan: Add phase 3 to Beat 4 — hide MCCs and update header
 
-Currently Beat 4 has 3 phases (0, 1, 2):
 
-- Phase 0: Show transaction rows with MCC badges only
-- Phase 1: Reveal merchant names
-- Phase 2: Show "Behavioral Pattern: Expecting a Baby" pill
+## Fix: Keep nested card text on one row in Beat 5 ("Behavioral Signal+") card
 
-We add a **phase 3** that:
+Several text elements in the three action cards (Personalized Rewards, Personalized Relationship, Personalized UX) are too large and wrap to multiple lines. Changes needed:
 
-1. Hides the MCC badge on each row (fade out / collapse)
-2. Update each transcation description to blue color
-3. Updates the header from "Purchase Patterns Are Hidden by Blind MCCs" to "Semantic Enrichment Reveals Patterns without MCCs"
+### File: `src/components/demo/DemoPasswordGate.tsx`
 
-### Changes in `src/components/demo/DemoPasswordGate.tsx`
+1. **Reduce grid item text size** — Change `text-base font-bold` to `text-sm font-semibold` on the inner card labels (lines 685, 720, 754) so items like "Pregnancy Books & Audiobooks" and "Parenting Milestone Alerts" stay on one row.
 
-1. **Extend `beat4Phase` max from 2 to 3** in the `goForward` callback — change `if (beat4Phase < 2)` to `if (beat4Phase < 3)`, so clicking forward at phase 2 goes to phase 3 instead of advancing to beat 5.
-2. **Header text** — conditionally render based on `beat4Phase >= 3`:
-  - `< 3`: "Purchase Patterns Are Hidden by Blind MCCs"
-  - `>= 3`: "Semantic Enrichment Reveals Patterns without MCCs"
-  - Add a transition on the text swap.
-3. **MCC badge visibility** — on each transaction row's MCC `<span>`, add transition styles that hide it when `beat4Phase >= 3`:
-  - `opacity: beat4Phase >= 3 ? 0 : 1`
-  - `width: beat4Phase >= 3 ? 0 : "auto"`
-  - `overflow: "hidden"`, `transition` for smooth collapse.
-4. **goBack handler** — already handles `beat4Phase > 0`, so going back from phase 3 will work automatically.
+2. **Reduce description text size in headers** — The `<span className="text-sm text-slate-400">` descriptions after each card title (lines 670-672, 704-707, 739-741) can also overflow. Reduce to `text-xs` to keep them inline.
 
-### Files modified
+3. **Add `whitespace-nowrap`** to inner grid card spans to prevent wrapping, and reduce padding from `p-4` to `p-3` on those grid items for tighter fit.
 
-- `src/components/demo/DemoPasswordGate.tsx`
+4. **Reduce the "Behavioral Pattern" and "Demographic" pill text** — Lines 630, 649: change `text-base` to `text-sm` on those spans to keep the top pills on one row.
+
+### Summary of changes
+- Inner card labels: `text-base font-bold` → `text-sm font-semibold`, add `whitespace-nowrap`
+- Grid items: `p-4` → `p-3`
+- Header descriptions: `text-sm` → `text-xs`
+- Top pills: `text-base` → `text-sm`
+
