@@ -680,72 +680,72 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
 
                      {/* Personalized Relationship */}
                      <div
-                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4 transition-all duration-700"
-                       style={{
-                         opacity: beat5Phase >= 2 ? 1 : 0,
-                         transform: beat5Phase >= 2 ? "translateY(0)" : "translateY(16px)",
-                       }}
-                     >
-                       <div className="flex items-center gap-2 mb-3">
-                         <span className="text-lg">🤝</span>
-                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>
-                           Personalized Relationship
-                         </span>
-                         <span className="text-[11px] text-slate-400">
-                           — Triggers automation for regular customers and notification & automated prep for wealth
-                           managers
-                         </span>
-                       </div>
-                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                         {[
-                            "Local Advisor Notified",
-                            "Automated 529 Draft",
-                           "Life Insurance Review",
-                           "Emergency Fund Boost",
-                         ].map((label) => (
-                           <div
-                             key={label}
-                             className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                           >
-                             <span className="text-xs font-bold leading-tight text-primary-foreground">{label}</span>
-                           </div>
-                         ))}
-                       </div>
-                     </div>
+                        className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
+                        style={{
+                          opacity: beat5Phase >= 2 ? 1 : 0,
+                          transform: beat5Phase >= 2 ? "translateY(0)" : "translateY(16px)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="text-2xl">🤝</span>
+                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                            Personalized Relationship
+                          </span>
+                          <span className="text-sm text-slate-400">
+                            — Triggers automation for regular customers and notification & automated prep for wealth
+                            managers
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                             "Local Advisor Notified",
+                             "Automated 529 Draft",
+                            "Life Insurance Review",
+                            "Emergency Fund Boost",
+                          ].map((label) => (
+                            <div
+                              key={label}
+                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                            >
+                              <span className="text-sm font-bold leading-tight text-primary-foreground">{label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
 
                      {/* Personalized UX */}
                      <div
-                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4 transition-all duration-700"
-                       style={{
-                         opacity: beat5Phase >= 3 ? 1 : 0,
-                         transform: beat5Phase >= 3 ? "translateY(0)" : "translateY(16px)",
-                       }}
-                     >
-                       <div className="flex items-center gap-2 mb-3">
-                         <span className="text-lg">📱</span>
-                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>
-                           Personalized UX
-                         </span>
-                         <span className="text-[11px] text-slate-400">
-                           — Supported by backend analytics and orchestrates other features
-                         </span>
-                       </div>
-                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                         {[
-                           '"Family & Foundation" Pillar',
-                           "Baby Budget Tracker",
-                           "Parenting Milestone Alerts",
-                            "Orchestrate Other Features",
-                         ].map((label) => (
-                           <div
-                             key={label}
-                             className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                           >
-                             <span className="text-xs font-bold leading-tight text-primary-foreground">{label}</span>
-                           </div>
-                         ))}
-                       </div>
-                     </div>
+                        className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
+                        style={{
+                          opacity: beat5Phase >= 3 ? 1 : 0,
+                          transform: beat5Phase >= 3 ? "translateY(0)" : "translateY(16px)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="text-2xl">📱</span>
+                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                            Personalized UX
+                          </span>
+                          <span className="text-sm text-slate-400">
+                            — Supported by backend analytics and orchestrates other features
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                            '"Family & Foundation" Pillar',
+                            "Baby Budget Tracker",
+                            "Parenting Milestone Alerts",
+                             "Orchestrate Other Features",
+                          ].map((label) => (
+                            <div
+                              key={label}
+                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                            >
+                              <span className="text-sm font-bold leading-tight text-primary-foreground">{label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                    </div>
 
                   {/* Enter Demo button — appears at beat5Phase >= 4 */}
