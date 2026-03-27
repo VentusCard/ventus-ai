@@ -36,7 +36,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat3Phase(0);
       }
       if (s === 4) {
-        if (beat4Phase < 2) {
+        if (beat4Phase < 3) {
           setBeat4Phase((p) => p + 1);
           return s;
         }
@@ -231,7 +231,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
 
       {/* ── Stacked Card Layout ── */}
       <div className="flex-1 flex items-center justify-center px-8 overflow-hidden">
-        <div className="w-full max-w-5xl relative" style={{ minHeight: 440 }}>
+        <div className="w-full max-w-6xl relative" style={{ minHeight: 440 }}>
           {/* Previous beat cards — stacked behind */}
           {Array.from({ length: step }).map((_, i) => {
             if (i < 3) return null; // beats 0, 1 & 2 are cardless
@@ -315,14 +315,17 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
               {/* Beat 2 */}
               {displayStep === 2 && (
                 <div className="text-center py-8">
-                  <h1
+                   <h1
                     className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight"
                     style={{ color: "#0F172A" }}
                   >
-                    The answer is three letters: <span style={{ color: "#3B82F6" }}>MCC</span>.
+                    The answer is three letters:
+                    <br />
+                    <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
                   <p className="mt-4 text-lg text-slate-400 font-medium">
-                    Merchant Category Code
+                    Merchant Category Code: 
+                    One Code Per Transaction, Taxonomy From the Last Century
                   </p>
                 </div>
               )}
@@ -346,11 +349,11 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                         className="px-6 py-3 rounded-lg border-2 border-dashed"
                         style={{ borderColor: "#F59E0B", color: "#F59E0B" }}
                       >
-                        <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment</span>
+                        <span className="text-lg font-bold tracking-wider">MCC 7922 · Entertainment</span>
                       </div>
-                      <span className="text-sm" style={{ color: "#94A3B8" }}>
-                        This is all the bank sees
-                      </span>
+                        <span className="text-base" style={{ color: "#94A3B8" }}>
+                          This is what the banks use to personalize
+                        </span>
                     </div>
 
                     {/* Phase 1: Fan out to reveal possibilities */}
@@ -376,16 +379,16 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                         <line x1="400" y1="0" x2="733" y2="56" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 3" />
                       </svg>
                       <div className="flex items-center justify-center gap-3 w-full max-w-5xl mx-auto mt-2">
-                        <span className="text-3xl font-bold tracking-widest text-slate-400 select-none">…</span>
+                        <span className="text-4xl font-bold tracking-widest text-slate-400 select-none">…</span>
                         <div className="grid grid-cols-3 sm:grid-cols-6 gap-10 flex-1 max-w-4xl">
                           <div className="flex flex-col items-center gap-2">
                             <div
-                              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
                               style={{ backgroundColor: "#F1F5F9" }}
                             >
                               🎵
                             </div>
-                            <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>
+                             <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>
                               Symphony
                               <br />
                               Orchestra
@@ -393,12 +396,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             <div
-                              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
                               style={{ backgroundColor: "#F1F5F9" }}
                             >
                               🏀
                             </div>
-                            <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>
+                             <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>
                               Celtics
                               <br />
                               Tickets
@@ -406,12 +409,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             <div
-                              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
                               style={{ backgroundColor: "#F1F5F9" }}
                             >
                               🚗
                             </div>
-                            <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>
+                             <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>
                               Monster
                               <br />
                               Jam
@@ -419,12 +422,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             <div
-                              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
                               style={{ backgroundColor: "#F1F5F9" }}
                             >
                               🎭
                             </div>
-                            <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>
+                             <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>
                               Broadway
                               <br />
                               Show
@@ -432,12 +435,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             <div
-                              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
                               style={{ backgroundColor: "#F1F5F9" }}
                             >
                               🎤
                             </div>
-                            <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>
+                             <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>
                               Stand-up
                               <br />
                               Comedy
@@ -445,19 +448,19 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           </div>
                           <div className="flex flex-col items-center gap-2">
                             <div
-                              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                              className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
                               style={{ backgroundColor: "#F1F5F9" }}
                             >
                               🎪
                             </div>
-                            <span className="text-xs font-medium text-center" style={{ color: "#64748B" }}>
+                             <span className="text-sm font-medium text-center" style={{ color: "#64748B" }}>
                               Cirque du
                               <br />
                               Soleil
                             </span>
                           </div>
                         </div>
-                        <span className="text-3xl font-bold tracking-widest text-slate-400 select-none">…</span>
+                        <span className="text-4xl font-bold tracking-widest text-slate-400 select-none">…</span>
                       </div>
                     </div>
                   </div>
@@ -474,8 +477,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       </span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
-                      Purchase Patterns Are Hidden by Blind MCCs
+                    <h2 className="text-3xl sm:text-4xl font-bold transition-all duration-500" style={{ color: "#0F172A" }}>
+                      {beat4Phase >= 3 ? "Semantic Enrichment Reveals Patterns without MCCs" : "Purchase Patterns Are Hidden by Blind MCCs"}
                     </h2>
                     <div className="mt-8">
                       <div className="space-y-3">
@@ -528,15 +531,23 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           >
                             <div className="flex items-center gap-4">
                               <span
-                                className="px-3 py-1 rounded text-sm font-mono"
-                                style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}
+                                className="px-3 py-1 rounded text-base font-mono transition-all duration-500"
+                                style={{
+                                  backgroundColor: "#FEF3C7",
+                                  color: "#D97706",
+                                  opacity: beat4Phase >= 3 ? 0 : 1,
+                                  maxWidth: beat4Phase >= 3 ? 0 : "600px",
+                                  padding: beat4Phase >= 3 ? "0" : undefined,
+                                  overflow: "hidden",
+                                  whiteSpace: "nowrap",
+                                }}
                               >
                                 MCC {tx.mcc} · {tx.mccLabel}
                               </span>
                               <span
-                                className="text-base font-medium transition-all duration-500"
+                                className="text-lg font-medium transition-all duration-500"
                                 style={{
-                                  color: "#0F172A",
+                                  color: beat4Phase >= 3 ? "#3B82F6" : "#0F172A",
                                   opacity: beat4Phase >= 1 ? 1 : 0,
                                   width: beat4Phase >= 1 ? "auto" : 0,
                                   transform: beat4Phase >= 1 ? "translateX(0)" : "translateX(-8px)",
@@ -547,8 +558,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                                 {tx.merchant}
                               </span>
                             </div>
-                            <span className="text-base font-semibold" style={{ color: "#0F172A" }}>
-                              {tx.amount}
+                             <span className="text-lg font-semibold" style={{ color: "#0F172A" }}>
+                               {tx.amount}
                             </span>
                           </div>
                         ))}
@@ -574,9 +585,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                             fill="#3B82F6"
                           />
                         </svg>
-                        <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
-                          Behavioral Pattern: Expecting a Baby
-                        </span>
+                         <span className="text-lg font-semibold" style={{ color: "#3B82F6" }}>
+                           Behavioral Pattern: Expecting a Baby
+                         </span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     </div>
@@ -616,9 +627,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           fill="#3B82F6"
                         />
                       </svg>
-                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>
+                       <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
                         Behavioral Pattern: Expecting a Baby
-                      </span>
+                       </span>
                     </div>
 
                     <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>
@@ -635,9 +646,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       }}
                     >
                       <Users size={18} className="text-blue-500" />
-                      <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>
+                       <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
                         Demographic: Age, Income, ZIP Code, etc.
-                      </span>
+                       </span>
                     </div>
                   </div>
 
@@ -645,22 +656,22 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                    <div className="flex flex-col gap-4 w-full mt-3">
                      {/* Personalized Rewards */}
                      <div
-                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4 transition-all duration-700"
+                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
                        style={{
                          opacity: beat5Phase >= 1 ? 1 : 0,
                          transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(16px)",
                        }}
                      >
                        <div className="flex items-center gap-2 mb-3">
-                         <span className="text-lg">🎁</span>
-                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>
-                           Personalized Rewards
-                         </span>
-                         <span className="text-[11px] text-slate-400">
+                          <span className="text-2xl">🎁</span>
+                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                            Personalized Rewards
+                          </span>
+                          <span className="text-sm text-slate-400">
                            — Delivered within deals page with ranking, message, and CTA personalized
                          </span>
                        </div>
-                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                          {[
                             "Baby Monitors",
                            "Pregnancy Books & Audiobooks",
@@ -669,9 +680,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                          ].map((label) => (
                            <div
                              key={label}
-                             className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                           >
-                             <span className="text-xs font-bold leading-tight text-primary-foreground">{label}</span>
+                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                            >
+                              <span className="text-sm font-bold leading-tight text-primary-foreground">{label}</span>
                            </div>
                          ))}
                        </div>
@@ -679,72 +690,72 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
 
                      {/* Personalized Relationship */}
                      <div
-                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4 transition-all duration-700"
-                       style={{
-                         opacity: beat5Phase >= 2 ? 1 : 0,
-                         transform: beat5Phase >= 2 ? "translateY(0)" : "translateY(16px)",
-                       }}
-                     >
-                       <div className="flex items-center gap-2 mb-3">
-                         <span className="text-lg">🤝</span>
-                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>
-                           Personalized Relationship
-                         </span>
-                         <span className="text-[11px] text-slate-400">
-                           — Triggers automation for regular customers and notification & automated prep for wealth
-                           managers
-                         </span>
+                        className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
+                        style={{
+                          opacity: beat5Phase >= 2 ? 1 : 0,
+                          transform: beat5Phase >= 2 ? "translateY(0)" : "translateY(16px)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="text-2xl">🤝</span>
+                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                            Personalized Relationship
+                          </span>
+                          <span className="text-sm text-slate-400">
+                            — Triggers automation for regular customers and notification & automated prep for wealth
+                            managers
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                             "Local Advisor Notified",
+                             "Automated 529 Draft",
+                            "Life Insurance Review",
+                            "Emergency Fund Boost",
+                          ].map((label) => (
+                            <div
+                              key={label}
+                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                            >
+                               <span className="text-base font-bold leading-tight text-primary-foreground">{label}</span>
+                             </div>
+                           ))}
+                         </div>
                        </div>
-                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                         {[
-                            "Local Advisor Notified",
-                            "Automated 529 Draft",
-                           "Life Insurance Review",
-                           "Emergency Fund Boost",
-                         ].map((label) => (
-                           <div
-                             key={label}
-                             className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                           >
-                             <span className="text-xs font-bold leading-tight text-primary-foreground">{label}</span>
-                           </div>
-                         ))}
-                       </div>
-                     </div>
 
                      {/* Personalized UX */}
                      <div
-                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-4 transition-all duration-700"
-                       style={{
-                         opacity: beat5Phase >= 3 ? 1 : 0,
-                         transform: beat5Phase >= 3 ? "translateY(0)" : "translateY(16px)",
-                       }}
-                     >
-                       <div className="flex items-center gap-2 mb-3">
-                         <span className="text-lg">📱</span>
-                         <span className="text-sm font-bold" style={{ color: "#0F172A" }}>
-                           Personalized UX
-                         </span>
-                         <span className="text-[11px] text-slate-400">
-                           — Supported by backend analytics and orchestrates other features
-                         </span>
+                        className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
+                        style={{
+                          opacity: beat5Phase >= 3 ? 1 : 0,
+                          transform: beat5Phase >= 3 ? "translateY(0)" : "translateY(16px)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="text-2xl">📱</span>
+                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                            Personalized UX
+                          </span>
+                          <span className="text-sm text-slate-400">
+                            — Supported by backend analytics and orchestrates other features
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                            '"Family & Foundation" Pillar',
+                            "Baby Budget Tracker",
+                            "Parenting Milestone Alerts",
+                             "Orchestrate Other Features",
+                          ].map((label) => (
+                            <div
+                              key={label}
+                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                            >
+                               <span className="text-base font-bold leading-tight text-primary-foreground">{label}</span>
+                             </div>
+                           ))}
+                         </div>
                        </div>
-                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                         {[
-                           '"Family & Foundation" Pillar',
-                           "Baby Budget Tracker",
-                           "Parenting Milestone Alerts",
-                            "Orchestrate Other Features",
-                         ].map((label) => (
-                           <div
-                             key={label}
-                             className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                           >
-                             <span className="text-xs font-bold leading-tight text-primary-foreground">{label}</span>
-                           </div>
-                         ))}
-                       </div>
-                     </div>
                    </div>
 
                   {/* Enter Demo button — appears at beat5Phase >= 4 */}
