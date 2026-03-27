@@ -315,11 +315,13 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
               {/* Beat 2 */}
               {displayStep === 2 && (
                 <div className="text-center py-8">
-                  <h1
+                   <h1
                     className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight"
                     style={{ color: "#0F172A" }}
                   >
-                    The answer is three letters: <span style={{ color: "#3B82F6" }}>MCC</span>.
+                    The answer is three letters:
+                    <br />
+                    <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
                   <p className="mt-4 text-lg text-slate-400 font-medium">
                     Merchant Category Code: 
