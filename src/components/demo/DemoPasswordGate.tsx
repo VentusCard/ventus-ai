@@ -585,9 +585,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                             fill="#3B82F6"
                           />
                         </svg>
-                         <span className="text-lg font-semibold" style={{ color: "#3B82F6" }}>
-                           Behavioral Pattern: Expecting a Baby
-                         </span>
+                          <span className="text-lg font-semibold" style={{ color: "#3B82F6" }}>
+                            Statically Similar Multi-category Pattern: Expecting a Baby
+                          </span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     </div>
