@@ -349,9 +349,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       >
                         <span className="text-base font-bold tracking-wider">MCC 7922 · Entertainment</span>
                       </div>
-                      <span className="text-sm" style={{ color: "#94A3B8" }}>
-                        This is all the bank sees
-                      </span>
+                        <span className="text-sm" style={{ color: "#94A3B8" }}>
+                          This is what the banks use to personalize
+                        </span>
                     </div>
 
                     {/* Phase 1: Fan out to reveal possibilities */}
