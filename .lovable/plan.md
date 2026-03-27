@@ -1,26 +1,30 @@
-## Plan: Increase text and content sizes across cards
+## Plan: Add phase 3 to Beat 4 — hide MCCs and update header
 
-### Beat 3 — "MCCs are blind" card
+Currently Beat 4 has 3 phases (0, 1, 2):
 
-- MCC badge text `text-base` → `text-lg`
-- Sub-label "This is what the banks use…" `text-sm` → `text-base`
-- Emoji circles `w-16 h-16 text-2xl` → `w-20 h-20 text-3xl`
-- Category labels `text-xs` → `text-sm`
-- Ellipsis dots `text-3xl` → `text-4xl`
+- Phase 0: Show transaction rows with MCC badges only
+- Phase 1: Reveal merchant names
+- Phase 2: Show "Behavioral Pattern: Expecting a Baby" pill
 
-### Beat 4 — "Purchase Patterns" card
+We add a **phase 3** that:
 
-- MCC badge text `text-sm` → `text-base`
-- Merchant name `text-base` → `text-lg`
-- Amount `text-base` → `text-lg`
-- "Expecting a Baby" pill text `text-base` → `text-lg`
+1. Hides the MCC badge on each row (fade out / collapse)
+2. Update each transcation description to blue color
+3. Updates the header from "Purchase Patterns Are Hidden by Blind MCCs" to "Semantic Enrichment Reveals Patterns without MCCs"
 
-### Beat 5 — "Signal Activation" cards
+### Changes in `src/components/demo/DemoPasswordGate.tsx`
 
-- Signal/demographics pill text `text-sm` → `text-base`
-- **Personalized Rewards card**: icon `text-lg` → `text-2xl`, title `text-sm` → `text-base`, description `text-[11px]` → `text-sm`, grid item labels `text-xs` → `text-sm`, padding `p-4` → `p-6`
-- Grid item labels in Relationship & UX cards already at `text-sm` — bump to `text-base`
+1. **Extend `beat4Phase` max from 2 to 3** in the `goForward` callback — change `if (beat4Phase < 2)` to `if (beat4Phase < 3)`, so clicking forward at phase 2 goes to phase 3 instead of advancing to beat 5.
+2. **Header text** — conditionally render based on `beat4Phase >= 3`:
+  - `< 3`: "Purchase Patterns Are Hidden by Blind MCCs"
+  - `>= 3`: "Semantic Enrichment Reveals Patterns without MCCs"
+  - Add a transition on the text swap.
+3. **MCC badge visibility** — on each transaction row's MCC `<span>`, add transition styles that hide it when `beat4Phase >= 3`:
+  - `opacity: beat4Phase >= 3 ? 0 : 1`
+  - `width: beat4Phase >= 3 ? 0 : "auto"`
+  - `overflow: "hidden"`, `transition` for smooth collapse.
+4. **goBack handler** — already handles `beat4Phase > 0`, so going back from phase 3 will work automatically.
 
 ### Files modified
 
-- `src/components/demo/DemoPasswordGate.tsx` — size class bumps only, no structural changes
+- `src/components/demo/DemoPasswordGate.tsx`
