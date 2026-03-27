@@ -478,7 +478,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold transition-all duration-500" style={{ color: "#0F172A" }}>
-                      {beat4Phase >= 3 ? "Semantic Enrichment Reveals Patterns without MCCs" : "Purchase Patterns Are Hidden by Blind MCCs"}
+                      {beat4Phase >= 3 ? "Ventus: Semantic Patterns Extraction without MCCs" : "Purchase Patterns Are Hidden by Blind MCCs"}
                     </h2>
                     <div className="mt-8">
                       <div className="space-y-3">
