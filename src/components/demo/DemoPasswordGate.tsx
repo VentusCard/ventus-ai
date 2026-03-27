@@ -36,7 +36,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat3Phase(0);
       }
       if (s === 4) {
-        if (beat4Phase < 2) {
+        if (beat4Phase < 3) {
           setBeat4Phase((p) => p + 1);
           return s;
         }
@@ -477,8 +477,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       </span>
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#0F172A" }}>
-                      Purchase Patterns Are Hidden by Blind MCCs
+                    <h2 className="text-3xl sm:text-4xl font-bold transition-all duration-500" style={{ color: "#0F172A" }}>
+                      {beat4Phase >= 3 ? "Semantic Enrichment Reveals Patterns without MCCs" : "Purchase Patterns Are Hidden by Blind MCCs"}
                     </h2>
                     <div className="mt-8">
                       <div className="space-y-3">
@@ -531,15 +531,23 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           >
                             <div className="flex items-center gap-4">
                               <span
-                                className="px-3 py-1 rounded text-base font-mono"
-                                style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}
+                                className="px-3 py-1 rounded text-base font-mono transition-all duration-500"
+                                style={{
+                                  backgroundColor: "#FEF3C7",
+                                  color: "#D97706",
+                                  opacity: beat4Phase >= 3 ? 0 : 1,
+                                  maxWidth: beat4Phase >= 3 ? 0 : "600px",
+                                  padding: beat4Phase >= 3 ? "0" : undefined,
+                                  overflow: "hidden",
+                                  whiteSpace: "nowrap",
+                                }}
                               >
                                 MCC {tx.mcc} · {tx.mccLabel}
                               </span>
                               <span
                                 className="text-lg font-medium transition-all duration-500"
                                 style={{
-                                  color: "#0F172A",
+                                  color: beat4Phase >= 3 ? "#3B82F6" : "#0F172A",
                                   opacity: beat4Phase >= 1 ? 1 : 0,
                                   width: beat4Phase >= 1 ? "auto" : 0,
                                   transform: beat4Phase >= 1 ? "translateX(0)" : "translateX(-8px)",
