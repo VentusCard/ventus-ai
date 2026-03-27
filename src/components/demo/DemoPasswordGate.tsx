@@ -627,8 +627,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           fill="#3B82F6"
                         />
                       </svg>
-                       <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
-                        Behavioral Pattern: Expecting a Baby
+                       <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>
+                        Statistically Similar Multi-category Pattern: Expecting a Baby
                        </span>
                     </div>
 
@@ -646,7 +646,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       }}
                     >
                       <Users size={18} className="text-blue-500" />
-                       <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
+                       <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>
                         Demographic: Age, Income, ZIP Code, etc.
                        </span>
                     </div>
@@ -667,7 +667,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
                             Personalized Rewards
                           </span>
-                          <span className="text-sm text-slate-400">
+                           <span className="text-xs text-slate-400 whitespace-nowrap">
                            — Delivered within deals page with ranking, message, and CTA personalized
                          </span>
                        </div>
@@ -680,9 +680,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                          ].map((label) => (
                            <div
                              key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
                             >
-                              <span className="text-sm font-bold leading-tight text-primary-foreground">{label}</span>
+                              <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
                            </div>
                          ))}
                        </div>
@@ -701,10 +701,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
                             Personalized Relationship
                           </span>
-                          <span className="text-sm text-slate-400">
-                            — Triggers automation for regular customers and notification & automated prep for wealth
-                            managers
-                          </span>
+                           <span className="text-xs text-slate-400 whitespace-nowrap">
+                             — Triggers automation for regular customers and notification & automated prep for wealth managers
+                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {[
@@ -715,9 +714,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           ].map((label) => (
                             <div
                               key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
-                            >
-                               <span className="text-base font-bold leading-tight text-primary-foreground">{label}</span>
+                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
+                             >
+                                <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
                              </div>
                            ))}
                          </div>
@@ -736,9 +735,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
                             Personalized UX
                           </span>
-                          <span className="text-sm text-slate-400">
-                            — Supported by backend analytics and orchestrates other features
-                          </span>
+                           <span className="text-xs text-slate-400 whitespace-nowrap">
+                             — Supported by backend analytics and orchestrates other features
+                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {[
@@ -749,9 +748,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           ].map((label) => (
                             <div
                               key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
-                            >
-                               <span className="text-base font-bold leading-tight text-primary-foreground">{label}</span>
+                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
+                             >
+                                <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
                              </div>
                            ))}
                          </div>
