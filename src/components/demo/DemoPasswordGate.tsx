@@ -322,7 +322,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                     The answer is three letters: <span style={{ color: "#3B82F6" }}>MCC</span>.
                   </h1>
                   <p className="mt-4 text-lg text-slate-400 font-medium">
-                    Merchant Category Code
+                    Merchant Category Code: 
+                    One Code Per Transaction, Taxonomy From the Last Century
                   </p>
                 </div>
               )}
