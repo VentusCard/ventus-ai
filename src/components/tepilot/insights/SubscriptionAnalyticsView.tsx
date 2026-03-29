@@ -11,6 +11,7 @@ import {
   getChurnSignals,
 } from "@/lib/mockSubscriptionData";
 import { CollapsibleCard } from "./CollapsibleCard";
+import { TabHeader } from "./TabHeader";
 
 const categoryColorMap: Record<string, string> = Object.fromEntries(
   getSubscriptionCategories().map((c) => [c.category, c.color])
@@ -36,6 +37,13 @@ export function SubscriptionAnalyticsView() {
 
   return (
     <div className="space-y-6">
+      <TabHeader
+        icon={<CreditCard className="w-4 h-4" />}
+        title="Subscription Analytics"
+        subtitle="Recurring charge detection across merchant patterns and frequency signals"
+        howItWorks="Ventus identifies recurring charges by analyzing frequency, amount stability, and merchant patterns — catching subscriptions that MCC codes misclassify."
+        whyItMatters="Detects churn risk early, sizes subscription wallet share, and identifies bundling opportunities."
+      />
       {/* Metric cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {metricCards.map((m) => {

@@ -85,16 +85,15 @@ export function AvailableDealsGrid() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <TabHeader
+        icon={<Package className="w-4 h-4" />}
+        title="Deal Management"
+        subtitle={`${filteredDeals.length} merchant deals across ${Object.keys(DEAL_CATEGORIES).length} categories`}
+        howItWorks="Curated merchant deal library scored by customer affinity, category fit, and activation potential using Ventus behavioral data."
+        whyItMatters="Enables rewards teams to quickly evaluate, activate, and manage deals with data-backed prioritization."
+      />
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-slate-900">Available Deals Library</h1>
-            
-          </div>
-          <p className="text-slate-500 text-sm mt-1">
-            {filteredDeals.length} merchant deals across {Object.keys(DEAL_CATEGORIES).length} categories
-          </p>
-        </div>
+        <div></div>
         
         {/* Stats */}
         <div className="flex items-center gap-4">

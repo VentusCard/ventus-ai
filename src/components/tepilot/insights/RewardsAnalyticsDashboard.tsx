@@ -4,8 +4,9 @@ import { SeasonalSpendingHeatmap } from "./SeasonalSpendingHeatmap";
 import { CategoryExtensionOpportunities } from "./CategoryExtensionOpportunities";
 import { TimingIntelligenceCalendar } from "./TimingIntelligenceCalendar";
 import { BankwideFilters as BankwideFiltersComponent } from "./BankwideFilters";
-import { Flame, Puzzle, Calendar } from "lucide-react";
+import { Flame, Puzzle, Calendar, Sparkles } from "lucide-react";
 import type { BankwideFilters } from "@/types/bankwide";
+import { TabHeader } from "./TabHeader";
 
 export function RewardsAnalyticsDashboard() {
   const [filters, setFilters] = useState<BankwideFilters>({
@@ -16,13 +17,13 @@ export function RewardsAnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Rewards Intelligence</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Discover which merchant deals to pursue and when to deploy them — powered by 3-level behavioral labeling, not just MCC codes.
-        </p>
-      </div>
+      <TabHeader
+        icon={<Sparkles className="w-4 h-4" />}
+        title="Next-Deal Intelligence"
+        subtitle="Seasonal spend curves, category gaps, and persona affinity scoring"
+        howItWorks="Ventus analyzes seasonal spend curves, category gaps, and persona affinity to recommend which deals to pursue and when to deploy them."
+        whyItMatters="Maximizes deal ROI by timing merchant partnerships to peak customer demand windows."
+      />
 
       {/* Shared Filters */}
       <BankwideFiltersComponent filters={filters} onChange={setFilters} />
