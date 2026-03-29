@@ -518,15 +518,3 @@ export const getMerchantMappingsForCohort = (cohortId: string): MerchantMapping[
   });
   return relevant.length > 0 ? relevant : merchantMappings.slice(0, 8);
 };
-  const cohort = cohorts.find(c => c.id === cohortId);
-  if (!cohort) return merchantMappings;
-  const categories = cohort.topCategories.map(c => c.toLowerCase());
-  const relevant = merchantMappings.filter(m => {
-    const cat = m.category.toLowerCase();
-    return categories.some(c => c.includes('gambling') && cat.includes('gambling')) ||
-           categories.some(c => c.includes('payday') && (cat.includes('payday') || cat.includes('rent'))) ||
-           categories.some(c => c.includes('adult') && cat.includes('adult')) ||
-           categories.some(c => c.includes('cash') && cat.includes('gambling'));
-  });
-  return relevant.length > 0 ? relevant : merchantMappings.slice(0, 8);
-};
