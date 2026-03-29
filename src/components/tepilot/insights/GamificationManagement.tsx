@@ -14,6 +14,7 @@ import {
 import { getGamificationMetrics } from "@/lib/mockBankwideData";
 import { AchievementEditorDialog } from "./AchievementEditorDialog";
 import type { ManagedAchievement } from "@/types/bankwide";
+import { TabHeader } from "./TabHeader";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Trophy: <Trophy className="h-4 w-4" />,
@@ -78,13 +79,17 @@ export function GamificationManagement() {
   ];
 
   return (
-    <Card>
+    <div className="space-y-6">
+      <TabHeader
+        icon={<Gamepad2 className="w-4 h-4" />}
+        title="Gamification Program"
+        subtitle="Achievement management and engagement metrics"
+        howItWorks="Ventus tracks spending milestones, category exploration, and behavioral streaks to trigger achievement unlocks automatically."
+        whyItMatters="Increases transaction frequency and card-top-of-wallet status through behavioral reinforcement loops."
+      />
+      <Card>
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Gamepad2 className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Gamification Program Manager</CardTitle>
-          </div>
+        <div className="flex items-center justify-end">
           <Button
             size="sm"
             onClick={() => { setEditing(null); setEditorOpen(true); }}
@@ -195,5 +200,6 @@ export function GamificationManagement() {
         onSave={handleSave}
       />
     </Card>
+    </div>
   );
 }

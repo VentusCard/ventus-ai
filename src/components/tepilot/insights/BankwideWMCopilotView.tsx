@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, User } from "lucide-react";
+import { LayoutDashboard, User, Briefcase } from "lucide-react";
+import { TabHeader } from "./TabHeader";
 import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
 import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
@@ -58,6 +59,13 @@ export function BankwideWMCopilotView() {
 
   return (
     <div className="flex flex-col h-full">
+      <TabHeader
+        icon={<Briefcase className="w-4 h-4" />}
+        title="WM Copilot"
+        subtitle="Real-time HNW client triggers and AI-powered advisor preparation"
+        howItWorks="Ventus continuously monitors HNW client transactions for life events, risk signals, and opportunity triggers, surfacing them to advisors in real time."
+        whyItMatters="Advisors spend less time on research and more on relationship building, with AI-powered preparation for every client interaction."
+      />
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">

@@ -12,6 +12,7 @@ import {
   ExternalLink, Calendar, Check, Users, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TabHeader } from "./TabHeader";
 import {
   INITIAL_PERKS, CATEGORY_CONFIG, TIER_COLORS,
   type LocationPerk, type PerkCategory, type Eligibility,
@@ -105,13 +106,15 @@ export function LocationExperienceManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <TabHeader
+        icon={<MapPin className="w-4 h-4" />}
+        title="Locational Perk Aggregation"
+        subtitle={`${CITIES.length} cities · ${activeCount} active perks`}
+        howItWorks="Ventus maps customer home/work/travel geo-patterns from transaction locations to match city-level perks to the right audiences."
+        whyItMatters="Drives foot traffic and engagement by surfacing hyper-local experiences to customers who will actually use them."
+      />
       <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">Location Experiences</h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage city-specific perks and experiences across {CITIES.length} cities · {activeCount} active perks
-          </p>
-        </div>
+        <div></div>
         <Button onClick={openCreate} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="h-4 w-4 mr-1.5" />
           Add Experience
