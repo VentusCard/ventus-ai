@@ -23,6 +23,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { VentusAIChatPanel } from "./VentusAIChatPanel";
 
 type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml';
 
@@ -84,10 +85,12 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
+    if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -222,9 +225,23 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       </div>
 
       {/* Content */}
-      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4">
+      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
         {renderContent()}
+        {activeTab !== 'ventus-ai' && !chatOpen && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="fixed top-[72px] right-4 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 shadow-lg transition-all hover:scale-105"
+            title="Open Ventus AI"
+          >
+            <span className="text-xs font-black text-white leading-none">V</span>
+          </button>
+        )}
       </div>
+
+      {/* Chat Panel */}
+      {chatOpen && activeTab !== 'ventus-ai' && (
+        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+      )}
       </div>
     </div>
   );
