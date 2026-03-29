@@ -154,7 +154,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       >
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
+          className="flex items-center justify-center h-9 border-b border-slate-200 hover:bg-slate-100 transition-colors"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight className="w-4 h-4 text-slate-500" /> : <ChevronLeft className="w-4 h-4 text-slate-500" />}
@@ -164,7 +164,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           {NAV_GROUPS.map((group) => (
             <Collapsible key={group.label} defaultOpen>
               {!collapsed && (
-                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 h-9 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
                   {group.label}
                   <ChevronDown className="w-3 h-3" />
                 </CollapsibleTrigger>
@@ -179,8 +179,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
                       onClick={() => setActiveTab(item.value)}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
-                        collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                        "w-full flex items-center gap-2.5 text-left text-[13px] h-9 transition-colors",
+                        collapsed ? "justify-center px-0" : "px-3",
                         isActive
                           ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
                           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
@@ -209,8 +209,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
                 onClick={() => toast({ title: item.label, description: "Coming soon" })}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
-                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5"
+                  "w-full flex items-center gap-2.5 text-left text-[13px] h-9 transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
+                  collapsed ? "justify-center px-0" : "px-3"
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0 text-slate-400" />
