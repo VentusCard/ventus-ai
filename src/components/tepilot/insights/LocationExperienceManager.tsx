@@ -12,6 +12,7 @@ import {
   ExternalLink, Calendar, Check, Users, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TabHeader } from "./TabHeader";
 import {
   INITIAL_PERKS, CATEGORY_CONFIG, TIER_COLORS,
   type LocationPerk, type PerkCategory, type Eligibility,

@@ -13,6 +13,7 @@ import { Search, ChevronLeft, ChevronRight, Package, Users, TrendingUp, Sparkles
 import { AvailableDealCard } from "./AvailableDealCard";
 import { getAvailableDeals, getDealCategories, DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
+import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 
 const DEALS_PER_PAGE = 40;
 
