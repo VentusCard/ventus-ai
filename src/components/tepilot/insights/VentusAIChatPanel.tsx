@@ -5,14 +5,21 @@ import { X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const QUICK_ACTIONS = [
-  "Top risks today",
-  "Revenue opportunities",
-  "Fastest growing segments",
-  "Outflow summary",
-  "Life event alerts",
-  "Campaign recommendations",
-];
+const TAB_QUICK_ACTIONS: Record<string, string[]> = {
+  dashboard: ["Top spending pillars", "Budget variance alerts", "Pillar growth trends", "Segment spending breakdown"],
+  "wallet-share": ["Outflow summary", "Top competitor threats", "Deposit flight trends", "Win-back opportunities"],
+  "subscription-analytics": ["Subscription churn risk", "Revenue by subscription tier", "Trending subscriptions", "Cancellation patterns"],
+  "rewards-intelligence": ["Seasonal deal opportunities", "Category extension gaps", "Top merchant partnerships", "Timing recommendations"],
+  "deal-management": ["Pipeline status overview", "Expiring deals this month", "Top performing deals", "New deal recommendations"],
+  "location-experience": ["Top geo-targeted perks", "Underserved regions", "Location engagement rates", "New perk opportunities"],
+  gamification: ["Achievement completion rates", "Most popular badges", "Engagement lift from gamification", "New achievement ideas"],
+  "life-events": ["Upcoming life event alerts", "Home purchase signals", "Retirement planning signals", "Product recommendations by event"],
+  targeting: ["Top cross-sell opportunities", "Segment performance", "Next-best-offer gaps", "Campaign ROI summary"],
+  "wm-copilot": ["High-value client risks", "Portfolio rebalancing alerts", "Advisor workload summary", "Client meeting prep"],
+  "customer-insights": ["Wellness alert summary", "At-risk customers", "Behavioral stress signals", "Intervention recommendations"],
+  "fvi-dashboard": ["Vulnerability cohort overview", "Rising risk segments", "Sensitivity drivers", "Policy impact analysis"],
+  "fraud-aml": ["Fraud alert summary", "Suspicious activity trends"],
+};
 
 const PLATFORM_CONTEXT = {
   role: "Ventus AI Banking Intelligence Co-Pilot",
@@ -124,7 +131,7 @@ export function VentusAIChatPanel({ activeTab, onClose }: VentusAIChatPanelProps
               Quick actions
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {QUICK_ACTIONS.map((action) => (
+              {(TAB_QUICK_ACTIONS[activeTab] || []).map((action) => (
                 <button
                   key={action}
                   onClick={() => handleQuickAction(action)}
