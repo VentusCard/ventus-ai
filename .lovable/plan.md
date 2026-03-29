@@ -1,50 +1,22 @@
 
 
-## Add FVI Sensitivity Matrix Overview
+## Fix Sidebar to Fit Full Height When Expanded
 
-### What
-A heat-map style matrix component added as a new sub-tab ("Risk Matrix") in the FVI Dashboard, giving bank leaders an at-a-glance view of vulnerability signal intensity across sensitivity tiers and key dimensions.
+### Problem
+When all sidebar groups in the AnalyticsContainer are expanded, the nav items overflow slightly, requiring a scroll. The goal is to make everything fit perfectly within the available height.
 
-### Matrix Design
+### Approach
+Tighten vertical spacing throughout the sidebar so all 14 nav items, 5 group headers, the collapse button, and 2 footer items fit without overflow.
 
-**Y-axis — Sensitivity Tiers (rows):**
-- **Tier 1 — High Sensitivity**: Gambling, Adult Content/Services, Illicit Substance-Adjacent
-- **Tier 2 — Moderate Sensitivity**: Alcohol, Tobacco/Vape, Firearms & Ammunition, Payday Loans / BNPL Stacking
-- **Tier 3 — Contextual**: Cash Advances, Crypto On-Ramps, Pawn Shops, Late-Night Velocity Spikes
+### Changes — `src/components/tepilot/insights/AnalyticsContainer.tsx`
 
-**X-axis — Analytical Dimensions (columns):**
-- **Flagged Customers** — count of customers with active signals in this category
-- **Avg Monthly Spend** — average $ spend per flagged customer
-- **MoM Velocity** — month-over-month spend acceleration %
-- **% of Income** — average category spend as % of estimated income
-- **Escalation Rate** — % of flagged customers whose risk level increased in the last 90 days
-- **Intervention Coverage** — % of flagged customers with an active intervention in progress
+1. **Reduce collapse button height**: `h-10` → `h-8`
+2. **Reduce nav container padding**: `py-2` → `py-1`
+3. **Reduce group header padding**: `py-2` → `py-1.5` on `CollapsibleTrigger`
+4. **Reduce nav item padding**: `py-2` / `py-2.5` → `py-1.5` on each nav button
+5. **Reduce group divider margins**: `my-1` → `my-0.5`
+6. **Reduce footer padding**: `py-2` → `py-1` on footer container, and `py-2.5`/`py-2` → `py-1.5` on footer buttons
+7. **Use smaller text**: `text-sm` → `text-[13px]` on nav items (optional, only if still tight)
 
-Each cell is color-coded (green → yellow → orange → red) based on severity thresholds. Hovering a cell shows exact values + context tooltip.
-
-### Files
-
-**1. New: `src/components/tepilot/insights/fvi/FVISensitivityMatrix.tsx`**
-- Renders the tier-grouped matrix as a styled HTML table
-- Each cell background uses risk-level color with opacity based on severity
-- Tier group headers span full row with tier label + description
-- Hover tooltip with exact value + threshold context
-- Click a row to filter the cohort overview to that category
-- Summary row at bottom for each column (totals/averages)
-- Mock data inline or added to `fviData.ts`
-
-**2. Update: `src/lib/fviData.ts`**
-- Add `sensitivityMatrixData` — array of 11 category rows with values for each X-axis dimension
-- Add threshold configs for cell coloring per dimension
-
-**3. Update: `src/components/tepilot/insights/fvi/FVIDashboard.tsx`**
-- Add `'matrix'` to FVIView type
-- Add "Risk Matrix" tab in the sub-nav (between Cohort Overview and Configuration)
-- Render `FVISensitivityMatrix` when active
-
-### Styling
-- Consistent with existing light theme
-- Risk colors: Green `#22C55E` → Yellow `#EAB308` → Orange `#F97316` → Red `#EF4444`
-- Tier headers: subtle background tint (Tier 1 = faint red, Tier 2 = faint amber, Tier 3 = faint slate)
-- Monospace font for numbers in cells
+These are purely spacing tweaks — no layout restructuring needed.
 
