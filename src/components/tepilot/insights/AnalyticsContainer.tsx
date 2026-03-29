@@ -225,9 +225,23 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       </div>
 
       {/* Content */}
-      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4">
+      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
         {renderContent()}
+        {activeTab !== 'ventus-ai' && !chatOpen && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="fixed top-[72px] right-4 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-slate-900 hover:bg-slate-800 shadow-lg transition-all hover:scale-105"
+            title="Open Ventus AI"
+          >
+            <span className="text-xs font-black text-white leading-none">V</span>
+          </button>
+        )}
       </div>
+
+      {/* Chat Panel */}
+      {chatOpen && activeTab !== 'ventus-ai' && (
+        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+      )}
       </div>
     </div>
   );
