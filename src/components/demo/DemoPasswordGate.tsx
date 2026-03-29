@@ -768,11 +768,12 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
               {displayStep === 6 && (
                 <div className={`${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"}`}>
                   <div className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-6">04</div>
-                  <h2 className="text-4xl md:text-5xl font-extrabold leading-[1.15] tracking-tight text-slate-800 max-w-2xl">
-                    Ventus is the next-gen banking experience infra built on top of{" "}
+                  <h2 className="text-4xl md:text-5xl font-extrabold leading-[1.15] tracking-tight text-slate-800">
+                    Ventus is the next-gen banking experience infra built{" "}
+                    <span style={{ color: "#3B82F6" }}>on top of</span>{" "}
                     <span style={{ color: "#3B82F6" }}>deep customer intelligence.</span>
                   </h2>
-                  <p className="mt-6 text-lg text-slate-400 max-w-xl">
+                  <p className="mt-6 text-lg text-slate-400">
                     All-in-one Modular Platform to Create, Execute and Manage Banking Experiences
                   </p>
 
