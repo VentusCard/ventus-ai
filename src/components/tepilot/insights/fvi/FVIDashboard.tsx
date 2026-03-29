@@ -3,6 +3,8 @@ import { FVICohortOverview } from "./FVICohortOverview";
 import { FVICohortDetail } from "./FVICohortDetail";
 import { FVISettings } from "./FVISettings";
 import { FVISensitivityMatrix } from "./FVISensitivityMatrix";
+import { TabHeader } from "../TabHeader";
+import { ShieldAlert } from "lucide-react";
 
 type FVIView = 'overview' | 'matrix' | 'detail' | 'settings';
 
@@ -22,6 +24,13 @@ export function FVIDashboard() {
 
   return (
     <div>
+      <TabHeader
+        icon={<ShieldAlert className="w-4 h-4" />}
+        title="Financial Vulnerability Index"
+        subtitle="Behavioral risk signals scored into protective intervention cohorts"
+        howItWorks="Ventus identifies financially vulnerable customers using behavioral signals — gambling escalation, high-risk lending dependency, distress cascades — scored into cohorts."
+        whyItMatters="Supports responsible banking obligations while enabling protective interventions that reduce defaults and regulatory risk."
+      />
       {/* Sub-nav for Overview / Matrix / Settings */}
       {view !== 'detail' && (
         <div className="flex items-center gap-1 mb-5 border-b border-slate-200 pb-2">
