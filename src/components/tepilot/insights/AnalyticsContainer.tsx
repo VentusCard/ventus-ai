@@ -199,8 +199,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
         <div className="mt-auto border-t border-slate-200 py-1">
           {[
-            { label: "Feedback", icon: MessageSquare },
-            { label: "Settings", icon: Settings },
+            { label: "Feedback & Ideas", icon: MessageSquare },
+            { label: "Admin & Settings", icon: Settings },
           ].map((item) => {
             const Icon = item.icon;
             return (
