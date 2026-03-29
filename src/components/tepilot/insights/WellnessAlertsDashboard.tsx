@@ -29,11 +29,10 @@ import {
   TrendingUp,
   Users,
   Heart as HeartIcon,
-} from "lucide-react";
-import { TabHeader } from "./TabHeader";
   Zap,
   RefreshCw,
 } from "lucide-react";
+import { TabHeader } from "./TabHeader";
 import { cn } from "@/lib/utils";
 
 const SEVERITY_STYLES: Record<number, string> = {
