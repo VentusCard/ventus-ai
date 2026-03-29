@@ -200,5 +200,6 @@ export function GamificationManagement() {
         onSave={handleSave}
       />
     </Card>
+    </div>
   );
 }
