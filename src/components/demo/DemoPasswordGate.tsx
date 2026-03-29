@@ -773,7 +773,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                     <span style={{ color: "#3B82F6" }}>deep customer intelligence.</span>
                   </h2>
                   <p className="mt-6 text-lg text-slate-400 max-w-xl">
-                    One AI-native layer that powers personalized banking across every function.
+                    All-in-one Modular Platform to Create, Execute and Manage Banking Experiences
                   </p>
 
                   {/* Enter Demo button */}
