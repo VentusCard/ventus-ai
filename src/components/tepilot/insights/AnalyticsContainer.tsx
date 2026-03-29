@@ -10,6 +10,7 @@ import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
+import { FVIDashboard } from "./fvi/FVIDashboard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
