@@ -10,11 +10,12 @@ import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
+import { FVIDashboard } from "./fvi/FVIDashboard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard
+  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
@@ -23,7 +24,7 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard';
 
 interface NavItem {
   value: TabValue;
@@ -67,6 +68,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Health",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
+      { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
     ],
   },
 ];
@@ -102,6 +104,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
+      case 'fvi-dashboard': return <FVIDashboard />;
     }
   };
 
