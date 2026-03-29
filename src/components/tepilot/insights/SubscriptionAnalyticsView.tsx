@@ -12,6 +12,10 @@ import {
 } from "@/lib/mockSubscriptionData";
 import { CollapsibleCard } from "./CollapsibleCard";
 
+const categoryColorMap: Record<string, string> = Object.fromEntries(
+  getSubscriptionCategories().map((c) => [c.category, c.color])
+);
+
 const fmt = (n: number) => `$${(n / 1_000_000).toFixed(1)}M`;
 const fmtK = (n: number) => `${(n / 1_000).toFixed(1)}K`;
 
