@@ -156,7 +156,7 @@ export default function DemoPage() {
             {nextNode ? "Next →" : "Close ✕"}
           </button>
         </div>
-      ) : (
+      ) : !activeNode ? (
         <div className="absolute bottom-4 right-4 z-50 flex items-center gap-2">
           <button
             onClick={() => setContactOpen(true)}
@@ -165,7 +165,7 @@ export default function DemoPage() {
             Next Step →
           </button>
         </div>
-      )}
+      ) : null}
 
       {/* Exit button — top-right */}
       {!activeNode && (

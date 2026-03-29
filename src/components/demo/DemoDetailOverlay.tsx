@@ -107,27 +107,37 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
 
   return (
     <div className="tepilot-theme absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-        <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}40` }} />
-          <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-          {!isBankWide && (
+      {/* Header — hidden for bank-wide nodes */}
+      {!isBankWide && (
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}40` }} />
+            <h3 className="text-lg font-bold text-slate-900">{title}</h3>
             <div className="flex items-center gap-2 ml-2">
               <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
                 <span className="text-[8px] font-bold text-blue-600">{customer.profile.name.split(" ").map(w => w[0]).join("")}</span>
               </div>
               <span className="text-xs font-semibold text-blue-600">{customer.profile.name}</span>
             </div>
-          )}
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
+      )}
+
+      {/* Close button for bank-wide nodes */}
+      {isBankWide && (
         <button
           onClick={onClose}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          className="absolute top-3 right-3 z-[60] w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 bg-white/80 backdrop-blur-sm border border-slate-200 transition-colors shadow-sm"
         >
           <X className="w-4 h-4" />
         </button>
-      </div>
+      )}
 
       {/* Content */}
       <div className={`flex-1 overflow-y-auto ${isBankWide ? '' : 'px-6 pb-6 pt-2'}`}>
