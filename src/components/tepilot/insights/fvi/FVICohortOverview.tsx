@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FVISensitivityMatrix } from "./FVISensitivityMatrix";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -110,7 +110,8 @@ export function FVICohortOverview({ onViewCohort }: FVICohortOverviewProps) {
         </Card>
       </div>
 
-      {/* Risk Filter Pills */}
+      {/* Sensitivity Matrix */}
+      <FVISensitivityMatrix />
       <div className="flex items-center gap-2">
         <span className="text-xs font-medium text-slate-500 mr-1">Filter:</span>
         {riskFilters.map(f => (
