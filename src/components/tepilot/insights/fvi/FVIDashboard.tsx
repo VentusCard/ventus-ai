@@ -2,8 +2,9 @@ import { useState } from "react";
 import { FVICohortOverview } from "./FVICohortOverview";
 import { FVICohortDetail } from "./FVICohortDetail";
 import { FVISettings } from "./FVISettings";
+import { FVISensitivityMatrix } from "./FVISensitivityMatrix";
 
-type FVIView = 'overview' | 'detail' | 'settings';
+type FVIView = 'overview' | 'matrix' | 'detail' | 'settings';
 
 export function FVIDashboard() {
   const [view, setView] = useState<FVIView>('overview');
@@ -21,11 +22,12 @@ export function FVIDashboard() {
 
   return (
     <div>
-      {/* Sub-nav for Overview / Settings */}
+      {/* Sub-nav for Overview / Matrix / Settings */}
       {view !== 'detail' && (
         <div className="flex items-center gap-1 mb-5 border-b border-slate-200 pb-2">
           {[
             { key: 'overview' as const, label: 'Cohort Overview' },
+            { key: 'matrix' as const, label: 'Risk Matrix' },
             { key: 'settings' as const, label: 'Configuration' },
           ].map(tab => (
             <button
@@ -44,6 +46,7 @@ export function FVIDashboard() {
       )}
 
       {view === 'overview' && <FVICohortOverview onViewCohort={handleViewCohort} />}
+      {view === 'matrix' && <FVISensitivityMatrix />}
       {view === 'detail' && selectedCohortId && (
         <FVICohortDetail cohortId={selectedCohortId} onBack={handleBackToOverview} />
       )}

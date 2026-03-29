@@ -423,7 +423,101 @@ export const getCohortMetrics = (cohortId: string) => {
   };
 };
 
+// Sensitivity Matrix types and data
+export interface SensitivityCategory {
+  id: string;
+  name: string;
+  tier: 1 | 2 | 3;
+  flaggedCustomers: number;
+  avgMonthlySpend: number;
+  momVelocity: number;
+  pctOfIncome: number;
+  escalationRate: number;
+  interventionCoverage: number;
+}
+
+export interface SensitivityTier {
+  tier: 1 | 2 | 3;
+  label: string;
+  description: string;
+  categories: SensitivityCategory[];
+}
+
+export const matrixThresholds = {
+  flaggedCustomers: { green: 20, yellow: 50, orange: 100 },
+  avgMonthlySpend: { green: 100, yellow: 300, orange: 600 },
+  momVelocity: { green: 10, yellow: 30, orange: 60 },
+  pctOfIncome: { green: 3, yellow: 7, orange: 15 },
+  escalationRate: { green: 5, yellow: 15, orange: 30 },
+  interventionCoverage: { green: 80, yellow: 50, orange: 25 }, // inverted — lower is worse
+};
+
+export const sensitivityTiers: SensitivityTier[] = [
+  {
+    tier: 1,
+    label: 'Tier 1 — High Sensitivity',
+    description: 'Categories requiring immediate attention and monitoring',
+    categories: [
+      { id: 'gambling', name: 'Gambling', tier: 1, flaggedCustomers: 136, avgMonthlySpend: 487, momVelocity: 42, pctOfIncome: 8.2, escalationRate: 24, interventionCoverage: 38 },
+      { id: 'adult-content', name: 'Adult Content / Services', tier: 1, flaggedCustomers: 54, avgMonthlySpend: 127, momVelocity: 12, pctOfIncome: 2.1, escalationRate: 8, interventionCoverage: 15 },
+      { id: 'illicit-adjacent', name: 'Illicit Substance-Adjacent', tier: 1, flaggedCustomers: 19, avgMonthlySpend: 214, momVelocity: 28, pctOfIncome: 4.5, escalationRate: 31, interventionCoverage: 22 },
+    ],
+  },
+  {
+    tier: 2,
+    label: 'Tier 2 — Moderate Sensitivity',
+    description: 'Patterns that warrant monitoring in context',
+    categories: [
+      { id: 'alcohol', name: 'Alcohol', tier: 2, flaggedCustomers: 312, avgMonthlySpend: 189, momVelocity: 8, pctOfIncome: 3.4, escalationRate: 6, interventionCoverage: 12 },
+      { id: 'tobacco-vape', name: 'Tobacco / Vape', tier: 2, flaggedCustomers: 187, avgMonthlySpend: 94, momVelocity: 5, pctOfIncome: 1.8, escalationRate: 4, interventionCoverage: 8 },
+      { id: 'firearms', name: 'Firearms & Ammunition', tier: 2, flaggedCustomers: 43, avgMonthlySpend: 267, momVelocity: 15, pctOfIncome: 2.9, escalationRate: 11, interventionCoverage: 5 },
+      { id: 'payday-bnpl', name: 'Payday Loans / BNPL Stacking', tier: 2, flaggedCustomers: 134, avgMonthlySpend: 412, momVelocity: 35, pctOfIncome: 9.7, escalationRate: 19, interventionCoverage: 42 },
+    ],
+  },
+  {
+    tier: 3,
+    label: 'Tier 3 — Contextual',
+    description: 'Only flagged when part of broader patterns',
+    categories: [
+      { id: 'cash-advances', name: 'Cash Advances', tier: 3, flaggedCustomers: 89, avgMonthlySpend: 341, momVelocity: 22, pctOfIncome: 5.8, escalationRate: 14, interventionCoverage: 28 },
+      { id: 'crypto-onramps', name: 'Crypto On-Ramps', tier: 3, flaggedCustomers: 67, avgMonthlySpend: 523, momVelocity: 48, pctOfIncome: 6.1, escalationRate: 21, interventionCoverage: 10 },
+      { id: 'pawn-shops', name: 'Pawn Shops', tier: 3, flaggedCustomers: 28, avgMonthlySpend: 156, momVelocity: 18, pctOfIncome: 4.2, escalationRate: 17, interventionCoverage: 19 },
+      { id: 'late-night-spikes', name: 'Late-Night Velocity Spikes', tier: 3, flaggedCustomers: 74, avgMonthlySpend: 278, momVelocity: 67, pctOfIncome: 3.9, escalationRate: 26, interventionCoverage: 7 },
+    ],
+  },
+];
+
+export const getMatrixCellRisk = (
+  dimension: keyof typeof matrixThresholds,
+  value: number
+): RiskLevel => {
+  const t = matrixThresholds[dimension];
+  const inverted = dimension === 'interventionCoverage';
+  if (inverted) {
+    if (value >= t.green) return 'green';
+    if (value >= t.yellow) return 'monitor';
+    if (value >= t.orange) return 'alert';
+    return 'critical';
+  }
+  if (value <= t.green) return 'green';
+  if (value <= t.yellow) return 'monitor';
+  if (value <= t.orange) return 'alert';
+  return 'critical';
+};
+
 export const getMerchantMappingsForCohort = (cohortId: string): MerchantMapping[] => {
+  const cohort = cohorts.find(c => c.id === cohortId);
+  if (!cohort) return merchantMappings;
+  const categories = cohort.topCategories.map(c => c.toLowerCase());
+  const relevant = merchantMappings.filter(m => {
+    const cat = m.category.toLowerCase();
+    return categories.some(c => c.includes('gambling') && cat.includes('gambling')) ||
+           categories.some(c => c.includes('payday') && (cat.includes('payday') || cat.includes('rent'))) ||
+           categories.some(c => c.includes('adult') && cat.includes('adult')) ||
+           categories.some(c => c.includes('cash') && cat.includes('gambling'));
+  });
+  return relevant.length > 0 ? relevant : merchantMappings.slice(0, 8);
+};
   const cohort = cohorts.find(c => c.id === cohortId);
   if (!cohort) return merchantMappings;
   const categories = cohort.topCategories.map(c => c.toLowerCase());
