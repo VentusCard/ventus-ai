@@ -1,33 +1,39 @@
 
 
-## Add Beat 6: "Ventus is next-gen banking infra" before entering the network diagram
+## Add Subscription Analytics Tab to Bank-Wide Analytics
 
-Currently there are 6 beats (0–5), with Beat 5 being the last before "Enter Demo". We'll add a new Beat 6 after Beat 5 that serves as a capstone statement about Ventus being next-gen banking experience infrastructure built on deep customer intelligence. The "Enter Demo" button moves to this new beat.
+### Overview
+Add a new "Subscription Analytics" tab under the Analytics sidebar group. This view lets bank leaders see trends and analysis of top subscriptions across the customer base — monthly volume, growth trends, category breakdowns, and churn signals.
 
-### File: `src/components/demo/DemoPasswordGate.tsx`
+### Changes
 
-1. **Increase `TOTAL_BEATS` from 6 to 7**
+**1. New component: `src/components/tepilot/insights/SubscriptionAnalyticsView.tsx`**
 
-2. **Add a new summary** to `BEAT_SUMMARIES` array:
-   - `"Ventus: next-gen banking experience infra built on deep customer intelligence."`
+A dashboard with mock data containing:
+- **Summary metric cards** — Total subscription spend, avg subscriptions per customer, MoM growth, churn rate
+- **Top Subscriptions table** — Ranked list of top 20 subscriptions (Netflix, Spotify, Amazon Prime, etc.) with subscriber count, total monthly volume, MoM trend, avg tenure
+- **Category breakdown chart** — Pie/bar chart grouping subscriptions into categories (Streaming, Fitness, News, Software, Food Delivery, etc.) using Recharts
+- **Monthly trend chart** — Line chart showing total subscription spend over 12 months with overlaid new vs. churned subscriber counts
+- **Subscription churn signals** — Cards highlighting subscriptions with highest recent cancellation rates, paired with behavioral context (e.g., "Disney+ cancellations spike 40% after free-trial cohort from Q3")
 
-3. **Update Beat 5 advance logic** — Currently Beat 5 blocks advancement after `beat5Phase >= 4`. Change this so it allows advancing to Beat 6 (the new final beat) instead of stopping.
+All powered by static mock data, consistent with the rest of the analytics suite.
 
-4. **Move "Enter Demo" button** from Beat 5 (`beat5Phase >= 4`) to the new Beat 6 content.
+**2. New mock data: `src/lib/mockSubscriptionData.ts`**
 
-5. **Add Beat 6 content** (`displayStep === 6`) — a card-style beat with:
-   - Beat number header ("04") matching the card pattern
-   - Large headline: **"Ventus is the next-gen banking experience infra built on top of deep customer intelligence."**
-   - Styled consistently with other card beats (same font sizes, colors)
-   - The "Enter Demo →" button at the bottom
+Static data generators for:
+- Top subscriptions list with merchant name, category, subscriber count, monthly volume, MoM change, avg tenure months
+- Category aggregations
+- 12-month trend data
+- Churn signal entries
 
-6. **Update keyboard/click handlers** — Adjust the condition that checks for the final beat from `step === 5 && beat5Phase >= 4` to `step === 6` for the Enter Demo trigger.
+**3. Update `src/components/tepilot/insights/AnalyticsContainer.tsx`**
 
-7. **Update stacked card rendering** — The `if (i < 3) return null` filter stays the same; the new beat 6 card will naturally stack.
+- Add `'subscription-analytics'` to `TabValue` union
+- Add nav item under the "Analytics" group: `{ value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard }` (using `CreditCard` or `Repeat` from lucide)
+- Add case in `renderContent()` switch
 
-### Summary
-- One new beat inserted as the final step before entering the demo
-- Clean, impactful statement positioning Ventus as infrastructure
-- "Enter Demo" button moves to this new beat
-- All navigation (arrows, dots, keyboard) updated for 7 beats
+### Technical details
+- Uses Recharts (already in the project) for charts
+- Follows the same patterns as WalletShareView and BankwideView
+- No database changes needed — all mock data
 
