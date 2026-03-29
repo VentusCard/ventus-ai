@@ -113,8 +113,7 @@ export function LocationExperienceManager() {
         howItWorks="Ventus maps customer home/work/travel geo-patterns from transaction locations to match city-level perks to the right audiences."
         whyItMatters="Drives foot traffic and engagement by surfacing hyper-local experiences to customers who will actually use them."
       />
-      <div className="flex items-start justify-between">
-        <div></div>
+      <div className="flex items-start justify-end">
         <Button onClick={openCreate} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="h-4 w-4 mr-1.5" />
           Add Experience
