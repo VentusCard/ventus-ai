@@ -1,39 +1,70 @@
 
 
-## Add Subscription Analytics Tab to Bank-Wide Analytics
+## Financial Vulnerability Indicators (FVI) Module
 
 ### Overview
-Add a new "Subscription Analytics" tab under the Analytics sidebar group. This view lets bank leaders see trends and analysis of top subscriptions across the customer base — monthly volume, growth trends, category breakdowns, and churn signals.
+Add a comprehensive FVI dashboard under the "Health" sidebar group. Three sub-views: Cohort Overview (landing), Cohort Detail (drill-down), and Settings/Configuration. All mock data, no backend changes.
 
-### Changes
+### New Files
 
-**1. New component: `src/components/tepilot/insights/SubscriptionAnalyticsView.tsx`**
+**1. `src/lib/fviData.ts`** — Mock data and flagging logic
+- 7 hardcoded cohorts with descriptions, customer counts, trends, FVI scores, categories, recommended actions
+- 20-30 mock customer profiles per cohort (randomized names, 6-month spend history, income estimates)
+- 20+ obfuscated merchant mappings (Fenix International → OnlyFans, TSG Interactive → PokerStars, etc.)
+- Flagging logic functions: `absolute_flag`, `income_pct_flag`, `velocity_flag`, `frequency_flag` → `composite_fvi_score`
+- Cohort assignment logic (customers can appear in multiple cohorts)
+- Default threshold/weight configuration objects
+- Sub-segment breakdown generators (income band, account type, geography, tenure)
 
-A dashboard with mock data containing:
-- **Summary metric cards** — Total subscription spend, avg subscriptions per customer, MoM growth, churn rate
-- **Top Subscriptions table** — Ranked list of top 20 subscriptions (Netflix, Spotify, Amazon Prime, etc.) with subscriber count, total monthly volume, MoM trend, avg tenure
-- **Category breakdown chart** — Pie/bar chart grouping subscriptions into categories (Streaming, Fitness, News, Software, Food Delivery, etc.) using Recharts
-- **Monthly trend chart** — Line chart showing total subscription spend over 12 months with overlaid new vs. churned subscriber counts
-- **Subscription churn signals** — Cards highlighting subscriptions with highest recent cancellation rates, paired with behavioral context (e.g., "Disney+ cancellations spike 40% after free-trial cohort from Q3")
+**2. `src/components/tepilot/insights/fvi/FVICohortOverview.tsx`** — Landing dashboard
+- Top bar: title, date range selector, portfolio filter dropdown
+- Summary cards row: total monitored, flagged customers (count + %), cohorts requiring action, trend vs prior quarter
+- Cohort cards grid (7 cards): name, description, customer count, trend indicator (↗/→/↘), avg FVI score (color-coded green/yellow/orange/red), top category pills, 2-3 recommended next steps, "View Cohort" button
+- Risk level filter pills to filter visible cohorts
+- Growing + high-severity cohorts get subtle urgency styling (border glow)
+- Recovery Trajectory card uses green accents
+- Empty state for 0-customer cohorts (dimmed card)
 
-All powered by static mock data, consistent with the rest of the analytics suite.
+**3. `src/components/tepilot/insights/fvi/FVICohortDetail.tsx`** — Drill-down view
+- Header: cohort name, description, count, trend, large color-coded FVI score
+- Section A: Area chart — cohort size over 6 months + overlay of avg category spend (Recharts)
+- Section B: Breakdown table/bars by income band, account type, geography, tenure
+- Section C: 4 metric cards — avg monthly spend, % of income, MoM velocity, transaction frequency
+- Section D: Obfuscated Merchant Intelligence table (raw descriptor → Ventus identification, confidence badge, category) + callout box explaining MCC limitation
+- Section E: Expanded recommended actions as cards with owner, priority, toggleable status (In Progress / Completed — local state only)
+- Back button to return to overview
 
-**2. New mock data: `src/lib/mockSubscriptionData.ts`**
+**4. `src/components/tepilot/insights/fvi/FVISettings.tsx`** — Configuration panel
+- Per-category threshold sliders (Gambling, Payday, Adult, Cash Advances, Alcohol/Tobacco) with Monitor/Alert/Critical breakpoints for spend $, % income, velocity
+- Cohort definition rules: checkboxes for Distress Cascade combinations, dollar thresholds for New Pattern, σ selector for Outliers, months for Recovery
+- Composite score weight sliders (sum to 100%)
+- Action templates: editable text fields per cohort pre-filled with defaults
 
-Static data generators for:
-- Top subscriptions list with merchant name, category, subscriber count, monthly volume, MoM change, avg tenure months
-- Category aggregations
-- 12-month trend data
-- Churn signal entries
+**5. `src/components/tepilot/insights/fvi/FVIDashboard.tsx`** — Container/router
+- Internal state to manage which sub-view is active (overview / detail / settings)
+- Passes selected cohort ID to detail view
+- Tab bar or header buttons to switch between Overview and Settings
 
-**3. Update `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+### Modified Files
 
-- Add `'subscription-analytics'` to `TabValue` union
-- Add nav item under the "Analytics" group: `{ value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard }` (using `CreditCard` or `Repeat` from lucide)
-- Add case in `renderContent()` switch
+**6. `src/components/tepilot/insights/AnalyticsContainer.tsx`**
+- Add `'fvi-dashboard'` to `TabValue` union
+- Add nav item under Health group: `{ value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert }` (from lucide)
+- Import `FVIDashboard` and add case in `renderContent()` switch
+- Import `ShieldAlert` from lucide-react
 
-### Technical details
-- Uses Recharts (already in the project) for charts
-- Follows the same patterns as WalletShareView and BankwideView
-- No database changes needed — all mock data
+### Styling
+- Follows existing light theme (white bg, slate borders) consistent with other tabs — NOT the dark mode described in the prompt
+- Risk color system: Green `#22C55E` → Yellow `#EAB308` → Orange `#F97316` → Red `#EF4444`
+- Ventus blue `#3B82F6` for accents
+- Uses existing Card, Badge, Button, Table, Slider, Checkbox, Select components
+- Recharts for charts (already in project)
+
+### Interactions
+- Cohort cards clickable → detail view
+- All tables sortable by column
+- Filter pills on overview
+- Threshold sliders recalculate scores in real-time (local state)
+- Chart hover tooltips
+- Action item toggle for demo interactivity
 
