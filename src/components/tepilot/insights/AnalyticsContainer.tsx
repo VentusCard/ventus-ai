@@ -42,7 +42,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Analytics",
     items: [
-      { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
+      { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
       { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
       { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
     ],
