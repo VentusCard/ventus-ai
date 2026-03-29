@@ -4,7 +4,7 @@ import { Monitor, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 6;
+const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
   "AI-powered banking personalization engine.",
@@ -13,6 +13,7 @@ const BEAT_SUMMARIES = [
   "One MCC code. Countless possible meanings. Zero clarity.",
   "Blind MCCs Hide purchase patterns(behavorial insights).",
   "Signal + demographics activates full personalization.",
+  "Ventus: next-gen banking experience infra built on deep customer intelligence.",
 ];
 
 export default function DemoPasswordGate({ children }: { children: ReactNode }) {
@@ -47,7 +48,10 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
           setBeat5Phase((p) => p + 1);
           return s;
         }
-        // Beat 5 is the last beat — don't advance further
+        setBeat5Phase(0);
+      }
+      if (s === 6) {
+        // Beat 6 is the last beat — don't advance further
         return s;
       }
       const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
@@ -93,7 +97,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         goBack();
         return;
       }
-      if (step === 5 && beat5Phase >= 4) {
+      if (step === 6) {
         if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
           sessionStorage.setItem("demo_access", "true");
@@ -157,9 +161,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step === 5 && beat5Phase >= 4 ? "default" : "pointer",
+        cursor: step === 6 ? "default" : "pointer",
       }}
-      onClick={() => !(step === 5 && beat5Phase >= 4) && advance()}
+      onClick={() => !(step === 6) && advance()}
     >
       <style>{`
         @keyframes ambientShift {
@@ -757,23 +761,36 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                        </div>
                    </div>
 
-                  {/* Enter Demo button — appears at beat5Phase >= 4 */}
-                  {beat5Phase >= 4 && (
-                    <div className="mt-8 flex justify-center" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => {
-                          sessionStorage.setItem("demo_access", "true");
-                          setGranted(true);
-                        }}
-                        className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
-                        style={{ backgroundColor: "#3B82F6", animation: "fadeSlideIn 0.5s ease-out" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2563EB")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#3B82F6")}
-                      >
-                        Enter Demo →
-                      </button>
-                    </div>
-                  )}
+                </div>
+              )}
+
+              {/* Beat 6 — Ventus capstone */}
+              {displayStep === 6 && (
+                <div className={`${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"}`}>
+                  <div className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-6">04</div>
+                  <h2 className="text-4xl md:text-5xl font-extrabold leading-[1.15] tracking-tight text-slate-800 max-w-2xl">
+                    Ventus is the next-gen banking experience infra built on top of{" "}
+                    <span style={{ color: "#3B82F6" }}>deep customer intelligence.</span>
+                  </h2>
+                  <p className="mt-6 text-lg text-slate-400 max-w-xl">
+                    One AI-native layer that powers personalized banking across every function.
+                  </p>
+
+                  {/* Enter Demo button */}
+                  <div className="mt-10 flex justify-start" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => {
+                        sessionStorage.setItem("demo_access", "true");
+                        setGranted(true);
+                      }}
+                      className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
+                      style={{ backgroundColor: "#3B82F6", animation: "fadeSlideIn 0.5s ease-out" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2563EB")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#3B82F6")}
+                    >
+                      Enter Demo →
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
