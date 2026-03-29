@@ -113,7 +113,7 @@ export function SubscriptionAnalyticsView() {
                   <TableCell className="font-medium text-slate-400">{s.rank}</TableCell>
                   <TableCell className="font-medium text-slate-900">{s.merchant}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="text-xs">{s.category}</Badge>
+                    <Badge variant="secondary" className="text-xs text-white" style={{ backgroundColor: categoryColorMap[s.category] || '#6B7280' }}>{s.category}</Badge>
                   </TableCell>
                   <TableCell className="text-right">{s.subscriberCount.toLocaleString()}</TableCell>
                   <TableCell className="text-right">${(s.monthlyVolume / 1_000_000).toFixed(2)}M</TableCell>
