@@ -70,6 +70,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
     ],
+  },
 ];
 
 interface AnalyticsContainerProps {
