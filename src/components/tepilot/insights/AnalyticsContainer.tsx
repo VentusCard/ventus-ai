@@ -15,7 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert
+  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert, AlertTriangle
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
@@ -24,7 +24,7 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml';
 
 interface NavItem {
   value: TabValue;
@@ -69,6 +69,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
+      { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
     ],
   },
 ];
@@ -105,6 +106,13 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'wm-copilot': return <BankwideWMCopilotView />;
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
+      case 'fraud-aml': return (
+        <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+          <AlertTriangle className="w-10 h-10 mb-3 text-slate-300" />
+          <p className="text-lg font-semibold text-slate-500">Fraud / AML</p>
+          <p className="text-sm">Coming Soon</p>
+        </div>
+      );
     }
   };
 
