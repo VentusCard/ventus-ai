@@ -44,7 +44,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
       { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
       { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
-      { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
   },
   {
@@ -62,6 +61,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
       { value: "targeting", label: "Next-Best Product Engine", icon: Route },
       { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
+    ],
+  },
+  {
+    label: "Health",
+    items: [
+      { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
   },
 ];
