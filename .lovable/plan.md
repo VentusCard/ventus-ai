@@ -1,22 +1,38 @@
 
 
-## Fix Sidebar to Fit Full Height When Expanded
-
-### Problem
-When all sidebar groups in the AnalyticsContainer are expanded, the nav items overflow slightly, requiring a scroll. The goal is to make everything fit perfectly within the available height.
+## Ventus AI Floating Chat — Available on Non-Home Tabs
 
 ### Approach
-Tighten vertical spacing throughout the sidebar so all 14 nav items, 5 group headers, the collapse button, and 2 footer items fit without overflow.
+Keep the "Ventus AI" sidebar tab and welcome view as-is. Add a floating "V" button + slide-out chat panel that only appears when the user is on any tab **other than** `ventus-ai`.
 
-### Changes — `src/components/tepilot/insights/AnalyticsContainer.tsx`
+### Changes
 
-1. **Reduce collapse button height**: `h-10` → `h-8`
-2. **Reduce nav container padding**: `py-2` → `py-1`
-3. **Reduce group header padding**: `py-2` → `py-1.5` on `CollapsibleTrigger`
-4. **Reduce nav item padding**: `py-2` / `py-2.5` → `py-1.5` on each nav button
-5. **Reduce group divider margins**: `my-1` → `my-0.5`
-6. **Reduce footer padding**: `py-2` → `py-1` on footer container, and `py-2.5`/`py-2` → `py-1.5` on footer buttons
-7. **Use smaller text**: `text-sm` → `text-[13px]` on nav items (optional, only if still tight)
+**`src/components/tepilot/insights/AnalyticsContainer.tsx`**
+1. Add `chatOpen` state (`useState(false)`)
+2. In the content area wrapper, make it `relative` and add:
+   - A floating "V" button (`absolute top-3 right-3 z-20`) — only rendered when `activeTab !== 'ventus-ai'`
+   - Clicking toggles `chatOpen`
+3. Next to the content `<div>`, conditionally render `<VentusAIChatPanel>` when `chatOpen && activeTab !== 'ventus-ai'`
+   - Same width as sidebar: `w-[240px]`, full height, border-left
+   - Pass `activeTab` and `onClose` props
+4. Auto-close chat when user navigates to `ventus-ai` tab
 
-These are purely spacing tweaks — no layout restructuring needed.
+**`src/components/tepilot/insights/VentusAIChatPanel.tsx`** (new file)
+- Slim right-side chat panel:
+  - Header: "Ventus AI" + close button
+  - Pre-set quick action chips for bank leaders: "Top risks today", "Revenue opportunities", "Fastest growing segments", "Outflow summary", "Life event alerts", "Campaign recommendations"
+  - Chat messages with markdown rendering (ReactMarkdown)
+  - Input bar at bottom
+  - Uses `useAdvisorChat` with bank-wide platform context (reuse `PLATFORM_CONTEXT` pattern from VentusAIWelcomeView)
+  - Receives `activeTab` prop so AI knows which module the user is viewing
+
+### Layout when chat is open
+```text
+┌──────────┬─────────────────────────[V]┬──────────┐
+│ Sidebar  │      Content Area          │  Chat    │
+│  240px   │                            │  240px   │
+└──────────┴────────────────────────────┴──────────┘
+```
+
+The floating button and chat panel are hidden when the user is on the Ventus AI home tab.
 
