@@ -187,7 +187,6 @@ export function GamificationManagement() {
             ))}
           </div>
         </div>
-      </CardContent>
 
       <AchievementEditorDialog
         open={editorOpen}
@@ -195,7 +194,6 @@ export function GamificationManagement() {
         achievement={editing}
         onSave={handleSave}
       />
-    </Card>
     </div>
   );
 }
