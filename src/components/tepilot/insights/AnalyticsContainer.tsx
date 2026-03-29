@@ -9,11 +9,12 @@ import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, Settings
+  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
@@ -22,7 +23,7 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics';
 
 interface NavItem {
   value: TabValue;
@@ -42,6 +43,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
       { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
+      { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
     ],
   },
@@ -94,6 +96,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
+      case 'subscription-analytics': return <SubscriptionAnalyticsView />;
     }
   };
 
