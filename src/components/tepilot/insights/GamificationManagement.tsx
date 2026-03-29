@@ -87,18 +87,14 @@ export function GamificationManagement() {
         howItWorks="Ventus tracks spending milestones, category exploration, and behavioral streaks to trigger achievement unlocks automatically."
         whyItMatters="Increases transaction frequency and card-top-of-wallet status through behavioral reinforcement loops."
       />
-      <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-end">
-          <Button
-            size="sm"
-            onClick={() => { setEditing(null); setEditorOpen(true); }}
-          >
-            <Plus className="h-4 w-4 mr-1" /> Create Achievement
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      <div className="flex items-center justify-end">
+        <Button
+          size="sm"
+          onClick={() => { setEditing(null); setEditorOpen(true); }}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Create Achievement
+        </Button>
+      </div>
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {kpis.map((k) => (

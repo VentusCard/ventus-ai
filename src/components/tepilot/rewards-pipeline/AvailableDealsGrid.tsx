@@ -93,8 +93,7 @@ export function AvailableDealsGrid() {
         howItWorks="Curated merchant deal library scored by customer affinity, category fit, and activation potential using Ventus behavioral data."
         whyItMatters="Enables rewards teams to quickly evaluate, activate, and manage deals with data-backed prioritization."
       />
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div></div>
+      <div className="flex flex-col md:flex-row md:items-center justify-end gap-4">
         
         {/* Stats */}
         <div className="flex items-center gap-4">
