@@ -542,11 +542,6 @@ function RewardsPhoneMockup({
                       ...(isForYou ? { borderLeftColor: color, borderLeftWidth: 2 } : {}),
                     }}
                   >
-                    {isForYou && (
-                      <span className="absolute top-1 right-1 text-[7px] font-bold px-1 py-0.5 rounded-full bg-blue-50 text-blue-500">
-                        ✨ For You
-                      </span>
-                    )}
                     <div className="p-2 pb-1">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="flex items-center gap-1.5 min-w-0">
