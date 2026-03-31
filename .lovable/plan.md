@@ -1,51 +1,42 @@
 
 
-## Fix Consumer iPad Overlay — Robust Height Solution
+## Add Semantic Search Bar to Consumer Rewards Tab
 
-### Why previous fixes failed
-The incremental flex-chain approach is fragile — missing `min-h-0` at any single level breaks the entire chain. Instead of continuing to patch individual flex levels, I'll use an explicit viewport-based height on the iPad frame, which is simpler and guaranteed to work.
+### What
+Add a compact search bar below the "Welcome to {city}, {firstName}!" line that searches both the deal library AND local perks using the existing `semantic-deal-search` edge function. When active, it filters both the deal cards and the local perks section to show only matches.
 
 ### Changes
 
-**File 1: `src/components/demo/DemoDetailOverlay.tsx`**
+**File 1: `src/components/demo/DemoRewardsView.tsx`**
 
-1. **Line 224** — Add `min-h-0` to the content wrapper (the one missing link):
-```tsx
-<div className={`flex-1 min-h-0 ${isBankWide || isConsumer ? 'overflow-hidden' : 'overflow-y-auto px-6 pb-6 pt-2'}`}>
-```
+1. Import `useSemanticDealSearch` hook, `Search`, `Loader2`, `X`, and `Sparkles` icons
+2. In `RewardsPhoneMockup`, wire up the hook
+3. Add a compact search input below the welcome line (line 228–229):
+   ```tsx
+   <div className="relative">
+     <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+     <input
+       placeholder="Search deals & local perks..."
+       value={searchQuery}
+       onChange={e => handleSearchChange(e.target.value)}
+       className="w-full pl-7 pr-7 py-1.5 text-[11px] rounded-lg border border-slate-200 bg-slate-50 ..."
+     />
+     {/* Loader / clear button on right */}
+   </div>
+   ```
+4. If semantic results are active, show a small reasoning badge (like the AvailableDealsGrid does)
+5. Filter `deals` array: when `matchingDealIds` is active, only show deals whose `id` is in the set
+6. Filter `perks` array: do a simple client-side text match of `searchQuery` against perk `title`, `partner`, `category`, and `value` fields (the edge function only knows deals, not perks — so perks get local text filtering while deals get AI semantic filtering)
 
-2. **Line 127** — Replace `flex-1 min-h-0` on the iPad frame with explicit viewport height so it doesn't depend on the flex chain:
-```tsx
-<div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
-```
-This guarantees the frame fills the viewport minus padding, regardless of parent flex behavior.
+**No edge function changes needed** — the existing `semantic-deal-search` function already handles the deal catalog. Perks are filtered client-side since they're local data.
 
-3. **Line 125** — Simplify the consumer wrapper since the frame now has explicit height. Just center it:
-```tsx
-<div className="flex-1 min-h-0 flex items-center justify-center p-4 overflow-hidden">
-```
-Using `items-center justify-center` (not `flex-col`) so the frame centers both horizontally and vertically within the overlay.
-
-**File 2: `src/components/demo/ConsumerAIChatView.tsx`**
-
-4. **Line 275** — Add `shrink-0` to quick actions so they don't collapse:
-```tsx
-<div className="px-3 pb-1 flex gap-1 overflow-x-auto no-scrollbar shrink-0">
-```
-
-5. **Line 289** — Add `shrink-0` to input area so it stays pinned at bottom:
-```tsx
-<div className="shrink-0 p-3 border-t border-slate-100 bg-white">
-```
-
-### What this achieves
-- iPad frame has a guaranteed explicit height — no more fragile flex chain
-- Frame is centered in the overlay
-- Rewards content scrolls within the frame (overflow-y-auto on content area)
-- AI chat input and quick actions stay pinned at the bottom
-- All tabs consistent
+### Behavior
+- Typing triggers debounced AI search for deals + instant text filter for perks
+- Results filter both sections simultaneously
+- Clear button resets everything
+- Small "AI reasoning" chip shown when semantic results are active
+- Compact styling to fit the consumer mobile mockup aesthetic
 
 ### Files changed
-1. `src/components/demo/DemoDetailOverlay.tsx` — 3 lines
-2. `src/components/demo/ConsumerAIChatView.tsx` — 2 lines
+1. `src/components/demo/DemoRewardsView.tsx` — add search bar, filtering logic
 
