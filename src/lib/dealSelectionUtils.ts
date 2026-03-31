@@ -133,7 +133,7 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
 }
 
 // ─── Select relevant deals from the library ─────────────────────────────
-export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 10): BankDeal[] {
+export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 11): BankDeal[] {
   const customerPillars = profile.topPillars.map(p => p.pillar);
 
   if (customerPillars.length === 0) {
