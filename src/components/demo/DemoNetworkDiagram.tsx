@@ -131,7 +131,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const TX_CARD_WIDTH = centered ? Math.min(220, dims.w * 0.14) : Math.min(160, Math.max(130, dims.w * 0.16));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
   const ENGINE_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(175, Math.max(150, dims.w * 0.18));
-  const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
+  const visibleEngineCards = ENGINE_MODULE_CARDS.filter(c => enabledModules.has(c.mod));
+  const ENGINE_MIN_HEIGHT = (80 + visibleEngineCards.length * 32) * scale;
 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
   const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
