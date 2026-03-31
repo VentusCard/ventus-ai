@@ -565,6 +565,14 @@ function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | n
           <p className={`text-slate-400 ${scaled ? "text-[11px]" : "text-[10px]"}`}>User Data</p>
         </div>
       </div>
+      <div className={`flex gap-1.5 ${scaled ? "mt-2.5" : "mt-2"}`}>
+        <div className={`flex-1 rounded-md border border-slate-200 bg-slate-50 ${scaled ? "px-2 py-1.5" : "px-1.5 py-1"}`}>
+          <p className={`font-medium text-slate-600 ${scaled ? "text-[11px]" : "text-[9px]"}`}>Demographics Data</p>
+        </div>
+        <div className={`flex-1 rounded-md border border-slate-200 bg-slate-50 ${scaled ? "px-2 py-1.5" : "px-1.5 py-1"}`}>
+          <p className={`font-medium text-slate-600 ${scaled ? "text-[11px]" : "text-[9px]"}`}>Transaction Data</p>
+        </div>
+      </div>
     </div>
   );
 }
