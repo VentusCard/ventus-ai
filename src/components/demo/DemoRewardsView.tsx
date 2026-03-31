@@ -328,27 +328,6 @@ function CategoryFilterPills({
           <span className="text-[10px]">{cat.emoji}</span> {cat.short}
         </button>
       ))}
-      {subcategories.length > 0 && (
-        <>
-          <span className="text-slate-300 text-[10px] shrink-0 px-0.5">|</span>
-          {subcategories.map(sub => (
-            <button
-              key={sub}
-              className={cn(
-                "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
-                activeSubcategory === sub
-                  ? "text-white"
-                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-              )}
-              style={activeSubcategory === sub ? { background: color } : undefined}
-              onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
-            >
-              <span className="text-[10px]">{getSubcategoryIcon(sub)}</span>
-              {sub}
-            </button>
-          ))}
-        </>
-      )}
     </div>
   );
 }
