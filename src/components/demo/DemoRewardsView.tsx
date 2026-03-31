@@ -217,12 +217,15 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
   if (expiringDeals.length === 0) return null;
 
   return (
-    <div>
-      <div className="flex items-center gap-1.5 mb-1">
+    <div
+      className="rounded-xl border-2 overflow-hidden animate-fade-in h-full"
+      style={{ borderColor: `${color}30`, background: `linear-gradient(135deg, ${color}08, ${color}03)` }}
+    >
+      <div className="px-3 py-0.5 flex items-center gap-1" style={{ background: `${color}10` }}>
         <Clock className="w-3 h-3 text-amber-500" />
-        <span className="text-[10px] font-semibold text-slate-700">Expiring Soon</span>
+        <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color }}>Expiring Soon</span>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 p-2">
         {expiringDeals.map((deal) => {
           const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
           const urgent = deal.hoursLeft <= 6;
