@@ -98,7 +98,7 @@ export default function DemoCustomerPanel({
         <div className="flex-1 grid grid-cols-2 gap-0 overflow-hidden">
           {/* Left: Customer Selection */}
           <div className="border-r border-slate-100 p-8 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-            <h3 className="text-xs font-bold tracking-[0.15em] uppercase mb-4 text-primary-foreground">Select Customer</h3>
+            <h3 className="text-xs tracking-[0.15em] uppercase mb-4 text-primary-foreground font-extrabold">Select Customer</h3>
             <CustomerSlot
               label="Customer"
               color="#3b82f6"
@@ -111,7 +111,7 @@ export default function DemoCustomerPanel({
 
           {/* Right: Platform Modules */}
           <div className="p-8 overflow-y-auto flex flex-col" style={{ scrollbarWidth: "none" }}>
-            <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-slate-400 mb-4">Platform Modules</h3>
+            <h3 className="text-xs tracking-[0.15em] uppercase mb-4 text-primary-foreground font-extrabold">Platform Modules</h3>
 
             {/* All toggle */}
             <div className="mb-4">
