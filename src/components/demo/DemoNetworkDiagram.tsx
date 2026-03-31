@@ -261,7 +261,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const cTop = rCenterY - cHeight / 2;
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
               const consumerLeft = consumerColLeftX;
-              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
+              const consumerCenterY = cTop + cHeight / 2;
               const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
 
               return pillar.bankNodes.map((node, ni) => {
