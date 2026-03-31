@@ -343,6 +343,7 @@ function CategoryFilterPills({
               style={activeSubcategory === sub ? { background: color } : undefined}
               onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
             >
+              <span className="text-[10px]">{getSubcategoryIcon(sub)}</span>
               {sub}
             </button>
           ))}
