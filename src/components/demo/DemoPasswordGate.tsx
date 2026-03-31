@@ -37,7 +37,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat3Phase(0);
       }
       if (s === 4) {
-        if (beat4Phase < 3) {
+        if (beat4Phase < 4) {
           setBeat4Phase((p) => p + 1);
           return s;
         }
@@ -581,16 +581,19 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                       <div
                         className="flex items-center gap-2 px-5 py-2.5 rounded-full"
-                        style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}
+                        style={{
+                          backgroundColor: beat4Phase >= 4 ? "#3B82F6" : "#EFF6FF",
+                          border: beat4Phase >= 4 ? "1px solid #3B82F6" : "1px solid #BFDBFE",
+                        }}
                       >
                         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                           <path
                             d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z"
-                            fill="#3B82F6"
+                            fill={beat4Phase >= 4 ? "#FFFFFF" : "#3B82F6"}
                           />
                         </svg>
-                          <span className="text-lg font-semibold" style={{ color: "#3B82F6" }}>
-                            Statistically Similar Multi-category Pattern: Expecting a Baby
+                          <span className="text-lg font-semibold" style={{ color: beat4Phase >= 4 ? "#FFFFFF" : "#3B82F6" }}>
+                            {beat4Phase >= 4 ? "Semantically Similar Purchase Patterns = Behavioral Indicators" : "Expecting a Baby"}
                           </span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
