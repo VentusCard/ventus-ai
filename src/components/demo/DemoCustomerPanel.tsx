@@ -83,7 +83,7 @@ export default function DemoCustomerPanel({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="max-w-none w-[75vw] h-[75vh] p-0 gap-0 flex flex-col overflow-hidden bg-white text-slate-900"
-        style={{ fontFamily: "Manrope, sans-serif" }}
+        style={{ fontFamily: "Manrope, sans-serif", colorScheme: "light" }}
       >
         {/* Header */}
         <div className="px-8 pt-7 pb-5 border-b border-slate-100">
