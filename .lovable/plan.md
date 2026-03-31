@@ -1,47 +1,56 @@
 
 
-## Fix Double iPad Border + Move Tabs to Bottom
+## Build Consumer AI Chatbot + Unify Financial Tip Chat
 
-### Problem
-Two iPad bezels are rendering because:
-1. `DemoDetailOverlay.tsx` renders an iPad frame in `renderConsumerOverlay` (lines 130-178)
-2. Each child view (`DemoEngagementView`, `DemoRewardsView`, `DemoWealthView`) renders its **own** iPad frame internally
+### Overview
 
-### Fix — 2 parts
+Create a new `consumer-chat` edge function and `ConsumerAIChatView` component for the AI tab. Additionally, update `FinancialTipCard` to use the same edge function, so one chatbot powers both experiences.
 
-**Part 1: Remove the inner iPad frames from each child view**
+### Part 1: New Edge Function — `consumer-chat`
 
-Strip the iPad frame wrapper (bezel, camera dot, status bar, home indicator) from:
-- `DemoEngagementView.tsx` — remove the outer iPad shell, keep only the content inside
-- `DemoRewardsView.tsx` — same
-- `DemoWealthView.tsx` — same
+**File: `supabase/functions/consumer-chat/index.ts`**
 
-Each view should return just its content (the stuff inside the frame), not the device chrome. The parent overlay already provides the frame.
+- Accepts: `message`, `conversationHistory`, `context`
+- Context includes: spending summary by pillar/category/merchant, subscriptions, demographics, life events, deals
+- System prompt as a consumer banking assistant that:
+  - Answers spending questions with real numbers ("Between different sports, you spent...")
+  - Handles subscription, outflow, frequency queries
+  - Recommends Bank of America products with application links
+  - Surfaces life event intelligence subtly
+  - Includes disclaimer about not being connected to a real bank
+  - Supports a `mode` field — when `mode === "financial-tip-chat"`, switches to the financial coaching persona (same behavior as current tip chat but using the new function)
+  - Tone: succinct, helpful, never inappropriate
+- Model: `google/gemini-3-flash-preview`
+- Standard CORS whitelist (matching existing pattern from advisor-chat)
+- 429/402 error handling
 
-**Part 2: Move tab bar to bottom in `DemoDetailOverlay.tsx`**
+### Part 2: New Chat Component — `ConsumerAIChatView`
 
-In `renderConsumerOverlay` (lines 125-181), reorder the layout from:
+**File: `src/components/demo/ConsumerAIChatView.tsx`**
 
-```text
-Camera dot → Status bar → Tab bar → Content → Home indicator
-```
+- Mobile-banking chat UI fitting inside the iPad frame
+- Welcome message + quick-action chips: "How much did I spend on sports?", "My subscriptions", "Product recommendations", "Life event insights"
+- Markdown-rendered messages (ReactMarkdown)
+- Calls `consumer-chat` edge function via `supabase.functions.invoke`
+- Builds compact context payload from props: `enrichedTransactions`, `customer`, `detectedEvents`, `personalizedDeals`
+- Context aggregation: totals by pillar, category, merchant, recurring/subscription detection, demographics, life events, deals
 
-To:
+### Part 3: Wire AI Tab — `DemoDetailOverlay.tsx`
 
-```text
-Camera dot → Status bar → Content → Tab bar → Home indicator
-```
+- Replace "Coming Soon" placeholder in `case "ai"` with `<ConsumerAIChatView>`
+- Pass `customer`, `enriched`, `detectedEvents`, `personalizedDeals` props
 
-Change the tab bar from `border-b` to `border-t border-slate-200` so it looks like iOS bottom navigation.
+### Part 4: Update FinancialTipCard to Use `consumer-chat`
 
-### Files changed
-1. `src/components/demo/DemoEngagementView.tsx` — unwrap iPad frame
-2. `src/components/demo/DemoRewardsView.tsx` — unwrap iPad frame
-3. `src/components/demo/DemoWealthView.tsx` — unwrap iPad frame
-4. `src/components/demo/DemoDetailOverlay.tsx` — move tab bar below content
+**File: `src/components/tepilot/insights/FinancialTipCard.tsx`**
 
-### What stays untouched
-- All non-consumer overlays
-- Network diagram cards
-- Tab switching logic and content rendering
+- Change `supabase.functions.invoke("advisor-chat", ...)` → `supabase.functions.invoke("consumer-chat", ...)`
+- Keep the `mode: "financial-tip-chat"` context field so the edge function uses the coaching persona
+- Pass enriched transactions context alongside the tip data for richer follow-up answers
+
+### Files Changed
+1. `supabase/functions/consumer-chat/index.ts` — new edge function
+2. `src/components/demo/ConsumerAIChatView.tsx` — new chat component
+3. `src/components/demo/DemoDetailOverlay.tsx` — wire AI tab
+4. `src/components/tepilot/insights/FinancialTipCard.tsx` — switch to consumer-chat
 
