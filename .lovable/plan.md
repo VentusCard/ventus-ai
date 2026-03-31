@@ -1,42 +1,51 @@
 
 
-## Fix iPad Frame & Bottom Nav — Full Height Layout
+## Fix Consumer iPad Overlay — Robust Height Solution
 
-### Root cause
-Two issues remain:
+### Why previous fixes failed
+The incremental flex-chain approach is fragile — missing `min-h-0` at any single level breaks the entire chain. Instead of continuing to patch individual flex levels, I'll use an explicit viewport-based height on the iPad frame, which is simpler and guaranteed to work.
 
-1. **Parent wrapper (line 125)** has `justify-center` — this vertically centers the frame instead of letting it stretch. Combined with `h-full` on the frame, the frame collapses to content height because `justify-center` overrides the stretch behavior.
+### Changes
 
-2. **Frame (line 127)** uses `h-full` which doesn't work reliably when the parent uses `justify-center`. Needs `flex-1 min-h-0` instead so it fills the remaining space in the flex column.
+**File 1: `src/components/demo/DemoDetailOverlay.tsx`**
 
-### Fix — `src/components/demo/DemoDetailOverlay.tsx`
-
-**Line 125** — Remove `justify-center` so frame stretches; use `min-h-0` for flex shrinking:
+1. **Line 224** — Add `min-h-0` to the content wrapper (the one missing link):
 ```tsx
-<div className="flex-1 min-h-0 flex flex-col items-center p-4 overflow-hidden">
+<div className={`flex-1 min-h-0 ${isBankWide || isConsumer ? 'overflow-hidden' : 'overflow-y-auto px-6 pb-6 pt-2'}`}>
 ```
 
-**Line 127** — Replace `h-full` with `flex-1 min-h-0` so the frame fills the parent:
+2. **Line 127** — Replace `flex-1 min-h-0` on the iPad frame with explicit viewport height so it doesn't depend on the flex chain:
 ```tsx
-<div className="w-full max-w-[820px] flex-1 min-h-0 rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col">
+<div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
+```
+This guarantees the frame fills the viewport minus padding, regardless of parent flex behavior.
+
+3. **Line 125** — Simplify the consumer wrapper since the frame now has explicit height. Just center it:
+```tsx
+<div className="flex-1 min-h-0 flex items-center justify-center p-4 overflow-hidden">
+```
+Using `items-center justify-center` (not `flex-col`) so the frame centers both horizontally and vertically within the overlay.
+
+**File 2: `src/components/demo/ConsumerAIChatView.tsx`**
+
+4. **Line 275** — Add `shrink-0` to quick actions so they don't collapse:
+```tsx
+<div className="px-3 pb-1 flex gap-1 overflow-x-auto no-scrollbar shrink-0">
 ```
 
-**Line 149** — Add `shrink-0` to the bottom tab bar so it never collapses:
+5. **Line 289** — Add `shrink-0` to input area so it stays pinned at bottom:
 ```tsx
-<div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-```
-
-**Line 172** — Add `shrink-0` to the home indicator:
-```tsx
-<div className="flex shrink-0 justify-center py-2 bg-white">
+<div className="shrink-0 p-3 border-t border-slate-100 bg-white">
 ```
 
 ### What this achieves
-- Frame fills the full overlay height (minus padding)
-- Camera dot, status bar, tab bar, and home indicator are pinned and never shrink
-- Content area (`flex-1 min-h-0`) takes all remaining space
-- Bottom 4-tab nav always visible at the bottom
+- iPad frame has a guaranteed explicit height — no more fragile flex chain
+- Frame is centered in the overlay
+- Rewards content scrolls within the frame (overflow-y-auto on content area)
+- AI chat input and quick actions stay pinned at the bottom
+- All tabs consistent
 
 ### Files changed
-1. `src/components/demo/DemoDetailOverlay.tsx` — 4 lines
+1. `src/components/demo/DemoDetailOverlay.tsx` — 3 lines
+2. `src/components/demo/ConsumerAIChatView.tsx` — 2 lines
 
