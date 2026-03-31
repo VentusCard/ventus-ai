@@ -23,7 +23,25 @@ export default function DemoCustomerPanel({
   customer, parsedTransactions,
   onSelect,
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
+  enabledModules, onModulesChange,
 }: Props) {
+  const allOn = ALL_MODULES.every(m => enabledModules.has(m));
+
+  const toggleModule = (mod: ModuleKey) => {
+    if (mod === "Analytics") return; // always on
+    const next = new Set(enabledModules);
+    if (next.has(mod)) next.delete(mod);
+    else next.add(mod);
+    onModulesChange(next);
+  };
+
+  const toggleAll = () => {
+    if (allOn) {
+      onModulesChange(new Set<ModuleKey>(["Analytics"]));
+    } else {
+      onModulesChange(new Set(ALL_MODULES));
+    }
+  };
   return (
     <div className="h-full flex flex-col p-5 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: "none" }}>
       {/* Logo */}
