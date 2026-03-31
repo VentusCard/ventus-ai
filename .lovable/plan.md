@@ -1,21 +1,26 @@
 
 
-## Make Consumer Cards Match Feature Card Heights + Add Grouping Border
+## Require At Least One Feature Module Before Processing
 
-### File: `src/components/demo/DemoNetworkDiagram.tsx`
+### Problem
+Users can deselect all 3 toggleable modules (AI & UX, Rewards, Relationship) and still hit "Process," which produces no useful output since Analytics alone is just the core engine.
 
-### Change 1: Make consumer cards taller to match bank nodes
-Currently each consumer card uses `CONSUMER_NODE_HEIGHT` (54-70px), while the bank column has 3 stacked cards totaling ~120px. Change the consumer card to use `contentHeight` (which already equals `Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT)`) so it stretches to match the associated feature cards.
+### Fix — `src/components/demo/DemoCustomerPanel.tsx`
 
-- Lines 414-417: Change `top` to `contentTop` (remove the centering offset) and `height` to `contentHeight` instead of `CONSUMER_NODE_HEIGHT`
+**1. Add a check**: count how many of the 3 feature modules are enabled (excluding Analytics which is always on). If none are selected, disable the Process button.
 
-### Change 2: Add a dynamic grouping border around all consumer cards
-Add a single container `div` that wraps all visible consumer cards with a rounded border, positioned from the first consumer card's top to the last one's bottom. This uses `visibleRows` to dynamically size based on how many rows (1, 2, or 3) are active.
+**Line ~168** — update the `disabled` prop:
+```tsx
+disabled={isProcessing || !customer || !["AI & UX", "Rewards", "Relationship"].some(m => enabledModules.has(m as ModuleKey))}
+```
 
-- After line 441 (after the `visibleRows.map` block), add a new absolutely-positioned div spanning from the first row's `contentTop` to the last row's `contentTop + contentHeight`, at `consumerColLeftX`, with a subtle dashed or solid border and rounded corners.
+**2. Add helper text** below the button when no feature modules are selected, e.g.:
+```tsx
+{!["AI & UX", "Rewards", "Relationship"].some(m => enabledModules.has(m as ModuleKey)) && (
+  <p className="text-[11px] text-amber-600 mt-2 text-center">Select at least one feature module to proceed</p>
+)}
+```
 
-### Summary
-- 2 changes in 1 file
-- Consumer cards stretch to full row height
-- A dynamic border groups all visible consumer cards together
+### Files changed
+1. `src/components/demo/DemoCustomerPanel.tsx` — disable button + warning text
 
