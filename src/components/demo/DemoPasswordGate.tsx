@@ -737,7 +737,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                         <div className="flex items-center gap-3 mb-4">
                           <span className="text-2xl">📱</span>
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
-                            Personalized UX
+                            Personalized AI & UX
                           </span>
                            <span className="text-xs text-slate-400 whitespace-nowrap">
                              — Supported by backend analytics and orchestrates other features
