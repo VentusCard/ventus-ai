@@ -838,9 +838,27 @@ const TePilot = () => {
 
             <Separator />
 
+            {/* Deprecation Notice */}
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-amber-900 mb-1">TePilot is being phased out</h4>
+                  <p className="text-sm text-amber-800 leading-relaxed">
+                    TePilot is transitioning into client-specific pilots. Please contact the Ventus team for details on customized solutions for your institution.
+                  </p>
+                  <a href="/contact" className="inline-flex items-center gap-1.5 mt-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                    Contact Us →
+                  </a>
+                </div>
+              </div>
+            </div>
+
             {/* Password Form */}
             <div>
-              <h3 className="font-semibold text-lg mb-2 text-slate-900">Enter Password to Continue</h3>
+              <h3 className="font-semibold text-lg mb-2 text-slate-900">Internal Access</h3>
               <p className="text-sm text-slate-600 mb-4">
                 All data processing is ephemeral. Your transaction data is analyzed in real-time and never stored on our servers.
               </p>
