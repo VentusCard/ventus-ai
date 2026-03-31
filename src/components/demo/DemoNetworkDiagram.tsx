@@ -274,10 +274,11 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                 );
               });
             })}
+          </>
+        )}
+      </svg>
 
-
-
-
+      {/* Column Headers */}
 
       {/* Column Headers */}
       <div
