@@ -158,7 +158,7 @@ function HeroSpotlightDeal({
   const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
   return (
     <div
-      className="rounded-xl border-2 overflow-hidden animate-fade-in"
+      className="rounded-xl border-2 overflow-hidden animate-fade-in h-full w-full"
       style={{ borderColor: `${color}30`, background: `linear-gradient(135deg, ${color}08, ${color}03)` }}
     >
       <div className="px-3 py-0.5 flex items-center gap-1" style={{ background: `${color}10` }}>
