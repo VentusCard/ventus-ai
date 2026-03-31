@@ -480,12 +480,8 @@ function RewardsPhoneMockup({
   return (
     <div className="p-4">
       <div className="max-w-2xl mx-auto space-y-2">
-          <div className="flex items-baseline justify-between">
-            <p className="text-base font-bold text-slate-900">Welcome to {city}, {firstName}!</p>
-          </div>
-
-          {/* Savings Summary */}
-          <SavingsSummaryBar profile={profile} color={color} hasEnriched={hasEnriched} />
+          {/* Savings Summary (includes welcome greeting) */}
+          <SavingsSummaryBar profile={profile} color={color} hasEnriched={hasEnriched} city={city} firstName={firstName} />
 
           {/* Semantic search bar */}
           <div className="relative">
