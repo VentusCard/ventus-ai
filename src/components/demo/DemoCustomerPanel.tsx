@@ -23,10 +23,11 @@ interface Props {
   onModulesChange: (modules: Set<ModuleKey>) => void;
 }
 
-const MODULE_CONFIG: { mod: ModuleKey; label: string; description: string; borderColor: string; checkColor: string }[] = [
+const MODULE_CONFIG: { mod: ModuleKey; label: string; team: string; description: string; borderColor: string; checkColor: string }[] = [
   {
     mod: "Analytics",
     label: "Ventus AI Customer Intelligence & Analytics",
+    team: "Transaction Analytics Team",
     description: "Core transaction classification, spending analytics, and customer profiling",
     borderColor: "border-l-blue-500",
     checkColor: "text-blue-600",
@@ -34,26 +35,28 @@ const MODULE_CONFIG: { mod: ModuleKey; label: string; description: string; borde
   {
     mod: "AI & UX",
     label: "AI & UX",
-    description: "AI-powered experience personalization and predictive engagement",
+    team: "Banking Experience Team",
+    description: "How can we help our customers understand their spending?",
     borderColor: "border-l-sky-500",
     checkColor: "text-sky-600",
   },
   {
     mod: "Rewards",
     label: "Rewards",
-    description: "Smart rewards optimization, deal matching, and offer personalization",
+    team: "Rewards Team",
+    description: "How can we support and reward their lifestyle?",
     borderColor: "border-l-emerald-500",
     checkColor: "text-emerald-600",
   },
   {
     mod: "Relationship",
     label: "Relationship",
-    description: "Life event detection, wealth signals, and relationship management",
+    team: "Growth / Wealth Team",
+    description: "What's their next product to live a better life?",
     borderColor: "border-l-purple-500",
     checkColor: "text-purple-600",
   },
 ];
-
 export default function DemoCustomerPanel({
   open, onOpenChange,
   customer, parsedTransactions,
