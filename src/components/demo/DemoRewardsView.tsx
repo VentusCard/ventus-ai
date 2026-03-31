@@ -355,51 +355,58 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
 // ─── Local Perks Section ──────────────────────────────────────────────
 function LocalPerksSection({ city, perks, color }: { city: string; perks: LocationPerk[]; color: string }) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [collapsed, setCollapsed] = useState(false);
 
   const categories = useMemo(() => [...new Set(perks.map(p => p.category))], [perks]);
   const filtered = activeCategory === "all" ? perks : perks.filter(p => p.category === activeCategory);
 
   return (
     <div className="rounded-lg border border-slate-200 overflow-hidden">
-      <div className="flex items-center justify-between px-2.5 py-1.5 bg-slate-50">
+      <button
+        className="w-full flex items-center justify-between px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 transition-colors"
+        onClick={() => setCollapsed(c => !c)}
+      >
         <div className="flex items-center gap-1.5">
           <MapPin className="w-3 h-3" style={{ color }} />
           <span className="text-[10px] font-semibold text-slate-700">Local Deals & Perks</span>
           <span className="text-[9px] text-slate-400">{city}</span>
         </div>
-      </div>
-      <div className="px-2 py-1.5 space-y-1.5">
-        <div className="flex flex-wrap gap-1">
-          <button
-            className={cn(
-              "text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors",
-              activeCategory === "all" ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-            )}
-            style={activeCategory === "all" ? { background: color } : undefined}
-            onClick={() => setActiveCategory("all")}
-          >
-            All
-          </button>
-          {categories.map(cat => (
+        <ChevronDown className={cn("w-3 h-3 text-slate-400 transition-transform", collapsed ? "-rotate-90" : "")} />
+      </button>
+      {!collapsed && (
+        <div className="px-2 py-1.5 space-y-1.5">
+          <div className="flex flex-wrap gap-1">
             <button
-              key={cat}
               className={cn(
                 "text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors",
-                activeCategory === cat ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                activeCategory === "all" ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
               )}
-              style={activeCategory === cat ? { background: CATEGORY_HEX[cat] || color } : undefined}
-              onClick={() => setActiveCategory(cat)}
+              style={activeCategory === "all" ? { background: color } : undefined}
+              onClick={() => setActiveCategory("all")}
             >
-              {cat}
+              All
             </button>
-          ))}
+            {categories.map(cat => (
+              <button
+                key={cat}
+                className={cn(
+                  "text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors",
+                  activeCategory === cat ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                )}
+                style={activeCategory === cat ? { background: CATEGORY_HEX[cat] || color } : undefined}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-4 gap-1">
+            {filtered.map(perk => (
+              <PerkCard key={perk.id} perk={perk} color={color} />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-4 gap-1">
-          {filtered.map(perk => (
-            <PerkCard key={perk.id} perk={perk} color={color} />
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
