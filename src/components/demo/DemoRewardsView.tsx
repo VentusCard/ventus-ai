@@ -90,7 +90,7 @@ export default function DemoRewardsView({ customer, enriched, precomputed, trave
   const hasEnriched = (enriched?.length ?? 0) > 0;
 
   const profile = useMemo(() => hasEnriched && enriched ? deriveCustomerProfile(enriched) : null, [enriched, hasEnriched]);
-  const deals = useMemo(() => precomputed?.deals ?? (profile ? getRelevantDeals(profile, 10) : []), [precomputed, profile]);
+  const deals = useMemo(() => precomputed?.deals ?? (profile ? getRelevantDeals(profile, 11) : []), [precomputed, profile]);
 
   const [personalized, setPersonalized] = useState<Record<string, { msg: string; cta: string }>>({});
   const [loading, setLoading] = useState(false);

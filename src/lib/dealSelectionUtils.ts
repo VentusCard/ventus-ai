@@ -133,7 +133,7 @@ export function deriveCustomerProfile(transactions: EnrichedTransaction[]): Deri
 }
 
 // ─── Select relevant deals from the library ─────────────────────────────
-export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 10): BankDeal[] {
+export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 11): BankDeal[] {
   const customerPillars = profile.topPillars.map(p => p.pillar);
 
   if (customerPillars.length === 0) {
@@ -145,7 +145,7 @@ export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 10)
     (popularityOrder[a.popularity] ?? 4) - (popularityOrder[b.popularity] ?? 4);
 
   // Proportional slots by pillar rank: 4 / 3 / 1
-  const slotAllocation = [4, 3, 1];
+  const slotAllocation = [4, 3, 2];
   const pillarDeals: BankDeal[] = [];
   const usedIds = new Set<string>();
 
