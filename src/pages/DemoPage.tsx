@@ -78,7 +78,7 @@ export default function DemoPage() {
         className="absolute bottom-4 left-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors shadow-sm"
       >
         <PanelLeft className="h-3.5 w-3.5" />
-        Show Panel
+        Demo Settings
       </button>
 
       {/* Customer Panel Dialog */}
