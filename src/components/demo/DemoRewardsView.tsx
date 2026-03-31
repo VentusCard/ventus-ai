@@ -271,10 +271,7 @@ function CategoryFilterPills({
   onSelectCategory: (cat: string | null) => void;
   color: string;
 }) {
-  const availableCategories = useMemo(() => {
-    const cats = new Set(deals.map(d => d.merchantCategory));
-    return DEAL_CATEGORY_PILLS.filter(p => cats.has(p.key));
-  }, [deals]);
+  const personalizedCats = useMemo(() => new Set(deals.map(d => d.merchantCategory)), [deals]);
 
   return (
     <div className="flex gap-1 overflow-x-auto hide-scrollbar items-center">
@@ -288,19 +285,27 @@ function CategoryFilterPills({
       >
         All
       </button>
-      {availableCategories.map(cat => (
-        <button
-          key={cat.key}
-          className={cn(
-            "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
-            activeCategory === cat.key ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-          )}
-          style={activeCategory === cat.key ? { background: color } : undefined}
-          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); }}
-        >
-          <span className="text-[10px]">{cat.emoji}</span> {cat.short}
-        </button>
-      ))}
+      {DEAL_CATEGORY_PILLS.map(cat => {
+        const isPersonalized = personalizedCats.has(cat.key);
+        const isActive = activeCategory === cat.key;
+        return (
+          <button
+            key={cat.key}
+            className={cn(
+              "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
+              isActive
+                ? "text-white"
+                : isPersonalized
+                  ? "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+            )}
+            style={isActive ? { background: color } : undefined}
+            onClick={() => { onSelectCategory(isActive ? null : cat.key); }}
+          >
+            <span className="text-[10px]">{cat.emoji}</span> {cat.short}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -521,13 +526,25 @@ function RewardsPhoneMockup({
               filteredDeals.map((deal, i) => {
                 const p = personalized[deal.id];
                 const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
+                const isForYou = deals.some(d => d.id === deal.id);
 
                 return (
                   <div
                     key={deal.id}
-                    className="rounded-lg border border-slate-200 bg-white animate-fade-in"
-                    style={{ animationDelay: `${i * 60}ms` }}
+                    className={cn(
+                      "rounded-lg border bg-white animate-fade-in relative",
+                      isForYou ? "border-blue-200 border-l-2" : "border-slate-200"
+                    )}
+                    style={{
+                      animationDelay: `${i * 60}ms`,
+                      ...(isForYou ? { borderLeftColor: color, borderLeftWidth: 2 } : {}),
+                    }}
                   >
+                    {isForYou && (
+                      <span className="absolute top-1 right-1 text-[7px] font-bold px-1 py-0.5 rounded-full bg-blue-50 text-blue-500">
+                        ✨ For You
+                      </span>
+                    )}
                     <div className="p-2 pb-1">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="flex items-center gap-1.5 min-w-0">
