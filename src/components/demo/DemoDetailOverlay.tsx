@@ -146,7 +146,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
           </div>
 
           {/* Bottom Tab Bar */}
-          <div className="flex border-t border-slate-200 bg-slate-50/80 px-2">
+          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
             {CONSUMER_TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.key;
