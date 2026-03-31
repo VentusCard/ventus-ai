@@ -260,13 +260,19 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
 // ─── Category Quick-Filter Pills ──────────────────────────────────────
 function CategoryFilterPills({
   deals,
+  enriched,
   activeCategory,
-  onSelect,
+  activeSubcategory,
+  onSelectCategory,
+  onSelectSubcategory,
   color,
 }: {
   deals: BankDeal[];
+  enriched?: EnrichedTransaction[];
   activeCategory: string | null;
-  onSelect: (cat: string | null) => void;
+  activeSubcategory: string | null;
+  onSelectCategory: (cat: string | null) => void;
+  onSelectSubcategory: (sub: string | null) => void;
   color: string;
 }) {
   const availableCategories = useMemo(() => {
@@ -274,15 +280,36 @@ function CategoryFilterPills({
     return DEAL_CATEGORY_PILLS.filter(p => cats.has(p.key));
   }, [deals]);
 
+  const subcategories = useMemo(() => {
+    if (!enriched || enriched.length === 0) return [];
+    const subcatCounts = new Map<string, number>();
+    enriched.forEach(t => {
+      if (t.subcategory && t.subcategory !== "General" && t.subcategory !== "Other") {
+        subcatCounts.set(t.subcategory, (subcatCounts.get(t.subcategory) || 0) + 1);
+      }
+      // Also pull from subcategories array
+      t.subcategories?.forEach(sc => {
+        if (sc && sc !== "General" && sc !== "Other" && sc !== t.subcategory) {
+          subcatCounts.set(sc, (subcatCounts.get(sc) || 0) + 1);
+        }
+      });
+    });
+    return Array.from(subcatCounts.entries())
+      .filter(([, count]) => count >= 2) // only show subcategories with 2+ transactions
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12)
+      .map(([name]) => name);
+  }, [enriched]);
+
   return (
-    <div className="flex gap-1 overflow-x-auto no-scrollbar">
+    <div className="flex gap-1 overflow-x-auto no-scrollbar items-center">
       <button
         className={cn(
           "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5",
-          !activeCategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+          !activeCategory && !activeSubcategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
         )}
-        style={!activeCategory ? { background: color } : undefined}
-        onClick={() => onSelect(null)}
+        style={!activeCategory && !activeSubcategory ? { background: color } : undefined}
+        onClick={() => { onSelectCategory(null); onSelectSubcategory(null); }}
       >
         All
       </button>
@@ -294,11 +321,31 @@ function CategoryFilterPills({
             activeCategory === cat.key ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
           )}
           style={activeCategory === cat.key ? { background: color } : undefined}
-          onClick={() => onSelect(activeCategory === cat.key ? null : cat.key)}
+          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); onSelectSubcategory(null); }}
         >
           <span className="text-[10px]">{cat.emoji}</span> {cat.short}
         </button>
       ))}
+      {subcategories.length > 0 && (
+        <>
+          <span className="text-slate-300 text-[10px] shrink-0 px-0.5">|</span>
+          {subcategories.map(sub => (
+            <button
+              key={sub}
+              className={cn(
+                "shrink-0 text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors whitespace-nowrap border",
+                activeSubcategory === sub
+                  ? "text-white border-transparent"
+                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-100"
+              )}
+              style={activeSubcategory === sub ? { background: color, borderColor: color } : undefined}
+              onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
+            >
+              · {sub}
+            </button>
+          ))}
+        </>
+      )}
     </div>
   );
 }
