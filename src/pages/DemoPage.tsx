@@ -20,6 +20,7 @@ export default function DemoPage() {
   const [enabledModules, setEnabledModules] = useState<Set<ModuleKey>>(new Set(ALL_MODULES));
 
   const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"]);
+  const CONSUMER_NODES = new Set<DemoNodeType>(["engagement", "rewards", "wealth"]);
   const NODE_ORDER: DemoNodeType[] = ["engine", "analytics", "outflow", "aiFinancialInsights", "engagement", "travel", "locational", "dealPersonalization", "rewards", "lifeEventIntel", "lifeEvents", "wmCopilot", "wealth"];
   const activeIdx = activeNode ? NODE_ORDER.indexOf(activeNode) : -1;
   const prevNode = activeIdx > 0 ? NODE_ORDER[activeIdx - 1] : null;
