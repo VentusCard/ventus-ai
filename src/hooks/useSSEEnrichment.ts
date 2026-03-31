@@ -175,7 +175,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     return classifiedTransactions;
   }, []);
 
-  const callEnrichTransactions = useCallback(async (classifiedTransactions: EnrichedTransaction[], homeZip: string) => {
+  const callEnrichTransactions = useCallback(async (classifiedTransactions: EnrichedTransaction[], homeZip: string, suppressToasts = false) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const url = `${supabaseUrl}/functions/v1/travel-detection`;
