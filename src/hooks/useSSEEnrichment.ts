@@ -324,7 +324,9 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     transactions: Transaction[],
     homeZip?: string,
     onClassified?: (classified: EnrichedTransaction[]) => void,
+    options?: { suppressToasts?: boolean },
   ): Promise<EnrichedTransaction[]> => {
+    const suppressToasts = options?.suppressToasts ?? false;
     setIsProcessing(true);
     setError(null);
     setEnrichedTransactions([]);
