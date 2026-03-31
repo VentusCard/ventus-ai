@@ -190,7 +190,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   return (
     <div className="flex flex-col h-full min-h-0 bg-white">
       {/* Chat area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 px-4 py-3">
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 shadow-lg">
