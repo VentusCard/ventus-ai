@@ -1,23 +1,34 @@
 
 
-## Add Deprecation Notice to TePilot Password Gate
+## Combine Consumer Overlay Views into a Tabbed iPad Mockup
 
-### Goal
-Deter website visitors from entering TePilot by showing a deprecation notice on the password gate screen, directing them to contact the Ventus team instead. Keep the gate functional with a new password for internal use.
+### What changes
 
-### Changes (single file: `src/pages/TePilot.tsx`)
+When a user clicks any of the 3 consumer cards (Personalized UX, Personalized Rewards, Personalized Relationship), instead of opening 3 separate full-screen overlays with different content, they will all open the **same overlay** containing a single iPad mockup with **4 tabs**: UX, Rewards, Relationship, and AI. The initially active tab corresponds to whichever card was clicked.
 
-1. **Update password** from `"2026proto"` to `"ventusgang26"` (line 294).
+### How
 
-2. **Add a deprecation notice on the password gate screen** — a visible card/banner displayed above or around the password input on the gate UI, with text like:
+**File: `src/components/demo/DemoDetailOverlay.tsx`**
 
-   > "TePilot is being phased out into client-specific pilots. Please contact the Ventus team for details."
+1. Detect when `node` is one of `engagement`, `rewards`, or `wealth` — treat these as "consumer" nodes.
 
-   Include a "Contact Us" link pointing to `/contact`. This is shown to all visitors on the gate — no hover interaction needed, it's always visible and prominent.
+2. For consumer nodes, render a **single iPad-frame view** (using the existing iPad styling: slate-300 bezel, camera dot, status bar, home indicator, max-w-820px) with a **4-tab bar** at the top of the content area:
+   - **UX** (active when opened via `engagement`) → renders `DemoEngagementView`
+   - **Rewards** (active when opened via `rewards`) → renders `DemoRewardsView`
+   - **Relationship** (active when opened via `wealth`) → renders `DemoWealthView`
+   - **AI** → renders a "Coming Soon" placeholder
 
-3. **Keep the password gate fully functional** — internal users who know the password can still enter.
+3. Add local state `activeConsumerTab` initialized from the clicked `node`. Tabs are clickable to switch between views without closing the overlay.
+
+4. The overlay header title updates to match the active tab. All 4 views share the same close button and overlay frame.
 
 ### What stays untouched
-- Everything inside the authenticated TePilot view
-- All other pages and components
+- The 3 consumer cards in the network diagram — unchanged
+- All other overlay views (engine, analytics, bank-wide, etc.) — unchanged
+- All existing view components (`DemoEngagementView`, `DemoRewardsView`, `DemoWealthView`) — unchanged internally
+
+### Technical details
+- The iPad frame markup mirrors the established pattern (border-slate-300, 12px border, camera dot, status bar, home indicator)
+- Tab bar uses simple button row with active state styling (bottom border or background highlight)
+- `activeConsumerTab` state: `"ux" | "rewards" | "relationship" | "ai"`, mapped from the incoming `node` prop as default value
 
