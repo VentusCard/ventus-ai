@@ -99,7 +99,7 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
   return (
     <div className="flex flex-col justify-center gap-3 h-full px-4">
       {/* Section label */}
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">Powering this view</p>
+      <p className="text-[10px] font-semibold uppercase tracking-widest mb-1 text-secondary-foreground">Powering this Experience</p>
 
       {/* Core Analytics card — always shown */}
       <div
