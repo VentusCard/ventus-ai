@@ -339,7 +339,7 @@ function LocalPerksSection({ city, perks, color }: { city: string; perks: Locati
       >
         <div className="flex items-center gap-1.5">
           <MapPin className="w-3 h-3" style={{ color }} />
-          <span className="text-[10px] font-semibold text-slate-700">Local Experiences</span>
+          <span className="text-[10px] font-semibold text-slate-700">Local Deals & Perks</span>
           <span className="text-[9px] text-slate-400">{city}</span>
         </div>
         {open ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
