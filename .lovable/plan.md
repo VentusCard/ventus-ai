@@ -1,47 +1,30 @@
 
 
-## Fix Double iPad Border + Move Tabs to Bottom
+## Move Consumer Tabs to Bottom of Screen
 
 ### Problem
-Two iPad bezels are rendering because:
-1. `DemoDetailOverlay.tsx` renders an iPad frame in `renderConsumerOverlay` (lines 130-178)
-2. Each child view (`DemoEngagementView`, `DemoRewardsView`, `DemoWealthView`) renders its **own** iPad frame internally
+The 4 tabs (UX, Rewards, Relationship, AI) are currently inside the iPad frame at the bottom of the device mockup. The user wants them at the bottom of the **screen** — outside and below the iPad frame.
 
-### Fix — 2 parts
+### Fix — `src/components/demo/DemoDetailOverlay.tsx`
 
-**Part 1: Remove the inner iPad frames from each child view**
+In `renderConsumerOverlay` (lines 125-181):
 
-Strip the iPad frame wrapper (bezel, camera dot, status bar, home indicator) from:
-- `DemoEngagementView.tsx` — remove the outer iPad shell, keep only the content inside
-- `DemoRewardsView.tsx` — same
-- `DemoWealthView.tsx` — same
+1. **Remove the tab bar and home indicator from inside the iPad frame** (lines 151-177)
+2. **Move the tab bar outside the iPad frame**, pinned to the bottom of the overlay using absolute/fixed positioning or flex layout
+3. The iPad frame keeps: camera dot, status bar, content area, home indicator
+4. The tab bar renders below the iPad as a bottom-fixed bar spanning the screen width, styled like iOS bottom navigation
 
-Each view should return just its content (the stuff inside the frame), not the device chrome. The parent overlay already provides the frame.
-
-**Part 2: Move tab bar to bottom in `DemoDetailOverlay.tsx`**
-
-In `renderConsumerOverlay` (lines 125-181), reorder the layout from:
-
+**New layout structure:**
 ```text
-Camera dot → Status bar → Tab bar → Content → Home indicator
+Overlay (full screen flex-col)
+├── iPad Frame (centered, flex-1)
+│   ├── Camera dot
+│   ├── Status bar
+│   ├── Content (scrollable)
+│   └── Home indicator
+└── Bottom Tab Bar (fixed to bottom of overlay, full width)
 ```
-
-To:
-
-```text
-Camera dot → Status bar → Content → Tab bar → Home indicator
-```
-
-Change the tab bar from `border-b` to `border-t border-slate-200` so it looks like iOS bottom navigation.
 
 ### Files changed
-1. `src/components/demo/DemoEngagementView.tsx` — unwrap iPad frame
-2. `src/components/demo/DemoRewardsView.tsx` — unwrap iPad frame
-3. `src/components/demo/DemoWealthView.tsx` — unwrap iPad frame
-4. `src/components/demo/DemoDetailOverlay.tsx` — move tab bar below content
-
-### What stays untouched
-- All non-consumer overlays
-- Network diagram cards
-- Tab switching logic and content rendering
+1. `src/components/demo/DemoDetailOverlay.tsx` — restructure `renderConsumerOverlay` to place tab bar outside the iPad frame at the bottom of the screen
 
