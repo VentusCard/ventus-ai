@@ -300,7 +300,7 @@ function CategoryFilterPills({
       >
         All
       </button>
-      {DEAL_CATEGORY_PILLS.map(cat => {
+      {sortedPills.map(cat => {
         const isPersonalized = personalizedCats.has(cat.key);
         const isActive = activeCategory === cat.key;
         return (
