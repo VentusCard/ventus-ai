@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight, Brain, Target } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, Brain, Target } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import { MODULE_ROW_MAP, type ModuleKey } from "@/types/demo";
 
