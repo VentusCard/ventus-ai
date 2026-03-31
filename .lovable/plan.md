@@ -1,11 +1,12 @@
 
 
-## Rename "Admin & Settings" to "Settings & Integrations"
+## Remove Deck Slide Buttons & Images, Keep "Learn More" Section
 
-### Change
+### Changes to `src/components/ContactFormDialog.tsx`
 
-**`src/components/tepilot/insights/AnalyticsContainer.tsx`**
-- Change the label string `"Admin & Settings"` to `"Settings & Integrations"` in the bottom nav items array (~line 165).
-
-Single string replacement, no other files affected.
+- Remove the 3 deck image imports (lines 5-7) and the `DECK_PAGES` array (lines 14-18)
+- Remove `activeDeck` state and unused imports (`X`, `Users`, `Crosshair`, `Rocket`)
+- Remove the full-screen deck viewer overlay (lines 87-106)
+- Simplify the Dialog `open` prop (no `activeDeck` conditional needed)
+- **Keep** the right-side "Learn More" panel container and heading — just empty the button list, leaving it as a placeholder section with the "Learn More" title and an empty area below it
 
