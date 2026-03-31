@@ -345,7 +345,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </button>
 
       {/* Bank Analytics Column + Consumer Views Column */}
-      {PILLAR_ROWS.map((pillar, pi) => {
+      {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const PillarIcon = pillar.icon;
         const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
