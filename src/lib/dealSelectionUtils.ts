@@ -166,5 +166,17 @@ export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 11)
     .slice(0, 2)
     .map(convertToBankDeal);
 
-  return [...pillarDeals, ...discoveryDeals].slice(0, maxDeals);
+  const combined = [...pillarDeals, ...discoveryDeals];
+
+  // Backfill if under maxDeals
+  if (combined.length < maxDeals) {
+    const remaining = AVAILABLE_DEALS
+      .filter(d => !usedIds.has(d.id) && !topPillarNames.includes(d.category))
+      .sort(sortByPopularity)
+      .slice(0, maxDeals - combined.length)
+      .map(convertToBankDeal);
+    combined.push(...remaining);
+  }
+
+  return combined.slice(0, maxDeals);
 }
