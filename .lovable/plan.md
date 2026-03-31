@@ -1,18 +1,42 @@
 
 
-## Plan: Unify pill styling — add emoji icons to subcategory pills
+## Fix: Unique emojis for subcategory pills
 
 ### Problem
-Category pills (e.g. "🍕 Dining") have emoji icons, but subcategory pills after the `|` separator are plain text with no icons — making them look inconsistent.
+`getSubcategoryIcon` in `src/lib/categoryIcons.ts` only maps sports-related subcategories. Transaction-derived subcategories like "Coffee & Cafes", "Fast Casual", "Delivery", "Casual Dining", etc. all fall back to the default "🏆" — so every pill shows the same emoji.
 
 ### Change
 
-**File: `src/components/demo/DemoRewardsView.tsx`** (lines 333-346)
+**File: `src/lib/categoryIcons.ts`** — Expand `getSubcategoryIcon` with mappings for all common transaction subcategories:
 
-Add emoji icons to subcategory pills using the existing `getSubcategoryIcon` function from `@/lib/categoryIcons`:
+- Coffee & Cafes → ☕
+- Fast Casual → 🌯
+- Delivery → 🚗
+- Casual Dining → 🍽️
+- Fast Food → 🍔
+- Sports Bar → 🍺
+- Fine Dining → 🥂
+- Grocery / Groceries → 🛒
+- Gas / Fuel → ⛽
+- Streaming → 📺
+- Shopping → 🛍️
+- Electronics → 📱
+- Travel → ✈️
+- Hotels / Lodging → 🏨
+- Rideshare → 🚕
+- Gym / Fitness → 💪
+- Pharmacy → 💊
+- Pet → 🐾
+- Entertainment → 🎭
+- Music → 🎵
+- Books → 📚
+- Home Improvement → 🏠
+- Utilities → 💡
+- Insurance → 🛡️
+- Subscriptions → 📦
+- Beauty / Salon → 💇
+- Clothing / Apparel → 👕
+- (keep existing sports mappings)
 
-1. Import `getSubcategoryIcon` from `@/lib/categoryIcons`.
-2. In the subcategory pill rendering (line ~344), add `<span className="text-[10px]">{getSubcategoryIcon(sub)}</span>` before the label — exactly matching the category pill pattern on line 327.
-
-This makes every pill — "All", categories, and subcategories — render identically: `emoji + label` in the same rounded-full style.
+This ensures each subcategory pill gets a distinct, recognizable emoji instead of the same fallback.
 
