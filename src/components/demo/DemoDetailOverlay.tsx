@@ -74,7 +74,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
       return <BankwideWMCopilotView />;
     }
     if (isBankWide) {
-      return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} />;
+      return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} enabledModules={enabledModules} />;
     }
     if (node === "engine") {
       return <DemoEnrichmentTableView customer={customer} enriched={enriched} />;
