@@ -428,7 +428,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       // === FIRE EVERYTHING IN PARALLEL ===
 
       // 1. Classify + travel-detection (readiness already set via dealPersonalization)
-      enrich.startEnrichment(txns, customer.zip, onClassified);
+      enrich.startEnrichment(txns, customer.zip, onClassified, { suppressToasts: true });
 
       // 2. Local experiences
       const CATEGORIES = ["dining", "entertainment", "shopping"];
