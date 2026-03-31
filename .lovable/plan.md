@@ -1,34 +1,47 @@
 
 
-## Combine Consumer Overlay Views into a Tabbed iPad Mockup
+## Fix Double iPad Border + Move Tabs to Bottom
 
-### What changes
+### Problem
+Two iPad bezels are rendering because:
+1. `DemoDetailOverlay.tsx` renders an iPad frame in `renderConsumerOverlay` (lines 130-178)
+2. Each child view (`DemoEngagementView`, `DemoRewardsView`, `DemoWealthView`) renders its **own** iPad frame internally
 
-When a user clicks any of the 3 consumer cards (Personalized UX, Personalized Rewards, Personalized Relationship), instead of opening 3 separate full-screen overlays with different content, they will all open the **same overlay** containing a single iPad mockup with **4 tabs**: UX, Rewards, Relationship, and AI. The initially active tab corresponds to whichever card was clicked.
+### Fix — 2 parts
 
-### How
+**Part 1: Remove the inner iPad frames from each child view**
 
-**File: `src/components/demo/DemoDetailOverlay.tsx`**
+Strip the iPad frame wrapper (bezel, camera dot, status bar, home indicator) from:
+- `DemoEngagementView.tsx` — remove the outer iPad shell, keep only the content inside
+- `DemoRewardsView.tsx` — same
+- `DemoWealthView.tsx` — same
 
-1. Detect when `node` is one of `engagement`, `rewards`, or `wealth` — treat these as "consumer" nodes.
+Each view should return just its content (the stuff inside the frame), not the device chrome. The parent overlay already provides the frame.
 
-2. For consumer nodes, render a **single iPad-frame view** (using the existing iPad styling: slate-300 bezel, camera dot, status bar, home indicator, max-w-820px) with a **4-tab bar** at the top of the content area:
-   - **UX** (active when opened via `engagement`) → renders `DemoEngagementView`
-   - **Rewards** (active when opened via `rewards`) → renders `DemoRewardsView`
-   - **Relationship** (active when opened via `wealth`) → renders `DemoWealthView`
-   - **AI** → renders a "Coming Soon" placeholder
+**Part 2: Move tab bar to bottom in `DemoDetailOverlay.tsx`**
 
-3. Add local state `activeConsumerTab` initialized from the clicked `node`. Tabs are clickable to switch between views without closing the overlay.
+In `renderConsumerOverlay` (lines 125-181), reorder the layout from:
 
-4. The overlay header title updates to match the active tab. All 4 views share the same close button and overlay frame.
+```text
+Camera dot → Status bar → Tab bar → Content → Home indicator
+```
+
+To:
+
+```text
+Camera dot → Status bar → Content → Tab bar → Home indicator
+```
+
+Change the tab bar from `border-b` to `border-t border-slate-200` so it looks like iOS bottom navigation.
+
+### Files changed
+1. `src/components/demo/DemoEngagementView.tsx` — unwrap iPad frame
+2. `src/components/demo/DemoRewardsView.tsx` — unwrap iPad frame
+3. `src/components/demo/DemoWealthView.tsx` — unwrap iPad frame
+4. `src/components/demo/DemoDetailOverlay.tsx` — move tab bar below content
 
 ### What stays untouched
-- The 3 consumer cards in the network diagram — unchanged
-- All other overlay views (engine, analytics, bank-wide, etc.) — unchanged
-- All existing view components (`DemoEngagementView`, `DemoRewardsView`, `DemoWealthView`) — unchanged internally
-
-### Technical details
-- The iPad frame markup mirrors the established pattern (border-slate-300, 12px border, camera dot, status bar, home indicator)
-- Tab bar uses simple button row with active state styling (bottom border or background highlight)
-- `activeConsumerTab` state: `"ux" | "rewards" | "relationship" | "ai"`, mapped from the incoming `node` prop as default value
+- All non-consumer overlays
+- Network diagram cards
+- Tab switching logic and content rendering
 
