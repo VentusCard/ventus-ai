@@ -1,16 +1,24 @@
 
 
-## Plan: Combine Hero Spotlight + Expiring Soon into One Row
+## Plan: Compact Expiring Soon Cards — Single Line with Deal Label
 
-**Layout**: A single flex row where the Hero Spotlight takes 2/3 width and the 3 Expiring Soon cards are vertically stacked in the remaining 1/3.
+### Changes (single file: `DemoRewardsView.tsx`, lines ~232–248)
 
-### Changes (single file: `DemoRewardsView.tsx`)
+1. **Merge merchant name + deal info onto one line**: Replace the stacked `<div>` layout with a single horizontal flex row showing: icon, merchant name, countdown, and deal value label — all inline.
 
-1. **Wrap Hero + Expiring in a shared row** (lines ~480–493): Replace the two separate sections with a single `<div className="flex gap-2">` container:
-   - Left: `HeroSpotlightDeal` in a `w-2/3` wrapper
-   - Right: `ExpiringSoonRow` in a `w-1/3` wrapper
+2. **Style the deal value as a label/badge**: Present `rewardValue` (e.g. "15% Off") as a small pill/badge similar to the personalized deal cards below — rounded background, bold text, colored styling.
 
-2. **Update `ExpiringSoonRow` layout** (lines 225): Change from horizontal `flex gap-1.5 overflow-x-auto` to vertical `flex flex-col gap-1.5`. Remove `shrink-0` from individual cards so they stack naturally.
+**Revised card markup** (conceptually):
+```tsx
+<button className="rounded-md border px-1.5 py-0.5 flex items-center gap-1.5 ...">
+  <span className="text-xs">{icon}</span>
+  <span className="text-[9px] font-semibold text-slate-800 whitespace-nowrap">{merchantName}</span>
+  <span className="text-[7px] font-bold text-red/amber">{hoursLeft}h left</span>
+  <span className="ml-auto px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-100 text-green-700">
+    {rewardValue}
+  </span>
+</button>
+```
 
-3. **Compact the expiring cards** slightly — reduce padding to fit 3 cards vertically in the same height as the hero card.
+Single file edit, ~15 lines changed.
 
