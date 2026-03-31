@@ -54,6 +54,18 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
 
 const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"]);
 
+const CARD_DESCRIPTIONS: Record<string, string> = {
+  analytics: "Organizes spending into lifestyle categories like Dining, Fitness, and Travel — so the app feels like it truly knows the customer.",
+  outflow: "Surfaces forgotten subscriptions and spending leaks, positioning your bank as a proactive financial guardian.",
+  aiFinancialInsights: "Delivers timely, personalized money tips and alerts that make customers feel coached — not just served.",
+  travel: "Anticipates what a customer needs next and delivers the right offer before they even search for it.",
+  locational: "Identifies travel and surfaces local perks and experiences, positioning your bank as a travel and life companion.",
+  dealPersonalization: "Matches offers to individual habits so every reward feels hand-picked — driving higher engagement and redemption.",
+  lifeEventIntel: "Recognizes major life moments — a new home, a baby, retirement — so your bank can show up when it matters most.",
+  lifeEvents: "Recommends the right financial product at the right life stage, turning routine banking into proactive guidance.",
+  wmCopilot: "Arms relationship managers with AI-prepared context so every client conversation feels informed and personal.",
+};
+
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",
   outflow: "wallet-share",
@@ -115,7 +127,10 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
         >
           <BarChart3 className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
         </div>
-        <span className="text-xs font-semibold text-slate-700">Core Analytics</span>
+        <div className="flex flex-col">
+          <span className="text-xs font-semibold text-slate-700">Core Analytics</span>
+          <p className="text-[9px] text-slate-400 leading-tight mt-0.5">Transforms raw transactions into rich lifestyle dimensions, enabling every experience below to feel personally crafted.</p>
+        </div>
       </div>
 
       {/* Tab-specific bank node cards */}
@@ -136,7 +151,12 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
             >
               <Icon className="w-3.5 h-3.5" style={{ color: pillarColor }} />
             </div>
-            <span className="text-xs font-semibold text-slate-700">{node.label}</span>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-slate-700">{node.label}</span>
+              {CARD_DESCRIPTIONS[node.id] && (
+                <p className="text-[9px] text-slate-400 leading-tight mt-0.5">{CARD_DESCRIPTIONS[node.id]}</p>
+              )}
+            </div>
           </div>
         );
       })}
