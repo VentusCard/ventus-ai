@@ -222,7 +222,7 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
         <Clock className="w-3 h-3 text-amber-500" />
         <span className="text-[10px] font-semibold text-slate-700">Expiring Soon</span>
       </div>
-      <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="flex flex-col gap-1">
         {expiringDeals.map((deal) => {
           const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
           const urgent = deal.hoursLeft <= 6;
@@ -230,7 +230,7 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
             <button
               key={`exp-${deal.id}`}
               className={cn(
-                "shrink-0 rounded-lg border px-2.5 py-1.5 flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
+                "rounded-lg border px-2 py-1 flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
                 urgent ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
               )}
               onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
@@ -477,20 +477,24 @@ function RewardsPhoneMockup({
             <CategoryFilterPills deals={deals} activeCategory={categoryFilter} onSelect={setCategoryFilter} color={color} />
           )}
 
-          {/* Hero Spotlight Deal */}
-          {showHero && heroDeal && (
-            <HeroSpotlightDeal
-              deal={heroDeal}
-              personalized={personalized[heroDeal.id]}
-              color={color}
-              loading={loading}
-            />
-          )}
-
-          {/* Expiring Soon */}
-          {hasEnriched && deals.length > 2 && !isSearchActive && (
-            <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
-          )}
+          {/* Hero Spotlight + Expiring Soon Row */}
+          <div className="flex gap-2">
+            {showHero && heroDeal && (
+              <div className="w-2/3">
+                <HeroSpotlightDeal
+                  deal={heroDeal}
+                  personalized={personalized[heroDeal.id]}
+                  color={color}
+                  loading={loading}
+                />
+              </div>
+            )}
+            {hasEnriched && deals.length > 2 && !isSearchActive && (
+              <div className={showHero && heroDeal ? "w-1/3" : "w-full"}>
+                <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
+              </div>
+            )}
+          </div>
 
           {filteredPerks.length > 0 && (
             <LocalPerksSection city={city} perks={filteredPerks} color={color} />
