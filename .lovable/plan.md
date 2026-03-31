@@ -1,20 +1,28 @@
 
 
-## Fix Consumer AI Chat Tab Not Full Height
+## Fix Consumer AI Chat Tab Height — Root Cause Deep Dive
 
-### Root cause
-In `DemoDetailOverlay.tsx` line 144, the iPad content area is `overflow-y-auto` — this works for scrollable tabs (UX, Rewards, Relationship) but breaks the AI chat tab which needs a constrained height to stretch via `h-full` + `flex flex-col`.
+### Problem chain
+There are **two** remaining issues preventing the chat from filling height:
 
-### Fix — `src/components/demo/DemoDetailOverlay.tsx`
+1. **`renderConsumerOverlay` wrapper (line 125)** uses `overflow-y-auto` which creates a scroll container — the iPad frame inside it has no bounded height to inherit from, so `flex-1` on children resolves to content height.
 
-**Line 144**: Make the overflow conditional based on the active tab:
+2. **`ConsumerAIChatView` root (line 191)** uses `h-full` which doesn't work reliably inside nested flex containers. It should use `flex-1 min-h-0` instead.
 
+### Fixes
+
+**File 1: `src/components/demo/DemoDetailOverlay.tsx`**
+- Line 125: Change `overflow-y-auto` to `overflow-hidden` on the consumer overlay wrapper so the iPad frame gets a proper bounded height:
 ```tsx
-<div className={`flex-1 bg-white min-h-0 ${activeTab === 'ai' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+<div className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden">
 ```
 
-When the AI tab is active, use `overflow-hidden` so the chat view fills the container. Other tabs keep `overflow-y-auto` for normal scrolling.
+**File 2: `src/components/demo/ConsumerAIChatView.tsx`**  
+- Line 191: Replace `h-full` with `flex-1 min-h-0` so it fills remaining flex space reliably:
+```tsx
+<div className="flex-1 min-h-0 flex flex-col bg-white">
+```
 
-### Files changed
-1. `src/components/demo/DemoDetailOverlay.tsx` — 1 line
+### Summary
+Two lines changed across two files. The root cause was two layers of the height chain not constraining properly — the outer wrapper scrolling when it shouldn't, and the chat view using `h-full` instead of `flex-1 min-h-0`.
 
