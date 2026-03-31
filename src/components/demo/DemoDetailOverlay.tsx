@@ -1,6 +1,9 @@
-import { X } from "lucide-react";
+import { useState } from "react";
+import { X, Sparkles, Gift, Users, Bot, Wifi, Battery, BarChart3 } from "lucide-react";
+import ConsumerAIChatView from "./ConsumerAIChatView";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
+import { PILLAR_ROWS } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
@@ -51,6 +54,18 @@ const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
 
 const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"]);
 
+const CARD_DESCRIPTIONS: Record<string, string> = {
+  analytics: "Organizes spending into lifestyle categories like Dining, Fitness, and Travel — so the app feels like it truly knows the customer.",
+  outflow: "Surfaces forgotten subscriptions and spending leaks, positioning your bank as a proactive financial guardian.",
+  aiFinancialInsights: "Delivers timely, personalized money tips and alerts that make customers feel coached — not just served.",
+  travel: "Anticipates what a customer needs next and delivers the right offer before they even search for it.",
+  locational: "Identifies travel and surfaces local perks and experiences, positioning your bank as a travel and life companion.",
+  dealPersonalization: "Matches offers to individual habits so every reward feels hand-picked — driving higher engagement and redemption.",
+  lifeEventIntel: "Recognizes major life moments — a new home, a baby, retirement — so your bank can show up when it matters most.",
+  lifeEvents: "Recommends the right financial product at the right life stage, turning routine banking into proactive guidance.",
+  wmCopilot: "Arms relationship managers with AI-prepared context so every client conversation feels informed and personal.",
+};
+
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   analytics: "dashboard",
   outflow: "wallet-share",
@@ -62,55 +77,212 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
   aiFinancialInsights: "customer-insights",
 };
 
+const CONSUMER_NODES = new Set<DemoNodeType>(["engagement", "rewards", "wealth"]);
+
+type ConsumerTab = "ux" | "rewards" | "relationship" | "ai";
+
+const NODE_TO_TAB: Record<string, ConsumerTab> = {
+  engagement: "ux",
+  rewards: "rewards",
+  wealth: "relationship",
+};
+
+const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Sparkles; color: string }[] = [
+  { key: "ux", label: "UX", icon: Sparkles, color: "#f59e0b" },
+  { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
+  { key: "relationship", label: "Relationship", icon: Users, color: "#8b5cf6" },
+  { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
+];
+
+const TAB_ROW_INDEX: Record<ConsumerTab, number | null> = {
+  ux: 0,
+  rewards: 1,
+  relationship: 2,
+  ai: null,
+};
+
 const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization: null, localExperiences: null, lifestyleSignals: null };
+
+function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
+  const rowIdx = TAB_ROW_INDEX[activeTab];
+  const bankNodes = rowIdx !== null ? PILLAR_ROWS[rowIdx].bankNodes : [];
+  const pillarColor = rowIdx !== null ? PILLAR_ROWS[rowIdx].color : "#3b82f6";
+
+  return (
+    <div className="flex flex-col justify-center gap-4 h-full px-4">
+      {/* Section label */}
+      <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-secondary-foreground">Powering this Experience</p>
+
+      {/* Core Analytics card — always shown */}
+      <div
+        className="group relative rounded-xl border-l-4 px-4 py-4 flex items-center gap-3.5 cursor-default"
+        style={{
+          borderColor: "#3b82f6",
+          background: "linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%)",
+        }}
+      >
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: "rgba(59,130,246,0.12)" }}
+        >
+          <BarChart3 className="w-5 h-5" style={{ color: "#3b82f6" }} />
+        </div>
+        <span className="text-sm font-semibold text-slate-700">Core Customer Intelligence</span>
+        {/* Hover tooltip */}
+        <div className="absolute left-0 right-0 -bottom-1 translate-y-full z-50 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
+          <div className="bg-slate-800 text-white text-[11px] leading-snug rounded-lg px-3 py-2 shadow-lg mx-2">
+            Transforms raw transactions into rich lifestyle dimensions, enabling every experience below to feel personally crafted.
+          </div>
+        </div>
+      </div>
+
+      {/* Tab-specific bank node cards */}
+      {bankNodes.map((node) => {
+        const Icon = node.icon;
+        return (
+          <div
+            key={node.id}
+            className="group relative rounded-xl border-l-4 px-4 py-4 flex items-center gap-3.5 cursor-default"
+            style={{
+              borderColor: pillarColor,
+              background: `linear-gradient(135deg, ${pillarColor}0F 0%, ${pillarColor}05 100%)`,
+            }}
+          >
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: `${pillarColor}1F` }}
+            >
+              <Icon className="w-5 h-5" style={{ color: pillarColor }} />
+            </div>
+            <span className="text-sm font-semibold text-slate-700">{node.label}</span>
+            {/* Hover tooltip */}
+            {CARD_DESCRIPTIONS[node.id] && (
+              <div className="absolute left-0 right-0 -bottom-1 translate-y-full z-50 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
+                <div className="bg-slate-800 text-white text-[11px] leading-snug rounded-lg px-3 py-2 shadow-lg mx-2">
+                  {CARD_DESCRIPTIONS[node.id]}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose, enabledModules }: Props) {
   const { title, color } = NODE_TITLES[node];
-
   const isBankWide = BANK_WIDE_NODES.has(node);
+  const isConsumer = CONSUMER_NODES.has(node);
+
+  const [activeTab, setActiveTab] = useState<ConsumerTab>(NODE_TO_TAB[node] ?? "ux");
+
+  const renderConsumerTabContent = () => {
+    switch (activeTab) {
+      case "ux":
+        return <DemoEngagementView customer={customer} enriched={enriched} tip={tip} />;
+      case "rewards": {
+        const travelCity = localExperiences?.[customer.id]?.[0]?.destination;
+        return (
+          <DemoRewardsView
+            customer={customer}
+            enriched={enriched}
+            precomputed={personalizedDeals}
+            travelCity={travelCity}
+          />
+        );
+      }
+      case "relationship":
+        return <DemoWealthView customer={customer} detectedEvents={detectedEvents ?? []} />;
+      case "ai":
+        return (
+          <ConsumerAIChatView
+            customer={customer}
+            enriched={enriched}
+            detectedEvents={detectedEvents}
+            personalizedDeals={personalizedDeals}
+          />
+        );
+    }
+  };
+
+  const renderConsumerOverlay = () => {
+    return (
+      <div className="flex-1 min-h-0 flex overflow-hidden">
+        {/* Left: Feature cards (~25% width) */}
+        <div className="w-1/4 shrink-0 flex flex-col justify-center">
+          <FeatureCardSidebar activeTab={activeTab} />
+        </div>
+
+        {/* Right: iPad Frame */}
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
+            {/* Camera dot */}
+            <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
+              <div className="w-2 h-2 rounded-full bg-slate-300" />
+            </div>
+
+            {/* Status bar */}
+            <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
+              <span>9:41 AM</span>
+              <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
+              <div className="flex items-center gap-1.5">
+                <Wifi className="w-3 h-3" />
+                <Battery className="w-3.5 h-3.5" />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className={`flex-1 bg-white min-h-0 ${activeTab === 'ai' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+              {renderConsumerTabContent()}
+            </div>
+
+            {/* Bottom Tab Bar */}
+            <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+              {CONSUMER_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className="flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-all relative"
+                  >
+                    <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                    <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                      {tab.label}
+                    </span>
+                    {isActive && (
+                      <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Home indicator */}
+            <div className="flex shrink-0 justify-center py-2 bg-white">
+              <div className="w-28 h-1 rounded-full bg-slate-300" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderContent = () => {
-    if (node === "wmCopilot") {
-      return <BankwideWMCopilotView />;
-    }
-    if (isBankWide) {
-      return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} enabledModules={enabledModules} />;
-    }
-    if (node === "engine") {
-      return <DemoEnrichmentTableView customer={customer} enriched={enriched} />;
-    }
-    if (node === "profiling" || node === "predictive" || node === "phase") {
-      return <DemoPillarCodeView mode={node} customer={customer} enriched={enriched} apiPayloads={apiPayloads ?? defaultPayloads} />;
-    }
-    if (node === "engagement") {
-      return <DemoEngagementView customer={customer} enriched={enriched} tip={tip} />;
-    }
-    if (node === "rewards") {
-      const travelCity = localExperiences?.[customer.id]?.[0]?.destination;
-      return (
-        <DemoRewardsView
-          customer={customer}
-          enriched={enriched}
-          precomputed={personalizedDeals}
-          travelCity={travelCity}
-        />
-      );
-    }
-    if (node === "wealth") {
-      return (
-        <DemoWealthView
-          customer={customer}
-          detectedEvents={detectedEvents ?? []}
-        />
-      );
-    }
+    if (isConsumer) return renderConsumerOverlay();
+    if (node === "wmCopilot") return <BankwideWMCopilotView />;
+    if (isBankWide) return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} enabledModules={enabledModules} />;
+    if (node === "engine") return <DemoEnrichmentTableView customer={customer} enriched={enriched} />;
+    if (node === "profiling" || node === "predictive" || node === "phase") return <DemoPillarCodeView mode={node} customer={customer} enriched={enriched} apiPayloads={apiPayloads ?? defaultPayloads} />;
     return null;
   };
 
   return (
     <div className="tepilot-theme absolute inset-0 z-50 flex flex-col animate-fade-in" style={{ background: "rgba(255, 255, 255, 0.97)", backdropFilter: "blur(20px)" }}>
-      {/* Header — hidden for bank-wide nodes */}
-      {!isBankWide && (
+      {/* Header — hidden for bank-wide and consumer nodes */}
+      {!isBankWide && !isConsumer && (
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}40` }} />
@@ -131,8 +303,8 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
         </div>
       )}
 
-      {/* Close button for bank-wide nodes */}
-      {isBankWide && (
+      {/* Close button for bank-wide and consumer nodes */}
+      {(isBankWide || isConsumer) && (
         <button
           onClick={onClose}
           className="absolute top-3 right-3 z-[60] w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 bg-white/80 backdrop-blur-sm border border-slate-200 transition-colors shadow-sm"
@@ -142,7 +314,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
       )}
 
       {/* Content */}
-      <div className={`flex-1 overflow-y-auto ${isBankWide ? '' : 'px-6 pb-6 pt-2'}`}>
+      <div className={`flex-1 min-h-0 ${isBankWide || isConsumer ? 'overflow-hidden' : 'overflow-y-auto px-6 pb-6 pt-2'}`}>
         {renderContent()}
       </div>
     </div>

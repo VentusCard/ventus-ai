@@ -309,7 +309,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         const fireRewardsPersonalization = async () => {
           try {
             const profile = deriveCustomerProfile(classified);
-            const deals = getRelevantDeals(profile, 10);
+            const deals = getRelevantDeals(profile, 11);
             const payload = {
               deals: deals.map(d => ({ id: d.id, m: d.merchantName, c: d.merchantCategory, r: d.rewardValue })),
               profile: {

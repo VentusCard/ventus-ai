@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
-import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight, Brain, Target } from "lucide-react";
+import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, Brain, Target } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import { MODULE_ROW_MAP, type ModuleKey } from "@/types/demo";
 
@@ -25,7 +25,7 @@ interface NodeDef {
   audience: "consumer" | "bank";
 }
 
-interface PillarRow {
+export interface PillarRow {
   id: string;
   subtitle: string;
   team: string;
@@ -43,7 +43,7 @@ const AUDIENCE_ACCENT = {
   bank: "border-l-blue-400",
 } as const;
 
-const PILLAR_ROWS: PillarRow[] = [
+export const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
     team: "Experience",
@@ -72,7 +72,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "phase",
-    team: "Growth / Wealth",
+    team: "Relationship",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
     color: "#ec4899",
@@ -92,11 +92,6 @@ const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChar
   { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899", target: "lifeEvents" },
 ];
 
-const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
-  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#3b82f6" },
-  { metrics: ["Higher Redemption", "Higher Spend Lift", "High Profitability"], color: "#22c55e" },
-  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#ec4899" },
-];
 
 export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules }: Props) {
   const visibleRows = useMemo(() => PILLAR_ROWS.filter(row => {
@@ -104,13 +99,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
     return mod ? enabledModules.has(mod) : true;
   }), [enabledModules]);
 
-  const visibleImpactMetrics = useMemo(() => {
-    return PILLAR_ROWS.map((row, i) => ({ ...IMPACT_METRICS[i], rowId: row.id }))
-      .filter(item => {
-        const mod = MODULE_ROW_MAP[item.rowId];
-        return mod ? enabledModules.has(mod) : true;
-      });
-  }, [enabledModules]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -147,23 +135,15 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
   const gap2 = centered ? 80 : Math.max(28, dims.w * 0.035);
   const gap3 = centered ? 75 : Math.max(24, dims.w * 0.03);
-  const gap4 = centered ? 65 : Math.max(18, dims.w * 0.022);
 
-  const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
-
-  // Dynamic centering: shift everything right when impact column is hidden
-  const anyImpactVisible = visibleRows.some(p => nodeReadiness[p.consumerNode.id] === "ready");
   const pad = Math.max(8, dims.w * 0.01);
-  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
-  // When impact is hidden, shift diagram right to center the visible 4 columns
-  const centeringShift = anyImpactVisible ? 0 : (gap4 + IMPACT_COL_WIDTH) / 2;
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
   const bankColLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
   const consumerColLeftX = bankColLeftX + BANK_COL_WIDTH + gap3;
-  const impactColLeftX = consumerColLeftX + CONSUMER_COL_WIDTH + gap4;
 
   // Vertical layout
   const midY = dims.h * 0.5;
@@ -183,7 +163,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
-     <div className="absolute inset-0" style={{ transform: `translateX(${centeringShift}px)`, transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+     <div className="absolute inset-0">
       <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -281,7 +261,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const cTop = rCenterY - cHeight / 2;
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
               const consumerLeft = consumerColLeftX;
-              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
+              const consumerCenterY = cTop + cHeight / 2;
               const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
 
               return pillar.bankNodes.map((node, ni) => {
@@ -297,25 +277,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               });
             })}
 
-            {/* Consumer column → Impact column */}
-            {visibleRows.map((pillar, pi) => {
-              const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
-              const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
-              const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
-              const cTop = rCenterY - cHeight / 2;
-              const consumerRight = consumerColLeftX + CONSUMER_COL_WIDTH;
-              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
-              const impactLeft = impactColLeftX;
-              const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
-              const cpX1 = consumerRight + (impactLeft - consumerRight) * 0.4;
-              const cpX2 = consumerRight + (impactLeft - consumerRight) * 0.6;
-              const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
-              return (
-                <g key={`cons-impact-${pi}`}>
-                  <path d={path} stroke={visibleImpactMetrics[pi]?.color ?? pillar.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
-                </g>
-              );
-            })}
           </>
         )}
       </svg>
@@ -384,8 +345,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             >
               <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-4 h-4"} shrink-0`} style={{ color: pillar.color }} />
               <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
-              <span style={{ color: pillar.color }}>:</span>
-              <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
             {/* 2 stacked bank nodes */}
@@ -452,10 +411,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                   disabled={!canOpen}
                   className={`absolute flex flex-col items-center justify-center rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} group transition-[box-shadow,opacity,border-color] duration-300`}
                   style={{
-                    left: consumerColLeftX,
-                    top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
+                     left: consumerColLeftX,
+                    top: contentTop,
                     width: CONSUMER_COL_WIDTH,
-                    height: CONSUMER_NODE_HEIGHT,
+                    height: contentHeight,
                     cursor: canOpen ? "pointer" : "not-allowed",
                     opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
                     background: canOpen ? `${node.color}12` : "#ffffff",
@@ -481,47 +440,30 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         );
       })}
 
-      {/* Impact Column */}
-      {visibleRows.map((pillar, pi) => {
-        const rowCenterY = getRowCenterY(pi);
-        const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
-        const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
-        const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
-        const impactData = visibleImpactMetrics[pi];
-
-        if (!impactData) return null;
-
+      {/* Dynamic grouping border around consumer cards */}
+      {visibleRows.length > 0 && (() => {
+        const firstRowTop = gridTopY + ROW_HEIGHT * 0 + ROW_HEIGHT / 2 - Math.max(BANK_NODE_HEIGHT * visibleRows[0].bankNodes.length + BANK_NODE_GAP * (visibleRows[0].bankNodes.length - 1), CONSUMER_NODE_HEIGHT) / 2;
+        const lastIdx = visibleRows.length - 1;
+        const lastBankH = BANK_NODE_HEIGHT * visibleRows[lastIdx].bankNodes.length + BANK_NODE_GAP * (visibleRows[lastIdx].bankNodes.length - 1);
+        const lastContentH = Math.max(lastBankH, CONSUMER_NODE_HEIGHT);
+        const lastRowTop = gridTopY + ROW_HEIGHT * lastIdx + ROW_HEIGHT / 2 - lastContentH / 2;
+        const borderTop = firstRowTop - 8;
+        const borderBottom = lastRowTop + lastContentH + 8;
+        const allConsumerReady = (["engagement", "rewards", "wealth"] as DemoNodeType[])
+          .every(id => nodeReadiness[id] === "ready");
         return (
           <div
-            key={`impact-${pi}`}
-            className="absolute flex flex-col justify-center gap-1 transition-opacity duration-500"
+            className={`absolute rounded-2xl border-2 pointer-events-none ${allConsumerReady ? "border-solid border-slate-300 bg-white" : "border-dashed border-slate-200"}`}
             style={{
-              left: impactColLeftX,
-              top: rowCenterY - (impactData.metrics.length * 28 + (impactData.metrics.length - 1) * 4) / 2,
-              width: IMPACT_COL_WIDTH,
-              opacity: consumerReady ? 1 : 0,
-              zIndex: 2,
+              left: consumerColLeftX - 8,
+              top: borderTop,
+              width: CONSUMER_COL_WIDTH + 16,
+              height: borderBottom - borderTop,
+              zIndex: 1,
             }}
-          >
-            {impactData.metrics.map((metric, mi) => (
-              <div
-                key={mi}
-                className="flex items-center gap-1.5 rounded-md px-2 py-1 border transition-all duration-500"
-                style={{
-                  background: consumerReady ? `${impactData.color}12` : "transparent",
-                  borderColor: consumerReady ? `${impactData.color}30` : "#e2e8f020",
-                  opacity: consumerReady ? 1 : 0,
-                  transform: consumerReady ? "translateX(0)" : "translateX(-8px)",
-                  transitionDelay: consumerReady ? `${mi * 200}ms` : "0ms",
-                }}
-              >
-                <ArrowUpRight className={`${centered ? "w-3.5 h-3.5" : "w-3 h-3"} shrink-0`} style={{ color: "#22c55e" }} />
-                <span className={`font-semibold text-slate-700 ${centered ? "text-[12px]" : "text-[10px]"} whitespace-nowrap`}>{metric}</span>
-              </div>
-            ))}
-          </div>
+          />
         );
-      })}
+      })()}
 
       {/* Column Headers */}
       <div
@@ -547,12 +489,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         style={{ left: consumerColLeftX, width: CONSUMER_COL_WIDTH, top: gridTopY - 48, zIndex: 2 }}
       >
         Next-gen Banking Experience
-      </div>
-      <div
-        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center transition-opacity duration-500`}
-        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 48, zIndex: 2, opacity: visibleRows.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
-      >
-        Impact
       </div>
      </div>
     </div>

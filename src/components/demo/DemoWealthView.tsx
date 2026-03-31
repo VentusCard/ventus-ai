@@ -109,31 +109,8 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
   ];
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-[820px]">
-        {/* iPad frame */}
-        <div className="rounded-[2rem] border-[10px] border-slate-300 overflow-hidden bg-slate-200" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-          {/* Camera */}
-          <div className="flex justify-center py-1 bg-slate-200">
-            <div className="w-2.5 h-2.5 rounded-full bg-slate-300 border border-slate-400" />
-          </div>
-
-          {/* Screen */}
-          <div className="bg-slate-50 rounded-sm overflow-hidden">
-            {/* Status bar */}
-            <div className="flex items-center justify-between px-5 py-1 bg-white border-b border-slate-100">
-              <span className="text-[9px] font-semibold text-slate-500">9:41 AM</span>
-              <span className="text-[9px] text-slate-400 font-mono">TCBY Bank</span>
-              <div className="flex items-center gap-1">
-                <div className="w-3.5 h-2 rounded-sm border border-slate-400 relative">
-                  <div className="absolute inset-0.5 bg-green-500 rounded-[1px]" style={{ width: '70%' }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Content area */}
-            <div className="p-4">
-              <div className="max-w-2xl mx-auto space-y-3">
+    <div className="p-4">
+      <div className="max-w-2xl mx-auto space-y-3">
 
                 {/* Greeting */}
                 <p className="text-sm font-semibold text-slate-900 px-1">Welcome back, {firstName} <span className="font-normal text-slate-400">· {customer.profile.segment} Member</span></p>
@@ -318,15 +295,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                     <p className="text-xs text-slate-400 mt-1">We're analyzing your activity to bring you tailored recommendations.</p>
                   </div>
                 )}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom bezel / home indicator */}
-          <div className="flex justify-center py-2 bg-slate-200">
-            <div className="w-16 h-1 rounded-full bg-slate-400" />
-          </div>
-        </div>
       </div>
     </div>
   );
