@@ -339,7 +339,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         }}
       >
         <div className="mb-2">
-          <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Next-Gen Banking</p>
+          <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Ventus AI Module Suites</p>
         </div>
         <div className="flex flex-col gap-1.5 px-2 w-full">
           {visibleEngineCards.map((cap, ci) => {
