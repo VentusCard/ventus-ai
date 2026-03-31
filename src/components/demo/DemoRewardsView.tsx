@@ -526,13 +526,25 @@ function RewardsPhoneMockup({
               filteredDeals.map((deal, i) => {
                 const p = personalized[deal.id];
                 const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
+                const isForYou = deals.some(d => d.id === deal.id);
 
                 return (
                   <div
                     key={deal.id}
-                    className="rounded-lg border border-slate-200 bg-white animate-fade-in"
-                    style={{ animationDelay: `${i * 60}ms` }}
+                    className={cn(
+                      "rounded-lg border bg-white animate-fade-in relative",
+                      isForYou ? "border-blue-200 border-l-2" : "border-slate-200"
+                    )}
+                    style={{
+                      animationDelay: `${i * 60}ms`,
+                      ...(isForYou ? { borderLeftColor: color, borderLeftWidth: 2 } : {}),
+                    }}
                   >
+                    {isForYou && (
+                      <span className="absolute top-1 right-1 text-[7px] font-bold px-1 py-0.5 rounded-full bg-blue-50 text-blue-500">
+                        ✨ For You
+                      </span>
+                    )}
                     <div className="p-2 pb-1">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="flex items-center gap-1.5 min-w-0">
