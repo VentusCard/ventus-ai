@@ -533,7 +533,15 @@ function RewardsPhoneMockup({
 
           {/* Category quick-filter pills */}
           {hasEnriched && deals.length > 0 && !isSearchActive && (
-            <CategoryFilterPills deals={deals} activeCategory={categoryFilter} onSelect={setCategoryFilter} color={color} />
+            <CategoryFilterPills
+              deals={deals}
+              enriched={enrichedRef}
+              activeCategory={categoryFilter}
+              activeSubcategory={subcategoryFilter}
+              onSelectCategory={setCategoryFilter}
+              onSelectSubcategory={setSubcategoryFilter}
+              color={color}
+            />
           )}
 
           {/* Hero Spotlight + Expiring Soon Row */}
