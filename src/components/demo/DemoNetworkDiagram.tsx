@@ -449,9 +449,11 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         const lastRowTop = gridTopY + ROW_HEIGHT * lastIdx + ROW_HEIGHT / 2 - lastContentH / 2;
         const borderTop = firstRowTop - 8;
         const borderBottom = lastRowTop + lastContentH + 8;
+        const allConsumerReady = (["engagement", "rewards", "wealth"] as DemoNodeType[])
+          .every(id => nodeReadiness[id] === "ready");
         return (
           <div
-            className="absolute rounded-2xl border-2 border-dashed border-slate-200 pointer-events-none"
+            className={`absolute rounded-2xl border-2 pointer-events-none ${allConsumerReady ? "border-solid border-slate-300 bg-white" : "border-dashed border-slate-200"}`}
             style={{
               left: consumerColLeftX - 8,
               top: borderTop,
