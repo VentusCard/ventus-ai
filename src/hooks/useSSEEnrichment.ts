@@ -355,7 +355,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
         setStatusMessage('Classification complete (travel analysis skipped - no home ZIP provided)');
         setCurrentPhase('complete');
         setIsProcessing(false);
-        toast.success(`${classifiedTransactions.length} transactions classified!`);
+        if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
       }
 
       return classifiedTransactions;
@@ -363,7 +363,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       setError(err.message);
       setIsProcessing(false);
       setCurrentPhase('idle');
-      toast.error(`Enrichment failed: ${err.message}`);
+      if (!suppressToasts) toast.error(`Enrichment failed: ${err.message}`);
       console.error('[Enrichment Error]', err);
       return [];
     }

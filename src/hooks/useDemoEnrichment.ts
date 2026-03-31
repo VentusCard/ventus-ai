@@ -465,7 +465,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         .catch(() => {});
 
     } catch (err: any) {
-      toast.error(err.message);
+      console.error('[Demo Enrichment Error]', err.message);
     }
   }, [enrich, nodeReadiness, setNodeReady]);
 
