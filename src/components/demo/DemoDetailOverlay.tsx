@@ -4,6 +4,7 @@ import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
+import type { ModuleKey } from "@/types/demo";
 import DemoWealthView from "./DemoWealthView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
@@ -26,6 +27,7 @@ interface Props {
   apiPayloads?: ApiPayloads;
   tip?: FinancialTip | null;
   onClose: () => void;
+  enabledModules?: Set<ModuleKey>;
 }
 
 const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
