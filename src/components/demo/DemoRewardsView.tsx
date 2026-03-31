@@ -477,20 +477,24 @@ function RewardsPhoneMockup({
             <CategoryFilterPills deals={deals} activeCategory={categoryFilter} onSelect={setCategoryFilter} color={color} />
           )}
 
-          {/* Hero Spotlight Deal */}
-          {showHero && heroDeal && (
-            <HeroSpotlightDeal
-              deal={heroDeal}
-              personalized={personalized[heroDeal.id]}
-              color={color}
-              loading={loading}
-            />
-          )}
-
-          {/* Expiring Soon */}
-          {hasEnriched && deals.length > 2 && !isSearchActive && (
-            <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
-          )}
+          {/* Hero Spotlight + Expiring Soon Row */}
+          <div className="flex gap-2">
+            {showHero && heroDeal && (
+              <div className="w-2/3">
+                <HeroSpotlightDeal
+                  deal={heroDeal}
+                  personalized={personalized[heroDeal.id]}
+                  color={color}
+                  loading={loading}
+                />
+              </div>
+            )}
+            {hasEnriched && deals.length > 2 && !isSearchActive && (
+              <div className={showHero && heroDeal ? "w-1/3" : "w-full"}>
+                <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
+              </div>
+            )}
+          </div>
 
           {filteredPerks.length > 0 && (
             <LocalPerksSection city={city} perks={filteredPerks} color={color} />
