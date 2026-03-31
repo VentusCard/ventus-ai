@@ -85,13 +85,16 @@ export default function DemoCustomerPanel({
               <Lock className="w-2.5 h-2.5" />
               Analytics
             </button>
-            {(["Rewards", "Relationship"] as ModuleKey[]).map(mod => (
+            {([
+              { mod: "Rewards" as ModuleKey, activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+              { mod: "Relationship" as ModuleKey, activeClass: "bg-pink-50 text-pink-700 border-pink-200" },
+            ]).map(({ mod, activeClass }) => (
               <button
                 key={mod}
                 onClick={() => toggleModule(mod)}
                 className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
                   enabledModules.has(mod)
-                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                    ? activeClass
                     : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
                 }`}
               >
