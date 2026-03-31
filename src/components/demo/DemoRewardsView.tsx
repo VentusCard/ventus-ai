@@ -361,7 +361,7 @@ function LocalPerksSection({ city, perks, color }: { city: string; perks: Locati
   const filtered = activeCategory === "all" ? perks : perks.filter(p => p.category === activeCategory);
 
   return (
-    <div className="rounded-lg border border-slate-200 overflow-hidden">
+    <div className="rounded-xl border-2 overflow-hidden" style={{ borderColor: `${color}30`, background: `linear-gradient(135deg, ${color}08, ${color}03)` }}>
       <button
         className="w-full flex items-center justify-between px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 transition-colors"
         onClick={() => setCollapsed(c => !c)}
