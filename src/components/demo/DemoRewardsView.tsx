@@ -428,10 +428,12 @@ function RewardsPhoneMockup({
 
   const filteredDeals = useMemo(() => {
     // When a category or subcategory filter is active, search the FULL deal library
+    const personalizedIds = new Set(deals.map(d => d.id));
     if (categoryFilter) {
       let result = AVAILABLE_DEALS.filter(d => d.category === categoryFilter).map(convertToBankDeal);
       if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
       else if (isSearchActive && !isSearching) result = [];
+      result.sort((a, b) => (personalizedIds.has(b.id) ? 1 : 0) - (personalizedIds.has(a.id) ? 1 : 0));
       return result;
     }
     // Default: use customer-specific deals
@@ -540,11 +542,6 @@ function RewardsPhoneMockup({
                       ...(isForYou ? { borderLeftColor: color, borderLeftWidth: 2 } : {}),
                     }}
                   >
-                    {isForYou && (
-                      <span className="absolute top-1 right-1 text-[7px] font-bold px-1 py-0.5 rounded-full bg-blue-50 text-blue-500">
-                        ✨ For You
-                      </span>
-                    )}
                     <div className="p-2 pb-1">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="flex items-center gap-1.5 min-w-0">
