@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
+import { ALL_MODULES, type ModuleKey } from "@/types/demo";
 import DemoCustomerPanel from "@/components/demo/DemoCustomerPanel";
 import DemoNetworkDiagram, { type DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import DemoDetailOverlay from "@/components/demo/DemoDetailOverlay";
