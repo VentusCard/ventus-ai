@@ -122,7 +122,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
   const renderConsumerOverlay = () => {
     const activeTabMeta = CONSUMER_TABS.find(t => t.key === activeTab)!;
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col items-center p-4 overflow-hidden">
         {/* iPad Frame */}
         <div className="w-full max-w-[820px] h-full min-h-0 rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col">
           {/* Camera dot */}
