@@ -15,6 +15,8 @@ interface Props {
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
   nodeReadiness: NodeReadiness;
+  enabledModules: Set<ModuleKey>;
+  onModulesChange: (modules: Set<ModuleKey>) => void;
 }
 
 export default function DemoCustomerPanel({
