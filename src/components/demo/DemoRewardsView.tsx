@@ -441,6 +441,7 @@ function RewardsPhoneMockup({
   hasEnriched,
   city,
   perks,
+  enriched,
 }: {
   customer: DemoCustomer;
   color: string;
@@ -451,6 +452,7 @@ function RewardsPhoneMockup({
   hasEnriched: boolean;
   city: string;
   perks: LocationPerk[];
+  enriched?: EnrichedTransaction[];
 }) {
   const firstName = customer.profile.name.split(" ")[0];
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
