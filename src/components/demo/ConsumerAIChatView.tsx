@@ -286,7 +286,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-slate-100 bg-white">
+      <div className="shrink-0 p-3 border-t border-slate-100 bg-white">
         <form
           onSubmit={(e) => {
             e.preventDefault();
