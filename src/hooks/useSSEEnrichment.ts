@@ -86,7 +86,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
   const [currentPhase, setCurrentPhase] = useState<"idle" | "classification" | "travel" | "complete">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const callClassifyTransactions = useCallback(async (transactions: Transaction[]): Promise<EnrichedTransaction[]> => {
+  const callClassifyTransactions = useCallback(async (transactions: Transaction[], suppressToasts = false): Promise<EnrichedTransaction[]> => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const url = `${supabaseUrl}/functions/v1/classify-transactions`;
