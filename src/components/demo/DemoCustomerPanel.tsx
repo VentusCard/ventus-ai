@@ -23,10 +23,11 @@ interface Props {
   onModulesChange: (modules: Set<ModuleKey>) => void;
 }
 
-const MODULE_CONFIG: { mod: ModuleKey; label: string; description: string; borderColor: string; checkColor: string }[] = [
+const MODULE_CONFIG: { mod: ModuleKey; label: string; team: string; description: string; borderColor: string; checkColor: string }[] = [
   {
     mod: "Analytics",
     label: "Ventus AI Customer Intelligence & Analytics",
+    team: "Transaction Analytics Team",
     description: "Core transaction classification, spending analytics, and customer profiling",
     borderColor: "border-l-blue-500",
     checkColor: "text-blue-600",
@@ -34,26 +35,28 @@ const MODULE_CONFIG: { mod: ModuleKey; label: string; description: string; borde
   {
     mod: "AI & UX",
     label: "AI & UX",
-    description: "AI-powered experience personalization and predictive engagement",
+    team: "Banking Experience Team",
+    description: "How can we help our customers understand their spending?",
     borderColor: "border-l-sky-500",
     checkColor: "text-sky-600",
   },
   {
     mod: "Rewards",
     label: "Rewards",
-    description: "Smart rewards optimization, deal matching, and offer personalization",
+    team: "Rewards Team",
+    description: "How can we support and reward their lifestyle?",
     borderColor: "border-l-emerald-500",
     checkColor: "text-emerald-600",
   },
   {
     mod: "Relationship",
     label: "Relationship",
-    description: "Life event detection, wealth signals, and relationship management",
+    team: "Growth / Wealth Team",
+    description: "What's their next product to live a better life?",
     borderColor: "border-l-purple-500",
     checkColor: "text-purple-600",
   },
 ];
-
 export default function DemoCustomerPanel({
   open, onOpenChange,
   customer, parsedTransactions,
@@ -126,7 +129,7 @@ export default function DemoCustomerPanel({
 
             {/* Module cards */}
             <div className="space-y-3 flex-1">
-              {MODULE_CONFIG.map(({ mod, label, description, borderColor, checkColor }) => {
+              {MODULE_CONFIG.map(({ mod, label, team, description, borderColor, checkColor }) => {
                 const isAnalytics = mod === "Analytics";
                 const checked = isAnalytics || enabledModules.has(mod);
                 return (
@@ -144,11 +147,10 @@ export default function DemoCustomerPanel({
                         <Circle className="h-5 w-5 mt-0.5 shrink-0 text-slate-300" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm font-semibold ${checked ? "text-slate-800" : "text-slate-400"}`}>{label}</span>
-                          {isAnalytics && <Lock className="h-3 w-3 text-slate-400" />}
-                        </div>
-                        <p className={`text-[12px] mt-1 leading-relaxed ${checked ? "text-slate-500" : "text-slate-400"}`}>{description}</p>
+                        <span className={`text-sm font-semibold ${checked ? "text-slate-800" : "text-slate-400"}`}>{label}</span>
+                        {isAnalytics && <Lock className="h-3 w-3 text-slate-400 inline ml-2" />}
+                        <p className={`text-[11px] mt-0.5 font-medium ${checked ? "text-slate-400" : "text-slate-300"}`}>{team}</p>
+                        <p className={`text-[12px] mt-1 leading-relaxed italic ${checked ? "text-slate-500" : "text-slate-400"}`}>{description}</p>
                       </div>
                     </div>
                   </div>
