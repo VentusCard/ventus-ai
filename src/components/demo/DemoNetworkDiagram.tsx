@@ -222,6 +222,15 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                     strokeDasharray={isReady ? "none" : "6 4"}
                     className="line-transition"
                   />
+                  {/* Invisible wider clickable path for enrichment panel */}
+                  <path
+                    d={path}
+                    stroke="transparent"
+                    strokeWidth={14}
+                    fill="none"
+                    style={{ cursor: isReady ? "pointer" : "default", pointerEvents: isReady ? "all" : "none" }}
+                    onClick={() => { if (isReady) onNodeClick("engine"); }}
+                  />
                   {isProcessingLine && (
                     <circle r="2.5" fill="#6366f1">
                       <animateMotion dur="2.5s" repeatCount="indefinite" path={path} />
