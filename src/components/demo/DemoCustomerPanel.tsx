@@ -165,7 +165,7 @@ export default function DemoCustomerPanel({
           <div className="flex items-center gap-4">
             <Button
               onClick={onEnrich}
-              disabled={isProcessing || !customer}
+              disabled={isProcessing || !customer || !["AI & UX", "Rewards", "Relationship"].some(m => enabledModules.has(m as ModuleKey))}
               variant="ai"
               size="default"
               className="flex-1"
@@ -188,6 +188,10 @@ export default function DemoCustomerPanel({
               )}
             </Button>
           </div>
+
+          {!["AI & UX", "Rewards", "Relationship"].some(m => enabledModules.has(m as ModuleKey)) && (
+            <p className="text-[11px] text-amber-600 mt-2 text-center">Select at least one feature module to proceed</p>
+          )}
 
           {/* Status line */}
           {(isProcessing || currentPhase === "complete") && (
