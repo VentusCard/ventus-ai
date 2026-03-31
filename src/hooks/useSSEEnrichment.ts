@@ -298,7 +298,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
             const travelCount = data.travel_updates.filter((u: any) => u.is_travel_related === true).length;
             if (travelCount > 0) {
               setStatusMessage(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
-              toast.success(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
+              if (!suppressToasts) toast.success(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
               console.log('[Travel Updates]', travelCount, 'travel patterns detected');
             } else {
               setStatusMessage('No travel patterns detected');
