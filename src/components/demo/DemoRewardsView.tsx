@@ -338,9 +338,6 @@ function RewardsPhoneMockup({
               </p>
             </div>
           )}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

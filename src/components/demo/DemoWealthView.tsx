@@ -295,15 +295,6 @@ export default function DemoWealthView({ customer, detectedEvents }: Props) {
                     <p className="text-xs text-slate-400 mt-1">We're analyzing your activity to bring you tailored recommendations.</p>
                   </div>
                 )}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom bezel / home indicator */}
-          <div className="flex justify-center py-2 bg-slate-200">
-            <div className="w-16 h-1 rounded-full bg-slate-400" />
-          </div>
-        </div>
       </div>
     </div>
   );
