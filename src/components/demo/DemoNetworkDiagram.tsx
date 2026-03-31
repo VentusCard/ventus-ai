@@ -72,7 +72,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "phase",
-    team: "Growth & Wealth",
+    team: "Growth / Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
     color: "#ec4899",
