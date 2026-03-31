@@ -88,7 +88,7 @@ export default function DemoCustomerPanel({
         {/* Header */}
         <div className="px-8 pt-7 pb-5 border-b border-slate-100">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Ventus AI</h2>
-          <p className="text-[13px] text-slate-500 mt-1">Configure customer profile and platform modules for enrichment</p>
+          <p className="text-[13px] text-slate-500 mt-1">Configure customer profile and platform modules for demo experience</p>
         </div>
 
         {/* Two-column body */}
