@@ -436,7 +436,7 @@ function RewardsPhoneMockup({
       else if (!isSearching) result = [];
     }
     return result;
-  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter, subcategoryFilter]);
+  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter]);
 
   const filteredPerks = useMemo(() => {
     if (!isSearchActive) return perks;
