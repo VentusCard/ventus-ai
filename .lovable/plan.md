@@ -1,24 +1,42 @@
 
 
-## Fix iPad Frame Height — Fill Available Space
+## Fix iPad Frame & Bottom Nav — Full Height Layout
 
-### Problem
-The iPad frame (line 127) uses `minHeight: 520px` and `maxHeight: calc(100vh - 80px)` but no `h-full`. It sizes from content rather than filling the available overlay space, making it shorter/inconsistent compared to other overlays.
+### Root cause
+Two issues remain:
+
+1. **Parent wrapper (line 125)** has `justify-center` — this vertically centers the frame instead of letting it stretch. Combined with `h-full` on the frame, the frame collapses to content height because `justify-center` overrides the stretch behavior.
+
+2. **Frame (line 127)** uses `h-full` which doesn't work reliably when the parent uses `justify-center`. Needs `flex-1 min-h-0` instead so it fills the remaining space in the flex column.
 
 ### Fix — `src/components/demo/DemoDetailOverlay.tsx`
 
-**Line 127**: Add `h-full` and `min-h-0` to make the frame fill its parent flex container instead of sizing from content. Remove the inline `minHeight`/`maxHeight` since the parent already constrains it:
-
+**Line 125** — Remove `justify-center` so frame stretches; use `min-h-0` for flex shrinking:
 ```tsx
-// Before
-<div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ minHeight: "520px", maxHeight: "calc(100vh - 80px)" }}>
-
-// After
-<div className="w-full max-w-[820px] h-full min-h-0 rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col">
+<div className="flex-1 min-h-0 flex flex-col items-center p-4 overflow-hidden">
 ```
 
-The parent wrapper (line 125) already has `flex-1 flex flex-col overflow-hidden`, so the frame will stretch to fill the overlay. The `min-h-0` ensures flex shrinking works correctly.
+**Line 127** — Replace `h-full` with `flex-1 min-h-0` so the frame fills the parent:
+```tsx
+<div className="w-full max-w-[820px] flex-1 min-h-0 rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col">
+```
+
+**Line 149** — Add `shrink-0` to the bottom tab bar so it never collapses:
+```tsx
+<div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+```
+
+**Line 172** — Add `shrink-0` to the home indicator:
+```tsx
+<div className="flex shrink-0 justify-center py-2 bg-white">
+```
+
+### What this achieves
+- Frame fills the full overlay height (minus padding)
+- Camera dot, status bar, tab bar, and home indicator are pinned and never shrink
+- Content area (`flex-1 min-h-0`) takes all remaining space
+- Bottom 4-tab nav always visible at the bottom
 
 ### Files changed
-1. `src/components/demo/DemoDetailOverlay.tsx` — 1 line
+1. `src/components/demo/DemoDetailOverlay.tsx` — 4 lines
 
