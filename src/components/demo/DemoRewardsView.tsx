@@ -454,6 +454,7 @@ function RewardsPhoneMockup({
   const firstName = customer.profile.name.split(" ")[0];
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string | null>(null);
 
   const isSearchActive = searchQuery.trim().length > 0;
   const queryLower = searchQuery.toLowerCase();
@@ -461,6 +462,9 @@ function RewardsPhoneMockup({
   // Separate hero deal (first deal) from grid deals
   const heroDeal = hasEnriched && deals.length > 0 ? deals[0] : null;
   const gridDeals = hasEnriched ? deals.slice(1) : deals;
+
+  // Get enriched transactions reference for passing to pills
+  const enrichedRef = hasEnriched ? enriched : undefined;
 
   const filteredDeals = useMemo(() => {
     let result = gridDeals;
@@ -471,8 +475,16 @@ function RewardsPhoneMockup({
     if (categoryFilter) {
       result = result.filter(d => d.merchantCategory === categoryFilter);
     }
+    if (subcategoryFilter) {
+      const subLower = subcategoryFilter.toLowerCase();
+      result = result.filter(d =>
+        d.subcategory?.toLowerCase().includes(subLower) ||
+        d.merchantCategory?.toLowerCase().includes(subLower) ||
+        d.dealDescription?.toLowerCase().includes(subLower)
+      );
+    }
     return result;
-  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter]);
+  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter, subcategoryFilter]);
 
   const filteredPerks = useMemo(() => {
     if (!isSearchActive) return perks;
