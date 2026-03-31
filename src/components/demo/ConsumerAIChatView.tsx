@@ -188,7 +188,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   const showWelcome = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full min-h-0 bg-white">
       {/* Chat area */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3">
         {showWelcome ? (
