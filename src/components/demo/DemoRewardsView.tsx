@@ -221,6 +221,27 @@ function RewardsPhoneMockup({
   perks: LocationPerk[];
 }) {
   const firstName = customer.profile.name.split(" ")[0];
+  const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
+
+  const isSearchActive = searchQuery.trim().length > 0;
+  const queryLower = searchQuery.toLowerCase();
+
+  const filteredDeals = useMemo(() => {
+    if (!isSearchActive) return deals;
+    if (matchingDealIds.length > 0) return deals.filter(d => matchingDealIds.includes(d.id));
+    if (isSearching) return deals;
+    return [];
+  }, [deals, isSearchActive, matchingDealIds, isSearching]);
+
+  const filteredPerks = useMemo(() => {
+    if (!isSearchActive) return perks;
+    return perks.filter(p =>
+      p.title.toLowerCase().includes(queryLower) ||
+      p.partner.toLowerCase().includes(queryLower) ||
+      p.category.toLowerCase().includes(queryLower) ||
+      p.value.toLowerCase().includes(queryLower)
+    );
+  }, [perks, isSearchActive, queryLower]);
 
   return (
     <div className="p-4">
@@ -229,13 +250,39 @@ function RewardsPhoneMockup({
             <p className="text-base font-bold text-slate-900">Welcome to {city}, {firstName}!</p>
           </div>
 
-          {perks.length > 0 && (
-            <LocalPerksSection city={city} perks={perks} color={color} />
+          {/* Semantic search bar */}
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+            <input
+              placeholder="Search deals & local perks..."
+              value={searchQuery}
+              onChange={e => handleSearchChange(e.target.value)}
+              className="w-full pl-7 pr-7 py-1.5 text-[11px] rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 placeholder:text-slate-400"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              {isSearching ? (
+                <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
+              ) : searchQuery ? (
+                <button onClick={clearSearch} className="p-0"><X className="w-3 h-3 text-slate-400 hover:text-slate-600" /></button>
+              ) : null}
+            </div>
+          </div>
+
+          {/* AI reasoning chip */}
+          {searchReasoning && !isSearching && (
+            <div className="flex items-start gap-1.5 rounded-md bg-blue-50 border border-blue-100 px-2 py-1">
+              <Sparkles className="w-3 h-3 text-blue-500 shrink-0 mt-0.5" />
+              <p className="text-[9px] leading-relaxed text-blue-700">{searchReasoning}</p>
+            </div>
+          )}
+
+          {filteredPerks.length > 0 && (
+            <LocalPerksSection city={city} perks={filteredPerks} color={color} />
           )}
 
           <div className="grid grid-cols-2 gap-1.5">
-            {hasEnriched && deals.length > 0 ? (
-              deals.map((deal, i) => {
+            {hasEnriched && filteredDeals.length > 0 ? (
+              filteredDeals.map((deal, i) => {
                 const p = personalized[deal.id];
                 const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
 
