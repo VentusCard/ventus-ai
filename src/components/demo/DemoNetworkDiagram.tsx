@@ -25,7 +25,7 @@ interface NodeDef {
   audience: "consumer" | "bank";
 }
 
-interface PillarRow {
+export interface PillarRow {
   id: string;
   subtitle: string;
   team: string;
@@ -43,7 +43,7 @@ const AUDIENCE_ACCENT = {
   bank: "border-l-blue-400",
 } as const;
 
-const PILLAR_ROWS: PillarRow[] = [
+export const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
     team: "Experience",
