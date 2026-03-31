@@ -50,11 +50,11 @@ const PILLAR_ROWS: PillarRow[] = [
     subtitle: "How can we help our customers understand their spending?",
     icon: Search,
     color: "#3b82f6",
-    bankNodes: [
-      { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
-      { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
-      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
-    ],
+      bankNodes: [
+       { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
+       { id: "outflow", label: "Outflow & Subscription Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
+       { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
+      ],
     consumerNode: { id: "engagement", label: "Personalized AI & UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
   },
   {
