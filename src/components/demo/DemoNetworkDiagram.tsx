@@ -440,6 +440,28 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         );
       })}
 
+      {/* Dynamic grouping border around consumer cards */}
+      {visibleRows.length > 0 && (() => {
+        const firstRowTop = gridTopY + ROW_HEIGHT * 0 + ROW_HEIGHT / 2 - Math.max(BANK_NODE_HEIGHT * visibleRows[0].bankNodes.length + BANK_NODE_GAP * (visibleRows[0].bankNodes.length - 1), CONSUMER_NODE_HEIGHT) / 2;
+        const lastIdx = visibleRows.length - 1;
+        const lastBankH = BANK_NODE_HEIGHT * visibleRows[lastIdx].bankNodes.length + BANK_NODE_GAP * (visibleRows[lastIdx].bankNodes.length - 1);
+        const lastContentH = Math.max(lastBankH, CONSUMER_NODE_HEIGHT);
+        const lastRowTop = gridTopY + ROW_HEIGHT * lastIdx + ROW_HEIGHT / 2 - lastContentH / 2;
+        const borderTop = firstRowTop - 8;
+        const borderBottom = lastRowTop + lastContentH + 8;
+        return (
+          <div
+            className="absolute rounded-2xl border-2 border-dashed border-slate-200 pointer-events-none"
+            style={{
+              left: consumerColLeftX - 8,
+              top: borderTop,
+              width: CONSUMER_COL_WIDTH + 16,
+              height: borderBottom - borderTop,
+              zIndex: 1,
+            }}
+          />
+        );
+      })()}
 
       {/* Column Headers */}
       <div
