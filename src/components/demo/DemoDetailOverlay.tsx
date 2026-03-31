@@ -124,7 +124,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
     return (
       <div className="flex-1 min-h-0 flex items-center justify-center p-4 overflow-hidden">
         {/* iPad Frame */}
-        <div className="w-full max-w-[820px] flex-1 min-h-0 rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col">
+        <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
           {/* Camera dot */}
           <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
             <div className="w-2 h-2 rounded-full bg-slate-300" />
