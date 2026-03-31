@@ -411,10 +411,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                   disabled={!canOpen}
                   className={`absolute flex flex-col items-center justify-center rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} group transition-[box-shadow,opacity,border-color] duration-300`}
                   style={{
-                    left: consumerColLeftX,
-                    top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
+                     left: consumerColLeftX,
+                    top: contentTop,
                     width: CONSUMER_COL_WIDTH,
-                    height: CONSUMER_NODE_HEIGHT,
+                    height: contentHeight,
                     cursor: canOpen ? "pointer" : "not-allowed",
                     opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
                     background: canOpen ? `${node.color}12` : "#ffffff",
