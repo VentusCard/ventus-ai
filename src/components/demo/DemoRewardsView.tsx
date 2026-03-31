@@ -510,7 +510,7 @@ function RewardsPhoneMockup({
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
             <input
-              placeholder="Search deals & local perks..."
+              placeholder="Semantic search for deals, experience and perks..."
               value={searchQuery}
               onChange={e => handleSearchChange(e.target.value)}
               className="w-full pl-7 pr-7 py-1.5 text-[11px] rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 placeholder:text-slate-400"
