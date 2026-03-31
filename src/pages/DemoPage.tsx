@@ -108,11 +108,6 @@ export default function DemoPage() {
           centered={true}
           onTxCardClick={() => setPanelOpen(true)}
           enabledModules={enabledModules}
-          enriched={enriched}
-          localExperiences={localExperiences}
-          personalizedDeals={personalizedDeals}
-          detectedEvents={detectedEvents}
-          tip={tip}
         />
 
         {activeNode && customer && (
