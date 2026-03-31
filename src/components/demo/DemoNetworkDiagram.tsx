@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, Brain, Target } from "lucide-react";
-import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
+import type { NodeReadiness, LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
+import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { MODULE_ROW_MAP, type ModuleKey } from "@/types/demo";
+import DemoPhoneMockup from "./DemoPhoneMockup";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot" | "aiFinancialInsights" | "dealPersonalization";
 
@@ -15,6 +18,11 @@ interface Props {
   centered?: boolean;
   onTxCardClick?: () => void;
   enabledModules: Set<ModuleKey>;
+  enriched?: EnrichedTransaction[];
+  localExperiences?: LocalExperiencesData;
+  personalizedDeals?: PersonalizedDealData | null;
+  detectedEvents?: DetectedLifeEventResult[];
+  tip?: FinancialTip | null;
 }
 
 interface NodeDef {
@@ -93,7 +101,7 @@ const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChar
 ];
 
 
-export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules }: Props) {
+export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules, enriched, localExperiences, personalizedDeals, detectedEvents, tip }: Props) {
   const visibleRows = useMemo(() => PILLAR_ROWS.filter(row => {
     const mod = MODULE_ROW_MAP[row.id];
     return mod ? enabledModules.has(mod) : true;
@@ -123,7 +131,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const ENGINE_MIN_HEIGHT = (50 + visibleEngineCards.length * 30) * scale;
 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
-  const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
+  const CONSUMER_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(180, Math.max(150, dims.w * 0.18));
 
   const ROW_HEIGHT = Math.max(145, 168 * scale);
   const BANK_NODE_HEIGHT = Math.max(32, 36 * scale);
@@ -253,7 +261,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               });
             })}
 
-            {/* Bank column → Consumer column (one line per bank node) */}
+            {/* Bank column → Phone mockup center (all lines converge to phone center) */}
             {visibleRows.map((pillar, pi) => {
               const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
@@ -261,14 +269,14 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const cTop = rCenterY - cHeight / 2;
               const bankRight = bankColLeftX + BANK_COL_WIDTH;
               const consumerLeft = consumerColLeftX;
-              const consumerCenterY = cTop + (cHeight - CONSUMER_NODE_HEIGHT) / 2 + CONSUMER_NODE_HEIGHT / 2;
-              const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
+              const phoneCenterY = midY; // all lines converge to phone center
+              const consumerReady = engineReady;
 
               return pillar.bankNodes.map((node, ni) => {
                 const bankNodeY = cTop + ni * (BANK_NODE_HEIGHT + BANK_NODE_GAP) + BANK_NODE_HEIGHT / 2;
                 const cpX1 = bankRight + (consumerLeft - bankRight) * 0.4;
                 const cpX2 = bankRight + (consumerLeft - bankRight) * 0.6;
-                const path = `M ${bankRight} ${bankNodeY} C ${cpX1} ${bankNodeY}, ${cpX2} ${consumerCenterY}, ${consumerLeft} ${consumerCenterY}`;
+                const path = `M ${bankRight} ${bankNodeY} C ${cpX1} ${bankNodeY}, ${cpX2} ${phoneCenterY}, ${consumerLeft} ${phoneCenterY}`;
                 return (
                   <g key={`bank-cons-${pi}-${ni}`}>
                     <path d={path} stroke={pillar.consumerNode.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.6 : 0.15} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
@@ -398,50 +406,41 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               })}
             </div>
 
-            {/* Consumer node — uniform height */}
-            {(() => {
-              const node = pillar.consumerNode;
-              const Icon = node.icon;
-              const state = nodeReadiness[node.id];
-              const isReady = state === "ready";
-              const canOpen = engineReady && isReady;
-
-              return (
-                <button
-                  key={node.id}
-                  onClick={() => { if (canOpen) onNodeClick(node.id); }}
-                  disabled={!canOpen}
-                  className={`absolute flex flex-col items-center justify-center rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} group transition-[box-shadow,opacity,border-color] duration-300`}
-                  style={{
-                    left: consumerColLeftX,
-                    top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
-                    width: CONSUMER_COL_WIDTH,
-                    height: CONSUMER_NODE_HEIGHT,
-                    cursor: canOpen ? "pointer" : "not-allowed",
-                    opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                    background: canOpen ? `${node.color}12` : "#ffffff",
-                    borderColor: canOpen ? `${node.color}70` : "#e2e8f0",
-                    boxShadow: canOpen ? `0 0 16px ${node.color}18` : "0 1px 3px rgba(0,0,0,0.04)",
-                    zIndex: 2,
-                  }}
-                >
-                  <div
-                    className={`${centered ? "w-9 h-9" : "w-7 h-7"} rounded-lg flex items-center justify-center mb-1`}
-                    style={{ background: canOpen ? `${node.color}20` : `${node.color}10`, border: `1px solid ${canOpen ? `${node.color}40` : `${node.color}20`}` }}
-                  >
-                    <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: node.color }} />
-                  </div>
-                  <p className={`font-semibold text-slate-900 ${centered ? "text-[14px]" : "text-[13px]"}`}>{node.label}</p>
-                  <p className={`text-slate-500 ${centered ? "text-[12px]" : "text-[11px]"}`}>
-                    {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
-                  </p>
-                </button>
-              );
-            })()}
+            {/* Phone mockup rendered once, outside the per-row loop — see below */}
           </div>
         );
       })}
 
+      {/* Phone Mockup — single device spanning the consumer column */}
+      {(() => {
+        const phoneH = totalGridHeight - 20;
+        const phoneTop = gridTopY + 10;
+        return (
+          <div
+            className="absolute"
+            style={{
+              left: consumerColLeftX + (CONSUMER_COL_WIDTH - CONSUMER_COL_WIDTH) / 2,
+              top: phoneTop,
+              width: CONSUMER_COL_WIDTH,
+              zIndex: 3,
+            }}
+          >
+            <DemoPhoneMockup
+              customer={customer}
+              enriched={enriched}
+              localExperiences={localExperiences}
+              personalizedDeals={personalizedDeals}
+              detectedEvents={detectedEvents}
+              tip={tip}
+              nodeReadiness={nodeReadiness}
+              engineReady={engineReady}
+              width={CONSUMER_COL_WIDTH}
+              height={phoneH}
+              scaled={centered}
+            />
+          </div>
+        );
+      })()}
 
       {/* Column Headers */}
       <div
