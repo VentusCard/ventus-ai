@@ -1,31 +1,20 @@
 
 
-## Plan: Add Subcategory Pills from Enrichment to Category Filter
+## Plan: Fix Subcategory Pills Styling + Filter from Full Deal Library
+
+### Problem
+1. Subcategory pills use a different style (smaller text `text-[8px]`, `border`, dot prefix `· {sub}`) vs pillar pills (`text-[9px]`, no border, no prefix) — they should match.
+2. When a subcategory pill is selected, filtering only searches within the already-narrowed `gridDeals` (deals selected for this customer). It should search the **entire** `AVAILABLE_DEALS` library.
 
 ### File: `src/components/demo/DemoRewardsView.tsx`
 
-**1. Extend `CategoryFilterPills` to accept enriched transactions and display subcategory pills**
+**1. Match subcategory pill styling to pillar pills**
+- Change subcategory pills from `text-[8px] border px-1.5 py-0.5` with `· ` prefix → same `text-[9px] font-medium px-2 py-1 rounded-full` as pillar pills, no dot prefix, no border distinction.
+- Keep the `|` separator between pillar and subcategory groups for visual grouping.
 
-- Add an `enriched` prop (`EnrichedTransaction[]`) to `CategoryFilterPills`
-- Extract unique subcategories from the enriched transactions (e.g. "Fine Dining", "Boutique Hotel", "Activewear", "Streaming")
-- Render them as additional smaller pills after the existing pillar-level category pills, separated by a subtle divider or just visually distinguished with a different style (outline instead of filled when inactive, slightly smaller text)
-
-**2. Add more pillar pills to `DEAL_CATEGORY_PILLS`**
-
-- Add missing pillars: `Pets` (🐾), `Family & Community` (👨‍👩‍👧)
-
-**3. Subcategory pill styling**
-
-- Same row, scrollable — subcategory pills appear after the pillar pills with a thin `|` separator
-- Slightly different style: use a dot prefix or lighter background to distinguish them from top-level categories
-- When a subcategory pill is active, filter deals whose `subcategory` matches AND filter local perks by text match
-
-**4. Wire enriched data through**
-
-- `RewardsPhoneMockup` already receives `enriched` transactions via parent — pass them down to `CategoryFilterPills`
-- Add a `subcategoryFilter` state alongside existing `categoryFilter`
-- Apply subcategory filtering in the `filteredDeals` memo
-
-### Result
-The filter pill bar will show both pillar-level categories (Dining, Travel, etc.) and enrichment-derived subcategory pills (Fine Dining, Boutique Hotel, Streaming, etc.), making the rewards view feel more data-rich and connected to the enrichment output.
+**2. Filter from entire deal library when subcategory is active**
+- Import `availableDeals` from `@/lib/availableDealsData` and `convertToBankDeal` from `@/lib/dealSelectionUtils`.
+- In the `filteredDeals` memo: when `subcategoryFilter` is set, search the full `availableDeals` array (converting matches to `BankDeal`) instead of only filtering `gridDeals`.
+- Match by `deal.subcategory === subcategoryFilter` (exact match on the deal's subcategory field).
+- When `categoryFilter` is set, also search the full library for that category (so pillar pills also show all available deals, not just the pre-selected ones).
 
