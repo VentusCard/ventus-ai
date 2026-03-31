@@ -136,7 +136,7 @@ function SavingsSummaryBar({ profile, color, hasEnriched, city, firstName }: { p
       <div className="flex items-center gap-1.5">
         <TrendingUp className="w-3 h-3" style={{ color }} />
         <p className="text-[11px] text-slate-600">
-          You've saved <span className="font-bold text-slate-900">${monthlySaved}</span> this month across {hasEnriched ? "personalized" : "active"} deals
+          Annual savings to date: <span className="font-bold text-slate-900">${monthlySaved * 12}</span>
         </p>
       </div>
     </div>
