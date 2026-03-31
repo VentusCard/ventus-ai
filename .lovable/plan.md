@@ -1,35 +1,21 @@
 
 
-## Fix Consumer Chat Prompt — Smarter Product Recommendations & Hyperlinked URLs
+## Make Consumer Cards Match Feature Card Heights + Add Grouping Border
 
-### Problem
-1. The chatbot recommends products unprompted (e.g., suggesting a Travel Rewards card when the user just asked about skiing spend). Products should only be recommended when the user explicitly asks or when it's clearly relevant.
-2. Full URLs are shown as raw text instead of markdown hyperlinks.
+### File: `src/components/demo/DemoNetworkDiagram.tsx`
 
-### Fix — `supabase/functions/consumer-chat/index.ts`
+### Change 1: Make consumer cards taller to match bank nodes
+Currently each consumer card uses `CONSUMER_NODE_HEIGHT` (54-70px), while the bank column has 3 stacked cards totaling ~120px. Change the consumer card to use `contentHeight` (which already equals `Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT)`) so it stretches to match the associated feature cards.
 
-Update the `CONSUMER_SYSTEM_PROMPT` (lines 30-62) with two changes:
+- Lines 414-417: Change `top` to `contentTop` (remove the centering offset) and `height` to `contentHeight` instead of `CONSUMER_NODE_HEIGHT`
 
-**1. Product recommendation rules** — Add explicit instruction:
-- Only recommend products when the user explicitly asks for recommendations, or when a life event strongly signals a need.
-- Never append product suggestions to spending analysis answers unless the user asked for them.
+### Change 2: Add a dynamic grouping border around all consumer cards
+Add a single container `div` that wraps all visible consumer cards with a rounded border, positioned from the first consumer card's top to the last one's bottom. This uses `visibleRows` to dynamically size based on how many rows (1, 2, or 3) are active.
 
-**2. Hyperlink formatting** — Change the product list to instruct the model to use markdown hyperlinks:
-- Instead of listing raw URLs, tell the model: "Always format product links as markdown hyperlinks, e.g. `[Travel Rewards](https://...)`"
-- Update the product list to show the markdown format as examples.
+- After line 441 (after the `visibleRows.map` block), add a new absolutely-positioned div spanning from the first row's `contentTop` to the last row's `contentTop + contentHeight`, at `consumerColLeftX`, with a subtle dashed or solid border and rounded corners.
 
-### Revised prompt section (capability #4):
-```
-4. PRODUCT RECOMMENDATIONS — ONLY recommend products when:
-   a) The user explicitly asks for product recommendations, OR
-   b) A detected life event strongly signals a product need (e.g., home purchase → mortgage)
-   Do NOT append product suggestions to spending analysis answers.
-   When recommending, use markdown hyperlinks:
-   - [Customized Cash Rewards](https://www.bankofamerica.com/credit-cards/products/customized-cash-back-credit-card/)
-   - [Travel Rewards](https://www.bankofamerica.com/credit-cards/products/travel-rewards-credit-card/)
-   ... etc
-```
-
-### Files changed
-1. `supabase/functions/consumer-chat/index.ts` — update system prompt
+### Summary
+- 2 changes in 1 file
+- Consumer cards stretch to full row height
+- A dynamic border groups all visible consumer cards together
 
