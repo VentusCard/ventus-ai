@@ -221,7 +221,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
       )}
 
       {/* Content */}
-      <div className={`flex-1 overflow-y-auto ${isBankWide || isConsumer ? '' : 'px-6 pb-6 pt-2'}`}>
+      <div className={`flex-1 ${isBankWide || isConsumer ? 'overflow-hidden' : 'overflow-y-auto px-6 pb-6 pt-2'}`}>
         {renderContent()}
       </div>
     </div>
