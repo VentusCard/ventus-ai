@@ -1,34 +1,26 @@
 
 
-## Update Module Card Descriptions
+## Redesign: Dynamic Engine Node Cards Based on Module Selection
 
-Each of the 4 module cards in the right column of the Demo Settings dialog will get a 3-line layout:
+### What changes
+The "Advanced Enrichment" engine card in `DemoNetworkDiagram.tsx` currently shows 3 static capability rows. It will be updated to show 1–4 cards matching the enabled modules from demo settings.
 
-1. **Line 1** (existing label, no change)
-2. **Line 2** (team name)
-3. **Line 3** (question from the network diagram)
+### Card mapping
 
-### Mapping
+| Module Key | Label | Color | Icon |
+|---|---|---|---|
+| Analytics (always on) | Ventus AI Customer Intelligence & Analytics | `#3b82f6` (blue) | BarChart3 |
+| AI & UX | AI & UX | `#60a5fa` (sky) | Smartphone |
+| Rewards | Rewards | `#22c55e` (green) | Gift |
+| Relationship | Relationship | `#ec4899` (pink) | Heart |
 
-| Module | Team | Question |
-|--------|------|----------|
-| Ventus AI Customer Intelligence & Analytics | Transaction Analytics Team | Core transaction classification, spending analytics, and customer profiling |
-| AI & UX | Banking Experience Team | How can we help our customers understand their spending? |
-| Rewards | Rewards Team | How can we support and reward their lifestyle? |
-| Relationship | Growth / Wealth Team | What's their next product to live a better life? |
+### Implementation — single file edit: `src/components/demo/DemoNetworkDiagram.tsx`
 
-### Changes
+1. **Replace `ENGINE_CAPABILITIES`** with a new `ENGINE_MODULE_CARDS` array that maps each `ModuleKey` to a label, icon, and color (matching the MODULE_CONFIG colors from the settings panel).
 
-**File: `src/components/demo/DemoCustomerPanel.tsx`**
+2. **Filter dynamically** — inside the component, compute `visibleEngineCards` by filtering `ENGINE_MODULE_CARDS` against `enabledModules`. Analytics is always included since it's always enabled.
 
-1. Update `MODULE_CONFIG` to add a `team` field to each entry and update descriptions:
-   - Analytics: team = "Transaction Analytics Team", description stays as-is (no network diagram question for this one)
-   - AI & UX: team = "Banking Experience Team", description = "How can we help our customers understand their spending?"
-   - Rewards: team = "Rewards Team", description = "How can we support and reward their lifestyle?"
-   - Relationship: team = "Growth / Wealth Team", description = "What's their next product to live a better life?"
+3. **Update the engine card rendering** (lines 335–344) to iterate over `visibleEngineCards` instead of `ENGINE_CAPABILITIES`, keeping the same visual style (colored pill rows with icon + label).
 
-2. Update the card render to show 3 lines:
-   - Label (bold, existing)
-   - Team name (small, muted, e.g. `text-[11px] text-slate-400`)
-   - Question/description (small, italic or regular, `text-[12px] text-slate-500`)
+4. **Adjust `ENGINE_MIN_HEIGHT`** dynamically based on the number of visible cards so the node resizes gracefully (e.g. base height + per-card increment).
 
