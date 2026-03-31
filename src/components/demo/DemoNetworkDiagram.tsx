@@ -411,6 +411,36 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         );
       })}
 
+      {/* Phone Mockup — single device spanning the consumer column */}
+      {(() => {
+        const phoneH = totalGridHeight - 20;
+        const phoneTop = gridTopY + 10;
+        return (
+          <div
+            className="absolute"
+            style={{
+              left: consumerColLeftX + (CONSUMER_COL_WIDTH - CONSUMER_COL_WIDTH) / 2,
+              top: phoneTop,
+              width: CONSUMER_COL_WIDTH,
+              zIndex: 3,
+            }}
+          >
+            <DemoPhoneMockup
+              customer={customer}
+              enriched={enriched}
+              localExperiences={localExperiences}
+              personalizedDeals={personalizedDeals}
+              detectedEvents={detectedEvents}
+              tip={tip}
+              nodeReadiness={nodeReadiness}
+              engineReady={engineReady}
+              width={CONSUMER_COL_WIDTH}
+              height={phoneH}
+              scaled={centered}
+            />
+          </div>
+        );
+      })()}
 
       {/* Column Headers */}
       <div
