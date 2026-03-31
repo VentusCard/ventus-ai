@@ -131,7 +131,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const ENGINE_MIN_HEIGHT = (50 + visibleEngineCards.length * 30) * scale;
 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
-  const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
+  const CONSUMER_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(180, Math.max(150, dims.w * 0.18));
 
   const ROW_HEIGHT = Math.max(145, 168 * scale);
   const BANK_NODE_HEIGHT = Math.max(32, 36 * scale);
