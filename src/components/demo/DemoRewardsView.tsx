@@ -411,7 +411,7 @@ function RewardsPhoneMockup({
   const firstName = customer.profile.name.split(" ")[0];
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [subcategoryFilter, setSubcategoryFilter] = useState<string | null>(null);
+  
 
   const isSearchActive = searchQuery.trim().length > 0;
   const queryLower = searchQuery.toLowerCase();
