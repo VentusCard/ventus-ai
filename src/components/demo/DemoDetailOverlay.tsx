@@ -169,7 +169,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
           </div>
 
           {/* Home indicator */}
-          <div className="flex justify-center py-2 bg-white">
+          <div className="flex shrink-0 justify-center py-2 bg-white">
             <div className="w-28 h-1 rounded-full bg-slate-300" />
           </div>
         </div>
