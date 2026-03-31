@@ -536,7 +536,7 @@ function RewardsPhoneMockup({
           {hasEnriched && deals.length > 0 && !isSearchActive && (
             <CategoryFilterPills
               deals={deals}
-              enriched={enrichedRef}
+              enriched={enriched}
               activeCategory={categoryFilter}
               activeSubcategory={subcategoryFilter}
               onSelectCategory={setCategoryFilter}
