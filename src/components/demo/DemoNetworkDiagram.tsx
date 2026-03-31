@@ -335,10 +335,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
           <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
         </div>
         <div className="flex flex-col gap-1.5 px-2 w-full">
-          {ENGINE_CAPABILITIES.map((cap, ci) => {
+          {visibleEngineCards.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div key={cap.label} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
+              <div key={cap.mod} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[13px]" : "text-[12px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
