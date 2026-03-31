@@ -1,23 +1,24 @@
 
 
-## Plan
+## Plan: Restructure Platform Module Pills
 
-Update Beat 4 ("Purchase Patterns") in `DemoPasswordGate.tsx` to add a 5th phase and adjust pill content/styling.
+### What changes
 
-### File: `src/components/demo/DemoPasswordGate.tsx`
+**`src/types/demo.ts`**
+- Add `"AI & UX"` to `ModuleKey` union and `ALL_MODULES` array
+- Update `MODULE_ROW_MAP`: change `profiling: "Analytics"` → `profiling: "AI & UX"`
+- Add `MODULE_NAV_GROUP_MAP` entry for `"AI & UX"` (empty array — it controls the diagram row, not analytics nav groups)
 
-1. **Increase beat4Phase max from 3 to 4** (line ~41): change `beat4Phase < 3` to `beat4Phase < 4`
+**`src/components/demo/DemoCustomerPanel.tsx`**
+- Restructure pills into **two rows**:
+  - **Row 1**: `All` + `Analytics` — both styled with solid blue background (`bg-blue-600 text-white`). Analytics stays always-on (locked).
+  - **Row 2**: `AI & UX` (blue, toggleable) + `Rewards` (green) + `Relationship` (pink)
 
-2. **Phase 2 pill text** (~line 593): Change from full text to just `"Expecting a Baby"` when `beat4Phase === 2`
+**`src/pages/DemoPage.tsx`**
+- Update default `enabledModules` initial set to include `"AI & UX"`
 
-3. **Phase 3**: Keep current behavior (header changes, MCCs hide, merchants turn blue). Pill still shows "Expecting a Baby".
-
-4. **Phase 4 (new)**: 
-   - Pill text changes to `"Semantically Similar Purchase Patterns = Behavioral Indicators"`
-   - Pill style reverses: blue background (`#3B82F6`) with white text instead of light blue bg with blue text
-
-### Logic summary for the pill:
-- `beat4Phase < 2`: hidden
-- `beat4Phase === 2 or 3`: "Expecting a Baby", light style (`#EFF6FF` bg, `#3B82F6` text)
-- `beat4Phase === 4`: "Semantically Similar Purchase Patterns = Behavioral Indicators", reversed style (`#3B82F6` bg, white text)
+### Behavior
+- "Analytics" = always on, controls only the Analytics nav group tabs in bank-wide analytics
+- "AI & UX" = toggleable, controls the "Experience" (profiling) row in the network diagram
+- "All" toggles all modules on/off (as before, but now includes AI & UX)
 
