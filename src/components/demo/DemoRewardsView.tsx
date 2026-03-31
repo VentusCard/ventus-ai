@@ -130,8 +130,10 @@ export default function DemoRewardsView({ customer, enriched, precomputed, trave
 // ─── Savings Summary Bar ──────────────────────────────────────────────
 function SavingsSummaryBar({ profile, color, hasEnriched, city, firstName }: { profile: DerivedCustomerProfile | null; color: string; hasEnriched: boolean; city: string; firstName: string }) {
   const monthlySaved = useMemo(() => {
-    if (!profile) return 42;
-    return Math.round(profile.totalSpend * 0.032);
+    if (!profile) return 420;
+    // Seed a stable per-customer number near ~$500 based on their spend fingerprint
+    const base = 420 + Math.round((profile.totalSpend % 200));
+    return Math.min(Math.max(base, 380), 580);
   }, [profile]);
 
   return (
@@ -140,7 +142,7 @@ function SavingsSummaryBar({ profile, color, hasEnriched, city, firstName }: { p
       <div className="flex items-center gap-1">
         <TrendingUp className="w-2.5 h-2.5" style={{ color }} />
         <p className="text-[10px] text-slate-600">
-          Yearly savings to date: <span className="font-bold text-slate-900">(~$500)</span>
+          Yearly savings to date: <span className="font-bold text-slate-900">${monthlySaved}</span>
         </p>
       </div>
     </div>
