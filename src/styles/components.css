@@ -382,3 +382,11 @@
   scrollbar-width: thin;
   scrollbar-color: hsl(215 15% 82%) transparent;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
