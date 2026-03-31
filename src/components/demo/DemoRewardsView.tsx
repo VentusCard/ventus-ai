@@ -3,8 +3,8 @@ import { Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star, Search, X, Sparkle
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
-import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
-import { DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
+import { deriveCustomerProfile, getRelevantDeals, formatCurrency, convertToBankDeal, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
+import { DEAL_CATEGORIES, availableDeals as AVAILABLE_DEALS, type DealCategory } from "@/lib/availableDealsData";
 import { supabase } from "@/integrations/supabase/client";
 import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
