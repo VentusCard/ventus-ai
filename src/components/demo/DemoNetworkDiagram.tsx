@@ -304,12 +304,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       >
         Next-gen Banking Experience
       </div>
-      <div
-        className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center transition-opacity duration-500`}
-        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 48, zIndex: 2, opacity: visibleRows.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
-      >
-        Impact
-      </div>
+
+
      </div>
     </div>
   );
