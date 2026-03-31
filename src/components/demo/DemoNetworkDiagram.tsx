@@ -466,13 +466,14 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       })}
 
       {/* Impact Column */}
-      {PILLAR_ROWS.map((pillar, pi) => {
+      {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
         const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
-        const contentTop = rowCenterY - contentHeight / 2;
         const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
-        const impactData = IMPACT_METRICS[pi];
+        const impactData = visibleImpactMetrics[pi];
+
+        if (!impactData) return null;
 
         return (
           <div
