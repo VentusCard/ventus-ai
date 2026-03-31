@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { DEMO_CUSTOMERS, buildCustomDemoCustomer, buildCustomerPrompt, parseUnifiedOutput, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, CheckCircle2, Copy, Check } from "lucide-react";
+import { Loader2, Sparkles, CheckCircle2, Copy, Check, Lock } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import type { Transaction } from "@/types/transaction";
+import { ALL_MODULES, type ModuleKey } from "@/types/demo";
 
 interface Props {
   customer: DemoCustomer | null;
