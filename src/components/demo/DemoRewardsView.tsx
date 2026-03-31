@@ -31,6 +31,8 @@ const DEAL_CATEGORY_PILLS: { key: DealCategory; emoji: string; short: string }[]
   { key: "Entertainment & Culture", emoji: "🎬", short: "Entertainment" },
   { key: "Technology & Digital Life", emoji: "💻", short: "Tech" },
   { key: "Home & Living", emoji: "🏠", short: "Home" },
+  { key: "Pets", emoji: "🐾", short: "Pets" },
+  { key: "Family & Community", emoji: "👨‍👩‍👧", short: "Family" },
 ];
 
 function getFallbackMessage(deal: BankDeal): string {
