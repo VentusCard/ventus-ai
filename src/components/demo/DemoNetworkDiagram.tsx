@@ -262,7 +262,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })}
 
             {/* Bank column → Consumer column (one line per bank node) */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
