@@ -1,21 +1,18 @@
 
 
-## Plan: Hide scrollbar on category pills row
+## Plan: Unify pill styling — add emoji icons to subcategory pills
 
-**File:** `src/components/demo/DemoRewardsView.tsx` (line 306)
+### Problem
+Category pills (e.g. "🍕 Dining") have emoji icons, but subcategory pills after the `|` separator are plain text with no icons — making them look inconsistent.
 
-The pills container already has `overflow-x-auto no-scrollbar` but the `no-scrollbar` utility class may not be defined in the project CSS. Fix by adding inline scrollbar-hiding styles directly on the element.
+### Change
 
-**Change:** Replace the div's className on line 306 to use CSS that hides the scrollbar cross-browser while keeping drag/touch scroll working:
+**File: `src/components/demo/DemoRewardsView.tsx`** (lines 333-346)
 
-```tsx
-<div 
-  className="flex gap-1 overflow-x-auto items-center"
-  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
->
-```
+Add emoji icons to subcategory pills using the existing `getSubcategoryIcon` function from `@/lib/categoryIcons`:
 
-And add a global CSS rule `.no-scrollbar::-webkit-scrollbar { display: none }` in `src/index.css` if not already present — OR just use the inline `style` approach above which avoids needing a global class.
+1. Import `getSubcategoryIcon` from `@/lib/categoryIcons`.
+2. In the subcategory pill rendering (line ~344), add `<span className="text-[10px]">{getSubcategoryIcon(sub)}</span>` before the label — exactly matching the category pill pattern on line 327.
 
-This keeps horizontal drag/touch scrolling functional while hiding the visible scrollbar.
+This makes every pill — "All", categories, and subcategories — render identically: `emoji + label` in the same rounded-full style.
 
