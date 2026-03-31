@@ -144,7 +144,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
   const bankColLeftX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2;
   const consumerColLeftX = bankColLeftX + BANK_COL_WIDTH + gap3;
-  const impactColLeftX = consumerColLeftX + CONSUMER_COL_WIDTH + gap4;
 
   // Vertical layout
   const midY = dims.h * 0.5;
