@@ -46,8 +46,8 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    team: "Analytics",
-    subtitle: "Where do our customers spend their money?",
+    team: "Digital Experience",
+    subtitle: "How can we help our customers understand their spending?",
     icon: Search,
     color: "#3b82f6",
     bankNodes: [
@@ -55,7 +55,7 @@ const PILLAR_ROWS: PillarRow[] = [
       { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
       { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
     ],
-    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
+    consumerNode: { id: "engagement", label: "Personalized AI & UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
   },
   {
     id: "predictive",
