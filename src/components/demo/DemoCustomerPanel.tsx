@@ -189,6 +189,10 @@ export default function DemoCustomerPanel({
             </Button>
           </div>
 
+          {!["AI & UX", "Rewards", "Relationship"].some(m => enabledModules.has(m as ModuleKey)) && (
+            <p className="text-[11px] text-amber-600 mt-2 text-center">Select at least one feature module to proceed</p>
+          )}
+
           {/* Status line */}
           {(isProcessing || currentPhase === "complete") && (
             <div className="text-center mt-3">
