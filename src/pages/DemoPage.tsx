@@ -69,7 +69,7 @@ const [enabledModules, setEnabledModules] = useState<Set<ModuleKey>>(new Set(ALL
         <div className="absolute top-6 left-6 z-40">
           <img src={ventusLogo} className="h-6 mb-2" alt="Ventus" />
           <p className="text-[14px] text-slate-500 whitespace-nowrap">
-            One AI-Native layer that enables personalized banking across functions.
+            AI-Native Customer Intelligence Infrastructure Powering Next-Gen Personalized Banking
           </p>
         </div>
       )}
