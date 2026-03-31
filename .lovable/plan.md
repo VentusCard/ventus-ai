@@ -1,26 +1,35 @@
 
 
-## Fix AI Tab to Fill Full iPad Frame Height
+## Fix Consumer Chat Prompt — Smarter Product Recommendations & Hyperlinked URLs
 
 ### Problem
-The content area inside the iPad frame (`flex-1 overflow-y-auto`) doesn't give the `ConsumerAIChatView` a concrete height to fill. The chat component's `h-full` has nothing to resolve against, so it collapses to content height instead of stretching like the other tabs.
+1. The chatbot recommends products unprompted (e.g., suggesting a Travel Rewards card when the user just asked about skiing spend). Products should only be recommended when the user explicitly asks or when it's clearly relevant.
+2. Full URLs are shown as raw text instead of markdown hyperlinks.
 
-### Fix — Two files, minimal changes
+### Fix — `supabase/functions/consumer-chat/index.ts`
 
-**1. `src/components/demo/DemoDetailOverlay.tsx` (line 144)**
-Add `min-h-0` to the content wrapper so `flex-1` shrinks properly in the flex column:
-```tsx
-<div className="flex-1 overflow-y-auto bg-white min-h-0">
+Update the `CONSUMER_SYSTEM_PROMPT` (lines 30-62) with two changes:
+
+**1. Product recommendation rules** — Add explicit instruction:
+- Only recommend products when the user explicitly asks for recommendations, or when a life event strongly signals a need.
+- Never append product suggestions to spending analysis answers unless the user asked for them.
+
+**2. Hyperlink formatting** — Change the product list to instruct the model to use markdown hyperlinks:
+- Instead of listing raw URLs, tell the model: "Always format product links as markdown hyperlinks, e.g. `[Travel Rewards](https://...)`"
+- Update the product list to show the markdown format as examples.
+
+### Revised prompt section (capability #4):
+```
+4. PRODUCT RECOMMENDATIONS — ONLY recommend products when:
+   a) The user explicitly asks for product recommendations, OR
+   b) A detected life event strongly signals a product need (e.g., home purchase → mortgage)
+   Do NOT append product suggestions to spending analysis answers.
+   When recommending, use markdown hyperlinks:
+   - [Customized Cash Rewards](https://www.bankofamerica.com/credit-cards/products/customized-cash-back-credit-card/)
+   - [Travel Rewards](https://www.bankofamerica.com/credit-cards/products/travel-rewards-credit-card/)
+   ... etc
 ```
 
-**2. `src/components/demo/ConsumerAIChatView.tsx` (root div)**
-The root container needs `min-h-0` alongside `h-full` so flex layout cooperates, and the scrollable chat area also needs `min-h-0`:
-- Root: `flex flex-col h-full min-h-0 bg-white`
-- Chat scroll div: add `min-h-0` alongside `flex-1 overflow-y-auto`
-
-These are standard flex-column fixes — without `min-h-0`, nested flex children with `overflow` can't calculate their available space correctly, causing the content to not stretch.
-
 ### Files changed
-1. `src/components/demo/DemoDetailOverlay.tsx` — line 144, add `min-h-0`
-2. `src/components/demo/ConsumerAIChatView.tsx` — add `min-h-0` to root and scroll area
+1. `supabase/functions/consumer-chat/index.ts` — update system prompt
 
