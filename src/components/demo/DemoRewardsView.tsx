@@ -265,13 +265,28 @@ function CategoryFilterPills({
   activeCategory,
   onSelectCategory,
   color,
+  profile,
 }: {
   deals: BankDeal[];
   activeCategory: string | null;
   onSelectCategory: (cat: string | null) => void;
   color: string;
+  profile: DerivedCustomerProfile | null;
 }) {
   const personalizedCats = useMemo(() => new Set(deals.map(d => d.merchantCategory)), [deals]);
+
+  const sortedPills = useMemo(() => {
+    const spendByPillar: Record<string, number> = {};
+    if (profile) {
+      profile.topPillars.forEach(p => { spendByPillar[p.pillar] = p.annualSpend; });
+    }
+    return [...DEAL_CATEGORY_PILLS].sort((a, b) => {
+      const aPersonalized = personalizedCats.has(a.key) ? 1 : 0;
+      const bPersonalized = personalizedCats.has(b.key) ? 1 : 0;
+      if (bPersonalized !== aPersonalized) return bPersonalized - aPersonalized;
+      return (spendByPillar[b.key] || 0) - (spendByPillar[a.key] || 0);
+    });
+  }, [personalizedCats, profile]);
 
   return (
     <div className="flex gap-1 overflow-x-auto hide-scrollbar items-center">
@@ -285,7 +300,7 @@ function CategoryFilterPills({
       >
         All
       </button>
-      {DEAL_CATEGORY_PILLS.map(cat => {
+      {sortedPills.map(cat => {
         const isPersonalized = personalizedCats.has(cat.key);
         const isActive = activeCategory === cat.key;
         return (
@@ -497,6 +512,7 @@ function RewardsPhoneMockup({
               activeCategory={categoryFilter}
               onSelectCategory={setCategoryFilter}
               color={color}
+              profile={profile}
             />
           )}
 
