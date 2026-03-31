@@ -1,28 +1,24 @@
 
 
-## Fix Consumer AI Chat Tab Height — Root Cause Deep Dive
+## Fix iPad Frame Height — Fill Available Space
 
-### Problem chain
-There are **two** remaining issues preventing the chat from filling height:
+### Problem
+The iPad frame (line 127) uses `minHeight: 520px` and `maxHeight: calc(100vh - 80px)` but no `h-full`. It sizes from content rather than filling the available overlay space, making it shorter/inconsistent compared to other overlays.
 
-1. **`renderConsumerOverlay` wrapper (line 125)** uses `overflow-y-auto` which creates a scroll container — the iPad frame inside it has no bounded height to inherit from, so `flex-1` on children resolves to content height.
+### Fix — `src/components/demo/DemoDetailOverlay.tsx`
 
-2. **`ConsumerAIChatView` root (line 191)** uses `h-full` which doesn't work reliably inside nested flex containers. It should use `flex-1 min-h-0` instead.
+**Line 127**: Add `h-full` and `min-h-0` to make the frame fill its parent flex container instead of sizing from content. Remove the inline `minHeight`/`maxHeight` since the parent already constrains it:
 
-### Fixes
-
-**File 1: `src/components/demo/DemoDetailOverlay.tsx`**
-- Line 125: Change `overflow-y-auto` to `overflow-hidden` on the consumer overlay wrapper so the iPad frame gets a proper bounded height:
 ```tsx
-<div className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden">
+// Before
+<div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ minHeight: "520px", maxHeight: "calc(100vh - 80px)" }}>
+
+// After
+<div className="w-full max-w-[820px] h-full min-h-0 rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col">
 ```
 
-**File 2: `src/components/demo/ConsumerAIChatView.tsx`**  
-- Line 191: Replace `h-full` with `flex-1 min-h-0` so it fills remaining flex space reliably:
-```tsx
-<div className="flex-1 min-h-0 flex flex-col bg-white">
-```
+The parent wrapper (line 125) already has `flex-1 flex flex-col overflow-hidden`, so the frame will stretch to fill the overlay. The `min-h-0` ensures flex shrinking works correctly.
 
-### Summary
-Two lines changed across two files. The root cause was two layers of the height chain not constraining properly — the outer wrapper scrolling when it shouldn't, and the chat view using `h-full` instead of `flex-1 min-h-0`.
+### Files changed
+1. `src/components/demo/DemoDetailOverlay.tsx` — 1 line
 
