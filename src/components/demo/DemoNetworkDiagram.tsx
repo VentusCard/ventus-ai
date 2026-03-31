@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, Brain, Target } from "lucide-react";
-import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
+import type { NodeReadiness, LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult } from "@/hooks/useDemoEnrichment";
+import type { EnrichedTransaction } from "@/types/transaction";
+import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { MODULE_ROW_MAP, type ModuleKey } from "@/types/demo";
+import DemoPhoneMockup from "./DemoPhoneMockup";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot" | "aiFinancialInsights" | "dealPersonalization";
 
