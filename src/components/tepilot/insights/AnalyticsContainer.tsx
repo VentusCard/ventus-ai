@@ -82,13 +82,44 @@ interface AnalyticsContainerProps {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
   onBack?: () => void;
+  enabledModules?: Set<ModuleKey>;
 }
 
-export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Filter nav groups based on enabled modules
+  const filteredNavGroups = useMemo(() => {
+    if (!enabledModules) return NAV_GROUPS;
+
+    // Build set of allowed group labels from enabled modules
+    const allowedLabels = new Set<string>(["Home"]);
+    for (const mod of enabledModules) {
+      const groups = MODULE_NAV_GROUP_MAP[mod];
+      if (groups) groups.forEach(g => allowedLabels.add(g));
+    }
+    // Health group follows Analytics (always on since Analytics is always enabled)
+    if (enabledModules.has("Analytics")) allowedLabels.add("Health");
+
+    return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
+  }, [enabledModules]);
+
+  // All valid tab values from filtered groups
+  const validTabs = useMemo(() => {
+    const set = new Set<TabValue>();
+    filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
+    return set;
+  }, [filteredNavGroups]);
+
+  // Auto-reset tab if it became hidden
+  useEffect(() => {
+    if (!validTabs.has(activeTab)) {
+      setActiveTab('ventus-ai');
+    }
+  }, [validTabs, activeTab]);
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
