@@ -345,8 +345,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             >
               <PillarIcon className={`${centered ? "w-4.5 h-4.5" : "w-4 h-4"} shrink-0`} style={{ color: pillar.color }} />
               <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.team}</span>
-              <span style={{ color: pillar.color }}>:</span>
-              <span className={`font-semibold leading-tight ${centered ? "text-[14px]" : "text-[12px]"}`} style={{ color: pillar.color }}>{pillar.subtitle}</span>
             </div>
 
             {/* 2 stacked bank nodes */}
