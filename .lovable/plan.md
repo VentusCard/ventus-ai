@@ -1,42 +1,21 @@
+## Plan: Pills filter full deal library, personalized deals visually distinguished
 
+### Current behavior
 
-## Fix: Unique emojis for subcategory pills
+- `CategoryFilterPills` only shows pillars that exist in the ~10 personalized deals
+- When a pillar is selected, it already pulls from the full `AVAILABLE_DEALS` library (line 427), but when no filter is active it only shows personalized deals
 
-### Problem
-`getSubcategoryIcon` in `src/lib/categoryIcons.ts` only maps sports-related subcategories. Transaction-derived subcategories like "Coffee & Cafes", "Fast Casual", "Delivery", "Casual Dining", etc. all fall back to the default "🏆" — so every pill shows the same emoji.
+### Changes
 
-### Change
+**File: `src/components/demo/DemoRewardsView.tsx**`
 
-**File: `src/lib/categoryIcons.ts`** — Expand `getSubcategoryIcon` with mappings for all common transaction subcategories:
+1. **Show all 10 pillar pills always** — remove the `cats.has(p.key)` filter in `CategoryFilterPills` so all `DEAL_CATEGORY_PILLS` render regardless of which deals are personalized.
+2. Visually differentiate pills with personalied deals: for the pillars that have personalized deals, show a different color background for more "pop"
+3. **Filter from full library by default when a pill is clicked** — already works (line 426-431). No change needed.
+4. **Pass personalized deal IDs down** — create a `Set` of the original personalized deal IDs so the grid renderer can check membership efficiently.
 
-- Coffee & Cafes → ☕
-- Fast Casual → 🌯
-- Delivery → 🚗
-- Casual Dining → 🍽️
-- Fast Food → 🍔
-- Sports Bar → 🍺
-- Fine Dining → 🥂
-- Grocery / Groceries → 🛒
-- Gas / Fuel → ⛽
-- Streaming → 📺
-- Shopping → 🛍️
-- Electronics → 📱
-- Travel → ✈️
-- Hotels / Lodging → 🏨
-- Rideshare → 🚕
-- Gym / Fitness → 💪
-- Pharmacy → 💊
-- Pet → 🐾
-- Entertainment → 🎭
-- Music → 🎵
-- Books → 📚
-- Home Improvement → 🏠
-- Utilities → 💡
-- Insurance → 🛡️
-- Subscriptions → 📦
-- Beauty / Salon → 💇
-- Clothing / Apparel → 👕
-- (keep existing sports mappings)
+### Technical detail
 
-This ensures each subcategory pill gets a distinct, recognizable emoji instead of the same fallback.
-
+- `CategoryFilterPills`: change `availableCategories` memo to simply return `DEAL_CATEGORY_PILLS` (all pillars)
+- In the grid, add: `const personalizedIds = new Set(deals.map(d => d.id));`
+- Card wrapper gets conditional classes: `border-l-2` with `borderLeftColor: color` when `personalizedIds.has(deal.id)`, plus a small "For You" chip
