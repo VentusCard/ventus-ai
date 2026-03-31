@@ -67,40 +67,56 @@ export default function DemoCustomerPanel({
         {/* Platform Modules */}
         <div className="mb-1">
           <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 mb-2">Platform Modules</p>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <button
-              onClick={toggleAll}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
-                allOn
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
-                  : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
-              }`}
-            >
-              All
-            </button>
-            <button
-              disabled
-              className="px-2.5 py-1 rounded-full text-[10px] font-medium border bg-blue-50 text-blue-700 border-blue-200 cursor-default flex items-center gap-1"
-            >
-              <Lock className="w-2.5 h-2.5" />
-              Analytics
-            </button>
-            {([
-              { mod: "Rewards" as ModuleKey, activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-              { mod: "Relationship" as ModuleKey, activeClass: "bg-pink-50 text-pink-700 border-pink-200" },
-            ]).map(({ mod, activeClass }) => (
+          <div className="space-y-1.5">
+            {/* Row 1: All + Analytics */}
+            <div className="flex items-center gap-1.5">
               <button
-                key={mod}
-                onClick={() => toggleModule(mod)}
+                onClick={toggleAll}
                 className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
-                  enabledModules.has(mod)
-                    ? activeClass
+                  allOn
+                    ? "bg-blue-600 text-white border-blue-600"
                     : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
                 }`}
               >
-                {mod}
+                All
               </button>
-            ))}
+              <button
+                disabled
+                className="px-2.5 py-1 rounded-full text-[10px] font-medium border bg-blue-600 text-white border-blue-600 cursor-default flex items-center gap-1"
+              >
+                <Lock className="w-2.5 h-2.5" />
+                Analytics
+              </button>
+            </div>
+            {/* Row 2: AI & UX + Rewards + Relationship */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => toggleModule("AI & UX")}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+                  enabledModules.has("AI & UX")
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
+                }`}
+              >
+                AI & UX
+              </button>
+              {([
+                { mod: "Rewards" as ModuleKey, activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+                { mod: "Relationship" as ModuleKey, activeClass: "bg-pink-50 text-pink-700 border-pink-200" },
+              ]).map(({ mod, activeClass }) => (
+                <button
+                  key={mod}
+                  onClick={() => toggleModule(mod)}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+                    enabledModules.has(mod)
+                      ? activeClass
+                      : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  {mod}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <Button

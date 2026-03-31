@@ -1,15 +1,16 @@
-export type ModuleKey = "Analytics" | "Rewards" | "Relationship";
+export type ModuleKey = "Analytics" | "AI & UX" | "Rewards" | "Relationship";
 
-export const ALL_MODULES: ModuleKey[] = ["Analytics", "Rewards", "Relationship"];
+export const ALL_MODULES: ModuleKey[] = ["Analytics", "AI & UX", "Rewards", "Relationship"];
 
 export const MODULE_ROW_MAP: Record<string, ModuleKey> = {
-  profiling: "Analytics",
+  profiling: "AI & UX",
   predictive: "Rewards",
   phase: "Relationship",
 };
 
 export const MODULE_NAV_GROUP_MAP: Record<ModuleKey, string[]> = {
   Analytics: ["Analytics"],
+  "AI & UX": [],
   Rewards: ["Rewards"],
   Relationship: ["Relationship"],
 };
