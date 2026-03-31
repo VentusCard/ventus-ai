@@ -468,21 +468,24 @@ function RewardsPhoneMockup({
 
 
   const filteredDeals = useMemo(() => {
+    // When a category or subcategory filter is active, search the FULL deal library
+    if (categoryFilter) {
+      let result = AVAILABLE_DEALS.filter(d => d.category === categoryFilter).map(convertToBankDeal);
+      if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
+      else if (isSearchActive && !isSearching) result = [];
+      return result;
+    }
+    if (subcategoryFilter) {
+      let result = AVAILABLE_DEALS.filter(d => d.subcategory === subcategoryFilter).map(convertToBankDeal);
+      if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
+      else if (isSearchActive && !isSearching) result = [];
+      return result;
+    }
+    // Default: use customer-specific deals
     let result = gridDeals;
     if (isSearchActive) {
       if (matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
       else if (!isSearching) result = [];
-    }
-    if (categoryFilter) {
-      result = result.filter(d => d.merchantCategory === categoryFilter);
-    }
-    if (subcategoryFilter) {
-      const subLower = subcategoryFilter.toLowerCase();
-      result = result.filter(d =>
-        d.subcategory?.toLowerCase().includes(subLower) ||
-        d.merchantCategory?.toLowerCase().includes(subLower) ||
-        d.dealDescription?.toLowerCase().includes(subLower)
-      );
     }
     return result;
   }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter, subcategoryFilter]);
