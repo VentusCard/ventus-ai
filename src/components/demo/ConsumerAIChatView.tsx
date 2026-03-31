@@ -272,7 +272,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
       {/* Quick actions after conversation started */}
       {!showWelcome && !isLoading && (
-        <div className="px-3 pb-1 flex gap-1 overflow-x-auto no-scrollbar">
+        <div className="px-3 pb-1 flex gap-1 overflow-x-auto no-scrollbar shrink-0">
           {QUICK_ACTIONS.slice(0, 3).map((action) => (
             <button
               key={action}
@@ -286,7 +286,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-slate-100 bg-white">
+      <div className="shrink-0 p-3 border-t border-slate-100 bg-white">
         <form
           onSubmit={(e) => {
             e.preventDefault();
