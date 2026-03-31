@@ -428,10 +428,12 @@ function RewardsPhoneMockup({
 
   const filteredDeals = useMemo(() => {
     // When a category or subcategory filter is active, search the FULL deal library
+    const personalizedIds = new Set(deals.map(d => d.id));
     if (categoryFilter) {
       let result = AVAILABLE_DEALS.filter(d => d.category === categoryFilter).map(convertToBankDeal);
       if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
       else if (isSearchActive && !isSearching) result = [];
+      result.sort((a, b) => (personalizedIds.has(b.id) ? 1 : 0) - (personalizedIds.has(a.id) ? 1 : 0));
       return result;
     }
     // Default: use customer-specific deals
