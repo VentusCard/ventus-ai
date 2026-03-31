@@ -94,7 +94,7 @@ export default function DemoCustomerPanel({
                 onClick={() => toggleModule("AI & UX")}
                 className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
                   enabledModules.has("AI & UX")
-                    ? "bg-blue-600 text-white border-blue-600"
+                    ? "bg-blue-50 text-blue-700 border-blue-200"
                     : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
                 }`}
               >
