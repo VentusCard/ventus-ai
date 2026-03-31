@@ -1,61 +1,32 @@
 
 
-## Plan: Add left feature-card sidebar to consumer iPad overlay
+## Plan: Add descriptions to consumer overlay sidebar cards
 
-### Layout
-Replace the current centered iPad layout with a seamless two-column flex row:
-- **Left (~25% width)**: Feature cards for the active tab, no divider/border
-- **Right (~75%)**: iPad frame shifted right
+### What changes
+In `src/components/demo/DemoDetailOverlay.tsx`, update the `FeatureCardSidebar` component to show a one-sentence description beneath each card label.
 
-### Feature cards per tab
+### Description map
+A `CARD_DESCRIPTIONS` record keyed by node `id`:
 
-Each tab shows a "Core Analytics" card (always) plus the tab's pillar row bank nodes:
+| Card ID | Description |
+|---|---|
+| *(Core Analytics — hardcoded)* | Transforms raw transactions into rich lifestyle dimensions, enabling every experience below to feel personally crafted. |
+| `analytics` | Organizes spending into lifestyle categories like Dining, Fitness, and Travel — so the app feels like it truly knows the customer. |
+| `outflow` | Surfaces forgotten subscriptions and spending leaks, positioning your bank as a proactive financial guardian. |
+| `aiFinancialInsights` | Delivers timely, personalized money tips and alerts that make customers feel coached — not just served. |
+| `travel` | Anticipates what a customer needs next and delivers the right offer before they even search for it. |
+| `locational` | Identifies travel and surfaces local perks and experiences, positioning your bank as a travel and life companion. |
+| `dealPersonalization` | Matches offers to individual habits so every reward feels hand-picked — driving higher engagement and redemption. |
+| `lifeEventIntel` | Recognizes major life moments — a new home, a baby, retirement — so your bank can show up when it matters most. |
+| `lifeEvents` | Recommends the right financial product at the right life stage, turning routine banking into proactive guidance. |
+| `wmCopilot` | Arms relationship managers with AI-prepared context so every client conversation feels informed and personal. |
 
-| Tab | Left panel cards |
-|-----|-----------------|
-| **UX** | Core Analytics + Multi-Category Lifestyle Pillars, Outflow & Subscription Analysis, AI Financial Insights |
-| **Rewards** | Core Analytics + Next-Purchase Intelligence, Travel & Perk Aggregation, Deep Personalization |
-| **Relationship** | Core Analytics + Life Event Detection, Next-Product Automation, Advisor CoPilot Suite |
-| **AI** | Core Analytics (single card) |
+### Implementation
+1. Add a `CARD_DESCRIPTIONS: Record<string, string>` constant with the above entries.
+2. In the **Core Analytics** card, add a `<p>` subtitle below the label span with the core analytics description, styled `text-[9px] text-slate-400 leading-tight mt-0.5`.
+3. In the **bankNodes `.map()`** loop, add the same subtitle `<p>` using `CARD_DESCRIPTIONS[node.id]`.
+4. Wrap both label + description in a `<div className="flex flex-col">` so they stack vertically while the icon stays left-aligned.
 
-Cards use the **same visual style** as the network diagram bank node buttons: `rounded-lg`, `border-l-[3px]` accent, icon badge with colored background, gradient bg, label text.
-
-### File changes
-
-**`src/components/demo/DemoDetailOverlay.tsx`**
-
-1. Extract `PILLAR_ROWS` data — import it from `DemoNetworkDiagram.tsx` (export the constant) or duplicate the minimal card metadata inline
-
-2. Define `TAB_CARD_MAP`:
-   - `ux` → PILLAR_ROWS[0].bankNodes (blue/Experience)
-   - `rewards` → PILLAR_ROWS[1].bankNodes (green/Rewards)
-   - `relationship` → PILLAR_ROWS[2].bankNodes (pink/Relationship)
-   - `ai` → empty array (just core analytics)
-
-3. Add a `FeatureCardSidebar` component rendering:
-   - A "Core Analytics" card (BarChart3 icon, blue accent, always shown)
-   - Then the tab-specific bank node cards, each with icon badge + label, matching the diagram style
-   - Vertically centered with `flex flex-col justify-center gap-3`
-
-4. Update `renderConsumerOverlay()` layout:
-   ```
-   <div className="flex-1 min-h-0 flex p-4 gap-0 overflow-hidden">
-     {/* Left: ~25% width, no border */}
-     <div className="w-1/4 shrink-0 flex flex-col justify-center px-6 gap-3">
-       <FeatureCardSidebar activeTab={activeTab} />
-     </div>
-     {/* Right: iPad frame */}
-     <div className="flex-1 flex items-center justify-center">
-       {/* existing iPad frame */}
-     </div>
-   </div>
-   ```
-
-**`src/components/demo/DemoNetworkDiagram.tsx`**
-- Export `PILLAR_ROWS` so the overlay can import it
-
-### Style details
-- No visible divider between left and right sections
-- Cards match diagram styling: `border-l-[3px]` with pillar color, gradient background, icon in colored badge, semibold label
-- Cards are static/non-interactive (no click handlers) — they serve as visual context
+### Files modified
+- `src/components/demo/DemoDetailOverlay.tsx` — sidebar card rendering only
 
