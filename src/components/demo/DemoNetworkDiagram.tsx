@@ -317,10 +317,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </div>
 
       {/* Engine Node */}
-      <button
-        onClick={() => { if (engineReady) onNodeClick("engine"); }}
-        disabled={!engineReady}
-        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-1.5 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+      <div
+        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-1.5 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "border-slate-200 opacity-90" : "border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY,
@@ -338,14 +336,20 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
           {visibleEngineCards.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div key={cap.mod} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
+              <button
+                key={cap.mod}
+                onClick={() => { if (engineReady) onNodeClick(cap.target); }}
+                disabled={!engineReady}
+                className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.03] hover:shadow-sm" : "cursor-not-allowed"}`}
+                style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}
+              >
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[13px]" : "text-[12px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
-              </div>
+              </button>
             );
           })}
         </div>
-      </button>
+      </div>
 
       {/* Bank Analytics Column + Consumer Views Column */}
       {visibleRows.map((pillar, pi) => {
