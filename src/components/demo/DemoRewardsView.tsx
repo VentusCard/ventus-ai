@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star, Search, X, Sparkles } from "lucide-react";
+import { Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star, Search, X, Sparkles, TrendingUp, Clock, Wallet, ChevronRight } from "lucide-react";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
@@ -21,6 +21,17 @@ const CATEGORY_HEX: Record<string, string> = {
   Fitness: "#dc2626",
   Travel: "#0284c7",
 };
+
+const DEAL_CATEGORY_PILLS: { key: DealCategory; emoji: string; short: string }[] = [
+  { key: "Food & Dining", emoji: "🍕", short: "Dining" },
+  { key: "Travel & Exploration", emoji: "✈️", short: "Travel" },
+  { key: "Health & Wellness", emoji: "💪", short: "Wellness" },
+  { key: "Sports & Active Living", emoji: "⚽", short: "Sports" },
+  { key: "Style & Beauty", emoji: "👗", short: "Style" },
+  { key: "Entertainment & Culture", emoji: "🎬", short: "Entertainment" },
+  { key: "Technology & Digital Life", emoji: "💻", short: "Tech" },
+  { key: "Home & Living", emoji: "🏠", short: "Home" },
+];
 
 function getFallbackMessage(deal: BankDeal): string {
   return `Unlock exclusive savings: ${deal.rewardValue} at ${deal.merchantName}, save today!`;
@@ -108,6 +119,215 @@ export default function DemoRewardsView({ customer, enriched, precomputed, trave
         city={city}
         perks={perks}
       />
+    </div>
+  );
+}
+
+// ─── Savings Summary Bar ──────────────────────────────────────────────
+function SavingsSummaryBar({ profile, color, hasEnriched }: { profile: DerivedCustomerProfile | null; color: string; hasEnriched: boolean }) {
+  const monthlySaved = useMemo(() => {
+    if (!profile) return 42;
+    return Math.round(profile.totalSpend * 0.032);
+  }, [profile]);
+
+  const redeemable = useMemo(() => Math.round(monthlySaved * 0.6), [monthlySaved]);
+  const goalProgress = Math.min((monthlySaved / 500) * 100, 100);
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-2.5">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
+            <TrendingUp className="w-3 h-3" style={{ color }} />
+          </div>
+          <span className="text-[11px] font-semibold text-slate-800">Your Savings</span>
+        </div>
+        <span className="text-[9px] text-slate-400">This month</span>
+      </div>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-lg font-bold text-slate-900">${monthlySaved}</p>
+          <p className="text-[9px] text-slate-500">saved across {hasEnriched ? "personalized" : "active"} deals</p>
+        </div>
+        <div className="text-right">
+          <div className="flex items-center gap-1 mb-0.5">
+            <Wallet className="w-3 h-3 text-emerald-500" />
+            <span className="text-[11px] font-bold text-emerald-600">${redeemable}</span>
+          </div>
+          <button
+            className="text-[8px] font-semibold px-2 py-0.5 rounded-md text-white cursor-pointer transition-all hover:opacity-90 active:scale-95"
+            style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
+            onClick={() => toast.info("Demo — Cashback redemption would process here")}
+          >
+            Redeem
+          </button>
+        </div>
+      </div>
+      <div className="mt-1.5">
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="text-[8px] text-slate-400">Monthly goal: $500</span>
+          <span className="text-[8px] font-medium text-slate-500">{Math.round(goalProgress)}%</span>
+        </div>
+        <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${goalProgress}%`, background: `linear-gradient(90deg, ${color}, #6366f1)` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Hero Spotlight Deal ──────────────────────────────────────────────
+function HeroSpotlightDeal({
+  deal,
+  personalized,
+  color,
+  loading,
+}: {
+  deal: BankDeal;
+  personalized?: { msg: string; cta: string };
+  color: string;
+  loading: boolean;
+}) {
+  const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
+  return (
+    <div
+      className="rounded-xl border-2 overflow-hidden animate-fade-in"
+      style={{ borderColor: `${color}30`, background: `linear-gradient(135deg, ${color}08, ${color}03)` }}
+    >
+      <div className="px-3 py-0.5 flex items-center gap-1" style={{ background: `${color}10` }}>
+        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+        <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color }}>Top Pick For You</span>
+      </div>
+      <div className="p-3">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{catConfig?.icon || "🎁"}</span>
+            <div>
+              <p className="text-[13px] font-bold text-slate-900">{deal.merchantName}</p>
+              <p className="text-[9px] text-slate-500">{deal.merchantCategory}</p>
+            </div>
+          </div>
+          <span
+            className="text-[11px] font-bold px-2 py-1 rounded-md"
+            style={{ background: `${color}15`, color }}
+          >
+            {deal.rewardValue}
+          </span>
+        </div>
+        {personalized?.msg ? (
+          <p className="text-[11px] leading-relaxed text-slate-600 italic mb-2">"{personalized.msg}"</p>
+        ) : loading ? (
+          <div className="flex items-center gap-1.5 mb-2">
+            <Loader2 className="w-3 h-3 animate-spin text-slate-300" />
+            <span className="text-[9px] text-slate-400">Personalizing your top deal…</span>
+          </div>
+        ) : (
+          <p className="text-[11px] leading-relaxed text-slate-600 italic mb-2">"{getFallbackMessage(deal)}"</p>
+        )}
+        <button
+          className="w-full text-[11px] font-semibold py-1.5 rounded-lg text-white cursor-pointer transition-all hover:opacity-90 active:scale-[0.98]"
+          style={{ background: `linear-gradient(135deg, ${color}, #4f46e5)` }}
+          onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
+        >
+          {personalized?.cta || "Activate Deal"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Expiring Soon Row ────────────────────────────────────────────────
+function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string }) {
+  // Pick 3 deals and assign fake expiry hours
+  const expiringDeals = useMemo(() => {
+    const subset = deals.slice(0, 3);
+    return subset.map((d, i) => ({
+      ...d,
+      hoursLeft: [4, 12, 23][i] || 24,
+    }));
+  }, [deals]);
+
+  if (expiringDeals.length === 0) return null;
+
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-1">
+        <Clock className="w-3 h-3 text-amber-500" />
+        <span className="text-[10px] font-semibold text-slate-700">Expiring Soon</span>
+      </div>
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+        {expiringDeals.map((deal) => {
+          const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
+          const urgent = deal.hoursLeft <= 6;
+          return (
+            <button
+              key={`exp-${deal.id}`}
+              className={cn(
+                "shrink-0 rounded-lg border px-2.5 py-1.5 flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
+                urgent ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
+              )}
+              onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
+            >
+              <span className="text-sm">{catConfig?.icon || "🎁"}</span>
+              <div className="text-left">
+                <p className="text-[10px] font-semibold text-slate-800 whitespace-nowrap">{deal.merchantName}</p>
+                <p className={cn("text-[8px] font-bold", urgent ? "text-red-500" : "text-amber-600")}>
+                  {deal.hoursLeft}h left · {deal.rewardValue}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Category Quick-Filter Pills ──────────────────────────────────────
+function CategoryFilterPills({
+  deals,
+  activeCategory,
+  onSelect,
+  color,
+}: {
+  deals: BankDeal[];
+  activeCategory: string | null;
+  onSelect: (cat: string | null) => void;
+  color: string;
+}) {
+  const availableCategories = useMemo(() => {
+    const cats = new Set(deals.map(d => d.merchantCategory));
+    return DEAL_CATEGORY_PILLS.filter(p => cats.has(p.key));
+  }, [deals]);
+
+  return (
+    <div className="flex gap-1 overflow-x-auto no-scrollbar">
+      <button
+        className={cn(
+          "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5",
+          !activeCategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+        )}
+        style={!activeCategory ? { background: color } : undefined}
+        onClick={() => onSelect(null)}
+      >
+        All
+      </button>
+      {availableCategories.map(cat => (
+        <button
+          key={cat.key}
+          className={cn(
+            "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
+            activeCategory === cat.key ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+          )}
+          style={activeCategory === cat.key ? { background: color } : undefined}
+          onClick={() => onSelect(activeCategory === cat.key ? null : cat.key)}
+        >
+          <span className="text-[10px]">{cat.emoji}</span> {cat.short}
+        </button>
+      ))}
     </div>
   );
 }
@@ -222,16 +442,26 @@ function RewardsPhoneMockup({
 }) {
   const firstName = customer.profile.name.split(" ")[0];
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const isSearchActive = searchQuery.trim().length > 0;
   const queryLower = searchQuery.toLowerCase();
 
+  // Separate hero deal (first deal) from grid deals
+  const heroDeal = hasEnriched && deals.length > 0 ? deals[0] : null;
+  const gridDeals = hasEnriched ? deals.slice(1) : deals;
+
   const filteredDeals = useMemo(() => {
-    if (!isSearchActive) return deals;
-    if (matchingDealIds.length > 0) return deals.filter(d => matchingDealIds.includes(d.id));
-    if (isSearching) return deals;
-    return [];
-  }, [deals, isSearchActive, matchingDealIds, isSearching]);
+    let result = gridDeals;
+    if (isSearchActive) {
+      if (matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
+      else if (!isSearching) result = [];
+    }
+    if (categoryFilter) {
+      result = result.filter(d => d.merchantCategory === categoryFilter);
+    }
+    return result;
+  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter]);
 
   const filteredPerks = useMemo(() => {
     if (!isSearchActive) return perks;
@@ -243,12 +473,18 @@ function RewardsPhoneMockup({
     );
   }, [perks, isSearchActive, queryLower]);
 
+  // Hide hero deal if search is active and it doesn't match
+  const showHero = heroDeal && (!isSearchActive || matchingDealIds.includes(heroDeal.id));
+
   return (
     <div className="p-4">
       <div className="max-w-2xl mx-auto space-y-2">
           <div className="flex items-baseline justify-between">
             <p className="text-base font-bold text-slate-900">Welcome to {city}, {firstName}!</p>
           </div>
+
+          {/* Savings Summary */}
+          <SavingsSummaryBar profile={profile} color={color} hasEnriched={hasEnriched} />
 
           {/* Semantic search bar */}
           <div className="relative">
@@ -274,6 +510,26 @@ function RewardsPhoneMockup({
               <Sparkles className="w-3 h-3 text-blue-500 shrink-0 mt-0.5" />
               <p className="text-[9px] leading-relaxed text-blue-700">{searchReasoning}</p>
             </div>
+          )}
+
+          {/* Category quick-filter pills */}
+          {hasEnriched && deals.length > 0 && !isSearchActive && (
+            <CategoryFilterPills deals={deals} activeCategory={categoryFilter} onSelect={setCategoryFilter} color={color} />
+          )}
+
+          {/* Hero Spotlight Deal */}
+          {showHero && heroDeal && (
+            <HeroSpotlightDeal
+              deal={heroDeal}
+              personalized={personalized[heroDeal.id]}
+              color={color}
+              loading={loading}
+            />
+          )}
+
+          {/* Expiring Soon */}
+          {hasEnriched && deals.length > 2 && !isSearchActive && (
+            <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
           )}
 
           {filteredPerks.length > 0 && (
@@ -338,7 +594,7 @@ function RewardsPhoneMockup({
                   </div>
                 );
               })
-            ) : (
+            ) : !hasEnriched ? (
               customer.deals.map((deal, i) => (
                 <div key={deal.brand} className="rounded-lg p-2.5 border border-slate-200 bg-white animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
                   <div className="flex items-center justify-between mb-1">
@@ -366,7 +622,7 @@ function RewardsPhoneMockup({
                   </div>
                 </div>
               ))
-            )}
+            ) : null}
           </div>
 
           {hasEnriched && profile && (
