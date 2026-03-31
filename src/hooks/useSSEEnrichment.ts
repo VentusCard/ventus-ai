@@ -348,7 +348,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
         console.log('[Enrichment] Starting ZIP-first travel detection...');
         setCurrentPhase("travel");
         setStatusMessage('Pre-filtering travel candidates...');
-        await callEnrichTransactions(classifiedTransactions, homeZip!);
+        await callEnrichTransactions(classifiedTransactions, homeZip!, suppressToasts);
       } else {
         // Skip travel detection if no valid home ZIP
         console.log('[Enrichment] Skipping travel detection (no home ZIP provided)');
