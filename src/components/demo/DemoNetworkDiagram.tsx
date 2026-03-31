@@ -18,6 +18,11 @@ interface Props {
   centered?: boolean;
   onTxCardClick?: () => void;
   enabledModules: Set<ModuleKey>;
+  enriched?: EnrichedTransaction[];
+  localExperiences?: LocalExperiencesData;
+  personalizedDeals?: PersonalizedDealData | null;
+  detectedEvents?: DetectedLifeEventResult[];
+  tip?: FinancialTip | null;
 }
 
 interface NodeDef {
