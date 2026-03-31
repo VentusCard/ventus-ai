@@ -151,7 +151,12 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
             >
               <Icon className="w-3.5 h-3.5" style={{ color: pillarColor }} />
             </div>
-            <span className="text-xs font-semibold text-slate-700">{node.label}</span>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-slate-700">{node.label}</span>
+              {CARD_DESCRIPTIONS[node.id] && (
+                <p className="text-[9px] text-slate-400 leading-tight mt-0.5">{CARD_DESCRIPTIONS[node.id]}</p>
+              )}
+            </div>
           </div>
         );
       })}
