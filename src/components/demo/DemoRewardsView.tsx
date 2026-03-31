@@ -466,8 +466,6 @@ function RewardsPhoneMockup({
   const heroDeal = hasEnriched && deals.length > 0 ? deals[0] : null;
   const gridDeals = hasEnriched ? deals.slice(1) : deals;
 
-  // Get enriched transactions reference for passing to pills
-  const enrichedRef = hasEnriched ? enriched : undefined;
 
   const filteredDeals = useMemo(() => {
     let result = gridDeals;
