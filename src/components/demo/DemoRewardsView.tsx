@@ -262,46 +262,19 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
 // ─── Category Quick-Filter Pills ──────────────────────────────────────
 function CategoryFilterPills({
   deals,
-  enriched,
   activeCategory,
-  activeSubcategory,
   onSelectCategory,
-  onSelectSubcategory,
   color,
 }: {
   deals: BankDeal[];
-  enriched?: EnrichedTransaction[];
   activeCategory: string | null;
-  activeSubcategory: string | null;
   onSelectCategory: (cat: string | null) => void;
-  onSelectSubcategory: (sub: string | null) => void;
   color: string;
 }) {
   const availableCategories = useMemo(() => {
     const cats = new Set(deals.map(d => d.merchantCategory));
     return DEAL_CATEGORY_PILLS.filter(p => cats.has(p.key));
   }, [deals]);
-
-  const subcategories = useMemo(() => {
-    if (!enriched || enriched.length === 0) return [];
-    const subcatCounts = new Map<string, number>();
-    enriched.forEach(t => {
-      if (t.subcategory && t.subcategory !== "General" && t.subcategory !== "Other") {
-        subcatCounts.set(t.subcategory, (subcatCounts.get(t.subcategory) || 0) + 1);
-      }
-      // Also pull from subcategories array
-      t.subcategories?.forEach(sc => {
-        if (sc && sc !== "General" && sc !== "Other" && sc !== t.subcategory) {
-          subcatCounts.set(sc, (subcatCounts.get(sc) || 0) + 1);
-        }
-      });
-    });
-    return Array.from(subcatCounts.entries())
-      .filter(([, count]) => count >= 2) // only show subcategories with 2+ transactions
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12)
-      .map(([name]) => name);
-  }, [enriched]);
 
   return (
     <div className="flex gap-1 overflow-x-auto hide-scrollbar items-center">
