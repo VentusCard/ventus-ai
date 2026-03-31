@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
 import { cn } from "@/lib/utils";
+import { getSubcategoryIcon } from "@/lib/categoryIcons";
 import { toast } from "sonner";
 
 const CATEGORY_HEX: Record<string, string> = {
@@ -342,6 +343,7 @@ function CategoryFilterPills({
               style={activeSubcategory === sub ? { background: color } : undefined}
               onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
             >
+              <span className="text-[10px]">{getSubcategoryIcon(sub)}</span>
               {sub}
             </button>
           ))}
