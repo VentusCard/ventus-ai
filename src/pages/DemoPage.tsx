@@ -110,6 +110,8 @@ export default function DemoPage() {
           statusMessage={statusMessage}
           currentPhase={currentPhase}
           nodeReadiness={nodeReadiness}
+          enabledModules={enabledModules}
+          onModulesChange={setEnabledModules}
         />
       </div>
 
