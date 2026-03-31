@@ -281,10 +281,10 @@ function CategoryFilterPills({
       <button
         className={cn(
           "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5",
-          !activeCategory && !activeSubcategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+          !activeCategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
         )}
-        style={!activeCategory && !activeSubcategory ? { background: color } : undefined}
-        onClick={() => { onSelectCategory(null); onSelectSubcategory(null); }}
+        style={!activeCategory ? { background: color } : undefined}
+        onClick={() => { onSelectCategory(null); }}
       >
         All
       </button>
