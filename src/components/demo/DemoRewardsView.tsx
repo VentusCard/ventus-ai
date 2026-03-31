@@ -3,8 +3,8 @@ import { Loader2, MapPin, ChevronDown, ChevronUp, Gift, Star, Search, X, Sparkle
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
-import { deriveCustomerProfile, getRelevantDeals, formatCurrency, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
-import { DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
+import { deriveCustomerProfile, getRelevantDeals, formatCurrency, convertToBankDeal, type BankDeal, type DerivedCustomerProfile } from "@/lib/dealSelectionUtils";
+import { DEAL_CATEGORIES, availableDeals as AVAILABLE_DEALS, type DealCategory } from "@/lib/availableDealsData";
 import { supabase } from "@/integrations/supabase/client";
 import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
@@ -334,15 +334,15 @@ function CategoryFilterPills({
             <button
               key={sub}
               className={cn(
-                "shrink-0 text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors whitespace-nowrap border",
+                "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
                 activeSubcategory === sub
-                  ? "text-white border-transparent"
-                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-100"
+                  ? "text-white"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
               )}
-              style={activeSubcategory === sub ? { background: color, borderColor: color } : undefined}
+              style={activeSubcategory === sub ? { background: color } : undefined}
               onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
             >
-              · {sub}
+              {sub}
             </button>
           ))}
         </>
@@ -468,21 +468,24 @@ function RewardsPhoneMockup({
 
 
   const filteredDeals = useMemo(() => {
+    // When a category or subcategory filter is active, search the FULL deal library
+    if (categoryFilter) {
+      let result = AVAILABLE_DEALS.filter(d => d.category === categoryFilter).map(convertToBankDeal);
+      if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
+      else if (isSearchActive && !isSearching) result = [];
+      return result;
+    }
+    if (subcategoryFilter) {
+      let result = AVAILABLE_DEALS.filter(d => d.subcategory === subcategoryFilter).map(convertToBankDeal);
+      if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
+      else if (isSearchActive && !isSearching) result = [];
+      return result;
+    }
+    // Default: use customer-specific deals
     let result = gridDeals;
     if (isSearchActive) {
       if (matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
       else if (!isSearching) result = [];
-    }
-    if (categoryFilter) {
-      result = result.filter(d => d.merchantCategory === categoryFilter);
-    }
-    if (subcategoryFilter) {
-      const subLower = subcategoryFilter.toLowerCase();
-      result = result.filter(d =>
-        d.subcategory?.toLowerCase().includes(subLower) ||
-        d.merchantCategory?.toLowerCase().includes(subLower) ||
-        d.dealDescription?.toLowerCase().includes(subLower)
-      );
     }
     return result;
   }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter, subcategoryFilter]);
