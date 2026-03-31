@@ -64,7 +64,7 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
 
 const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization: null, localExperiences: null, lifestyleSignals: null };
 
-export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose, enabledModules }: Props) {
   const { title, color } = NODE_TITLES[node];
 
   const isBankWide = BANK_WIDE_NODES.has(node);
