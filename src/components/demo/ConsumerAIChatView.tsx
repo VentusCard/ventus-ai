@@ -42,7 +42,7 @@ function buildContext(
     age: customer.profile.demographics?.age,
     occupation: customer.profile.demographics?.occupation,
     familyStatus: customer.profile.demographics?.familyStatus,
-    income: customer.profile.demographics?.income || customer.profile.aum,
+    income: customer.profile.demographics?.incomeLevel || customer.profile.aum,
     segment: customer.profile.segment,
     holdings: customer.profile.holdings
       ? `Deposits: ${customer.profile.holdings.deposit}, Credit: ${customer.profile.holdings.credit}, Mortgage: ${customer.profile.holdings.mortgage}, Investments: ${customer.profile.holdings.investments}`
