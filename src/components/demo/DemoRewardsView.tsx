@@ -308,17 +308,17 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
   const catHex = CATEGORY_HEX[perk.category] || color;
 
   return (
-    <div className="flex items-center gap-1.5 py-1 px-1.5 rounded-md hover:bg-slate-50 transition-colors">
-      <div className={cn("h-5 w-5 rounded flex items-center justify-center shrink-0 border", cc.color)}>
-        <CatIcon className="h-2.5 w-2.5" />
+    <div className="rounded-md border border-slate-100 p-1.5 hover:bg-slate-50 transition-colors flex flex-col gap-1">
+      <div className="flex items-center gap-1 min-w-0">
+        <div className={cn("h-4 w-4 rounded flex items-center justify-center shrink-0 border", cc.color)}>
+          <CatIcon className="h-2 w-2" />
+        </div>
+        <span className="text-[9px] font-semibold text-slate-900 truncate">{perk.title}</span>
       </div>
-      <div className="min-w-0 flex-1 flex items-center gap-1">
-        <span className="text-[10px] font-semibold text-slate-900 truncate">{perk.title}</span>
-        <span className="text-[9px] text-slate-400 truncate">· {perk.partner}</span>
-      </div>
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex items-center justify-between gap-1">
+        <span className="text-[8px] text-slate-400 truncate">{perk.partner}</span>
         <span
-          className="text-[8px] font-bold px-1.5 py-0.5 rounded"
+          className="text-[7px] font-bold px-1 py-0.5 rounded shrink-0"
           style={{ background: `${catHex}12`, color: catHex }}
         >
           {perk.value}
