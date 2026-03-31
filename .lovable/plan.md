@@ -1,19 +1,26 @@
 
 
-## Suppress All Toast Notifications on /demo
+## Remove Only the Impact Column from Demo Network Diagram
 
-### Problem
-Multiple toast notifications fire during demo enrichment — "75 transactions classified!", "travel patterns detected!", "Already enriched", and error toasts. The user wants none of them on the `/demo` page.
+### What changes (all in `src/components/demo/DemoNetworkDiagram.tsx`)
 
-### Plan
+1. **Delete `IMPACT_METRICS` constant** (lines 95-99) and `visibleImpactMetrics` memo (lines 107-113).
 
-**File: `src/hooks/useSSEEnrichment.ts`**
-- Add `suppressToasts?: boolean` to the `startEnrichment` options/parameters.
-- Wrap all 5 `toast.*()` calls (lines 165, 199, 301, 356, 364) with `if (!suppressToasts)`.
+2. **Remove Impact layout variables**: delete `gap4` (line 150), `IMPACT_COL_WIDTH` (line 152), `anyImpactVisible` (line 155), `centeringShift` (line 160), `impactColLeftX` (line 166).
 
-**File: `src/hooks/useDemoEnrichment.ts`**
-- Pass `suppressToasts: true` when calling `startEnrichment`.
-- Remove or guard the two local `toast.*()` calls (lines 237, 468) so they never fire on /demo.
+3. **Fix `totalContentWidth`**: remove `+ gap4 + IMPACT_COL_WIDTH` from line 157.
 
-This keeps toasts working on the TePilot enrichment page while silencing them entirely on `/demo`.
+4. **Remove `centeringShift` from wrapper transform** (line 186) — just remove the `translateX` or set it to `0`.
+
+5. **Delete Consumer→Impact SVG connector lines** (lines 300-318).
+
+6. **Delete Impact column rendering** (lines 484-524).
+
+7. **Delete Impact column header** (lines 551-556).
+
+8. **Remove `ArrowUpRight` from lucide imports** (if only used by Impact).
+
+### What stays untouched
+- All animations (moving dots, transitions, hover effects)
+- All other columns, nodes, click handlers, layout
 
