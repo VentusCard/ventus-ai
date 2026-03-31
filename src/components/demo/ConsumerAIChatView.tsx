@@ -128,9 +128,9 @@ function buildContext(
   }));
 
   const deals = personalizedDeals?.deals?.map((d) => ({
-    brand: d.brand,
-    offer: d.offer,
-    match: d.matchScore,
+    brand: d.merchantName,
+    offer: d.dealTitle,
+    match: d.activationCount,
   }));
 
   return { demographics, spendingSummary, lifeEvents, deals };
