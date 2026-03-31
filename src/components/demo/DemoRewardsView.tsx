@@ -239,12 +239,14 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
               onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
             >
               <span className="text-xs">{catConfig?.icon || "🎁"}</span>
-              <div className="text-left">
-                <p className="text-[9px] font-semibold text-slate-800 whitespace-nowrap leading-tight">{deal.merchantName}</p>
-                <p className={cn("text-[7px] font-bold leading-tight", urgent ? "text-red-500" : "text-amber-600")}>
-                  {deal.hoursLeft}h left · {deal.rewardValue}
-                </p>
-              </div>
+              <span className="text-[9px] font-semibold text-slate-800 whitespace-nowrap">{deal.merchantName}</span>
+              <span className={cn("text-[7px] font-bold", urgent ? "text-red-500" : "text-amber-600")}>{deal.hoursLeft}h left</span>
+              <span className={cn(
+                "ml-auto px-1.5 py-0.5 rounded-full text-[8px] font-bold whitespace-nowrap",
+                urgent ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+              )}>
+                {deal.rewardValue}
+              </span>
             </button>
           );
         })}
