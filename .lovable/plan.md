@@ -1,26 +1,34 @@
 
 
-## Redesign: Dynamic Engine Node Cards Based on Module Selection
+## Make Engine Card Pills Clickable + Line Opens Enrichment
 
 ### What changes
-The "Advanced Enrichment" engine card in `DemoNetworkDiagram.tsx` currently shows 3 static capability rows. It will be updated to show 1–4 cards matching the enabled modules from demo settings.
 
-### Card mapping
+1. **Engine card pills become individual clickable buttons** — each module pill navigates to its corresponding analytics section instead of the whole card opening enrichment.
+2. **The SVG line connecting user node → engine node becomes clickable** — clicking it opens the enrichment panel (previously the engine card's behavior).
 
-| Module Key | Label | Color | Icon |
-|---|---|---|---|
-| Analytics (always on) | Ventus AI Customer Intelligence & Analytics | `#3b82f6` (blue) | BarChart3 |
-| AI & UX | AI & UX | `#60a5fa` (sky) | Smartphone |
-| Rewards | Rewards | `#22c55e` (green) | Gift |
-| Relationship | Relationship | `#ec4899` (pink) | Heart |
+### Mapping: Module pill → node type
 
-### Implementation — single file edit: `src/components/demo/DemoNetworkDiagram.tsx`
+| Module | Opens node | Which routes to |
+|---|---|---|
+| Customer Intelligence | `analytics` | Lifestyle Analysis dashboard |
+| AI & UX | `engagement` | Personalized AI & UX |
+| Rewards | `travel` | Rewards Intelligence |
+| Relationship | `lifeEvents` | Next-Product Automation |
 
-1. **Replace `ENGINE_CAPABILITIES`** with a new `ENGINE_MODULE_CARDS` array that maps each `ModuleKey` to a label, icon, and color (matching the MODULE_CONFIG colors from the settings panel).
+### Implementation — `DemoNetworkDiagram.tsx`
 
-2. **Filter dynamically** — inside the component, compute `visibleEngineCards` by filtering `ENGINE_MODULE_CARDS` against `enabledModules`. Analytics is always included since it's always enabled.
+1. **Engine card**: Change from a single `<button>` wrapping everything to a `<div>`. Remove the top-level `onClick={() => onNodeClick("engine")}`. Instead, each pill row gets its own `onClick` that calls `onNodeClick(targetNode)` with the mapped node type.
 
-3. **Update the engine card rendering** (lines 335–344) to iterate over `visibleEngineCards` instead of `ENGINE_CAPABILITIES`, keeping the same visual style (colored pill rows with icon + label).
+2. **Add a target node mapping** to `ENGINE_MODULE_CARDS`:
+   ```ts
+   { mod: "Analytics", label: "Customer Intelligence", ..., target: "analytics" as DemoNodeType },
+   { mod: "AI & UX", label: "AI & UX", ..., target: "engagement" as DemoNodeType },
+   { mod: "Rewards", label: "Rewards", ..., target: "travel" as DemoNodeType },
+   { mod: "Relationship", label: "Relationship", ..., target: "lifeEvents" as DemoNodeType },
+   ```
 
-4. **Adjust `ENGINE_MIN_HEIGHT`** dynamically based on the number of visible cards so the node resizes gracefully (e.g. base height + per-card increment).
+3. **SVG input line (TX → engine)**: Add an invisible wider `<path>` (stroke-width ~12, transparent) on top of the visible line with `cursor: pointer` and `onClick={() => onNodeClick("engine")}`. This makes the line clickable and opens the enrichment panel.
+
+4. **Styling**: Pills get hover states (`hover:scale-[1.02]`, cursor pointer when engine is ready). The clickable line gets `pointer-events: all` and `cursor: pointer`.
 
