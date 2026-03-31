@@ -145,7 +145,7 @@ export function getRelevantDeals(profile: DerivedCustomerProfile, maxDeals = 11)
     (popularityOrder[a.popularity] ?? 4) - (popularityOrder[b.popularity] ?? 4);
 
   // Proportional slots by pillar rank: 4 / 3 / 1
-  const slotAllocation = [4, 3, 1];
+  const slotAllocation = [4, 3, 2];
   const pillarDeals: BankDeal[] = [];
   const usedIds = new Set<string>();
 
