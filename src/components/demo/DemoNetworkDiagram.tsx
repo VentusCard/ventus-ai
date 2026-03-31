@@ -92,11 +92,6 @@ const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChar
   { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899", target: "lifeEvents" },
 ];
 
-const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
-  { metrics: ["Higher Engagement", "Higher App Usage", "Higher NPS"], color: "#3b82f6" },
-  { metrics: ["Higher Redemption", "Higher Spend Lift", "High Profitability"], color: "#22c55e" },
-  { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#ec4899" },
-];
 
 export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules }: Props) {
   const visibleRows = useMemo(() => PILLAR_ROWS.filter(row => {
