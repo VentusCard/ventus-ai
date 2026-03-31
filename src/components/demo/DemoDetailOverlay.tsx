@@ -127,7 +127,7 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
         >
           <BarChart3 className="w-5 h-5" style={{ color: "#3b82f6" }} />
         </div>
-        <span className="text-sm font-semibold text-slate-700">Core Analytics</span>
+        <span className="text-sm font-semibold text-slate-700">Core Customer Intelligence</span>
         {/* Hover tooltip */}
         <div className="absolute left-0 right-0 -bottom-1 translate-y-full z-50 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
           <div className="bg-slate-800 text-white text-[11px] leading-snug rounded-lg px-3 py-2 shadow-lg mx-2">
