@@ -130,51 +130,14 @@ function SavingsSummaryBar({ profile, color, hasEnriched, city, firstName }: { p
     return Math.round(profile.totalSpend * 0.032);
   }, [profile]);
 
-  const redeemable = useMemo(() => Math.round(monthlySaved * 0.6), [monthlySaved]);
-  const goalProgress = Math.min((monthlySaved / 500) * 100, 100);
-
   return (
     <div className="rounded-xl border border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
-      <p className="text-base font-bold text-slate-900 mb-2">Welcome to {city}, {firstName}!</p>
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
-            <TrendingUp className="w-3 h-3" style={{ color }} />
-          </div>
-          <span className="text-[11px] font-semibold text-slate-800">Your Savings</span>
-        </div>
-        <span className="text-[9px] text-slate-400">This month</span>
-      </div>
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="text-lg font-bold text-slate-900">${monthlySaved}</p>
-          <p className="text-[9px] text-slate-500">saved across {hasEnriched ? "personalized" : "active"} deals</p>
-        </div>
-        <div className="text-right">
-          <div className="flex items-center gap-1 mb-0.5">
-            <Wallet className="w-3 h-3 text-emerald-500" />
-            <span className="text-[11px] font-bold text-emerald-600">${redeemable}</span>
-          </div>
-          <button
-            className="text-[8px] font-semibold px-2 py-0.5 rounded-md text-white cursor-pointer transition-all hover:opacity-90 active:scale-95"
-            style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
-            onClick={() => toast.info("Demo — Cashback redemption would process here")}
-          >
-            Redeem
-          </button>
-        </div>
-      </div>
-      <div className="mt-1.5">
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[8px] text-slate-400">Monthly goal: $500</span>
-          <span className="text-[8px] font-medium text-slate-500">{Math.round(goalProgress)}%</span>
-        </div>
-        <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${goalProgress}%`, background: `linear-gradient(90deg, ${color}, #6366f1)` }}
-          />
-        </div>
+      <p className="text-base font-bold text-slate-900 mb-1">Welcome to {city}, {firstName}!</p>
+      <div className="flex items-center gap-1.5">
+        <TrendingUp className="w-3 h-3" style={{ color }} />
+        <p className="text-[11px] text-slate-600">
+          You've saved <span className="font-bold text-slate-900">${monthlySaved}</span> this month across {hasEnriched ? "personalized" : "active"} deals
+        </p>
       </div>
     </div>
   );
