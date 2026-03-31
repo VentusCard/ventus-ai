@@ -406,46 +406,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               })}
             </div>
 
-            {/* Consumer node — uniform height */}
-            {(() => {
-              const node = pillar.consumerNode;
-              const Icon = node.icon;
-              const state = nodeReadiness[node.id];
-              const isReady = state === "ready";
-              const canOpen = engineReady && isReady;
-
-              return (
-                <button
-                  key={node.id}
-                  onClick={() => { if (canOpen) onNodeClick(node.id); }}
-                  disabled={!canOpen}
-                  className={`absolute flex flex-col items-center justify-center rounded-xl border border-l-[3px] ${AUDIENCE_ACCENT[node.audience]} group transition-[box-shadow,opacity,border-color] duration-300`}
-                  style={{
-                    left: consumerColLeftX,
-                    top: contentTop + (contentHeight - CONSUMER_NODE_HEIGHT) / 2,
-                    width: CONSUMER_COL_WIDTH,
-                    height: CONSUMER_NODE_HEIGHT,
-                    cursor: canOpen ? "pointer" : "not-allowed",
-                    opacity: !engineReady ? 0.5 : canOpen ? 1 : 0.7,
-                    background: canOpen ? `${node.color}12` : "#ffffff",
-                    borderColor: canOpen ? `${node.color}70` : "#e2e8f0",
-                    boxShadow: canOpen ? `0 0 16px ${node.color}18` : "0 1px 3px rgba(0,0,0,0.04)",
-                    zIndex: 2,
-                  }}
-                >
-                  <div
-                    className={`${centered ? "w-9 h-9" : "w-7 h-7"} rounded-lg flex items-center justify-center mb-1`}
-                    style={{ background: canOpen ? `${node.color}20` : `${node.color}10`, border: `1px solid ${canOpen ? `${node.color}40` : `${node.color}20`}` }}
-                  >
-                    <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"}`} style={{ color: node.color }} />
-                  </div>
-                  <p className={`font-semibold text-slate-900 ${centered ? "text-[14px]" : "text-[13px]"}`}>{node.label}</p>
-                  <p className={`text-slate-500 ${centered ? "text-[12px]" : "text-[11px]"}`}>
-                    {!engineReady ? "Waiting…" : isReady ? "✓ Ready" : state === "processing" ? "Processing…" : "Explore →"}
-                  </p>
-                </button>
-              );
-            })()}
+            {/* Phone mockup rendered once, outside the per-row loop — see below */}
           </div>
         );
       })}
