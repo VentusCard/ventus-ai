@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import { getCityFromZip, getPerksForCity, CATEGORY_CONFIG, TIER_COLORS, type LocationPerk, type PerkCategory } from "@/lib/locationPerksData";
 import { cn } from "@/lib/utils";
-import { getSubcategoryIcon } from "@/lib/categoryIcons";
+
 import { toast } from "sonner";
 
 const CATEGORY_HEX: Record<string, string> = {
@@ -262,19 +262,13 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
 // ─── Category Quick-Filter Pills ──────────────────────────────────────
 function CategoryFilterPills({
   deals,
-  enriched,
   activeCategory,
-  activeSubcategory,
   onSelectCategory,
-  onSelectSubcategory,
   color,
 }: {
   deals: BankDeal[];
-  enriched?: EnrichedTransaction[];
   activeCategory: string | null;
-  activeSubcategory: string | null;
   onSelectCategory: (cat: string | null) => void;
-  onSelectSubcategory: (sub: string | null) => void;
   color: string;
 }) {
   const availableCategories = useMemo(() => {
@@ -282,36 +276,15 @@ function CategoryFilterPills({
     return DEAL_CATEGORY_PILLS.filter(p => cats.has(p.key));
   }, [deals]);
 
-  const subcategories = useMemo(() => {
-    if (!enriched || enriched.length === 0) return [];
-    const subcatCounts = new Map<string, number>();
-    enriched.forEach(t => {
-      if (t.subcategory && t.subcategory !== "General" && t.subcategory !== "Other") {
-        subcatCounts.set(t.subcategory, (subcatCounts.get(t.subcategory) || 0) + 1);
-      }
-      // Also pull from subcategories array
-      t.subcategories?.forEach(sc => {
-        if (sc && sc !== "General" && sc !== "Other" && sc !== t.subcategory) {
-          subcatCounts.set(sc, (subcatCounts.get(sc) || 0) + 1);
-        }
-      });
-    });
-    return Array.from(subcatCounts.entries())
-      .filter(([, count]) => count >= 2) // only show subcategories with 2+ transactions
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12)
-      .map(([name]) => name);
-  }, [enriched]);
-
   return (
     <div className="flex gap-1 overflow-x-auto hide-scrollbar items-center">
       <button
         className={cn(
           "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5",
-          !activeCategory && !activeSubcategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+          !activeCategory ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
         )}
-        style={!activeCategory && !activeSubcategory ? { background: color } : undefined}
-        onClick={() => { onSelectCategory(null); onSelectSubcategory(null); }}
+        style={!activeCategory ? { background: color } : undefined}
+        onClick={() => { onSelectCategory(null); }}
       >
         All
       </button>
@@ -323,32 +296,11 @@ function CategoryFilterPills({
             activeCategory === cat.key ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
           )}
           style={activeCategory === cat.key ? { background: color } : undefined}
-          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); onSelectSubcategory(null); }}
+          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); }}
         >
           <span className="text-[10px]">{cat.emoji}</span> {cat.short}
         </button>
       ))}
-      {subcategories.length > 0 && (
-        <>
-          <span className="text-slate-300 text-[10px] shrink-0 px-0.5">|</span>
-          {subcategories.map(sub => (
-            <button
-              key={sub}
-              className={cn(
-                "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
-                activeSubcategory === sub
-                  ? "text-white"
-                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-              )}
-              style={activeSubcategory === sub ? { background: color } : undefined}
-              onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
-            >
-              <span className="text-[10px]">{getSubcategoryIcon(sub)}</span>
-              {sub}
-            </button>
-          ))}
-        </>
-      )}
     </div>
   );
 }
@@ -459,7 +411,7 @@ function RewardsPhoneMockup({
   const firstName = customer.profile.name.split(" ")[0];
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [subcategoryFilter, setSubcategoryFilter] = useState<string | null>(null);
+  
 
   const isSearchActive = searchQuery.trim().length > 0;
   const queryLower = searchQuery.toLowerCase();
@@ -477,12 +429,6 @@ function RewardsPhoneMockup({
       else if (isSearchActive && !isSearching) result = [];
       return result;
     }
-    if (subcategoryFilter) {
-      let result = AVAILABLE_DEALS.filter(d => d.subcategory === subcategoryFilter).map(convertToBankDeal);
-      if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
-      else if (isSearchActive && !isSearching) result = [];
-      return result;
-    }
     // Default: use customer-specific deals
     let result = gridDeals;
     if (isSearchActive) {
@@ -490,7 +436,7 @@ function RewardsPhoneMockup({
       else if (!isSearching) result = [];
     }
     return result;
-  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter, subcategoryFilter]);
+  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter]);
 
   const filteredPerks = useMemo(() => {
     if (!isSearchActive) return perks;
@@ -541,11 +487,8 @@ function RewardsPhoneMockup({
           {hasEnriched && deals.length > 0 && !isSearchActive && (
             <CategoryFilterPills
               deals={deals}
-              enriched={enriched}
               activeCategory={categoryFilter}
-              activeSubcategory={subcategoryFilter}
               onSelectCategory={setCategoryFilter}
-              onSelectSubcategory={setSubcategoryFilter}
               color={color}
             />
           )}
