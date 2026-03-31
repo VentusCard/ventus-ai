@@ -196,7 +196,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       setStatusMessage('Classification complete (no travel detected)');
       setCurrentPhase('complete');
       setIsProcessing(false);
-      toast.success(`${classifiedTransactions.length} transactions classified!`);
+      if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
       return;
     }
 
