@@ -134,12 +134,12 @@ function SavingsSummaryBar({ profile, color, hasEnriched, city, firstName }: { p
   }, [profile]);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
-      <p className="text-base font-bold text-slate-900 mb-1">Welcome to {city}, {firstName}!</p>
-      <div className="flex items-center gap-1.5">
-        <TrendingUp className="w-3 h-3" style={{ color }} />
-        <p className="text-[11px] text-slate-600">
-          Annual savings to date: <span className="font-bold text-slate-900">${monthlySaved * 12}</span>
+    <div className="rounded-lg border border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2">
+      <p className="text-sm font-bold text-slate-900">Welcome to {city}, {firstName}!</p>
+      <div className="flex items-center gap-1">
+        <TrendingUp className="w-2.5 h-2.5" style={{ color }} />
+        <p className="text-[10px] text-slate-600">
+          Saved <span className="font-bold text-slate-900">${monthlySaved * 12}</span> this year
         </p>
       </div>
     </div>
