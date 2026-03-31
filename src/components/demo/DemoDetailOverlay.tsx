@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Sparkles, Gift, Users, Bot, Wifi, Battery } from "lucide-react";
+import ConsumerAIChatView from "./ConsumerAIChatView";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
@@ -108,16 +109,12 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
         return <DemoWealthView customer={customer} detectedEvents={detectedEvents ?? []} />;
       case "ai":
         return (
-          <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
-              <Bot className="w-8 h-8 text-white" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">AI-Powered Insights</h3>
-            <p className="text-sm text-slate-500 max-w-xs">Intelligent financial recommendations and predictive analytics — coming soon.</p>
-            <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200">
-              Coming Soon
-            </span>
-          </div>
+          <ConsumerAIChatView
+            customer={customer}
+            enriched={enriched}
+            detectedEvents={detectedEvents}
+            personalizedDeals={personalizedDeals}
+          />
         );
     }
   };

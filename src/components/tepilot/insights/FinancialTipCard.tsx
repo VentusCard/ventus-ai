@@ -53,7 +53,7 @@ export function FinancialTipCard({ enrichedTransactions }: FinancialTipCardProps
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("advisor-chat", {
+      const { data, error } = await supabase.functions.invoke("consumer-chat", {
         body: {
           message: userMsg,
           conversationHistory: [{ role: "assistant", content: tip.message }],
@@ -94,7 +94,7 @@ export function FinancialTipCard({ enrichedTransactions }: FinancialTipCardProps
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("advisor-chat", {
+      const { data, error } = await supabase.functions.invoke("consumer-chat", {
         body: {
           message: inputValue,
           conversationHistory: messages.map(m => ({ role: m.role, content: m.content })),
