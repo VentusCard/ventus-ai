@@ -218,14 +218,14 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
 
   return (
     <div
-      className="rounded-xl border-2 overflow-hidden animate-fade-in h-full"
+      className="rounded-xl border-2 overflow-hidden animate-fade-in h-full flex flex-col"
       style={{ borderColor: `${color}30`, background: `linear-gradient(135deg, ${color}08, ${color}03)` }}
     >
-      <div className="px-3 py-0.5 flex items-center gap-1" style={{ background: `${color}10` }}>
-        <Clock className="w-3 h-3 text-amber-500" />
-        <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color }}>Expiring Soon</span>
+      <div className="px-2 py-0.5 flex items-center gap-1" style={{ background: `${color}10` }}>
+        <Clock className="w-2.5 h-2.5 text-amber-500" />
+        <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color }}>Expiring Soon</span>
       </div>
-      <div className="flex flex-col gap-1 p-2">
+      <div className="flex flex-col justify-between flex-1 gap-0.5 p-1.5">
         {expiringDeals.map((deal) => {
           const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
           const urgent = deal.hoursLeft <= 6;
@@ -233,15 +233,15 @@ function ExpiringSoonRow({ deals, color }: { deals: BankDeal[]; color: string })
             <button
               key={`exp-${deal.id}`}
               className={cn(
-                "rounded-lg border px-2 py-1 flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer",
+                "rounded-md border px-1.5 py-0.5 flex items-center gap-1 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex-1",
                 urgent ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
               )}
               onClick={() => toast.info(`Demo — ${deal.merchantName} deal would activate here`)}
             >
-              <span className="text-sm">{catConfig?.icon || "🎁"}</span>
+              <span className="text-xs">{catConfig?.icon || "🎁"}</span>
               <div className="text-left">
-                <p className="text-[10px] font-semibold text-slate-800 whitespace-nowrap">{deal.merchantName}</p>
-                <p className={cn("text-[8px] font-bold", urgent ? "text-red-500" : "text-amber-600")}>
+                <p className="text-[9px] font-semibold text-slate-800 whitespace-nowrap leading-tight">{deal.merchantName}</p>
+                <p className={cn("text-[7px] font-bold leading-tight", urgent ? "text-red-500" : "text-amber-600")}>
                   {deal.hoursLeft}h left · {deal.rewardValue}
                 </p>
               </div>
