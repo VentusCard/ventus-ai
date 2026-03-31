@@ -330,7 +330,6 @@ function PerkCard({ perk, color }: { perk: LocationPerk; color: string }) {
 
 // ─── Local Perks Section ──────────────────────────────────────────────
 function LocalPerksSection({ city, perks, color }: { city: string; perks: LocationPerk[]; color: string }) {
-  const [open, setOpen] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const categories = useMemo(() => [...new Set(perks.map(p => p.category))], [perks]);
