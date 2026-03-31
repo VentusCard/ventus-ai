@@ -158,7 +158,7 @@ function HeroSpotlightDeal({
   const catConfig = DEAL_CATEGORIES[deal.merchantCategory as DealCategory];
   return (
     <div
-      className="rounded-xl border-2 overflow-hidden animate-fade-in h-full w-full"
+      className="rounded-xl border-2 overflow-hidden animate-fade-in"
       style={{ borderColor: `${color}30`, background: `linear-gradient(135deg, ${color}08, ${color}03)` }}
     >
       <div className="px-3 py-0.5 flex items-center gap-1" style={{ background: `${color}10` }}>
@@ -481,9 +481,9 @@ function RewardsPhoneMockup({
           )}
 
           {/* Hero Spotlight + Expiring Soon Row */}
-          <div className="flex gap-2 items-stretch">
+          <div className="flex gap-2">
             {showHero && heroDeal && (
-              <div className="w-2/3 flex">
+              <div className="w-2/3">
                 <HeroSpotlightDeal
                   deal={heroDeal}
                   personalized={personalized[heroDeal.id]}
@@ -493,7 +493,7 @@ function RewardsPhoneMockup({
               </div>
             )}
             {hasEnriched && deals.length > 2 && !isSearchActive && (
-              <div className={cn("flex", showHero && heroDeal ? "w-1/3" : "w-full")}>
+              <div className={showHero && heroDeal ? "w-1/3" : "w-full"}>
                 <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
               </div>
             )}
