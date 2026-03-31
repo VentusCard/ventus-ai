@@ -135,17 +135,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const gap1 = centered ? 70 : Math.max(14, dims.w * 0.018);
   const gap2 = centered ? 80 : Math.max(28, dims.w * 0.035);
   const gap3 = centered ? 75 : Math.max(24, dims.w * 0.03);
-  const gap4 = centered ? 65 : Math.max(18, dims.w * 0.022);
 
-  const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
-
-  // Dynamic centering: shift everything right when impact column is hidden
-  const anyImpactVisible = visibleRows.some(p => nodeReadiness[p.consumerNode.id] === "ready");
   const pad = Math.max(8, dims.w * 0.01);
-  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
+  const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
-  // When impact is hidden, shift diagram right to center the visible 4 columns
-  const centeringShift = anyImpactVisible ? 0 : (gap4 + IMPACT_COL_WIDTH) / 2;
 
   const txCenterX = offsetX + TX_CARD_WIDTH / 2;
   const engineCenterX = offsetX + TX_CARD_WIDTH + gap1 + ENGINE_WIDTH / 2;
