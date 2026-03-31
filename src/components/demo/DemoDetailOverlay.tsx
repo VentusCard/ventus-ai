@@ -143,8 +143,13 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
             </div>
           </div>
 
-          {/* Tab Bar */}
-          <div className="flex border-b border-slate-200 bg-slate-50/80 px-2">
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto bg-white">
+            {renderConsumerTabContent()}
+          </div>
+
+          {/* Bottom Tab Bar */}
+          <div className="flex border-t border-slate-200 bg-slate-50/80 px-2">
             {CONSUMER_TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.key;
@@ -159,16 +164,11 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
                     {tab.label}
                   </span>
                   {isActive && (
-                    <div className="absolute bottom-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
                   )}
                 </button>
               );
             })}
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto bg-white">
-            {renderConsumerTabContent()}
           </div>
 
           {/* Home indicator */}
