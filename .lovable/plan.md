@@ -1,24 +1,20 @@
 
 
-## Plan: Compact Expiring Soon Cards — Single Line with Deal Label
+## Plan: Redesign Local Perks as 4-Column Card Matrix
 
-### Changes (single file: `DemoRewardsView.tsx`, lines ~232–248)
+### File: `src/components/demo/DemoRewardsView.tsx`
 
-1. **Merge merchant name + deal info onto one line**: Replace the stacked `<div>` layout with a single horizontal flex row showing: icon, merchant name, countdown, and deal value label — all inline.
+**1. Redesign `PerkCard` (~lines 305–329)** as a compact vertical card cell:
+- Small category icon + title on one line (truncated)
+- Partner name below in muted text
+- Value badge at bottom (colored pill, same style as deal cards)
+- Styling: `rounded-md border border-slate-100 p-1.5`, tight spacing
 
-2. **Style the deal value as a label/badge**: Present `rewardValue` (e.g. "15% Off") as a small pill/badge similar to the personalized deal cards below — rounded background, bold text, colored styling.
+**2. Update `LocalPerksSection` grid (~line 379)**:
+- Replace `<div className="space-y-0.5">` with `<div className="grid grid-cols-4 gap-1">`
 
-**Revised card markup** (conceptually):
-```tsx
-<button className="rounded-md border px-1.5 py-0.5 flex items-center gap-1.5 ...">
-  <span className="text-xs">{icon}</span>
-  <span className="text-[9px] font-semibold text-slate-800 whitespace-nowrap">{merchantName}</span>
-  <span className="text-[7px] font-bold text-red/amber">{hoursLeft}h left</span>
-  <span className="ml-auto px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-100 text-green-700">
-    {rewardValue}
-  </span>
-</button>
-```
+**3. Remove collapsible toggle** — keep section always open since the grid is already compact. Replace the `<button>` header with a static header row.
 
-Single file edit, ~15 lines changed.
+### Result
+Local perks rendered as a 4×N card matrix, roughly half the current height.
 
