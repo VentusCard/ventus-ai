@@ -208,14 +208,14 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
 
   const renderConsumerOverlay = () => {
     return (
-      <div className="flex-1 min-h-0 flex overflow-hidden">
-        {/* Left: Feature cards (~25% width) */}
-        <div className="w-1/4 shrink-0 flex flex-col justify-center">
+      <div className="flex-1 min-h-0 relative overflow-hidden">
+        {/* Left: Feature cards — absolutely positioned so iPad stays centered */}
+        <div className="absolute left-0 top-0 bottom-0 w-[280px] flex flex-col justify-center z-10">
           <FeatureCardSidebar activeTab={activeTab} />
         </div>
 
-        {/* Right: iPad Frame */}
-        <div className="flex-1 flex items-center justify-center p-4">
+        {/* iPad Frame — centered in full width */}
+        <div className="w-full h-full flex items-center justify-center p-4">
           <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
             {/* Camera dot */}
             <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
