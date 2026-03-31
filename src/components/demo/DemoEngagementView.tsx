@@ -341,6 +341,7 @@ function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: {
                 </div>
               </div>
             )}
+          </div>
       </div>
     </div>
   );
