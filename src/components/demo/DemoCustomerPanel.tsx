@@ -133,23 +133,22 @@ export default function DemoCustomerPanel({
                   <div
                     key={mod}
                     onClick={() => !isAnalytics && toggleModule(mod)}
-                    className={`border-l-[3px] ${borderColor} rounded-lg border border-slate-200 p-4 transition-all ${
-                      isAnalytics ? "cursor-default bg-slate-50/50" : "cursor-pointer hover:shadow-sm hover:border-slate-300"
-                    } ${checked ? "bg-white" : "bg-slate-50/80 opacity-60"}`}
+                    className={`border-l-[3px] ${checked ? borderColor : "border-l-slate-200"} rounded-lg border border-slate-200 p-4 transition-all ${
+                      isAnalytics ? "cursor-default" : "cursor-pointer hover:shadow-sm hover:border-slate-300"
+                    } ${checked ? "bg-white shadow-sm opacity-100" : "bg-slate-50 opacity-50"}`}
                   >
                     <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={checked}
-                        disabled={isAnalytics}
-                        onCheckedChange={() => !isAnalytics && toggleModule(mod)}
-                        className={`h-4 w-4 mt-0.5 ${checkColor} data-[state=checked]:${checkColor.replace("text-", "bg-")} data-[state=checked]:text-white border-slate-300`}
-                      />
+                      {checked ? (
+                        <CheckCircle2 className={`h-5 w-5 mt-0.5 shrink-0 ${checkColor}`} />
+                      ) : (
+                        <Circle className="h-5 w-5 mt-0.5 shrink-0 text-slate-300" />
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-800">{label}</span>
+                          <span className={`text-sm font-semibold ${checked ? "text-slate-800" : "text-slate-400"}`}>{label}</span>
                           {isAnalytics && <Lock className="h-3 w-3 text-slate-400" />}
                         </div>
-                        <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">{description}</p>
+                        <p className={`text-[12px] mt-1 leading-relaxed ${checked ? "text-slate-500" : "text-slate-400"}`}>{description}</p>
                       </div>
                     </div>
                   </div>
