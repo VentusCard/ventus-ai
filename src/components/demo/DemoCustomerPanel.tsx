@@ -165,7 +165,7 @@ export default function DemoCustomerPanel({
           <div className="flex items-center gap-4">
             <Button
               onClick={onEnrich}
-              disabled={isProcessing || !customer}
+              disabled={isProcessing || !customer || !["AI & UX", "Rewards", "Relationship"].some(m => enabledModules.has(m as ModuleKey))}
               variant="ai"
               size="default"
               className="flex-1"
