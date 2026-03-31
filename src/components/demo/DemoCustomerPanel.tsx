@@ -129,7 +129,7 @@ export default function DemoCustomerPanel({
 
             {/* Module cards */}
             <div className="space-y-3 flex-1">
-              {MODULE_CONFIG.map(({ mod, label, description, borderColor, checkColor }) => {
+              {MODULE_CONFIG.map(({ mod, label, team, description, borderColor, checkColor }) => {
                 const isAnalytics = mod === "Analytics";
                 const checked = isAnalytics || enabledModules.has(mod);
                 return (
@@ -147,11 +147,10 @@ export default function DemoCustomerPanel({
                         <Circle className="h-5 w-5 mt-0.5 shrink-0 text-slate-300" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm font-semibold ${checked ? "text-slate-800" : "text-slate-400"}`}>{label}</span>
-                          {isAnalytics && <Lock className="h-3 w-3 text-slate-400" />}
-                        </div>
-                        <p className={`text-[12px] mt-1 leading-relaxed ${checked ? "text-slate-500" : "text-slate-400"}`}>{description}</p>
+                        <span className={`text-sm font-semibold ${checked ? "text-slate-800" : "text-slate-400"}`}>{label}</span>
+                        {isAnalytics && <Lock className="h-3 w-3 text-slate-400 inline ml-2" />}
+                        <p className={`text-[11px] mt-0.5 font-medium ${checked ? "text-slate-400" : "text-slate-300"}`}>{team}</p>
+                        <p className={`text-[12px] mt-1 leading-relaxed italic ${checked ? "text-slate-500" : "text-slate-400"}`}>{description}</p>
                       </div>
                     </div>
                   </div>
