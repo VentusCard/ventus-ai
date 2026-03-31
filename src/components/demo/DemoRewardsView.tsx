@@ -303,7 +303,7 @@ function CategoryFilterPills({
   }, [enriched]);
 
   return (
-    <div className="flex gap-1 overflow-x-auto no-scrollbar items-center">
+    <div className="flex gap-1 overflow-x-auto items-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       <button
         className={cn(
           "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5",
