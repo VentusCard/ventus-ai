@@ -1,32 +1,33 @@
 
 
-## Plan: Add descriptions to consumer overlay sidebar cards
+## Plan: Fix personalized deals not showing 11
 
-### What changes
-In `src/components/demo/DemoDetailOverlay.tsx`, update the `FeatureCardSidebar` component to show a one-sentence description beneath each card label.
+### Problem
+`getRelevantDeals()` in `src/lib/dealSelectionUtils.ts` allocates slots as 4 + 3 + 2 (pillar deals) + 2 (discovery) = 11. But if a pillar has fewer deals than its allocation, the function returns fewer than 11, leaving a visual gap in the 2-column grid (odd count = empty cell).
 
-### Description map
-A `CARD_DESCRIPTIONS` record keyed by node `id`:
+### Fix
+In `src/lib/dealSelectionUtils.ts`, after combining `pillarDeals` and `discoveryDeals`, add a backfill step: if the combined count is still under `maxDeals`, pull additional deals from the full library (excluding already-used IDs), sorted by popularity, to fill remaining slots.
 
-| Card ID | Description |
-|---|---|
-| *(Core Analytics — hardcoded)* | Transforms raw transactions into rich lifestyle dimensions, enabling every experience below to feel personally crafted. |
-| `analytics` | Organizes spending into lifestyle categories like Dining, Fitness, and Travel — so the app feels like it truly knows the customer. |
-| `outflow` | Surfaces forgotten subscriptions and spending leaks, positioning your bank as a proactive financial guardian. |
-| `aiFinancialInsights` | Delivers timely, personalized money tips and alerts that make customers feel coached — not just served. |
-| `travel` | Anticipates what a customer needs next and delivers the right offer before they even search for it. |
-| `locational` | Identifies travel and surfaces local perks and experiences, positioning your bank as a travel and life companion. |
-| `dealPersonalization` | Matches offers to individual habits so every reward feels hand-picked — driving higher engagement and redemption. |
-| `lifeEventIntel` | Recognizes major life moments — a new home, a baby, retirement — so your bank can show up when it matters most. |
-| `lifeEvents` | Recommends the right financial product at the right life stage, turning routine banking into proactive guidance. |
-| `wmCopilot` | Arms relationship managers with AI-prepared context so every client conversation feels informed and personal. |
+### File changed
+- `src/lib/dealSelectionUtils.ts` — lines ~161-169: add backfill logic before the final return
 
-### Implementation
-1. Add a `CARD_DESCRIPTIONS: Record<string, string>` constant with the above entries.
-2. In the **Core Analytics** card, add a `<p>` subtitle below the label span with the core analytics description, styled `text-[9px] text-slate-400 leading-tight mt-0.5`.
-3. In the **bankNodes `.map()`** loop, add the same subtitle `<p>` using `CARD_DESCRIPTIONS[node.id]`.
-4. Wrap both label + description in a `<div className="flex flex-col">` so they stack vertically while the icon stays left-aligned.
+### Implementation detail
+```ts
+// After discoveryDeals are assembled (~line 167):
+const combined = [...pillarDeals, ...discoveryDeals];
 
-### Files modified
-- `src/components/demo/DemoDetailOverlay.tsx` — sidebar card rendering only
+// Backfill if under maxDeals
+if (combined.length < maxDeals) {
+  const remaining = AVAILABLE_DEALS
+    .filter(d => !usedIds.has(d.id) && !topPillarNames.includes(d.category))
+    .sort(sortByPopularity)
+    .slice(0, maxDeals - combined.length)
+    .map(convertToBankDeal);
+  combined.push(...remaining);
+}
+
+return combined.slice(0, maxDeals);
+```
+
+This guarantees 11 deals are returned (assuming the library has enough), eliminating the grid gap.
 
