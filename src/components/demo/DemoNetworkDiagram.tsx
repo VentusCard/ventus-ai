@@ -85,10 +85,11 @@ const PILLAR_ROWS: PillarRow[] = [
   },
 ];
 
-const ENGINE_CAPABILITIES = [
-  { label: "Semantic Enrichment", icon: Layers, color: "#6366f1" },
-  { label: "Cross-category Patterns", icon: GitBranch, color: "#8b5cf6" },
-  { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
+const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChart3; color: string }[] = [
+  { mod: "Analytics", label: "Customer Intelligence & Analytics", icon: BarChart3, color: "#3b82f6" },
+  { mod: "AI & UX", label: "AI & UX", icon: Smartphone, color: "#60a5fa" },
+  { mod: "Rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
+  { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899" },
 ];
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
@@ -130,7 +131,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const TX_CARD_WIDTH = centered ? Math.min(220, dims.w * 0.14) : Math.min(160, Math.max(130, dims.w * 0.16));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
   const ENGINE_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(175, Math.max(150, dims.w * 0.18));
-  const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
+  const visibleEngineCards = ENGINE_MODULE_CARDS.filter(c => enabledModules.has(c.mod));
+  const ENGINE_MIN_HEIGHT = (80 + visibleEngineCards.length * 32) * scale;
 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
   const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
@@ -333,10 +335,10 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
           <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
         </div>
         <div className="flex flex-col gap-1.5 px-2 w-full">
-          {ENGINE_CAPABILITIES.map((cap, ci) => {
+          {visibleEngineCards.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div key={cap.label} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
+              <div key={cap.mod} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[13px]" : "text-[12px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
               </div>
