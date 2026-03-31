@@ -127,7 +127,10 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
         >
           <BarChart3 className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
         </div>
-        <span className="text-xs font-semibold text-slate-700">Core Analytics</span>
+        <div className="flex flex-col">
+          <span className="text-xs font-semibold text-slate-700">Core Analytics</span>
+          <p className="text-[9px] text-slate-400 leading-tight mt-0.5">Transforms raw transactions into rich lifestyle dimensions, enabling every experience below to feel personally crafted.</p>
+        </div>
       </div>
 
       {/* Tab-specific bank node cards */}
