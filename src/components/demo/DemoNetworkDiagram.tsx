@@ -555,23 +555,29 @@ function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | n
 
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
-    <div className={`rounded-lg border-2 ${scaled ? "p-3" : "p-2.5"} bg-white`} style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}>
-      <div className="flex items-center gap-2">
-        <div className={`${scaled ? "w-8 h-8 text-[12px]" : "w-7 h-7 text-[11px]"} rounded-full flex items-center justify-center font-bold text-white`} style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
+    <div className={`rounded-2xl border bg-white ${scaled ? "py-3 px-2" : "py-2.5 px-2"}`} style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}>
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <div className={`${scaled ? "w-8 h-8 text-[12px]" : "w-7 h-7 text-[11px]"} rounded-full flex items-center justify-center font-bold text-white shrink-0`} style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
           {initials}
         </div>
         <div>
-          <p className={`font-semibold text-slate-900 truncate ${scaled ? "text-[15px]" : "text-[13px]"}`}>{customer.profile.name}</p>
-          <p className={`text-slate-400 ${scaled ? "text-[11px]" : "text-[10px]"}`}>User Data</p>
+          <p className={`font-bold text-slate-900 ${scaled ? "text-[15px]" : "text-[13px]"}`}>{customer.profile.name}</p>
         </div>
       </div>
-      <div className={`flex gap-1.5 ${scaled ? "mt-2.5" : "mt-2"}`}>
-        <div className={`flex-1 rounded-md border border-slate-200 bg-slate-50 ${scaled ? "px-2 py-1.5" : "px-1.5 py-1"}`}>
-          <p className={`font-medium text-slate-600 ${scaled ? "text-[11px]" : "text-[9px]"}`}>Demographics Data</p>
-        </div>
-        <div className={`flex-1 rounded-md border border-slate-200 bg-slate-50 ${scaled ? "px-2 py-1.5" : "px-1.5 py-1"}`}>
-          <p className={`font-medium text-slate-600 ${scaled ? "text-[11px]" : "text-[9px]"}`}>Transaction Data</p>
-        </div>
+      <div className="flex flex-col gap-1.5 px-1 w-full">
+        {[
+          { label: "Demographics Data", icon: "👤", bg: `${color}15`, border: `${color}40` },
+          { label: "Transaction Data", icon: "💳", bg: `${color}08`, border: `${color}20` },
+        ].map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 rounded-lg ${scaled ? "px-3 py-2" : "px-2 py-1.5"} border`}
+            style={{ background: item.bg, borderColor: item.border }}
+          >
+            <span className={`${scaled ? "text-[13px]" : "text-[11px]"}`}>{item.icon}</span>
+            <span className={`font-semibold ${scaled ? "text-[13px]" : "text-[12px]"}`} style={{ color }}>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
