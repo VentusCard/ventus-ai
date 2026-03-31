@@ -128,7 +128,7 @@ export default function DemoPage() {
       </div>
 
       {/* Bottom-right navigation */}
-      {activeNode && !BANK_WIDE_NODES.has(activeNode) ? (
+      {activeNode && !BANK_WIDE_NODES.has(activeNode) && !CONSUMER_NODES.has(activeNode) ? (
         <div className="absolute bottom-4 right-4 z-[60] flex items-center gap-2">
           {prevNode && (
             <button
