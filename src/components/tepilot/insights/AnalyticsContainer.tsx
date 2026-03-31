@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
@@ -9,11 +9,14 @@ import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
+import { FVIDashboard } from "./fvi/FVIDashboard";
+import { TabHeader } from "./TabHeader";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, Settings
+  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert, AlertTriangle
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
@@ -21,8 +24,10 @@ import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { VentusAIChatPanel } from "./VentusAIChatPanel";
+import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml';
 
 interface NavItem {
   value: TabValue;
@@ -40,9 +45,9 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Analytics",
     items: [
-      { value: "dashboard", label: "Category Consolidation & Budgeting", icon: BarChart3 },
+      { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
       { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
-      { value: "customer-insights", label: "Customer Insights", icon: Heart },
+      { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
     ],
   },
   {
@@ -62,6 +67,14 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
     ],
   },
+  {
+    label: "Health",
+    items: [
+      { value: "customer-insights", label: "Customer Insights", icon: Heart },
+      { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
+      { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
+    ],
+  },
 ];
 
 interface AnalyticsContainerProps {
@@ -69,15 +82,48 @@ interface AnalyticsContainerProps {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
   onBack?: () => void;
+  enabledModules?: Set<ModuleKey>;
 }
 
-export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Filter nav groups based on enabled modules
+  const filteredNavGroups = useMemo(() => {
+    if (!enabledModules) return NAV_GROUPS;
+
+    // Build set of allowed group labels from enabled modules
+    const allowedLabels = new Set<string>(["Home"]);
+    for (const mod of enabledModules) {
+      const groups = MODULE_NAV_GROUP_MAP[mod];
+      if (groups) groups.forEach(g => allowedLabels.add(g));
+    }
+    // Health group follows Analytics (always on since Analytics is always enabled)
+    if (enabledModules.has("Analytics")) allowedLabels.add("Health");
+
+    return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
+  }, [enabledModules]);
+
+  // All valid tab values from filtered groups
+  const validTabs = useMemo(() => {
+    const set = new Set<TabValue>();
+    filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
+    return set;
+  }, [filteredNavGroups]);
+
+  // Auto-reset tab if it became hidden
+  useEffect(() => {
+    if (!validTabs.has(activeTab)) {
+      setActiveTab('ventus-ai');
+    }
+  }, [validTabs, activeTab]);
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
+    if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -94,6 +140,23 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
+      case 'subscription-analytics': return <SubscriptionAnalyticsView />;
+      case 'fvi-dashboard': return <FVIDashboard />;
+      case 'fraud-aml': return (
+        <div className="space-y-6">
+          <TabHeader
+            icon={<AlertTriangle className="w-4 h-4" />}
+            title="Fraud / AML Detection"
+            subtitle="Transaction anomaly detection and suspicious pattern flagging"
+            howItWorks="Ventus monitors transaction velocity, geo-anomalies, and behavioral deviations to flag suspicious activity patterns in real time."
+            whyItMatters="Reduces fraud losses and strengthens AML compliance with behavioral intelligence layered on top of traditional rule engines."
+          />
+          <div className="flex flex-col items-center justify-center h-48 text-slate-400">
+            <AlertTriangle className="w-10 h-10 mb-3 text-slate-300" />
+            <p className="text-sm">Coming Soon</p>
+          </div>
+        </div>
+      );
     }
   };
 
@@ -135,17 +198,17 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       >
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center h-10 border-b border-slate-200 hover:bg-slate-100 transition-colors"
+          className="flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight className="w-4 h-4 text-slate-500" /> : <ChevronLeft className="w-4 h-4 text-slate-500" />}
         </button>
 
-        <nav className="flex-1 py-2 overflow-y-auto">
-          {NAV_GROUPS.map((group) => (
+        <nav className="flex-1 py-1 overflow-y-auto">
+          {filteredNavGroups.map((group) => (
             <Collapsible key={group.label} defaultOpen>
               {!collapsed && (
-                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
                   {group.label}
                   <ChevronDown className="w-3 h-3" />
                 </CollapsibleTrigger>
@@ -160,8 +223,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
                       onClick={() => setActiveTab(item.value)}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "w-full flex items-center gap-2.5 text-left text-sm transition-colors",
-                        collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2",
+                        "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                        collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
                         isActive
                           ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
                           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
@@ -173,15 +236,15 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
                   );
                 })}
               </CollapsibleContent>
-              {!collapsed && <div className="mx-3 my-1 border-b border-slate-200 last:hidden" />}
+              {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
             </Collapsible>
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-slate-200 py-2">
+        <div className="mt-auto border-t border-slate-200 py-1">
           {[
-            { label: "Feedback", icon: MessageSquare },
-            { label: "Settings", icon: Settings },
+            { label: "Feedback & Ideas", icon: MessageSquare },
+            { label: "Settings & Integrations", icon: Settings },
           ].map((item) => {
             const Icon = item.icon;
             return (
@@ -190,8 +253,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
                 onClick={() => toast({ title: item.label, description: "Coming soon" })}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "w-full flex items-center gap-2.5 text-left text-sm transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
-                  collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2"
+                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
+                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5"
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0 text-slate-400" />
@@ -203,9 +266,23 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       </div>
 
       {/* Content */}
-      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4">
+      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
         {renderContent()}
+        {activeTab !== 'ventus-ai' && !chatOpen && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
+            title="Open Ventus AI"
+          >
+            <span className="text-base font-black text-white leading-none">V</span>
+          </button>
+        )}
       </div>
+
+      {/* Chat Panel */}
+      {chatOpen && activeTab !== 'ventus-ai' && (
+        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+      )}
       </div>
     </div>
   );

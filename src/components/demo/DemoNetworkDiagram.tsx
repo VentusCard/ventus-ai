@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight, Brain, Target } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
+import { MODULE_ROW_MAP, type ModuleKey } from "@/types/demo";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot" | "aiFinancialInsights" | "dealPersonalization";
 
@@ -13,6 +14,7 @@ interface Props {
   inputReady: boolean;
   centered?: boolean;
   onTxCardClick?: () => void;
+  enabledModules: Set<ModuleKey>;
 }
 
 interface NodeDef {
@@ -33,7 +35,7 @@ interface PillarRow {
   consumerNode: NodeDef;
 }
 
-const BASE_TX_CARD_HEIGHT = 60;
+const BASE_TX_CARD_HEIGHT = 120;
 const BASE_ENGINE_MIN_HEIGHT = 140;
 
 const AUDIENCE_ACCENT = {
@@ -44,16 +46,16 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    team: "Analytics",
-    subtitle: "Where do our customers spend their money?",
+    team: "Experience",
+    subtitle: "How can we help our customers understand their spending?",
     icon: Search,
     color: "#3b82f6",
-    bankNodes: [
-      { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
-      { id: "outflow", label: "ACH & Outflow Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
-      { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
-    ],
-    consumerNode: { id: "engagement", label: "Personalized UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
+      bankNodes: [
+       { id: "analytics", label: "Multi-Category Lifestyle Pillars", icon: BarChart3, color: "#3b82f6", audience: "bank" },
+       { id: "outflow", label: "Outflow & Subscription Analysis", icon: ArrowDownRight, color: "#3b82f6", audience: "bank" },
+       { id: "aiFinancialInsights", label: "AI Financial Insights", icon: Brain, color: "#3b82f6", audience: "bank" },
+      ],
+    consumerNode: { id: "engagement", label: "Personalized AI & UX", icon: Smartphone, color: "#3b82f6", audience: "consumer" },
   },
   {
     id: "predictive",
@@ -70,7 +72,7 @@ const PILLAR_ROWS: PillarRow[] = [
   },
   {
     id: "phase",
-    team: "Growth & Wealth",
+    team: "Growth / Wealth",
     subtitle: "What's their next product to live a better life?",
     icon: Heart,
     color: "#ec4899",
@@ -83,10 +85,11 @@ const PILLAR_ROWS: PillarRow[] = [
   },
 ];
 
-const ENGINE_CAPABILITIES = [
-  { label: "Semantic Enrichment", icon: Layers, color: "#6366f1" },
-  { label: "Cross-category Patterns", icon: GitBranch, color: "#8b5cf6" },
-  { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
+const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChart3; color: string; target: DemoNodeType }[] = [
+  { mod: "Analytics", label: "Customer Intelligence", icon: BarChart3, color: "#3b82f6", target: "analytics" },
+  { mod: "AI & UX", label: "AI & UX", icon: Smartphone, color: "#60a5fa", target: "engagement" },
+  { mod: "Rewards", label: "Rewards", icon: Gift, color: "#22c55e", target: "travel" },
+  { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899", target: "lifeEvents" },
 ];
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
@@ -95,7 +98,19 @@ const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
   { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#ec4899" },
 ];
 
-export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick }: Props) {
+export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules }: Props) {
+  const visibleRows = useMemo(() => PILLAR_ROWS.filter(row => {
+    const mod = MODULE_ROW_MAP[row.id];
+    return mod ? enabledModules.has(mod) : true;
+  }), [enabledModules]);
+
+  const visibleImpactMetrics = useMemo(() => {
+    return PILLAR_ROWS.map((row, i) => ({ ...IMPACT_METRICS[i], rowId: row.id }))
+      .filter(item => {
+        const mod = MODULE_ROW_MAP[item.rowId];
+        return mod ? enabledModules.has(mod) : true;
+      });
+  }, [enabledModules]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -116,7 +131,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const TX_CARD_WIDTH = centered ? Math.min(220, dims.w * 0.14) : Math.min(160, Math.max(130, dims.w * 0.16));
   const TX_CARD_HEIGHT = BASE_TX_CARD_HEIGHT * scale;
   const ENGINE_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(175, Math.max(150, dims.w * 0.18));
-  const ENGINE_MIN_HEIGHT = BASE_ENGINE_MIN_HEIGHT * scale;
+  const visibleEngineCards = ENGINE_MODULE_CARDS.filter(c => enabledModules.has(c.mod));
+  const ENGINE_MIN_HEIGHT = (50 + visibleEngineCards.length * 30) * scale;
 
   const BANK_COL_WIDTH = centered ? Math.min(260, dims.w * 0.18) : Math.min(170, Math.max(140, dims.w * 0.18));
   const CONSUMER_COL_WIDTH = centered ? Math.min(240, dims.w * 0.16) : Math.min(150, Math.max(120, dims.w * 0.16));
@@ -136,7 +152,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
   // Dynamic centering: shift everything right when impact column is hidden
-  const anyImpactVisible = PILLAR_ROWS.some(p => nodeReadiness[p.consumerNode.id] === "ready");
+  const anyImpactVisible = visibleRows.some(p => nodeReadiness[p.consumerNode.id] === "ready");
   const pad = Math.max(8, dims.w * 0.01);
   const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
@@ -151,7 +167,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
   // Vertical layout
   const midY = dims.h * 0.5;
-  const totalGridHeight = ROW_HEIGHT * 3;
+  const rowCount = visibleRows.length || 1;
+  const totalGridHeight = ROW_HEIGHT * rowCount;
   const gridTopY = midY - totalGridHeight / 2 + 20;
 
   const txSpread = centered ? 85 : 55;
@@ -205,6 +222,15 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                     strokeDasharray={isReady ? "none" : "6 4"}
                     className="line-transition"
                   />
+                  {/* Invisible wider clickable path for enrichment panel */}
+                  <path
+                    d={path}
+                    stroke="transparent"
+                    strokeWidth={14}
+                    fill="none"
+                    style={{ cursor: isReady ? "pointer" : "default", pointerEvents: isReady ? "all" : "none" }}
+                    onClick={() => { if (isReady) onNodeClick("engine"); }}
+                  />
                   {isProcessingLine && (
                     <circle r="2.5" fill="#6366f1">
                       <animateMotion dur="2.5s" repeatCount="indefinite" path={path} />
@@ -220,7 +246,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })()}
 
             {/* Engine → Bank column rows */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rowCenterY = getRowCenterY(pi);
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
@@ -248,7 +274,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })}
 
             {/* Bank column → Consumer column (one line per bank node) */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
@@ -272,7 +298,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })}
 
             {/* Consumer column → Impact column */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
@@ -286,7 +312,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
               return (
                 <g key={`cons-impact-${pi}`}>
-                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
+                  <path d={path} stroke={visibleImpactMetrics[pi]?.color ?? pillar.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
                 </g>
               );
             })}
@@ -300,10 +326,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </div>
 
       {/* Engine Node */}
-      <button
-        onClick={() => { if (engineReady) onNodeClick("engine"); }}
-        disabled={!engineReady}
-        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-3 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+      <div
+        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-1.5 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "border-slate-200 opacity-90" : "border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY,
@@ -315,23 +339,29 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         }}
       >
         <div className="mb-2">
-          <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Advanced Enrichment</p>
+          <p className={`font-bold text-slate-900 ${centered ? "text-[16px]" : "text-[14px]"}`}>Ventus AI Module Suites</p>
         </div>
         <div className="flex flex-col gap-1.5 px-2 w-full">
-          {ENGINE_CAPABILITIES.map((cap, ci) => {
+          {visibleEngineCards.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div key={cap.label} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
+              <button
+                key={cap.mod}
+                onClick={() => { if (engineReady) onNodeClick(cap.target); }}
+                disabled={!engineReady}
+                className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.03] hover:shadow-sm" : "cursor-not-allowed"}`}
+                style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}
+              >
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[13px]" : "text-[12px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
-              </div>
+              </button>
             );
           })}
         </div>
-      </button>
+      </div>
 
       {/* Bank Analytics Column + Consumer Views Column */}
-      {PILLAR_ROWS.map((pillar, pi) => {
+      {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const PillarIcon = pillar.icon;
         const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
@@ -452,13 +482,14 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       })}
 
       {/* Impact Column */}
-      {PILLAR_ROWS.map((pillar, pi) => {
+      {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
         const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
-        const contentTop = rowCenterY - contentHeight / 2;
         const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
-        const impactData = IMPACT_METRICS[pi];
+        const impactData = visibleImpactMetrics[pi];
+
+        if (!impactData) return null;
 
         return (
           <div
@@ -503,23 +534,23 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: engineCenterX - ENGINE_WIDTH / 2, width: ENGINE_WIDTH, top: gridTopY - 48, zIndex: 2 }}
       >
-        Customer Intelligence
+        Modular Platform
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: bankColLeftX, width: BANK_COL_WIDTH, top: gridTopY - 48, zIndex: 2 }}
       >
-        AI-Native Platform
+        Feature Orchestration
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center`}
         style={{ left: consumerColLeftX, width: CONSUMER_COL_WIDTH, top: gridTopY - 48, zIndex: 2 }}
       >
-        Personalized Banking
+        Next-gen Banking Experience
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center transition-opacity duration-500`}
-        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 48, zIndex: 2, opacity: PILLAR_ROWS.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
+        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 48, zIndex: 2, opacity: visibleRows.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
       >
         Impact
       </div>
@@ -539,15 +570,29 @@ function TxCard({ customer, color, label, scaled }: { customer: DemoCustomer | n
 
   const initials = customer.profile.name.split(" ").map((w) => w[0]).join("");
   return (
-    <div className={`rounded-lg border-2 ${scaled ? "p-3" : "p-2.5"} bg-white`} style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}>
-      <div className="flex items-center gap-2">
-        <div className={`${scaled ? "w-8 h-8 text-[12px]" : "w-7 h-7 text-[11px]"} rounded-full flex items-center justify-center font-bold text-white`} style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
+    <div className={`rounded-2xl border bg-white ${scaled ? "py-3 px-2" : "py-2.5 px-2"}`} style={{ borderColor: `${color}50`, boxShadow: `0 0 12px ${color}20` }}>
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <div className={`${scaled ? "w-8 h-8 text-[12px]" : "w-7 h-7 text-[11px]"} rounded-full flex items-center justify-center font-bold text-white shrink-0`} style={{ background: `${color}30`, border: `1px solid ${color}50` }}>
           {initials}
         </div>
         <div>
-          <p className={`font-semibold text-slate-900 truncate ${scaled ? "text-[15px]" : "text-[13px]"}`}>{customer.profile.name}</p>
-          <p className={`text-slate-400 ${scaled ? "text-[11px]" : "text-[10px]"}`}>User Data</p>
+          <p className={`font-bold text-slate-900 ${scaled ? "text-[15px]" : "text-[13px]"}`}>{customer.profile.name}</p>
         </div>
+      </div>
+      <div className="flex flex-col gap-1.5 px-1 w-full">
+        {[
+          { label: "Demographics Data", icon: "👤", bg: `${color}15`, border: `${color}40` },
+          { label: "Transaction Data", icon: "💳", bg: `${color}08`, border: `${color}20` },
+        ].map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 rounded-lg ${scaled ? "px-3 py-2" : "px-2 py-1.5"} border`}
+            style={{ background: item.bg, borderColor: item.border }}
+          >
+            <span className={`${scaled ? "text-[13px]" : "text-[11px]"}`}>{item.icon}</span>
+            <span className={`font-semibold ${scaled ? "text-[13px]" : "text-[12px]"}`} style={{ color }}>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

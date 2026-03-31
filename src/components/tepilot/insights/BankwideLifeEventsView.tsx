@@ -3,8 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart,
-  AlertTriangle, Users, AlertCircle, Clock, CalendarDays, Scan
+  AlertTriangle, Users, AlertCircle, Clock, CalendarDays, Scan, CalendarHeart
 } from "lucide-react";
+import { TabHeader } from "./TabHeader";
 import { cn } from "@/lib/utils";
 import { LIFE_EVENT_CONFIG, DetectedLifeEvent, DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { LifeEventAlertCard } from "@/components/tepilot/advisor-console/LifeEventAlertCard";
@@ -124,6 +125,13 @@ export function BankwideLifeEventsView({ userDemographics, lifestyleSignals }: B
 
   return (
     <div className="space-y-6">
+      <TabHeader
+        icon={<CalendarHeart className="w-4 h-4" />}
+        title="Life Event Detection"
+        subtitle="Transaction-based life event signals across 2.4M scanned customers"
+        howItWorks="Ventus detects life events (home purchase, retirement, family formation) from transaction pattern shifts — months before customers self-report."
+        whyItMatters="Enables proactive outreach at the highest-intent moments, dramatically improving conversion and deepening relationships."
+      />
       {/* Summary Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard icon={<Scan className="h-5 w-5 text-slate-600" />} label="Customers Scanned" value="2.4M" bg="bg-slate-50" />

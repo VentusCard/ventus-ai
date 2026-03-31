@@ -4,7 +4,8 @@ import { OutflowByCategoryChart } from "./OutflowByCategoryChart";
 import { WinBackRecommendations } from "./WinBackRecommendations";
 import { WalletShareTrendChart } from "./WalletShareTrendChart";
 import { getWalletShareMetrics, getCompetitorOutflows, getWinBackRecommendations, getWalletShareTrend, getOutflowByCategory } from "@/lib/mockBankwideData";
-import { Info } from "lucide-react";
+import { Wallet } from "lucide-react";
+import { TabHeader } from "./TabHeader";
 
 export function WalletShareView() {
   const metrics = getWalletShareMetrics();
@@ -15,16 +16,13 @@ export function WalletShareView() {
 
   return (
     <div className="space-y-6">
-      {/* Differentiator banner */}
-      <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 flex items-start gap-3">
-        <Info className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-        <div>
-          <p className="text-sm font-medium text-foreground">Ventus Advantage</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Beyond competitor detection — Ventus AI analyzes <em>every</em> ACH outflow: rent, auto loans, student debt, utilities, insurance, and subscriptions. By connecting outflow patterns to personas, life events, and behavioral signals, we turn obligation data into cross-sell and retention opportunities.
-          </p>
-        </div>
-      </div>
+      <TabHeader
+        icon={<Wallet className="w-4 h-4" />}
+        title="Outflow Analysis"
+        subtitle="ACH outflows mapped to competitor products and life obligations"
+        howItWorks="Ventus traces every ACH outflow — rent, loans, subscriptions, insurance — and maps them to competitor products and life obligations using intent signals."
+        whyItMatters="Sizes the exact revenue leaking to competitors and surfaces targeted win-back and cross-sell plays per segment."
+      />
 
       {/* Headline metrics */}
       <WalletShareMetricsCards metrics={metrics} />

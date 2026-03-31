@@ -9,7 +9,7 @@ interface UseSSEEnrichmentReturn {
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
   error: string | null;
-  startEnrichment: (transactions: Transaction[], homeZip?: string, onClassified?: (classified: EnrichedTransaction[]) => void) => Promise<EnrichedTransaction[]>;
+  startEnrichment: (transactions: Transaction[], homeZip?: string, onClassified?: (classified: EnrichedTransaction[]) => void, options?: { suppressToasts?: boolean }) => Promise<EnrichedTransaction[]>;
   resetEnrichment: () => void;
   restoreEnrichedTransactions: (transactions: EnrichedTransaction[]) => void;
 }
@@ -86,7 +86,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
   const [currentPhase, setCurrentPhase] = useState<"idle" | "classification" | "travel" | "complete">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const callClassifyTransactions = useCallback(async (transactions: Transaction[]): Promise<EnrichedTransaction[]> => {
+  const callClassifyTransactions = useCallback(async (transactions: Transaction[], suppressToasts = false): Promise<EnrichedTransaction[]> => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const url = `${supabaseUrl}/functions/v1/classify-transactions`;
@@ -162,7 +162,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
             classifiedTransactions = data.enriched_transactions;
             setEnrichedTransactions(classifiedTransactions);
             setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-            toast.success(`${classifiedTransactions.length} transactions classified!`);
+            if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
             console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
             break;
 
@@ -175,7 +175,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     return classifiedTransactions;
   }, []);
 
-  const callEnrichTransactions = useCallback(async (classifiedTransactions: EnrichedTransaction[], homeZip: string) => {
+  const callEnrichTransactions = useCallback(async (classifiedTransactions: EnrichedTransaction[], homeZip: string, suppressToasts = false) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const url = `${supabaseUrl}/functions/v1/travel-detection`;
@@ -196,7 +196,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       setStatusMessage('Classification complete (no travel detected)');
       setCurrentPhase('complete');
       setIsProcessing(false);
-      toast.success(`${classifiedTransactions.length} transactions classified!`);
+      if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
       return;
     }
 
@@ -298,7 +298,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
             const travelCount = data.travel_updates.filter((u: any) => u.is_travel_related === true).length;
             if (travelCount > 0) {
               setStatusMessage(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
-              toast.success(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
+              if (!suppressToasts) toast.success(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
               console.log('[Travel Updates]', travelCount, 'travel patterns detected');
             } else {
               setStatusMessage('No travel patterns detected');
@@ -324,7 +324,9 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     transactions: Transaction[],
     homeZip?: string,
     onClassified?: (classified: EnrichedTransaction[]) => void,
+    options?: { suppressToasts?: boolean },
   ): Promise<EnrichedTransaction[]> => {
+    const suppressToasts = options?.suppressToasts ?? false;
     setIsProcessing(true);
     setError(null);
     setEnrichedTransactions([]);
@@ -333,7 +335,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     try {
       // Step 1: Classify transactions with flash-lite
       console.log('[Enrichment] Starting classification...');
-      const classifiedTransactions = await callClassifyTransactions(transactions);
+      const classifiedTransactions = await callClassifyTransactions(transactions, suppressToasts);
 
       // Fire callback immediately so callers can start parallel work
       onClassified?.(classifiedTransactions);
@@ -346,14 +348,14 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
         console.log('[Enrichment] Starting ZIP-first travel detection...');
         setCurrentPhase("travel");
         setStatusMessage('Pre-filtering travel candidates...');
-        await callEnrichTransactions(classifiedTransactions, homeZip!);
+        await callEnrichTransactions(classifiedTransactions, homeZip!, suppressToasts);
       } else {
         // Skip travel detection if no valid home ZIP
         console.log('[Enrichment] Skipping travel detection (no home ZIP provided)');
         setStatusMessage('Classification complete (travel analysis skipped - no home ZIP provided)');
         setCurrentPhase('complete');
         setIsProcessing(false);
-        toast.success(`${classifiedTransactions.length} transactions classified!`);
+        if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
       }
 
       return classifiedTransactions;
@@ -361,7 +363,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       setError(err.message);
       setIsProcessing(false);
       setCurrentPhase('idle');
-      toast.error(`Enrichment failed: ${err.message}`);
+      if (!suppressToasts) toast.error(`Enrichment failed: ${err.message}`);
       console.error('[Enrichment Error]', err);
       return [];
     }

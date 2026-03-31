@@ -4,7 +4,7 @@ import { Monitor, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
-const TOTAL_BEATS = 6;
+const TOTAL_BEATS = 7;
 
 const BEAT_SUMMARIES = [
   "AI-powered banking personalization engine.",
@@ -13,6 +13,7 @@ const BEAT_SUMMARIES = [
   "One MCC code. Countless possible meanings. Zero clarity.",
   "Blind MCCs Hide purchase patterns(behavorial insights).",
   "Signal + demographics activates full personalization.",
+  "Ventus: next-gen banking experience infra built on deep customer intelligence.",
 ];
 
 export default function DemoPasswordGate({ children }: { children: ReactNode }) {
@@ -36,7 +37,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         setBeat3Phase(0);
       }
       if (s === 4) {
-        if (beat4Phase < 3) {
+        if (beat4Phase < 4) {
           setBeat4Phase((p) => p + 1);
           return s;
         }
@@ -47,7 +48,10 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
           setBeat5Phase((p) => p + 1);
           return s;
         }
-        // Beat 5 is the last beat — don't advance further
+        setBeat5Phase(0);
+      }
+      if (s === 6) {
+        // Beat 6 is the last beat — don't advance further
         return s;
       }
       const next = s < TOTAL_BEATS - 1 ? s + 1 : s;
@@ -93,7 +97,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         goBack();
         return;
       }
-      if (step === 5 && beat5Phase >= 4) {
+      if (step === 6) {
         if (e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
           e.preventDefault();
           sessionStorage.setItem("demo_access", "true");
@@ -157,9 +161,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
         background: "linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 50%, #EFF6FF 100%)",
         backgroundSize: "400% 400%",
         animation: "ambientShift 20s ease infinite",
-        cursor: step === 5 && beat5Phase >= 4 ? "default" : "pointer",
+        cursor: step === 6 ? "default" : "pointer",
       }}
-      onClick={() => !(step === 5 && beat5Phase >= 4) && advance()}
+      onClick={() => !(step === 6) && advance()}
     >
       <style>{`
         @keyframes ambientShift {
@@ -478,7 +482,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       <div className="h-px flex-1" style={{ backgroundColor: "#E2E8F0" }} />
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold transition-all duration-500" style={{ color: "#0F172A" }}>
-                      {beat4Phase >= 3 ? "Semantic Enrichment Reveals Patterns without MCCs" : "Purchase Patterns Are Hidden by Blind MCCs"}
+                      {beat4Phase >= 3 ? "Ventus: Semantic Pattern Extraction without MCCs" : "Purchase Patterns Are Hidden by Blind MCCs"}
                     </h2>
                     <div className="mt-8">
                       <div className="space-y-3">
@@ -577,17 +581,20 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                       <div
                         className="flex items-center gap-2 px-5 py-2.5 rounded-full"
-                        style={{ backgroundColor: "#EFF6FF", border: "1px solid #BFDBFE" }}
+                        style={{
+                          backgroundColor: beat4Phase >= 4 ? "#3B82F6" : "#EFF6FF",
+                          border: beat4Phase >= 4 ? "1px solid #3B82F6" : "1px solid #BFDBFE",
+                        }}
                       >
                         <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                           <path
                             d="M11 4C9.5 1.5 5 1 3.5 5C2 9 7 13 11 17C15 13 20 9 18.5 5C17 1 12.5 1.5 11 4Z"
-                            fill="#3B82F6"
+                            fill={beat4Phase >= 4 ? "#FFFFFF" : "#3B82F6"}
                           />
                         </svg>
-                         <span className="text-lg font-semibold" style={{ color: "#3B82F6" }}>
-                           Behavioral Pattern: Expecting a Baby
-                         </span>
+                          <span className="text-lg font-semibold" style={{ color: beat4Phase >= 4 ? "#FFFFFF" : "#3B82F6" }}>
+                            {beat4Phase >= 4 ? "Semantically Similar Purchase Patterns = Behavioral Indicators" : "Expecting a Baby"}
+                          </span>
                       </div>
                       <div className="h-px w-16" style={{ backgroundColor: "#3B82F6" }} />
                     </div>
@@ -627,8 +634,8 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           fill="#3B82F6"
                         />
                       </svg>
-                       <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
-                        Behavioral Pattern: Expecting a Baby
+                       <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>
+                        Statistically Similar Multi-category Pattern: Expecting a Baby
                        </span>
                     </div>
 
@@ -646,7 +653,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                       }}
                     >
                       <Users size={18} className="text-blue-500" />
-                       <span className="text-base font-semibold" style={{ color: "#3B82F6" }}>
+                       <span className="text-sm font-semibold" style={{ color: "#3B82F6" }}>
                         Demographic: Age, Income, ZIP Code, etc.
                        </span>
                     </div>
@@ -667,7 +674,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
                             Personalized Rewards
                           </span>
-                          <span className="text-sm text-slate-400">
+                           <span className="text-xs text-slate-400 whitespace-nowrap">
                            — Delivered within deals page with ranking, message, and CTA personalized
                          </span>
                        </div>
@@ -680,9 +687,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                          ].map((label) => (
                            <div
                              key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
+                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
                             >
-                              <span className="text-sm font-bold leading-tight text-primary-foreground">{label}</span>
+                              <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
                            </div>
                          ))}
                        </div>
@@ -701,10 +708,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
                             Personalized Relationship
                           </span>
-                          <span className="text-sm text-slate-400">
-                            — Triggers automation for regular customers and notification & automated prep for wealth
-                            managers
-                          </span>
+                           <span className="text-xs text-slate-400 whitespace-nowrap">
+                             — Triggers automation for regular customers and notification & automated prep for wealth managers
+                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {[
@@ -715,9 +721,9 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           ].map((label) => (
                             <div
                               key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
-                            >
-                               <span className="text-base font-bold leading-tight text-primary-foreground">{label}</span>
+                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
+                             >
+                                <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
                              </div>
                            ))}
                          </div>
@@ -734,11 +740,11 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                         <div className="flex items-center gap-3 mb-4">
                           <span className="text-2xl">📱</span>
                           <span className="text-base font-bold" style={{ color: "#0F172A" }}>
-                            Personalized UX
+                            Personalized AI & UX
                           </span>
-                          <span className="text-sm text-slate-400">
-                            — Supported by backend analytics and orchestrates other features
-                          </span>
+                           <span className="text-xs text-slate-400 whitespace-nowrap">
+                             — Supported by backend analytics and orchestrates other features
+                           </span>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {[
@@ -749,32 +755,46 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                           ].map((label) => (
                             <div
                               key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col items-center text-center"
-                            >
-                               <span className="text-base font-bold leading-tight text-primary-foreground">{label}</span>
+                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
+                             >
+                                <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
                              </div>
                            ))}
                          </div>
                        </div>
                    </div>
 
-                  {/* Enter Demo button — appears at beat5Phase >= 4 */}
-                  {beat5Phase >= 4 && (
-                    <div className="mt-8 flex justify-center" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => {
-                          sessionStorage.setItem("demo_access", "true");
-                          setGranted(true);
-                        }}
-                        className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
-                        style={{ backgroundColor: "#3B82F6", animation: "fadeSlideIn 0.5s ease-out" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2563EB")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#3B82F6")}
-                      >
-                        Enter Demo →
-                      </button>
-                    </div>
-                  )}
+                </div>
+              )}
+
+              {/* Beat 6 — Ventus capstone */}
+              {displayStep === 6 && (
+                <div className={`${isTransitioning ? "animate-fade-slide-out" : "animate-fade-slide"}`}>
+                  <div className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-6">04</div>
+                  <h2 className="text-4xl md:text-5xl font-extrabold leading-[1.15] tracking-tight text-slate-800">
+                    Ventus is the next-gen banking experience infra built{" "}
+                    <span style={{ color: "#3B82F6" }}>on top of</span>{" "}
+                    <span style={{ color: "#3B82F6" }}>deep customer intelligence.</span>
+                  </h2>
+                  <p className="mt-6 text-lg text-slate-400">
+                    All-in-one Modular Platform to Create, Execute and Manage Banking Experiences
+                  </p>
+
+                  {/* Enter Demo button */}
+                  <div className="mt-10 flex justify-start" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => {
+                        sessionStorage.setItem("demo_access", "true");
+                        setGranted(true);
+                      }}
+                      className="h-11 px-10 rounded-full text-sm font-semibold text-white transition-colors"
+                      style={{ backgroundColor: "#3B82F6", animation: "fadeSlideIn 0.5s ease-out" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2563EB")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#3B82F6")}
+                    >
+                      Enter Demo →
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

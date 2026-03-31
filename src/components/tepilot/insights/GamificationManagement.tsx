@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -14,6 +13,7 @@ import {
 import { getGamificationMetrics } from "@/lib/mockBankwideData";
 import { AchievementEditorDialog } from "./AchievementEditorDialog";
 import type { ManagedAchievement } from "@/types/bankwide";
+import { TabHeader } from "./TabHeader";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Trophy: <Trophy className="h-4 w-4" />,
@@ -78,22 +78,22 @@ export function GamificationManagement() {
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Gamepad2 className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Gamification Program Manager</CardTitle>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => { setEditing(null); setEditorOpen(true); }}
-          >
-            <Plus className="h-4 w-4 mr-1" /> Create Achievement
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className="space-y-6">
+      <TabHeader
+        icon={<Gamepad2 className="w-4 h-4" />}
+        title="Gamification Program"
+        subtitle="Achievement management and engagement metrics"
+        howItWorks="Ventus tracks spending milestones, category exploration, and behavioral streaks to trigger achievement unlocks automatically."
+        whyItMatters="Increases transaction frequency and card-top-of-wallet status through behavioral reinforcement loops."
+      />
+      <div className="flex items-center justify-end">
+        <Button
+          size="sm"
+          onClick={() => { setEditing(null); setEditorOpen(true); }}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Create Achievement
+        </Button>
+      </div>
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {kpis.map((k) => (
@@ -186,7 +186,6 @@ export function GamificationManagement() {
             ))}
           </div>
         </div>
-      </CardContent>
 
       <AchievementEditorDialog
         open={editorOpen}
@@ -194,6 +193,6 @@ export function GamificationManagement() {
         achievement={editing}
         onSave={handleSave}
       />
-    </Card>
+    </div>
   );
 }

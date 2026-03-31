@@ -1,30 +1,19 @@
-## Plan: Add phase 3 to Beat 4 — hide MCCs and update header
 
-Currently Beat 4 has 3 phases (0, 1, 2):
 
-- Phase 0: Show transaction rows with MCC badges only
-- Phase 1: Reveal merchant names
-- Phase 2: Show "Behavioral Pattern: Expecting a Baby" pill
+## Suppress All Toast Notifications on /demo
 
-We add a **phase 3** that:
+### Problem
+Multiple toast notifications fire during demo enrichment — "75 transactions classified!", "travel patterns detected!", "Already enriched", and error toasts. The user wants none of them on the `/demo` page.
 
-1. Hides the MCC badge on each row (fade out / collapse)
-2. Update each transcation description to blue color
-3. Updates the header from "Purchase Patterns Are Hidden by Blind MCCs" to "Semantic Enrichment Reveals Patterns without MCCs"
+### Plan
 
-### Changes in `src/components/demo/DemoPasswordGate.tsx`
+**File: `src/hooks/useSSEEnrichment.ts`**
+- Add `suppressToasts?: boolean` to the `startEnrichment` options/parameters.
+- Wrap all 5 `toast.*()` calls (lines 165, 199, 301, 356, 364) with `if (!suppressToasts)`.
 
-1. **Extend `beat4Phase` max from 2 to 3** in the `goForward` callback — change `if (beat4Phase < 2)` to `if (beat4Phase < 3)`, so clicking forward at phase 2 goes to phase 3 instead of advancing to beat 5.
-2. **Header text** — conditionally render based on `beat4Phase >= 3`:
-  - `< 3`: "Purchase Patterns Are Hidden by Blind MCCs"
-  - `>= 3`: "Semantic Enrichment Reveals Patterns without MCCs"
-  - Add a transition on the text swap.
-3. **MCC badge visibility** — on each transaction row's MCC `<span>`, add transition styles that hide it when `beat4Phase >= 3`:
-  - `opacity: beat4Phase >= 3 ? 0 : 1`
-  - `width: beat4Phase >= 3 ? 0 : "auto"`
-  - `overflow: "hidden"`, `transition` for smooth collapse.
-4. **goBack handler** — already handles `beat4Phase > 0`, so going back from phase 3 will work automatically.
+**File: `src/hooks/useDemoEnrichment.ts`**
+- Pass `suppressToasts: true` when calling `startEnrichment`.
+- Remove or guard the two local `toast.*()` calls (lines 237, 468) so they never fire on /demo.
 
-### Files modified
+This keeps toasts working on the TePilot enrichment page while silencing them entirely on `/demo`.
 
-- `src/components/demo/DemoPasswordGate.tsx`
