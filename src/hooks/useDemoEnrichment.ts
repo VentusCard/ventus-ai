@@ -234,7 +234,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       nodeReadiness.analytics === "ready" &&
       nodeReadiness.dealPersonalization === "ready"
     ) {
-      toast.info("Already enriched. Change a customer to re-enrich.");
+      // Suppressed toast on demo
       return;
     }
 
