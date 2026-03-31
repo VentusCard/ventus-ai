@@ -334,15 +334,15 @@ function CategoryFilterPills({
             <button
               key={sub}
               className={cn(
-                "shrink-0 text-[8px] font-medium px-1.5 py-0.5 rounded-full transition-colors whitespace-nowrap border",
+                "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
                 activeSubcategory === sub
-                  ? "text-white border-transparent"
-                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-100"
+                  ? "text-white"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
               )}
-              style={activeSubcategory === sub ? { background: color, borderColor: color } : undefined}
+              style={activeSubcategory === sub ? { background: color } : undefined}
               onClick={() => { onSelectSubcategory(activeSubcategory === sub ? null : sub); onSelectCategory(null); }}
             >
-              · {sub}
+              {sub}
             </button>
           ))}
         </>
