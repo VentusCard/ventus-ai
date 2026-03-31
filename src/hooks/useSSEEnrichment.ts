@@ -162,7 +162,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
             classifiedTransactions = data.enriched_transactions;
             setEnrichedTransactions(classifiedTransactions);
             setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-            toast.success(`${classifiedTransactions.length} transactions classified!`);
+            if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
             console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
             break;
 
