@@ -271,10 +271,7 @@ function CategoryFilterPills({
   onSelectCategory: (cat: string | null) => void;
   color: string;
 }) {
-  const availableCategories = useMemo(() => {
-    const cats = new Set(deals.map(d => d.merchantCategory));
-    return DEAL_CATEGORY_PILLS.filter(p => cats.has(p.key));
-  }, [deals]);
+  const personalizedCats = useMemo(() => new Set(deals.map(d => d.merchantCategory)), [deals]);
 
   return (
     <div className="flex gap-1 overflow-x-auto hide-scrollbar items-center">
@@ -288,19 +285,27 @@ function CategoryFilterPills({
       >
         All
       </button>
-      {availableCategories.map(cat => (
-        <button
-          key={cat.key}
-          className={cn(
-            "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
-            activeCategory === cat.key ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-          )}
-          style={activeCategory === cat.key ? { background: color } : undefined}
-          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); }}
-        >
-          <span className="text-[10px]">{cat.emoji}</span> {cat.short}
-        </button>
-      ))}
+      {DEAL_CATEGORY_PILLS.map(cat => {
+        const isPersonalized = personalizedCats.has(cat.key);
+        const isActive = activeCategory === cat.key;
+        return (
+          <button
+            key={cat.key}
+            className={cn(
+              "shrink-0 text-[9px] font-medium px-2 py-1 rounded-full transition-colors flex items-center gap-0.5 whitespace-nowrap",
+              isActive
+                ? "text-white"
+                : isPersonalized
+                  ? "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100"
+                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+            )}
+            style={isActive ? { background: color } : undefined}
+            onClick={() => { onSelectCategory(isActive ? null : cat.key); }}
+          >
+            <span className="text-[10px]">{cat.emoji}</span> {cat.short}
+          </button>
+        );
+      })}
     </div>
   );
 }
