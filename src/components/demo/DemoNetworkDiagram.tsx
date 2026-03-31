@@ -93,6 +93,11 @@ const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChar
 ];
 
 export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules }: Props) {
+  const visibleRows = useMemo(() => PILLAR_ROWS.filter(row => {
+    const mod = MODULE_ROW_MAP[row.id];
+    return mod ? enabledModules.has(mod) : true;
+  }), [enabledModules]);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
