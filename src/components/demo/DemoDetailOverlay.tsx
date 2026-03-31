@@ -123,59 +123,58 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
   };
 
   const renderConsumerOverlay = () => {
+    const activeTabMeta = CONSUMER_TABS.find(t => t.key === activeTab)!;
     return (
-      <div className="flex-1 flex flex-col">
-        {/* iPad Frame — centered */}
-        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ minHeight: "520px", maxHeight: "calc(100vh - 140px)" }}>
-            {/* Camera dot */}
-            <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
-              <div className="w-2 h-2 rounded-full bg-slate-300" />
-            </div>
+      <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        {/* iPad Frame */}
+        <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ minHeight: "520px", maxHeight: "calc(100vh - 80px)" }}>
+          {/* Camera dot */}
+          <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
+            <div className="w-2 h-2 rounded-full bg-slate-300" />
+          </div>
 
-            {/* Status bar */}
-            <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
-              <span>9:41 AM</span>
-              <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
-              <div className="flex items-center gap-1.5">
-                <Wifi className="w-3 h-3" />
-                <Battery className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto bg-white">
-              {renderConsumerTabContent()}
-            </div>
-
-            {/* Home indicator */}
-            <div className="flex justify-center py-2 bg-white">
-              <div className="w-28 h-1 rounded-full bg-slate-300" />
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
+            <span>9:41 AM</span>
+            <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
+            <div className="flex items-center gap-1.5">
+              <Wifi className="w-3 h-3" />
+              <Battery className="w-3.5 h-3.5" />
             </div>
           </div>
-        </div>
 
-        {/* Bottom Tab Bar — outside iPad, pinned to bottom of screen */}
-        <div className="flex border-t border-slate-200 bg-white/90 backdrop-blur-sm px-4 max-w-md mx-auto w-full rounded-t-xl">
-          {CONSUMER_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.key;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className="flex-1 flex flex-col items-center gap-0.5 py-3 transition-all relative"
-              >
-                <Icon className="w-5 h-5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                <span className="text-[11px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                  {tab.label}
-                </span>
-                {isActive && (
-                  <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                )}
-              </button>
-            );
-          })}
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto bg-white">
+            {renderConsumerTabContent()}
+          </div>
+
+          {/* Bottom Tab Bar */}
+          <div className="flex border-t border-slate-200 bg-slate-50/80 px-2">
+            {CONSUMER_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className="flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-all relative"
+                >
+                  <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                  <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                    {tab.label}
+                  </span>
+                  {isActive && (
+                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Home indicator */}
+          <div className="flex justify-center py-2 bg-white">
+            <div className="w-28 h-1 rounded-full bg-slate-300" />
+          </div>
         </div>
       </div>
     );
