@@ -85,10 +85,11 @@ const PILLAR_ROWS: PillarRow[] = [
   },
 ];
 
-const ENGINE_CAPABILITIES = [
-  { label: "Semantic Enrichment", icon: Layers, color: "#6366f1" },
-  { label: "Cross-category Patterns", icon: GitBranch, color: "#8b5cf6" },
-  { label: "Deep Purchase Analysis", icon: Search, color: "#a78bfa" },
+const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChart3; color: string }[] = [
+  { mod: "Analytics", label: "Customer Intelligence & Analytics", icon: BarChart3, color: "#3b82f6" },
+  { mod: "AI & UX", label: "AI & UX", icon: Smartphone, color: "#60a5fa" },
+  { mod: "Rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
+  { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899" },
 ];
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
