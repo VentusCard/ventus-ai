@@ -1,26 +1,23 @@
 
 
-## Remove Only the Impact Column from Demo Network Diagram
+## Add Deprecation Notice to TePilot Password Gate
 
-### What changes (all in `src/components/demo/DemoNetworkDiagram.tsx`)
+### Goal
+Deter website visitors from entering TePilot by showing a deprecation notice on the password gate screen, directing them to contact the Ventus team instead. Keep the gate functional with a new password for internal use.
 
-1. **Delete `IMPACT_METRICS` constant** (lines 95-99) and `visibleImpactMetrics` memo (lines 107-113).
+### Changes (single file: `src/pages/TePilot.tsx`)
 
-2. **Remove Impact layout variables**: delete `gap4` (line 150), `IMPACT_COL_WIDTH` (line 152), `anyImpactVisible` (line 155), `centeringShift` (line 160), `impactColLeftX` (line 166).
+1. **Update password** from `"2026proto"` to `"ventusgang26"` (line 294).
 
-3. **Fix `totalContentWidth`**: remove `+ gap4 + IMPACT_COL_WIDTH` from line 157.
+2. **Add a deprecation notice on the password gate screen** — a visible card/banner displayed above or around the password input on the gate UI, with text like:
 
-4. **Remove `centeringShift` from wrapper transform** (line 186) — just remove the `translateX` or set it to `0`.
+   > "TePilot is being phased out into client-specific pilots. Please contact the Ventus team for details."
 
-5. **Delete Consumer→Impact SVG connector lines** (lines 300-318).
+   Include a "Contact Us" link pointing to `/contact`. This is shown to all visitors on the gate — no hover interaction needed, it's always visible and prominent.
 
-6. **Delete Impact column rendering** (lines 484-524).
-
-7. **Delete Impact column header** (lines 551-556).
-
-8. **Remove `ArrowUpRight` from lucide imports** (if only used by Impact).
+3. **Keep the password gate fully functional** — internal users who know the password can still enter.
 
 ### What stays untouched
-- All animations (moving dots, transitions, hover effects)
-- All other columns, nodes, click handlers, layout
+- Everything inside the authenticated TePilot view
+- All other pages and components
 
