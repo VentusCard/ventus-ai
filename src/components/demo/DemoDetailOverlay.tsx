@@ -4,6 +4,7 @@ import type { DemoNodeType } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
+import type { ModuleKey } from "@/types/demo";
 import DemoWealthView from "./DemoWealthView";
 import DemoRewardsView from "./DemoRewardsView";
 import DemoEngagementView from "./DemoEngagementView";
@@ -26,6 +27,7 @@ interface Props {
   apiPayloads?: ApiPayloads;
   tip?: FinancialTip | null;
   onClose: () => void;
+  enabledModules?: Set<ModuleKey>;
 }
 
 const NODE_TITLES: Record<DemoNodeType, { title: string; color: string }> = {
@@ -62,7 +64,7 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
 
 const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization: null, localExperiences: null, lifestyleSignals: null };
 
-export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose }: Props) {
+export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose, enabledModules }: Props) {
   const { title, color } = NODE_TITLES[node];
 
   const isBankWide = BANK_WIDE_NODES.has(node);
@@ -72,7 +74,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
       return <BankwideWMCopilotView />;
     }
     if (isBankWide) {
-      return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} />;
+      return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} enabledModules={enabledModules} />;
     }
     if (node === "engine") {
       return <DemoEnrichmentTableView customer={customer} enriched={enriched} />;

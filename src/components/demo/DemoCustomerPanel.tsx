@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { DEMO_CUSTOMERS, buildCustomDemoCustomer, buildCustomerPrompt, parseUnifiedOutput, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, CheckCircle2, Copy, Check } from "lucide-react";
+import { Loader2, Sparkles, CheckCircle2, Copy, Check, Lock } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import type { Transaction } from "@/types/transaction";
+import { ALL_MODULES, type ModuleKey } from "@/types/demo";
 
 interface Props {
   customer: DemoCustomer | null;
@@ -14,13 +15,33 @@ interface Props {
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
   nodeReadiness: NodeReadiness;
+  enabledModules: Set<ModuleKey>;
+  onModulesChange: (modules: Set<ModuleKey>) => void;
 }
 
 export default function DemoCustomerPanel({
   customer, parsedTransactions,
   onSelect,
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
+  enabledModules, onModulesChange,
 }: Props) {
+  const allOn = ALL_MODULES.every(m => enabledModules.has(m));
+
+  const toggleModule = (mod: ModuleKey) => {
+    if (mod === "Analytics") return; // always on
+    const next = new Set(enabledModules);
+    if (next.has(mod)) next.delete(mod);
+    else next.add(mod);
+    onModulesChange(next);
+  };
+
+  const toggleAll = () => {
+    if (allOn) {
+      onModulesChange(new Set<ModuleKey>(["Analytics"]));
+    } else {
+      onModulesChange(new Set(ALL_MODULES));
+    }
+  };
   return (
     <div className="h-full flex flex-col p-5 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: "none" }}>
       {/* Logo */}
@@ -40,6 +61,43 @@ export default function DemoCustomerPanel({
         onSelect={onSelect}
         transactions={parsedTransactions}
       />
+
+      {/* Platform Modules */}
+      <div className="mb-4">
+        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 mb-2">Platform Modules</p>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={toggleAll}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+              allOn
+                ? "bg-blue-50 text-blue-700 border-blue-200"
+                : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
+            }`}
+          >
+            All
+          </button>
+          <button
+            disabled
+            className="px-2.5 py-1 rounded-full text-[10px] font-medium border bg-blue-50 text-blue-700 border-blue-200 cursor-default flex items-center gap-1"
+          >
+            <Lock className="w-2.5 h-2.5" />
+            Analytics
+          </button>
+          {(["Rewards", "Relationship"] as ModuleKey[]).map(mod => (
+            <button
+              key={mod}
+              onClick={() => toggleModule(mod)}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+                enabledModules.has(mod)
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              {mod}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Enrich button */}
       <div className="mt-auto pt-6 space-y-3">

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
+import { ALL_MODULES, type ModuleKey } from "@/types/demo";
 import DemoCustomerPanel from "@/components/demo/DemoCustomerPanel";
 import DemoNetworkDiagram, { type DemoNodeType } from "@/components/demo/DemoNetworkDiagram";
 import DemoDetailOverlay from "@/components/demo/DemoDetailOverlay";
@@ -16,6 +17,7 @@ export default function DemoPage() {
   const [activeNode, setActiveNode] = useState<DemoNodeType | null>(null);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [enabledModules, setEnabledModules] = useState<Set<ModuleKey>>(new Set(ALL_MODULES));
 
   const BANK_WIDE_NODES = new Set<DemoNodeType>(["analytics", "travel", "lifeEvents", "outflow", "locational", "lifeEventIntel", "wmCopilot", "aiFinancialInsights", "dealPersonalization"]);
   const NODE_ORDER: DemoNodeType[] = ["engine", "analytics", "outflow", "aiFinancialInsights", "engagement", "travel", "locational", "dealPersonalization", "rewards", "lifeEventIntel", "lifeEvents", "wmCopilot", "wealth"];
@@ -108,6 +110,8 @@ export default function DemoPage() {
           statusMessage={statusMessage}
           currentPhase={currentPhase}
           nodeReadiness={nodeReadiness}
+          enabledModules={enabledModules}
+          onModulesChange={setEnabledModules}
         />
       </div>
 
@@ -121,6 +125,7 @@ export default function DemoPage() {
           inputReady={inputReady}
           centered={panelCollapsed}
           onTxCardClick={() => setPanelCollapsed(false)}
+          enabledModules={enabledModules}
         />
 
         {activeNode && customer && (
@@ -134,6 +139,7 @@ export default function DemoPage() {
             apiPayloads={apiPayloads}
             tip={tip}
             onClose={() => setActiveNode(null)}
+            enabledModules={enabledModules}
           />
         )}
       </div>

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { BarChart3, Gift, Smartphone, Plane, TrendingUp, CalendarHeart, Search, Sparkles, Heart, Layers, GitBranch, MapPin, ArrowDownRight, Briefcase, ArrowUpRight, Brain, Target } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
+import { MODULE_ROW_MAP, type ModuleKey } from "@/types/demo";
 
 export type DemoNodeType = "engagement" | "analytics" | "rewards" | "travel" | "lifeEvents" | "wealth" | "engine" | "profiling" | "predictive" | "phase" | "outflow" | "locational" | "lifeEventIntel" | "wmCopilot" | "aiFinancialInsights" | "dealPersonalization";
 
@@ -13,6 +14,7 @@ interface Props {
   inputReady: boolean;
   centered?: boolean;
   onTxCardClick?: () => void;
+  enabledModules: Set<ModuleKey>;
 }
 
 interface NodeDef {
@@ -95,7 +97,19 @@ const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
   { metrics: ["Higher Cross-Sell", "Higher AUM Growth", "Higher Lifetime Value", "Higher Advisor Effectiveness"], color: "#ec4899" },
 ];
 
-export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick }: Props) {
+export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, nodeReadiness, inputReady, centered = false, onTxCardClick, enabledModules }: Props) {
+  const visibleRows = useMemo(() => PILLAR_ROWS.filter(row => {
+    const mod = MODULE_ROW_MAP[row.id];
+    return mod ? enabledModules.has(mod) : true;
+  }), [enabledModules]);
+
+  const visibleImpactMetrics = useMemo(() => {
+    return PILLAR_ROWS.map((row, i) => ({ ...IMPACT_METRICS[i], rowId: row.id }))
+      .filter(item => {
+        const mod = MODULE_ROW_MAP[item.rowId];
+        return mod ? enabledModules.has(mod) : true;
+      });
+  }, [enabledModules]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
@@ -136,7 +150,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
   const IMPACT_COL_WIDTH = centered ? Math.min(200, dims.w * 0.14) : Math.min(130, Math.max(105, dims.w * 0.13));
 
   // Dynamic centering: shift everything right when impact column is hidden
-  const anyImpactVisible = PILLAR_ROWS.some(p => nodeReadiness[p.consumerNode.id] === "ready");
+  const anyImpactVisible = visibleRows.some(p => nodeReadiness[p.consumerNode.id] === "ready");
   const pad = Math.max(8, dims.w * 0.01);
   const totalContentWidth = TX_CARD_WIDTH + gap1 + ENGINE_WIDTH + gap2 + BANK_COL_WIDTH + gap3 + CONSUMER_COL_WIDTH + gap4 + IMPACT_COL_WIDTH;
   const offsetX = Math.max(pad, (dims.w - totalContentWidth) / 2);
@@ -151,7 +165,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
 
   // Vertical layout
   const midY = dims.h * 0.5;
-  const totalGridHeight = ROW_HEIGHT * 3;
+  const rowCount = visibleRows.length || 1;
+  const totalGridHeight = ROW_HEIGHT * rowCount;
   const gridTopY = midY - totalGridHeight / 2 + 20;
 
   const txSpread = centered ? 85 : 55;
@@ -220,7 +235,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })()}
 
             {/* Engine → Bank column rows */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rowCenterY = getRowCenterY(pi);
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
@@ -248,7 +263,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })}
 
             {/* Bank column → Consumer column (one line per bank node) */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
@@ -272,7 +287,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
             })}
 
             {/* Consumer column → Impact column */}
-            {PILLAR_ROWS.map((pillar, pi) => {
+            {visibleRows.map((pillar, pi) => {
               const rCenterY = gridTopY + ROW_HEIGHT * pi + ROW_HEIGHT / 2;
               const bankNodesH = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
               const cHeight = Math.max(bankNodesH, CONSUMER_NODE_HEIGHT);
@@ -286,7 +301,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
               const path = `M ${consumerRight} ${consumerCenterY} C ${cpX1} ${consumerCenterY}, ${cpX2} ${consumerCenterY}, ${impactLeft} ${consumerCenterY}`;
               return (
                 <g key={`cons-impact-${pi}`}>
-                  <path d={path} stroke={IMPACT_METRICS[pi].color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
+                  <path d={path} stroke={visibleImpactMetrics[pi]?.color ?? pillar.color} strokeWidth={consumerReady ? 2 : 1} fill="none" opacity={consumerReady ? 0.5 : 0} strokeDasharray={consumerReady ? "none" : "4 3"} className="line-transition" />
                 </g>
               );
             })}
@@ -331,7 +346,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </button>
 
       {/* Bank Analytics Column + Consumer Views Column */}
-      {PILLAR_ROWS.map((pillar, pi) => {
+      {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const PillarIcon = pillar.icon;
         const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
@@ -452,13 +467,14 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       })}
 
       {/* Impact Column */}
-      {PILLAR_ROWS.map((pillar, pi) => {
+      {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const bankNodesHeight = BANK_NODE_HEIGHT * pillar.bankNodes.length + BANK_NODE_GAP * (pillar.bankNodes.length - 1);
         const contentHeight = Math.max(bankNodesHeight, CONSUMER_NODE_HEIGHT);
-        const contentTop = rowCenterY - contentHeight / 2;
         const consumerReady = engineReady && nodeReadiness[pillar.consumerNode.id] === "ready";
-        const impactData = IMPACT_METRICS[pi];
+        const impactData = visibleImpactMetrics[pi];
+
+        if (!impactData) return null;
 
         return (
           <div
@@ -519,7 +535,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </div>
       <div
         className={`absolute ${centered ? "text-[13px]" : "text-[11px]"} font-semibold text-slate-500 uppercase tracking-wider text-center transition-opacity duration-500`}
-        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 48, zIndex: 2, opacity: PILLAR_ROWS.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
+        style={{ left: impactColLeftX, width: IMPACT_COL_WIDTH, top: gridTopY - 48, zIndex: 2, opacity: visibleRows.some((p) => nodeReadiness[p.consumerNode.id] === "ready") ? 1 : 0 }}
       >
         Impact
       </div>

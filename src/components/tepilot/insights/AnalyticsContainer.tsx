@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
@@ -25,6 +25,7 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { VentusAIChatPanel } from "./VentusAIChatPanel";
+import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
 type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml';
 
@@ -81,13 +82,44 @@ interface AnalyticsContainerProps {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
   onBack?: () => void;
+  enabledModules?: Set<ModuleKey>;
 }
 
-export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Filter nav groups based on enabled modules
+  const filteredNavGroups = useMemo(() => {
+    if (!enabledModules) return NAV_GROUPS;
+
+    // Build set of allowed group labels from enabled modules
+    const allowedLabels = new Set<string>(["Home"]);
+    for (const mod of enabledModules) {
+      const groups = MODULE_NAV_GROUP_MAP[mod];
+      if (groups) groups.forEach(g => allowedLabels.add(g));
+    }
+    // Health group follows Analytics (always on since Analytics is always enabled)
+    if (enabledModules.has("Analytics")) allowedLabels.add("Health");
+
+    return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
+  }, [enabledModules]);
+
+  // All valid tab values from filtered groups
+  const validTabs = useMemo(() => {
+    const set = new Set<TabValue>();
+    filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
+    return set;
+  }, [filteredNavGroups]);
+
+  // Auto-reset tab if it became hidden
+  useEffect(() => {
+    if (!validTabs.has(activeTab)) {
+      setActiveTab('ventus-ai');
+    }
+  }, [validTabs, activeTab]);
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
@@ -173,7 +205,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </button>
 
         <nav className="flex-1 py-1 overflow-y-auto">
-          {NAV_GROUPS.map((group) => (
+          {filteredNavGroups.map((group) => (
             <Collapsible key={group.label} defaultOpen>
               {!collapsed && (
                 <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
