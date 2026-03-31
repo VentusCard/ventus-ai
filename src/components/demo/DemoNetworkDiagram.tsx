@@ -46,7 +46,7 @@ const AUDIENCE_ACCENT = {
 const PILLAR_ROWS: PillarRow[] = [
   {
     id: "profiling",
-    team: "Digital Experience",
+    team: "Experience",
     subtitle: "How can we help our customers understand their spending?",
     icon: Search,
     color: "#3b82f6",
