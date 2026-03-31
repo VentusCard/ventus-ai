@@ -139,6 +139,7 @@ export default function DemoPage() {
             apiPayloads={apiPayloads}
             tip={tip}
             onClose={() => setActiveNode(null)}
+            enabledModules={enabledModules}
           />
         )}
       </div>
