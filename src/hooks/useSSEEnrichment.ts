@@ -335,7 +335,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     try {
       // Step 1: Classify transactions with flash-lite
       console.log('[Enrichment] Starting classification...');
-      const classifiedTransactions = await callClassifyTransactions(transactions);
+      const classifiedTransactions = await callClassifyTransactions(transactions, suppressToasts);
 
       // Fire callback immediately so callers can start parallel work
       onClassified?.(classifiedTransactions);
