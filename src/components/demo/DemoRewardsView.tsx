@@ -429,12 +429,6 @@ function RewardsPhoneMockup({
       else if (isSearchActive && !isSearching) result = [];
       return result;
     }
-    if (subcategoryFilter) {
-      let result = AVAILABLE_DEALS.filter(d => d.subcategory === subcategoryFilter).map(convertToBankDeal);
-      if (isSearchActive && matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
-      else if (isSearchActive && !isSearching) result = [];
-      return result;
-    }
     // Default: use customer-specific deals
     let result = gridDeals;
     if (isSearchActive) {
