@@ -120,6 +120,7 @@ export default function DemoRewardsView({ customer, enriched, precomputed, trave
         hasEnriched={hasEnriched}
         city={city}
         perks={perks}
+        enriched={enriched}
       />
     </div>
   );
