@@ -25,7 +25,7 @@ interface NodeDef {
   audience: "consumer" | "bank";
 }
 
-interface PillarRow {
+export interface PillarRow {
   id: string;
   subtitle: string;
   team: string;

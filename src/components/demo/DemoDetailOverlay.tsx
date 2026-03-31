@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { X, Sparkles, Gift, Users, Bot, Wifi, Battery } from "lucide-react";
+import { X, Sparkles, Gift, Users, Bot, Wifi, Battery, BarChart3 } from "lucide-react";
 import ConsumerAIChatView from "./ConsumerAIChatView";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
+import { PILLAR_ROWS } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { FinancialTip } from "@/lib/wellnessIntelligenceEngine";
@@ -81,7 +82,67 @@ const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Sparkles; c
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
 
+const TAB_ROW_INDEX: Record<ConsumerTab, number | null> = {
+  ux: 0,
+  rewards: 1,
+  relationship: 2,
+  ai: null,
+};
+
 const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization: null, localExperiences: null, lifestyleSignals: null };
+
+function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
+  const rowIdx = TAB_ROW_INDEX[activeTab];
+  const bankNodes = rowIdx !== null ? PILLAR_ROWS[rowIdx].bankNodes : [];
+  const pillarColor = rowIdx !== null ? PILLAR_ROWS[rowIdx].color : "#3b82f6";
+
+  return (
+    <div className="flex flex-col justify-center gap-3 h-full px-4">
+      {/* Section label */}
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">Powering this view</p>
+
+      {/* Core Analytics card — always shown */}
+      <div
+        className="rounded-lg border-l-[3px] px-3 py-2.5 flex items-center gap-2.5"
+        style={{
+          borderColor: "#3b82f6",
+          background: "linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%)",
+        }}
+      >
+        <div
+          className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+          style={{ background: "rgba(59,130,246,0.12)" }}
+        >
+          <BarChart3 className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
+        </div>
+        <span className="text-xs font-semibold text-slate-700">Core Analytics</span>
+      </div>
+
+      {/* Tab-specific bank node cards */}
+      {bankNodes.map((node) => {
+        const Icon = node.icon;
+        return (
+          <div
+            key={node.id}
+            className="rounded-lg border-l-[3px] px-3 py-2.5 flex items-center gap-2.5"
+            style={{
+              borderColor: pillarColor,
+              background: `linear-gradient(135deg, ${pillarColor}0F 0%, ${pillarColor}05 100%)`,
+            }}
+          >
+            <div
+              className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+              style={{ background: `${pillarColor}1F` }}
+            >
+              <Icon className="w-3.5 h-3.5" style={{ color: pillarColor }} />
+            </div>
+            <span className="text-xs font-semibold text-slate-700">{node.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose, enabledModules }: Props) {
   const { title, color } = NODE_TITLES[node];
@@ -120,57 +181,63 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
   };
 
   const renderConsumerOverlay = () => {
-    const activeTabMeta = CONSUMER_TABS.find(t => t.key === activeTab)!;
     return (
-      <div className="flex-1 min-h-0 flex items-center justify-center p-4 overflow-hidden">
-        {/* iPad Frame */}
-        <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
-          {/* Camera dot */}
-          <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
-            <div className="w-2 h-2 rounded-full bg-slate-300" />
-          </div>
+      <div className="flex-1 min-h-0 flex overflow-hidden">
+        {/* Left: Feature cards (~25% width) */}
+        <div className="w-1/4 shrink-0 flex flex-col justify-center">
+          <FeatureCardSidebar activeTab={activeTab} />
+        </div>
 
-          {/* Status bar */}
-          <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
-            <span>9:41 AM</span>
-            <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
-            <div className="flex items-center gap-1.5">
-              <Wifi className="w-3 h-3" />
-              <Battery className="w-3.5 h-3.5" />
+        {/* Right: iPad Frame */}
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-[820px] rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 2rem)' }}>
+            {/* Camera dot */}
+            <div className="flex justify-center pt-1.5 pb-0.5 bg-white">
+              <div className="w-2 h-2 rounded-full bg-slate-300" />
             </div>
-          </div>
 
-          {/* Content */}
-          <div className={`flex-1 bg-white min-h-0 ${activeTab === 'ai' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
-            {renderConsumerTabContent()}
-          </div>
+            {/* Status bar */}
+            <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
+              <span>9:41 AM</span>
+              <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
+              <div className="flex items-center gap-1.5">
+                <Wifi className="w-3 h-3" />
+                <Battery className="w-3.5 h-3.5" />
+              </div>
+            </div>
 
-          {/* Bottom Tab Bar */}
-          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-            {CONSUMER_TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className="flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-all relative"
-                >
-                  <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                  <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                    {tab.label}
-                  </span>
-                  {isActive && (
-                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+            {/* Content */}
+            <div className={`flex-1 bg-white min-h-0 ${activeTab === 'ai' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+              {renderConsumerTabContent()}
+            </div>
 
-          {/* Home indicator */}
-          <div className="flex shrink-0 justify-center py-2 bg-white">
-            <div className="w-28 h-1 rounded-full bg-slate-300" />
+            {/* Bottom Tab Bar */}
+            <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+              {CONSUMER_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className="flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-all relative"
+                  >
+                    <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                    <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                      {tab.label}
+                    </span>
+                    {isActive && (
+                      <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Home indicator */}
+            <div className="flex shrink-0 justify-center py-2 bg-white">
+              <div className="w-28 h-1 rounded-full bg-slate-300" />
+            </div>
           </div>
         </div>
       </div>
