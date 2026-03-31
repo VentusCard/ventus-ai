@@ -512,6 +512,7 @@ function RewardsPhoneMockup({
               activeCategory={categoryFilter}
               onSelectCategory={setCategoryFilter}
               color={color}
+              profile={profile}
             />
           )}
 
