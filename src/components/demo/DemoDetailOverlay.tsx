@@ -141,7 +141,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
           </div>
 
           {/* Content */}
-          <div className={`flex-1 bg-white min-h-0 ${activeTab === 'ai' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          <div className={`flex-1 bg-white min-h-0 ${activeTab === 'ai' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
             {renderConsumerTabContent()}
           </div>
 
