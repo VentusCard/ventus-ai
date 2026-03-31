@@ -234,7 +234,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       nodeReadiness.analytics === "ready" &&
       nodeReadiness.dealPersonalization === "ready"
     ) {
-      toast.info("Already enriched. Change a customer to re-enrich.");
+      // Suppressed toast on demo
       return;
     }
 
@@ -428,7 +428,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
       // === FIRE EVERYTHING IN PARALLEL ===
 
       // 1. Classify + travel-detection (readiness already set via dealPersonalization)
-      enrich.startEnrichment(txns, customer.zip, onClassified);
+      enrich.startEnrichment(txns, customer.zip, onClassified, { suppressToasts: true });
 
       // 2. Local experiences
       const CATEGORIES = ["dining", "entertainment", "shopping"];
@@ -465,7 +465,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
         .catch(() => {});
 
     } catch (err: any) {
-      toast.error(err.message);
+      console.error('[Demo Enrichment Error]', err.message);
     }
   }, [enrich, nodeReadiness, setNodeReady]);
 
