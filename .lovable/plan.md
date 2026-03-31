@@ -1,42 +1,16 @@
 
 
-## Add Semantic Search Bar to Consumer Rewards Tab
+## Plan: Combine Hero Spotlight + Expiring Soon into One Row
 
-### What
-Add a compact search bar below the "Welcome to {city}, {firstName}!" line that searches both the deal library AND local perks using the existing `semantic-deal-search` edge function. When active, it filters both the deal cards and the local perks section to show only matches.
+**Layout**: A single flex row where the Hero Spotlight takes 2/3 width and the 3 Expiring Soon cards are vertically stacked in the remaining 1/3.
 
-### Changes
+### Changes (single file: `DemoRewardsView.tsx`)
 
-**File 1: `src/components/demo/DemoRewardsView.tsx`**
+1. **Wrap Hero + Expiring in a shared row** (lines ~480–493): Replace the two separate sections with a single `<div className="flex gap-2">` container:
+   - Left: `HeroSpotlightDeal` in a `w-2/3` wrapper
+   - Right: `ExpiringSoonRow` in a `w-1/3` wrapper
 
-1. Import `useSemanticDealSearch` hook, `Search`, `Loader2`, `X`, and `Sparkles` icons
-2. In `RewardsPhoneMockup`, wire up the hook
-3. Add a compact search input below the welcome line (line 228–229):
-   ```tsx
-   <div className="relative">
-     <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
-     <input
-       placeholder="Search deals & local perks..."
-       value={searchQuery}
-       onChange={e => handleSearchChange(e.target.value)}
-       className="w-full pl-7 pr-7 py-1.5 text-[11px] rounded-lg border border-slate-200 bg-slate-50 ..."
-     />
-     {/* Loader / clear button on right */}
-   </div>
-   ```
-4. If semantic results are active, show a small reasoning badge (like the AvailableDealsGrid does)
-5. Filter `deals` array: when `matchingDealIds` is active, only show deals whose `id` is in the set
-6. Filter `perks` array: do a simple client-side text match of `searchQuery` against perk `title`, `partner`, `category`, and `value` fields (the edge function only knows deals, not perks — so perks get local text filtering while deals get AI semantic filtering)
+2. **Update `ExpiringSoonRow` layout** (lines 225): Change from horizontal `flex gap-1.5 overflow-x-auto` to vertical `flex flex-col gap-1.5`. Remove `shrink-0` from individual cards so they stack naturally.
 
-**No edge function changes needed** — the existing `semantic-deal-search` function already handles the deal catalog. Perks are filtered client-side since they're local data.
-
-### Behavior
-- Typing triggers debounced AI search for deals + instant text filter for perks
-- Results filter both sections simultaneously
-- Clear button resets everything
-- Small "AI reasoning" chip shown when semantic results are active
-- Compact styling to fit the consumer mobile mockup aesthetic
-
-### Files changed
-1. `src/components/demo/DemoRewardsView.tsx` — add search bar, filtering logic
+3. **Compact the expiring cards** slightly — reduce padding to fit 3 cards vertically in the same height as the hero card.
 
