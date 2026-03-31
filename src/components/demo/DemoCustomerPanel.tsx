@@ -2,12 +2,15 @@ import { useState } from "react";
 import { DEMO_CUSTOMERS, buildCustomDemoCustomer, buildCustomerPrompt, parseUnifiedOutput, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader2, Sparkles, CheckCircle2, Copy, Check, Lock } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import type { Transaction } from "@/types/transaction";
 import { ALL_MODULES, type ModuleKey } from "@/types/demo";
 
 interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   customer: DemoCustomer | null;
   parsedTransactions: Transaction[];
   onSelect: (c: DemoCustomer) => void;
@@ -20,7 +23,39 @@ interface Props {
   onModulesChange: (modules: Set<ModuleKey>) => void;
 }
 
+const MODULE_CONFIG: { mod: ModuleKey; label: string; description: string; borderColor: string; checkColor: string }[] = [
+  {
+    mod: "Analytics",
+    label: "Ventus AI Customer Intelligence & Analytics",
+    description: "Core transaction classification, spending analytics, and customer profiling",
+    borderColor: "border-l-blue-500",
+    checkColor: "text-blue-600",
+  },
+  {
+    mod: "AI & UX",
+    label: "AI & UX",
+    description: "AI-powered experience personalization and predictive engagement",
+    borderColor: "border-l-sky-500",
+    checkColor: "text-sky-600",
+  },
+  {
+    mod: "Rewards",
+    label: "Rewards",
+    description: "Smart rewards optimization, deal matching, and offer personalization",
+    borderColor: "border-l-emerald-500",
+    checkColor: "text-emerald-600",
+  },
+  {
+    mod: "Relationship",
+    label: "Relationship",
+    description: "Life event detection, wealth signals, and relationship management",
+    borderColor: "border-l-purple-500",
+    checkColor: "text-purple-600",
+  },
+];
+
 export default function DemoCustomerPanel({
+  open, onOpenChange,
   customer, parsedTransactions,
   onSelect,
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
@@ -29,7 +64,7 @@ export default function DemoCustomerPanel({
   const allOn = ALL_MODULES.every(m => enabledModules.has(m));
 
   const toggleModule = (mod: ModuleKey) => {
-    if (mod === "Analytics") return; // always on
+    if (mod === "Analytics") return;
     const next = new Set(enabledModules);
     if (next.has(mod)) next.delete(mod);
     else next.add(mod);
@@ -43,109 +78,133 @@ export default function DemoCustomerPanel({
       onModulesChange(new Set(ALL_MODULES));
     }
   };
+
   return (
-    <div className="h-full flex flex-col p-5 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-      {/* Logo */}
-      <div className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "Manrope, sans-serif" }}>
-          Ventus AI
-        </h2>
-        <p className="text-[11px] text-slate-500 mt-0.5">Select a customer to enrich</p>
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className="max-w-none w-[75vw] h-[75vh] p-0 gap-0 flex flex-col overflow-hidden"
+        style={{ fontFamily: "Manrope, sans-serif" }}
+      >
+        {/* Header */}
+        <div className="px-8 pt-7 pb-5 border-b border-slate-100">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Ventus AI</h2>
+          <p className="text-[13px] text-slate-500 mt-1">Configure customer profile and platform modules for enrichment</p>
+        </div>
 
-      {/* Customer */}
-      <CustomerSlot
-        label="Customer"
-        color="#3b82f6"
-        customId="custom-a"
-        selected={customer}
-        onSelect={onSelect}
-        transactions={parsedTransactions}
-      />
+        {/* Two-column body */}
+        <div className="flex-1 grid grid-cols-2 gap-0 overflow-hidden">
+          {/* Left: Customer Selection */}
+          <div className="border-r border-slate-100 p-8 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+            <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-slate-400 mb-4">Select Customer</h3>
+            <CustomerSlot
+              label="Customer"
+              color="#3b82f6"
+              customId="custom-a"
+              selected={customer}
+              onSelect={onSelect}
+              transactions={parsedTransactions}
+            />
+          </div>
 
-      {/* Enrich button */}
-      <div className="mt-auto pt-6 space-y-3">
-        {/* Platform Modules */}
-        <div className="mb-1">
-          <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 mb-2">Platform Modules</p>
-          <div className="space-y-1.5">
+          {/* Right: Platform Modules */}
+          <div className="p-8 overflow-y-auto flex flex-col" style={{ scrollbarWidth: "none" }}>
+            <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-slate-400 mb-4">Platform Modules</h3>
+
             {/* All toggle */}
-            <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="mb-4">
               <button
                 onClick={toggleAll}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
                   allOn
                     ? "bg-blue-600 text-white border-blue-600"
                     : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
                 }`}
               >
-                All
+                All Modules
               </button>
             </div>
-            {/* Checkbox rows */}
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-2 cursor-default">
-                <Checkbox checked disabled className="h-3.5 w-3.5" />
-                <span className="text-[11px] text-slate-600 truncate">Ventus AI Customer Intelligence and Analytics</span>
-              </label>
-              {([
-                { mod: "AI & UX" as ModuleKey, label: "AI & UX" },
-                { mod: "Rewards" as ModuleKey, label: "Rewards" },
-                { mod: "Relationship" as ModuleKey, label: "Relationship" },
-              ]).map(({ mod, label }) => (
-                <label key={mod} className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={enabledModules.has(mod)}
-                    onCheckedChange={() => toggleModule(mod)}
-                    className="h-3.5 w-3.5"
-                  />
-                  <span className="text-[11px] text-slate-600 truncate">{label}</span>
-                </label>
-              ))}
+
+            {/* Module cards */}
+            <div className="space-y-3 flex-1">
+              {MODULE_CONFIG.map(({ mod, label, description, borderColor, checkColor }) => {
+                const isAnalytics = mod === "Analytics";
+                const checked = isAnalytics || enabledModules.has(mod);
+                return (
+                  <div
+                    key={mod}
+                    onClick={() => !isAnalytics && toggleModule(mod)}
+                    className={`border-l-[3px] ${borderColor} rounded-lg border border-slate-200 p-4 transition-all ${
+                      isAnalytics ? "cursor-default bg-slate-50/50" : "cursor-pointer hover:shadow-sm hover:border-slate-300"
+                    } ${checked ? "bg-white" : "bg-slate-50/80 opacity-60"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={checked}
+                        disabled={isAnalytics}
+                        onCheckedChange={() => !isAnalytics && toggleModule(mod)}
+                        className={`h-4 w-4 mt-0.5 ${checkColor} data-[state=checked]:${checkColor.replace("text-", "bg-")} data-[state=checked]:text-white border-slate-300`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-800">{label}</span>
+                          {isAnalytics && <Lock className="h-3 w-3 text-slate-400" />}
+                        </div>
+                        <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">{description}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
-        <Button
-          onClick={onEnrich}
-          disabled={isProcessing || !customer}
-          variant="ai"
-          size="sm"
-          className="w-full"
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Enriching…
-            </>
-          ) : currentPhase === "complete" ? (
-            <>
-              <CheckCircle2 className="h-4 w-4" />
-              Re-Enrich Customer
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4" />
-              Enrich Customer
-            </>
-          )}
-        </Button>
 
-        {/* Status line */}
-        {(isProcessing || currentPhase === "complete") && (
-          <div className="text-center">
-            <p className="text-[10px] text-slate-500 truncate">{statusMessage}</p>
-            {isProcessing && (
-              <div className="mt-1.5 flex gap-1 justify-center flex-wrap">
-                <PhaseDot label="Classify" active={nodeReadiness.analytics === "processing"} done={nodeReadiness.analytics === "ready"} />
-                <PhaseDot label="Travel" active={nodeReadiness.travel === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.travel === "ready"} />
-                <PhaseDot label="Lifestyle" active={nodeReadiness.wealth === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.wealth === "ready"} />
-                <PhaseDot label="Deals" active={nodeReadiness.rewards === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.rewards === "ready"} />
-              </div>
-            )}
+        {/* Footer */}
+        <div className="px-8 py-5 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={onEnrich}
+              disabled={isProcessing || !customer}
+              variant="ai"
+              size="default"
+              className="flex-1"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enriching…
+                </>
+              ) : currentPhase === "complete" ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Re-Enrich Customer
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Enrich Customer
+                </>
+              )}
+            </Button>
           </div>
-        )}
-      </div>
-    </div>
+
+          {/* Status line */}
+          {(isProcessing || currentPhase === "complete") && (
+            <div className="text-center mt-3">
+              <p className="text-[11px] text-slate-500 truncate">{statusMessage}</p>
+              {isProcessing && (
+                <div className="mt-2 flex gap-1.5 justify-center flex-wrap">
+                  <PhaseDot label="Classify" active={nodeReadiness.analytics === "processing"} done={nodeReadiness.analytics === "ready"} />
+                  <PhaseDot label="Travel" active={nodeReadiness.travel === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.travel === "ready"} />
+                  <PhaseDot label="Lifestyle" active={nodeReadiness.wealth === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.wealth === "ready"} />
+                  <PhaseDot label="Deals" active={nodeReadiness.rewards === "processing" && nodeReadiness.analytics === "ready"} done={nodeReadiness.rewards === "ready"} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -222,10 +281,8 @@ function CustomerSlot({
 
   return (
     <div>
-      <p className="text-[10px] font-bold tracking-[0.15em] uppercase mb-2" style={{ color }}>{label}</p>
-
       <select
-        className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 mb-3"
+        className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2.5 border border-slate-200 focus:outline-none focus:border-blue-500 mb-4"
         value={isCustomMode ? "custom" : selected?.id?.startsWith("custom-") ? "custom" : (selected?.id ?? "")}
         onChange={(e) => handleDropdownChange(e.target.value)}
       >
@@ -237,14 +294,13 @@ function CustomerSlot({
       </select>
 
       {isCustomMode ? (
-        <div className="space-y-2.5">
-          {/* Step 1: Copy prompt */}
+        <div className="space-y-3">
           <div>
-            <span className="text-[10px] font-medium text-slate-500 mb-1 block">1. Copy prompt → paste into ChatGPT / Claude</span>
+            <span className="text-[11px] font-medium text-slate-500 mb-1.5 block">1. Copy prompt → paste into ChatGPT / Claude</span>
             <Button
               size="sm"
               variant="outline"
-              className="w-full h-7 text-[11px]"
+              className="w-full h-8 text-[11px]"
               onClick={handleCopyPrompt}
             >
               {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
@@ -252,12 +308,11 @@ function CustomerSlot({
             </Button>
           </div>
 
-          {/* Step 3: Paste output */}
           <div>
-            <span className="text-[10px] font-medium text-slate-500 mb-1 block">2. Paste the full LLM output below</span>
+            <span className="text-[11px] font-medium text-slate-500 mb-1.5 block">2. Paste the full LLM output below</span>
             <textarea
-              className="w-full bg-white text-slate-900 text-[10px] font-mono rounded-md px-2 py-1.5 border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
-              rows={6}
+              className="w-full bg-white text-slate-900 text-[11px] font-mono rounded-md px-3 py-2 border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+              rows={8}
               placeholder={"=== PROFILE ===\nname: ...\n\n=== TRANSACTIONS ===\ndate,merchant_name,amount,mcc,merchant_zip\n..."}
               value={outputText}
               onChange={(e) => { setOutputText(e.target.value); setParseError(""); }}
@@ -265,20 +320,20 @@ function CustomerSlot({
           </div>
 
           {parseError && (
-            <p className="text-[10px] text-red-500">{parseError}</p>
+            <p className="text-[11px] text-red-500">{parseError}</p>
           )}
 
-          <Button size="sm" className="w-full h-7 text-[11px]" onClick={handleLoad} disabled={!outputText.trim()}>
+          <Button size="sm" className="w-full h-8 text-[11px]" onClick={handleLoad} disabled={!outputText.trim()}>
             Load Customer
           </Button>
         </div>
       ) : !selected ? (
-        <p className="text-[11px] text-slate-400 italic py-2">Select a customer above</p>
+        <p className="text-[12px] text-slate-400 italic py-4">Select a customer above to view their transaction data</p>
       ) : (
         <>
-          {/* Bank-available demographics */}
+          {/* Demographics */}
           {(selected.profile.demographics.industry || selected.profile.demographics.incomeLevel) && (
-            <div className="mb-2 flex items-center gap-2 border-t border-slate-100 pt-2 text-[10px] text-slate-500">
+            <div className="mb-3 flex items-center gap-2 border-t border-slate-100 pt-3 text-[11px] text-slate-500">
               {selected.profile.demographics.industry && (
                 <span>Industry: <span className="font-medium text-slate-600">{selected.profile.demographics.industry}</span></span>
               )}
@@ -290,8 +345,9 @@ function CustomerSlot({
               )}
             </div>
           )}
+
           {/* Summary stats */}
-          <div className="flex items-center gap-1.5 flex-wrap mb-1.5 text-[11px] text-slate-500">
+          <div className="flex items-center gap-2 flex-wrap mb-2 text-[11px] text-slate-500">
             <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
             <span className="text-slate-300">·</span>
             <span><span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total</span>
@@ -302,11 +358,12 @@ function CustomerSlot({
               </>
             )}
           </div>
+
           {/* Source pills */}
           {(() => {
             const sources = [...new Set(transactions.map(t => t.source).filter(Boolean))];
             return sources.length > 0 ? (
-              <div className="flex items-center gap-1.5 flex-wrap mb-2 text-[10px]">
+              <div className="flex items-center gap-1.5 flex-wrap mb-3 text-[10px]">
                 <span className="text-slate-500 font-medium">Sources:</span>
                 {sources.map(s => (
                   <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${
@@ -322,27 +379,27 @@ function CustomerSlot({
             ) : null;
           })()}
 
-          {/* Compact transaction table */}
+          {/* Transaction table */}
           <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-            <div className="max-h-[360px] overflow-y-auto">
+            <div className="max-h-[320px] overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-slate-50">
                   <tr className="border-b border-slate-100">
-                    <th className="text-left px-2 py-1.5 font-medium text-slate-500">Date</th>
-                    <th className="text-left px-2 py-1.5 font-medium text-slate-500">Merchant</th>
-                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Amt</th>
-                    <th className="text-right px-2 py-1.5 font-medium text-slate-500">Zip</th>
-                    <th className="text-center px-2 py-1.5 font-medium text-slate-500">Source</th>
+                    <th className="text-left px-3 py-2 font-medium text-slate-500">Date</th>
+                    <th className="text-left px-3 py-2 font-medium text-slate-500">Merchant</th>
+                    <th className="text-right px-3 py-2 font-medium text-slate-500">Amt</th>
+                    <th className="text-right px-3 py-2 font-medium text-slate-500">Zip</th>
+                    <th className="text-center px-3 py-2 font-medium text-slate-500">Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((t, i) => (
-                    <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0">
-                      <td className="px-2 py-1 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
-                      <td className="px-2 py-1 text-slate-700 truncate max-w-[120px]">{t.merchant_name}</td>
-                      <td className="px-2 py-1 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
-                      <td className="px-2 py-1 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
-                      <td className="px-2 py-1 text-center">
+                    <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                      <td className="px-3 py-1.5 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
+                      <td className="px-3 py-1.5 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
+                      <td className="px-3 py-1.5 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
+                      <td className="px-3 py-1.5 text-center">
                         {t.source && (
                           <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
                             t.source === "Checking" ? "bg-slate-100 text-slate-600" :
