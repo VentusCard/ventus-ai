@@ -296,7 +296,7 @@ function CategoryFilterPills({
             activeCategory === cat.key ? "text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
           )}
           style={activeCategory === cat.key ? { background: color } : undefined}
-          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); onSelectSubcategory(null); }}
+          onClick={() => { onSelectCategory(activeCategory === cat.key ? null : cat.key); }}
         >
           <span className="text-[10px]">{cat.emoji}</span> {cat.short}
         </button>
