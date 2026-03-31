@@ -124,7 +124,7 @@ export default function DemoRewardsView({ customer, enriched, precomputed, trave
 }
 
 // ─── Savings Summary Bar ──────────────────────────────────────────────
-function SavingsSummaryBar({ profile, color, hasEnriched }: { profile: DerivedCustomerProfile | null; color: string; hasEnriched: boolean }) {
+function SavingsSummaryBar({ profile, color, hasEnriched, city, firstName }: { profile: DerivedCustomerProfile | null; color: string; hasEnriched: boolean; city: string; firstName: string }) {
   const monthlySaved = useMemo(() => {
     if (!profile) return 42;
     return Math.round(profile.totalSpend * 0.032);
@@ -134,7 +134,8 @@ function SavingsSummaryBar({ profile, color, hasEnriched }: { profile: DerivedCu
   const goalProgress = Math.min((monthlySaved / 500) * 100, 100);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-2.5">
+    <div className="rounded-xl border border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
+      <p className="text-base font-bold text-slate-900 mb-2">Welcome to {city}, {firstName}!</p>
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
           <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
