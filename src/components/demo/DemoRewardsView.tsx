@@ -481,9 +481,9 @@ function RewardsPhoneMockup({
           )}
 
           {/* Hero Spotlight + Expiring Soon Row */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-stretch">
             {showHero && heroDeal && (
-              <div className="w-2/3">
+              <div className="w-2/3 flex">
                 <HeroSpotlightDeal
                   deal={heroDeal}
                   personalized={personalized[heroDeal.id]}
@@ -493,7 +493,7 @@ function RewardsPhoneMockup({
               </div>
             )}
             {hasEnriched && deals.length > 2 && !isSearchActive && (
-              <div className={showHero && heroDeal ? "w-1/3" : "w-full"}>
+              <div className={cn("flex", showHero && heroDeal ? "w-1/3" : "w-full")}>
                 <ExpiringSoonRow deals={deals.slice(Math.max(deals.length - 4, 3))} color={color} />
               </div>
             )}
