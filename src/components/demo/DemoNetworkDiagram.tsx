@@ -99,13 +99,6 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
     return mod ? enabledModules.has(mod) : true;
   }), [enabledModules]);
 
-  const visibleImpactMetrics = useMemo(() => {
-    return PILLAR_ROWS.map((row, i) => ({ ...IMPACT_METRICS[i], rowId: row.id }))
-      .filter(item => {
-        const mod = MODULE_ROW_MAP[item.rowId];
-        return mod ? enabledModules.has(mod) : true;
-      });
-  }, [enabledModules]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0 });
 
