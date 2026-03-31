@@ -1,20 +1,31 @@
 
 
-## Plan: Redesign Local Perks as 4-Column Card Matrix
+## Plan: Add Subcategory Pills from Enrichment to Category Filter
 
 ### File: `src/components/demo/DemoRewardsView.tsx`
 
-**1. Redesign `PerkCard` (~lines 305–329)** as a compact vertical card cell:
-- Small category icon + title on one line (truncated)
-- Partner name below in muted text
-- Value badge at bottom (colored pill, same style as deal cards)
-- Styling: `rounded-md border border-slate-100 p-1.5`, tight spacing
+**1. Extend `CategoryFilterPills` to accept enriched transactions and display subcategory pills**
 
-**2. Update `LocalPerksSection` grid (~line 379)**:
-- Replace `<div className="space-y-0.5">` with `<div className="grid grid-cols-4 gap-1">`
+- Add an `enriched` prop (`EnrichedTransaction[]`) to `CategoryFilterPills`
+- Extract unique subcategories from the enriched transactions (e.g. "Fine Dining", "Boutique Hotel", "Activewear", "Streaming")
+- Render them as additional smaller pills after the existing pillar-level category pills, separated by a subtle divider or just visually distinguished with a different style (outline instead of filled when inactive, slightly smaller text)
 
-**3. Remove collapsible toggle** — keep section always open since the grid is already compact. Replace the `<button>` header with a static header row.
+**2. Add more pillar pills to `DEAL_CATEGORY_PILLS`**
+
+- Add missing pillars: `Pets` (🐾), `Family & Community` (👨‍👩‍👧)
+
+**3. Subcategory pill styling**
+
+- Same row, scrollable — subcategory pills appear after the pillar pills with a thin `|` separator
+- Slightly different style: use a dot prefix or lighter background to distinguish them from top-level categories
+- When a subcategory pill is active, filter deals whose `subcategory` matches AND filter local perks by text match
+
+**4. Wire enriched data through**
+
+- `RewardsPhoneMockup` already receives `enriched` transactions via parent — pass them down to `CategoryFilterPills`
+- Add a `subcategoryFilter` state alongside existing `categoryFilter`
+- Apply subcategory filtering in the `filteredDeals` memo
 
 ### Result
-Local perks rendered as a 4×N card matrix, roughly half the current height.
+The filter pill bar will show both pillar-level categories (Dining, Travel, etc.) and enrichment-derived subcategory pills (Fine Dining, Boutique Hotel, Streaming, etc.), making the rewards view feel more data-rich and connected to the enrichment output.
 
