@@ -85,11 +85,11 @@ const PILLAR_ROWS: PillarRow[] = [
   },
 ];
 
-const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChart3; color: string }[] = [
-  { mod: "Analytics", label: "Customer Intelligence", icon: BarChart3, color: "#3b82f6" },
-  { mod: "AI & UX", label: "AI & UX", icon: Smartphone, color: "#60a5fa" },
-  { mod: "Rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
-  { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899" },
+const ENGINE_MODULE_CARDS: { mod: ModuleKey; label: string; icon: typeof BarChart3; color: string; target: DemoNodeType }[] = [
+  { mod: "Analytics", label: "Customer Intelligence", icon: BarChart3, color: "#3b82f6", target: "analytics" },
+  { mod: "AI & UX", label: "AI & UX", icon: Smartphone, color: "#60a5fa", target: "engagement" },
+  { mod: "Rewards", label: "Rewards", icon: Gift, color: "#22c55e", target: "travel" },
+  { mod: "Relationship", label: "Relationship", icon: Heart, color: "#ec4899", target: "lifeEvents" },
 ];
 
 const IMPACT_METRICS: { metrics: string[]; color: string }[] = [
@@ -222,6 +222,15 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
                     strokeDasharray={isReady ? "none" : "6 4"}
                     className="line-transition"
                   />
+                  {/* Invisible wider clickable path for enrichment panel */}
+                  <path
+                    d={path}
+                    stroke="transparent"
+                    strokeWidth={14}
+                    fill="none"
+                    style={{ cursor: isReady ? "pointer" : "default", pointerEvents: isReady ? "all" : "none" }}
+                    onClick={() => { if (isReady) onNodeClick("engine"); }}
+                  />
                   {isProcessingLine && (
                     <circle r="2.5" fill="#6366f1">
                       <animateMotion dur="2.5s" repeatCount="indefinite" path={path} />
@@ -317,10 +326,8 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
       </div>
 
       {/* Engine Node */}
-      <button
-        onClick={() => { if (engineReady) onNodeClick("engine"); }}
-        disabled={!engineReady}
-        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-1.5 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.02] border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "cursor-not-allowed border-slate-200 opacity-90" : "cursor-not-allowed border-slate-100 opacity-80"}`}
+      <div
+        className={`absolute flex flex-col items-center rounded-2xl border bg-white py-1.5 px-2 group transition-[box-shadow,opacity,border-color] duration-300 ${engineReady ? "border-blue-300 border-2 shadow-[0_0_14px_rgba(147,197,253,0.3)]" : engineProcessing ? "border-slate-200 opacity-90" : "border-slate-100 opacity-80"}`}
         style={{
           left: engineCenterX - ENGINE_WIDTH / 2,
           top: midY,
@@ -338,14 +345,20 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
           {visibleEngineCards.map((cap, ci) => {
             const Icon = cap.icon;
             return (
-              <div key={cap.mod} className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300`} style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}>
+              <button
+                key={cap.mod}
+                onClick={() => { if (engineReady) onNodeClick(cap.target); }}
+                disabled={!engineReady}
+                className={`flex items-center gap-2 rounded-lg px-2 ${centered ? "py-2" : "py-1.5"} border transition-all duration-300 ${engineReady ? "cursor-pointer hover:scale-[1.03] hover:shadow-sm" : "cursor-not-allowed"}`}
+                style={{ background: engineReady ? `${cap.color}15` : `${cap.color}08`, borderColor: engineReady ? `${cap.color}40` : `${cap.color}20`, animationDelay: engineProcessing ? `${ci * 0.3}s` : undefined }}
+              >
                 <Icon className={`${centered ? "w-4.5 h-4.5" : "w-3.5 h-3.5"} shrink-0`} style={{ color: cap.color }} />
                 <span className={`font-semibold ${centered ? "text-[13px]" : "text-[12px]"}`} style={{ color: engineReady ? cap.color : "#64748b" }}>{cap.label}</span>
-              </div>
+              </button>
             );
           })}
         </div>
-      </button>
+      </div>
 
       {/* Bank Analytics Column + Consumer Views Column */}
       {visibleRows.map((pillar, pi) => {
