@@ -205,7 +205,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </button>
 
         <nav className="flex-1 py-1 overflow-y-auto">
-          {NAV_GROUPS.map((group) => (
+          {filteredNavGroups.map((group) => (
             <Collapsible key={group.label} defaultOpen>
               {!collapsed && (
                 <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
