@@ -172,17 +172,17 @@ export default function DemoCustomerPanel({
               {isProcessing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Enriching…
+                  Creating Experience…
                 </>
               ) : currentPhase === "complete" ? (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  Re-Enrich Customer
+                  Recreate Experience
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Enrich Customer
+                  Create Next-Gen Banking Experience
                 </>
               )}
             </Button>
