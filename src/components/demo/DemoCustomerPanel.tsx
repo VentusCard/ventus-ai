@@ -62,45 +62,44 @@ export default function DemoCustomerPanel({
         transactions={parsedTransactions}
       />
 
-      {/* Platform Modules */}
-      <div className="mb-4">
-        <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 mb-2">Platform Modules</p>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <button
-            onClick={toggleAll}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
-              allOn
-                ? "bg-blue-50 text-blue-700 border-blue-200"
-                : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
-            }`}
-          >
-            All
-          </button>
-          <button
-            disabled
-            className="px-2.5 py-1 rounded-full text-[10px] font-medium border bg-blue-50 text-blue-700 border-blue-200 cursor-default flex items-center gap-1"
-          >
-            <Lock className="w-2.5 h-2.5" />
-            Analytics
-          </button>
-          {(["Rewards", "Relationship"] as ModuleKey[]).map(mod => (
+      {/* Enrich button */}
+      <div className="mt-auto pt-6 space-y-3">
+        {/* Platform Modules */}
+        <div className="mb-1">
+          <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 mb-2">Platform Modules</p>
+          <div className="flex items-center gap-1.5 flex-wrap">
             <button
-              key={mod}
-              onClick={() => toggleModule(mod)}
+              onClick={toggleAll}
               className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
-                enabledModules.has(mod)
+                allOn
                   ? "bg-blue-50 text-blue-700 border-blue-200"
                   : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
               }`}
             >
-              {mod}
+              All
             </button>
-          ))}
+            <button
+              disabled
+              className="px-2.5 py-1 rounded-full text-[10px] font-medium border bg-blue-50 text-blue-700 border-blue-200 cursor-default flex items-center gap-1"
+            >
+              <Lock className="w-2.5 h-2.5" />
+              Analytics
+            </button>
+            {(["Rewards", "Relationship"] as ModuleKey[]).map(mod => (
+              <button
+                key={mod}
+                onClick={() => toggleModule(mod)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
+                  enabledModules.has(mod)
+                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                    : "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300"
+                }`}
+              >
+                {mod}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Enrich button */}
-      <div className="mt-auto pt-6 space-y-3">
         <Button
           onClick={onEnrich}
           disabled={isProcessing || !customer}
