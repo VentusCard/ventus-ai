@@ -26,13 +26,14 @@ import BankWideAnalytics from "./pages/BankWideAnalytics";
 import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
 import DemoPage from "./pages/DemoPage";
+import ExecDemoPage from "./pages/ExecDemoPage";
 
 const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
-  const isDemo = location.pathname === "/deckmo";
+  const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
