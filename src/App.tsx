@@ -32,7 +32,7 @@ const queryClient = new QueryClient();
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
-  const isDemo = location.pathname === "/demo";
+  const isDemo = location.pathname === "/deckmo";
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -57,7 +57,7 @@ const AppLayout = () => {
           <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
           <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
           <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
-          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/deckmo" element={<DemoPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
