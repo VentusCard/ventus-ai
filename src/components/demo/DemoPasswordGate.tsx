@@ -695,7 +695,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                          </span>
                        </div>
                        <p className="text-sm text-slate-500 leading-relaxed">
-                         Notify the local advisor, auto-draft a 529 plan, and trigger a life-insurance review — all before the customer asks
+                          Notify the local advisor, auto-draft a 529 plan, and trigger a financial planning review — all before the customer asks
                        </p>
                      </div>
 
