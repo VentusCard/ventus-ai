@@ -120,6 +120,7 @@ export default function ExecDemoPage() {
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
   return (
+    <SimplePasswordGate>
     <div className="min-h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif]">
       {/* Top bar */}
       <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
