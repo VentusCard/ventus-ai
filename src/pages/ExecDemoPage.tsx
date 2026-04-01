@@ -7,6 +7,7 @@ import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
+import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 
 type TabKey = "analytics" | "rewards" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
@@ -120,6 +121,7 @@ export default function ExecDemoPage() {
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
   return (
+    <SimplePasswordGate>
     <div className="min-h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif]">
       {/* Top bar */}
       <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
@@ -187,5 +189,6 @@ export default function ExecDemoPage() {
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
+    </SimplePasswordGate>
   );
 }
