@@ -107,7 +107,10 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
     // Health group follows Analytics (always on since Analytics is always enabled)
-    if (enabledModules.has("Analytics")) allowedLabels.add("Health");
+    if (enabledModules.has("Analytics")) {
+      allowedLabels.add("Health");
+      allowedLabels.add("Others");
+    }
 
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
