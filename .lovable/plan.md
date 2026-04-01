@@ -1,19 +1,13 @@
 
 
-## Plan: Make "Others" group visible in demo module filtering
-
-### Problem
-The "Others" nav group is filtered out because it's not in any module's allowed labels. Health is kept visible by a special rule on line 110.
+## Plan: Expand chat panel by default
 
 ### Change
-In `src/components/tepilot/insights/AnalyticsContainer.tsx`, line 110, add `"Others"` alongside `"Health"`:
+In `src/components/tepilot/insights/AnalyticsContainer.tsx`, line 96, change the initial state of `chatOpen` from `false` to `true`:
 
 ```ts
-if (enabledModules.has("Analytics")) {
-  allowedLabels.add("Health");
-  allowedLabels.add("Others");
-}
+const [chatOpen, setChatOpen] = useState(true);
 ```
 
-Single line change — makes "Others" (containing Gamification) always visible when Analytics is enabled, same as Health.
+Single character change. The chat panel will now be open by default on every tab (except the Ventus AI tab which already has its own view).
 
