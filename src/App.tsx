@@ -58,6 +58,7 @@ const AppLayout = () => {
           <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
           <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
           <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
+          <Route path="/demo" element={<ExecDemoPage />} />
           <Route path="/deckmo" element={<DemoPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
