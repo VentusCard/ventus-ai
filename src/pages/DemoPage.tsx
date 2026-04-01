@@ -64,6 +64,7 @@ export default function DemoPage() {
           : "idle";
 
   return (
+    <SimplePasswordGate>
     <DemoPasswordGate>
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Logo + one-liner — always visible */}
