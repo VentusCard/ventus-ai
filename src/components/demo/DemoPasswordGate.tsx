@@ -663,105 +663,60 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                    <div className="flex flex-col gap-4 w-full mt-3">
                      {/* Personalized Rewards */}
                      <div
-                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
+                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-5 transition-all duration-700"
                        style={{
                          opacity: beat5Phase >= 1 ? 1 : 0,
                          transform: beat5Phase >= 1 ? "translateY(0)" : "translateY(16px)",
                        }}
                      >
-                       <div className="flex items-center gap-2 mb-3">
-                          <span className="text-2xl">🎁</span>
-                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
-                            Personalized Rewards
-                          </span>
-                           <span className="text-xs text-slate-400 whitespace-nowrap">
-                           — Delivered within deals page with ranking, message, and CTA personalized
+                       <div className="flex items-center gap-2 mb-2">
+                         <span className="text-2xl">🎁</span>
+                         <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                           Personalized Rewards
                          </span>
                        </div>
-                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                         {[
-                            "Baby Monitors",
-                           "Pregnancy Books & Audiobooks",
-                           "Strollers & Car Seats",
-                           "Local Classes & Services",
-                         ].map((label) => (
-                           <div
-                             key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                            >
-                              <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
-                           </div>
-                         ))}
-                       </div>
+                       <p className="text-sm text-slate-500 leading-relaxed">
+                         Deliver national and local deals that help expecting mothers — e.g. baby monitors or local classes — with heart-warming messages
+                       </p>
                      </div>
 
                      {/* Personalized Relationship */}
                      <div
-                        className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
-                        style={{
-                          opacity: beat5Phase >= 2 ? 1 : 0,
-                          transform: beat5Phase >= 2 ? "translateY(0)" : "translateY(16px)",
-                        }}
-                      >
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="text-2xl">🤝</span>
-                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
-                            Personalized Relationship
-                          </span>
-                           <span className="text-xs text-slate-400 whitespace-nowrap">
-                             — Triggers automation for regular customers and notification & automated prep for wealth managers
-                           </span>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          {[
-                             "Local Advisor Notified",
-                             "Automated 529 Draft",
-                            "Life Insurance Review",
-                            "Emergency Fund Boost",
-                          ].map((label) => (
-                            <div
-                              key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                             >
-                                <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
-                             </div>
-                           ))}
-                         </div>
+                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-5 transition-all duration-700"
+                       style={{
+                         opacity: beat5Phase >= 2 ? 1 : 0,
+                         transform: beat5Phase >= 2 ? "translateY(0)" : "translateY(16px)",
+                       }}
+                     >
+                       <div className="flex items-center gap-2 mb-2">
+                         <span className="text-2xl">🤝</span>
+                         <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                           Personalized Relationship
+                         </span>
                        </div>
+                       <p className="text-sm text-slate-500 leading-relaxed">
+                         Notify the local advisor, auto-draft a 529 plan, and trigger a life-insurance review — all before the customer asks
+                       </p>
+                     </div>
 
-                     {/* Personalized UX */}
+                     {/* Personalized AI & UX */}
                      <div
-                        className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-6 transition-all duration-700"
-                        style={{
-                          opacity: beat5Phase >= 3 ? 1 : 0,
-                          transform: beat5Phase >= 3 ? "translateY(0)" : "translateY(16px)",
-                        }}
-                      >
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="text-2xl">📱</span>
-                          <span className="text-base font-bold" style={{ color: "#0F172A" }}>
-                            Personalized AI & UX
-                          </span>
-                           <span className="text-xs text-slate-400 whitespace-nowrap">
-                             — Supported by backend analytics and orchestrates other features
-                           </span>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          {[
-                            '"Family & Foundation" Pillar',
-                            "Baby Budget Tracker",
-                            "Parenting Milestone Alerts",
-                             "Orchestrate Other Features",
-                          ].map((label) => (
-                            <div
-                              key={label}
-                              className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col items-center text-center"
-                             >
-                                <span className="text-sm font-semibold leading-tight whitespace-nowrap text-primary-foreground">{label}</span>
-                             </div>
-                           ))}
-                         </div>
+                       className="rounded-xl border border-slate-200 bg-[#FAFBFC] p-5 transition-all duration-700"
+                       style={{
+                         opacity: beat5Phase >= 3 ? 1 : 0,
+                         transform: beat5Phase >= 3 ? "translateY(0)" : "translateY(16px)",
+                       }}
+                     >
+                       <div className="flex items-center gap-2 mb-2">
+                         <span className="text-2xl">📱</span>
+                         <span className="text-base font-bold" style={{ color: "#0F172A" }}>
+                           Personalized AI & UX
+                         </span>
                        </div>
+                       <p className="text-sm text-slate-500 leading-relaxed">
+                         Surface a "Family & Foundation" pillar with a baby budget tracker, milestone alerts, and contextual AI that orchestrates it all
+                       </p>
+                     </div>
                    </div>
 
                 </div>
