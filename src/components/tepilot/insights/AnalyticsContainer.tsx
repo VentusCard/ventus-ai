@@ -56,7 +56,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
       { value: "deal-management", label: "Deal Management", icon: Package },
       { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
-      { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
   {
@@ -75,6 +74,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
     ],
   },
+  {
+    label: "Others",
+    items: [
+      { value: "gamification", label: "Gamification", icon: Gamepad2 },
+    ],
+  },
 ];
 
 interface AnalyticsContainerProps {
@@ -88,7 +93,7 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Filter nav groups based on enabled modules
@@ -102,7 +107,10 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
     // Health group follows Analytics (always on since Analytics is always enabled)
-    if (enabledModules.has("Analytics")) allowedLabels.add("Health");
+    if (enabledModules.has("Analytics")) {
+      allowedLabels.add("Health");
+      allowedLabels.add("Others");
+    }
 
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
@@ -175,7 +183,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
               <Building2 className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-slate-900 leading-tight">TCBY Bank (This Could Your Bank)</h1>
+              <h1 className="text-sm font-bold text-slate-900 leading-tight">TCBY Bank (This Could Be Your Bank)</h1>
               <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
             </div>
           </div>

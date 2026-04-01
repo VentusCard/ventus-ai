@@ -1,33 +1,30 @@
 
 
-## Plan: Fix personalized deals not showing 11
+## Plan: Simplify Beat 5 personalization cards
 
-### Problem
-`getRelevantDeals()` in `src/lib/dealSelectionUtils.ts` allocates slots as 4 + 3 + 2 (pillar deals) + 2 (discovery) = 11. But if a pillar has fewer deals than its allocation, the function returns fewer than 11, leaving a visual gap in the 2-column grid (odd count = empty cell).
+### Current state
+Beat 5 ("Behavioral Signal + Demographics = Personalization") has three staggered cards, each with:
+- A descriptive subtitle ("— Delivered within deals page..." etc.)
+- A 2x4 grid of sub-cards
 
-### Fix
-In `src/lib/dealSelectionUtils.ts`, after combining `pillarDeals` and `discoveryDeals`, add a backfill step: if the combined count is still under `maxDeals`, pull additional deals from the full library (excluding already-used IDs), sorted by popularity, to fill remaining slots.
+### Changes (lines 662–765 of `DemoPasswordGate.tsx`)
 
-### File changed
-- `src/lib/dealSelectionUtils.ts` — lines ~161-169: add backfill logic before the final return
+Replace the three card blocks with simplified versions:
 
-### Implementation detail
-```ts
-// After discoveryDeals are assembled (~line 167):
-const combined = [...pillarDeals, ...discoveryDeals];
+1. **Remove** the `<span className="text-xs text-slate-400">` descriptive text from each card
+2. **Remove** the `grid` of sub-cards from each card
+3. **Replace** each sub-card grid with a single descriptive sentence
 
-// Backfill if under maxDeals
-if (combined.length < maxDeals) {
-  const remaining = AVAILABLE_DEALS
-    .filter(d => !usedIds.has(d.id) && !topPillarNames.includes(d.category))
-    .sort(sortByPopularity)
-    .slice(0, maxDeals - combined.length)
-    .map(convertToBankDeal);
-  combined.push(...remaining);
-}
+#### Proposed one-liners:
 
-return combined.slice(0, maxDeals);
-```
+| Card | Sentence |
+|------|----------|
+| 🎁 Personalized Rewards | Deliver national and local deals that help expecting mothers — e.g. baby monitors or local classes — with heart-warming messages |
+| 🤝 Personalized Relationship | Notify the local advisor, auto-draft a 529 plan, and trigger a life-insurance review — all before the customer asks |
+| 📱 Personalized AI & UX | Surface a "Family & Foundation" pillar with a baby budget tracker, milestone alerts, and contextual AI that orchestrates it all |
 
-This guarantees 11 deals are returned (assuming the library has enough), eliminating the grid gap.
+Each card keeps its emoji + bold title, staggered fade-in animation, and rounded border — just much shorter content.
+
+### Technical detail
+Single file edit: `src/components/demo/DemoPasswordGate.tsx`, lines ~662–765. Replace the three card `<div>` blocks with streamlined versions containing only the title row and a `<p>` sentence.
 

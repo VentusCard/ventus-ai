@@ -105,67 +105,65 @@ const defaultPayloads: ApiPayloads = { classification: null, dealPersonalization
 
 function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
   const rowIdx = TAB_ROW_INDEX[activeTab];
-  const bankNodes = rowIdx !== null ? PILLAR_ROWS[rowIdx].bankNodes : [];
-  const pillarColor = rowIdx !== null ? PILLAR_ROWS[rowIdx].color : "#3b82f6";
+  const isAI = activeTab === "ai";
 
-  return (
-    <div className="flex flex-col justify-center gap-4 h-full px-4">
-      {/* Section label */}
-      <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-secondary-foreground">Powering this Experience</p>
+  // For AI tab, collect all bank nodes from all rows with their colors
+  const allNodes: { node: typeof PILLAR_ROWS[0]["bankNodes"][0]; color: string }[] = [];
+  if (isAI) {
+    PILLAR_ROWS.forEach((row) => {
+      row.bankNodes.forEach((n) => allNodes.push({ node: n, color: row.color }));
+    });
+  }
 
-      {/* Core Analytics card — always shown */}
+  const bankNodes = !isAI && rowIdx !== null ? PILLAR_ROWS[rowIdx].bankNodes : [];
+  const pillarColor = !isAI && rowIdx !== null ? PILLAR_ROWS[rowIdx].color : "#3b82f6";
+
+  const cardPy = isAI ? "py-2.5" : "py-4";
+  const cardGap = isAI ? "gap-2.5" : "gap-4";
+  const iconSize = isAI ? "w-7 h-7" : "w-9 h-9";
+  const iconInner = isAI ? "w-4 h-4" : "w-5 h-5";
+
+  const renderCard = (id: string, label: string, Icon: React.ElementType, color: string) => (
+    <div
+      key={id}
+      className={`group relative rounded-xl border-l-4 px-4 ${cardPy} flex items-center gap-3.5 cursor-default`}
+      style={{
+        borderColor: color,
+        background: `linear-gradient(135deg, ${color}0F 0%, ${color}05 100%)`,
+      }}
+    >
       <div
-        className="group relative rounded-xl border-l-4 px-4 py-4 flex items-center gap-3.5 cursor-default"
-        style={{
-          borderColor: "#3b82f6",
-          background: "linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%)",
-        }}
+        className={`${iconSize} rounded-lg flex items-center justify-center shrink-0`}
+        style={{ background: `${color}1F` }}
       >
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: "rgba(59,130,246,0.12)" }}
-        >
-          <BarChart3 className="w-5 h-5" style={{ color: "#3b82f6" }} />
-        </div>
-        <span className="text-sm font-semibold text-slate-700">Core Customer Intelligence</span>
-        {/* Hover tooltip */}
+        <Icon className={iconInner} style={{ color }} />
+      </div>
+      <span className="text-sm font-semibold text-slate-700">{label}</span>
+      {CARD_DESCRIPTIONS[id] && (
         <div className="absolute left-0 right-0 -bottom-1 translate-y-full z-50 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
           <div className="bg-slate-800 text-white text-[11px] leading-snug rounded-lg px-3 py-2 shadow-lg mx-2">
-            Transforms raw transactions into rich lifestyle dimensions, enabling every experience below to feel personally crafted.
+            {CARD_DESCRIPTIONS[id]}
           </div>
         </div>
-      </div>
+      )}
+    </div>
+  );
 
-      {/* Tab-specific bank node cards */}
-      {bankNodes.map((node) => {
-        const Icon = node.icon;
-        return (
-          <div
-            key={node.id}
-            className="group relative rounded-xl border-l-4 px-4 py-4 flex items-center gap-3.5 cursor-default"
-            style={{
-              borderColor: pillarColor,
-              background: `linear-gradient(135deg, ${pillarColor}0F 0%, ${pillarColor}05 100%)`,
-            }}
-          >
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: `${pillarColor}1F` }}
-            >
-              <Icon className="w-5 h-5" style={{ color: pillarColor }} />
-            </div>
-            <span className="text-sm font-semibold text-slate-700">{node.label}</span>
-            {/* Hover tooltip */}
-            {CARD_DESCRIPTIONS[node.id] && (
-              <div className="absolute left-0 right-0 -bottom-1 translate-y-full z-50 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
-                <div className="bg-slate-800 text-white text-[11px] leading-snug rounded-lg px-3 py-2 shadow-lg mx-2">
-                  {CARD_DESCRIPTIONS[node.id]}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })}
+  return (
+    <div className={`flex flex-col justify-center ${cardGap} h-full px-4 ${isAI ? "overflow-y-auto" : ""}`}>
+      {/* Section label */}
+      <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-secondary-foreground">
+        {isAI ? "Full Context" : "Powering this Experience"}
+      </p>
+
+      {/* Core Analytics card — always shown */}
+      {renderCard("core", "Core Customer Intelligence", BarChart3, "#3b82f6")}
+
+      {/* AI tab: all bank nodes from all rows */}
+      {isAI && allNodes.map(({ node, color }) => renderCard(node.id, node.label, node.icon, color))}
+
+      {/* Non-AI tabs: tab-specific bank node cards */}
+      {!isAI && bankNodes.map((node) => renderCard(node.id, node.label, node.icon, pillarColor))}
     </div>
   );
 }
