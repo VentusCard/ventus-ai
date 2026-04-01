@@ -676,7 +676,7 @@ export default function DemoPasswordGate({ children }: { children: ReactNode }) 
                          </span>
                        </div>
                        <p className="text-sm text-slate-500 leading-relaxed">
-                         Deliver national and local deals that help expecting mothers — e.g. baby monitors or local classes — with heart-warming messages
+                          Deliver deals and local resources that help this expecting mother — e.g. baby monitors or local classes — with heart-warming messages
                        </p>
                      </div>
 
