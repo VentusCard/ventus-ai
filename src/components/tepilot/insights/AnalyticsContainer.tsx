@@ -74,6 +74,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
     ],
   },
+  {
+    label: "Others",
+    items: [
+      { value: "gamification", label: "Gamification", icon: Gamepad2 },
+    ],
+  },
 ];
 
 interface AnalyticsContainerProps {
