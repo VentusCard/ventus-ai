@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from "react";
 import { Play, User } from "lucide-react";
-import { customers, getSourceColor, type CustomerProfile, type Transaction } from "./execDemoData";
+import { DEMO_CUSTOMERS } from "@/lib/demoData";
+import { getIntelligenceForCustomer, getSourceColor } from "./execDemoData";
+import type { Transaction } from "./execDemoData";
 
 interface Props {
   selectedIdx: number;
@@ -66,12 +67,13 @@ export default function ExecDemoLeftPanel({
   collectedIndices,
   currentCardColor,
 }: Props) {
-  const customer = customers[selectedIdx];
+  const execProfile = getIntelligenceForCustomer(selectedIdx);
+  const transactions = execProfile.transactions;
 
-  const collected = customer.transactions
+  const collected = transactions
     .map((tx, i) => ({ tx, i }))
     .filter(({ i }) => collectedIndices.includes(i));
-  const uncollected = customer.transactions
+  const uncollected = transactions
     .map((tx, i) => ({ tx, i }))
     .filter(({ i }) => !collectedIndices.includes(i));
 
@@ -81,16 +83,16 @@ export default function ExecDemoLeftPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Customer Selector */}
-      <div className="px-5 pt-5 pb-3">
-        <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-3">
+      <div className="px-4 pt-4 pb-2">
+        <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Select Customer
         </div>
-        <div className="space-y-2">
-          {customers.map((c, i) => (
+        <div className="space-y-1.5">
+          {DEMO_CUSTOMERS.map((c, i) => (
             <button
-              key={c.name}
+              key={c.id}
               onClick={() => !isRunning && onSelectCustomer(i)}
-              className={`w-full text-left rounded-lg px-3 py-2.5 border transition-all duration-200 ${
+              className={`w-full text-left rounded-lg px-3 py-2 border transition-all duration-200 ${
                 selectedIdx === i
                   ? "border-blue-300 bg-blue-50 shadow-sm"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
@@ -98,18 +100,18 @@ export default function ExecDemoLeftPanel({
             >
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold ${
                     selectedIdx === i
                       ? "bg-blue-500 text-white"
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  <User className="w-3.5 h-3.5" />
+                  <User className="w-3 h-3" />
                 </div>
-                <div>
-                  <div className="text-[12px] font-semibold text-slate-800">{c.name}</div>
-                  <div className="text-[10px] text-slate-400">
-                    {c.age} · {c.family} · {c.location}
+                <div className="min-w-0">
+                  <div className="text-[11px] font-semibold text-slate-800 truncate">{c.profile.name}</div>
+                  <div className="text-[9px] text-slate-400 truncate">
+                    {c.profile.segment} · {c.lifestyleType} · {c.txnCount} txns
                   </div>
                 </div>
               </div>
@@ -119,76 +121,49 @@ export default function ExecDemoLeftPanel({
       </div>
 
       {/* Transaction Feed */}
-      <div className="flex-1 overflow-hidden relative px-5 pb-2">
+      <div className="flex-1 overflow-hidden relative px-4 pb-2">
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Transaction Feed
         </div>
 
         {phase === "idle" && (
-          <div className="text-[11px] text-slate-300 mt-2 font-mono">
+          <div className="text-[10px] text-slate-300 mt-2 font-mono">
             Click "Run Analysis" to begin...
           </div>
         )}
 
-        {/* Initial rapid scroll */}
         {showScrolling && (
-          <div className="absolute inset-x-5 top-6 bottom-0 overflow-hidden">
+          <div className="absolute inset-x-4 top-6 bottom-0 overflow-hidden">
             <div
               className="space-y-0.5"
-              style={{
-                animation: `exec-rapid-scroll ${SCROLL_DURATION}ms linear forwards`,
-              }}
+              style={{ animation: `exec-rapid-scroll ${SCROLL_DURATION}ms linear forwards` }}
             >
-              {customer.transactions.map((tx, i) => (
-                <TxRow
-                  key={`s-${i}`}
-                  tx={tx}
-                  dim={false}
-                  sourceColor={getSourceColor(customer.transactions, tx.account)}
-                />
+              {transactions.map((tx, i) => (
+                <TxRow key={`s-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
-              {customer.transactions.map((tx, i) => (
-                <TxRow
-                  key={`s2-${i}`}
-                  tx={tx}
-                  dim
-                  sourceColor={getSourceColor(customer.transactions, tx.account)}
-                />
+              {transactions.map((tx, i) => (
+                <TxRow key={`s2-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
             </div>
           </div>
         )}
 
-        {/* Card scan rapid scroll */}
         {phase === "cardScan" && (
-          <div className="absolute inset-x-5 top-6 bottom-0 overflow-hidden">
+          <div className="absolute inset-x-4 top-6 bottom-0 overflow-hidden">
             <div
               className="space-y-0.5"
-              style={{
-                animation: `exec-card-scroll ${CARD_SCAN_DURATION}ms linear forwards`,
-              }}
+              style={{ animation: `exec-card-scroll ${CARD_SCAN_DURATION}ms linear forwards` }}
             >
-              {customer.transactions.map((tx, i) => (
-                <TxRow
-                  key={`cs-${i}`}
-                  tx={tx}
-                  dim={false}
-                  sourceColor={getSourceColor(customer.transactions, tx.account)}
-                />
+              {transactions.map((tx, i) => (
+                <TxRow key={`cs-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
-              {customer.transactions.map((tx, i) => (
-                <TxRow
-                  key={`cs2-${i}`}
-                  tx={tx}
-                  dim
-                  sourceColor={getSourceColor(customer.transactions, tx.account)}
-                />
+              {transactions.map((tx, i) => (
+                <TxRow key={`cs2-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
             </div>
           </div>
         )}
 
-        {/* Collected/uncollected split */}
         {showCollected && (
           <div className="space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
             {collected.map(({ tx, i }) => (
@@ -198,24 +173,19 @@ export default function ExecDemoLeftPanel({
                   dim={false}
                   highlight
                   highlightColor={currentCardColor}
-                  sourceColor={getSourceColor(customer.transactions, tx.account)}
+                  sourceColor={getSourceColor(transactions, tx.account)}
                 />
               </div>
             ))}
             {uncollected.map(({ tx, i }) => (
-              <TxRow
-                key={`unc-${i}`}
-                tx={tx}
-                dim
-                sourceColor={getSourceColor(customer.transactions, tx.account)}
-              />
+              <TxRow key={`unc-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
             ))}
           </div>
         )}
       </div>
 
       {/* Run Analysis Button */}
-      <div className="px-5 pb-5 pt-2">
+      <div className="px-4 pb-4 pt-2">
         <button
           onClick={onRunAnalysis}
           disabled={isRunning}
