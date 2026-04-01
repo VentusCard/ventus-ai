@@ -188,5 +188,6 @@ export default function ExecDemoPage() {
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
+    </SimplePasswordGate>
   );
 }
