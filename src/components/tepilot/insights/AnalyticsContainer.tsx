@@ -56,7 +56,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
       { value: "deal-management", label: "Deal Management", icon: Package },
       { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
-      { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
   {
@@ -73,6 +72,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
       { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
+    ],
+  },
+  {
+    label: "Others",
+    items: [
+      { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
 ];
