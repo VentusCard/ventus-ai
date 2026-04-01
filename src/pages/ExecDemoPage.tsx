@@ -1,0 +1,183 @@
+import { useState, useCallback, useRef } from "react";
+import { X } from "lucide-react";
+import { Link } from "react-router-dom";
+import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
+import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
+import { customers } from "@/components/exec-demo/execDemoData";
+import ContactFormDialog from "@/components/ContactFormDialog";
+
+type TabKey = "analytics" | "rewards" | "relationship";
+type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
+
+const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
+
+const TIMINGS = {
+  scroll: 4800,
+  cardScan: 1320,
+  collectInterval: 420,
+  collectBuffer: 840,
+  cardReveal: 1200,
+  hold: 999999, // stay on hold until user resets
+};
+
+export default function ExecDemoPage() {
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [visiblePills, setVisiblePills] = useState(0);
+  const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
+  const [activeTab, setActiveTab] = useState<TabKey | null>(null);
+  const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
+  const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
+  const [contactOpen, setContactOpen] = useState(false);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  const clearTimeouts = useCallback(() => {
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+  }, []);
+
+  const schedule = useCallback((fn: () => void, ms: number) => {
+    timeoutsRef.current.push(setTimeout(fn, ms));
+  }, []);
+
+  const isRunning = phase !== "idle" && phase !== "hold";
+
+  const handleSelectCustomer = useCallback(
+    (idx: number) => {
+      clearTimeouts();
+      setSelectedIdx(idx);
+      setPhase("idle");
+      setVisiblePills(0);
+      setRevealedTabs([]);
+      setActiveTab(null);
+      setCollectedIndices([]);
+    },
+    [clearTimeouts]
+  );
+
+  const handleRunAnalysis = useCallback(() => {
+    if (isRunning) return;
+    clearTimeouts();
+    setPhase("scroll");
+    setVisiblePills(0);
+    setRevealedTabs([]);
+    setActiveTab(null);
+    setCollectedIndices([]);
+
+    const customer = customers[selectedIdx];
+    const pillCount = customer.persona.pills?.length ?? 0;
+    const pillInterval = TIMINGS.scroll / (pillCount + 1);
+    for (let p = 0; p < pillCount; p++) {
+      schedule(() => setVisiblePills(p + 1), (p + 1) * pillInterval);
+    }
+
+    let elapsed = TIMINGS.scroll;
+
+    // Per-tab card cycle
+    TAB_ORDER.forEach((tabKey, c) => {
+      const card = customer.intelligence[tabKey];
+      const cardElapsed = elapsed;
+      const cardCollectDuration =
+        card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
+
+      // Scan phase
+      schedule(() => {
+        setPhase("cardScan");
+        setCollectedIndices([]);
+        setCurrentCardColor(card.accent);
+        setActiveTab(tabKey);
+      }, cardElapsed);
+
+      // Collect phase
+      const collectStart = cardElapsed + TIMINGS.cardScan;
+      schedule(() => {
+        setPhase("cardCycle");
+      }, collectStart);
+
+      card.txIndices.forEach((txIdx, j) => {
+        schedule(() => {
+          setCollectedIndices((prev) => [...prev, txIdx]);
+        }, collectStart + (j + 1) * TIMINGS.collectInterval);
+      });
+
+      // Reveal tab
+      schedule(() => {
+        setRevealedTabs((prev) => [...prev, tabKey]);
+      }, collectStart + cardCollectDuration);
+
+      elapsed += TIMINGS.cardScan + cardCollectDuration + TIMINGS.cardReveal;
+    });
+
+    // Hold
+    schedule(() => {
+      setPhase("hold");
+      setActiveTab("analytics");
+    }, elapsed);
+  }, [isRunning, clearTimeouts, schedule, selectedIdx]);
+
+  const handleTabClick = useCallback((tab: TabKey) => {
+    setActiveTab(tab);
+  }, []);
+
+  const customer = customers[selectedIdx];
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif]">
+      {/* Top bar */}
+      <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="text-[15px] font-bold text-slate-800 tracking-tight">
+            Ventus AI
+          </span>
+          <span className="text-[11px] text-slate-400 hidden sm:inline">
+            Executive Demo · Personalization Engine
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setContactOpen(true)}
+            className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+          >
+            Next Step →
+          </button>
+          <Link
+            to="/"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 grid grid-cols-[380px_1fr] min-h-0">
+        {/* Left panel */}
+        <div className="border-r border-slate-200 bg-white overflow-hidden">
+          <ExecDemoLeftPanel
+            selectedIdx={selectedIdx}
+            onSelectCustomer={handleSelectCustomer}
+            onRunAnalysis={handleRunAnalysis}
+            isRunning={isRunning}
+            phase={phase}
+            collectedIndices={collectedIndices}
+            currentCardColor={currentCardColor}
+          />
+        </div>
+
+        {/* Right panel — iPhone */}
+        <div className="bg-slate-50 overflow-hidden">
+          <ExecDemoPhoneView
+            customer={customer}
+            phase={phase}
+            visiblePills={visiblePills}
+            revealedTabs={revealedTabs}
+            activeTab={activeTab}
+            onTabClick={handleTabClick}
+          />
+        </div>
+      </div>
+
+      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
+    </div>
+  );
+}
