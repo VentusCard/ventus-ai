@@ -2,8 +2,10 @@ import { useState, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
+import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { customers } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer } from "@/components/exec-demo/execDemoData";
+import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
 type TabKey = "analytics" | "rewards" | "relationship";
@@ -17,7 +19,7 @@ const TIMINGS = {
   collectInterval: 420,
   collectBuffer: 840,
   cardReveal: 1200,
-  hold: 999999, // stay on hold until user resets
+  hold: 999999,
 };
 
 export default function ExecDemoPage() {
@@ -64,8 +66,8 @@ export default function ExecDemoPage() {
     setActiveTab(null);
     setCollectedIndices([]);
 
-    const customer = customers[selectedIdx];
-    const pillCount = customer.persona.pills?.length ?? 0;
+    const execProfile = getIntelligenceForCustomer(selectedIdx);
+    const pillCount = execProfile.persona.pills.length;
     const pillInterval = TIMINGS.scroll / (pillCount + 1);
     for (let p = 0; p < pillCount; p++) {
       schedule(() => setVisiblePills(p + 1), (p + 1) * pillInterval);
@@ -73,14 +75,12 @@ export default function ExecDemoPage() {
 
     let elapsed = TIMINGS.scroll;
 
-    // Per-tab card cycle
-    TAB_ORDER.forEach((tabKey, c) => {
-      const card = customer.intelligence[tabKey];
+    TAB_ORDER.forEach((tabKey) => {
+      const card = execProfile.intelligence[tabKey];
       const cardElapsed = elapsed;
       const cardCollectDuration =
         card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
 
-      // Scan phase
       schedule(() => {
         setPhase("cardScan");
         setCollectedIndices([]);
@@ -88,7 +88,6 @@ export default function ExecDemoPage() {
         setActiveTab(tabKey);
       }, cardElapsed);
 
-      // Collect phase
       const collectStart = cardElapsed + TIMINGS.cardScan;
       schedule(() => {
         setPhase("cardCycle");
@@ -100,7 +99,6 @@ export default function ExecDemoPage() {
         }, collectStart + (j + 1) * TIMINGS.collectInterval);
       });
 
-      // Reveal tab
       schedule(() => {
         setRevealedTabs((prev) => [...prev, tabKey]);
       }, collectStart + cardCollectDuration);
@@ -108,7 +106,6 @@ export default function ExecDemoPage() {
       elapsed += TIMINGS.cardScan + cardCollectDuration + TIMINGS.cardReveal;
     });
 
-    // Hold
     schedule(() => {
       setPhase("hold");
       setActiveTab("analytics");
@@ -119,7 +116,8 @@ export default function ExecDemoPage() {
     setActiveTab(tab);
   }, []);
 
-  const customer = customers[selectedIdx];
+  const execProfile = getIntelligenceForCustomer(selectedIdx);
+  const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif]">
@@ -149,9 +147,9 @@ export default function ExecDemoPage() {
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 grid grid-cols-[380px_1fr] min-h-0">
-        {/* Left panel */}
+      {/* Main content — 3 columns */}
+      <div className="flex-1 grid grid-cols-[320px_1fr_360px] min-h-0">
+        {/* Col 1 — Customer selection + transaction feed */}
         <div className="border-r border-slate-200 bg-white overflow-hidden">
           <ExecDemoLeftPanel
             selectedIdx={selectedIdx}
@@ -164,15 +162,25 @@ export default function ExecDemoPage() {
           />
         </div>
 
-        {/* Right panel — iPhone */}
-        <div className="bg-slate-50 overflow-hidden">
-          <ExecDemoPhoneView
-            customer={customer}
+        {/* Col 2 — Intelligence panel */}
+        <div className="border-r border-slate-200 bg-white overflow-hidden">
+          <ExecDemoIntelPanel
+            persona={execProfile.persona}
+            intelligence={execProfile.intelligence}
             phase={phase}
             visiblePills={visiblePills}
             revealedTabs={revealedTabs}
             activeTab={activeTab}
             onTabClick={handleTabClick}
+          />
+        </div>
+
+        {/* Col 3 — iPhone with /deckmo views */}
+        <div className="bg-slate-50 overflow-hidden">
+          <ExecDemoPhoneView
+            customer={demoCustomer}
+            activeTab={activeTab}
+            phase={phase}
           />
         </div>
       </div>
