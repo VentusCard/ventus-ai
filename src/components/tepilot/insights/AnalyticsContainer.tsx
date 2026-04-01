@@ -93,7 +93,7 @@ interface AnalyticsContainerProps {
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Filter nav groups based on enabled modules
