@@ -42,6 +42,7 @@ const AppLayout = () => {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/platform" element={<Platform />} />
           
           
           <Route path="/enrichment" element={<Enrichment />} />
