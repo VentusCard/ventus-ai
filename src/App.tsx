@@ -27,6 +27,7 @@ import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
 import DemoPage from "./pages/DemoPage";
 import ExecDemoPage from "./pages/ExecDemoPage";
+import Platform from "./pages/Platform";
 
 const queryClient = new QueryClient();
 

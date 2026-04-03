@@ -58,9 +58,8 @@ const Index = () => {
           </div>
         </section>
 
-        <ScrollReveal>
-          <PlatformTabs />
-        </ScrollReveal>
+
+
 
         
 
