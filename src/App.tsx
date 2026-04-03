@@ -27,6 +27,7 @@ import Insights from "./pages/Insights";
 import InsightPost from "./pages/InsightPost";
 import DemoPage from "./pages/DemoPage";
 import ExecDemoPage from "./pages/ExecDemoPage";
+import Platform from "./pages/Platform";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const AppLayout = () => {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/platform" element={<Platform />} />
           
           
           <Route path="/enrichment" element={<Enrichment />} />
