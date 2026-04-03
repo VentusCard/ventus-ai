@@ -10,6 +10,7 @@ import { parsePastedText } from "@/lib/parsers";
 import type { Transaction } from "@/types/transaction";
 import { PanelLeft, ArrowRight, X } from "lucide-react";
 import ContactFormDialog from "@/components/ContactFormDialog";
+import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-logo-blue.png";
 
 export default function DemoPage() {
@@ -63,6 +64,7 @@ export default function DemoPage() {
           : "idle";
 
   return (
+    <SimplePasswordGate>
     <DemoPasswordGate>
     <div className="demo-page h-screen w-screen flex overflow-hidden bg-white relative" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Logo + one-liner — always visible */}
@@ -173,5 +175,6 @@ export default function DemoPage() {
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
     </div>
     </DemoPasswordGate>
+    </SimplePasswordGate>
   );
 }

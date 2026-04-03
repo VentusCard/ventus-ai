@@ -1,30 +1,25 @@
 
 
-## Plan: Simplify Beat 5 personalization cards
+## Add Password Gate to `/demo` and `/deckmo`
 
-### Current state
-Beat 5 ("Behavioral Signal + Demographics = Personalization") has three staggered cards, each with:
-- A descriptive subtitle ("— Delivered within deals page..." etc.)
-- A 2x4 grid of sub-cards
+### Approach
+Create a simple, shared password gate component that prompts for a password before showing any content. Both `/demo` and `/deckmo` will use it. Password is hardcoded as `"ventus2026"`. Access is persisted in `sessionStorage` so it survives page refreshes within a session.
 
-### Changes (lines 662–765 of `DemoPasswordGate.tsx`)
+### Changes
 
-Replace the three card blocks with simplified versions:
+**1. New: `src/components/demo/SimplePasswordGate.tsx`**
+- Clean, minimal full-screen password input (Manrope font, white/slate theme)
+- Ventus logo at top, single password field, submit button
+- On correct password (`ventus2026`), sets `sessionStorage.setItem("demo_password_access", "true")` and renders children
+- On wrong password, shows inline error message
+- Checks sessionStorage on mount to skip gate if already authenticated
 
-1. **Remove** the `<span className="text-xs text-slate-400">` descriptive text from each card
-2. **Remove** the `grid` of sub-cards from each card
-3. **Replace** each sub-card grid with a single descriptive sentence
+**2. Modify: `src/pages/ExecDemoPage.tsx`**
+- Wrap the entire return in `<SimplePasswordGate>...</SimplePasswordGate>`
 
-#### Proposed one-liners:
+**3. Modify: `src/pages/DemoPage.tsx`**
+- The existing `DemoPasswordGate` is a multi-beat presentation opener, not a password gate
+- Wrap the existing `<DemoPasswordGate>` inside `<SimplePasswordGate>` so the password is required first, then the beat-by-beat opener plays, then the demo loads
 
-| Card | Sentence |
-|------|----------|
-| 🎁 Personalized Rewards | Deliver national and local deals that help expecting mothers — e.g. baby monitors or local classes — with heart-warming messages |
-| 🤝 Personalized Relationship | Notify the local advisor, auto-draft a 529 plan, and trigger a life-insurance review — all before the customer asks |
-| 📱 Personalized AI & UX | Surface a "Family & Foundation" pillar with a baby budget tracker, milestone alerts, and contextual AI that orchestrates it all |
-
-Each card keeps its emoji + bold title, staggered fade-in animation, and rounded border — just much shorter content.
-
-### Technical detail
-Single file edit: `src/components/demo/DemoPasswordGate.tsx`, lines ~662–765. Replace the three card `<div>` blocks with streamlined versions containing only the title row and a `<p>` sentence.
+Both pages share the same sessionStorage key, so entering the password once unlocks both.
 
