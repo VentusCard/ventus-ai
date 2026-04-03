@@ -1,5 +1,5 @@
 import Hero from "@/components/Hero";
-import PlatformTabs from "@/components/PlatformTabs";
+
 
 import IntegrationSection from "@/components/IntegrationSection";
 import ScrollReveal from "@/components/ScrollReveal";
