@@ -50,11 +50,12 @@ export default function ExecDemoPage() {
     timeoutsRef.current = [];
   }, []);
 
-  /** Fire classify-transactions SSE in background, cache results */
+  /** Fire classify-transactions SSE in background, then synthesize persona */
   const fireClassification = useCallback((csv: string) => {
-    // Abort any in-flight classification
     classifyAbortRef.current?.abort();
     classifiedRef.current = null;
+    personaSynthesisRef.current = null;
+    setPersonaSynthesis(null);
 
     const abort = new AbortController();
     classifyAbortRef.current = abort;
@@ -86,7 +87,6 @@ export default function ExecDemoPage() {
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
 
-          // Parse SSE events
           const events = buffer.split("\n\n");
           buffer = events.pop() || "";
 
@@ -100,6 +100,7 @@ export default function ExecDemoPage() {
                 const parsed = JSON.parse(dataMatch[1]);
                 classifiedRef.current = parsed.enriched_transactions || [];
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
+                firePersonaSynthesis(classifiedRef.current);
               } catch (e) {
                 console.error("[PRELOAD] Failed to parse done event", e);
               }
@@ -112,6 +113,39 @@ export default function ExecDemoPage() {
           console.error("[PRELOAD] Classification failed:", err);
         }
       });
+  }, []);
+
+  /** Synthesize persona headline + insights from classified transactions */
+  const firePersonaSynthesis = useCallback(async (enrichedTxs: EnrichedTransaction[]) => {
+    const signalMap = buildSignalMapFromClassified(enrichedTxs);
+    const grouped = new Map<string, { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }>();
+    for (const s of Object.values(signalMap)) {
+      const key = `${s.pillar}::${s.label}`;
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+        existing.totalSpend += s.amount;
+      } else {
+        grouped.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount, frequency: s.frequency });
+      }
+    }
+    const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("synthesize-persona", {
+        body: { pillars },
+      });
+      if (error) throw error;
+      const synthesis: PersonaSynthesis = {
+        headline: data.headline || "Dynamic Persona",
+        insights: data.insights || [],
+      };
+      personaSynthesisRef.current = synthesis;
+      setPersonaSynthesis(synthesis);
+      console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
+    } catch (err) {
+      console.error("[PRELOAD] Persona synthesis failed:", err);
+    }
   }, []);
 
   const schedule = useCallback((fn: () => void, ms: number) => {
