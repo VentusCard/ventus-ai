@@ -146,7 +146,9 @@ export default function ExecDemoPage() {
     setActiveTab(null);
     setCollectedIndices([]);
     setProfile(buildLocalProfile(csv, 0, name));
-  }, [clearTimeouts]);
+    // Preload classification for custom CSV
+    fireClassification(csv);
+  }, [clearTimeouts, fireClassification]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
