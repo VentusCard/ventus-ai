@@ -252,9 +252,6 @@ export default function ExecDemoLeftPanel({
                     <div className="text-[9px] text-slate-400 truncate">
                       {c.profile.segment} · {c.lifestyleType} · {c.txnCount} txns
                     </div>
-                    {isActive && personaTitle && (
-                      <div className="text-[9px] italic text-violet-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
-                    )}
                   </div>
                   {isActive && (
                     <button
