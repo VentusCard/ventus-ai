@@ -463,36 +463,3 @@ export function mergeAiResults(
     },
   };
 }
-  localProfile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] },
-  aiResult: {
-    pills: string[];
-    descriptions: Record<string, string>;
-    intelligence: {
-      analytics: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
-      rewards: { accent: string; icon: string; title: string; subtitle: string; pills: string[]; txIndices: number[] };
-      relationship: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
-    };
-  }
-): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
-  const txCount = localProfile.transactions.length;
-  const clamp = (indices: number[]) => indices.filter((idx) => idx < txCount);
-
-  const descriptions: Record<number, string> = {};
-  for (const [key, val] of Object.entries(aiResult.descriptions)) {
-    descriptions[parseInt(key, 10)] = val;
-  }
-
-  return {
-    transactions: localProfile.transactions,
-    persona: {
-      ...localProfile.persona,
-      pills: aiResult.pills.length > 0 ? aiResult.pills : localProfile.persona.pills,
-      descriptions,
-    },
-    intelligence: {
-      analytics: { ...aiResult.intelligence.analytics, txIndices: clamp(aiResult.intelligence.analytics.txIndices) },
-      rewards: { ...aiResult.intelligence.rewards, content: "", txIndices: clamp(aiResult.intelligence.rewards.txIndices) },
-      relationship: { ...aiResult.intelligence.relationship, txIndices: clamp(aiResult.intelligence.relationship.txIndices) },
-    },
-  };
-}
