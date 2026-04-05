@@ -15,11 +15,11 @@ type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
 const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
 
 const TIMINGS = {
-  scroll: 4800,
+  scroll: 6000,
   cardScan: 1320,
-  collectInterval: 420,
-  collectBuffer: 840,
-  cardReveal: 1200,
+  collectInterval: 320,
+  collectBuffer: 640,
+  cardReveal: 1000,
   hold: 999999,
 };
 

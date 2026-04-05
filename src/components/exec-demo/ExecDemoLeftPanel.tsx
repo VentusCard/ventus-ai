@@ -203,13 +203,13 @@ export default function ExecDemoLeftPanel({
       <style>{`
         @keyframes exec-rapid-scroll {
           0% { transform: translateY(0); }
-          90% { transform: translateY(-65%); }
-          100% { transform: translateY(-65%); }
+          90% { transform: translateY(-85%); }
+          100% { transform: translateY(-85%); }
         }
         @keyframes exec-card-scroll {
           0% { transform: translateY(0); }
-          80% { transform: translateY(-55%); }
-          100% { transform: translateY(-55%); }
+          80% { transform: translateY(-75%); }
+          100% { transform: translateY(-75%); }
         }
         @keyframes exec-fade-in {
           from { opacity: 0; transform: translateY(6px); }
