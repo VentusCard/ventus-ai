@@ -40,10 +40,76 @@ export default function ExecDemoPage() {
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
+  const classifyAbortRef = useRef<AbortController | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
+  }, []);
+
+  /** Fire classify-transactions SSE in background, cache results */
+  const fireClassification = useCallback((csv: string) => {
+    // Abort any in-flight classification
+    classifyAbortRef.current?.abort();
+    classifiedRef.current = null;
+
+    const abort = new AbortController();
+    classifyAbortRef.current = abort;
+
+    const payload = csvToClassifyPayload(csv);
+    if (payload.length === 0) return;
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+    fetch(`${supabaseUrl}/functions/v1/classify-transactions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseKey}`,
+        apikey: supabaseKey,
+      },
+      body: JSON.stringify({ transactions: payload }),
+      signal: abort.signal,
+    })
+      .then(async (res) => {
+        if (!res.ok || !res.body) return;
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          // Parse SSE events
+          const events = buffer.split("\n\n");
+          buffer = events.pop() || "";
+
+          for (const block of events) {
+            const eventMatch = block.match(/^event:\s*(.+)$/m);
+            const dataMatch = block.match(/^data:\s*(.+)$/m);
+            if (!eventMatch || !dataMatch) continue;
+
+            if (eventMatch[1] === "done") {
+              try {
+                const parsed = JSON.parse(dataMatch[1]);
+                classifiedRef.current = parsed.enriched_transactions || [];
+                console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
+              } catch (e) {
+                console.error("[PRELOAD] Failed to parse done event", e);
+              }
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("[PRELOAD] Classification failed:", err);
+        }
+      });
   }, []);
 
   const schedule = useCallback((fn: () => void, ms: number) => {
