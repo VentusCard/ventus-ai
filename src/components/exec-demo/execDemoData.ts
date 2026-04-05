@@ -22,11 +22,17 @@ export interface ExecIntelligence {
   relationship: IntelCard;
 }
 
+export interface SignalEntry {
+  pillar: string;
+  label: string;
+}
+
 export interface ExecPersona {
   accent: string;
   icon: string;
   title: string;
   pills: string[];
+  signalMap: Record<number, SignalEntry>;
 }
 
 /** Map a DemoCustomer index to exec-demo intelligence cards */
@@ -56,6 +62,20 @@ const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; tra
       icon: "◈",
       title: "Dynamic Persona",
       pills: ["Wellness Explorer", "Career Focused", "Active Lifestyle", "Organic Consumer"],
+      signalMap: {
+        0: { pillar: "Wellness & Fitness", label: "Gym" },
+        1: { pillar: "Food & Dining", label: "Grocery" },
+        2: { pillar: "Travel & Transport", label: "Airlines" },
+        3: { pillar: "Shopping", label: "Beauty" },
+        4: { pillar: "Wellness & Fitness", label: "Outdoor" },
+        5: { pillar: "Food & Dining", label: "Fast Casual" },
+        6: { pillar: "Travel & Transport", label: "Luggage" },
+        7: { pillar: "Career & Education", label: "Professional" },
+        8: { pillar: "Wellness & Fitness", label: "Fitness" },
+        9: { pillar: "Food & Dining", label: "Grocery" },
+        10: { pillar: "Travel & Transport", label: "Hotels" },
+        11: { pillar: "Shopping", label: "Athleisure" },
+      },
     },
     intelligence: {
       analytics: {
@@ -106,6 +126,20 @@ const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; tra
       icon: "◈",
       title: "Dynamic Persona",
       pills: ["Tech Enthusiast", "Fitness Focused", "Home Buyer", "Gaming Lifestyle"],
+      signalMap: {
+        0: { pillar: "Wellness & Fitness", label: "Gym" },
+        1: { pillar: "Wellness & Fitness", label: "Bootcamp" },
+        2: { pillar: "Shopping", label: "Outdoor" },
+        3: { pillar: "Shopping", label: "Athletic" },
+        4: { pillar: "Technology", label: "Electronics" },
+        5: { pillar: "Home & Living", label: "Home Improvement" },
+        6: { pillar: "Wellness & Fitness", label: "Fitness" },
+        7: { pillar: "Food & Dining", label: "Delivery" },
+        8: { pillar: "Technology", label: "Gaming" },
+        9: { pillar: "Home & Living", label: "Moving" },
+        10: { pillar: "Home & Living", label: "Real Estate" },
+        11: { pillar: "Technology", label: "Smart Home" },
+      },
     },
     intelligence: {
       analytics: {
@@ -156,6 +190,20 @@ const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; tra
       icon: "◈",
       title: "Dynamic Persona",
       pills: ["Family Planner", "Home Investor", "Education Focused", "Multi-Generational Care"],
+      signalMap: {
+        0: { pillar: "Home & Living", label: "Home Improvement" },
+        1: { pillar: "Shopping", label: "Wholesale" },
+        2: { pillar: "Food & Dining", label: "Fine Dining" },
+        3: { pillar: "Home & Living", label: "Furniture" },
+        4: { pillar: "Shopping", label: "Retail" },
+        5: { pillar: "Education", label: "Tutoring" },
+        6: { pillar: "Food & Dining", label: "Grocery" },
+        7: { pillar: "Financial Planning", label: "Estate" },
+        8: { pillar: "Healthcare", label: "Senior Care" },
+        9: { pillar: "Healthcare", label: "Medicare" },
+        10: { pillar: "Travel & Transport", label: "Family Travel" },
+        11: { pillar: "Home & Living", label: "Home Improvement" },
+      },
     },
     intelligence: {
       analytics: {
@@ -206,6 +254,20 @@ const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; tra
       icon: "◈",
       title: "Dynamic Persona",
       pills: ["Golf Enthusiast", "Wine Connoisseur", "Travel Regular", "Pre-Retiree"],
+      signalMap: {
+        0: { pillar: "Travel & Transport", label: "Airlines" },
+        1: { pillar: "Travel & Transport", label: "Hotels" },
+        2: { pillar: "Family", label: "Kids Activities" },
+        3: { pillar: "Food & Dining", label: "Grocery" },
+        4: { pillar: "Sports & Leisure", label: "Golf" },
+        5: { pillar: "Food & Dining", label: "Wine" },
+        6: { pillar: "Travel & Transport", label: "Hotels" },
+        7: { pillar: "Food & Dining", label: "Dining" },
+        8: { pillar: "Financial Planning", label: "Retirement" },
+        9: { pillar: "Financial Planning", label: "Investments" },
+        10: { pillar: "Travel & Transport", label: "Travel Agency" },
+        11: { pillar: "Financial Planning", label: "Estate" },
+      },
     },
     intelligence: {
       analytics: {
@@ -256,6 +318,20 @@ const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; tra
       icon: "◈",
       title: "Dynamic Persona",
       pills: ["Urban Professional", "Fashion Forward", "Culture Lover", "Career Ambitious"],
+      signalMap: {
+        0: { pillar: "Wellness & Fitness", label: "Gym" },
+        1: { pillar: "Wellness & Fitness", label: "Cycling" },
+        2: { pillar: "Home & Living", label: "Furniture" },
+        3: { pillar: "Food & Dining", label: "Grocery" },
+        4: { pillar: "Shopping", label: "Fashion" },
+        5: { pillar: "Wellness & Fitness", label: "Spa" },
+        6: { pillar: "Entertainment", label: "Performing Arts" },
+        7: { pillar: "Education", label: "529 Plan" },
+        8: { pillar: "Education", label: "School" },
+        9: { pillar: "Career & Education", label: "MBA" },
+        10: { pillar: "Travel & Transport", label: "Airlines" },
+        11: { pillar: "Food & Dining", label: "Fine Dining" },
+      },
     },
     intelligence: {
       analytics: {
@@ -306,6 +382,20 @@ const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; tra
       icon: "◈",
       title: "Dynamic Persona",
       pills: ["Adventurer", "Active Investor", "Tennis Player", "Philanthropist"],
+      signalMap: {
+        0: { pillar: "Wellness & Fitness", label: "Club" },
+        1: { pillar: "Sports & Leisure", label: "Tennis" },
+        2: { pillar: "Food & Dining", label: "Fine Dining" },
+        3: { pillar: "Shopping", label: "Athleisure" },
+        4: { pillar: "Travel & Transport", label: "Airlines" },
+        5: { pillar: "Financial Planning", label: "Investments" },
+        6: { pillar: "Food & Dining", label: "Dining" },
+        7: { pillar: "Sports & Leisure", label: "Golf" },
+        8: { pillar: "Financial Planning", label: "Retirement" },
+        9: { pillar: "Financial Planning", label: "AARP" },
+        10: { pillar: "Financial Planning", label: "Trust" },
+        11: { pillar: "Financial Planning", label: "Philanthropy" },
+      },
     },
     intelligence: {
       analytics: {
