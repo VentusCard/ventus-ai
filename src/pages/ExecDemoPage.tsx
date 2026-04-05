@@ -375,6 +375,7 @@ export default function ExecDemoPage() {
             onTabClick={handleTabClick}
             activePillFilter={activePillFilter}
             onPillClick={handlePillClick}
+            personaSynthesis={personaSynthesis}
           />
         </div>
 
