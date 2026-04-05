@@ -57,6 +57,7 @@ export default function ExecDemoIntelPanel({
   onTabClick,
 }: Props) {
   const showProfile = phase !== "idle";
+  const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const groups = useMemo(() => deriveGroups(processedSignals), [processedSignals]);
 
   // Derive current description from milestone keys
@@ -103,14 +104,17 @@ export default function ExecDemoIntelPanel({
         </div>
 
         {/* Signal rows */}
-        <div className="flex flex-col gap-2 min-h-[28px] max-h-[140px] overflow-y-auto exec-light-scroll">
+        <div
+          className="flex flex-col gap-2 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
+          style={{ maxHeight: showTabs ? 60 : 140 }}
+        >
           {groups.map((group) => (
             <PillarRow key={group.pillar} group={group} />
           ))}
         </div>
 
         {/* Evolving persona description */}
-        {displayedDesc && (
+        {displayedDesc && !showTabs && (
           <div
             key={descKey}
             className="mt-3 text-[11px] italic text-slate-500 leading-relaxed"
@@ -142,8 +146,8 @@ export default function ExecDemoIntelPanel({
       )}
 
       {/* Tabbed Intelligence */}
-      {(phase === "cardCycle" || phase === "cardScan" || phase === "hold") && (
-        <div className="flex-1 flex flex-col min-h-0">
+      {showTabs && (
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Tab bar */}
           <div className="flex rounded-lg bg-slate-100 p-0.5 mb-3 shrink-0">
             {TAB_ORDER.map((key) => {
@@ -171,7 +175,7 @@ export default function ExecDemoIntelPanel({
           </div>
 
           {/* Tab content */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 min-h-0 overflow-auto">
             {activeTab && revealedTabs.includes(activeTab) && (
               <IntelCardContent card={intelligence[activeTab]} />
             )}

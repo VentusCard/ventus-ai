@@ -160,7 +160,7 @@ export default function ExecDemoPage() {
 
   return (
     <SimplePasswordGate>
-    <div className="min-h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif]">
+    <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
       {/* Top bar */}
       <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
