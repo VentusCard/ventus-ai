@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
-import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
+import ExecDemoIntelPanel, { type PersonaSynthesis } from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
@@ -42,17 +42,20 @@ export default function ExecDemoPage() {
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
   const classifyAbortRef = useRef<AbortController | null>(null);
+  const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
+  const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
   }, []);
 
-  /** Fire classify-transactions SSE in background, cache results */
+  /** Fire classify-transactions SSE in background, then synthesize persona */
   const fireClassification = useCallback((csv: string) => {
-    // Abort any in-flight classification
     classifyAbortRef.current?.abort();
     classifiedRef.current = null;
+    personaSynthesisRef.current = null;
+    setPersonaSynthesis(null);
 
     const abort = new AbortController();
     classifyAbortRef.current = abort;
@@ -84,7 +87,6 @@ export default function ExecDemoPage() {
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
 
-          // Parse SSE events
           const events = buffer.split("\n\n");
           buffer = events.pop() || "";
 
@@ -98,6 +100,7 @@ export default function ExecDemoPage() {
                 const parsed = JSON.parse(dataMatch[1]);
                 classifiedRef.current = parsed.enriched_transactions || [];
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
+                firePersonaSynthesis(classifiedRef.current);
               } catch (e) {
                 console.error("[PRELOAD] Failed to parse done event", e);
               }
@@ -110,6 +113,39 @@ export default function ExecDemoPage() {
           console.error("[PRELOAD] Classification failed:", err);
         }
       });
+  }, []);
+
+  /** Synthesize persona headline + insights from classified transactions */
+  const firePersonaSynthesis = useCallback(async (enrichedTxs: EnrichedTransaction[]) => {
+    const signalMap = buildSignalMapFromClassified(enrichedTxs);
+    const grouped = new Map<string, { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }>();
+    for (const s of Object.values(signalMap)) {
+      const key = `${s.pillar}::${s.label}`;
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+        existing.totalSpend += s.amount;
+      } else {
+        grouped.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount, frequency: s.frequency });
+      }
+    }
+    const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("synthesize-persona", {
+        body: { pillars },
+      });
+      if (error) throw error;
+      const synthesis: PersonaSynthesis = {
+        headline: data.headline || "Dynamic Persona",
+        insights: data.insights || [],
+      };
+      personaSynthesisRef.current = synthesis;
+      setPersonaSynthesis(synthesis);
+      console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
+    } catch (err) {
+      console.error("[PRELOAD] Persona synthesis failed:", err);
+    }
   }, []);
 
   const schedule = useCallback((fn: () => void, ms: number) => {
@@ -339,6 +375,7 @@ export default function ExecDemoPage() {
             onTabClick={handleTabClick}
             activePillFilter={activePillFilter}
             onPillClick={handlePillClick}
+            personaSynthesis={personaSynthesis}
           />
         </div>
 
