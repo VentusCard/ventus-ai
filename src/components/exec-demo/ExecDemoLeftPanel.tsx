@@ -1,6 +1,6 @@
 import { Play, User } from "lucide-react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
-import { getIntelligenceForCustomer, getSourceColor } from "./execDemoData";
+import { getIntelligenceForCustomer } from "./execDemoData";
 import type { Transaction } from "./execDemoData";
 
 interface Props {
@@ -22,13 +22,11 @@ const TxRow = ({
   dim,
   highlight,
   highlightColor,
-  sourceColor,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
-  sourceColor?: string;
 }) => (
   <div
     className="font-mono text-[10px] leading-tight px-2 py-[4px] rounded flex items-center gap-1.5 truncate transition-all duration-300"
