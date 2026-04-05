@@ -116,6 +116,11 @@ export default function ExecDemoPage() {
     timeoutsRef.current.push(setTimeout(fn, ms));
   }, []);
 
+  // Fire classification for initial customer on mount
+  useEffect(() => {
+    fireClassification(getCsvForCustomer(0));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const isRunning = phase !== "idle" && phase !== "hold";
 
   const handleSelectCustomer = useCallback(
