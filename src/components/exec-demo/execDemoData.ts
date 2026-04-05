@@ -337,3 +337,60 @@ export const getSourceColor = (transactions: Transaction[], date: string): strin
   const idx = uniqueDates.indexOf(date);
   return SOURCE_COLORS[idx % SOURCE_COLORS.length];
 };
+
+/** Get raw CSV for a given customer index */
+export function getCsvForCustomer(customerIdx: number): string {
+  return CSV_LIST[customerIdx % CSV_LIST.length];
+}
+
+/** Build exec profile from AI edge function response */
+export function buildExecProfileFromAI(
+  csv: string,
+  aiResult: {
+    signalMap: Record<string, { pillar: string; label: string }>;
+    pills: string[];
+    descriptions: Record<string, string>;
+    intelligence: {
+      analytics: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
+      rewards: { accent: string; icon: string; title: string; subtitle: string; pills: string[]; txIndices: number[] };
+      relationship: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
+    };
+  }
+): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
+  const transactions = parseCsvToTransactions(csv);
+  const txCount = transactions.length;
+
+  // Convert string-keyed signalMap to number-keyed
+  const signalMap: Record<number, SignalEntry> = {};
+  for (const [key, val] of Object.entries(aiResult.signalMap)) {
+    const idx = parseInt(key, 10);
+    if (!isNaN(idx) && idx < txCount) {
+      signalMap[idx] = val;
+    }
+  }
+
+  // Convert string-keyed descriptions to number-keyed
+  const descriptions: Record<number, string> = {};
+  for (const [key, val] of Object.entries(aiResult.descriptions)) {
+    descriptions[parseInt(key, 10)] = val;
+  }
+
+  const clamp = (indices: number[]) => indices.filter((idx) => idx < txCount);
+
+  return {
+    transactions,
+    persona: {
+      accent: "#a78bfa",
+      icon: "◈",
+      title: "Dynamic Persona",
+      pills: aiResult.pills,
+      signalMap,
+      descriptions,
+    },
+    intelligence: {
+      analytics: { ...aiResult.intelligence.analytics, txIndices: clamp(aiResult.intelligence.analytics.txIndices) },
+      rewards: { ...aiResult.intelligence.rewards, content: "", txIndices: clamp(aiResult.intelligence.rewards.txIndices) },
+      relationship: { ...aiResult.intelligence.relationship, txIndices: clamp(aiResult.intelligence.relationship.txIndices) },
+    },
+  };
+}

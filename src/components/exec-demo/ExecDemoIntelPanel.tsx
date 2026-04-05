@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState, useCallback } from "react";
 import { BarChart3, Gift, Users } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 
