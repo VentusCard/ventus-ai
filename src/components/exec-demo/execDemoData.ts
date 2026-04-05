@@ -412,6 +412,7 @@ export interface EnrichedTransaction {
   category: string;
   subcategories: string[];
   spending_tier: string;
+  purchase_frequency?: string;
 }
 
 /** Build signal map from AI-classified enriched transactions */
