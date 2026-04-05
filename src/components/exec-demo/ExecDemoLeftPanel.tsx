@@ -145,10 +145,10 @@ export default function ExecDemoLeftPanel({
               style={{ animation: `exec-rapid-scroll ${SCROLL_DURATION}ms linear forwards` }}
             >
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`s-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(transactions, tx.account)} />
+                <TxRow key={`s-${i}`} tx={tx} dim={false} />
               ))}
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`s2-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
+                <TxRow key={`s2-${i}`} tx={tx} dim />
               ))}
             </div>
           </div>
@@ -161,10 +161,10 @@ export default function ExecDemoLeftPanel({
               style={{ animation: `exec-card-scroll ${CARD_SCAN_DURATION}ms linear forwards` }}
             >
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`cs-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(transactions, tx.account)} />
+                <TxRow key={`cs-${i}`} tx={tx} dim={false} />
               ))}
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`cs2-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
+                <TxRow key={`cs2-${i}`} tx={tx} dim />
               ))}
             </div>
           </div>
@@ -179,12 +179,11 @@ export default function ExecDemoLeftPanel({
                   dim={false}
                   highlight
                   highlightColor={currentCardColor}
-                  sourceColor={getSourceColor(transactions, tx.account)}
                 />
               </div>
             ))}
             {uncollected.map(({ tx, i }) => (
-              <TxRow key={`unc-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
+              <TxRow key={`unc-${i}`} tx={tx} dim />
             ))}
           </div>
         )}

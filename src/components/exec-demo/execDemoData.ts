@@ -330,8 +330,8 @@ export function getIntelligenceForCustomer(customerIdx: number): { persona: Exec
   return EXEC_PROFILES[customerIdx % EXEC_PROFILES.length];
 }
 
-export const getSourceColor = (transactions: Transaction[], account: string): string => {
-  const uniqueAccounts = [...new Set(transactions.map((t) => t.account))];
-  const idx = uniqueAccounts.indexOf(account);
+export const getSourceColor = (transactions: Transaction[], date: string): string => {
+  const uniqueDates = [...new Set(transactions.map((t) => t.date))];
+  const idx = uniqueDates.indexOf(date);
   return SOURCE_COLORS[idx % SOURCE_COLORS.length];
 };
