@@ -101,7 +101,7 @@ export default function ExecDemoPage() {
                 const parsed = JSON.parse(dataMatch[1]);
                 classifiedRef.current = parsed.enriched_transactions || [];
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
-                firePersonaSynthesis(classifiedRef.current);
+                firePersonaSynthesisRef.current(classifiedRef.current!);
               } catch (e) {
                 console.error("[PRELOAD] Failed to parse done event", e);
               }
