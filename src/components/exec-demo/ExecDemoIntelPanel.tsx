@@ -64,21 +64,32 @@ interface ChipData {
   label: string;
   count: number;
   totalSpend: number;
+  frequency?: string;
 }
 
 function deriveChips(signals: SignalEntry[]): ChipData[] {
-  const map = new Map<string, ChipData>();
+  const map = new Map<string, ChipData & { freqCounts: Map<string, number> }>();
   for (const s of signals) {
     const key = `${s.pillar}::${s.label}`;
     const existing = map.get(key);
     if (existing) {
       existing.count += 1;
       existing.totalSpend += (s.amount || 0);
+      if (s.frequency) existing.freqCounts.set(s.frequency, (existing.freqCounts.get(s.frequency) || 0) + 1);
     } else {
-      map.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount || 0 });
+      const freqCounts = new Map<string, number>();
+      if (s.frequency) freqCounts.set(s.frequency, 1);
+      map.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount || 0, freqCounts });
     }
   }
-  return Array.from(map.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+  return Array.from(map.values()).map(({ freqCounts, ...rest }) => {
+    let topFreq: string | undefined;
+    let topCount = 0;
+    for (const [f, c] of freqCounts) {
+      if (c > topCount) { topFreq = f; topCount = c; }
+    }
+    return { ...rest, frequency: topFreq };
+  }).sort((a, b) => b.totalSpend - a.totalSpend);
 }
 
 function formatSpend(amount: number): string {
@@ -330,6 +341,11 @@ function AnimatedChip({ chip, isActive, onClick }: { chip: ChipData; isActive?: 
       <span className="text-[9px] opacity-70 tabular-nums">
         {formatSpend(chip.totalSpend)}
       </span>
+      {chip.frequency && (
+        <span className="text-[8px] opacity-50 tabular-nums">
+          {chip.frequency}
+        </span>
+      )}
     </span>
   );
 }

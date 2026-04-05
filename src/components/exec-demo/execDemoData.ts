@@ -425,6 +425,7 @@ export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[])
       pillar: tx.pillar || "Miscellaneous",
       label: tx.category || "General",
       amount: tx.amount || 0,
+      frequency: tx.purchase_frequency,
     };
   });
   return map;
