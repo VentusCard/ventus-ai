@@ -1,0 +1,127 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const { pillars } = await req.json();
+    if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
+      return new Response(JSON.stringify({ error: "pillars array is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+
+    // Aggregate pillar summary for prompt
+    const pillarSummary = pillars
+      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }) =>
+        `${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${p.frequency ? `, ${p.frequency}` : ""}`)
+      .join("\n");
+
+    const systemPrompt = `You are a behavioral analytics engine for a bank. Given aggregated spending signal data, produce:
+
+1. **headline**: A punchy 3-5 word persona archetype (e.g., "The Globe-Trotting Foodie", "Wellness-Driven Professional", "Adventure-Seeking Family"). Be specific and vivid, not generic.
+
+2. **insights**: Exactly 3 short insight sentences (each 10-20 words). Each should surface a non-obvious behavioral pattern, cross-sell opportunity, or life-stage signal. Use specific dollar amounts and frequencies from the data. Be concrete, not vague.
+
+Rules:
+- Never use generic phrases like "diverse spending" or "various categories"
+- Each insight should feel like a human analyst's observation
+- Reference specific spending patterns, not just categories
+- Make the headline memorable and specific to THIS person`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Spending signals:\n${pillarSummary}` },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "return_persona",
+              description: "Return the synthesized persona headline and insights",
+              parameters: {
+                type: "object",
+                properties: {
+                  headline: {
+                    type: "string",
+                    description: "3-5 word persona archetype headline",
+                  },
+                  insights: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "Exactly 3 insight sentences",
+                  },
+                },
+                required: ["headline", "insights"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: { type: "function", function: { name: "return_persona" } },
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("AI gateway error:", response.status, errText);
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limited" }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Payment required" }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: "AI processing failed" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall) {
+      console.error("No tool call:", JSON.stringify(data));
+      return new Response(JSON.stringify({ error: "AI did not return structured output" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const raw = typeof toolCall.function.arguments === "string"
+      ? JSON.parse(toolCall.function.arguments)
+      : toolCall.function.arguments;
+
+    return new Response(JSON.stringify({
+      headline: raw.headline || "Dynamic Persona",
+      insights: (raw.insights || []).slice(0, 3),
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("synthesize-persona error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
