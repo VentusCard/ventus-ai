@@ -28,21 +28,20 @@ serve(async (req) => {
     for (let m = 10; m <= txCount; m += 10) milestones.push(m);
     if (milestones.length === 0 && txCount > 0) milestones.push(txCount);
 
-    const systemPrompt = `You are a banking transaction analysis engine. Analyze consumer transaction data and produce structured intelligence profiles.
+    // Simplified prompt: NO signal classification (done locally via MCC map)
+    const systemPrompt = `You are a banking transaction analysis engine. Analyze consumer transaction data and produce lifestyle intelligence.
 
-Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
+Given a CSV of transactions (${txCount} rows, 0-indexed), produce:
 
-1. **signalEntries**: For EVERY transaction row, classify it into a pillar and label. Return an array of objects with index, pillar, and label. Pillars include: "Travel & Transport", "Food & Dining", "Wellness & Fitness", "Shopping", "Entertainment", "Home & Living", "Education & Family", "Healthcare", "Financial Planning", "Sports & Active", "Pets & Care", "Technology". Labels are short (1-2 words) like "Airlines", "Grocery", "Gym", "Dining", "Hotels", etc.
+1. **pills**: 4-5 lifestyle labels (e.g. "Wellness Explorer", "Career Focused", "Active Lifestyle").
 
-2. **pills**: Generate exactly 4-5 lifestyle labels (e.g. "Wellness Explorer", "Career Focused", "Active Lifestyle").
+2. **milestoneDescriptions**: Progressive persona descriptions at milestones: ${JSON.stringify(milestones)}. Each should BUILD on previous — start vague and become more specific.
 
-3. **milestoneDescriptions**: Write progressive persona descriptions at these transaction count milestones: ${JSON.stringify(milestones)}. Return an array of {milestone, description}. Each description should BUILD on previous ones — start vague ("Active consumer with travel and dining signals") and become more specific and insightful as more data accumulates.
-
-4. **intelligence**: Compose three intelligence cards:
-   - analytics: spending pattern summary with percentages and detected life events
-   - rewards: 4 hyper-personalized deal recommendations
-   - relationship: life event detection and next-best-product recommendation
-   For txIndices, pick 4-5 representative transaction row indices (0-based) that support each card.`;
+3. **intelligence**: Three cards:
+   - analytics: spending pattern summary with percentages and life events
+   - rewards: 4 hyper-personalized deal recommendations  
+   - relationship: life event detection and next-best-product
+   For txIndices, pick 4-5 representative row indices (0-based, max ${txCount - 1}).`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -54,43 +53,29 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze this transaction CSV (${txCount} rows):\n\n${csv}` },
+          { role: "user", content: `Analyze:\n\n${csv}` },
         ],
         tools: [
           {
             type: "function",
             function: {
               name: "return_exec_profile",
-              description: "Return the structured executive profile analysis result",
+              description: "Return the lifestyle intelligence profile",
               parameters: {
                 type: "object",
                 properties: {
-                  signalEntries: {
-                    type: "array",
-                    description: "Classification for each transaction row",
-                    items: {
-                      type: "object",
-                      properties: {
-                        index: { type: "number", description: "0-based transaction row index" },
-                        pillar: { type: "string", description: "e.g. Travel & Transport" },
-                        label: { type: "string", description: "e.g. Airlines, Grocery" },
-                      },
-                      required: ["index", "pillar", "label"],
-                    },
-                  },
                   pills: {
                     type: "array",
                     items: { type: "string" },
-                    description: "4-5 lifestyle labels like Wellness Explorer",
+                    description: "4-5 lifestyle labels",
                   },
                   milestoneDescriptions: {
                     type: "array",
-                    description: "Progressive persona descriptions at milestones",
                     items: {
                       type: "object",
                       properties: {
-                        milestone: { type: "number", description: "Transaction count milestone" },
-                        description: { type: "string", description: "Persona description at this milestone" },
+                        milestone: { type: "number" },
+                        description: { type: "string" },
                       },
                       required: ["milestone", "description"],
                     },
@@ -103,7 +88,7 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
                         properties: {
                           title: { type: "string" },
                           subtitle: { type: "string" },
-                          content: { type: "string", description: "Spending pattern summary with percentages" },
+                          content: { type: "string" },
                           txIndices: { type: "array", items: { type: "number" } },
                         },
                         required: ["title", "subtitle", "content", "txIndices"],
@@ -113,7 +98,7 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
                         properties: {
                           title: { type: "string" },
                           subtitle: { type: "string" },
-                          rewardPills: { type: "array", items: { type: "string" }, description: "4 deal recommendations like REI 10% Back" },
+                          rewardPills: { type: "array", items: { type: "string" } },
                           txIndices: { type: "array", items: { type: "number" } },
                         },
                         required: ["title", "subtitle", "rewardPills", "txIndices"],
@@ -123,7 +108,7 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
                         properties: {
                           title: { type: "string" },
                           subtitle: { type: "string" },
-                          content: { type: "string", description: "Life event detection and next-best-product" },
+                          content: { type: "string" },
                           txIndices: { type: "array", items: { type: "number" } },
                         },
                         required: ["title", "subtitle", "content", "txIndices"],
@@ -132,7 +117,7 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
                     required: ["analytics", "rewards", "relationship"],
                   },
                 },
-                required: ["signalEntries", "pills", "milestoneDescriptions", "intelligence"],
+                required: ["pills", "milestoneDescriptions", "intelligence"],
                 additionalProperties: false,
               },
             },
@@ -146,12 +131,12 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
       const errText = await response.text();
       console.error("AI gateway error:", response.status, errText);
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited, please try again shortly." }), {
+        return new Response(JSON.stringify({ error: "Rate limited" }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required." }), {
+        return new Response(JSON.stringify({ error: "Payment required" }), {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -163,7 +148,7 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
     const data = await response.json();
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
-      console.error("No tool call in response:", JSON.stringify(data));
+      console.error("No tool call:", JSON.stringify(data));
       return new Response(JSON.stringify({ error: "AI did not return structured output" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -173,19 +158,12 @@ Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
       ? JSON.parse(toolCall.function.arguments)
       : toolCall.function.arguments;
 
-    // Transform arrays back to the map format the client expects
-    const signalMap: Record<string, { pillar: string; label: string }> = {};
-    for (const entry of (raw.signalEntries || [])) {
-      signalMap[String(entry.index)] = { pillar: entry.pillar, label: entry.label };
-    }
-
     const descriptions: Record<string, string> = {};
     for (const entry of (raw.milestoneDescriptions || [])) {
       descriptions[String(entry.milestone)] = entry.description;
     }
 
     const result = {
-      signalMap,
       pills: raw.pills || [],
       descriptions,
       intelligence: {

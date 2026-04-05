@@ -343,11 +343,34 @@ export function getCsvForCustomer(customerIdx: number): string {
   return CSV_LIST[customerIdx % CSV_LIST.length];
 }
 
-/** Build exec profile from AI edge function response */
-export function buildExecProfileFromAI(
-  csv: string,
+/** Build a local-only profile using MCC signal map (instant, no AI) */
+export function buildLocalProfile(csv: string, customerIdx: number): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
+  const transactions = parseCsvToTransactions(csv);
+  const signalMap = buildSignalMap(csv);
+  const fallback = EXEC_PROFILES[customerIdx % EXEC_PROFILES.length];
+  const clamp = (indices: number[]) => indices.filter((idx) => idx < transactions.length);
+
+  return {
+    transactions,
+    persona: {
+      accent: "#a78bfa",
+      icon: "◈",
+      title: "Dynamic Persona",
+      pills: PERSONA_META[customerIdx % PERSONA_META.length].pills,
+      signalMap,
+    },
+    intelligence: {
+      analytics: { ...fallback.intelligence.analytics, txIndices: clamp(fallback.intelligence.analytics.txIndices) },
+      rewards: { ...fallback.intelligence.rewards, txIndices: clamp(fallback.intelligence.rewards.txIndices) },
+      relationship: { ...fallback.intelligence.relationship, txIndices: clamp(fallback.intelligence.relationship.txIndices) },
+    },
+  };
+}
+
+/** Merge AI results (pills, descriptions, intelligence) into an existing local profile */
+export function mergeAiResults(
+  localProfile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] },
   aiResult: {
-    signalMap: Record<string, { pillar: string; label: string }>;
     pills: string[];
     descriptions: Record<string, string>;
     intelligence: {
@@ -357,34 +380,19 @@ export function buildExecProfileFromAI(
     };
   }
 ): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
-  const transactions = parseCsvToTransactions(csv);
-  const txCount = transactions.length;
+  const txCount = localProfile.transactions.length;
+  const clamp = (indices: number[]) => indices.filter((idx) => idx < txCount);
 
-  // Convert string-keyed signalMap to number-keyed
-  const signalMap: Record<number, SignalEntry> = {};
-  for (const [key, val] of Object.entries(aiResult.signalMap)) {
-    const idx = parseInt(key, 10);
-    if (!isNaN(idx) && idx < txCount) {
-      signalMap[idx] = val;
-    }
-  }
-
-  // Convert string-keyed descriptions to number-keyed
   const descriptions: Record<number, string> = {};
   for (const [key, val] of Object.entries(aiResult.descriptions)) {
     descriptions[parseInt(key, 10)] = val;
   }
 
-  const clamp = (indices: number[]) => indices.filter((idx) => idx < txCount);
-
   return {
-    transactions,
+    transactions: localProfile.transactions,
     persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: aiResult.pills,
-      signalMap,
+      ...localProfile.persona,
+      pills: aiResult.pills.length > 0 ? aiResult.pills : localProfile.persona.pills,
       descriptions,
     },
     intelligence: {
