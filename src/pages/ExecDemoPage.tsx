@@ -214,11 +214,21 @@ export default function ExecDemoPage() {
 
     const csv = customCsv || getCsvForCustomer(selectedIdx);
 
-    // 1. Build local profile instantly from MCC map
+    // 1. Build local profile — use AI-classified signals if preloaded, else MCC fallback
     const localProfile = buildLocalProfile(csv, selectedIdx, customName || undefined);
+
+    if (classifiedRef.current && classifiedRef.current.length > 0) {
+      // Override MCC signal map with AI-classified pillars
+      const classifiedSignalMap = buildSignalMapFromClassified(classifiedRef.current);
+      localProfile.persona.signalMap = classifiedSignalMap;
+      console.log("[PROCESS] Using preloaded AI classification for signals");
+    } else {
+      console.log("[PROCESS] AI classification not ready, using MCC fallback");
+    }
+
     setProfile(localProfile);
 
-    // 2. Start animation immediately — no waiting for AI
+    // 2. Start animation immediately
     runAnimationWithProfile(localProfile);
 
     // 3. Fire AI in background for richer pills, descriptions, intelligence
@@ -229,7 +239,7 @@ export default function ExecDemoPage() {
 
       if (error) throw error;
 
-      // Merge AI results into the profile (keeps local signalMap, upgrades everything else)
+      // Merge AI results into the profile (keeps signalMap, upgrades everything else)
       const merged = mergeAiResults(localProfile, data);
       setProfile(merged);
     } catch (err) {
