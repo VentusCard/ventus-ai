@@ -210,10 +210,13 @@ export default function ExecDemoPage() {
             selectedIdx={selectedIdx}
             onSelectCustomer={handleSelectCustomer}
             onRunAnalysis={handleRunAnalysis}
+            onLoadCustomCsv={handleLoadCustomCsv}
             isRunning={isRunning}
             phase={phase}
             collectedIndices={collectedIndices}
             currentCardColor={currentCardColor}
+            isCustomMode={!!customCsv}
+            customName={customName || undefined}
           />
         </div>
 
