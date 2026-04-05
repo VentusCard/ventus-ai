@@ -148,6 +148,7 @@ export default function ExecDemoPage() {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+  firePersonaSynthesisRef.current = firePersonaSynthesis;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
     timeoutsRef.current.push(setTimeout(fn, ms));
