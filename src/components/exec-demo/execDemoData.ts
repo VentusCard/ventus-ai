@@ -42,6 +42,7 @@ export interface ExecPersona {
   title: string;
   pills: string[];
   signalMap: Record<number, SignalEntry>;
+  descriptions?: Record<number, string>;
 }
 
 // ---------- CSV → Transaction[] ----------
