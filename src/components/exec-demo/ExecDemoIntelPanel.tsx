@@ -103,11 +103,24 @@ export default function ExecDemoIntelPanel({
         </div>
 
         {/* Signal rows */}
-        <div className="flex flex-col gap-2 min-h-[28px] max-h-[180px] overflow-y-auto exec-light-scroll">
+        <div className="flex flex-col gap-2 min-h-[28px] max-h-[140px] overflow-y-auto exec-light-scroll">
           {groups.map((group) => (
             <PillarRow key={group.pillar} group={group} />
           ))}
         </div>
+
+        {/* Evolving persona description */}
+        {displayedDesc && (
+          <div
+            key={descKey}
+            className="mt-3 text-[11px] italic text-slate-500 leading-relaxed"
+            style={{
+              animation: "desc-crossfade 0.6s ease-out",
+            }}
+          >
+            {displayedDesc}
+          </div>
+        )}
       </div>
 
       {/* Processing shimmer */}
@@ -194,6 +207,10 @@ export default function ExecDemoIntelPanel({
           0% { transform: scale(1); }
           50% { transform: scale(1.3); }
           100% { transform: scale(1); }
+        }
+        @keyframes desc-crossfade {
+          0% { opacity: 0; transform: translateY(4px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
