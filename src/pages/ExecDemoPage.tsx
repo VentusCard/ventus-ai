@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
