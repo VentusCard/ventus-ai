@@ -35,6 +35,8 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
+  const [aiProfile, setAiProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   const clearTimeouts = useCallback(() => {
@@ -57,6 +59,7 @@ export default function ExecDemoPage() {
       setRevealedTabs([]);
       setActiveTab(null);
       setCollectedIndices([]);
+      setAiProfile(null);
     },
     [clearTimeouts]
   );
