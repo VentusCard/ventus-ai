@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, type SignalEntry } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
@@ -26,7 +26,7 @@ const TIMINGS = {
 export default function ExecDemoPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("idle");
-  const [visiblePills, setVisiblePills] = useState(0);
+  const [processedSignals, setProcessedSignals] = useState<SignalEntry[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
@@ -50,7 +50,7 @@ export default function ExecDemoPage() {
       clearTimeouts();
       setSelectedIdx(idx);
       setPhase("idle");
-      setVisiblePills(0);
+      setProcessedSignals([]);
       setRevealedTabs([]);
       setActiveTab(null);
       setCollectedIndices([]);
@@ -62,16 +62,23 @@ export default function ExecDemoPage() {
     if (isRunning) return;
     clearTimeouts();
     setPhase("scroll");
-    setVisiblePills(0);
+    setProcessedSignals([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
 
     const execProfile = getIntelligenceForCustomer(selectedIdx);
-    const pillCount = execProfile.persona.pills.length;
-    const pillInterval = TIMINGS.scroll / (pillCount + 1);
-    for (let p = 0; p < pillCount; p++) {
-      schedule(() => setVisiblePills(p + 1), (p + 1) * pillInterval);
+    const txCount = execProfile.transactions.length;
+    const signalInterval = TIMINGS.scroll / (txCount + 1);
+
+    // During scroll phase, append signals one by one as transactions process
+    for (let i = 0; i < txCount; i++) {
+      const signal = execProfile.persona.signalMap[i];
+      if (signal) {
+        schedule(() => {
+          setProcessedSignals((prev) => [...prev, signal]);
+        }, (i + 1) * signalInterval);
+      }
     }
 
     let elapsed = TIMINGS.scroll;
@@ -170,7 +177,7 @@ export default function ExecDemoPage() {
             persona={execProfile.persona}
             intelligence={execProfile.intelligence}
             phase={phase}
-            visiblePills={visiblePills}
+            processedSignals={processedSignals}
             revealedTabs={revealedTabs}
             activeTab={activeTab}
             onTabClick={handleTabClick}
