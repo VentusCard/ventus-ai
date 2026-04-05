@@ -35,6 +35,7 @@ export interface SignalEntry {
   pillar: string;
   label: string;
   amount: number;
+  frequency?: string;
 }
 
 export interface ExecPersona {
@@ -411,6 +412,7 @@ export interface EnrichedTransaction {
   category: string;
   subcategories: string[];
   spending_tier: string;
+  purchase_frequency?: string;
 }
 
 /** Build signal map from AI-classified enriched transactions */
@@ -423,6 +425,7 @@ export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[])
       pillar: tx.pillar || "Miscellaneous",
       label: tx.category || "General",
       amount: tx.amount || 0,
+      frequency: tx.purchase_frequency,
     };
   });
   return map;
