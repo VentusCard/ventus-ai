@@ -44,6 +44,7 @@ export default function ExecDemoPage() {
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
+  const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -100,7 +101,7 @@ export default function ExecDemoPage() {
                 const parsed = JSON.parse(dataMatch[1]);
                 classifiedRef.current = parsed.enriched_transactions || [];
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
-                firePersonaSynthesis(classifiedRef.current);
+                firePersonaSynthesisRef.current(classifiedRef.current!);
               } catch (e) {
                 console.error("[PRELOAD] Failed to parse done event", e);
               }
@@ -147,6 +148,7 @@ export default function ExecDemoPage() {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+  firePersonaSynthesisRef.current = firePersonaSynthesis;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
     timeoutsRef.current.push(setTimeout(fn, ms));
