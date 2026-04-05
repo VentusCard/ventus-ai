@@ -211,6 +211,9 @@ export default function ExecDemoLeftPanel({
                 <div className="min-w-0 flex-1">
                   <div className="text-[11px] font-semibold text-slate-800 truncate">{customName || "Custom"}</div>
                   <div className="text-[9px] text-slate-400 truncate">Custom · Pasted Data</div>
+                  {phase !== "idle" && personaTitle && (
+                    <div className="text-[9px] italic text-violet-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
+                  )}
                 </div>
                 {phase !== "idle" ? (
                   <button
@@ -249,6 +252,9 @@ export default function ExecDemoLeftPanel({
                     <div className="text-[9px] text-slate-400 truncate">
                       {c.profile.segment} · {c.lifestyleType} · {c.txnCount} txns
                     </div>
+                    {isActive && personaTitle && (
+                      <div className="text-[9px] italic text-violet-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
+                    )}
                   </div>
                   {isActive && (
                     <button
@@ -338,19 +344,49 @@ export default function ExecDemoLeftPanel({
 
         {showCollected && (
           <div className="space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
-            {collected.map(({ tx, i }) => (
-              <div key={`col-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                <TxRow
-                  tx={tx}
-                  dim={false}
-                  highlight
-                  highlightColor={currentCardColor}
-                />
+            {/* Pill filter header */}
+            {filteredIndices && activePillLabel && (
+              <div className="flex items-center justify-between mb-1.5 px-1">
+                <span className="text-[9px] font-semibold text-emerald-600">
+                  Showing {filteredIndices.length} txns for "{activePillLabel}"
+                </span>
+                <button
+                  onClick={onClearFilter}
+                  className="text-[9px] text-blue-500 hover:text-blue-700 font-medium"
+                >
+                  Clear
+                </button>
               </div>
-            ))}
-            {uncollected.map(({ tx, i }) => (
-              <TxRow key={`unc-${i}`} tx={tx} dim />
-            ))}
+            )}
+            {filteredIndices ? (
+              <>
+                {transactions.map((tx, i) => {
+                  const isMatch = filteredIndices.includes(i);
+                  if (!isMatch) return null;
+                  return (
+                    <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
+                      <TxRow tx={tx} dim={false} highlight highlightColor="#10b981" />
+                    </div>
+                  );
+                })}
+                <div className="border-t border-slate-100 my-1" />
+                {transactions.map((tx, i) => {
+                  if (filteredIndices.includes(i)) return null;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim />;
+                })}
+              </>
+            ) : (
+              <>
+                {collected.map(({ tx, i }) => (
+                  <div key={`col-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
+                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} />
+                  </div>
+                ))}
+                {uncollected.map(({ tx, i }) => (
+                  <TxRow key={`unc-${i}`} tx={tx} dim />
+                ))}
+              </>
+            )}
           </div>
         )}
       </div>
