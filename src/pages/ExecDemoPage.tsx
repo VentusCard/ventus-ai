@@ -16,6 +16,7 @@ const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
 
 const TIMINGS = {
   scroll: 6000,
+  personaPause: 1500,
   cardScan: 1320,
   collectInterval: 320,
   collectBuffer: 640,
@@ -81,7 +82,7 @@ export default function ExecDemoPage() {
       }
     }
 
-    let elapsed = TIMINGS.scroll;
+    let elapsed = TIMINGS.scroll + TIMINGS.personaPause;
 
     TAB_ORDER.forEach((tabKey) => {
       const card = execProfile.intelligence[tabKey];
