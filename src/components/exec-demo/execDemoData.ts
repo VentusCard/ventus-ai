@@ -382,8 +382,87 @@ export function buildLocalProfile(csv: string, customerIdx: number, customName?:
   };
 }
 
+/** Convert CSV to the payload format expected by classify-transactions */
+export function csvToClassifyPayload(csv: string): { transaction_id: string; merchant_name: string; amount: number; date: string }[] {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const merchantIdx = header.indexOf("merchant_name");
+  const amountIdx = header.indexOf("amount");
+  const dateIdx = header.indexOf("date");
+
+  return lines.slice(1).filter((l) => l.trim()).map((line, i) => {
+    const cols = line.split(",").map((c) => c.trim());
+    return {
+      transaction_id: `tx-${i}`,
+      merchant_name: cols[merchantIdx] || "Unknown",
+      amount: Math.abs(parseFloat(cols[amountIdx] || "0")),
+      date: cols[dateIdx] || "",
+    };
+  });
+}
+
+/** Enriched transaction from classify-transactions */
+export interface EnrichedTransaction {
+  transaction_id: string;
+  merchant_name: string;
+  amount: number;
+  pillar: string;
+  category: string;
+  subcategories: string[];
+  spending_tier: string;
+}
+
+/** Build signal map from AI-classified enriched transactions */
+export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[]): Record<number, SignalEntry> {
+  const map: Record<number, SignalEntry> = {};
+  enrichedTxs.forEach((tx) => {
+    const idx = parseInt(tx.transaction_id.replace("tx-", ""), 10);
+    if (isNaN(idx)) return;
+    map[idx] = {
+      pillar: tx.pillar || "Miscellaneous",
+      label: tx.category || "General",
+      amount: tx.amount || 0,
+    };
+  });
+  return map;
+}
+
 /** Merge AI results (pills, descriptions, intelligence) into an existing local profile */
 export function mergeAiResults(
+  localProfile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] },
+  aiResult: {
+    pills: string[];
+    descriptions: Record<string, string>;
+    intelligence: {
+      analytics: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
+      rewards: { accent: string; icon: string; title: string; subtitle: string; pills: string[]; txIndices: number[] };
+      relationship: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
+    };
+  }
+): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
+  const txCount = localProfile.transactions.length;
+  const clamp = (indices: number[]) => indices.filter((idx) => idx < txCount);
+
+  const descriptions: Record<number, string> = {};
+  for (const [key, val] of Object.entries(aiResult.descriptions)) {
+    descriptions[parseInt(key, 10)] = val;
+  }
+
+  return {
+    transactions: localProfile.transactions,
+    persona: {
+      ...localProfile.persona,
+      pills: aiResult.pills.length > 0 ? aiResult.pills : localProfile.persona.pills,
+      descriptions,
+    },
+    intelligence: {
+      analytics: { ...aiResult.intelligence.analytics, txIndices: clamp(aiResult.intelligence.analytics.txIndices) },
+      rewards: { ...aiResult.intelligence.rewards, content: "", txIndices: clamp(aiResult.intelligence.rewards.txIndices) },
+      relationship: { ...aiResult.intelligence.relationship, txIndices: clamp(aiResult.intelligence.relationship.txIndices) },
+    },
+  };
+}
   localProfile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] },
   aiResult: {
     pills: string[];
