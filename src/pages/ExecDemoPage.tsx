@@ -76,7 +76,7 @@ export default function ExecDemoPage() {
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
-    setProfile(null);
+    setProfile(buildLocalProfile(csv, 0, name));
   }, [clearTimeouts]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
