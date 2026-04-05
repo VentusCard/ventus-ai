@@ -59,6 +59,30 @@ export default function ExecDemoIntelPanel({
   const showProfile = phase !== "idle";
   const groups = useMemo(() => deriveGroups(processedSignals), [processedSignals]);
 
+  // Derive current description from milestone keys
+  const currentDescription = useMemo(() => {
+    if (!persona.descriptions) return null;
+    const milestones = Object.keys(persona.descriptions)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const count = processedSignals.length;
+    let desc: string | null = null;
+    for (const m of milestones) {
+      if (count >= m) desc = persona.descriptions[m];
+    }
+    return desc;
+  }, [persona.descriptions, processedSignals.length]);
+
+  const [displayedDesc, setDisplayedDesc] = useState<string | null>(null);
+  const [descKey, setDescKey] = useState(0);
+
+  useEffect(() => {
+    if (currentDescription && currentDescription !== displayedDesc) {
+      setDisplayedDesc(currentDescription);
+      setDescKey((k) => k + 1);
+    }
+  }, [currentDescription]);
+
   return (
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Dynamic Persona — Row-based pill accumulator */}
