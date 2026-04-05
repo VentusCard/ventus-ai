@@ -82,7 +82,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
 
 // ---------- MCC → Signal mapping ----------
 
-const MCC_SIGNAL_MAP: Record<string, SignalEntry> = {
+const MCC_SIGNAL_MAP: Record<string, Omit<SignalEntry, 'amount'>> = {
   "4511": { pillar: "Travel & Transport", label: "Airlines" },
   "3058": { pillar: "Travel & Transport", label: "Airlines" },
   "7011": { pillar: "Travel & Transport", label: "Hotels" },
