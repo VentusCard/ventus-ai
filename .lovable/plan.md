@@ -1,16 +1,16 @@
 
 
-## Move Persona Line Above Pills
+## Fix: Keep Persona Description Visible During Tab Phase
 
 ### Problem
-The evolving persona description (e.g., "Golf & Wellness Enthusiast") currently renders **below** the signal pill rows. It should appear **above** them.
+Line 104 in `ExecDemoIntelPanel.tsx` has `!showTabs` condition, which hides the persona description once the intelligence tabs appear. This was intentional for space-saving but the user wants it always visible.
 
 ### Change
 
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-- Move the "Evolving persona description" block (lines 113-124) to **before** the "Signal rows" block (line 103)
-- The description will render at the top of the persona card, followed by the pillar pill rows below it
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`** (line 104)
+- Remove `!showTabs` from the condition: `{displayedDesc && !showTabs && (` → `{displayedDesc && (`
+- This keeps the persona description visible throughout all phases (scroll, cardScan, cardCycle, hold)
 
 ### Files
-1. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — reorder: persona description above signal rows
+1. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — one-line condition fix
 
