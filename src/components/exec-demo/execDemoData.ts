@@ -35,6 +35,7 @@ export interface SignalEntry {
   pillar: string;
   label: string;
   amount: number;
+  frequency?: string;
 }
 
 export interface ExecPersona {
