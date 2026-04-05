@@ -77,29 +77,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
     };
   });
 }
-  const lines = csv.trim().split("\n");
-  if (lines.length < 2) return [];
-  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const merchantIdx = header.indexOf("merchant_name");
-  const amountIdx = header.indexOf("amount");
-  const dateIdx = header.indexOf("date");
 
-  return lines.slice(1).filter((l) => l.trim()).map((line) => {
-    const cols = line.split(",").map((c) => c.trim());
-    const rawAmt = parseFloat(cols[amountIdx] || "0");
-    const fmt = rawAmt >= 1000
-      ? `$${rawAmt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : `$${rawAmt.toFixed(2)}`;
-    const rawDate = cols[dateIdx] || "";
-    const dateParts = rawDate.split("-");
-    const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}` : rawDate.slice(5);
-    return {
-      date: shortDate,
-      merchant: cols[merchantIdx] || "Unknown",
-      amount: fmt,
-    };
-  });
-}
 
 // ---------- MCC → Signal mapping ----------
 
