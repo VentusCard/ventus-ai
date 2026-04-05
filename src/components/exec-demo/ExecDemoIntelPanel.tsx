@@ -106,7 +106,7 @@ export default function ExecDemoIntelPanel({
         {/* Signal rows */}
         <div
           className="flex flex-col gap-2 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
-          style={{ maxHeight: showTabs ? 60 : 140 }}
+          style={{ maxHeight: showTabs ? 100 : 140 }}
         >
           {groups.map((group) => (
             <PillarRow key={group.pillar} group={group} />
