@@ -100,6 +100,19 @@ export default function ExecDemoIntelPanel({
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
         }}
       >
+        {/* Evolving persona description */}
+        {displayedDesc && !showTabs && (
+          <div
+            key={descKey}
+            className="mb-3 text-[11px] italic text-slate-500 leading-relaxed"
+            style={{
+              animation: "desc-crossfade 0.6s ease-out",
+            }}
+          >
+            {displayedDesc}
+          </div>
+        )}
+
         {/* Signal rows */}
         <div
           className="flex flex-col gap-2 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
@@ -109,19 +122,6 @@ export default function ExecDemoIntelPanel({
             <PillarRow key={group.pillar} group={group} activePillFilter={activePillFilter} onPillClick={onPillClick} />
           ))}
         </div>
-
-        {/* Evolving persona description */}
-        {displayedDesc && !showTabs && (
-          <div
-            key={descKey}
-            className="mt-3 text-[11px] italic text-slate-500 leading-relaxed"
-            style={{
-              animation: "desc-crossfade 0.6s ease-out",
-            }}
-          >
-            {displayedDesc}
-          </div>
-        )}
       </div>
 
       {/* Processing shimmer */}
