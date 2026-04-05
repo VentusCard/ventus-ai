@@ -12,6 +12,8 @@ interface Props {
   revealedTabs: TabKey[];
   activeTab: TabKey | null;
   onTabClick: (tab: TabKey) => void;
+  activePillFilter?: { pillar: string; label: string } | null;
+  onPillClick?: (pillar: string, label: string) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -55,6 +57,8 @@ export default function ExecDemoIntelPanel({
   revealedTabs,
   activeTab,
   onTabClick,
+  activePillFilter,
+  onPillClick,
 }: Props) {
   const showProfile = phase !== "idle";
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
@@ -96,20 +100,13 @@ export default function ExecDemoIntelPanel({
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
         }}
       >
-        <div className="flex items-center gap-1.5 mb-3">
-          <span style={{ color: "#7c3aed", fontSize: 14 }}>{persona.icon}</span>
-          <span className="text-[11px] font-bold tracking-wider uppercase text-violet-600">
-            {persona.title}
-          </span>
-        </div>
-
         {/* Signal rows */}
         <div
           className="flex flex-col gap-2 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
           style={{ maxHeight: showTabs ? 100 : 140 }}
         >
           {groups.map((group) => (
-            <PillarRow key={group.pillar} group={group} />
+            <PillarRow key={group.pillar} group={group} activePillFilter={activePillFilter} onPillClick={onPillClick} />
           ))}
         </div>
 
@@ -222,7 +219,7 @@ export default function ExecDemoIntelPanel({
 }
 
 /** A single pillar row with animated chip pills */
-function PillarRow({ group }: { group: PillarGroup }) {
+function PillarRow({ group, activePillFilter, onPillClick }: { group: PillarGroup; activePillFilter?: { pillar: string; label: string } | null; onPillClick?: (pillar: string, label: string) => void }) {
   return (
     <div
       className="flex items-start gap-2"
@@ -233,7 +230,13 @@ function PillarRow({ group }: { group: PillarGroup }) {
       </span>
       <div className="flex flex-wrap gap-1.5">
         {group.chips.map((chip) => (
-          <AnimatedChip key={chip.label} label={chip.label} count={chip.count} />
+          <AnimatedChip
+            key={chip.label}
+            label={chip.label}
+            count={chip.count}
+            isActive={activePillFilter?.pillar === group.pillar && activePillFilter?.label === chip.label}
+            onClick={() => onPillClick?.(group.pillar, chip.label)}
+          />
         ))}
       </div>
     </div>
@@ -241,7 +244,7 @@ function PillarRow({ group }: { group: PillarGroup }) {
 }
 
 /** A single chip that pops in and pulses its count on update */
-function AnimatedChip({ label, count }: { label: string; count: number }) {
+function AnimatedChip({ label, count, isActive, onClick }: { label: string; count: number; isActive?: boolean; onClick?: () => void }) {
   const prevCount = useRef(count);
   const [pulse, setPulse] = useState(false);
 
@@ -257,12 +260,15 @@ function AnimatedChip({ label, count }: { label: string; count: number }) {
 
   return (
     <span
-      className="inline-flex items-center gap-1 text-[10px] font-medium px-2.5 py-1 rounded-full"
+      onClick={onClick}
+      className="inline-flex items-center gap-1 text-[10px] font-medium px-2.5 py-1 rounded-full cursor-pointer transition-all duration-200"
       style={{
-        background: "rgba(16,185,129,.08)",
+        background: isActive ? "rgba(16,185,129,.22)" : "rgba(16,185,129,.08)",
         color: "#065f46",
-        border: "1px solid rgba(16,185,129,.22)",
+        border: isActive ? "2px solid rgba(16,185,129,.5)" : "1px solid rgba(16,185,129,.22)",
         animation: "pill-pop 0.3s ease-out both",
+        transform: isActive ? "scale(1.08)" : "scale(1)",
+        boxShadow: isActive ? "0 0 8px rgba(16,185,129,.2)" : "none",
       }}
     >
       {label}
