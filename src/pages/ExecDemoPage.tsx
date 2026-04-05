@@ -130,8 +130,10 @@ export default function ExecDemoPage() {
       setProfile(null);
       setCustomCsv(null);
       setCustomName(null);
+      // Preload classification in background
+      fireClassification(getCsvForCustomer(idx));
     },
-    [clearTimeouts]
+    [clearTimeouts, fireClassification]
   );
 
   const handleLoadCustomCsv = useCallback((csv: string, name: string) => {
