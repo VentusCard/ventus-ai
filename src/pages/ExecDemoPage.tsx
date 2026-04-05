@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, getCsvForCustomer, buildExecProfileFromAI, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
@@ -35,8 +35,7 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
-  const [aiProfile, setAiProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
+  const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   const clearTimeouts = useCallback(() => {
@@ -59,23 +58,23 @@ export default function ExecDemoPage() {
       setRevealedTabs([]);
       setActiveTab(null);
       setCollectedIndices([]);
-      setAiProfile(null);
+      setProfile(null);
     },
     [clearTimeouts]
   );
 
-  const runAnimationWithProfile = useCallback((profile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
+  const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
     setProcessedSignals([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
 
-    const txCount = profile.transactions.length;
+    const txCount = p.transactions.length;
     const signalInterval = TIMINGS.scroll / (txCount + 1);
 
     for (let i = 0; i < txCount; i++) {
-      const signal = profile.persona.signalMap[i];
+      const signal = p.persona.signalMap[i];
       if (signal) {
         schedule(() => {
           setProcessedSignals((prev) => [...prev, signal]);
@@ -86,7 +85,7 @@ export default function ExecDemoPage() {
     let elapsed = TIMINGS.scroll + TIMINGS.personaPause;
 
     TAB_ORDER.forEach((tabKey) => {
-      const card = profile.intelligence[tabKey];
+      const card = p.intelligence[tabKey];
       const cardElapsed = elapsed;
       const cardCollectDuration =
         card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
@@ -123,12 +122,19 @@ export default function ExecDemoPage() {
   }, [schedule]);
 
   const handleRunAnalysis = useCallback(async () => {
-    if (isRunning || aiLoading) return;
+    if (isRunning) return;
     clearTimeouts();
-    setAiLoading(true);
 
     const csv = getCsvForCustomer(selectedIdx);
 
+    // 1. Build local profile instantly from MCC map
+    const localProfile = buildLocalProfile(csv, selectedIdx);
+    setProfile(localProfile);
+
+    // 2. Start animation immediately — no waiting for AI
+    runAnimationWithProfile(localProfile);
+
+    // 3. Fire AI in background for richer pills, descriptions, intelligence
     try {
       const { data, error } = await supabase.functions.invoke("generate-exec-profile", {
         body: { csv },
@@ -136,27 +142,21 @@ export default function ExecDemoPage() {
 
       if (error) throw error;
 
-      const profile = buildExecProfileFromAI(csv, data);
-      setAiProfile(profile);
-      setAiLoading(false);
-      runAnimationWithProfile(profile);
+      // Merge AI results into the profile (keeps local signalMap, upgrades everything else)
+      const merged = mergeAiResults(localProfile, data);
+      setProfile(merged);
     } catch (err) {
-      console.error("AI profile generation failed, using fallback:", err);
-      toast.error("AI analysis unavailable, using cached profile");
-      setAiLoading(false);
-      const fallback = getIntelligenceForCustomer(selectedIdx);
-      setAiProfile(null);
-      runAnimationWithProfile(fallback);
+      console.error("AI enrichment failed (local profile still active):", err);
+      // No toast needed — local profile is already running fine
     }
-  }, [isRunning, aiLoading, clearTimeouts, schedule, selectedIdx, runAnimationWithProfile]);
+  }, [isRunning, clearTimeouts, selectedIdx, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
     setActiveTab(tab);
   }, []);
 
-  const execProfile = aiProfile || getIntelligenceForCustomer(selectedIdx);
+  const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-  const effectiveIsRunning = isRunning || aiLoading;
 
   return (
     <SimplePasswordGate>
@@ -195,8 +195,8 @@ export default function ExecDemoPage() {
             selectedIdx={selectedIdx}
             onSelectCustomer={handleSelectCustomer}
             onRunAnalysis={handleRunAnalysis}
-            isRunning={effectiveIsRunning}
-            phase={aiLoading ? "scroll" : phase}
+            isRunning={isRunning}
+            phase={phase}
             collectedIndices={collectedIndices}
             currentCardColor={currentCardColor}
           />
@@ -207,7 +207,7 @@ export default function ExecDemoPage() {
           <ExecDemoIntelPanel
             persona={execProfile.persona}
             intelligence={execProfile.intelligence}
-            phase={aiLoading ? "scroll" : phase}
+            phase={phase}
             processedSignals={processedSignals}
             revealedTabs={revealedTabs}
             activeTab={activeTab}
