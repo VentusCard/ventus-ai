@@ -24,23 +24,25 @@ serve(async (req) => {
     const lines = csv.trim().split("\n");
     const txCount = Math.max(0, lines.length - 1);
 
-    // Build milestone keys: every 10 transactions
     const milestones: number[] = [];
     for (let m = 10; m <= txCount; m += 10) milestones.push(m);
-    if (milestones.length === 0) milestones.push(txCount);
+    if (milestones.length === 0 && txCount > 0) milestones.push(txCount);
 
-    const systemPrompt = `You are a banking transaction analysis engine. You analyze consumer transaction data and produce structured intelligence profiles.
+    const systemPrompt = `You are a banking transaction analysis engine. Analyze consumer transaction data and produce structured intelligence profiles.
 
-Given a CSV of transactions, you must:
-1. Classify every transaction row into a pillar (e.g. "Travel & Transport", "Food & Dining", "Wellness & Fitness", "Shopping", "Entertainment", "Home & Living", "Education & Family", "Healthcare", "Financial Planning", "Sports & Active", "Pets & Care", "Technology") and a short label (e.g. "Airlines", "Grocery", "Gym").
-2. Generate 4-5 lifestyle pills (short labels like "Wellness Explorer", "Career Focused").
-3. Write progressive persona descriptions at these transaction milestones: ${JSON.stringify(milestones)}. Each description should build on previous ones, starting vague and becoming more specific as more data accumulates.
-4. Compose three intelligence cards:
-   - Analytics: spending pattern summary with percentages and detected life events
-   - Rewards: 4 hyper-personalized deal recommendations as pills
-   - Relationship: life event detection and next-best-product recommendation
+Given a CSV of transactions (rows numbered 0 to ${txCount - 1}), you must:
 
-For txIndices, pick 4-5 representative transaction indices (0-based) that support each card's narrative.`;
+1. **signalEntries**: For EVERY transaction row, classify it into a pillar and label. Return an array of objects with index, pillar, and label. Pillars include: "Travel & Transport", "Food & Dining", "Wellness & Fitness", "Shopping", "Entertainment", "Home & Living", "Education & Family", "Healthcare", "Financial Planning", "Sports & Active", "Pets & Care", "Technology". Labels are short (1-2 words) like "Airlines", "Grocery", "Gym", "Dining", "Hotels", etc.
+
+2. **pills**: Generate exactly 4-5 lifestyle labels (e.g. "Wellness Explorer", "Career Focused", "Active Lifestyle").
+
+3. **milestoneDescriptions**: Write progressive persona descriptions at these transaction count milestones: ${JSON.stringify(milestones)}. Return an array of {milestone, description}. Each description should BUILD on previous ones — start vague ("Active consumer with travel and dining signals") and become more specific and insightful as more data accumulates.
+
+4. **intelligence**: Compose three intelligence cards:
+   - analytics: spending pattern summary with percentages and detected life events
+   - rewards: 4 hyper-personalized deal recommendations
+   - relationship: life event detection and next-best-product recommendation
+   For txIndices, pick 4-5 representative transaction row indices (0-based) that support each card.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -52,38 +54,46 @@ For txIndices, pick 4-5 representative transaction indices (0-based) that suppor
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze this transaction CSV:\n\n${csv}` },
+          { role: "user", content: `Analyze this transaction CSV (${txCount} rows):\n\n${csv}` },
         ],
         tools: [
           {
             type: "function",
             function: {
               name: "return_exec_profile",
-              description: "Return the structured executive profile analysis",
+              description: "Return the structured executive profile analysis result",
               parameters: {
                 type: "object",
                 properties: {
-                  signalMap: {
-                    type: "object",
-                    description: "Map of transaction index (as string) to {pillar, label}",
-                    additionalProperties: {
+                  signalEntries: {
+                    type: "array",
+                    description: "Classification for each transaction row",
+                    items: {
                       type: "object",
                       properties: {
-                        pillar: { type: "string" },
-                        label: { type: "string" },
+                        index: { type: "number", description: "0-based transaction row index" },
+                        pillar: { type: "string", description: "e.g. Travel & Transport" },
+                        label: { type: "string", description: "e.g. Airlines, Grocery" },
                       },
-                      required: ["pillar", "label"],
+                      required: ["index", "pillar", "label"],
                     },
                   },
                   pills: {
                     type: "array",
                     items: { type: "string" },
-                    description: "4-5 lifestyle labels",
+                    description: "4-5 lifestyle labels like Wellness Explorer",
                   },
-                  descriptions: {
-                    type: "object",
-                    description: "Milestone-keyed persona descriptions. Keys are transaction counts as strings.",
-                    additionalProperties: { type: "string" },
+                  milestoneDescriptions: {
+                    type: "array",
+                    description: "Progressive persona descriptions at milestones",
+                    items: {
+                      type: "object",
+                      properties: {
+                        milestone: { type: "number", description: "Transaction count milestone" },
+                        description: { type: "string", description: "Persona description at this milestone" },
+                      },
+                      required: ["milestone", "description"],
+                    },
                   },
                   intelligence: {
                     type: "object",
@@ -91,44 +101,38 @@ For txIndices, pick 4-5 representative transaction indices (0-based) that suppor
                       analytics: {
                         type: "object",
                         properties: {
-                          accent: { type: "string", description: "Hex color, use #60a5fa" },
-                          icon: { type: "string", description: "Single character icon, use ◆" },
                           title: { type: "string" },
                           subtitle: { type: "string" },
-                          content: { type: "string" },
+                          content: { type: "string", description: "Spending pattern summary with percentages" },
                           txIndices: { type: "array", items: { type: "number" } },
                         },
-                        required: ["accent", "icon", "title", "subtitle", "content", "txIndices"],
+                        required: ["title", "subtitle", "content", "txIndices"],
                       },
                       rewards: {
                         type: "object",
                         properties: {
-                          accent: { type: "string", description: "Hex color, use #34d399" },
-                          icon: { type: "string", description: "Single character icon, use ★" },
                           title: { type: "string" },
                           subtitle: { type: "string" },
-                          pills: { type: "array", items: { type: "string" } },
+                          rewardPills: { type: "array", items: { type: "string" }, description: "4 deal recommendations like REI 10% Back" },
                           txIndices: { type: "array", items: { type: "number" } },
                         },
-                        required: ["accent", "icon", "title", "subtitle", "pills", "txIndices"],
+                        required: ["title", "subtitle", "rewardPills", "txIndices"],
                       },
                       relationship: {
                         type: "object",
                         properties: {
-                          accent: { type: "string", description: "Hex color, use #fbbf24" },
-                          icon: { type: "string", description: "Single character icon, use ⚡" },
                           title: { type: "string" },
                           subtitle: { type: "string" },
-                          content: { type: "string" },
+                          content: { type: "string", description: "Life event detection and next-best-product" },
                           txIndices: { type: "array", items: { type: "number" } },
                         },
-                        required: ["accent", "icon", "title", "subtitle", "content", "txIndices"],
+                        required: ["title", "subtitle", "content", "txIndices"],
                       },
                     },
                     required: ["analytics", "rewards", "relationship"],
                   },
                 },
-                required: ["signalMap", "pills", "descriptions", "intelligence"],
+                required: ["signalEntries", "pills", "milestoneDescriptions", "intelligence"],
                 additionalProperties: false,
               },
             },
@@ -143,19 +147,16 @@ For txIndices, pick 4-5 representative transaction indices (0-based) that suppor
       console.error("AI gateway error:", response.status, errText);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited, please try again shortly." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "Payment required." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       return new Response(JSON.stringify({ error: "AI processing failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -164,14 +165,56 @@ For txIndices, pick 4-5 representative transaction indices (0-based) that suppor
     if (!toolCall) {
       console.error("No tool call in response:", JSON.stringify(data));
       return new Response(JSON.stringify({ error: "AI did not return structured output" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const result = typeof toolCall.function.arguments === "string"
+    const raw = typeof toolCall.function.arguments === "string"
       ? JSON.parse(toolCall.function.arguments)
       : toolCall.function.arguments;
+
+    // Transform arrays back to the map format the client expects
+    const signalMap: Record<string, { pillar: string; label: string }> = {};
+    for (const entry of (raw.signalEntries || [])) {
+      signalMap[String(entry.index)] = { pillar: entry.pillar, label: entry.label };
+    }
+
+    const descriptions: Record<string, string> = {};
+    for (const entry of (raw.milestoneDescriptions || [])) {
+      descriptions[String(entry.milestone)] = entry.description;
+    }
+
+    const result = {
+      signalMap,
+      pills: raw.pills || [],
+      descriptions,
+      intelligence: {
+        analytics: {
+          accent: "#60a5fa",
+          icon: "◆",
+          title: raw.intelligence?.analytics?.title || "Analytics Intelligence",
+          subtitle: raw.intelligence?.analytics?.subtitle || "",
+          content: raw.intelligence?.analytics?.content || "",
+          txIndices: raw.intelligence?.analytics?.txIndices || [],
+        },
+        rewards: {
+          accent: "#34d399",
+          icon: "★",
+          title: raw.intelligence?.rewards?.title || "Smart Rewards",
+          subtitle: raw.intelligence?.rewards?.subtitle || "",
+          pills: raw.intelligence?.rewards?.rewardPills || [],
+          txIndices: raw.intelligence?.rewards?.txIndices || [],
+        },
+        relationship: {
+          accent: "#fbbf24",
+          icon: "⚡",
+          title: raw.intelligence?.relationship?.title || "Relationship Intelligence",
+          subtitle: raw.intelligence?.relationship?.subtitle || "",
+          content: raw.intelligence?.relationship?.content || "",
+          txIndices: raw.intelligence?.relationship?.txIndices || [],
+        },
+      },
+    };
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

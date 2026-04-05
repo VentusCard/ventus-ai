@@ -207,7 +207,7 @@ export default function ExecDemoPage() {
           <ExecDemoIntelPanel
             persona={execProfile.persona}
             intelligence={execProfile.intelligence}
-            phase={phase}
+            phase={aiLoading ? "scroll" : phase}
             processedSignals={processedSignals}
             revealedTabs={revealedTabs}
             activeTab={activeTab}
