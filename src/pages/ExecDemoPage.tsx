@@ -61,9 +61,23 @@ export default function ExecDemoPage() {
       setActiveTab(null);
       setCollectedIndices([]);
       setProfile(null);
+      setCustomCsv(null);
+      setCustomName(null);
     },
     [clearTimeouts]
   );
+
+  const handleLoadCustomCsv = useCallback((csv: string, name: string) => {
+    clearTimeouts();
+    setCustomCsv(csv);
+    setCustomName(name);
+    setPhase("idle");
+    setProcessedSignals([]);
+    setRevealedTabs([]);
+    setActiveTab(null);
+    setCollectedIndices([]);
+    setProfile(null);
+  }, [clearTimeouts]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
@@ -127,10 +141,10 @@ export default function ExecDemoPage() {
     if (isRunning) return;
     clearTimeouts();
 
-    const csv = getCsvForCustomer(selectedIdx);
+    const csv = customCsv || getCsvForCustomer(selectedIdx);
 
     // 1. Build local profile instantly from MCC map
-    const localProfile = buildLocalProfile(csv, selectedIdx);
+    const localProfile = buildLocalProfile(csv, selectedIdx, customName || undefined);
     setProfile(localProfile);
 
     // 2. Start animation immediately — no waiting for AI
@@ -149,9 +163,8 @@ export default function ExecDemoPage() {
       setProfile(merged);
     } catch (err) {
       console.error("AI enrichment failed (local profile still active):", err);
-      // No toast needed — local profile is already running fine
     }
-  }, [isRunning, clearTimeouts, selectedIdx, runAnimationWithProfile]);
+  }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
     setActiveTab(tab);
