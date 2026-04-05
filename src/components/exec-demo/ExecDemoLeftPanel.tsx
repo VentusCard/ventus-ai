@@ -17,6 +17,7 @@ interface Props {
   currentCardColor: string;
   isCustomMode?: boolean;
   customName?: string;
+  customTransactions?: Transaction[];
 }
 
 const SCROLL_DURATION = 6000;
@@ -74,6 +75,7 @@ export default function ExecDemoLeftPanel({
   currentCardColor,
   isCustomMode,
   customName,
+  customTransactions,
 }: Props) {
   const [showCustom, setShowCustom] = useState(false);
   const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
@@ -81,7 +83,7 @@ export default function ExecDemoLeftPanel({
   const [pasteValue, setPasteValue] = useState("");
 
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
-  const transactions = execProfile?.transactions || [];
+  const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
   const cappedTxns = transactions.slice(0, MAX_RENDERED_ROWS);
 
   const collected = transactions
