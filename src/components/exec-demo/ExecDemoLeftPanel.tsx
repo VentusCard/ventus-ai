@@ -13,8 +13,9 @@ interface Props {
   currentCardColor: string;
 }
 
-const SCROLL_DURATION = 4800;
+const SCROLL_DURATION = 6000;
 const CARD_SCAN_DURATION = 1320;
+const MAX_RENDERED_ROWS = 80;
 
 const TxRow = ({
   tx,
@@ -69,6 +70,7 @@ export default function ExecDemoLeftPanel({
 }: Props) {
   const execProfile = getIntelligenceForCustomer(selectedIdx);
   const transactions = execProfile.transactions;
+  const cappedTxns = transactions.slice(0, MAX_RENDERED_ROWS);
 
   const collected = transactions
     .map((tx, i) => ({ tx, i }))
@@ -138,10 +140,10 @@ export default function ExecDemoLeftPanel({
               className="space-y-0.5"
               style={{ animation: `exec-rapid-scroll ${SCROLL_DURATION}ms linear forwards` }}
             >
-              {transactions.map((tx, i) => (
+              {cappedTxns.map((tx, i) => (
                 <TxRow key={`s-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
-              {transactions.map((tx, i) => (
+              {cappedTxns.map((tx, i) => (
                 <TxRow key={`s2-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
             </div>
@@ -154,10 +156,10 @@ export default function ExecDemoLeftPanel({
               className="space-y-0.5"
               style={{ animation: `exec-card-scroll ${CARD_SCAN_DURATION}ms linear forwards` }}
             >
-              {transactions.map((tx, i) => (
+              {cappedTxns.map((tx, i) => (
                 <TxRow key={`cs-${i}`} tx={tx} dim={false} sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
-              {transactions.map((tx, i) => (
+              {cappedTxns.map((tx, i) => (
                 <TxRow key={`cs2-${i}`} tx={tx} dim sourceColor={getSourceColor(transactions, tx.account)} />
               ))}
             </div>
@@ -203,13 +205,13 @@ export default function ExecDemoLeftPanel({
       <style>{`
         @keyframes exec-rapid-scroll {
           0% { transform: translateY(0); }
-          90% { transform: translateY(-65%); }
-          100% { transform: translateY(-65%); }
+          90% { transform: translateY(-85%); }
+          100% { transform: translateY(-85%); }
         }
         @keyframes exec-card-scroll {
           0% { transform: translateY(0); }
-          80% { transform: translateY(-55%); }
-          100% { transform: translateY(-55%); }
+          80% { transform: translateY(-75%); }
+          100% { transform: translateY(-75%); }
         }
         @keyframes exec-fade-in {
           from { opacity: 0; transform: translateY(6px); }
