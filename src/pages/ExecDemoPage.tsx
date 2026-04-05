@@ -64,22 +64,18 @@ export default function ExecDemoPage() {
     [clearTimeouts]
   );
 
-  const handleRunAnalysis = useCallback(() => {
-    if (isRunning) return;
-    clearTimeouts();
+  const runAnimationWithProfile = useCallback((profile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
     setProcessedSignals([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
 
-    const execProfile = getIntelligenceForCustomer(selectedIdx);
-    const txCount = execProfile.transactions.length;
+    const txCount = profile.transactions.length;
     const signalInterval = TIMINGS.scroll / (txCount + 1);
 
-    // During scroll phase, append signals one by one as transactions process
     for (let i = 0; i < txCount; i++) {
-      const signal = execProfile.persona.signalMap[i];
+      const signal = profile.persona.signalMap[i];
       if (signal) {
         schedule(() => {
           setProcessedSignals((prev) => [...prev, signal]);
@@ -90,7 +86,7 @@ export default function ExecDemoPage() {
     let elapsed = TIMINGS.scroll + TIMINGS.personaPause;
 
     TAB_ORDER.forEach((tabKey) => {
-      const card = execProfile.intelligence[tabKey];
+      const card = profile.intelligence[tabKey];
       const cardElapsed = elapsed;
       const cardCollectDuration =
         card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
@@ -124,7 +120,35 @@ export default function ExecDemoPage() {
       setPhase("hold");
       setActiveTab("analytics");
     }, elapsed);
-  }, [isRunning, clearTimeouts, schedule, selectedIdx]);
+  }, [schedule]);
+
+  const handleRunAnalysis = useCallback(async () => {
+    if (isRunning || aiLoading) return;
+    clearTimeouts();
+    setAiLoading(true);
+
+    const csv = getCsvForCustomer(selectedIdx);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-exec-profile", {
+        body: { csv },
+      });
+
+      if (error) throw error;
+
+      const profile = buildExecProfileFromAI(csv, data);
+      setAiProfile(profile);
+      setAiLoading(false);
+      runAnimationWithProfile(profile);
+    } catch (err) {
+      console.error("AI profile generation failed, using fallback:", err);
+      toast.error("AI analysis unavailable, using cached profile");
+      setAiLoading(false);
+      const fallback = getIntelligenceForCustomer(selectedIdx);
+      setAiProfile(null);
+      runAnimationWithProfile(fallback);
+    }
+  }, [isRunning, aiLoading, clearTimeouts, schedule, selectedIdx, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
     setActiveTab(tab);
