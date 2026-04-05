@@ -154,8 +154,9 @@ export default function ExecDemoPage() {
     setActiveTab(tab);
   }, []);
 
-  const execProfile = getIntelligenceForCustomer(selectedIdx);
+  const execProfile = aiProfile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+  const effectiveIsRunning = isRunning || aiLoading;
 
   return (
     <SimplePasswordGate>
@@ -194,8 +195,8 @@ export default function ExecDemoPage() {
             selectedIdx={selectedIdx}
             onSelectCustomer={handleSelectCustomer}
             onRunAnalysis={handleRunAnalysis}
-            isRunning={isRunning}
-            phase={phase}
+            isRunning={effectiveIsRunning}
+            phase={aiLoading ? "scroll" : phase}
             collectedIndices={collectedIndices}
             currentCardColor={currentCardColor}
           />
