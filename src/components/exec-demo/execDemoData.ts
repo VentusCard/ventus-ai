@@ -344,22 +344,34 @@ export function getCsvForCustomer(customerIdx: number): string {
 }
 
 /** Build a local-only profile using MCC signal map (instant, no AI) */
-export function buildLocalProfile(csv: string, customerIdx: number): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
+export function buildLocalProfile(csv: string, customerIdx: number, customName?: string): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
   const transactions = parseCsvToTransactions(csv);
   const signalMap = buildSignalMap(csv);
   const fallback = EXEC_PROFILES[customerIdx % EXEC_PROFILES.length];
   const clamp = (indices: number[]) => indices.filter((idx) => idx < transactions.length);
+
+  // For custom data, generate evenly-spaced txIndices
+  const customTxIndices = (count: number) => {
+    const step = Math.max(1, Math.floor(transactions.length / count));
+    return Array.from({ length: count }, (_, i) => Math.min(i * step, transactions.length - 1));
+  };
+
+  const isCustom = !!customName;
 
   return {
     transactions,
     persona: {
       accent: "#a78bfa",
       icon: "◈",
-      title: "Dynamic Persona",
-      pills: PERSONA_META[customerIdx % PERSONA_META.length].pills,
+      title: customName || "Dynamic Persona",
+      pills: isCustom ? ["Analyzing...", "Processing Signals"] : PERSONA_META[customerIdx % PERSONA_META.length].pills,
       signalMap,
     },
-    intelligence: {
+    intelligence: isCustom ? {
+      analytics: { ...fallback.intelligence.analytics, txIndices: customTxIndices(5) },
+      rewards: { ...fallback.intelligence.rewards, txIndices: customTxIndices(5) },
+      relationship: { ...fallback.intelligence.relationship, txIndices: customTxIndices(4) },
+    } : {
       analytics: { ...fallback.intelligence.analytics, txIndices: clamp(fallback.intelligence.analytics.txIndices) },
       rewards: { ...fallback.intelligence.rewards, txIndices: clamp(fallback.intelligence.rewards.txIndices) },
       relationship: { ...fallback.intelligence.relationship, txIndices: clamp(fallback.intelligence.relationship.txIndices) },

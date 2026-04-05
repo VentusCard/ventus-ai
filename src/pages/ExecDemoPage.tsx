@@ -36,6 +36,8 @@ export default function ExecDemoPage() {
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
+  const [customCsv, setCustomCsv] = useState<string | null>(null);
+  const [customName, setCustomName] = useState<string | null>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   const clearTimeouts = useCallback(() => {

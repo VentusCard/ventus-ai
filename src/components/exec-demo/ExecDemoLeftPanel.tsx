@@ -1,16 +1,22 @@
-import { Play, User } from "lucide-react";
+import { Play, User, Pencil, Copy, Check, ArrowLeft } from "lucide-react";
+import { useState } from "react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
+import { buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { getIntelligenceForCustomer } from "./execDemoData";
 import type { Transaction } from "./execDemoData";
+import { toast } from "sonner";
 
 interface Props {
   selectedIdx: number;
   onSelectCustomer: (idx: number) => void;
   onRunAnalysis: () => void;
+  onLoadCustomCsv?: (csv: string, name: string) => void;
   isRunning: boolean;
   phase: string;
   collectedIndices: number[];
   currentCardColor: string;
+  isCustomMode?: boolean;
+  customName?: string;
 }
 
 const SCROLL_DURATION = 6000;
@@ -55,17 +61,27 @@ const TxRow = ({
   </div>
 );
 
+const DEFAULT_PERSONA = "A 35-year-old tech professional in San Francisco who loves hiking, craft coffee, and is saving for a first home.";
+
 export default function ExecDemoLeftPanel({
   selectedIdx,
   onSelectCustomer,
   onRunAnalysis,
+  onLoadCustomCsv,
   isRunning,
   phase,
   collectedIndices,
   currentCardColor,
+  isCustomMode,
+  customName,
 }: Props) {
-  const execProfile = getIntelligenceForCustomer(selectedIdx);
-  const transactions = execProfile.transactions;
+  const [showCustom, setShowCustom] = useState(false);
+  const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
+  const [copied, setCopied] = useState(false);
+  const [pasteValue, setPasteValue] = useState("");
+
+  const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
+  const transactions = execProfile?.transactions || [];
   const cappedTxns = transactions.slice(0, MAX_RENDERED_ROWS);
 
   const collected = transactions
@@ -78,6 +94,91 @@ export default function ExecDemoLeftPanel({
   const showScrolling = phase === "scroll";
   const showCollected = phase === "cardCycle" || phase === "hold";
 
+  const handleCopyPrompt = () => {
+    const prompt = buildCustomerPrompt(personaInput);
+    navigator.clipboard.writeText(prompt);
+    setCopied(true);
+    toast.success("Prompt copied — paste into ChatGPT or Claude");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleLoadCustomer = () => {
+    const parsed = parseUnifiedOutput(pasteValue);
+    if (!parsed) {
+      toast.error("Could not parse output. Make sure it contains === PROFILE === and === TRANSACTIONS === blocks.");
+      return;
+    }
+    const name = parsed.demographics.name || "Custom Customer";
+    onLoadCustomCsv?.(parsed.csv, name);
+    setShowCustom(false);
+    setPasteValue("");
+    toast.success(`Loaded ${name}`);
+  };
+
+  // Custom input view
+  if (showCustom && !isCustomMode) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="px-4 pt-4 pb-2">
+          <button
+            onClick={() => setShowCustom(false)}
+            className="flex items-center gap-1 text-[11px] text-blue-500 hover:text-blue-700 font-medium mb-3"
+          >
+            <ArrowLeft className="w-3 h-3" /> Back to customers
+          </button>
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
+            Custom Customer
+          </div>
+        </div>
+
+        {/* Step 1: Persona + Copy */}
+        <div className="px-4 space-y-2 mb-3">
+          <div className="text-[10px] font-semibold text-slate-500">1. Describe a persona</div>
+          <textarea
+            value={personaInput}
+            onChange={(e) => setPersonaInput(e.target.value)}
+            rows={3}
+            className="w-full text-[11px] rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+            placeholder="E.g. A 45-year-old surgeon in Boston who plays golf..."
+          />
+          <button
+            onClick={handleCopyPrompt}
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+          >
+            {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+            {copied ? "Copied!" : "Copy Prompt"}
+          </button>
+        </div>
+
+        {/* Step 2: Paste output */}
+        <div className="px-4 flex-1 flex flex-col min-h-0 space-y-2">
+          <div className="text-[10px] font-semibold text-slate-500">2. Paste LLM output</div>
+          <textarea
+            value={pasteValue}
+            onChange={(e) => setPasteValue(e.target.value)}
+            className="flex-1 w-full text-[10px] font-mono rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none min-h-[120px]"
+            placeholder={"=== PROFILE ===\nname: ...\n\n=== TRANSACTIONS ===\ntransaction_id,merchant_name,..."}
+          />
+        </div>
+
+        {/* Load button */}
+        <div className="px-4 pb-4 pt-3">
+          <button
+            onClick={handleLoadCustomer}
+            disabled={!pasteValue.trim()}
+            className={`w-full flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-all duration-200 ${
+              pasteValue.trim()
+                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                : "bg-slate-100 text-slate-400 cursor-not-allowed"
+            }`}
+          >
+            Load Customer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Customer Selector */}
@@ -86,7 +187,34 @@ export default function ExecDemoLeftPanel({
           Select Customer
         </div>
         <div className="space-y-1.5">
-          {DEMO_CUSTOMERS.map((c, i) => {
+          {/* Custom mode active */}
+          {isCustomMode && (
+            <button
+              className="w-full text-left rounded-lg px-3 py-2 border border-blue-300 bg-blue-50 shadow-sm cursor-default"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold bg-violet-500 text-white">
+                  <Pencil className="w-3 h-3" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11px] font-semibold text-slate-800 truncate">{customName || "Custom"}</div>
+                  <div className="text-[9px] text-slate-400 truncate">Custom · Pasted Data</div>
+                </div>
+                {phase !== "idle" ? (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onSelectCustomer(0); }}
+                    className="text-[9px] text-blue-500 hover:text-blue-700 font-medium shrink-0"
+                    style={{ pointerEvents: isRunning ? "none" : "auto" }}
+                  >
+                    Change
+                  </button>
+                ) : null}
+              </div>
+            </button>
+          )}
+
+          {/* Pre-built customers */}
+          {!isCustomMode && DEMO_CUSTOMERS.map((c, i) => {
             const isSelected = selectedIdx === i;
             const isActive = phase !== "idle";
             if (isActive && !isSelected) return null;
@@ -123,6 +251,24 @@ export default function ExecDemoLeftPanel({
               </button>
             );
           })}
+
+          {/* Custom button (only in idle, non-custom mode) */}
+          {!isCustomMode && phase === "idle" && (
+            <button
+              onClick={() => setShowCustom(true)}
+              className="w-full text-left rounded-lg px-3 py-2 border border-dashed border-slate-300 bg-white hover:border-violet-300 hover:bg-violet-50/50 transition-all duration-200 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold bg-violet-100 text-violet-600">
+                  <Pencil className="w-3 h-3" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11px] font-semibold text-slate-600">Custom</div>
+                  <div className="text-[9px] text-slate-400">Paste your own data</div>
+                </div>
+              </div>
+            </button>
+          )}
         </div>
       </div>
 
