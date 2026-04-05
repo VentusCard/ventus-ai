@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
@@ -40,15 +40,86 @@ export default function ExecDemoPage() {
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
+  const classifyAbortRef = useRef<AbortController | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
   }, []);
 
+  /** Fire classify-transactions SSE in background, cache results */
+  const fireClassification = useCallback((csv: string) => {
+    // Abort any in-flight classification
+    classifyAbortRef.current?.abort();
+    classifiedRef.current = null;
+
+    const abort = new AbortController();
+    classifyAbortRef.current = abort;
+
+    const payload = csvToClassifyPayload(csv);
+    if (payload.length === 0) return;
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+    fetch(`${supabaseUrl}/functions/v1/classify-transactions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseKey}`,
+        apikey: supabaseKey,
+      },
+      body: JSON.stringify({ transactions: payload }),
+      signal: abort.signal,
+    })
+      .then(async (res) => {
+        if (!res.ok || !res.body) return;
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          // Parse SSE events
+          const events = buffer.split("\n\n");
+          buffer = events.pop() || "";
+
+          for (const block of events) {
+            const eventMatch = block.match(/^event:\s*(.+)$/m);
+            const dataMatch = block.match(/^data:\s*(.+)$/m);
+            if (!eventMatch || !dataMatch) continue;
+
+            if (eventMatch[1] === "done") {
+              try {
+                const parsed = JSON.parse(dataMatch[1]);
+                classifiedRef.current = parsed.enriched_transactions || [];
+                console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
+              } catch (e) {
+                console.error("[PRELOAD] Failed to parse done event", e);
+              }
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("[PRELOAD] Classification failed:", err);
+        }
+      });
+  }, []);
+
   const schedule = useCallback((fn: () => void, ms: number) => {
     timeoutsRef.current.push(setTimeout(fn, ms));
   }, []);
+
+  // Fire classification for initial customer on mount
+  useEffect(() => {
+    fireClassification(getCsvForCustomer(0));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isRunning = phase !== "idle" && phase !== "hold";
 
@@ -64,8 +135,10 @@ export default function ExecDemoPage() {
       setProfile(null);
       setCustomCsv(null);
       setCustomName(null);
+      // Preload classification in background
+      fireClassification(getCsvForCustomer(idx));
     },
-    [clearTimeouts]
+    [clearTimeouts, fireClassification]
   );
 
   const handleLoadCustomCsv = useCallback((csv: string, name: string) => {
@@ -78,7 +151,9 @@ export default function ExecDemoPage() {
     setActiveTab(null);
     setCollectedIndices([]);
     setProfile(buildLocalProfile(csv, 0, name));
-  }, [clearTimeouts]);
+    // Preload classification for custom CSV
+    fireClassification(csv);
+  }, [clearTimeouts, fireClassification]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
@@ -144,11 +219,21 @@ export default function ExecDemoPage() {
 
     const csv = customCsv || getCsvForCustomer(selectedIdx);
 
-    // 1. Build local profile instantly from MCC map
+    // 1. Build local profile — use AI-classified signals if preloaded, else MCC fallback
     const localProfile = buildLocalProfile(csv, selectedIdx, customName || undefined);
+
+    if (classifiedRef.current && classifiedRef.current.length > 0) {
+      // Override MCC signal map with AI-classified pillars
+      const classifiedSignalMap = buildSignalMapFromClassified(classifiedRef.current);
+      localProfile.persona.signalMap = classifiedSignalMap;
+      console.log("[PROCESS] Using preloaded AI classification for signals");
+    } else {
+      console.log("[PROCESS] AI classification not ready, using MCC fallback");
+    }
+
     setProfile(localProfile);
 
-    // 2. Start animation immediately — no waiting for AI
+    // 2. Start animation immediately
     runAnimationWithProfile(localProfile);
 
     // 3. Fire AI in background for richer pills, descriptions, intelligence
@@ -159,7 +244,7 @@ export default function ExecDemoPage() {
 
       if (error) throw error;
 
-      // Merge AI results into the profile (keeps local signalMap, upgrades everything else)
+      // Merge AI results into the profile (keeps signalMap, upgrades everything else)
       const merged = mergeAiResults(localProfile, data);
       setProfile(merged);
     } catch (err) {
