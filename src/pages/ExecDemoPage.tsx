@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -35,6 +35,7 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
+  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string } | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
@@ -170,6 +171,21 @@ export default function ExecDemoPage() {
     setActiveTab(tab);
   }, []);
 
+  const handlePillClick = useCallback((pillar: string, label: string) => {
+    setActivePillFilter((prev) =>
+      prev && prev.pillar === pillar && prev.label === label ? null : { pillar, label }
+    );
+  }, []);
+
+  // Derive filtered transaction indices from the active pill filter
+  const filteredIndices = useMemo(() => {
+    if (!activePillFilter) return null;
+    const sm = execProfile.persona.signalMap;
+    return Object.entries(sm)
+      .filter(([, s]) => s.pillar === activePillFilter.pillar && s.label === activePillFilter.label)
+      .map(([idx]) => Number(idx));
+  }, [activePillFilter, execProfile.persona.signalMap]);
+
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
@@ -218,6 +234,11 @@ export default function ExecDemoPage() {
             isCustomMode={!!customCsv}
             customName={customName || undefined}
             customTransactions={profile?.transactions}
+            personaIcon={execProfile.persona.icon}
+            personaTitle={execProfile.persona.title}
+            filteredIndices={filteredIndices}
+            activePillLabel={activePillFilter?.label || null}
+            onClearFilter={() => setActivePillFilter(null)}
           />
         </div>
 
@@ -231,6 +252,8 @@ export default function ExecDemoPage() {
             revealedTabs={revealedTabs}
             activeTab={activeTab}
             onTabClick={handleTabClick}
+            activePillFilter={activePillFilter}
+            onPillClick={handlePillClick}
           />
         </div>
 
