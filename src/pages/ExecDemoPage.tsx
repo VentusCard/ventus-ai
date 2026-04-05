@@ -217,6 +217,7 @@ export default function ExecDemoPage() {
             currentCardColor={currentCardColor}
             isCustomMode={!!customCsv}
             customName={customName || undefined}
+            customTransactions={profile?.transactions}
           />
         </div>
 
