@@ -1,8 +1,13 @@
 import { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users } from "lucide-react";
+import { BarChart3, Gift, Users, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 
 type TabKey = "analytics" | "rewards" | "relationship";
+
+export interface PersonaSynthesis {
+  headline: string;
+  insights: string[];
+}
 
 interface Props {
   persona: ExecPersona;
@@ -14,6 +19,7 @@ interface Props {
   onTabClick: (tab: TabKey) => void;
   activePillFilter?: { pillar: string; label: string } | null;
   onPillClick?: (pillar: string, label: string) => void;
+  personaSynthesis?: PersonaSynthesis | null;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -107,6 +113,7 @@ export default function ExecDemoIntelPanel({
   onTabClick,
   activePillFilter,
   onPillClick,
+  personaSynthesis,
 }: Props) {
   const showProfile = phase !== "idle";
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
