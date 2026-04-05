@@ -1,36 +1,41 @@
 
 
-## Redesign Signal Pills: Stacked, Color-Coded with Legend, Amounts & Counts
+## Preload Classification on Customer Select, Show on Process
 
-### Current State
-Pills are grouped in labeled rows by pillar (e.g. "Travel & Transport → Airlines 3x, Hotels 2x"). Each pill only shows a label and count. No color coding, no spend amounts, no legend.
+### Problem
+Currently, `classify-transactions` is never called in the exec demo. The user wants it to fire eagerly when a customer is selected (preloading in the background), but only visually apply the results when "Process" is clicked.
 
-### Design
+### Flow
 
-**1. Data changes — enrich SignalEntry with amount**
-- `SignalEntry` gains an `amount` field: `{ pillar: string; label: string; amount: number }`
-- `buildSignalMap()` in `execDemoData.ts` parses the amount column and includes it
-- `mergeAiResults` preserves amounts from local signals
+```text
+Customer selected → classify-transactions fires silently in background
+                    results cached in state (classifiedRef)
 
-**2. Pill derivation — aggregate both count and total spend**
-- `deriveGroups()` replaced with a flat `deriveChips()` that returns `{ pillar, label, count, totalSpend }[]` sorted by totalSpend descending
-- No row grouping — all pills flow in a single flex-wrap container
+User clicks "Process" → animation starts
+                        if classified results ready → use AI pillars for signals
+                        if not ready yet → use MCC fallback, merge AI when it arrives
+```
 
-**3. Color-coded pills by pillar**
-- Define a `PILLAR_COLORS` map (e.g. Travel → blue, Food → amber, Wellness → emerald, Shopping → violet, etc.)
-- Each pill's background and border tint uses its pillar color
-- Pills show: **label · count × · $amount** (e.g. "Airlines · 4× · $2,340")
+### Changes
 
-**4. Compact legend**
-- Small horizontal row of color dots + pillar names rendered above the pill cloud
-- Only shows pillars that have at least one signal (grows dynamically during animation)
+**1. `src/pages/ExecDemoPage.tsx`**
+- Add a `classifiedRef = useRef<EnrichedTransaction[] | null>(null)` and `classifyingRef = useRef<boolean>(false)` to cache preloaded results
+- In `handleSelectCustomer`: after setting the selected index, fire `classify-transactions` in the background via direct fetch (same pattern as `useSSEEnrichment`). Parse the SSE stream silently, store `enriched_transactions` in `classifiedRef`. No UI state updates during preload.
+- In `handleLoadCustomCsv`: same — fire classification for the custom CSV
+- In `handleRunAnalysis`: check `classifiedRef.current`. If results exist, call a new `buildSignalMapFromClassified()` to create a richer signal map before building the local profile. If not ready, proceed with MCC fallback as today. Set up a listener so when classification completes mid-animation, merge the new signals into the profile state.
+- Add cleanup: clear `classifiedRef` and abort any in-flight fetch when customer changes
 
-**5. Layout**
-- Remove `PillarRow` component entirely
-- Single `<div className="flex flex-wrap gap-1.5">` for all pills
-- Legend sits above the pill cloud as a small row of `dot + label` pairs
+**2. `src/components/exec-demo/execDemoData.ts`**
+- Add `csvToClassifyPayload(csv: string)` — converts CSV rows into `{ transaction_id, merchant_name, amount, date }[]` format expected by the edge function
+- Add `buildSignalMapFromClassified(enrichedTxs: any[]): Record<number, SignalEntry>` — maps classify-transactions output (pillar, category, amount) into the `SignalEntry` format used by pills
+- Export both functions
+
+**3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+- Add any missing pillar color keys from classify-transactions output (e.g. "Sports & Active Living", "Style & Beauty", "Digital & Tech") to `PILLAR_COLORS`
+- No layout changes needed — pills already render from the signal map
 
 ### Files
-1. **`src/components/exec-demo/execDemoData.ts`** — add `amount` to `SignalEntry`, update `buildSignalMap()` to parse amounts
-2. **`src/components/exec-demo/ExecDemoIntelPanel.tsx`** — replace row-based layout with flat color-coded pill cloud + legend, update chip to show count and spend
+1. `src/components/exec-demo/execDemoData.ts` — CSV-to-payload converter, classified signal map builder
+2. `src/pages/ExecDemoPage.tsx` — preload on select, use cached results on process
+3. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — extend pillar color map
 
