@@ -79,7 +79,7 @@ export default function ExecDemoIntelPanel({
         </div>
 
         {/* Signal rows */}
-        <div className="flex flex-col gap-2 min-h-[28px]">
+        <div className="flex flex-col gap-2 min-h-[28px] max-h-[180px] overflow-y-auto exec-light-scroll">
           {groups.map((group) => (
             <PillarRow key={group.pillar} group={group} />
           ))}
