@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState, useCallback } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { BarChart3, Gift, Users } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 
@@ -24,29 +24,54 @@ const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
 
 const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
 
-interface PillarGroup {
-  pillar: string;
-  chips: { label: string; count: number }[];
+// Color palette per pillar
+const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
+  "Travel & Transport": { bg: "rgba(96,165,250,.12)", border: "rgba(96,165,250,.35)", text: "#1e40af", dot: "#60a5fa" },
+  "Food & Dining": { bg: "rgba(251,191,36,.12)", border: "rgba(251,191,36,.35)", text: "#92400e", dot: "#fbbf24" },
+  "Wellness & Fitness": { bg: "rgba(52,211,153,.12)", border: "rgba(52,211,153,.35)", text: "#065f46", dot: "#34d399" },
+  "Shopping": { bg: "rgba(167,139,250,.12)", border: "rgba(167,139,250,.35)", text: "#5b21b6", dot: "#a78bfa" },
+  "Entertainment": { bg: "rgba(251,113,133,.12)", border: "rgba(251,113,133,.35)", text: "#9f1239", dot: "#fb7185" },
+  "Home & Living": { bg: "rgba(45,212,191,.12)", border: "rgba(45,212,191,.35)", text: "#115e59", dot: "#2dd4bf" },
+  "Education & Family": { bg: "rgba(129,140,248,.12)", border: "rgba(129,140,248,.35)", text: "#3730a3", dot: "#818cf8" },
+  "Healthcare": { bg: "rgba(248,113,113,.12)", border: "rgba(248,113,113,.35)", text: "#991b1b", dot: "#f87171" },
+  "Technology": { bg: "rgba(56,189,248,.12)", border: "rgba(56,189,248,.35)", text: "#0c4a6e", dot: "#38bdf8" },
+  "Pets & Care": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
+  "Financial Planning": { bg: "rgba(250,204,21,.12)", border: "rgba(250,204,21,.35)", text: "#854d0e", dot: "#facc15" },
+  "Sports & Active": { bg: "rgba(74,222,128,.12)", border: "rgba(74,222,128,.35)", text: "#166534", dot: "#4ade80" },
+  "Miscellaneous": { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" },
+};
+
+const DEFAULT_COLOR = { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" };
+
+function getColor(pillar: string) {
+  return PILLAR_COLORS[pillar] || DEFAULT_COLOR;
 }
 
-function deriveGroups(signals: SignalEntry[]): PillarGroup[] {
-  const pillarOrder: string[] = [];
-  const map = new Map<string, Map<string, number>>();
+interface ChipData {
+  pillar: string;
+  label: string;
+  count: number;
+  totalSpend: number;
+}
 
+function deriveChips(signals: SignalEntry[]): ChipData[] {
+  const map = new Map<string, ChipData>();
   for (const s of signals) {
-    if (!map.has(s.pillar)) {
-      pillarOrder.push(s.pillar);
-      map.set(s.pillar, new Map());
+    const key = `${s.pillar}::${s.label}`;
+    const existing = map.get(key);
+    if (existing) {
+      existing.count += 1;
+      existing.totalSpend += (s.amount || 0);
+    } else {
+      map.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount || 0 });
     }
-    const labelMap = map.get(s.pillar)!;
-    labelMap.set(s.label, (labelMap.get(s.label) || 0) + 1);
   }
+  return Array.from(map.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+}
 
-  return pillarOrder.map((pillar) => {
-    const labelMap = map.get(pillar)!;
-    const chips = Array.from(labelMap.entries()).map(([label, count]) => ({ label, count }));
-    return { pillar, chips };
-  });
+function formatSpend(amount: number): string {
+  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
+  return `$${Math.round(amount)}`;
 }
 
 export default function ExecDemoIntelPanel({
@@ -62,7 +87,20 @@ export default function ExecDemoIntelPanel({
 }: Props) {
   const showProfile = phase !== "idle";
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
-  const groups = useMemo(() => deriveGroups(processedSignals), [processedSignals]);
+  const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
+
+  // Unique pillars for legend
+  const activePillars = useMemo(() => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const c of chips) {
+      if (!seen.has(c.pillar)) {
+        seen.add(c.pillar);
+        result.push(c.pillar);
+      }
+    }
+    return result;
+  }, [chips]);
 
   // Derive current description from milestone keys
   const currentDescription = useMemo(() => {
@@ -90,7 +128,7 @@ export default function ExecDemoIntelPanel({
 
   return (
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
-      {/* Dynamic Persona — Row-based pill accumulator */}
+      {/* Dynamic Persona — pill cloud */}
       <div
         className="rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out"
         style={{
@@ -105,21 +143,39 @@ export default function ExecDemoIntelPanel({
           <div
             key={descKey}
             className="mb-3 text-[11px] italic text-slate-500 leading-relaxed"
-            style={{
-              animation: "desc-crossfade 0.6s ease-out",
-            }}
+            style={{ animation: "desc-crossfade 0.6s ease-out" }}
           >
             {displayedDesc}
           </div>
         )}
 
-        {/* Signal rows */}
+        {/* Legend */}
+        {activePillars.length > 0 && (
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mb-2.5">
+            {activePillars.map((pillar) => {
+              const c = getColor(pillar);
+              return (
+                <span key={pillar} className="flex items-center gap-1 text-[9px] text-slate-500" style={{ animation: "pill-pop 0.3s ease-out both" }}>
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.dot }} />
+                  {pillar}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pill cloud */}
         <div
-          className="flex flex-col gap-2 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
-          style={{ maxHeight: showTabs ? 100 : 140 }}
+          className="flex flex-wrap gap-1.5 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
+          style={{ maxHeight: showTabs ? 100 : 160 }}
         >
-          {groups.map((group) => (
-            <PillarRow key={group.pillar} group={group} activePillFilter={activePillFilter} onPillClick={onPillClick} />
+          {chips.map((chip) => (
+            <AnimatedChip
+              key={`${chip.pillar}::${chip.label}`}
+              chip={chip}
+              isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
+              onClick={() => onPillClick?.(chip.pillar, chip.label)}
+            />
           ))}
         </div>
       </div>
@@ -218,71 +274,50 @@ export default function ExecDemoIntelPanel({
   );
 }
 
-/** A single pillar row with animated chip pills */
-function PillarRow({ group, activePillFilter, onPillClick }: { group: PillarGroup; activePillFilter?: { pillar: string; label: string } | null; onPillClick?: (pillar: string, label: string) => void }) {
-  return (
-    <div
-      className="flex items-start gap-2"
-      style={{ animation: "pill-pop 0.35s ease-out both" }}
-    >
-      <span className="text-[9px] font-bold tracking-wider uppercase text-slate-400 mt-1.5 whitespace-nowrap min-w-[110px]">
-        {group.pillar}
-      </span>
-      <div className="flex flex-wrap gap-1.5">
-        {group.chips.map((chip) => (
-          <AnimatedChip
-            key={chip.label}
-            label={chip.label}
-            count={chip.count}
-            isActive={activePillFilter?.pillar === group.pillar && activePillFilter?.label === chip.label}
-            onClick={() => onPillClick?.(group.pillar, chip.label)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** A single chip that pops in and pulses its count on update */
-function AnimatedChip({ label, count, isActive, onClick }: { label: string; count: number; isActive?: boolean; onClick?: () => void }) {
-  const prevCount = useRef(count);
+/** A single color-coded chip showing label · count× · $amount */
+function AnimatedChip({ chip, isActive, onClick }: { chip: ChipData; isActive?: boolean; onClick?: () => void }) {
+  const prevCount = useRef(chip.count);
   const [pulse, setPulse] = useState(false);
+  const c = getColor(chip.pillar);
 
   useEffect(() => {
-    if (count > prevCount.current) {
+    if (chip.count > prevCount.current) {
       setPulse(true);
       const t = setTimeout(() => setPulse(false), 350);
-      prevCount.current = count;
+      prevCount.current = chip.count;
       return () => clearTimeout(t);
     }
-    prevCount.current = count;
-  }, [count]);
+    prevCount.current = chip.count;
+  }, [chip.count]);
 
   return (
     <span
       onClick={onClick}
       className="inline-flex items-center gap-1 text-[10px] font-medium px-2.5 py-1 rounded-full cursor-pointer transition-all duration-200"
       style={{
-        background: isActive ? "rgba(16,185,129,.22)" : "rgba(16,185,129,.08)",
-        color: "#065f46",
-        border: isActive ? "2px solid rgba(16,185,129,.5)" : "1px solid rgba(16,185,129,.22)",
+        background: isActive ? c.bg.replace(".12", ".25") : c.bg,
+        color: c.text,
+        border: isActive ? `2px solid ${c.dot}` : `1px solid ${c.border}`,
         animation: "pill-pop 0.3s ease-out both",
         transform: isActive ? "scale(1.08)" : "scale(1)",
-        boxShadow: isActive ? "0 0 8px rgba(16,185,129,.2)" : "none",
+        boxShadow: isActive ? `0 0 8px ${c.bg}` : "none",
       }}
     >
-      {label}
-      {count > 1 && (
+      {chip.label}
+      {chip.count > 1 && (
         <span
           className="text-[9px] font-bold tabular-nums"
           style={{
-            color: "#059669",
+            color: c.dot,
             animation: pulse ? "count-pulse 0.3s ease-out" : "none",
           }}
         >
-          {count}x
+          {chip.count}×
         </span>
       )}
+      <span className="text-[9px] opacity-70 tabular-nums">
+        {formatSpend(chip.totalSpend)}
+      </span>
     </span>
   );
 }
