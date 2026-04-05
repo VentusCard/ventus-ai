@@ -12,6 +12,8 @@ interface Props {
   revealedTabs: TabKey[];
   activeTab: TabKey | null;
   onTabClick: (tab: TabKey) => void;
+  activePillFilter?: { pillar: string; label: string } | null;
+  onPillClick?: (pillar: string, label: string) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {

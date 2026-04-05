@@ -18,6 +18,11 @@ interface Props {
   isCustomMode?: boolean;
   customName?: string;
   customTransactions?: Transaction[];
+  personaIcon?: string;
+  personaTitle?: string;
+  filteredIndices?: number[] | null;
+  activePillLabel?: string | null;
+  onClearFilter?: () => void;
 }
 
 const SCROLL_DURATION = 6000;
@@ -76,6 +81,11 @@ export default function ExecDemoLeftPanel({
   isCustomMode,
   customName,
   customTransactions,
+  personaIcon,
+  personaTitle,
+  filteredIndices,
+  activePillLabel,
+  onClearFilter,
 }: Props) {
   const [showCustom, setShowCustom] = useState(false);
   const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);

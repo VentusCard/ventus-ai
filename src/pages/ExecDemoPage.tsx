@@ -177,6 +177,9 @@ export default function ExecDemoPage() {
     );
   }, []);
 
+  const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
+  const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+
   // Derive filtered transaction indices from the active pill filter
   const filteredIndices = useMemo(() => {
     if (!activePillFilter) return null;
@@ -185,9 +188,6 @@ export default function ExecDemoPage() {
       .filter(([, s]) => s.pillar === activePillFilter.pillar && s.label === activePillFilter.label)
       .map(([idx]) => Number(idx));
   }, [activePillFilter, execProfile.persona.signalMap]);
-
-  const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
-  const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
   return (
     <SimplePasswordGate>
