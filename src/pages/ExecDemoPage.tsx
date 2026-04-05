@@ -1,13 +1,15 @@
 import { useState, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, type SignalEntry } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, getCsvForCustomer, buildExecProfileFromAI, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
+import { supabase } from "@/integrations/supabase/client";
 
 type TabKey = "analytics" | "rewards" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
@@ -33,6 +35,8 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
+  const [aiProfile, setAiProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   const clearTimeouts = useCallback(() => {
@@ -55,26 +59,23 @@ export default function ExecDemoPage() {
       setRevealedTabs([]);
       setActiveTab(null);
       setCollectedIndices([]);
+      setAiProfile(null);
     },
     [clearTimeouts]
   );
 
-  const handleRunAnalysis = useCallback(() => {
-    if (isRunning) return;
-    clearTimeouts();
+  const runAnimationWithProfile = useCallback((profile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
     setProcessedSignals([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
 
-    const execProfile = getIntelligenceForCustomer(selectedIdx);
-    const txCount = execProfile.transactions.length;
+    const txCount = profile.transactions.length;
     const signalInterval = TIMINGS.scroll / (txCount + 1);
 
-    // During scroll phase, append signals one by one as transactions process
     for (let i = 0; i < txCount; i++) {
-      const signal = execProfile.persona.signalMap[i];
+      const signal = profile.persona.signalMap[i];
       if (signal) {
         schedule(() => {
           setProcessedSignals((prev) => [...prev, signal]);
@@ -85,7 +86,7 @@ export default function ExecDemoPage() {
     let elapsed = TIMINGS.scroll + TIMINGS.personaPause;
 
     TAB_ORDER.forEach((tabKey) => {
-      const card = execProfile.intelligence[tabKey];
+      const card = profile.intelligence[tabKey];
       const cardElapsed = elapsed;
       const cardCollectDuration =
         card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
@@ -119,14 +120,43 @@ export default function ExecDemoPage() {
       setPhase("hold");
       setActiveTab("analytics");
     }, elapsed);
-  }, [isRunning, clearTimeouts, schedule, selectedIdx]);
+  }, [schedule]);
+
+  const handleRunAnalysis = useCallback(async () => {
+    if (isRunning || aiLoading) return;
+    clearTimeouts();
+    setAiLoading(true);
+
+    const csv = getCsvForCustomer(selectedIdx);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-exec-profile", {
+        body: { csv },
+      });
+
+      if (error) throw error;
+
+      const profile = buildExecProfileFromAI(csv, data);
+      setAiProfile(profile);
+      setAiLoading(false);
+      runAnimationWithProfile(profile);
+    } catch (err) {
+      console.error("AI profile generation failed, using fallback:", err);
+      toast.error("AI analysis unavailable, using cached profile");
+      setAiLoading(false);
+      const fallback = getIntelligenceForCustomer(selectedIdx);
+      setAiProfile(null);
+      runAnimationWithProfile(fallback);
+    }
+  }, [isRunning, aiLoading, clearTimeouts, schedule, selectedIdx, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
     setActiveTab(tab);
   }, []);
 
-  const execProfile = getIntelligenceForCustomer(selectedIdx);
+  const execProfile = aiProfile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+  const effectiveIsRunning = isRunning || aiLoading;
 
   return (
     <SimplePasswordGate>
@@ -165,8 +195,8 @@ export default function ExecDemoPage() {
             selectedIdx={selectedIdx}
             onSelectCustomer={handleSelectCustomer}
             onRunAnalysis={handleRunAnalysis}
-            isRunning={isRunning}
-            phase={phase}
+            isRunning={effectiveIsRunning}
+            phase={aiLoading ? "scroll" : phase}
             collectedIndices={collectedIndices}
             currentCardColor={currentCardColor}
           />

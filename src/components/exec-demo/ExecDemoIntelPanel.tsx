@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect, useState, useCallback } from "react";
 import { BarChart3, Gift, Users } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 
@@ -59,6 +59,30 @@ export default function ExecDemoIntelPanel({
   const showProfile = phase !== "idle";
   const groups = useMemo(() => deriveGroups(processedSignals), [processedSignals]);
 
+  // Derive current description from milestone keys
+  const currentDescription = useMemo(() => {
+    if (!persona.descriptions) return null;
+    const milestones = Object.keys(persona.descriptions)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const count = processedSignals.length;
+    let desc: string | null = null;
+    for (const m of milestones) {
+      if (count >= m) desc = persona.descriptions[m];
+    }
+    return desc;
+  }, [persona.descriptions, processedSignals.length]);
+
+  const [displayedDesc, setDisplayedDesc] = useState<string | null>(null);
+  const [descKey, setDescKey] = useState(0);
+
+  useEffect(() => {
+    if (currentDescription && currentDescription !== displayedDesc) {
+      setDisplayedDesc(currentDescription);
+      setDescKey((k) => k + 1);
+    }
+  }, [currentDescription]);
+
   return (
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Dynamic Persona — Row-based pill accumulator */}
@@ -79,11 +103,24 @@ export default function ExecDemoIntelPanel({
         </div>
 
         {/* Signal rows */}
-        <div className="flex flex-col gap-2 min-h-[28px] max-h-[180px] overflow-y-auto exec-light-scroll">
+        <div className="flex flex-col gap-2 min-h-[28px] max-h-[140px] overflow-y-auto exec-light-scroll">
           {groups.map((group) => (
             <PillarRow key={group.pillar} group={group} />
           ))}
         </div>
+
+        {/* Evolving persona description */}
+        {displayedDesc && (
+          <div
+            key={descKey}
+            className="mt-3 text-[11px] italic text-slate-500 leading-relaxed"
+            style={{
+              animation: "desc-crossfade 0.6s ease-out",
+            }}
+          >
+            {displayedDesc}
+          </div>
+        )}
       </div>
 
       {/* Processing shimmer */}
@@ -170,6 +207,10 @@ export default function ExecDemoIntelPanel({
           0% { transform: scale(1); }
           50% { transform: scale(1.3); }
           100% { transform: scale(1); }
+        }
+        @keyframes desc-crossfade {
+          0% { opacity: 0; transform: translateY(4px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
