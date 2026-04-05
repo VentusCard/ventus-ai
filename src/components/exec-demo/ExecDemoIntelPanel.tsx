@@ -101,7 +101,7 @@ export default function ExecDemoIntelPanel({
         }}
       >
         {/* Evolving persona description */}
-        {displayedDesc && !showTabs && (
+        {displayedDesc && (
           <div
             key={descKey}
             className="mb-3 text-[11px] italic text-slate-500 leading-relaxed"
