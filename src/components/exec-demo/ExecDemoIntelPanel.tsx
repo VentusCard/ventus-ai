@@ -14,9 +14,9 @@ interface Props {
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
-  analytics: { icon: BarChart3, label: "Analytics" },
-  rewards: { icon: Gift, label: "Rewards" },
-  relationship: { icon: Users, label: "Relationship" },
+  analytics: { icon: BarChart3, label: "Next Purchase" },
+  rewards: { icon: Gift, label: "Next Offer" },
+  relationship: { icon: Users, label: "Next Engagement" },
 };
 
 const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
