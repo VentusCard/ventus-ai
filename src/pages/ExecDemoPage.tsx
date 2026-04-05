@@ -1,13 +1,15 @@
 import { useState, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, type SignalEntry } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, getCsvForCustomer, buildExecProfileFromAI, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
+import { supabase } from "@/integrations/supabase/client";
 
 type TabKey = "analytics" | "rewards" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
