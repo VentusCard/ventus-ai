@@ -44,6 +44,7 @@ export default function ExecDemoPage() {
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
+  const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
