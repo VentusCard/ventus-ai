@@ -281,9 +281,17 @@ export default function ExecDemoLeftPanel({
         </div>
 
         {phase === "idle" && (
-          <div className="text-[10px] text-slate-300 mt-2 font-mono">
-            Click "Run Analysis" to begin...
-          </div>
+          isCustomMode && transactions.length > 0 ? (
+            <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60">
+              {cappedTxns.map((tx, i) => (
+                <TxRow key={`idle-${i}`} tx={tx} dim={false} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-[10px] text-slate-300 mt-2 font-mono">
+              Click "Run Analysis" to begin...
+            </div>
+          )
         )}
 
         {showScrolling && (
