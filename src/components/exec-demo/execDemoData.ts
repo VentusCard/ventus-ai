@@ -34,6 +34,7 @@ export interface ExecIntelligence {
 export interface SignalEntry {
   pillar: string;
   label: string;
+  amount: number;
 }
 
 export interface ExecPersona {
@@ -81,7 +82,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
 
 // ---------- MCC → Signal mapping ----------
 
-const MCC_SIGNAL_MAP: Record<string, SignalEntry> = {
+const MCC_SIGNAL_MAP: Record<string, Omit<SignalEntry, 'amount'>> = {
   "4511": { pillar: "Travel & Transport", label: "Airlines" },
   "3058": { pillar: "Travel & Transport", label: "Airlines" },
   "7011": { pillar: "Travel & Transport", label: "Hotels" },
@@ -142,6 +143,7 @@ function buildSignalMap(csv: string): Record<number, SignalEntry> {
   if (lines.length < 2) return {};
   const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
   const mccIdx = header.indexOf("mcc");
+  const amountIdx = header.indexOf("amount");
 
   const map: Record<number, SignalEntry> = {};
   const rows = lines.slice(1).filter((l) => l.trim());
@@ -149,11 +151,12 @@ function buildSignalMap(csv: string): Record<number, SignalEntry> {
   rows.forEach((line, i) => {
     const cols = line.split(",").map((c) => c.trim());
     const mcc = cols[mccIdx] || "";
+    const rawAmt = parseFloat(cols[amountIdx] || "0");
     const signal = MCC_SIGNAL_MAP[mcc];
     if (signal) {
-      map[i] = signal;
+      map[i] = { ...signal, amount: rawAmt };
     } else {
-      map[i] = { pillar: "Miscellaneous", label: "Other" };
+      map[i] = { pillar: "Miscellaneous", label: "Other", amount: rawAmt };
     }
   });
 
