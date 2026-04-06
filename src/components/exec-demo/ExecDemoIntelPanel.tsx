@@ -201,13 +201,13 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!showTabs ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: showTabs ? "45vh" : undefined,
+          maxHeight: synthesisTriggered ? "45vh" : undefined,
         }}
       >
         {/* AI Persona Headline — only after synthesis triggered */}
@@ -311,6 +311,34 @@ export default function ExecDemoIntelPanel({
         )}
       </div>
 
+      {/* Tab bar — visible whenever enrichment is active */}
+      {showProfile && phase !== "idle" && (
+        <div className="flex rounded-lg bg-slate-100 p-0.5 mb-3 shrink-0">
+          {TAB_ORDER.map((key) => {
+            const meta = TAB_META[key];
+            const Icon = meta.icon;
+            const isActive = activeTab === key;
+            const isRevealed = revealedTabs.includes(key);
+            return (
+              <button
+                key={key}
+                onClick={() => isRevealed && onTabClick(key)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                  isActive
+                    ? "bg-white text-slate-800 shadow-sm"
+                    : isRevealed
+                    ? "text-slate-500 hover:text-slate-700 cursor-pointer"
+                    : "text-slate-300 cursor-default"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {meta.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Processing shimmer */}
       {phase === "scroll" && (
         <div className="flex-1 flex flex-col justify-center items-center gap-3">
@@ -329,36 +357,9 @@ export default function ExecDemoIntelPanel({
         </div>
       )}
 
-      {/* Tabbed Intelligence */}
-      {showTabs && (
+      {/* Tab content — only after synthesis */}
+      {showTabs && synthesisTriggered && (
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          {/* Tab bar */}
-          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-3 shrink-0">
-            {TAB_ORDER.map((key) => {
-              const meta = TAB_META[key];
-              const Icon = meta.icon;
-              const isActive = activeTab === key;
-              const isRevealed = revealedTabs.includes(key);
-              return (
-                <button
-                  key={key}
-                  onClick={() => isRevealed && onTabClick(key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
-                    isActive
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : isRevealed
-                      ? "text-slate-500 hover:text-slate-700 cursor-pointer"
-                      : "text-slate-300 cursor-default"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {meta.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Tab content */}
           <div className="flex-1 min-h-0 overflow-auto">
             {activeTab && revealedTabs.includes(activeTab) && (
               <IntelCardContent card={intelligence[activeTab]} />
