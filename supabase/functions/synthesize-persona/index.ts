@@ -43,17 +43,20 @@ serve(async (req) => {
    - CRITICAL: The "pillar" field MUST be one of these EXACT strings from the input data: ${distinctPillars.map(p => `"${p}"`).join(", ")}. Do NOT paraphrase, rename, or abbreviate pillar names.
    - ONLY combine categories within the SAME pillar. NEVER mix categories from different pillars.
    - Only generate a rollup for pillars with 2+ distinct categories.
-   - The label should be 2-4 words, vivid and spend-tier-aware (high spend → "Premium", "Luxury", "Elite" prefixes).
+   - CRITICAL TIER ACCURACY: Look at the [Budget/Standard/Premium] tier tag AND the actual merchant names provided. Do NOT use "Premium", "Luxury", or "Elite" unless the tier is explicitly [Premium] AND the merchants confirm it (e.g. Nobu, Four Seasons, Gucci). Chipotle + Olive Garden + Trader Joe's = NOT premium. Be honest about the spending level.
+   - USE SUBCATEGORY SIGNALS for specificity when available. If subcategories include "Golf", say "Avid Golfer" not "Sports Enthusiast". If merchants are Netflix + Hulu + Spotify, say "Streaming Entertainment Buff" not "Digital Subscriber". Always prefer the most specific, descriptive label.
+   - Prefer descriptive, intuitive labels that capture WHAT the person actually does, not corporate jargon.
+   - Good: "Streaming Entertainment Buff", "Casual Dining Regular", "Weekend Golfer", "Boutique Fitness Fan", "Budget-Friendly Foodie"
+   - Bad: "Connected Digital Subscriber", "Premium Urban Gastronome", "Holistic Wellness Advocate", "Integrated Lifestyle Curator"
    - Include the exact category names that were combined.
-   - CRITICAL: For "category_indices", return the [N] row indices from the input that this rollup covers. E.g. if rows [0], [3], [5] are all under Travel, include [0, 3, 5].
-   - Examples: "Premium Wellness Enthusiast" (from Gym + Spa + Supplements under Health & Wellness), "Luxury Globetrotter" (from Airlines + Hotels + Resorts under Travel & Exploration).
-   - BAD example: "Active Family Traveler" combining Travel + Sports pillars — NEVER do this.
+   - CRITICAL: For "category_indices", return the [N] row indices from the input that this rollup covers.
 
 Rules:
 - Never use generic phrases like "diverse spending" or "various categories"
 - Each insight should feel like a human analyst's observation
-- Reference specific spending patterns, not just categories
-- Make the headline memorable and specific to THIS person`;
+- Reference specific spending patterns, merchant names, and subcategories — not just categories
+- Make the headline memorable and specific to THIS person
+- Use merchant names and subcategories to be as specific as possible`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
