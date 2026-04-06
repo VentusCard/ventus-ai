@@ -287,7 +287,7 @@ export default function ExecDemoIntelPanel({
               className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
             >
               {pillsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              {synthesisTriggered ? "Supporting evidence" : "Signal breakdown"} · {chips.length} categories
+              {synthesisTriggered ? "Full Analysis" : "Signal breakdown"} · {chips.length} categories
             </button>
 
             {(pillsExpanded || !synthesisTriggered) && (
