@@ -1,31 +1,21 @@
 
 
-## Arrow-Key Navigation for Tab Reveal Phases
+## Fix Pill Layout Jump + Blank Phone During Compilation
 
-### What Changes
+### Problem 1: Height Jump
+During `scroll` phase, the persona card (`flex-1`) and the processing shimmer (`flex-1`, line 353) split vertical space ~50/50. When scroll ends and phase moves to `hold`, the shimmer unmounts and the persona card snaps to full height — visible layout jump.
 
-After the initial pill compilation (scroll phase) completes, instead of auto-playing through the 3 tab reveals (Analytics → Rewards → Relationship), the demo pauses and lets the user step forward/backward with left/right arrow keys.
+**Fix in `ExecDemoIntelPanel.tsx`**: Remove the shimmer entirely (lines 352-367). The pills animating in already provide visual feedback that processing is happening. The persona card will have `flex-1` from the start and maintain consistent height throughout the scroll → hold transition.
 
-**`src/pages/ExecDemoPage.tsx`**
+### Problem 2: Phone Mockup Should Stay Blank
+Currently `ExecDemoPhoneView` shows content when `phase === "cardCycle" || "cardScan" || "hold"`. Since we now go straight to `hold` after scroll, the phone populates immediately.
 
-1. **Replace auto-scheduled tab reveals with a step-based model.** After the scroll phase ends, enter a new `"ready"` sub-state (or go straight to `hold` with step index 0). Track a `stepIndex` state (0 = Analytics scan, 1 = Rewards scan, 2 = Relationship scan).
+**Fix in `ExecDemoPhoneView.tsx`**: Add a new prop (e.g., `showContent`) controlled by the parent. The phone content stays blank until explicitly enabled (e.g., only after the user has navigated through all tabs, or a future trigger).
 
-2. **Add a `useEffect` keydown listener** for ArrowRight (advance step) and ArrowLeft (go back a step). Each step triggers the tab reveal logic that currently runs on timers: set `activeTab`, `collectedIndices`, `revealedTabs`, `currentCardColor`, and `phase` for that tab.
-
-3. **Remove the TAB_ORDER scheduling loop** inside `runAnimationWithProfile` (lines ~219-253). Keep the scroll/signal scheduling as-is. After scroll completes + personaPause, transition to `hold` phase and set `stepIndex = 0` to show Analytics.
-
-4. **Step logic:**
-   - Right arrow: if `stepIndex < 2`, increment stepIndex, reveal next tab with its card color + indices
-   - Left arrow: if `stepIndex > 0`, decrement stepIndex, switch back to previous tab
-   - Each step immediately reveals the tab (no scan animation delay — keeps it snappy for manual control)
-
-5. **Visual indicator** — add a subtle "← → Navigate" hint at the bottom of the intel panel or top bar when in hold phase with steps remaining.
-
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-
-6. Add a small navigation hint (e.g., `"Use ← → to explore"`) below the tab bar when not all tabs are revealed yet.
+**Fix in `ExecDemoPage.tsx`**: Pass `showContent={false}` (or equivalent) to keep the phone blank. The phone frame renders but shows "Waiting for analysis..." or similar placeholder.
 
 ### Files
-- `src/pages/ExecDemoPage.tsx` — replace timer-based tab reveals with step-based arrow key navigation
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — add arrow key navigation hint
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — remove processing shimmer
+- `src/components/exec-demo/ExecDemoPhoneView.tsx` — accept explicit `showContent` override prop
+- `src/pages/ExecDemoPage.tsx` — pass prop to keep phone blank
 
