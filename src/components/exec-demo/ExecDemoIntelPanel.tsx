@@ -35,6 +35,7 @@ interface Props {
   activeRollup?: PillarRollup | null;
   onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
+  transactions?: import("./execDemoData").Transaction[];
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
