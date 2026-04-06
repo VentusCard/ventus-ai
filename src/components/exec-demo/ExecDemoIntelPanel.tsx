@@ -354,12 +354,6 @@ export default function ExecDemoIntelPanel({
             })}
           </div>
 
-          {/* Arrow key hint */}
-          {revealedTabs.length > 0 && revealedTabs.length < 3 && (
-            <div className="text-center mb-2">
-              <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
-            </div>
-          )}
         </>
       )}
 
