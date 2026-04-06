@@ -168,21 +168,38 @@ export default function ExecDemoPage() {
         insights: data.insights || [],
         pillarRollups: (data.pillar_rollups || []).map((r: any) => {
           const catIndices: number[] = r.category_indices || [];
-          // Convert category_indices (row numbers) into concrete transaction indices
-          const txIndices: number[] = [];
+          // Resolve contributing groups via index + fallback category name matching
+          const matchedGroupIndices = new Set<number>();
           for (const ci of catIndices) {
-            if (ci >= 0 && ci < pillars.length) {
-              txIndices.push(...pillars[ci].txIndices);
+            if (ci >= 0 && ci < pillars.length) matchedGroupIndices.add(ci);
+          }
+          // Fallback: match by pillar + category name for any listed categories not yet matched
+          if (r.categories) {
+            for (const catName of r.categories) {
+              const idx = pillars.findIndex(
+                (p, i) => !matchedGroupIndices.has(i) && p.pillar === r.pillar && p.label.toLowerCase() === catName.toLowerCase()
+              );
+              if (idx >= 0) matchedGroupIndices.add(idx);
             }
           }
+          // Deduplicate transaction indices
+          const txIndicesSet = new Set<number>();
+          for (const gi of matchedGroupIndices) {
+            for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+          }
+          const txIndices = Array.from(txIndicesSet);
+          const totalCount = txIndices.length;
+          const totalSpend = Array.from(matchedGroupIndices).reduce((s, gi) => s + pillars[gi].totalSpend, 0);
           return {
             pillar: r.pillar,
             label: r.label,
             categories: r.categories || [],
-            categoryIndices: catIndices,
+            categoryIndices: Array.from(matchedGroupIndices),
             txIndices,
+            totalCount,
+            totalSpend,
           };
-        }),
+        }).filter((r: any) => r.totalCount > 0),
       };
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);

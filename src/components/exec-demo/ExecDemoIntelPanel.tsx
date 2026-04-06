@@ -10,6 +10,8 @@ export interface PillarRollup {
   categories: string[];
   categoryIndices?: number[];
   txIndices?: number[];
+  totalCount?: number;
+  totalSpend?: number;
 }
 
 export interface PersonaSynthesis {
@@ -149,37 +151,36 @@ export default function ExecDemoIntelPanel({
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
 
-  // Index-based matching: does a chip belong to a rollup?
-  const chipMatchesRollup = (chip: ChipData, r: PillarRollup, chipIndex: number): boolean => {
-    // Primary: use category indices if available
-    if (r.categoryIndices && r.categoryIndices.length > 0) {
-      return r.categoryIndices.includes(chipIndex);
-    }
-    // Fallback: fuzzy pillar + category matching
-    if (chip.pillar === r.pillar) return true;
-    const cLower = chip.pillar.toLowerCase();
-    const rLower = r.pillar.toLowerCase();
-    if (cLower === rLower) return true;
-    if (rLower.includes(cLower) || cLower.includes(rLower)) return true;
-    if (r.categories?.some(cat => cat.toLowerCase() === chip.label.toLowerCase())) return true;
-    return false;
-  };
-
   // Chips not covered by any rollup
   const unrolledChips = useMemo(
-    () => chips.filter((c, idx) => !rollups.some(r => chipMatchesRollup(c, r, idx))),
+    () => {
+      if (rollups.length === 0) return chips;
+      // Build set of all category indices covered by rollups
+      const coveredIndices = new Set<number>();
+      for (const r of rollups) {
+        if (r.categoryIndices) {
+          for (const ci of r.categoryIndices) coveredIndices.add(ci);
+        }
+      }
+      // If we have covered indices, filter by index; otherwise keep all
+      if (coveredIndices.size > 0) {
+        return chips.filter((_, idx) => !coveredIndices.has(idx));
+      }
+      // Fallback: fuzzy pillar matching
+      return chips.filter(c => !rollups.some(r => {
+        if (c.pillar === r.pillar) return true;
+        const cLower = c.pillar.toLowerCase();
+        const rLower = r.pillar.toLowerCase();
+        return rLower.includes(cLower) || cLower.includes(rLower) || r.categories?.some(cat => cat.toLowerCase() === c.label.toLowerCase());
+      }));
+    },
     [chips, rollups]
   );
 
-  // Compute rollup stats from chips with index-based matching
+  // Use pre-computed stats from rollups directly — no re-derivation from chips
   const rollupStats = useMemo(() => {
-    return rollups.map(r => {
-      const pillarChips = chips.filter((c, idx) => chipMatchesRollup(c, r, idx));
-      const totalSpend = pillarChips.reduce((s, c) => s + c.totalSpend, 0);
-      const totalCount = pillarChips.reduce((s, c) => s + c.count, 0);
-      return { ...r, totalSpend, totalCount };
-    }).filter(r => r.totalCount > 0);
-  }, [rollups, chips]);
+    return rollups.filter(r => (r.totalCount ?? 0) > 0);
+  }, [rollups]);
 
 
   // Derive current description from milestone keys
@@ -478,7 +479,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
 }
 
 /** Synthesized rollup pill for a pillar */
-function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: { pillar: string; label: string; categories: string[]; totalSpend: number; totalCount: number }; delay: number; isActive?: boolean; onClick?: () => void }) {
+function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: PillarRollup & { totalSpend?: number; totalCount?: number }; delay: number; isActive?: boolean; onClick?: () => void }) {
   const c = getColor(rollup.pillar);
   return (
     <span
@@ -498,7 +499,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: { pill
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
       <span className="text-[9px] opacity-60 tabular-nums font-normal">
-        {rollup.totalCount} txns · {formatSpend(rollup.totalSpend)}
+        {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
   );
