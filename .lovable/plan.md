@@ -1,26 +1,31 @@
 
 
-## Fix: Rollup "0 txns" + Pillar-Colored Transaction Highlights
+## Expand "Supporting Evidence" to Full Page
 
-### Problem 1: Rollups Sometimes Show 0 Transactions
+### What Changes
 
-The `rollupStats` in `ExecDemoIntelPanel.tsx` (line 156-163) matches the AI-returned `pillar` name against chip pillar names using exact string match. If the AI returns even a slightly different pillar name (e.g., "Health & Wellness" vs "Wellness & Fitness"), the match fails and yields 0 txns / $0.
+When the user clicks "Supporting evidence" after synthesis, the 3-column layout collapses: the left panel and phone shrink to narrow icon-button columns, and the intel panel expands to fill the viewport — restoring the full-height pill view similar to pre-synthesis.
 
-**Fix in `supabase/functions/synthesize-persona/index.ts`**: Add explicit instruction in the system prompt telling the AI to use the **exact** pillar name strings from the input data. Also pass the distinct pillar names as a strict enum in the tool schema so the model can only pick from the actual input values.
+### Implementation
 
-**Fix in `ExecDemoIntelPanel.tsx`** (defensive fallback): Add fuzzy matching — if exact match fails, try case-insensitive or substring matching against chip pillars.
+**`src/pages/ExecDemoPage.tsx`**
+1. Add a `pillsExpanded` state lifted from the intel panel.
+2. Pass it down as a prop + an `onPillsExpandedChange` callback to `ExecDemoIntelPanel`.
+3. Change the grid template dynamically: when `pillsExpanded` is true, switch from `grid-cols-[320px_1fr_360px]` to `grid-cols-[48px_1fr_48px]` with a CSS transition. The left panel and phone columns become narrow strips showing only a collapse/restore button.
 
-### Problem 2: Filtered Transactions Use Wrong Color
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+4. Remove internal `pillsExpanded` state — accept it as a prop instead, along with the toggle callback.
+5. When `pillsExpanded` is true post-synthesis, remove the `maxHeight: 45vh` cap on the persona card so pills fill the available space (same as pre-synthesis layout with `flex-1 min-h-0`).
 
-When clicking a rollup pill, the left panel highlights filtered transactions with a hardcoded `#10b981` (emerald green) instead of the pillar's actual color from `PILLAR_COLORS`.
+**`src/components/exec-demo/ExecDemoLeftPanel.tsx`**
+6. Accept a `collapsed` prop. When true, render only a small vertical icon button (e.g., `PanelLeft` icon) instead of the full customer/transaction panel.
 
-**Fix in `ExecDemoPage.tsx`**: Compute the active pillar color and pass it as a new prop (e.g., `activePillColor`) to `ExecDemoLeftPanel`.
-
-**Fix in `ExecDemoLeftPanel.tsx`**: Accept `activePillColor` prop and use it instead of the hardcoded `#10b981` for filtered transaction highlights.
+**`src/components/exec-demo/ExecDemoPhoneView.tsx`**
+7. Accept a `collapsed` prop. When true, render only a small vertical icon button (e.g., `Smartphone` icon) instead of the phone mockup.
 
 ### Files
-- `supabase/functions/synthesize-persona/index.ts` — strengthen prompt + pass pillar names as enum
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — add fuzzy pillar name matching for rollup stats
-- `src/pages/ExecDemoPage.tsx` — compute and pass active pillar color
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — use pillar color for filtered highlights
+- `src/pages/ExecDemoPage.tsx` — lift state, dynamic grid
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — externalize pillsExpanded, remove maxHeight when expanded
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — collapsed mode
+- `src/components/exec-demo/ExecDemoPhoneView.tsx` — collapsed mode
 
