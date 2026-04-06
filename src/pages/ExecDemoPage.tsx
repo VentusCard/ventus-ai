@@ -269,12 +269,6 @@ export default function ExecDemoPage() {
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Clear stale pill filter when signalMap changes (AI upgrade)
-  useEffect(() => {
-    setActivePillFilter(null);
-    setActiveRollup(null);
-  }, [execProfile.persona.signalMap]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const isRunning = phase !== "idle" && phase !== "hold";
 
   const handleSelectCustomer = useCallback(
