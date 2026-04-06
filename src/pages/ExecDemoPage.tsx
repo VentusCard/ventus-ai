@@ -284,7 +284,7 @@ export default function ExecDemoPage() {
 
     schedule(() => {
       setPhase("hold");
-      revealStep(0, p);
+      revealStep(0, p, true);
     }, elapsed);
   }, [schedule, revealStep]);
 
