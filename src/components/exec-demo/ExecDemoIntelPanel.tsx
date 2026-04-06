@@ -220,7 +220,7 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
@@ -292,7 +292,7 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered) && (
               <div
-                className="transition-all duration-500 overflow-y-auto"
+                className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
                 {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
                   const c = getColor(pillar);
@@ -330,64 +330,59 @@ export default function ExecDemoIntelPanel({
         )}
       </div>
 
-      {/* Tab bar + content — hidden when evidence is expanded post-synthesis */}
-      {!(synthesisTriggered && pillsExpanded) && (
+      {/* Tab bar — always visible when enrichment is active */}
+      {showProfile && phase !== "idle" && (
         <>
-          {/* Tab bar — visible whenever enrichment is active */}
-          {showProfile && phase !== "idle" && (
-            <>
-              <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1 shrink-0">
-                {TAB_ORDER.map((key) => {
-                  const meta = TAB_META[key];
-                  const Icon = meta.icon;
-                  const isActive = activeTab === key;
-                  const isRevealed = revealedTabs.includes(key);
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => isRevealed && onTabClick(key)}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
-                        isActive
-                          ? "bg-white text-slate-800 shadow-sm"
-                          : isRevealed
-                          ? "text-slate-500 hover:text-slate-700 cursor-pointer"
-                          : "text-slate-300 cursor-default"
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      {meta.label}
-                    </button>
-                  );
-                })}
-              </div>
+          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1 shrink-0">
+            {TAB_ORDER.map((key) => {
+              const meta = TAB_META[key];
+              const Icon = meta.icon;
+              const isActive = activeTab === key;
+              const isRevealed = revealedTabs.includes(key);
+              return (
+                <button
+                  key={key}
+                  onClick={() => isRevealed && onTabClick(key)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                    isActive
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : isRevealed
+                      ? "text-slate-500 hover:text-slate-700 cursor-pointer"
+                      : "text-slate-300 cursor-default"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {meta.label}
+                </button>
+              );
+            })}
+          </div>
 
-              {/* Arrow key hint */}
-              {revealedTabs.length > 0 && revealedTabs.length < 3 && (
-                <div className="text-center mb-2">
-                  <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Tab content — only after synthesis */}
-          {showTabs && synthesisTriggered && (
-            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex-1 min-h-0 overflow-auto">
-                {activeTab && revealedTabs.includes(activeTab) && (
-                  <IntelCardContent card={intelligence[activeTab]} />
-                )}
-                {!activeTab && (
-                  <div className="flex items-center justify-center h-full">
-                    <span className="text-[11px] text-slate-300 font-mono">
-                      Analyzing transactions...
-                    </span>
-                  </div>
-                )}
-              </div>
+          {/* Arrow key hint */}
+          {revealedTabs.length > 0 && revealedTabs.length < 3 && (
+            <div className="text-center mb-2">
+              <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
             </div>
           )}
         </>
+      )}
+
+      {/* Tab content — only after synthesis, hidden when evidence expanded */}
+      {showTabs && synthesisTriggered && !(synthesisTriggered && pillsExpanded) && (
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-auto">
+            {activeTab && revealedTabs.includes(activeTab) && (
+              <IntelCardContent card={intelligence[activeTab]} />
+            )}
+            {!activeTab && (
+              <div className="flex items-center justify-center h-full">
+                <span className="text-[11px] text-slate-300 font-mono">
+                  Analyzing transactions...
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Idle placeholder */}
