@@ -207,32 +207,20 @@ export default function ExecDemoIntelPanel({
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
         }}
       >
-        {/* AI Persona Headline + Insights */}
-        {hasSynthesis && (
-          <div style={{ animation: "desc-crossfade 0.6s ease-out" }}>
+        {/* AI Persona Headline — only after synthesis triggered */}
+        {hasSynthesis && synthesisTriggered && (
+          <div style={{ animation: "desc-crossfade 0.6s ease-out 0.5s both" }}>
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span className="text-[15px] font-bold text-slate-800 tracking-tight">
                 {personaSynthesis!.headline}
               </span>
             </div>
-            <div className="space-y-1.5 mb-3">
-              {personaSynthesis!.insights.map((insight, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-2 text-[11px] text-slate-600 leading-relaxed"
-                  style={{ animation: `desc-crossfade 0.5s ease-out ${i * 0.15}s both` }}
-                >
-                  <span className="w-1 h-1 rounded-full bg-slate-400 mt-1.5 shrink-0" />
-                  {insight}
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
         {/* Evolving persona description (shown while AI synthesis loads) */}
-        {!hasSynthesis && displayedDesc && (
+        {!synthesisTriggered && displayedDesc && (
           <div
             key={descKey}
             className="mb-3 text-[11px] italic text-slate-500 leading-relaxed"
@@ -242,14 +230,32 @@ export default function ExecDemoIntelPanel({
           </div>
         )}
 
+        {/* Synthesize button — appears when AI data ready but not yet triggered */}
+        {hasSynthesis && !synthesisTriggered && chips.length > 0 && (
+          <button
+            onClick={() => setSynthesisTriggered(true)}
+            className="flex items-center gap-2 mx-auto mb-3 px-4 py-2 rounded-full text-[12px] font-semibold transition-all duration-300 hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg, rgba(251,191,36,.15), rgba(245,158,11,.25))",
+              color: "#92400e",
+              border: "1.5px solid rgba(245,158,11,.4)",
+              boxShadow: "0 0 16px rgba(245,158,11,.2)",
+              animation: "synthesize-glow 2s ease-in-out infinite",
+            }}
+          >
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            ✦ Synthesize Persona
+          </button>
+        )}
+
         {/* Rollup pills + evidence pills */}
         {chips.length > 0 && (
           <div>
-            {/* Pillar rollup pills - shown when AI synthesis arrives */}
-            {rollupStats.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2" style={{ animation: "desc-crossfade 0.5s ease-out" }}>
+            {/* Pillar rollup pills - shown after synthesis triggered */}
+            {synthesisTriggered && rollupStats.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
                 {rollupStats.map((r, i) => (
-                  <PillarRollupChip key={r.pillar} rollup={r} delay={i * 0.12} />
+                  <PillarRollupChip key={r.pillar} rollup={r} delay={0.5 + i * 0.15} />
                 ))}
               </div>
             )}
@@ -259,10 +265,10 @@ export default function ExecDemoIntelPanel({
               className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
             >
               {pillsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              {hasSynthesis ? "Supporting evidence" : "Signal breakdown"} · {chips.length} categories
+              {synthesisTriggered ? "Supporting evidence" : "Signal breakdown"} · {chips.length} categories
             </button>
 
-            {(pillsExpanded || !hasSynthesis) && (
+            {(pillsExpanded || !synthesisTriggered) && (
               <>
                 {/* Legend */}
                 {activePillars.length > 0 && (
@@ -279,12 +285,12 @@ export default function ExecDemoIntelPanel({
                   </div>
                 )}
 
-                {/* Pill cloud - rolled-up pills shrink, un-rolled stay normal */}
+                {/* Pill cloud */}
                 <div
                   className="flex flex-wrap gap-1.5 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
                   style={{ maxHeight: showTabs ? 100 : 160 }}
                 >
-                  {chips.map((chip) => {
+                  {chips.map((chip, idx) => {
                     const isRolledUp = rolledUpPillars.has(chip.pillar);
                     return (
                       <AnimatedChip
@@ -292,7 +298,8 @@ export default function ExecDemoIntelPanel({
                         chip={chip}
                         isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
                         onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                        collapsed={isRolledUp}
+                        collapsed={synthesisTriggered && isRolledUp}
+                        mergeDelay={idx * 0.06}
                       />
                     );
                   })}
