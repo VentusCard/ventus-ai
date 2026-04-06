@@ -388,8 +388,22 @@ export default function ExecDemoPage() {
       const classifiedSignalMap = buildSignalMapFromClassified(classifiedRef.current);
       localProfile.persona.signalMap = classifiedSignalMap;
       console.log("[PROCESS] Using preloaded AI classification for signals");
+      onClassifiedCallbackRef.current = null; // Already have it
     } else {
-      console.log("[PROCESS] AI classification not ready, using MCC fallback");
+      console.log("[PROCESS] AI classification not ready, using MCC fallback — will update when ready");
+      // Register callback to upgrade signal map when classification arrives
+      onClassifiedCallbackRef.current = (txs: EnrichedTransaction[]) => {
+        const classifiedSignalMap = buildSignalMapFromClassified(txs);
+        setProfile((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            persona: { ...prev.persona, signalMap: classifiedSignalMap },
+          };
+        });
+        console.log("[PROCESS] Signal map upgraded with AI classification");
+        onClassifiedCallbackRef.current = null;
+      };
     }
 
     setProfile(localProfile);
