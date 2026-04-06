@@ -25,8 +25,8 @@ serve(async (req) => {
     const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
 
     const pillarSummary = pillars
-      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }) =>
-        `${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${p.frequency ? `, ${p.frequency}` : ""}`)
+      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }, i: number) =>
+        `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${p.frequency ? `, ${p.frequency}` : ""}`)
       .join("\n");
 
     const systemPrompt = `You are a behavioral analytics engine for a bank. Given aggregated spending signal data, produce:
@@ -41,6 +41,7 @@ serve(async (req) => {
    - Only generate a rollup for pillars with 2+ distinct categories.
    - The label should be 2-4 words, vivid and spend-tier-aware (high spend → "Premium", "Luxury", "Elite" prefixes).
    - Include the exact category names that were combined.
+   - CRITICAL: For "category_indices", return the [N] row indices from the input that this rollup covers. E.g. if rows [0], [3], [5] are all under Travel, include [0, 3, 5].
    - Examples: "Premium Wellness Enthusiast" (from Gym + Spa + Supplements under Health & Wellness), "Luxury Globetrotter" (from Airlines + Hotels + Resorts under Travel & Exploration).
    - BAD example: "Active Family Traveler" combining Travel + Sports pillars — NEVER do this.
 
@@ -92,8 +93,13 @@ Rules:
                           items: { type: "string" },
                           description: "The category names from this pillar that were combined",
                         },
+                        category_indices: {
+                          type: "array",
+                          items: { type: "number" },
+                          description: "The [N] row indices from the numbered input that this rollup covers",
+                        },
                       },
-                      required: ["pillar", "label", "categories"],
+                      required: ["pillar", "label", "categories", "category_indices"],
                       additionalProperties: false,
                     },
                     description: "Per-pillar rollup labels for pillars with 2+ categories. Only same-pillar categories.",
@@ -143,7 +149,12 @@ Rules:
     return new Response(JSON.stringify({
       headline: raw.headline || "Dynamic Persona",
       insights: (raw.insights || []).slice(0, 3),
-      pillar_rollups: raw.pillar_rollups || [],
+      pillar_rollups: (raw.pillar_rollups || []).map((r: any) => ({
+        pillar: r.pillar,
+        label: r.label,
+        categories: r.categories || [],
+        category_indices: r.category_indices || [],
+      })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

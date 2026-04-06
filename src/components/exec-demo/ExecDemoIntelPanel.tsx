@@ -8,6 +8,7 @@ export interface PillarRollup {
   pillar: string;
   label: string;
   categories: string[];
+  categoryIndices?: number[];
 }
 
 export interface PersonaSynthesis {
@@ -145,31 +146,32 @@ export default function ExecDemoIntelPanel({
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
 
-  // Unified fuzzy matching: does a chip belong to a rollup?
-  const chipMatchesRollup = (chip: ChipData, r: PillarRollup): boolean => {
-    // Exact pillar match
+  // Index-based matching: does a chip belong to a rollup?
+  const chipMatchesRollup = (chip: ChipData, r: PillarRollup, chipIndex: number): boolean => {
+    // Primary: use category indices if available
+    if (r.categoryIndices && r.categoryIndices.length > 0) {
+      return r.categoryIndices.includes(chipIndex);
+    }
+    // Fallback: fuzzy pillar + category matching
     if (chip.pillar === r.pillar) return true;
-    // Case-insensitive
     const cLower = chip.pillar.toLowerCase();
     const rLower = r.pillar.toLowerCase();
     if (cLower === rLower) return true;
-    // Substring match
     if (rLower.includes(cLower) || cLower.includes(rLower)) return true;
-    // Category-based fallback: chip label is one of the rollup's categories
     if (r.categories?.some(cat => cat.toLowerCase() === chip.label.toLowerCase())) return true;
     return false;
   };
 
   // Chips not covered by any rollup
   const unrolledChips = useMemo(
-    () => chips.filter(c => !rollups.some(r => chipMatchesRollup(c, r))),
+    () => chips.filter((c, idx) => !rollups.some(r => chipMatchesRollup(c, r, idx))),
     [chips, rollups]
   );
 
-  // Compute rollup stats from chips with unified matching
+  // Compute rollup stats from chips with index-based matching
   const rollupStats = useMemo(() => {
     return rollups.map(r => {
-      const pillarChips = chips.filter(c => chipMatchesRollup(c, r));
+      const pillarChips = chips.filter((c, idx) => chipMatchesRollup(c, r, idx));
       const totalSpend = pillarChips.reduce((s, c) => s + c.totalSpend, 0);
       const totalCount = pillarChips.reduce((s, c) => s + c.count, 0);
       return { ...r, totalSpend, totalCount };
@@ -291,7 +293,8 @@ export default function ExecDemoIntelPanel({
               >
                 {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
                   const c = getColor(pillar);
-                  const allRolledUp = synthesisTriggered && rollups.some(r => chipMatchesRollup(pillarChips[0], r));
+                  const firstChipIdx = chips.indexOf(pillarChips[0]);
+                  const allRolledUp = synthesisTriggered && rollups.some(r => chipMatchesRollup(pillarChips[0], r, firstChipIdx));
                   return (
                     <div key={pillar} className="mb-2.5" style={{ animation: allRolledUp ? `pill-collapse 0.4s ease-in-out forwards` : undefined }}>
                       {/* Pillar header */}
@@ -307,7 +310,7 @@ export default function ExecDemoIntelPanel({
                             chip={chip}
                             isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
                             onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                            collapsed={synthesisTriggered && rollups.some(r => chipMatchesRollup(chip, r))}
+                            collapsed={synthesisTriggered && rollups.some(r => chipMatchesRollup(chip, r, chips.indexOf(chip)))}
                             mergeDelay={idx * 0.06}
                           />
                         ))}
