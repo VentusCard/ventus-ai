@@ -3,7 +3,8 @@ import { useState } from "react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { getIntelligenceForCustomer } from "./execDemoData";
-import type { Transaction } from "./execDemoData";
+import type { Transaction, SignalEntry } from "./execDemoData";
+import { getColor } from "./ExecDemoIntelPanel";
 import { toast } from "sonner";
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
   personaIcon?: string;
   personaTitle?: string;
   filteredIndices?: number[] | null;
+  signalMap?: Record<number, SignalEntry>;
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
@@ -35,20 +37,32 @@ const TxRow = ({
   dim,
   highlight,
   highlightColor,
+  pillarColor,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
+  pillarColor?: string;
 }) => (
   <div
     className="font-mono text-[10px] leading-tight px-2 py-[4px] rounded flex items-center gap-1.5 truncate transition-all duration-300"
     style={{
       color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#334155",
       background: highlight ? `${highlightColor}18` : "transparent",
-      borderLeft: highlight ? `2px solid ${highlightColor}` : "2px solid transparent",
+      borderLeft: highlight
+        ? `2px solid ${highlightColor}`
+        : pillarColor
+          ? `2px solid ${pillarColor}40`
+          : "2px solid transparent",
     }}
   >
+    {pillarColor && !dim && (
+      <span
+        className="w-1.5 h-1.5 rounded-full shrink-0"
+        style={{ background: pillarColor }}
+      />
+    )}
     <span
       className="text-[8px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
       style={{
