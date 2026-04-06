@@ -29,7 +29,7 @@ const TIMINGS = {
 export default function ExecDemoPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("idle");
-  const [processedSignals, setProcessedSignals] = useState<SignalEntry[]>([]);
+  const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
@@ -276,7 +276,7 @@ export default function ExecDemoPage() {
       clearTimeouts();
       setSelectedIdx(idx);
       setPhase("idle");
-      setProcessedSignals([]);
+      setProcessedIndices([]);
       setRevealedTabs([]);
       setActiveTab(null);
       setCollectedIndices([]);
@@ -297,7 +297,7 @@ export default function ExecDemoPage() {
     setCustomCsv(csv);
     setCustomName(name);
     setPhase("idle");
-    setProcessedSignals([]);
+    setProcessedIndices([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
@@ -349,7 +349,7 @@ export default function ExecDemoPage() {
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
-    setProcessedSignals([]);
+    setProcessedIndices([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
@@ -362,7 +362,7 @@ export default function ExecDemoPage() {
       const signal = p.persona.signalMap[i];
       if (signal) {
         schedule(() => {
-          setProcessedSignals((prev) => [...prev, signal]);
+          setProcessedIndices((prev) => [...prev, i]);
         }, (i + 1) * signalInterval);
       }
     }
@@ -448,6 +448,12 @@ export default function ExecDemoPage() {
 
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+
+  // Derive processedSignals from indices + current signalMap (auto-syncs on AI upgrade)
+  const processedSignals = useMemo(() =>
+    processedIndices.map(i => execProfile.persona.signalMap[i]).filter(Boolean),
+    [processedIndices, execProfile.persona.signalMap]
+  );
 
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
