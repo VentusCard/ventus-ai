@@ -431,7 +431,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed }: { chip: ChipData; 
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
         border: isActive ? `2px solid ${c.dot}` : `1px solid ${c.border}`,
-        animation: "pill-pop 0.3s ease-out both",
+        animation: collapsed ? "pill-collapse 0.5s ease-in-out forwards" : "pill-pop 0.3s ease-out both",
         transform: isActive ? "scale(1.08)" : "scale(1)",
         boxShadow: isActive ? `0 0 8px ${c.bg}` : "none",
       }}
