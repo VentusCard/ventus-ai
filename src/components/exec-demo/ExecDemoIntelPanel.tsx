@@ -4,9 +4,16 @@ import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./ex
 
 type TabKey = "analytics" | "rewards" | "relationship";
 
+export interface PillarRollup {
+  pillar: string;
+  label: string;
+  categories: string[];
+}
+
 export interface PersonaSynthesis {
   headline: string;
   insights: string[];
+  pillarRollups?: PillarRollup[];
 }
 
 interface Props {
