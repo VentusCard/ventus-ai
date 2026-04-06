@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown, Calendar, Flame, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Calendar, Flame, BarChart3, Crosshair } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
 
@@ -21,7 +21,6 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const CURRENT_MONTH = new Date().getMonth();
 
 function parseMonth(dateStr: string): number | null {
-  // Handles "MM/DD", "MM/DD/YY", "MM/DD/YYYY", "YYYY-MM-DD"
   if (!dateStr) return null;
   if (dateStr.includes("-")) {
     const m = parseInt(dateStr.split("-")[1], 10);
@@ -44,13 +43,98 @@ interface SeasonalRow {
   monthsUntilPeak: number;
   totalSpend: number;
   count: number;
-  velocity: number; // recent vs historical spend momentum
+  velocity: number;
   concentration: { months: string; pct: number } | null;
+}
+
+interface ProbabilityRow {
+  label: string;
+  pillar: string;
+  prob30: number;
+  prob60: number;
+  prob90: number;
+  confidence: "High" | "Medium" | "Low";
+  count: number;
+  lastMonthAgo: number;
+  activeMonths: number;
+}
+
+function calcRecency(monthlySpend: number[]): number {
+  for (let offset = 0; offset < 12; offset++) {
+    const mi = (CURRENT_MONTH - offset + 12) % 12;
+    if (monthlySpend[mi] > 0) {
+      if (offset === 0) return 1.0;
+      if (offset === 1) return 0.85;
+      if (offset === 2) return 0.6;
+      return Math.max(0.1, 1 - offset * 0.15);
+    }
+  }
+  return 0.1;
+}
+
+function calcFrequency(monthlySpend: number[]): number {
+  const active = monthlySpend.filter(v => v > 0).length;
+  return active / 12;
+}
+
+function calcSeasonality(monthlySpend: number[], windowMonths: number): number {
+  const peakSpend = Math.max(...monthlySpend, 1);
+  let sum = 0;
+  for (let i = 1; i <= windowMonths; i++) {
+    const mi = (CURRENT_MONTH + i) % 12;
+    sum += monthlySpend[mi] / peakSpend;
+  }
+  return sum / windowMonths;
+}
+
+function lastPurchaseMonthsAgo(monthlySpend: number[]): number {
+  for (let offset = 0; offset < 12; offset++) {
+    const mi = (CURRENT_MONTH - offset + 12) % 12;
+    if (monthlySpend[mi] > 0) return offset;
+  }
+  return 12;
+}
+
+function clampProb(v: number): number {
+  return Math.max(1, Math.min(99, Math.round(v * 100)));
+}
+
+function SignalDots({ prob, color }: { prob: number; color: string }) {
+  const filled = prob >= 75 ? 4 : prob >= 50 ? 3 : prob >= 25 ? 2 : prob >= 10 ? 1 : 0;
+  return (
+    <span className="inline-flex gap-[2px]">
+      {[0, 1, 2, 3].map(i => (
+        <span
+          key={i}
+          className="inline-block w-[5px] h-[5px] rounded-full"
+          style={{
+            background: i < filled ? color : "#e2e8f0",
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function ConfidenceBadge({ confidence }: { confidence: "High" | "Medium" | "Low" }) {
+  const styles = {
+    High: { bg: "rgba(16,185,129,0.1)", color: "#059669", label: "High" },
+    Medium: { bg: "rgba(245,158,11,0.1)", color: "#d97706", label: "Med" },
+    Low: { bg: "rgba(148,163,184,0.1)", color: "#64748b", label: "Low" },
+  };
+  const s = styles[confidence];
+  return (
+    <span
+      className="text-[7px] font-bold uppercase px-1 py-[1px] rounded"
+      style={{ background: s.bg, color: s.color }}
+    >
+      {s.label}
+    </span>
+  );
 }
 
 export default function PurchaseCycleTimeline({ chips, transactions, signalMap }: Props) {
   const rows: SeasonalRow[] = useMemo(() => {
-    // Build per-category monthly spend from real transactions
     const categoryMonthly = new Map<string, { pillar: string; months: number[]; total: number; count: number }>();
 
     transactions.forEach((tx, idx) => {
@@ -71,9 +155,8 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
       entry.count += 1;
     });
 
-    // Convert to rows, sorted by total spend
     return Array.from(categoryMonthly.entries())
-      .filter(([, v]) => v.count >= 2) // need at least 2 txns
+      .filter(([, v]) => v.count >= 2)
       .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 7)
       .map(([key, data]) => {
@@ -81,14 +164,12 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
         const peak = data.months.indexOf(Math.max(...data.months));
         const monthsUntil = peak >= CURRENT_MONTH ? peak - CURRENT_MONTH : 12 - CURRENT_MONTH + peak;
 
-        // Spend velocity: compare last 3 months vs previous 3
         const recentMonths = [0, 1, 2].map(i => data.months[(CURRENT_MONTH - i + 12) % 12]);
         const priorMonths = [3, 4, 5].map(i => data.months[(CURRENT_MONTH - i + 12) % 12]);
         const recentAvg = recentMonths.reduce((a, b) => a + b, 0) / 3;
         const priorAvg = priorMonths.reduce((a, b) => a + b, 0) / 3;
         const velocity = priorAvg > 0 ? Math.round(((recentAvg - priorAvg) / priorAvg) * 100) : 0;
 
-        // Spend concentration: find the tightest 3-month window
         let bestSum = 0, bestStart = 0;
         for (let s = 0; s < 12; s++) {
           const sum3 = data.months[s] + data.months[(s + 1) % 12] + data.months[(s + 2) % 12];
@@ -115,6 +196,42 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
       .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak);
   }, [transactions, signalMap]);
 
+  // Next-Purchase Probability computation
+  const probabilityRows: ProbabilityRow[] = useMemo(() => {
+    if (rows.length === 0) return [];
+
+    return rows
+      .map(row => {
+        const recency = calcRecency(row.monthlySpend);
+        const frequency = calcFrequency(row.monthlySpend);
+
+        const s1 = calcSeasonality(row.monthlySpend, 1);
+        const s2 = calcSeasonality(row.monthlySpend, 2);
+        const s3 = calcSeasonality(row.monthlySpend, 3);
+
+        const prob30 = clampProb(recency * 0.40 + frequency * 0.35 + s1 * 0.25);
+        const prob60 = clampProb(recency * 0.40 + frequency * 0.35 + s2 * 0.25);
+        const prob90 = clampProb(recency * 0.40 + frequency * 0.35 + s3 * 0.25);
+
+        const confidence: "High" | "Medium" | "Low" =
+          row.count > 6 ? "High" : row.count >= 3 ? "Medium" : "Low";
+
+        return {
+          label: row.label,
+          pillar: row.pillar,
+          prob30,
+          prob60,
+          prob90,
+          confidence,
+          count: row.count,
+          lastMonthAgo: lastPurchaseMonthsAgo(row.monthlySpend),
+          activeMonths: row.monthlySpend.filter(v => v > 0).length,
+        };
+      })
+      .sort((a, b) => b.prob30 - a.prob30)
+      .slice(0, 6);
+  }, [rows]);
+
   if (rows.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -123,8 +240,44 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
     );
   }
 
-  // Find global max for normalization
   const globalMax = Math.max(...rows.flatMap(r => r.monthlySpend), 1);
+
+  // Build insight sentence for probability section
+  const probInsight = (() => {
+    if (probabilityRows.length === 0) return null;
+    const top = probabilityRows[0];
+    const c = getColor(top.pillar);
+
+    const cadenceWord = top.activeMonths >= 10
+      ? "near-weekly"
+      : top.activeMonths >= 6
+      ? "regular monthly"
+      : top.activeMonths >= 3
+      ? "periodic"
+      : "occasional";
+
+    const timeframe = top.lastMonthAgo === 0
+      ? "this month"
+      : top.lastMonthAgo === 1
+      ? "last month"
+      : `${top.lastMonthAgo} months ago`;
+
+    const nextMonth = MONTHS[(CURRENT_MONTH + 1) % 12];
+
+    let secondary = "";
+    if (probabilityRows.length > 1) {
+      const second = probabilityRows[1];
+      if (second.prob30 >= 40) {
+        secondary = ` ${second.label} also likely (${second.prob30}%) based on ${second.activeMonths}/12 months active.`;
+      }
+    }
+
+    return {
+      color: c.text,
+      label: top.label,
+      text: `${top.label} purchase expected in ${nextMonth} (${top.prob30}% probability) based on ${cadenceWord} cadence — last seen ${timeframe}.${secondary}`,
+    };
+  })();
 
   return (
     <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
@@ -165,14 +318,12 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
               className="flex items-center gap-2"
               style={{ animation: `exec-card-reveal 0.35s ease-out ${ri * 0.06}s both` }}
             >
-              {/* Label */}
               <div className="w-[66px] shrink-0 text-right pr-1">
                 <span className="text-[10px] font-semibold truncate block" style={{ color: c.text }}>
                   {row.label}
                 </span>
               </div>
 
-              {/* Mini heatmap bar — normalized per row */}
               <div className="flex gap-px flex-1 h-[18px] items-end">
                 {row.monthlySpend.map((val, mi) => {
                   const norm = rowMax > 0 ? val / rowMax : 0;
@@ -200,7 +351,6 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
                 })}
               </div>
 
-              {/* Peak indicator + velocity */}
               <div className="w-[72px] shrink-0 flex items-center gap-1">
                 {isAtPeak ? (
                   <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
@@ -239,7 +389,7 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
         })}
       </div>
 
-      {/* Insight callout — data-driven */}
+      {/* Insight callout */}
       {rows[0] && (
         <div
           className="mt-3 rounded-lg px-3 py-2.5 border"
@@ -257,7 +407,6 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
           </div>
           <p className="text-[11px] text-slate-600 leading-relaxed">
             {(() => {
-              // Find most interesting insight: concentration or velocity
               const withConc = rows.filter(r => r.concentration);
               const withVelocity = rows.filter(r => Math.abs(r.velocity) >= 15);
 
@@ -291,7 +440,6 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
                 );
               }
 
-              // Fallback: upcoming peak
               const upcoming = rows.find(r => r.monthsUntilPeak > 0) || rows[0];
               const c = getColor(upcoming.pillar);
               return (
@@ -304,6 +452,110 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
               );
             })()}
           </p>
+        </div>
+      )}
+
+      {/* ═══ NEXT-PURCHASE PROBABILITY ═══ */}
+      {probabilityRows.length > 0 && (
+        <div
+          className="mt-4"
+          style={{ animation: "exec-card-reveal 0.4s ease-out 0.6s both" }}
+        >
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <Crosshair className="w-3.5 h-3.5 text-violet-500" />
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+              Next-Purchase Probability
+            </span>
+          </div>
+
+          {/* Column headers */}
+          <div className="flex items-center gap-2 mb-1.5 px-0">
+            <div className="w-[66px] shrink-0" />
+            <div className="flex-1" />
+            {["30d", "60d", "90d"].map(label => (
+              <div key={label} className="w-[52px] shrink-0 text-center">
+                <span className="text-[7px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
+              </div>
+            ))}
+            <div className="w-[28px] shrink-0" />
+          </div>
+
+          {/* Probability rows */}
+          <div className="space-y-[3px]">
+            {probabilityRows.map((pr, ri) => {
+              const c = getColor(pr.pillar);
+              const probs = [pr.prob30, pr.prob60, pr.prob90];
+
+              return (
+                <div
+                  key={`prob-${pr.pillar}::${pr.label}`}
+                  className="flex items-center gap-2 rounded-md px-1 py-[3px]"
+                  style={{
+                    background: pr.prob30 >= 70
+                      ? "rgba(16,185,129,0.04)"
+                      : pr.prob30 >= 40
+                      ? "rgba(245,158,11,0.03)"
+                      : "transparent",
+                    animation: `exec-card-reveal 0.35s ease-out ${0.7 + ri * 0.06}s both`,
+                  }}
+                >
+                  {/* Category label */}
+                  <div className="w-[66px] shrink-0 text-right pr-1">
+                    <span className="text-[10px] font-semibold truncate block" style={{ color: c.text }}>
+                      {pr.label}
+                    </span>
+                  </div>
+
+                  {/* Spacer matching heatmap */}
+                  <div className="flex-1" />
+
+                  {/* 3 probability cells */}
+                  {probs.map((prob, pi) => {
+                    const probColor = prob >= 70 ? "#059669" : prob >= 40 ? "#d97706" : "#94a3b8";
+                    return (
+                      <div key={pi} className="w-[52px] shrink-0 flex items-center justify-center gap-1">
+                        <SignalDots prob={prob} color={c.dot} />
+                        <span
+                          className="text-[9px] font-bold tabular-nums"
+                          style={{ color: probColor }}
+                        >
+                          {prob}%
+                        </span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Confidence badge */}
+                  <div className="w-[28px] shrink-0 flex justify-center">
+                    <ConfidenceBadge confidence={pr.confidence} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Predictive insight card */}
+          {probInsight && (
+            <div
+              className="mt-2.5 rounded-lg px-3 py-2.5 border"
+              style={{
+                background: "linear-gradient(135deg, rgba(139,92,246,.06), rgba(16,185,129,.04))",
+                borderColor: "rgba(139,92,246,.18)",
+                animation: "exec-card-reveal 0.4s ease-out 1.1s both",
+              }}
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <Crosshair className="w-3 h-3 text-violet-500" />
+                <span className="text-[10px] font-bold text-violet-700 uppercase tracking-wider">
+                  Predictive Insight
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                <span className="font-semibold" style={{ color: probInsight.color }}>{probInsight.label}</span>
+                {" "}{probInsight.text.slice(probInsight.label.length)}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
