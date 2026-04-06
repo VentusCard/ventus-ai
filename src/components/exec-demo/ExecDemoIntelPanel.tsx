@@ -1,6 +1,7 @@
 import { useMemo, useRef, useEffect, useState } from "react";
 import { BarChart3, Gift, Users, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
+import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 
 type TabKey = "analytics" | "rewards" | "relationship";
 
@@ -362,7 +363,11 @@ export default function ExecDemoIntelPanel({
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex-1 min-h-0 overflow-auto">
             {activeTab && revealedTabs.includes(activeTab) && (
-              <IntelCardContent card={intelligence[activeTab]} />
+              activeTab === "analytics" && synthesisTriggered ? (
+                <PurchaseCycleTimeline chips={chips} />
+              ) : (
+                <IntelCardContent card={intelligence[activeTab]} />
+              )
             )}
             {!activeTab && (
               <div className="flex items-center justify-center h-full">
