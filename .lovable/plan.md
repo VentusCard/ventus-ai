@@ -1,31 +1,27 @@
 
 
-## AI-Powered Pillar Rollup Pills
+## "Synthesize" Button with Merge Animation
 
-### What We're Building
-Extend the `synthesize-persona` edge function to also return **per-pillar rollup labels** (e.g., "Premium Wellness Enthusiast" for Health & Wellness pillar containing Gym + Spa + Supplements). The UI will show individual pills first, then animate them collapsing into rollup pills as the AI response arrives.
+### What Changes
 
-### How It Works
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
 
-**1. Edge Function (`supabase/functions/synthesize-persona/index.ts`)**
-- Update the tool-calling schema to also return a `pillar_rollups` array alongside `headline` and `insights`
-- Each rollup: `{ pillar: string, label: string, categories: string[] }` — e.g., `{ pillar: "Health & Wellness", label: "Premium Wellness Enthusiast", categories: ["Gym", "Spa", "Supplements"] }`
-- Prompt rules: rollups must only combine categories within the SAME pillar, never cross-pillar. Only generate rollups for pillars with 2+ categories. Label should be vivid and spend-tier-aware.
+1. **Add `synthesisTriggered` state** (boolean, default false) — tracks whether the user has clicked the button
+2. **Remove the 3 insight bullet points** — delete the `personaSynthesis.insights` rendering block (lines 215-226)
+3. **Show a "✦ Synthesize Persona" button** when `personaSynthesis` is ready but `synthesisTriggered` is false — styled as a glowing pill button with a sparkle icon, placed above the chip cloud
+4. **On click**: set `synthesisTriggered = true`, which triggers the merge animation sequence:
+   - Individual pills belonging to rolled-up pillars animate inward (scale down + fade + translate toward center) using a staggered `pill-merge` keyframe
+   - After a short delay (~600ms), the `PillarRollupChip` components animate in with the existing `rollup-entrance` + glow
+   - The headline fades in above the rollups
+5. **Animation CSS**: Add `pill-merge` keyframe (scale 1→0.3, opacity 1→0, slight translate) with staggered delays per chip. The `collapsed` prop on `AnimatedChip` only activates after `synthesisTriggered` is true.
+6. **Reset**: `synthesisTriggered` resets to false when `phase === "idle"`
 
-**2. Frontend Types (`ExecDemoIntelPanel.tsx`)**
-- Extend `PersonaSynthesis` interface to include `pillarRollups?: { pillar: string; label: string; categories: string[] }[]`
+### Flow
+```text
+Pills appear during scroll → Synthesis ready → "✦ Synthesize" button appears
+  → User clicks → Pills merge inward → Rollup pills + headline emerge
+```
 
-**3. Animation Flow (`ExecDemoIntelPanel.tsx`)**
-- Before AI response: individual pills display as they do now
-- When `personaSynthesis.pillarRollups` arrives: for each rolled-up pillar, its child pills animate out (scale down + fade) and the rollup pill animates in (scale up + glow)
-- New `PillarRollupChip` component: larger, gradient bg using pillar color, sparkle icon, shows `✦ Label · N txns · $Xk`
-- Rollup pills render in a row above the remaining un-rolled individual pills
-- Non-rolled pillars (only 1 category) keep their individual pills as-is
-
-**4. Page Integration (`ExecDemoPage.tsx`)**
-- Pass `pillarRollups` through `personaSynthesis` prop — no additional state needed since it's part of the same AI response
-
-### Files Changed
-1. `supabase/functions/synthesize-persona/index.ts` — add `pillar_rollups` to prompt, schema, and response
-2. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — extend `PersonaSynthesis` type, add `PillarRollupChip` component, animate transition from individual pills to rollups
+### Files
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — all changes in this one file
 
