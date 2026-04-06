@@ -479,7 +479,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
 }
 
 /** Synthesized rollup pill for a pillar */
-function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: { pillar: string; label: string; categories: string[]; totalSpend: number; totalCount: number }; delay: number; isActive?: boolean; onClick?: () => void }) {
+function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: PillarRollup & { totalSpend?: number; totalCount?: number }; delay: number; isActive?: boolean; onClick?: () => void }) {
   const c = getColor(rollup.pillar);
   return (
     <span
