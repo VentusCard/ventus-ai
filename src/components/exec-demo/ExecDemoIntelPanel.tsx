@@ -187,7 +187,10 @@ export default function ExecDemoIntelPanel({
 
   // Reset pills expansion when phase changes
   useEffect(() => {
-    if (phase === "idle") setPillsExpanded(false);
+    if (phase === "idle") {
+      setPillsExpanded(false);
+      setSynthesisTriggered(false);
+    }
   }, [phase]);
 
   const hasSynthesis = personaSynthesis && personaSynthesis.headline;
