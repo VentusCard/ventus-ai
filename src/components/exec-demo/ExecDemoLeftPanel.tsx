@@ -302,7 +302,7 @@ export default function ExecDemoLeftPanel({
             </div>
           ) : (
             <div className="text-[10px] text-slate-300 mt-2 font-mono">
-              Click "Run Analysis" to begin...
+              Click "Behavioral Enrichment" to begin...
             </div>
           )
         )}
@@ -400,7 +400,7 @@ export default function ExecDemoLeftPanel({
           }`}
         >
           <Play className="w-4 h-4" />
-          {isRunning ? "Analyzing..." : "Run Analysis"}
+          {isRunning ? "Analyzing..." : "Behavioral Enrichment"}
         </button>
       </div>
 
