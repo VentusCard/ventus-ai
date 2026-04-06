@@ -1,21 +1,26 @@
 
 
-## Fix Pill Layout Jump + Blank Phone During Compilation
+## Fix: Rollup "0 txns" + Pillar-Colored Transaction Highlights
 
-### Problem 1: Height Jump
-During `scroll` phase, the persona card (`flex-1`) and the processing shimmer (`flex-1`, line 353) split vertical space ~50/50. When scroll ends and phase moves to `hold`, the shimmer unmounts and the persona card snaps to full height — visible layout jump.
+### Problem 1: Rollups Sometimes Show 0 Transactions
 
-**Fix in `ExecDemoIntelPanel.tsx`**: Remove the shimmer entirely (lines 352-367). The pills animating in already provide visual feedback that processing is happening. The persona card will have `flex-1` from the start and maintain consistent height throughout the scroll → hold transition.
+The `rollupStats` in `ExecDemoIntelPanel.tsx` (line 156-163) matches the AI-returned `pillar` name against chip pillar names using exact string match. If the AI returns even a slightly different pillar name (e.g., "Health & Wellness" vs "Wellness & Fitness"), the match fails and yields 0 txns / $0.
 
-### Problem 2: Phone Mockup Should Stay Blank
-Currently `ExecDemoPhoneView` shows content when `phase === "cardCycle" || "cardScan" || "hold"`. Since we now go straight to `hold` after scroll, the phone populates immediately.
+**Fix in `supabase/functions/synthesize-persona/index.ts`**: Add explicit instruction in the system prompt telling the AI to use the **exact** pillar name strings from the input data. Also pass the distinct pillar names as a strict enum in the tool schema so the model can only pick from the actual input values.
 
-**Fix in `ExecDemoPhoneView.tsx`**: Add a new prop (e.g., `showContent`) controlled by the parent. The phone content stays blank until explicitly enabled (e.g., only after the user has navigated through all tabs, or a future trigger).
+**Fix in `ExecDemoIntelPanel.tsx`** (defensive fallback): Add fuzzy matching — if exact match fails, try case-insensitive or substring matching against chip pillars.
 
-**Fix in `ExecDemoPage.tsx`**: Pass `showContent={false}` (or equivalent) to keep the phone blank. The phone frame renders but shows "Waiting for analysis..." or similar placeholder.
+### Problem 2: Filtered Transactions Use Wrong Color
+
+When clicking a rollup pill, the left panel highlights filtered transactions with a hardcoded `#10b981` (emerald green) instead of the pillar's actual color from `PILLAR_COLORS`.
+
+**Fix in `ExecDemoPage.tsx`**: Compute the active pillar color and pass it as a new prop (e.g., `activePillColor`) to `ExecDemoLeftPanel`.
+
+**Fix in `ExecDemoLeftPanel.tsx`**: Accept `activePillColor` prop and use it instead of the hardcoded `#10b981` for filtered transaction highlights.
 
 ### Files
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — remove processing shimmer
-- `src/components/exec-demo/ExecDemoPhoneView.tsx` — accept explicit `showContent` override prop
-- `src/pages/ExecDemoPage.tsx` — pass prop to keep phone blank
+- `supabase/functions/synthesize-persona/index.ts` — strengthen prompt + pass pillar names as enum
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — add fuzzy pillar name matching for rollup stats
+- `src/pages/ExecDemoPage.tsx` — compute and pass active pillar color
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — use pillar color for filtered highlights
 
