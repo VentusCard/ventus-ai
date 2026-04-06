@@ -413,6 +413,10 @@ export default function ExecDemoIntelPanel({
           0% { opacity: 1; transform: scale(1); max-width: 200px; padding: 4px 10px; margin: 0 3px; }
           100% { opacity: 0; transform: scale(0.3); max-width: 0; padding: 0; margin: 0; overflow: hidden; }
         }
+        @keyframes synthesize-glow {
+          0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,.15); }
+          50% { box-shadow: 0 0 24px rgba(245,158,11,.35); }
+        }
       `}</style>
     </div>
   );
