@@ -388,13 +388,27 @@ export default function ExecDemoIntelPanel({
           0% { opacity: 0; transform: translateY(4px); }
           100% { opacity: 1; transform: translateY(0); }
         }
+        @keyframes rollup-entrance {
+          0% { opacity: 0; transform: scale(0.6); }
+          50% { transform: scale(1.06); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes rollup-glow {
+          0% { box-shadow: 0 0 0 0 currentColor; }
+          50% { box-shadow: 0 0 12px 2px currentColor; }
+          100% { box-shadow: 0 0 0 0 currentColor; }
+        }
+        @keyframes pill-collapse {
+          0% { opacity: 1; transform: scale(1); max-width: 200px; padding: 4px 10px; margin: 0 3px; }
+          100% { opacity: 0; transform: scale(0.3); max-width: 0; padding: 0; margin: 0; overflow: hidden; }
+        }
       `}</style>
     </div>
   );
 }
 
 /** A single color-coded chip showing label · count× · $amount */
-function AnimatedChip({ chip, isActive, onClick }: { chip: ChipData; isActive?: boolean; onClick?: () => void }) {
+function AnimatedChip({ chip, isActive, onClick, collapsed }: { chip: ChipData; isActive?: boolean; onClick?: () => void; collapsed?: boolean }) {
   const prevCount = useRef(chip.count);
   const [pulse, setPulse] = useState(false);
   const c = getColor(chip.pillar);
