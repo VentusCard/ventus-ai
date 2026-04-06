@@ -108,10 +108,24 @@ export default function ExecDemoLeftPanel({
   const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
   const [copied, setCopied] = useState(false);
   const [pasteValue, setPasteValue] = useState("");
+  const [confirmedIdx, setConfirmedIdx] = useState<number | null>(null);
 
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
   const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
   const cappedTxns = transactions.slice(0, MAX_RENDERED_ROWS);
+  const previewTxns = transactions.slice(0, 15);
+
+  const handleCardClick = (i: number) => {
+    if (isRunning) return;
+    setConfirmedIdx(i);
+    onSelectCustomer(i);
+  };
+
+  const handleChangeCustomer = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isRunning) return;
+    setConfirmedIdx(null);
+  };
 
   const collected = transactions
     .map((tx, i) => ({ tx, i }))
