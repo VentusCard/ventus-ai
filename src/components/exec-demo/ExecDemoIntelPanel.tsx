@@ -126,6 +126,7 @@ export default function ExecDemoIntelPanel({
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
   const [pillsExpanded, setPillsExpanded] = useState(false);
+  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
 
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
