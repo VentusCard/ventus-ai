@@ -70,7 +70,7 @@ const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; 
 
 const DEFAULT_COLOR = { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" };
 
-function getColor(pillar: string) {
+export function getColor(pillar: string) {
   return PILLAR_COLORS[pillar] || DEFAULT_COLOR;
 }
 
