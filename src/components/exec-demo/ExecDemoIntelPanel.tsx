@@ -213,12 +213,13 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Persona section */}
       <div
-        className="rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out"
+        className="rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll"
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
+          maxHeight: showTabs ? "45vh" : undefined,
         }}
       >
         {/* AI Persona Headline — only after synthesis triggered */}
