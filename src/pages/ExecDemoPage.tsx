@@ -49,6 +49,7 @@ export default function ExecDemoPage() {
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
+  const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -105,6 +106,8 @@ export default function ExecDemoPage() {
                 const parsed = JSON.parse(dataMatch[1]);
                 classifiedRef.current = parsed.enriched_transactions || [];
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
+                // Update signal map in-flight if animation already started
+                onClassifiedCallbackRef.current?.(classifiedRef.current!);
                 firePersonaSynthesisRef.current(classifiedRef.current!);
               } catch (e) {
                 console.error("[PRELOAD] Failed to parse done event", e);
@@ -282,6 +285,7 @@ export default function ExecDemoPage() {
       setActiveRollup(null);
       setCustomCsv(null);
       setCustomName(null);
+      onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
     },
@@ -385,8 +389,22 @@ export default function ExecDemoPage() {
       const classifiedSignalMap = buildSignalMapFromClassified(classifiedRef.current);
       localProfile.persona.signalMap = classifiedSignalMap;
       console.log("[PROCESS] Using preloaded AI classification for signals");
+      onClassifiedCallbackRef.current = null; // Already have it
     } else {
-      console.log("[PROCESS] AI classification not ready, using MCC fallback");
+      console.log("[PROCESS] AI classification not ready, using MCC fallback — will update when ready");
+      // Register callback to upgrade signal map when classification arrives
+      onClassifiedCallbackRef.current = (txs: EnrichedTransaction[]) => {
+        const classifiedSignalMap = buildSignalMapFromClassified(txs);
+        setProfile((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            persona: { ...prev.persona, signalMap: classifiedSignalMap },
+          };
+        });
+        console.log("[PROCESS] Signal map upgraded with AI classification");
+        onClassifiedCallbackRef.current = null;
+      };
     }
 
     setProfile(localProfile);
