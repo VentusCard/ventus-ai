@@ -337,6 +337,13 @@ export default function ExecDemoIntelPanel({
             );
           })}
         </div>
+
+        {/* Arrow key hint */}
+        {revealedTabs.length > 0 && revealedTabs.length < 3 && (
+          <div className="text-center mt-1">
+            <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
+          </div>
+        )}
       )}
 
       {/* Processing shimmer */}
