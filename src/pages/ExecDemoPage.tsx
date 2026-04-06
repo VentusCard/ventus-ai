@@ -221,12 +221,14 @@ export default function ExecDemoPage() {
     fireClassification(csv);
   }, [clearTimeouts, fireClassification]);
 
-  const revealStep = useCallback((idx: number, p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
+  const revealStep = useCallback((idx: number, p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }, skipHighlight = false) => {
     const tabKey = TAB_ORDER[idx];
     const card = p.intelligence[tabKey];
     setActiveTab(tabKey);
     setCurrentCardColor(card.accent);
-    setCollectedIndices(card.txIndices);
+    if (!skipHighlight) {
+      setCollectedIndices(card.txIndices);
+    }
     setRevealedTabs(TAB_ORDER.slice(0, idx + 1));
     setStepIndex(idx);
   }, []);
