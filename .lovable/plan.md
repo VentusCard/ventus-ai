@@ -1,30 +1,37 @@
 
+## Fix rollup click filtering so it selects the exact associated transactions
 
-## Fix: Use Index-Based Rollup Matching Instead of Fuzzy String Matching
+### Root cause
+The new index-based logic is only being used inside `ExecDemoIntelPanel` for rollup display/collapse. The click path still sends only `r.pillar`, and `ExecDemoPage` still filters with `s.pillar === activePillarFilter`. So a rollup click currently:
+- selects the whole pillar instead of the specific rolled-up categories, or
+- selects nothing if the rollup pillar string does not exactly match the signal map.
 
-### Problem
-The frontend uses fuzzy string matching to associate rollup pills with their underlying category chips. This fails when the AI returns slightly different pillar/category names despite instructions to use exact strings. Fuzzy matching is inherently unreliable.
-
-### Solution
-Number the input rows sent to the AI and have it return the **indices** of the categories each rollup covers. The frontend then uses these indices directly — no string matching needed.
-
-### Changes
-
-**`supabase/functions/synthesize-persona/index.ts`**
-1. Number each input line in the summary sent to the AI (e.g., `[0] Travel & Transport > Airlines: 5 txns, $2400`).
-2. Add a `category_indices` field (array of numbers) to the `pillar_rollups` schema, telling the AI to return which input row indices each rollup covers.
-3. Pass `category_indices` through in the response alongside existing fields.
-
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-4. Update `PillarRollup` interface to include `categoryIndices?: number[]`.
-5. Replace `chipMatchesRollup` fuzzy logic: if `categoryIndices` exists, match chips by checking if the chip's position in the sorted chip array matches any index. Otherwise fall back to existing fuzzy logic for backward compatibility.
-6. Compute `unrolledChips` and `rollupStats` using the index-based approach.
+### Implementation
 
 **`src/pages/ExecDemoPage.tsx`**
-7. Pass `category_indices` from the API response into `pillarRollups` when constructing `PersonaSynthesis`.
+- Keep the grouped category list used for persona synthesis as the source of truth.
+- While building the `pillars` payload, also retain `txIndices` for each grouped category.
+- When `category_indices` come back from the AI, convert them into concrete transaction indices and store them on each rollup as `txIndices`.
+- Replace the string-based `activePillarFilter` with a rollup filter object (`pillar`, `label`, `txIndices`).
+- Update `filteredIndices`, `activePillLabel`, and `activePillColor` to use that selected rollup object.
+- Leave the existing single category-chip filter logic as-is.
 
-### Files
-- `supabase/functions/synthesize-persona/index.ts` — add numbered input + `category_indices` in schema
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — index-based matching
-- `src/pages/ExecDemoPage.tsx` — pass through `categoryIndices`
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+- Extend `PillarRollup` to include `txIndices?: number[]`.
+- Change rollup clicks from `onPillarClick(r.pillar)` to `onRollupClick(r)`.
+- Change rollup active-state logic to compare the selected rollup object (pillar + label), not a raw pillar string.
+- Keep `categoryIndices` as the render/collapse matching mechanism.
 
+### Safety
+- If a rollup is missing usable `txIndices`, fall back to current pillar-level behavior instead of making the click a no-op.
+- Ignore invalid/out-of-range `category_indices` when deriving rollup `txIndices`.
+
+### Technical details
+- No backend change is needed here; the function already returns `category_indices`.
+- The real fix is making rollup selection use the same indexed rollup data that the UI already uses visually.
+
+### Expected result
+- Clicking a rollup pill highlights only the transactions that belong to that rollup.
+- It no longer highlights unrelated same-pillar transactions.
+- Clicking the same rollup again clears the filter.
+- Individual category chip selection continues to work unchanged.
