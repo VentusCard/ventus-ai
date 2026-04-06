@@ -1,30 +1,34 @@
 
 
-## Plan: Spread Datasets 1–3 Across 12 Months
+## Show Enriched Pills Earlier
+
+### Current Flow
+1. User lands on `/demo` → default customer (Sarah) is selected
+2. `fireClassification()` starts the AI call **only when user clicks a customer card**
+3. User clicks "Behavioral Enrichment" → 10.5s animation runs with MCC fallback labels (e.g. "Grocery", "Airlines")
+4. AI classification arrives mid-animation (3-8s) and silently upgrades pill labels
 
 ### Problem
-Datasets 1–3 (Sarah Mitchell, James Rodriguez, Emily Chen) currently compress all transactions into a ~2-month window (Aug–Oct 2025). This makes the seasonal heatmap in the Next-Purchase tab nearly useless — all spend clusters in one or two months. Datasets 4–6 already span 12 months and need no changes.
+If the user clicks "Behavioral Enrichment" quickly, they see generic MCC labels for several seconds before the AI labels swap in. The upgrade is also silent, so users may not notice the improvement.
 
-### Approach
-Rewrite the three CSV constants (`SAMPLE_CSV`, `SAMPLE_CSV_SPORTS_WELLNESS`, `SAMPLE_CSV_FOOD_HOME`) to spread transactions from **November 2024 through October 2025** (same 12-month window as datasets 4–6). The transaction content, merchants, amounts, and life-event signals stay the same — only dates change.
+### Proposed Fix: Preload on Page Mount
 
-### Date Distribution Strategy
-For each dataset (~75 transactions), distribute them across 12 months with realistic patterns:
-- **Recurring transactions** (groceries, gym, subscriptions, gas) appear monthly throughout the year
-- **Travel clusters** stay grouped in realistic trip windows (e.g., a NYC trip in Sep, but also add a winter trip)
-- **Life-event signals** (SAT prep, campus visits, nursery purchases, mortgage fees) remain interspersed per the existing sample-data strategy
-- **Seasonal variety**: holiday shopping in Dec, back-to-school in Aug, wellness surges in Jan
+**`src/pages/ExecDemoPage.tsx`** — Add a `useEffect` on mount that immediately fires classification for the default customer (index 0):
 
-### Changes
+```ts
+useEffect(() => {
+  fireClassification(getCsvForCustomer(0));
+}, []); // fire on mount for default selection
+```
 
-**`src/lib/sampleData.ts`** — single file, three CSV constants rewritten:
+This means by the time the user reads the UI, orients themselves, and clicks "Behavioral Enrichment" (~3-5s minimum), the AI classification will already be complete. Pills will appear with their enriched labels from the first frame of the animation.
 
-1. **`SAMPLE_CSV` (Sarah Mitchell)**: ~76 transactions redistributed Nov 2024 – Oct 2025. Monthly grocery/coffee/gas cadence. NYC trip stays in Sep. Concert/entertainment spread across spring/summer. Pet expenses quarterly. Life-event signals (SAT, campus tour) kept in their current relative positions.
+### Why This Works
+- The AI call takes 3-8s; users typically spend at least that long reading the page before clicking
+- `handleRunAnalysis` already checks `classifiedRef.current` and uses AI labels if available
+- No visual changes needed — the existing upgrade mechanism handles it seamlessly
+- When a user switches customers, `handleSelectCustomer` already fires a new classification, so subsequent profiles also preload
 
-2. **`SAMPLE_CSV_SPORTS_WELLNESS` (James Rodriguez)**: ~78 transactions redistributed Nov 2024 – Oct 2025. Monthly gym memberships and supplement purchases. Fitness gear purchases seasonal (Jan resolution, spring refresh). Dallas trip stays in Sep. Life-event signals (prenatal, nursery) kept interspersed.
-
-3. **`SAMPLE_CSV_FOOD_HOME` (Emily Chen)**: ~78 transactions redistributed Nov 2024 – Oct 2025. Weekly grocery pattern throughout. Home improvement projects spread across spring/summer. Restaurant visits monthly. Life-event signals (mortgage, home inspection, title company) kept interspersed.
-
-### Result
-All 6 datasets will produce meaningful 12-month seasonal heatmaps in the Next-Purchase intelligence tab, showing real spending peaks, velocity trends, and concentration patterns.
+### Single-file change
+Only `ExecDemoPage.tsx` needs a ~3 line addition.
 
