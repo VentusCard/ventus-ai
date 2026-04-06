@@ -135,8 +135,8 @@ export default function ExecDemoPage() {
         existing.count += 1;
         existing.totalSpend += tx.amount;
         existing.txIndices.push(txIdx);
-        if (tx.normalized_merchant && !existing.topMerchants.includes(tx.normalized_merchant))
-          existing.topMerchants.push(tx.normalized_merchant);
+        if (tx.merchant_name && !existing.topMerchants.includes(tx.merchant_name))
+          existing.topMerchants.push(tx.merchant_name);
         if (tx.subcategories) tx.subcategories.forEach(sc => {
           if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
         });
@@ -149,7 +149,7 @@ export default function ExecDemoPage() {
         grouped.set(key, {
           pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount,
           frequency: tx.purchase_frequency, txIndices: [txIdx],
-          topMerchants: tx.normalized_merchant ? [tx.normalized_merchant] : [],
+          topMerchants: tx.merchant_name ? [tx.merchant_name] : [],
           spendingTier: tx.spending_tier || "Standard",
           subcategories: tx.subcategories ? [...tx.subcategories] : [],
         });
