@@ -1,31 +1,34 @@
 
 
-## Expand "Supporting Evidence" to Full Page
+## Fix: "Supporting Evidence" Expands Within Middle Panel (Keeping Headline + Rollups)
 
 ### What Changes
 
-When the user clicks "Supporting evidence" after synthesis, the 3-column layout collapses: the left panel and phone shrink to narrow icon-button columns, and the intel panel expands to fill the viewport — restoring the full-height pill view similar to pre-synthesis.
+When clicking "Supporting evidence" after synthesis, the tab bar and tab content hide, and the persona card (with headline + rollup pills + category pills) expands to fill the full middle panel height — same as the pre-synthesis layout but keeping the synthesis UI elements visible.
 
-### Implementation
-
-**`src/pages/ExecDemoPage.tsx`**
-1. Add a `pillsExpanded` state lifted from the intel panel.
-2. Pass it down as a prop + an `onPillsExpandedChange` callback to `ExecDemoIntelPanel`.
-3. Change the grid template dynamically: when `pillsExpanded` is true, switch from `grid-cols-[320px_1fr_360px]` to `grid-cols-[48px_1fr_48px]` with a CSS transition. The left panel and phone columns become narrow strips showing only a collapse/restore button.
+### Changes — single file
 
 **`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-4. Remove internal `pillsExpanded` state — accept it as a prop instead, along with the toggle callback.
-5. When `pillsExpanded` is true post-synthesis, remove the `maxHeight: 45vh` cap on the persona card so pills fill the available space (same as pre-synthesis layout with `flex-1 min-h-0`).
+
+1. Make `pillsExpanded` internal state (no longer a prop — revert to local `useState`).
+2. When `pillsExpanded && synthesisTriggered`:
+   - Keep the AI headline and rollup pills visible (no change there).
+   - **Hide** the tab bar and tab content sections.
+   - Remove the `maxHeight: 45vh` cap on the persona card — let it use `flex-1 min-h-0` to fill the panel.
+3. The "Supporting evidence" toggle button already exists (line 280-286) — no change needed there.
+
+**`src/pages/ExecDemoPage.tsx`**
+4. Remove the lifted `pillsExpanded` state + `onPillsExpandedChange` callback. Revert grid to static `grid-cols-[320px_1fr_360px]`.
+5. Remove `collapsed`/`onExpand` props from left panel and phone view.
 
 **`src/components/exec-demo/ExecDemoLeftPanel.tsx`**
-6. Accept a `collapsed` prop. When true, render only a small vertical icon button (e.g., `PanelLeft` icon) instead of the full customer/transaction panel.
+6. Remove `collapsed`/`onExpand` prop and collapsed icon-strip rendering.
 
 **`src/components/exec-demo/ExecDemoPhoneView.tsx`**
-7. Accept a `collapsed` prop. When true, render only a small vertical icon button (e.g., `Smartphone` icon) instead of the phone mockup.
+7. Remove `collapsed`/`onExpand` prop and collapsed icon-strip rendering.
 
-### Files
-- `src/pages/ExecDemoPage.tsx` — lift state, dynamic grid
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — externalize pillsExpanded, remove maxHeight when expanded
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — collapsed mode
-- `src/components/exec-demo/ExecDemoPhoneView.tsx` — collapsed mode
+### Key logic (IntelPanel)
+- Persona card gets `flex-1 min-h-0` when `!synthesisTriggered || pillsExpanded` (already on line 218).
+- `maxHeight: 45vh` only applies when `synthesisTriggered && !pillsExpanded` (already on line 224).
+- Tab bar + tab content: wrap in `{!(synthesisTriggered && pillsExpanded) && (...)}` to hide when evidence is expanded.
 
