@@ -195,6 +195,8 @@ export default function ExecDemoPage() {
       setActiveTab(null);
       setCollectedIndices([]);
       setProfile(null);
+      setActivePillFilter(null);
+      setActiveRollup(null);
       setCustomCsv(null);
       setCustomName(null);
       // Preload classification in background
@@ -212,6 +214,8 @@ export default function ExecDemoPage() {
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
+    setActivePillFilter(null);
+    setActiveRollup(null);
     setProfile(buildLocalProfile(csv, 0, name));
     // Preload classification for custom CSV
     fireClassification(csv);
