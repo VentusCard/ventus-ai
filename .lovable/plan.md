@@ -1,20 +1,49 @@
 
 
-## Let Pills Section Fill Full Height
+## Show Tab Buttons Below Pills (No Content Until Synthesis)
 
 ### What Changes
 
 **`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
 
-The persona card currently has `maxHeight: "45vh"` when tabs are showing, and no constraint otherwise. But it doesn't expand to fill available space — it only sizes to content.
+Currently the entire tabbed intelligence section (buttons + content) only renders when `showTabs` is true. The user wants the 3 tab buttons always visible below the pills once enrichment starts, but the tab *content* should only appear after synthesis shrinks the pills.
 
-Changes:
-1. **Make persona card flex-grow** when tabs are NOT showing — add `flex-1` and `min-h-0` so it fills the entire middle column height, with `overflow-y: auto` for scrolling if content exceeds.
-2. **Keep the `maxHeight: 45vh` constraint only when `showTabs` is true** (so tabs still have room below).
-3. On the outer container, ensure `h-full` and `flex flex-col` are set (already the case).
+1. **Extract tab bar** from inside the `showTabs` conditional (~line 333). Render it whenever `showProfile && phase !== "idle"` — as a `shrink-0` element pinned below the persona card.
+2. **Tab buttons render disabled** (dimmed, `text-slate-300`, `cursor-default`) until their tab is in `revealedTabs`. Same styling as today's unrevealed state.
+3. **Tab content area** stays inside `showTabs` conditional — only renders when tabs are actually revealed with data.
+4. **Persona card keeps `flex-1 min-h-0`** until `synthesisTriggered` (not until `showTabs`). This means the pills fill all available space above the 3 buttons.
+5. **On synthesis click** — persona card shrinks (`maxHeight: 45vh`), tab content area appears below and gets `flex-1`.
 
-This means before synthesis/tab reveal, the pillar-grouped pills take the full vertical space of the panel. Once tabs appear, it shrinks to 45vh to make room.
+### Layout
+
+```text
+Before synthesis:
+┌─ Persona Card (flex-1) ─────────────┐
+│ description...                      │
+│ [✦ Synthesize Persona]              │
+│ ● Health & Wellness                 │
+│   [Gym $1.2k] [Spa $800]           │
+│ ● Travel                           │
+│   [Hotels $3k] [Airlines $2k]      │
+│         (fills remaining height)    │
+└─────────────────────────────────────┘
+┌─ Tab Bar (shrink-0) ────────────────┐
+│ [Analytics] [Rewards] [Relationship]│  ← dimmed/disabled
+└─────────────────────────────────────┘
+
+After synthesis:
+┌─ Persona Card (maxHeight: 45vh) ────┐
+│ ✦ Headline                          │
+│ [Rollup pills]                      │
+└─────────────────────────────────────┘
+┌─ Tab Bar ───────────────────────────┐
+│ [Analytics] [Rewards] [Relationship]│  ← active
+└─────────────────────────────────────┘
+┌─ Tab Content (flex-1) ──────────────┐
+│ ...                                 │
+└─────────────────────────────────────┘
+```
 
 ### Files
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — add conditional `flex-1 min-h-0` class to persona card div (~line 204)
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
