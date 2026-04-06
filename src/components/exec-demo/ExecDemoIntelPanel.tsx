@@ -460,7 +460,30 @@ function AnimatedChip({ chip, isActive, onClick, collapsed }: { chip: ChipData; 
   );
 }
 
-function IntelCardContent({ card }: { card: IntelCard }) {
+/** Synthesized rollup pill for a pillar */
+function PillarRollupChip({ rollup, delay }: { rollup: { pillar: string; label: string; categories: string[]; totalSpend: number; totalCount: number }; delay: number }) {
+  const c = getColor(rollup.pillar);
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+      style={{
+        background: `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
+        color: c.text,
+        border: `1.5px solid ${c.dot}`,
+        animation: `rollup-entrance 0.5s ease-out ${delay}s both, rollup-glow 1s ease-out ${delay + 0.5}s both`,
+        boxShadow: `0 2px 8px ${c.bg.replace(".12", ".2")}`,
+      }}
+    >
+      <span style={{ color: c.dot }}>✦</span>
+      {rollup.label}
+      <span className="text-[9px] opacity-60 tabular-nums font-normal">
+        {rollup.totalCount} txns · {formatSpend(rollup.totalSpend)}
+      </span>
+    </span>
+  );
+}
+
+
   return (
     <div
       className="rounded-xl border border-slate-100 px-4 py-4"
