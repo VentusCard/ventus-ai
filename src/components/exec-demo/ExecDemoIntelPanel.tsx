@@ -483,7 +483,7 @@ function PillarRollupChip({ rollup, delay }: { rollup: { pillar: string; label: 
   );
 }
 
-
+function IntelCardContent({ card }: { card: IntelCard }) {
   return (
     <div
       className="rounded-xl border border-slate-100 px-4 py-4"
