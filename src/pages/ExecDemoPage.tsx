@@ -46,6 +46,7 @@ export default function ExecDemoPage() {
   const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
+  const [pillsExpanded, setPillsExpanded] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
 

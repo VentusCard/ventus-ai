@@ -29,6 +29,8 @@ interface Props {
   activePillarFilter?: string | null;
   onPillarClick?: (pillar: string) => void;
   personaSynthesis?: PersonaSynthesis | null;
+  pillsExpanded?: boolean;
+  onPillsExpandedChange?: (expanded: boolean) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
