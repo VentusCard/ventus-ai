@@ -239,7 +239,7 @@ export default function ExecDemoLeftPanel({
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Select Customer
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {/* Custom mode active */}
           {isCustomMode && (
             <button
