@@ -26,9 +26,24 @@ interface Props {
   activeTab: TabKey | null;
   phase: string;
   showContent?: boolean;
+  collapsed?: boolean;
+  onExpand?: () => void;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, collapsed, onExpand }: Props) {
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-4 gap-2">
+        <button
+          onClick={onExpand}
+          className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-200/60 transition-colors text-slate-400 hover:text-slate-600"
+          title="Show phone preview"
+        >
+          <Sparkles className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
   const consumerTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
 
   const renderContent = () => {

@@ -29,6 +29,8 @@ interface Props {
   activePillarFilter?: string | null;
   onPillarClick?: (pillar: string) => void;
   personaSynthesis?: PersonaSynthesis | null;
+  pillsExpanded?: boolean;
+  onPillsExpandedChange?: (expanded: boolean) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -125,11 +127,12 @@ export default function ExecDemoIntelPanel({
   activePillarFilter,
   onPillarClick,
   personaSynthesis,
+  pillsExpanded = false,
+  onPillsExpandedChange,
 }: Props) {
   const showProfile = phase !== "idle";
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
-  const [pillsExpanded, setPillsExpanded] = useState(false);
 
   // Group chips by pillar, preserving insertion order
   const chipsByPillar = useMemo(() => {
@@ -201,7 +204,7 @@ export default function ExecDemoIntelPanel({
   // Reset pills expansion when phase changes
   useEffect(() => {
     if (phase === "idle") {
-      setPillsExpanded(false);
+      onPillsExpandedChange?.(false);
       setSynthesisTriggered(false);
     }
   }, [phase]);
@@ -212,13 +215,13 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered || pillsExpanded ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: synthesisTriggered ? "45vh" : undefined,
+          maxHeight: synthesisTriggered && !pillsExpanded ? "45vh" : undefined,
         }}
       >
         {/* AI Persona Headline — only after synthesis triggered */}
@@ -275,7 +278,7 @@ export default function ExecDemoIntelPanel({
             )}
 
             <button
-              onClick={() => setPillsExpanded((p) => !p)}
+              onClick={() => onPillsExpandedChange?.(!pillsExpanded)}
               className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
             >
               {pillsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}

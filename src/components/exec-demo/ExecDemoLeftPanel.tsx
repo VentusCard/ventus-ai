@@ -1,4 +1,4 @@
-import { Play, User, Pencil, Copy, Check, ArrowLeft } from "lucide-react";
+import { Play, User, Pencil, Copy, Check, ArrowLeft, PanelLeft } from "lucide-react";
 import { useState } from "react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
@@ -24,6 +24,8 @@ interface Props {
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
+  collapsed?: boolean;
+  onExpand?: () => void;
 }
 
 const SCROLL_DURATION = 6000;
@@ -88,11 +90,27 @@ export default function ExecDemoLeftPanel({
   activePillLabel,
   activePillColor = "#10b981",
   onClearFilter,
+  collapsed,
+  onExpand,
 }: Props) {
   const [showCustom, setShowCustom] = useState(false);
   const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
   const [copied, setCopied] = useState(false);
   const [pasteValue, setPasteValue] = useState("");
+
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-4 gap-2">
+        <button
+          onClick={onExpand}
+          className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-200/60 transition-colors text-slate-400 hover:text-slate-600"
+          title="Show customer panel"
+        >
+          <PanelLeft className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
 
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
   const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
