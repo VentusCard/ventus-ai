@@ -130,6 +130,16 @@ export default function ExecDemoIntelPanel({
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
   const [pillsExpanded, setPillsExpanded] = useState(false);
+
+  // Group chips by pillar, preserving insertion order
+  const chipsByPillar = useMemo(() => {
+    const map = new Map<string, ChipData[]>();
+    for (const chip of chips) {
+      if (!map.has(chip.pillar)) map.set(chip.pillar, []);
+      map.get(chip.pillar)!.push(chip);
+    }
+    return map;
+  }, [chips]);
   const [synthesisTriggered, setSynthesisTriggered] = useState(false);
 
   // Determine which pillars have AI rollups
