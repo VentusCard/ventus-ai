@@ -162,18 +162,6 @@ export default function ExecDemoIntelPanel({
     });
   }, [rollups, chips]);
 
-  // Unique pillars for legend
-  const activePillars = useMemo(() => {
-    const seen = new Set<string>();
-    const result: string[] = [];
-    for (const c of chips) {
-      if (!seen.has(c.pillar)) {
-        seen.add(c.pillar);
-        result.push(c.pillar);
-      }
-    }
-    return result;
-  }, [chips]);
 
   // Derive current description from milestone keys
   const currentDescription = useMemo(() => {
