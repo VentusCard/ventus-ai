@@ -299,14 +299,14 @@ export default function ExecDemoIntelPanel({
                   const firstChipIdx = chips.indexOf(pillarChips[0]);
                   const allRolledUp = synthesisTriggered && rollups.some(r => chipMatchesRollup(pillarChips[0], r, firstChipIdx));
                   return (
-                    <div key={pillar} className="mb-2.5" style={{ animation: allRolledUp ? `pill-collapse 0.4s ease-in-out forwards` : undefined }}>
+                    <div key={pillar} className="mb-1.5" style={{ animation: allRolledUp ? `pill-collapse 0.4s ease-in-out forwards` : undefined }}>
                       {/* Pillar header */}
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.dot }} />
-                        <span className="text-[10px] font-semibold" style={{ color: c.text }}>{pillar}</span>
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
+                        <span className="text-[9px] font-semibold" style={{ color: c.text }}>{pillar}</span>
                       </div>
                       {/* Chips for this pillar */}
-                      <div className="flex flex-wrap gap-1.5 pl-3.5">
+                      <div className="flex flex-wrap gap-1 pl-3">
                         {pillarChips.map((chip, idx) => (
                           <AnimatedChip
                             key={`${chip.pillar}::${chip.label}`}
