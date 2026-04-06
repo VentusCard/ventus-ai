@@ -124,6 +124,7 @@ export default function ExecDemoIntelPanel({
   onPillClick,
   activePillarFilter,
   onPillarClick,
+  personaSynthesis,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
