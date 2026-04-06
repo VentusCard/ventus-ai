@@ -190,6 +190,10 @@ export default function ExecDemoPage() {
           const txIndices = Array.from(txIndicesSet);
           const totalCount = txIndices.length;
           const totalSpend = Array.from(matchedGroupIndices).reduce((s, gi) => s + pillars[gi].totalSpend, 0);
+
+          // Collect the resolved category labels for coherence validation
+          const resolvedCategories = Array.from(matchedGroupIndices).map(gi => pillars[gi].label.toLowerCase());
+
           return {
             pillar: r.pillar,
             label: r.label,
@@ -198,8 +202,51 @@ export default function ExecDemoPage() {
             txIndices,
             totalCount,
             totalSpend,
+            _resolvedCategories: resolvedCategories,
           };
-        }).filter((r: any) => r.totalCount > 0),
+        })
+        .filter((r: any) => r.totalCount > 0)
+        .filter((r: any) => {
+          // Client-side coherence validation: reject nonsensical rollups
+          const label = (r.label as string).toLowerCase();
+          const cats = r._resolvedCategories as string[];
+
+          // Rule 1: Reject rollups with only 1 matched category (not a real grouping)
+          if (r.categoryIndices.length < 2) {
+            console.log(`[ROLLUP-REJECT] "${r.label}" — only 1 category, not a real grouping`);
+            return false;
+          }
+
+          // Rule 2: Reject life-stage labels without enough corroborating evidence
+          const lifeStageKeywords = ["nursery", "nesting", "new parent", "baby", "suburban", "family setup", "expecting"];
+          const isLifeStageLabel = lifeStageKeywords.some(kw => label.includes(kw));
+          if (isLifeStageLabel) {
+            const familyKeywords = ["baby", "kids", "child", "nursery", "pediatr", "daycare", "maternity", "infant", "toddler"];
+            const familyCatCount = cats.filter(c => familyKeywords.some(fk => c.includes(fk))).length;
+            if (familyCatCount < 2) {
+              console.log(`[ROLLUP-REJECT] "${r.label}" — life-stage label with only ${familyCatCount} family categories`);
+              return false;
+            }
+          }
+
+          // Rule 3: Reject rollups that mix incompatible themes
+          const incompatiblePairs: [string[], string[]][] = [
+            [["gas", "fuel", "commut", "auto", "car wash"], ["nursery", "baby", "kids", "child", "toy"]],
+            [["gas", "fuel", "commut", "auto"], ["streaming", "subscription", "netflix", "hulu", "spotify"]],
+            [["grocery", "supermarket", "food"], ["streaming", "subscription", "software"]],
+          ];
+          for (const [groupA, groupB] of incompatiblePairs) {
+            const hasA = cats.some(c => groupA.some(kw => c.includes(kw)));
+            const hasB = cats.some(c => groupB.some(kw => c.includes(kw)));
+            if (hasA && hasB) {
+              console.log(`[ROLLUP-REJECT] "${r.label}" — incompatible themes detected`);
+              return false;
+            }
+          }
+
+          return true;
+        })
+        .map(({ _resolvedCategories, ...rest }: any) => rest),
       };
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
