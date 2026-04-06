@@ -1,51 +1,42 @@
 
 
-## Color-Code Transactions with Their Associated Pills
+## Make Customer Cards Bigger and Animate Selection
 
-### What this does
-Transaction rows in the left panel will always show a subtle color indicator matching their pillar pill color — so you can visually see which transactions belong to which pill without having to click anything. When a pill is clicked, the existing highlight behavior stays but now the color connection is immediately obvious.
+### What changes
 
-### Changes
+**1. Bigger customer cards (`ExecDemoLeftPanel.tsx`)**
 
-**1. `src/pages/ExecDemoPage.tsx` — Pass signal map to left panel**
+- Increase card padding from `px-3 py-2` to `px-4 py-3`
+- Increase avatar from `w-6 h-6` to `w-8 h-8` with larger icon (`w-4 h-4`)
+- Increase name text from `text-[11px]` to `text-[13px]`
+- Increase subtitle from `text-[9px]` to `text-[11px]`
+- Add the `lifestyleType` as a third line on each card (e.g. "Wellness Explorer")
 
-The left panel needs access to the signal map so each transaction row knows its pillar color. Add a new prop `signalMap` passing `execProfile.persona.signalMap` to `ExecDemoLeftPanel`.
+**2. Animate selection: hide others, show transaction preview**
 
-**2. `src/components/exec-demo/ExecDemoLeftPanel.tsx` — Color-code every transaction row**
+Currently, non-selected customers only hide when `phase !== "idle"` (after clicking "Behavioral Enrichment"). Change this so selecting a customer immediately:
 
-- Accept new `signalMap` prop (maps transaction index → `{ pillar, label }`).
-- Import `getColor` from `ExecDemoIntelPanel`.
-- In the "collected" phase (post-enrichment), render each `TxRow` with a colored left-border dot or tinted left border matching its pillar color from the signal map.
-- `TxRow` gets a new optional `pillarColor` prop. When set and not in highlight/dim mode, it renders a subtle left border (`2px solid pillarColor` at ~40% opacity) and a tiny colored dot before the merchant name.
+- Animates the non-selected cards out (fade + collapse height over ~300ms)
+- Shows only the selected card with a "Change" button
+- Below the selected card, renders a static transaction preview (the first ~15 rows at 60% opacity, same as the current custom-mode idle preview)
+- This gives immediate visual feedback that the customer is loaded
 
-**3. `TxRow` component update**
+The "Change" button resets `selectedIdx` to `-1` (or a sentinel), which re-expands all cards with a fade-in animation.
 
-```
-// Current: plain rows unless highlighted
-// New: always show pillar color indicator in collected phase
+**3. Fire edge functions on selection (already happens)**
 
-<div style={{
-  borderLeft: highlight
-    ? `2px solid ${highlightColor}`
-    : pillarColor
-      ? `2px solid ${pillarColor}40`
-      : '2px solid transparent',
-}}>
-  {pillarColor && !dim && (
-    <span className="w-1.5 h-1.5 rounded-full shrink-0"
-      style={{ background: pillarColor }} />
-  )}
-  ...
-</div>
-```
-
-This means:
-- **Idle/scrolling**: no colors (unchanged)
-- **Post-enrichment**: every transaction gets a subtle pillar-colored left border + dot
-- **Filtered (pill clicked)**: matching rows get the full highlight treatment, non-matching rows dim but keep their faint color dot
-- Colors match exactly because both pills and transaction indicators use the same `getColor(pillar).dot` value
+`handleSelectCustomer` already calls `fireClassification(getCsvForCustomer(idx))` which fires the classify-transactions edge function in the background. No additional wiring needed — classification preloads as soon as a customer is picked.
 
 ### Files to edit
-- `src/pages/ExecDemoPage.tsx` — pass `signalMap` prop
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — consume signal map, update `TxRow`
+
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — bigger cards, animated collapse/expand, transaction preview in idle state
+
+### Technical details
+
+- Use CSS `max-height` + `opacity` transitions (300ms) for the collapse animation instead of conditional rendering, so the exit is smooth
+- Track a `confirmedIdx` local state: `null` = show all cards expanded, `number` = show only that card + preview
+- On initial mount, `confirmedIdx` is `null` so all 7 cards display large
+- When user clicks a card, set `confirmedIdx` → others animate out, preview appears
+- "Change" resets `confirmedIdx` to `null` → all cards animate back in
+- The `onSelectCustomer` callback fires immediately on click (which triggers `fireClassification`)
 
