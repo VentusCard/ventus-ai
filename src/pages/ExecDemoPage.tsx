@@ -285,6 +285,7 @@ export default function ExecDemoPage() {
       setActiveRollup(null);
       setCustomCsv(null);
       setCustomName(null);
+      onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
     },
