@@ -25,11 +25,11 @@ interface Props {
   customer: DemoCustomer;
   activeTab: TabKey | null;
   phase: string;
+  showContent?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false }: Props) {
   const consumerTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
-  const showContent = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
 
   const renderContent = () => {
     switch (consumerTab) {

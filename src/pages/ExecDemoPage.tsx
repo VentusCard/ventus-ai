@@ -413,6 +413,7 @@ export default function ExecDemoPage() {
             customer={demoCustomer}
             activeTab={activeTab}
             phase={phase}
+            showContent={false}
           />
         </div>
       </div>

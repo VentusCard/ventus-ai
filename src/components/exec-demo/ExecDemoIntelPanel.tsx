@@ -348,23 +348,6 @@ export default function ExecDemoIntelPanel({
         </>
       )}
 
-      {/* Processing shimmer */}
-      {phase === "scroll" && (
-        <div className="flex-1 flex flex-col justify-center items-center gap-3">
-          <div className="w-3/4 h-2 rounded-full overflow-hidden bg-slate-100">
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: "60%",
-                background: "linear-gradient(90deg, #e2e8f0, #3b82f6, #e2e8f0)",
-                backgroundSize: "200% 100%",
-                animation: "exec-shimmer 1.5s ease-in-out infinite",
-              }}
-            />
-          </div>
-          <span className="text-[11px] text-slate-400 font-mono">Processing signals...</span>
-        </div>
-      )}
 
       {/* Tab content — only after synthesis */}
       {showTabs && synthesisTriggered && (
