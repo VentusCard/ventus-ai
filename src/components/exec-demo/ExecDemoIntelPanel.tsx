@@ -284,11 +284,7 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered) && (
               <div
-                className="transition-all duration-500"
-                style={{
-                  maxHeight: synthesisTriggered ? 100 : undefined,
-                  overflowY: synthesisTriggered ? "auto" : undefined,
-                }}
+                className="transition-all duration-500 flex-1 min-h-0 overflow-y-auto"
               >
                 {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
                   const c = getColor(pillar);
