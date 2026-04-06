@@ -35,6 +35,7 @@ interface Props {
   activeRollup?: PillarRollup | null;
   onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
+  transactions?: import("./execDemoData").Transaction[];
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -132,6 +133,7 @@ export default function ExecDemoIntelPanel({
   activeRollup,
   onRollupClick,
   personaSynthesis,
+  transactions,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -364,7 +366,7 @@ export default function ExecDemoIntelPanel({
           <div className="flex-1 min-h-0 overflow-auto">
             {activeTab && revealedTabs.includes(activeTab) && (
               activeTab === "analytics" && synthesisTriggered ? (
-                <PurchaseCycleTimeline chips={chips} />
+                <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
               ) : (
                 <IntelCardContent card={intelligence[activeTab]} />
               )
