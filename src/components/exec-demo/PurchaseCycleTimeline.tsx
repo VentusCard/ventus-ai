@@ -58,7 +58,7 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
       if (!signal) return;
       const month = parseMonth(tx.date);
       if (month === null) return;
-      const amount = parseFloat(tx.amount) || 0;
+      const amount = parseFloat(String(tx.amount).replace(/[$,]/g, "")) || 0;
       const key = `${signal.pillar}::${signal.label}`;
 
       let entry = categoryMonthly.get(key);
