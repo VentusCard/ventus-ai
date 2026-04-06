@@ -1,23 +1,30 @@
 
 
-## Fix: Data-Driven Seasonal Intelligence Not Working
+## Plan: Spread Datasets 1–3 Across 12 Months
 
-### Root Cause
-Two bugs prevent real spending data from rendering:
+### Problem
+Datasets 1–3 (Sarah Mitchell, James Rodriguez, Emily Chen) currently compress all transactions into a ~2-month window (Aug–Oct 2025). This makes the seasonal heatmap in the Next-Purchase tab nearly useless — all spend clusters in one or two months. Datasets 4–6 already span 12 months and need no changes.
 
-1. **Amount parsing fails** — `Transaction.amount` is stored as formatted strings like `"$156.78"` or `"$1,234.56"`. `parseFloat("$156.78")` returns `NaN`, so every amount falls back to 0. With all-zero monthly buckets, peak detection picks arbitrary months (index 0 = January, or April depending on the data path).
+### Approach
+Rewrite the three CSV constants (`SAMPLE_CSV`, `SAMPLE_CSV_SPORTS_WELLNESS`, `SAMPLE_CSV_FOOD_HOME`) to spread transactions from **November 2024 through October 2025** (same 12-month window as datasets 4–6). The transaction content, merchants, amounts, and life-event signals stay the same — only dates change.
 
-2. **Fallback behavior** — When all monthly values are 0, `Math.max(...months)` is 0, `indexOf(0)` returns the first month (January), and the "months until peak" calculation produces meaningless results.
+### Date Distribution Strategy
+For each dataset (~75 transactions), distribute them across 12 months with realistic patterns:
+- **Recurring transactions** (groceries, gym, subscriptions, gas) appear monthly throughout the year
+- **Travel clusters** stay grouped in realistic trip windows (e.g., a NYC trip in Sep, but also add a winter trip)
+- **Life-event signals** (SAT prep, campus visits, nursery purchases, mortgage fees) remain interspersed per the existing sample-data strategy
+- **Seasonal variety**: holiday shopping in Dec, back-to-school in Aug, wellness surges in Jan
 
-### Fix (single file)
+### Changes
 
-**`src/components/exec-demo/PurchaseCycleTimeline.tsx`**:
-- Fix the amount parsing on line 61: strip `$` and commas before parsing
-  ```ts
-  const amount = parseFloat(tx.amount.replace(/[$,]/g, "")) || 0;
-  ```
-- That's it — the rest of the logic (monthly bucketing, peak detection, velocity, concentration) is correct and will work once amounts are non-zero.
+**`src/lib/sampleData.ts`** — single file, three CSV constants rewritten:
+
+1. **`SAMPLE_CSV` (Sarah Mitchell)**: ~76 transactions redistributed Nov 2024 – Oct 2025. Monthly grocery/coffee/gas cadence. NYC trip stays in Sep. Concert/entertainment spread across spring/summer. Pet expenses quarterly. Life-event signals (SAT, campus tour) kept in their current relative positions.
+
+2. **`SAMPLE_CSV_SPORTS_WELLNESS` (James Rodriguez)**: ~78 transactions redistributed Nov 2024 – Oct 2025. Monthly gym memberships and supplement purchases. Fitness gear purchases seasonal (Jan resolution, spring refresh). Dallas trip stays in Sep. Life-event signals (prenatal, nursery) kept interspersed.
+
+3. **`SAMPLE_CSV_FOOD_HOME` (Emily Chen)**: ~78 transactions redistributed Nov 2024 – Oct 2025. Weekly grocery pattern throughout. Home improvement projects spread across spring/summer. Restaurant visits monthly. Life-event signals (mortgage, home inspection, title company) kept interspersed.
 
 ### Result
-Sarah's transactions (mostly dated `2025-08-*`) will correctly show August as the peak month with real dollar amounts in the heatmap bars and insight callout.
+All 6 datasets will produce meaningful 12-month seasonal heatmaps in the Next-Purchase intelligence tab, showing real spending peaks, velocity trends, and concentration patterns.
 
