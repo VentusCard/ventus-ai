@@ -22,6 +22,7 @@ interface Props {
   personaTitle?: string;
   filteredIndices?: number[] | null;
   activePillLabel?: string | null;
+  activePillColor?: string;
   onClearFilter?: () => void;
 }
 
@@ -85,6 +86,7 @@ export default function ExecDemoLeftPanel({
   personaTitle,
   filteredIndices,
   activePillLabel,
+  activePillColor = "#10b981",
   onClearFilter,
 }: Props) {
   const [showCustom, setShowCustom] = useState(false);
@@ -362,7 +364,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor="#10b981" />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} />
                     </div>
                   );
                 })}
