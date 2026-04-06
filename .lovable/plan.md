@@ -1,26 +1,30 @@
 
 
-## Fix: Rollup Pills Showing "0 txns" Due to Pillar Name Mismatch
+## Fix: Use Index-Based Rollup Matching Instead of Fuzzy String Matching
 
 ### Problem
-The rollup stats computation uses fuzzy pillar name matching, but `rolledUpPillars` (used to determine which chips are "unrolled") uses strict exact matching. When the AI returns a slightly different pillar name (e.g., "Travel & Exploration" vs "Travel & Transport"), two things break:
-1. The rollup shows "0 txns" because even fuzzy matching fails for some name variants
-2. The `unrolledChips` filter doesn't properly exclude chips that were fuzzy-matched by rollups
+The frontend uses fuzzy string matching to associate rollup pills with their underlying category chips. This fails when the AI returns slightly different pillar/category names despite instructions to use exact strings. Fuzzy matching is inherently unreliable.
 
-Additionally, the fuzzy matching should also try matching via the rollup's `categories` array — if a rollup says it covers categories ["Airlines", "Hotels"], we can match chips whose `label` is in that list regardless of pillar name.
+### Solution
+Number the input rows sent to the AI and have it return the **indices** of the categories each rollup covers. The frontend then uses these indices directly — no string matching needed.
 
 ### Changes
 
+**`supabase/functions/synthesize-persona/index.ts`**
+1. Number each input line in the summary sent to the AI (e.g., `[0] Travel & Transport > Airlines: 5 txns, $2400`).
+2. Add a `category_indices` field (array of numbers) to the `pillar_rollups` schema, telling the AI to return which input row indices each rollup covers.
+3. Pass `category_indices` through in the response alongside existing fields.
+
 **`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+4. Update `PillarRollup` interface to include `categoryIndices?: number[]`.
+5. Replace `chipMatchesRollup` fuzzy logic: if `categoryIndices` exists, match chips by checking if the chip's position in the sorted chip array matches any index. Otherwise fall back to existing fuzzy logic for backward compatibility.
+6. Compute `unrolledChips` and `rollupStats` using the index-based approach.
 
-1. **Unify matching logic**: Extract the fuzzy pillar matching into a shared helper function. Use it in both `rollupStats` and `rolledUpPillars`/`unrolledChips`.
-
-2. **Add category-based fallback matching**: If pillar name matching (exact + case-insensitive + substring) finds 0 chips, fall back to matching chips whose `label` appears in the rollup's `categories` array. This ensures rollups always count their constituent chips.
-
-3. **Fix `unrolledChips`**: Instead of checking `rolledUpPillars.has(c.pillar)` (exact match), check if any rollup's fuzzy/category match claims that chip.
-
-4. **Filter out 0-count rollups from display**: As a safety net, don't render rollup chips that matched 0 transactions.
+**`src/pages/ExecDemoPage.tsx`**
+7. Pass `category_indices` from the API response into `pillarRollups` when constructing `PersonaSynthesis`.
 
 ### Files
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — fix matching logic for rollup stats and unrolled chips filter
+- `supabase/functions/synthesize-persona/index.ts` — add numbered input + `category_indices` in schema
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — index-based matching
+- `src/pages/ExecDemoPage.tsx` — pass through `categoryIndices`
 
