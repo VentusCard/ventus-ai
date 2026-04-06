@@ -36,7 +36,7 @@ export default function ExecDemoPage() {
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
   const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string } | null>(null);
-  const [activePillarFilter, setActivePillarFilter] = useState<string | null>(null);
+  const [activeRollup, setActiveRollup] = useState<PersonaSynthesis["pillarRollups"] extends (infer R)[] | undefined ? R | null : never>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
