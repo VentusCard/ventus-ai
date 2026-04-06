@@ -455,6 +455,16 @@ export default function ExecDemoPage() {
     [processedIndices, execProfile.persona.signalMap]
   );
 
+  // Clear stale pill filter when signalMap changes (AI upgrade)
+  const signalMapRef = useRef(execProfile.persona.signalMap);
+  useEffect(() => {
+    if (signalMapRef.current !== execProfile.persona.signalMap) {
+      signalMapRef.current = execProfile.persona.signalMap;
+      setActivePillFilter(null);
+      setActiveRollup(null);
+    }
+  }, [execProfile.persona.signalMap]);
+
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
     const sm = execProfile.persona.signalMap;
