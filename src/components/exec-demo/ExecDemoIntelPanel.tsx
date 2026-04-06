@@ -26,6 +26,8 @@ interface Props {
   onTabClick: (tab: TabKey) => void;
   activePillFilter?: { pillar: string; label: string } | null;
   onPillClick?: (pillar: string, label: string) => void;
+  activePillarFilter?: string | null;
+  onPillarClick?: (pillar: string) => void;
   personaSynthesis?: PersonaSynthesis | null;
 }
 
@@ -120,6 +122,8 @@ export default function ExecDemoIntelPanel({
   onTabClick,
   activePillFilter,
   onPillClick,
+  activePillarFilter,
+  onPillarClick,
   personaSynthesis,
 }: Props) {
   const showProfile = phase !== "idle";
