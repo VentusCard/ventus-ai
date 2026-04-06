@@ -1,4 +1,4 @@
-import { Play, User, Pencil, Copy, Check, ArrowLeft } from "lucide-react";
+import { Play, User, Pencil, Copy, Check, ArrowLeft, PanelLeft } from "lucide-react";
 import { useState } from "react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
@@ -24,6 +24,8 @@ interface Props {
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
+  collapsed?: boolean;
+  onExpand?: () => void;
 }
 
 const SCROLL_DURATION = 6000;
