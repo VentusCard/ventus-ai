@@ -9,6 +9,7 @@ export interface PillarRollup {
   label: string;
   categories: string[];
   categoryIndices?: number[];
+  txIndices?: number[];
 }
 
 export interface PersonaSynthesis {
@@ -28,7 +29,8 @@ interface Props {
   activePillFilter?: { pillar: string; label: string } | null;
   onPillClick?: (pillar: string, label: string) => void;
   activePillarFilter?: string | null;
-  onPillarClick?: (pillar: string) => void;
+  activeRollup?: PillarRollup | null;
+  onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
 }
 
@@ -124,7 +126,8 @@ export default function ExecDemoIntelPanel({
   activePillFilter,
   onPillClick,
   activePillarFilter,
-  onPillarClick,
+  activeRollup,
+  onRollupClick,
   personaSynthesis,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
@@ -274,7 +277,7 @@ export default function ExecDemoIntelPanel({
             {synthesisTriggered && rollupStats.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {rollupStats.map((r, i) => (
-                  <PillarRollupChip key={r.pillar} rollup={r} delay={0.5 + i * 0.15} isActive={activePillarFilter === r.pillar} onClick={() => onPillarClick?.(r.pillar)} />
+                  <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
                 ))}
               </div>
             )}
