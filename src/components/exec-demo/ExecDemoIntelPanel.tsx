@@ -291,7 +291,7 @@ export default function ExecDemoIntelPanel({
               >
                 {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
                   const c = getColor(pillar);
-                  const allRolledUp = synthesisTriggered && rolledUpPillars.has(pillar);
+                  const allRolledUp = synthesisTriggered && rollups.some(r => chipMatchesRollup(pillarChips[0], r));
                   return (
                     <div key={pillar} className="mb-2.5" style={{ animation: allRolledUp ? `pill-collapse 0.4s ease-in-out forwards` : undefined }}>
                       {/* Pillar header */}
@@ -307,7 +307,7 @@ export default function ExecDemoIntelPanel({
                             chip={chip}
                             isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
                             onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                            collapsed={synthesisTriggered && rolledUpPillars.has(chip.pillar)}
+                            collapsed={synthesisTriggered && rollups.some(r => chipMatchesRollup(chip, r))}
                             mergeDelay={idx * 0.06}
                           />
                         ))}
