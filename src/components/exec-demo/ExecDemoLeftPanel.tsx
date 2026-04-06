@@ -285,7 +285,7 @@ export default function ExecDemoLeftPanel({
               >
                 <button
                   onClick={() => handleCardClick(i)}
-                  className={`w-full text-left rounded-lg px-4 py-3 border transition-all duration-200 ${
+                  className={`w-full text-left rounded-lg px-3 py-2 border transition-all duration-200 ${
                     isSelected
                       ? "border-blue-300 bg-blue-50 shadow-sm"
                       : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
