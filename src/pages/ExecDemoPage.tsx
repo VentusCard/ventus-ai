@@ -562,6 +562,7 @@ export default function ExecDemoPage() {
             activeRollup={activeRollup}
             onRollupClick={handleRollupClick}
             personaSynthesis={personaSynthesis}
+            transactions={execProfile.transactions}
           />
         </div>
 
