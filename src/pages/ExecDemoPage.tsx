@@ -49,6 +49,7 @@ export default function ExecDemoPage() {
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
+  const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
