@@ -467,11 +467,6 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
       <span className="text-[9px] opacity-70 tabular-nums">
         {formatSpend(chip.totalSpend)}
       </span>
-      {chip.frequency && (
-        <span className="text-[8px] opacity-50 tabular-nums">
-          {chip.frequency}
-        </span>
-      )}
     </span>
   );
 }
