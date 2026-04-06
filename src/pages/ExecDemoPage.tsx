@@ -297,22 +297,35 @@ export default function ExecDemoPage() {
   }, []);
 
   const handlePillClick = useCallback((pillar: string, label: string) => {
+    setActivePillarFilter(null);
     setActivePillFilter((prev) =>
       prev && prev.pillar === pillar && prev.label === label ? null : { pillar, label }
     );
   }, []);
 
+  const handlePillarClick = useCallback((pillar: string) => {
+    setActivePillFilter(null);
+    setActivePillarFilter((prev) => prev === pillar ? null : pillar);
+  }, []);
+
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
-  // Derive filtered transaction indices from the active pill filter
+  // Derive filtered transaction indices from the active pill/pillar filter
   const filteredIndices = useMemo(() => {
-    if (!activePillFilter) return null;
     const sm = execProfile.persona.signalMap;
-    return Object.entries(sm)
-      .filter(([, s]) => s.pillar === activePillFilter.pillar && s.label === activePillFilter.label)
-      .map(([idx]) => Number(idx));
-  }, [activePillFilter, execProfile.persona.signalMap]);
+    if (activePillarFilter) {
+      return Object.entries(sm)
+        .filter(([, s]) => s.pillar === activePillarFilter)
+        .map(([idx]) => Number(idx));
+    }
+    if (activePillFilter) {
+      return Object.entries(sm)
+        .filter(([, s]) => s.pillar === activePillFilter.pillar && s.label === activePillFilter.label)
+        .map(([idx]) => Number(idx));
+    }
+    return null;
+  }, [activePillFilter, activePillarFilter, execProfile.persona.signalMap]);
 
   return (
     <SimplePasswordGate>
