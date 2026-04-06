@@ -1,61 +1,51 @@
 
-Goal
 
-- Stop bogus rollups like “Suburban Nursery Setup” when the evidence is just repeated Shell gas + one Pottery Barn Kids purchase.
-- If categories do not clearly belong together, do not roll them up at all.
+## Color-Code Transactions with Their Associated Pills
 
-What’s actually causing it
+### What this does
+Transaction rows in the left panel will always show a subtle color indicator matching their pillar pill color — so you can visually see which transactions belong to which pill without having to click anything. When a pill is clicked, the existing highlight behavior stays but now the color connection is immediately obvious.
 
-- In `supabase/functions/synthesize-persona/index.ts`, the prompt currently forces one rollup for every pillar with 2+ categories.
-- In `src/pages/ExecDemoPage.tsx`, the client accepts that rollup as long as the category indices resolve and there are transactions.
-- That means a broad pillar can get compressed into a fake archetype even when the categories are unrelated.
-- The UI already supports partial coverage, so we do not need to force every category into a rollup.
+### Changes
 
-Implementation plan
+**1. `src/pages/ExecDemoPage.tsx` — Pass signal map to left panel**
 
-1. Make rollups optional, not mandatory
-- Update `supabase/functions/synthesize-persona/index.ts` so the model can return:
-  - no rollup for a pillar,
-  - one rollup,
-  - or multiple smaller rollups within the same pillar.
-- Add explicit rules:
-  - never combine unrelated categories just because they share a pillar,
-  - never let a single one-off merchant define the whole label,
-  - never use family/nursery/suburban/new-parent style labels without at least 2 corroborating family/nursery signals.
+The left panel needs access to the signal map so each transaction row knows its pillar color. Add a new prop `signalMap` passing `execProfile.persona.signalMap` to `ExecDemoLeftPanel`.
 
-2. Add stronger evidence rules to the synthesis payload
-- In `src/pages/ExecDemoPage.tsx`, keep sending merchants, subcategories, counts, spend, and tier.
-- Add lightweight support flags per grouped category so the model can distinguish:
-  - recurring/core behavior,
-  - one-off/high-ticket purchases,
-  - dominant vs incidental categories.
+**2. `src/components/exec-demo/ExecDemoLeftPanel.tsx` — Color-code every transaction row**
 
-3. Validate rollups on the client before rendering
-- In `src/pages/ExecDemoPage.tsx`, add a coherence check before accepting each AI rollup.
-- Reject rollups that:
-  - mix obviously incompatible themes,
-  - rely on only one “loud” category to name the cluster,
-  - use a life-stage label without enough supporting categories.
-- If rejected, drop the rollup and leave those categories as normal chips.
+- Accept new `signalMap` prop (maps transaction index → `{ pillar, label }`).
+- Import `getColor` from `ExecDemoIntelPanel`.
+- In the "collected" phase (post-enrichment), render each `TxRow` with a colored left-border dot or tinted left border matching its pillar color from the signal map.
+- `TxRow` gets a new optional `pillarColor` prop. When set and not in highlight/dim mode, it renders a subtle left border (`2px solid pillarColor` at ~40% opacity) and a tiny colored dot before the merchant name.
 
-4. Use exact category keys for coverage
-- In `src/components/exec-demo/ExecDemoIntelPanel.tsx`, use validated category keys (`pillar + label`) to decide which evidence chips are covered by a rollup.
-- Keep the current authoritative `txIndices` / `totalCount` logic for counts.
+**3. `TxRow` component update**
 
-5. Hardening
-- Add a small compatibility layer for obvious cases:
-  - good pairings: Netflix/Hulu/Spotify, golf-related signals, nursery-related merchants together,
-  - bad pairings: gas/commuting with nursery/kids-home, grocery with streaming, etc.
-- Bias toward “show separate chips” instead of “invent a clever rollup”.
+```
+// Current: plain rows unless highlighted
+// New: always show pillar color indicator in collected phase
 
-Expected result
+<div style={{
+  borderLeft: highlight
+    ? `2px solid ${highlightColor}`
+    : pillarColor
+      ? `2px solid ${pillarColor}40`
+      : '2px solid transparent',
+}}>
+  {pillarColor && !dim && (
+    <span className="w-1.5 h-1.5 rounded-full shrink-0"
+      style={{ background: pillarColor }} />
+  )}
+  ...
+</div>
+```
 
-- Shell stays a commuting/gas signal unless there is real supporting context.
-- Pottery Barn Kids only contributes to a nursery/family rollup when there are multiple child/family signals.
-- Mixed pillars no longer get collapsed into nonsense labels.
-- Counts stay accurate because the existing single-source-of-truth rollup totals remain in place.
+This means:
+- **Idle/scrolling**: no colors (unchanged)
+- **Post-enrichment**: every transaction gets a subtle pillar-colored left border + dot
+- **Filtered (pill clicked)**: matching rows get the full highlight treatment, non-matching rows dim but keep their faint color dot
+- Colors match exactly because both pills and transaction indicators use the same `getColor(pillar).dot` value
 
-Technical details
+### Files to edit
+- `src/pages/ExecDemoPage.tsx` — pass `signalMap` prop
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx` — consume signal map, update `TxRow`
 
-- Main fix: stop forcing a single rollup per pillar.
-- Main safeguard: client-side validation so even if the model gets creative, bad rollups never render.
