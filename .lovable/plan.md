@@ -1,20 +1,26 @@
 
 
-## Fix: Supporting evidence section has too much whitespace
+## Fix: Supporting evidence should fill full panel height + restore bottom buttons
 
 ### Problem
-After synthesis, the evidence container has `flex-1 min-h-0` which stretches it to fill the entire remaining panel height. Since most pills are collapsed (rolled up into the AI rollups), only a few pillar groups remain visible, but they're spread across a tall container with huge gaps.
+1. After the last fix removed `flex-1` from the evidence container post-synthesis, the supporting evidence section no longer expands to fill the middle panel — it just takes its natural content height, leaving dead space below.
+2. The 3 tab buttons (Analytics / Rewards / Relationship) at the bottom are hidden when `pillsExpanded` is true due to the conditional `{!(synthesisTriggered && pillsExpanded)}`.
 
 ### Changes — `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-1. **Remove `flex-1` from the evidence chip container** (line 295): Change from `className="transition-all duration-500 flex-1 min-h-0 overflow-y-auto"` to `className="transition-all duration-500 overflow-y-auto"` — it should only take as much height as its content needs, not stretch.
+1. **Restore full-height evidence when expanded**: When `synthesisTriggered && pillsExpanded`, the persona card should get `flex-1 min-h-0` back so the evidence section fills the remaining panel height, just like before synthesis. The key issue was that the previous fix removed flex-1 unconditionally post-synthesis — it should only be removed when evidence is collapsed (so the tabs + tab content get the space).
 
-2. **Hide fully-collapsed pillar groups**: When `synthesisTriggered` and all chips in a pillar are rolled up, skip rendering that pillar group entirely instead of relying on the CSS `pill-collapse` animation (which still reserves layout space). This eliminates the empty rows.
+   Line 223: Change the class logic so `flex-1 min-h-0` is applied when either (a) synthesis hasn't been triggered, or (b) pills are expanded:
+   ```
+   !synthesisTriggered || pillsExpanded  →  add "flex-1 min-h-0"
+   ```
 
-3. **Reduce outer persona card flex-1 when evidence is expanded post-synthesis**: On line 223, when `synthesisTriggered && pillsExpanded`, the card should NOT be `flex-1` — it should be auto-height with `overflow-y-auto` and a reasonable max-height so it doesn't stretch the full panel.
+2. **Also give the chip container `flex-1 min-h-0`** (line 295) when `pillsExpanded` so the scrollable area fills the card.
+
+3. **Show tab bar even when evidence is expanded**: Remove the `!(synthesisTriggered && pillsExpanded)` wrapper around the tab bar. Always show the 3 tab buttons when enrichment is active. Only hide the tab *content* area when evidence is expanded (since the persona card takes all the space).
 
 ### Expected result
-- Supporting evidence shows only the un-collapsed pillar groups tightly packed
-- No empty whitespace gaps between pillar rows
-- The section scrolls if content exceeds available space
+- Clicking "Supporting evidence" expands chips to fill the full middle panel height (scrollable).
+- The 3 navigation buttons remain visible at the bottom at all times.
+- Collapsing evidence restores the tab content area below.
 
