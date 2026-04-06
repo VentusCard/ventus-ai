@@ -48,15 +48,15 @@ const TxRow = ({
   categoryLabel?: string;
 }) => (
   <div
-    className="font-mono text-[10px] leading-tight px-2 py-[4px] rounded flex items-center gap-1.5 truncate transition-all duration-300"
+    className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
     style={{
       color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
       background: highlight ? `${highlightColor}18` : "transparent",
       borderLeft: highlight
-        ? `2px solid ${highlightColor}`
+        ? `3px solid ${highlightColor}`
         : pillarColor
-          ? `2px solid ${pillarColor}80`
-          : "2px solid transparent",
+          ? `3px solid ${pillarColor}80`
+          : "3px solid transparent",
     }}
   >
     {pillarColor && !dim && (
@@ -66,7 +66,7 @@ const TxRow = ({
       />
     )}
     <span
-      className="text-[8px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
+      className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
       style={{
         color: dim ? "#94a3b8" : "#334155",
         opacity: dim ? 0.5 : 1,
@@ -74,17 +74,17 @@ const TxRow = ({
     >
       {tx.date}
     </span>
-    <span className="truncate">{tx.merchant}</span>
+    <span className="truncate font-medium">{tx.merchant}</span>
     <span
-      className="shrink-0 tabular-nums"
+      className="shrink-0 tabular-nums font-semibold"
       style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
     >
       {tx.amount}
     </span>
     {categoryLabel && pillarColor && !dim && (
       <span
-        className="text-[8px] font-semibold shrink-0 truncate max-w-[90px]"
-        style={{ color: pillarColor }}
+        className="text-[8px] font-bold shrink-0 truncate max-w-[100px] rounded px-1.5 py-[1px] text-white"
+        style={{ background: pillarColor }}
       >
         {categoryLabel}
       </span>
