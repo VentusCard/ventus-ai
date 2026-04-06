@@ -144,33 +144,36 @@ export default function ExecDemoIntelPanel({
 
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
-  const rolledUpPillars = useMemo(() => new Set(rollups.map(r => r.pillar)), [rollups]);
 
-  // Chips not covered by a rollup
+  // Unified fuzzy matching: does a chip belong to a rollup?
+  const chipMatchesRollup = (chip: ChipData, r: PillarRollup): boolean => {
+    // Exact pillar match
+    if (chip.pillar === r.pillar) return true;
+    // Case-insensitive
+    const cLower = chip.pillar.toLowerCase();
+    const rLower = r.pillar.toLowerCase();
+    if (cLower === rLower) return true;
+    // Substring match
+    if (rLower.includes(cLower) || cLower.includes(rLower)) return true;
+    // Category-based fallback: chip label is one of the rollup's categories
+    if (r.categories?.some(cat => cat.toLowerCase() === chip.label.toLowerCase())) return true;
+    return false;
+  };
+
+  // Chips not covered by any rollup
   const unrolledChips = useMemo(
-    () => chips.filter(c => !rolledUpPillars.has(c.pillar)),
-    [chips, rolledUpPillars]
+    () => chips.filter(c => !rollups.some(r => chipMatchesRollup(c, r))),
+    [chips, rollups]
   );
 
-  // Compute rollup stats from chips with fuzzy pillar matching
+  // Compute rollup stats from chips with unified matching
   const rollupStats = useMemo(() => {
     return rollups.map(r => {
-      // Try exact match first, then case-insensitive, then substring
-      let pillarChips = chips.filter(c => c.pillar === r.pillar);
-      if (pillarChips.length === 0) {
-        const rLower = r.pillar.toLowerCase();
-        pillarChips = chips.filter(c => c.pillar.toLowerCase() === rLower);
-      }
-      if (pillarChips.length === 0) {
-        const rLower = r.pillar.toLowerCase();
-        pillarChips = chips.filter(c =>
-          rLower.includes(c.pillar.toLowerCase()) || c.pillar.toLowerCase().includes(rLower)
-        );
-      }
+      const pillarChips = chips.filter(c => chipMatchesRollup(c, r));
       const totalSpend = pillarChips.reduce((s, c) => s + c.totalSpend, 0);
       const totalCount = pillarChips.reduce((s, c) => s + c.count, 0);
       return { ...r, totalSpend, totalCount };
-    });
+    }).filter(r => r.totalCount > 0);
   }, [rollups, chips]);
 
 
