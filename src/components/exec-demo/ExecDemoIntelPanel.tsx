@@ -220,7 +220,7 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered || pillsExpanded ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
@@ -292,14 +292,17 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered) && (
               <div
-                className="transition-all duration-500 flex-1 min-h-0 overflow-y-auto"
+                className="transition-all duration-500 overflow-y-auto"
               >
                 {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
                   const c = getColor(pillar);
-                  const firstChipIdx = chips.indexOf(pillarChips[0]);
-                  const allRolledUp = synthesisTriggered && rollups.some(r => chipMatchesRollup(pillarChips[0], r, firstChipIdx));
+                  // Skip fully rolled-up pillar groups after synthesis
+                  if (synthesisTriggered) {
+                    const allRolledUp = pillarChips.every(chip => rollups.some(r => chipMatchesRollup(chip, r, chips.indexOf(chip))));
+                    if (allRolledUp) return null;
+                  }
                   return (
-                    <div key={pillar} className="mb-1.5" style={{ animation: allRolledUp ? `pill-collapse 0.4s ease-in-out forwards` : undefined }}>
+                    <div key={pillar} className="mb-1.5">
                       {/* Pillar header */}
                       <div className="flex items-center gap-1 mb-0.5">
                         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
@@ -313,7 +316,7 @@ export default function ExecDemoIntelPanel({
                             chip={chip}
                             isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
                             onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                            collapsed={synthesisTriggered && rollups.some(r => chipMatchesRollup(chip, r, chips.indexOf(chip)))}
+                            collapsed={false}
                             mergeDelay={idx * 0.06}
                           />
                         ))}
