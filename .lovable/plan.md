@@ -1,65 +1,40 @@
 
 
-## Fix: Pills Not Clickable After AI Classification Upgrade
+## Plan: Data-Driven Next-Purchase Intelligence
 
-### Root Cause
+### Problem
+The current seasonal heatmap uses hardcoded archetypal curves (`SEASONAL_CURVES`) — the same generic pattern for "Grocery" or "Airlines" regardless of the actual user's spending. The insight callout is also derived from these static curves rather than the user's real data.
 
-When the AI classification callback fires (`onClassifiedCallbackRef`), it replaces `profile.persona.signalMap` with new AI-derived labels. However, `processedSignals` — which drives the rendered chips — still contains the **old MCC-based** signal entries from animation time. 
+### Solution
+Derive all seasonal patterns and insights **from the user's actual transactions**:
 
-When you click a chip (e.g., MCC label "Pharmacy Shopper"), `filteredIndices` searches the **new** signalMap for that label, but the signalMap now uses AI labels (e.g., "Prenatal Health & Wellness"). No indices match → no transactions highlight → appears "not clickable."
+1. **Parse real transaction dates** — the `SignalEntry` currently has `pillar`, `label`, `amount`, `frequency`. We also have access to the raw transactions (with dates like `04/15`, `01/22`). We'll pass the raw transactions alongside chips so the timeline can bucket spending by month.
 
-### Fix — `src/pages/ExecDemoPage.tsx`
+2. **Build per-category monthly spend from actual data** — group transactions by category and month, producing a real 12-month spend distribution instead of using `SEASONAL_CURVES`.
 
-1. **Re-sync `processedSignals` when signalMap updates**: Add a `useEffect` that watches `profile?.persona.signalMap`. When it changes (i.e., after AI upgrade), rebuild `processedSignals` from the new signalMap — preserving only the indices that were already processed during animation.
-
-```typescript
-// When signalMap upgrades (AI classification), re-sync processedSignals
-useEffect(() => {
-  if (!profile?.persona.signalMap) return;
-  setProcessedSignals((prev) => {
-    if (prev.length === 0) return prev;
-    // Re-derive from updated signalMap, keeping same transaction indices
-    const sm = profile.persona.signalMap;
-    const updated: SignalEntry[] = [];
-    // processedSignals were added in order of tx index — rebuild from signalMap
-    const seenIndices = new Set<number>();
-    for (const oldSignal of prev) {
-      // Find which index this was — look for matching index in signalMap
-      for (const [idxStr, entry] of Object.entries(sm)) {
-        const idx = Number(idxStr);
-        if (!seenIndices.has(idx)) {
-          seenIndices.add(idx);
-          updated.push(entry);
-          break;
-        }
-      }
-    }
-    return updated.length > 0 ? updated : prev;
-  });
-}, [profile?.persona.signalMap]);
-```
-
-Actually, a cleaner approach: track which **indices** have been processed, then derive signals from the current signalMap.
-
-2. **Better approach — track processed indices separately**:
-   - Add `processedIndices` state (`number[]`) — populated during animation (push `i` for each transaction that has a signal)
-   - Derive `processedSignals` via `useMemo` from `processedIndices` + `profile.persona.signalMap`
-   - When signalMap upgrades, `processedSignals` automatically re-derives with new labels
+3. **Derive insights from the real distribution**:
+   - Peak month = month with highest actual spend per category
+   - YoY trend replaced with **spend velocity** (recent months vs earlier months)
+   - "Next Seasonal Peak" insight uses the user's actual peak months and dollar amounts
+   - Show spend concentration (e.g., "78% of travel spend in Jun-Aug")
 
 ### Changes
 
-**`src/pages/ExecDemoPage.tsx`**:
-- Add `const [processedIndices, setProcessedIndices] = useState<number[]>([])` 
-- In `runAnimationWithProfile`, instead of `setProcessedSignals(prev => [...prev, signal])`, do `setProcessedIndices(prev => [...prev, i])`
-- Add `const processedSignals = useMemo(() => processedIndices.map(i => execProfile.persona.signalMap[i]).filter(Boolean), [processedIndices, execProfile.persona.signalMap])`
-- Remove `setProcessedSignals` state; reset `processedIndices` where `processedSignals` was reset
-- Clear `activePillFilter` when signalMap changes (so stale filter doesn't persist)
+**`src/components/exec-demo/PurchaseCycleTimeline.tsx`**:
+- Add a `transactions` prop (array of `{ date, merchant, amount }`)
+- Add a `signalMap` prop to link transaction indices → categories
+- Build monthly spend arrays from real transaction dates per category
+- Remove all `SEASONAL_CURVES` and `yoyTrend` hardcoded logic
+- Generate heatmap bars from actual monthly spend data
+- Derive peak detection, trend direction, and insight text from real patterns
+- Handle sparse data gracefully (months with $0 show as empty)
 
-### Result
-- Pills always reflect the current signalMap labels
-- When AI classification arrives and upgrades signalMap, chips seamlessly update labels
-- Clicking any pill correctly filters transactions because chip labels and signalMap labels are always in sync
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**:
+- Pass `transactions` and `signalMap` (from persona) to `PurchaseCycleTimeline` alongside `chips`
 
-### Files
-- `src/pages/ExecDemoPage.tsx`
+### Visual Output (unchanged layout)
+- Same heatmap rows, but bars now reflect actual spend per month
+- Peak badges based on real peaks
+- Trend arrows based on recent-vs-historical spend momentum
+- Insight callout: e.g., "Dining spend clusters in Nov-Dec ($2.4k) — 40% above annual average"
 
