@@ -481,7 +481,7 @@ export default function ExecDemoPage() {
       </div>
 
       {/* Main content — 3 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-[320px_1fr_360px]">
+      <div className="flex-1 min-h-0 grid grid-cols-[400px_1fr_360px]">
         {/* Col 1 — Customer selection + transaction feed */}
         <div className="border-r border-slate-200 bg-white overflow-hidden">
           <ExecDemoLeftPanel

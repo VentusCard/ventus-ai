@@ -38,35 +38,37 @@ const TxRow = ({
   highlight,
   highlightColor,
   pillarColor,
+  categoryLabel,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
   pillarColor?: string;
+  categoryLabel?: string;
 }) => (
   <div
     className="font-mono text-[10px] leading-tight px-2 py-[4px] rounded flex items-center gap-1.5 truncate transition-all duration-300"
     style={{
-      color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#334155",
+      color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
       background: highlight ? `${highlightColor}18` : "transparent",
       borderLeft: highlight
         ? `2px solid ${highlightColor}`
         : pillarColor
-          ? `2px solid ${pillarColor}40`
+          ? `2px solid ${pillarColor}80`
           : "2px solid transparent",
     }}
   >
     {pillarColor && !dim && (
       <span
-        className="w-1.5 h-1.5 rounded-full shrink-0"
+        className="w-2 h-2 rounded-full shrink-0"
         style={{ background: pillarColor }}
       />
     )}
     <span
       className="text-[8px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
       style={{
-        color: dim ? "#94a3b8" : "#64748b",
+        color: dim ? "#94a3b8" : "#334155",
         opacity: dim ? 0.5 : 1,
       }}
     >
@@ -74,11 +76,19 @@ const TxRow = ({
     </span>
     <span className="truncate">{tx.merchant}</span>
     <span
-      className="ml-auto shrink-0 tabular-nums"
-      style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#64748b" }}
+      className="shrink-0 tabular-nums"
+      style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
     >
       {tx.amount}
     </span>
+    {categoryLabel && pillarColor && !dim && (
+      <span
+        className="text-[8px] font-semibold shrink-0 truncate max-w-[90px]"
+        style={{ color: pillarColor }}
+      >
+        {categoryLabel}
+      </span>
+    )}
   </div>
 );
 
@@ -410,7 +420,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
                     </div>
                   );
                 })}
@@ -418,19 +428,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
                 })}
               </>
             ) : (
               <>
-                {collected.map(({ tx, i }) => (
-                  <div key={`col-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
-                  </div>
-                ))}
-                {uncollected.map(({ tx, i }) => {
+                {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`unc-${i}`} tx={tx} dim pillarColor={pc} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
                 })}
               </>
             )}
