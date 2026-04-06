@@ -21,7 +21,6 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // Aggregate pillar summary for prompt
     const pillarSummary = pillars
       .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }) =>
         `${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${p.frequency ? `, ${p.frequency}` : ""}`)
@@ -32,6 +31,14 @@ serve(async (req) => {
 1. **headline**: A punchy 3-5 word persona archetype (e.g., "The Globe-Trotting Foodie", "Wellness-Driven Professional", "Adventure-Seeking Family"). Be specific and vivid, not generic.
 
 2. **insights**: Exactly 3 short insight sentences (each 10-20 words). Each should surface a non-obvious behavioral pattern, cross-sell opportunity, or life-stage signal. Use specific dollar amounts and frequencies from the data. Be concrete, not vague.
+
+3. **pillar_rollups**: For each spending pillar that has 2 or more distinct categories, generate a single vivid rollup label that synthesizes those categories into one behavioral archetype. Rules:
+   - ONLY combine categories within the SAME pillar. NEVER mix categories from different pillars.
+   - Only generate a rollup for pillars with 2+ distinct categories.
+   - The label should be 2-4 words, vivid and spend-tier-aware (high spend → "Premium", "Luxury", "Elite" prefixes).
+   - Include the exact category names that were combined.
+   - Examples: "Premium Wellness Enthusiast" (from Gym + Spa + Supplements under Health & Wellness), "Luxury Globetrotter" (from Airlines + Hotels + Resorts under Travel & Exploration).
+   - BAD example: "Active Family Traveler" combining Travel + Sports pillars — NEVER do this.
 
 Rules:
 - Never use generic phrases like "diverse spending" or "various categories"
@@ -56,7 +63,7 @@ Rules:
             type: "function",
             function: {
               name: "return_persona",
-              description: "Return the synthesized persona headline and insights",
+              description: "Return the synthesized persona headline, insights, and per-pillar rollup labels",
               parameters: {
                 type: "object",
                 properties: {
@@ -69,8 +76,26 @@ Rules:
                     items: { type: "string" },
                     description: "Exactly 3 insight sentences",
                   },
+                  pillar_rollups: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        pillar: { type: "string", description: "The pillar name exactly as provided in input" },
+                        label: { type: "string", description: "2-4 word vivid rollup label for this pillar" },
+                        categories: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "The category names from this pillar that were combined",
+                        },
+                      },
+                      required: ["pillar", "label", "categories"],
+                      additionalProperties: false,
+                    },
+                    description: "Per-pillar rollup labels for pillars with 2+ categories. Only same-pillar categories.",
+                  },
                 },
-                required: ["headline", "insights"],
+                required: ["headline", "insights", "pillar_rollups"],
                 additionalProperties: false,
               },
             },
@@ -114,6 +139,7 @@ Rules:
     return new Response(JSON.stringify({
       headline: raw.headline || "Dynamic Persona",
       insights: (raw.insights || []).slice(0, 3),
+      pillar_rollups: raw.pillar_rollups || [],
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

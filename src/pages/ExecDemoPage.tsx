@@ -140,6 +140,7 @@ export default function ExecDemoPage() {
       const synthesis: PersonaSynthesis = {
         headline: data.headline || "Dynamic Persona",
         insights: data.insights || [],
+        pillarRollups: data.pillar_rollups || [],
       };
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
