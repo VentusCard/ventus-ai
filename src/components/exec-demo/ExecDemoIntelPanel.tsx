@@ -455,12 +455,12 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-[10px] font-medium px-2.5 py-1 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
         border: isActive ? `2px solid ${c.dot}` : `1px solid ${c.border}`,
-        animation: collapsed ? `pill-collapse 0.4s ease-in-out ${mergeDelay}s forwards` : "pill-pop 0.3s ease-out both",
+        animation: collapsed ? `pill-collapse 0.6s ease-in-out ${mergeDelay}s forwards` : "pill-pop 0.45s ease-out both",
         transform: isActive ? "scale(1.08)" : "scale(1)",
         boxShadow: isActive ? `0 0 8px ${c.bg}` : "none",
       }}
@@ -468,16 +468,16 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
       {chip.label}
       {chip.count > 1 && (
         <span
-          className="text-[9px] font-bold tabular-nums"
+          className="text-[10px] font-bold tabular-nums"
           style={{
             color: c.dot,
-            animation: pulse ? "count-pulse 0.3s ease-out" : "none",
+            animation: pulse ? "count-pulse 0.45s ease-out" : "none",
           }}
         >
           {chip.count}×
         </span>
       )}
-      <span className="text-[9px] opacity-70 tabular-nums">
+      <span className="text-[10px] opacity-70 tabular-nums">
         {formatSpend(chip.totalSpend)}
       </span>
     </span>
