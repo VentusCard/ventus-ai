@@ -4,9 +4,16 @@ import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./ex
 
 type TabKey = "analytics" | "rewards" | "relationship";
 
+export interface PillarRollup {
+  pillar: string;
+  label: string;
+  categories: string[];
+}
+
 export interface PersonaSynthesis {
   headline: string;
   insights: string[];
+  pillarRollups?: PillarRollup[];
 }
 
 interface Props {
@@ -120,6 +127,26 @@ export default function ExecDemoIntelPanel({
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
   const [pillsExpanded, setPillsExpanded] = useState(false);
 
+  // Determine which pillars have AI rollups
+  const rollups = personaSynthesis?.pillarRollups || [];
+  const rolledUpPillars = useMemo(() => new Set(rollups.map(r => r.pillar)), [rollups]);
+
+  // Chips not covered by a rollup
+  const unrolledChips = useMemo(
+    () => chips.filter(c => !rolledUpPillars.has(c.pillar)),
+    [chips, rolledUpPillars]
+  );
+
+  // Compute rollup stats from chips
+  const rollupStats = useMemo(() => {
+    return rollups.map(r => {
+      const pillarChips = chips.filter(c => c.pillar === r.pillar);
+      const totalSpend = pillarChips.reduce((s, c) => s + c.totalSpend, 0);
+      const totalCount = pillarChips.reduce((s, c) => s + c.count, 0);
+      return { ...r, totalSpend, totalCount };
+    });
+  }, [rollups, chips]);
+
   // Unique pillars for legend
   const activePillars = useMemo(() => {
     const seen = new Set<string>();
@@ -211,9 +238,18 @@ export default function ExecDemoIntelPanel({
           </div>
         )}
 
-        {/* Collapsible evidence pills */}
+        {/* Rollup pills + evidence pills */}
         {chips.length > 0 && (
           <div>
+            {/* Pillar rollup pills - shown when AI synthesis arrives */}
+            {rollupStats.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2" style={{ animation: "desc-crossfade 0.5s ease-out" }}>
+                {rollupStats.map((r, i) => (
+                  <PillarRollupChip key={r.pillar} rollup={r} delay={i * 0.12} />
+                ))}
+              </div>
+            )}
+
             <button
               onClick={() => setPillsExpanded((p) => !p)}
               className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
@@ -239,19 +275,23 @@ export default function ExecDemoIntelPanel({
                   </div>
                 )}
 
-                {/* Pill cloud */}
+                {/* Pill cloud - rolled-up pills shrink, un-rolled stay normal */}
                 <div
                   className="flex flex-wrap gap-1.5 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
                   style={{ maxHeight: showTabs ? 100 : 160 }}
                 >
-                  {chips.map((chip) => (
-                    <AnimatedChip
-                      key={`${chip.pillar}::${chip.label}`}
-                      chip={chip}
-                      isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
-                      onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                    />
-                  ))}
+                  {chips.map((chip) => {
+                    const isRolledUp = rolledUpPillars.has(chip.pillar);
+                    return (
+                      <AnimatedChip
+                        key={`${chip.pillar}::${chip.label}`}
+                        chip={chip}
+                        isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
+                        onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                        collapsed={isRolledUp}
+                      />
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -348,13 +388,27 @@ export default function ExecDemoIntelPanel({
           0% { opacity: 0; transform: translateY(4px); }
           100% { opacity: 1; transform: translateY(0); }
         }
+        @keyframes rollup-entrance {
+          0% { opacity: 0; transform: scale(0.6); }
+          50% { transform: scale(1.06); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes rollup-glow {
+          0% { box-shadow: 0 0 0 0 currentColor; }
+          50% { box-shadow: 0 0 12px 2px currentColor; }
+          100% { box-shadow: 0 0 0 0 currentColor; }
+        }
+        @keyframes pill-collapse {
+          0% { opacity: 1; transform: scale(1); max-width: 200px; padding: 4px 10px; margin: 0 3px; }
+          100% { opacity: 0; transform: scale(0.3); max-width: 0; padding: 0; margin: 0; overflow: hidden; }
+        }
       `}</style>
     </div>
   );
 }
 
 /** A single color-coded chip showing label · count× · $amount */
-function AnimatedChip({ chip, isActive, onClick }: { chip: ChipData; isActive?: boolean; onClick?: () => void }) {
+function AnimatedChip({ chip, isActive, onClick, collapsed }: { chip: ChipData; isActive?: boolean; onClick?: () => void; collapsed?: boolean }) {
   const prevCount = useRef(chip.count);
   const [pulse, setPulse] = useState(false);
   const c = getColor(chip.pillar);
@@ -377,7 +431,7 @@ function AnimatedChip({ chip, isActive, onClick }: { chip: ChipData; isActive?: 
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
         border: isActive ? `2px solid ${c.dot}` : `1px solid ${c.border}`,
-        animation: "pill-pop 0.3s ease-out both",
+        animation: collapsed ? "pill-collapse 0.5s ease-in-out forwards" : "pill-pop 0.3s ease-out both",
         transform: isActive ? "scale(1.08)" : "scale(1)",
         boxShadow: isActive ? `0 0 8px ${c.bg}` : "none",
       }}
@@ -402,6 +456,29 @@ function AnimatedChip({ chip, isActive, onClick }: { chip: ChipData; isActive?: 
           {chip.frequency}
         </span>
       )}
+    </span>
+  );
+}
+
+/** Synthesized rollup pill for a pillar */
+function PillarRollupChip({ rollup, delay }: { rollup: { pillar: string; label: string; categories: string[]; totalSpend: number; totalCount: number }; delay: number }) {
+  const c = getColor(rollup.pillar);
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+      style={{
+        background: `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
+        color: c.text,
+        border: `1.5px solid ${c.dot}`,
+        animation: `rollup-entrance 0.5s ease-out ${delay}s both, rollup-glow 1s ease-out ${delay + 0.5}s both`,
+        boxShadow: `0 2px 8px ${c.bg.replace(".12", ".2")}`,
+      }}
+    >
+      <span style={{ color: c.dot }}>✦</span>
+      {rollup.label}
+      <span className="text-[9px] opacity-60 tabular-nums font-normal">
+        {rollup.totalCount} txns · {formatSpend(rollup.totalSpend)}
+      </span>
     </span>
   );
 }
