@@ -1,80 +1,68 @@
 
 
-## Plan: Add "Next-Purchase Probability" Section Below the Seasonal Graph
+## Redesign: Next-Purchase Probability Section
 
-### What It Does
-Adds a new data-driven section below the existing "Seasonal Spend Intelligence" heatmap that calculates and displays the probability of the customer making a purchase in each category over the next 1, 2, and 3 months. This turns the backward-looking heatmap into a forward-looking predictive tool.
+### Problem
+The current probability section mirrors the heatmap's tabular grid layout (columns, signal dots, percentages), making the two sections look like duplicates rather than offering a distinct visual insight.
 
-### Probability Calculation Logic
-For each category row (already computed in `rows`), derive probability from three signals:
+### New Design: Ranked Horizontal Bar Cards
 
-1. **Recency score** (40% weight): How recently was the last purchase? Categories with activity in the current or prior month score highest.
-2. **Frequency score** (35% weight): How many months out of 12 had at least one transaction? A category with 10/12 months active has near-certain probability.
-3. **Seasonality score** (25% weight): Does the upcoming month historically have spend? Uses the monthly spend array to check if the next 1/2/3 months had prior activity.
-
-Combined into a 0–99% probability per category per future month window.
-
-### Visual Design
-Below the existing "Spending Pattern Insight" callout card, add:
+Replace the table with a stacked list of compact **mini-cards**, each showing a horizontal gradient probability bar. This visually contrasts with the grid-based heatmap above and feels more like a "prediction dashboard."
 
 ```text
-┌─────────────────────────────────────────────────┐
-│ 🎯 NEXT-PURCHASE PROBABILITY                   │
-├─────────────────────────────────────────────────┤
-│ Category     │ Next 30d │ Next 60d │ Next 90d  │
-│──────────────│──────────│──────────│───────────│
-│ Groceries    │ ●●●● 94% │ ●●●● 98% │ ●●●● 99% │
-│ Travel       │ ●○○○ 22% │ ●●○○ 45% │ ●●●○ 71% │
-│ Pet Care     │ ●●○○ 41% │ ●●●○ 63% │ ●●●○ 78% │
-│ ...          │          │          │           │
-└─────────────────────────────────────────────────┘
-│ 💡 "Groceries purchase expected within 5 days   │
-│    based on weekly cadence. Travel likely in    │
-│    Sep based on seasonal pattern."              │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│ 🎯 NEXT-PURCHASE PROBABILITY                │
+├──────────────────────────────────────────────┤
+│ ┌──────────────────────────────────────────┐ │
+│ │ Groceries                   94% · 5 days │ │
+│ │ ██████████████████████████████░░░░  High  │ │
+│ │ Weekly cadence · peak season              │ │
+│ └──────────────────────────────────────────┘ │
+│ ┌──────────────────────────────────────────┐ │
+│ │ Pet Care                    41% · ~3 wks │ │
+│ │ ██████████░░░░░░░░░░░░░░░░░░░░░░  Med   │ │
+│ │ Monthly pattern · last seen 2mo ago      │ │
+│ └──────────────────────────────────────────┘ │
+│ ┌──────────────────────────────────────────┐ │
+│ │ Travel                      22% · ~6 wks │ │
+│ │ █████░░░░░░░░░░░░░░░░░░░░░░░░░░░  Low   │ │
+│ │ Seasonal — historically peaks in Sep     │ │
+│ └──────────────────────────────────────────┘ │
+├──────────────────────────────────────────────┤
+│ 💡 Groceries expected within 5 days based   │
+│    on weekly cadence.                        │
+└──────────────────────────────────────────────┘
 ```
 
-- **Probability dots**: 4-dot visual indicator (filled/empty) like signal strength, plus numeric percentage
-- **Color coding**: Each row uses its pillar color; probabilities > 70% get a green tint, 40-70% amber, < 40% muted
-- **Sorted by 30-day probability** descending — most imminent purchases first
-- **Confidence badge**: "High", "Medium", "Low" based on data density (transaction count)
-- **Smart insight sentence** at the bottom: picks the highest-probability category and explains the reasoning (recency + frequency + seasonal pattern)
+### Per-Card Elements
+- **Top line**: Category name (pillar-colored) + bold probability % + estimated "days until next" (derived from frequency: `30 / activeMonths` approximation)
+- **Gradient bar**: Fills left-to-right proportional to the 30-day probability, using the pillar's color with a subtle gradient. Background is a light neutral track.
+- **Confidence tag**: "High" / "Med" / "Low" badge anchored at the right end of the bar
+- **Sub-text**: A one-line reason string auto-generated from the data (e.g., "Weekly cadence · accelerating +15%" or "Seasonal — peaks in Sep · last seen 3mo ago")
 
-### Detailed Calculation Per Category
+### Color Treatment
+- Bar fill: pillar dot color → faded pillar color gradient
+- >70% probability: subtle green-tinted card background
+- 40–70%: subtle amber tint
+- <40%: neutral/transparent
 
-```
-recencyScore:
-  - last purchase this month → 1.0
-  - last purchase 1 month ago → 0.85
-  - 2 months ago → 0.6
-  - 3+ months ago → max(0.1, 1 - monthsAgo * 0.15)
-
-frequencyScore:
-  - activeMonths / 12 (months with any spend)
-
-seasonalityScore (for N-month window):
-  - average of normalized monthly spend for the next N months
-  - normalized = monthSpend / peakMonthSpend
-
-probability = recency * 0.40 + frequency * 0.35 + seasonality * 0.25
-clamped to 1-99%
-```
+### Reason String Logic
+Compose from available data:
+- **Cadence**: `activeMonths >= 10` → "Weekly cadence" | `>= 6` → "Bi-monthly" | `>= 3` → "Quarterly" | else → "Occasional"
+- **Velocity**: if `|velocity| >= 15`, append "accelerating +X%" or "declining -X%"
+- **Seasonality**: if next month has historical spend, append "peak season" or "historically peaks in {month}"
+- **Recency**: if `lastMonthAgo >= 3`, append "last seen Xmo ago"
 
 ### Changes
 
-**`src/components/exec-demo/PurchaseCycleTimeline.tsx`** — single file:
+**`src/components/exec-demo/PurchaseCycleTimeline.tsx`**:
 
-1. Add a new `useMemo` block computing `probabilityRows` from the existing `rows` data:
-   - For each `SeasonalRow`, calculate recency (find last month with spend relative to `CURRENT_MONTH`), frequency (count non-zero months), and seasonality scores for 30d/60d/90d windows
-   - Sort by 30-day probability descending
-   - Take top 6 categories
-
-2. Render a new section after the "Spending Pattern Insight" callout:
-   - Header: crosshair icon + "NEXT-PURCHASE PROBABILITY" (same styling as existing section headers)
-   - Compact table with category label, 3 probability columns with dot indicators + percentage
-   - Each row uses `getColor(row.pillar)` for consistent pillar coloring
-   - Confidence badge (High/Medium/Low) based on `row.count` (>6 = High, 3-6 = Medium, <3 = Low)
-   - Bottom insight card with auto-generated sentence about the highest-probability upcoming purchase
-
-3. Stagger reveal animations to follow after the existing content (`0.6s` base delay + per-row stagger)
+1. Remove `SignalDots` component and the table-style column headers / row grid (lines 102-117, 471-534)
+2. Add a `daysUntilEstimate` helper: `Math.round(30 / Math.max(activeMonths, 1))` capped at 90
+3. Add a `buildReasonString(pr, rows)` helper using the cadence/velocity/seasonality logic above
+4. Replace the probability section render with the new card-based layout:
+   - Each card is a `div` with rounded corners, subtle pillar-tinted background, containing the name + percentage row, a full-width progress bar `div`, and a reason sub-text
+   - Cards stagger-animate in with existing `exec-card-reveal` keyframes
+5. Keep the `ConfidenceBadge` component (repositioned inside the bar area)
+6. Keep the predictive insight card at the bottom (already has distinct styling)
 
