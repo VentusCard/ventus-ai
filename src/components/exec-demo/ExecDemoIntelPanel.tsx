@@ -455,7 +455,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1 text-[11px] font-medium px-3 py-1 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
