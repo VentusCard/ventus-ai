@@ -127,6 +127,26 @@ export default function ExecDemoIntelPanel({
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
   const [pillsExpanded, setPillsExpanded] = useState(false);
 
+  // Determine which pillars have AI rollups
+  const rollups = personaSynthesis?.pillarRollups || [];
+  const rolledUpPillars = useMemo(() => new Set(rollups.map(r => r.pillar)), [rollups]);
+
+  // Chips not covered by a rollup
+  const unrolledChips = useMemo(
+    () => chips.filter(c => !rolledUpPillars.has(c.pillar)),
+    [chips, rolledUpPillars]
+  );
+
+  // Compute rollup stats from chips
+  const rollupStats = useMemo(() => {
+    return rollups.map(r => {
+      const pillarChips = chips.filter(c => c.pillar === r.pillar);
+      const totalSpend = pillarChips.reduce((s, c) => s + c.totalSpend, 0);
+      const totalCount = pillarChips.reduce((s, c) => s + c.count, 0);
+      return { ...r, totalSpend, totalCount };
+    });
+  }, [rollups, chips]);
+
   // Unique pillars for legend
   const activePillars = useMemo(() => {
     const seen = new Set<string>();
@@ -218,9 +238,18 @@ export default function ExecDemoIntelPanel({
           </div>
         )}
 
-        {/* Collapsible evidence pills */}
+        {/* Rollup pills + evidence pills */}
         {chips.length > 0 && (
           <div>
+            {/* Pillar rollup pills - shown when AI synthesis arrives */}
+            {rollupStats.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2" style={{ animation: "desc-crossfade 0.5s ease-out" }}>
+                {rollupStats.map((r, i) => (
+                  <PillarRollupChip key={r.pillar} rollup={r} delay={i * 0.12} />
+                ))}
+              </div>
+            )}
+
             <button
               onClick={() => setPillsExpanded((p) => !p)}
               className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
@@ -246,19 +275,23 @@ export default function ExecDemoIntelPanel({
                   </div>
                 )}
 
-                {/* Pill cloud */}
+                {/* Pill cloud - rolled-up pills shrink, un-rolled stay normal */}
                 <div
                   className="flex flex-wrap gap-1.5 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
                   style={{ maxHeight: showTabs ? 100 : 160 }}
                 >
-                  {chips.map((chip) => (
-                    <AnimatedChip
-                      key={`${chip.pillar}::${chip.label}`}
-                      chip={chip}
-                      isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
-                      onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                    />
-                  ))}
+                  {chips.map((chip) => {
+                    const isRolledUp = rolledUpPillars.has(chip.pillar);
+                    return (
+                      <AnimatedChip
+                        key={`${chip.pillar}::${chip.label}`}
+                        chip={chip}
+                        isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
+                        onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                        collapsed={isRolledUp}
+                      />
+                    );
+                  })}
                 </div>
               </>
             )}
