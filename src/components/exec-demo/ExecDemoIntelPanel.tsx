@@ -344,6 +344,7 @@ export default function ExecDemoIntelPanel({
             <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
           </div>
         )}
+      </>
       )}
 
       {/* Processing shimmer */}
