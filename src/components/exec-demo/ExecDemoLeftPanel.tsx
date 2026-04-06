@@ -235,11 +235,11 @@ export default function ExecDemoLeftPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Customer Selector */}
-      <div className="px-4 pt-4 pb-2">
+      <div className="px-4 pt-3 pb-1">
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Select Customer
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {/* Custom mode active */}
           {isCustomMode && (
             <button
@@ -285,7 +285,7 @@ export default function ExecDemoLeftPanel({
               >
                 <button
                   onClick={() => handleCardClick(i)}
-                  className={`w-full text-left rounded-lg px-4 py-3 border transition-all duration-200 ${
+                  className={`w-full text-left rounded-lg px-3 py-2 border transition-all duration-200 ${
                     isSelected
                       ? "border-blue-300 bg-blue-50 shadow-sm"
                       : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
