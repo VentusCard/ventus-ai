@@ -259,7 +259,7 @@ export default function ExecDemoIntelPanel({
             {synthesisTriggered && rollupStats.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {rollupStats.map((r, i) => (
-                  <PillarRollupChip key={r.pillar} rollup={r} delay={0.5 + i * 0.15} />
+                  <PillarRollupChip key={r.pillar} rollup={r} delay={0.5 + i * 0.15} isActive={activePillarFilter === r.pillar} onClick={() => onPillarClick?.(r.pillar)} />
                 ))}
               </div>
             )}
@@ -480,17 +480,21 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
 }
 
 /** Synthesized rollup pill for a pillar */
-function PillarRollupChip({ rollup, delay }: { rollup: { pillar: string; label: string; categories: string[]; totalSpend: number; totalCount: number }; delay: number }) {
+function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: { pillar: string; label: string; categories: string[]; totalSpend: number; totalCount: number }; delay: number; isActive?: boolean; onClick?: () => void }) {
   const c = getColor(rollup.pillar);
   return (
     <span
-      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200"
       style={{
-        background: `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
+        background: isActive
+          ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
+          : `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
         color: c.text,
-        border: `1.5px solid ${c.dot}`,
+        border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
         animation: `rollup-entrance 0.5s ease-out ${delay}s both, rollup-glow 1s ease-out ${delay + 0.5}s both`,
-        boxShadow: `0 2px 8px ${c.bg.replace(".12", ".2")}`,
+        boxShadow: isActive ? `0 0 14px ${c.bg.replace(".12", ".35")}` : `0 2px 8px ${c.bg.replace(".12", ".2")}`,
+        transform: isActive ? "scale(1.08)" : "scale(1)",
       }}
     >
       <span style={{ color: c.dot }}>✦</span>
