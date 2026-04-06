@@ -296,11 +296,6 @@ export default function ExecDemoIntelPanel({
               >
                 {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
                   const c = getColor(pillar);
-                  // Skip fully rolled-up pillar groups after synthesis
-                  if (synthesisTriggered) {
-                    const allRolledUp = pillarChips.every(chip => rollups.some(r => chipMatchesRollup(chip, r, chips.indexOf(chip))));
-                    if (allRolledUp) return null;
-                  }
                   return (
                     <div key={pillar} className="mb-1.5">
                       {/* Pillar header */}
