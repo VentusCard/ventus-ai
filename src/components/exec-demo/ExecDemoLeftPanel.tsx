@@ -99,6 +99,7 @@ export default function ExecDemoLeftPanel({
   personaIcon,
   personaTitle,
   filteredIndices,
+  signalMap,
   activePillLabel,
   activePillColor = "#10b981",
   onClearFilter,
