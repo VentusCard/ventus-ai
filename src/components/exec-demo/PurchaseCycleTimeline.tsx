@@ -99,21 +99,47 @@ function clampProb(v: number): number {
   return Math.max(1, Math.min(99, Math.round(v * 100)));
 }
 
-function SignalDots({ prob, color }: { prob: number; color: string }) {
-  const filled = prob >= 75 ? 4 : prob >= 50 ? 3 : prob >= 25 ? 2 : prob >= 10 ? 1 : 0;
-  return (
-    <span className="inline-flex gap-[2px]">
-      {[0, 1, 2, 3].map(i => (
-        <span
-          key={i}
-          className="inline-block w-[5px] h-[5px] rounded-full"
-          style={{
-            background: i < filled ? color : "#e2e8f0",
-          }}
-        />
-      ))}
-    </span>
-  );
+function formatDaysEstimate(activeMonths: number): string {
+  const days = Math.min(90, Math.round(30 / Math.max(activeMonths, 1)));
+  if (days <= 7) return `~${days}d`;
+  if (days <= 30) return `~${Math.round(days / 7)}wk`;
+  return `~${Math.round(days / 30)}mo`;
+}
+
+function buildReasonString(
+  activeMonths: number,
+  velocity: number,
+  monthlySpend: number[],
+  lastMonthAgo: number,
+  peak: number,
+): string {
+  const parts: string[] = [];
+
+  // Cadence
+  if (activeMonths >= 10) parts.push("Weekly cadence");
+  else if (activeMonths >= 6) parts.push("Bi-monthly pattern");
+  else if (activeMonths >= 3) parts.push("Quarterly pattern");
+  else parts.push("Occasional");
+
+  // Velocity
+  if (Math.abs(velocity) >= 15) {
+    parts.push(velocity > 0 ? `accelerating +${velocity}%` : `declining ${velocity}%`);
+  }
+
+  // Seasonality — check if next month historically has spend
+  const nextMonth = (CURRENT_MONTH + 1) % 12;
+  if (monthlySpend[nextMonth] > 0) {
+    parts.push("peak season");
+  } else if (monthlySpend[peak] > 0) {
+    parts.push(`peaks in ${MONTHS[peak]}`);
+  }
+
+  // Recency
+  if (lastMonthAgo >= 3) {
+    parts.push(`last seen ${lastMonthAgo}mo ago`);
+  }
+
+  return parts.join(" · ");
 }
 
 function ConfidenceBadge({ confidence }: { confidence: "High" | "Medium" | "Low" }) {
