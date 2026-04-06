@@ -10,6 +10,8 @@ export interface PillarRollup {
   categories: string[];
   categoryIndices?: number[];
   txIndices?: number[];
+  totalCount?: number;
+  totalSpend?: number;
 }
 
 export interface PersonaSynthesis {
