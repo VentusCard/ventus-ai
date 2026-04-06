@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
-import ExecDemoIntelPanel, { type PersonaSynthesis, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
+import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
@@ -36,7 +36,7 @@ export default function ExecDemoPage() {
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
   const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string } | null>(null);
-  const [activePillarFilter, setActivePillarFilter] = useState<string | null>(null);
+  const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
@@ -123,18 +123,21 @@ export default function ExecDemoPage() {
   /** Synthesize persona headline + insights from classified transactions */
   const firePersonaSynthesis = useCallback(async (enrichedTxs: EnrichedTransaction[]) => {
     const signalMap = buildSignalMapFromClassified(enrichedTxs);
-    const grouped = new Map<string, { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }>();
-    for (const s of Object.values(signalMap)) {
+    // Group signals and track which transaction indices belong to each category row
+    const grouped = new Map<string, { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; txIndices: number[] }>();
+    for (const [txIdx, s] of Object.entries(signalMap)) {
       const key = `${s.pillar}::${s.label}`;
       const existing = grouped.get(key);
       if (existing) {
         existing.count += 1;
         existing.totalSpend += s.amount;
+        existing.txIndices.push(Number(txIdx));
       } else {
-        grouped.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount, frequency: s.frequency });
+        grouped.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount, frequency: s.frequency, txIndices: [Number(txIdx)] });
       }
     }
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+    // pillars[i].txIndices = the transaction indices for row i sent to AI
 
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
@@ -144,12 +147,23 @@ export default function ExecDemoPage() {
       const synthesis: PersonaSynthesis = {
         headline: data.headline || "Dynamic Persona",
         insights: data.insights || [],
-        pillarRollups: (data.pillar_rollups || []).map((r: any) => ({
-          pillar: r.pillar,
-          label: r.label,
-          categories: r.categories || [],
-          categoryIndices: r.category_indices || [],
-        })),
+        pillarRollups: (data.pillar_rollups || []).map((r: any) => {
+          const catIndices: number[] = r.category_indices || [];
+          // Convert category_indices (row numbers) into concrete transaction indices
+          const txIndices: number[] = [];
+          for (const ci of catIndices) {
+            if (ci >= 0 && ci < pillars.length) {
+              txIndices.push(...pillars[ci].txIndices);
+            }
+          }
+          return {
+            pillar: r.pillar,
+            label: r.label,
+            categories: r.categories || [],
+            categoryIndices: catIndices,
+            txIndices,
+          };
+        }),
       };
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
@@ -312,26 +326,32 @@ export default function ExecDemoPage() {
   }, []);
 
   const handlePillClick = useCallback((pillar: string, label: string) => {
-    setActivePillarFilter(null);
+    setActiveRollup(null);
     setActivePillFilter((prev) =>
       prev && prev.pillar === pillar && prev.label === label ? null : { pillar, label }
     );
   }, []);
 
-  const handlePillarClick = useCallback((pillar: string) => {
+  const handleRollupClick = useCallback((rollup: PillarRollup) => {
     setActivePillFilter(null);
-    setActivePillarFilter((prev) => prev === pillar ? null : pillar);
+    setActiveRollup((prev) =>
+      prev && prev.pillar === rollup.pillar && prev.label === rollup.label ? null : rollup
+    );
   }, []);
 
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
-  // Derive filtered transaction indices from the active pill/pillar filter
+  // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
     const sm = execProfile.persona.signalMap;
-    if (activePillarFilter) {
+    if (activeRollup) {
+      // Use txIndices if available, otherwise fall back to pillar-level matching
+      if (activeRollup.txIndices && activeRollup.txIndices.length > 0) {
+        return activeRollup.txIndices;
+      }
       return Object.entries(sm)
-        .filter(([, s]) => s.pillar === activePillarFilter)
+        .filter(([, s]) => s.pillar === activeRollup.pillar)
         .map(([idx]) => Number(idx));
     }
     if (activePillFilter) {
@@ -340,7 +360,7 @@ export default function ExecDemoPage() {
         .map(([idx]) => Number(idx));
     }
     return null;
-  }, [activePillFilter, activePillarFilter, execProfile.persona.signalMap]);
+  }, [activePillFilter, activeRollup, execProfile.persona.signalMap]);
 
   return (
     <SimplePasswordGate>
@@ -390,15 +410,15 @@ export default function ExecDemoPage() {
             personaIcon={execProfile.persona.icon}
             personaTitle={execProfile.persona.title}
             filteredIndices={filteredIndices}
-            activePillLabel={activePillarFilter || activePillFilter?.label || null}
+            activePillLabel={activeRollup?.label || activePillFilter?.label || null}
             activePillColor={
-              activePillarFilter
-                ? getColor(activePillarFilter).dot
+              activeRollup
+                ? getColor(activeRollup.pillar).dot
                 : activePillFilter
                   ? getColor(activePillFilter.pillar).dot
                   : "#10b981"
             }
-            onClearFilter={() => { setActivePillFilter(null); setActivePillarFilter(null); }}
+            onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); }}
           />
         </div>
 
@@ -414,8 +434,9 @@ export default function ExecDemoPage() {
             onTabClick={handleTabClick}
             activePillFilter={activePillFilter}
             onPillClick={handlePillClick}
-            activePillarFilter={activePillarFilter}
-            onPillarClick={handlePillarClick}
+            activePillarFilter={activeRollup?.pillar || null}
+            activeRollup={activeRollup}
+            onRollupClick={handleRollupClick}
             personaSynthesis={personaSynthesis}
           />
         </div>
