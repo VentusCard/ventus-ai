@@ -423,7 +423,7 @@ export default function ExecDemoIntelPanel({
 }
 
 /** A single color-coded chip showing label · count× · $amount */
-function AnimatedChip({ chip, isActive, onClick, collapsed }: { chip: ChipData; isActive?: boolean; onClick?: () => void; collapsed?: boolean }) {
+function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { chip: ChipData; isActive?: boolean; onClick?: () => void; collapsed?: boolean; mergeDelay?: number }) {
   const prevCount = useRef(chip.count);
   const [pulse, setPulse] = useState(false);
   const c = getColor(chip.pillar);
@@ -446,7 +446,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed }: { chip: ChipData; 
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
         border: isActive ? `2px solid ${c.dot}` : `1px solid ${c.border}`,
-        animation: collapsed ? "pill-collapse 0.5s ease-in-out forwards" : "pill-pop 0.3s ease-out both",
+        animation: collapsed ? `pill-collapse 0.4s ease-in-out ${mergeDelay}s forwards` : "pill-pop 0.3s ease-out both",
         transform: isActive ? "scale(1.08)" : "scale(1)",
         boxShadow: isActive ? `0 0 8px ${c.bg}` : "none",
       }}
