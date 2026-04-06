@@ -499,6 +499,7 @@ export default function ExecDemoPage() {
             personaIcon={execProfile.persona.icon}
             personaTitle={execProfile.persona.title}
             filteredIndices={filteredIndices}
+            signalMap={execProfile.persona.signalMap}
             activePillLabel={activeRollup?.label || activePillFilter?.label || null}
             activePillColor={
               activeRollup

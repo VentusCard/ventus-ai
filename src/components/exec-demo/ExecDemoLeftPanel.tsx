@@ -3,7 +3,8 @@ import { useState } from "react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { getIntelligenceForCustomer } from "./execDemoData";
-import type { Transaction } from "./execDemoData";
+import type { Transaction, SignalEntry } from "./execDemoData";
+import { getColor } from "./ExecDemoIntelPanel";
 import { toast } from "sonner";
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
   personaIcon?: string;
   personaTitle?: string;
   filteredIndices?: number[] | null;
+  signalMap?: Record<number, SignalEntry>;
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
@@ -35,20 +37,32 @@ const TxRow = ({
   dim,
   highlight,
   highlightColor,
+  pillarColor,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
+  pillarColor?: string;
 }) => (
   <div
     className="font-mono text-[10px] leading-tight px-2 py-[4px] rounded flex items-center gap-1.5 truncate transition-all duration-300"
     style={{
       color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#334155",
       background: highlight ? `${highlightColor}18` : "transparent",
-      borderLeft: highlight ? `2px solid ${highlightColor}` : "2px solid transparent",
+      borderLeft: highlight
+        ? `2px solid ${highlightColor}`
+        : pillarColor
+          ? `2px solid ${pillarColor}40`
+          : "2px solid transparent",
     }}
   >
+    {pillarColor && !dim && (
+      <span
+        className="w-1.5 h-1.5 rounded-full shrink-0"
+        style={{ background: pillarColor }}
+      />
+    )}
     <span
       className="text-[8px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
       style={{
@@ -85,6 +99,7 @@ export default function ExecDemoLeftPanel({
   personaIcon,
   personaTitle,
   filteredIndices,
+  signalMap,
   activePillLabel,
   activePillColor = "#10b981",
   onClearFilter,
@@ -364,26 +379,28 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
                     </div>
                   );
                 })}
                 <div className="border-t border-slate-100 my-1" />
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim />;
+                  const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} />;
                 })}
               </>
             ) : (
               <>
                 {collected.map(({ tx, i }) => (
                   <div key={`col-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} />
+                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
                   </div>
                 ))}
-                {uncollected.map(({ tx, i }) => (
-                  <TxRow key={`unc-${i}`} tx={tx} dim />
-                ))}
+                {uncollected.map(({ tx, i }) => {
+                  const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
+                  return <TxRow key={`unc-${i}`} tx={tx} dim pillarColor={pc} />;
+                })}
               </>
             )}
           </div>
