@@ -218,10 +218,10 @@ export default function ExecDemoIntelPanel({
   const hasSynthesis = personaSynthesis && personaSynthesis.headline;
 
   return (
-    <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
+    <div className="flex flex-col h-full px-5 py-2 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-3 mb-2 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
