@@ -235,7 +235,7 @@ export default function ExecDemoLeftPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Customer Selector */}
-      <div className="px-4 pt-4 pb-2">
+      <div className="px-4 pt-3 pb-1">
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Select Customer
         </div>
