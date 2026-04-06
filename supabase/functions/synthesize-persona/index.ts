@@ -25,8 +25,12 @@ serve(async (req) => {
     const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
 
     const pillarSummary = pillars
-      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }, i: number) =>
-        `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${p.frequency ? `, ${p.frequency}` : ""}`)
+      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; topMerchants?: string[]; spendingTier?: string; subcategories?: string[] }, i: number) => {
+        const merchants = p.topMerchants?.length ? ` merchants: ${p.topMerchants.slice(0, 5).join(", ")}` : "";
+        const tier = p.spendingTier ? ` [${p.spendingTier}]` : "";
+        const subs = p.subcategories?.length ? ` subs: ${p.subcategories.slice(0, 5).join(", ")}` : "";
+        return `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${tier}${merchants}${subs}${p.frequency ? `, ${p.frequency}` : ""}`;
+      })
       .join("\n");
 
     const systemPrompt = `You are a behavioral analytics engine for a bank. Given aggregated spending signal data, produce:

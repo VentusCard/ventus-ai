@@ -122,18 +122,37 @@ export default function ExecDemoPage() {
 
   /** Synthesize persona headline + insights from classified transactions */
   const firePersonaSynthesis = useCallback(async (enrichedTxs: EnrichedTransaction[]) => {
-    const signalMap = buildSignalMapFromClassified(enrichedTxs);
-    // Group signals and track which transaction indices belong to each category row
-    const grouped = new Map<string, { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; txIndices: number[] }>();
-    for (const [txIdx, s] of Object.entries(signalMap)) {
-      const key = `${s.pillar}::${s.label}`;
+    // Group by pillar::category and collect merchants, tiers, subcategories
+    const grouped = new Map<string, {
+      pillar: string; label: string; count: number; totalSpend: number;
+      frequency?: string; txIndices: number[];
+      topMerchants: string[]; spendingTier: string; subcategories: string[];
+    }>();
+    for (const [txIdx, tx] of enrichedTxs.entries()) {
+      const key = `${tx.pillar}::${tx.category}`;
       const existing = grouped.get(key);
       if (existing) {
         existing.count += 1;
-        existing.totalSpend += s.amount;
-        existing.txIndices.push(Number(txIdx));
+        existing.totalSpend += tx.amount;
+        existing.txIndices.push(txIdx);
+        if (tx.normalized_merchant && !existing.topMerchants.includes(tx.normalized_merchant))
+          existing.topMerchants.push(tx.normalized_merchant);
+        if (tx.subcategories) tx.subcategories.forEach(sc => {
+          if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
+        });
+        // Keep highest tier
+        const tierRank: Record<string, number> = { "Budget": 0, "Standard": 1, "Premium": 2 };
+        if ((tierRank[tx.spending_tier] ?? 1) > (tierRank[existing.spendingTier] ?? 1)) {
+          existing.spendingTier = tx.spending_tier;
+        }
       } else {
-        grouped.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount, frequency: s.frequency, txIndices: [Number(txIdx)] });
+        grouped.set(key, {
+          pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount,
+          frequency: tx.purchase_frequency, txIndices: [txIdx],
+          topMerchants: tx.normalized_merchant ? [tx.normalized_merchant] : [],
+          spendingTier: tx.spending_tier || "Standard",
+          subcategories: tx.subcategories ? [...tx.subcategories] : [],
+        });
       }
     }
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
