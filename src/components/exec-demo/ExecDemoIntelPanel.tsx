@@ -130,6 +130,16 @@ export default function ExecDemoIntelPanel({
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
   const [pillsExpanded, setPillsExpanded] = useState(false);
+
+  // Group chips by pillar, preserving insertion order
+  const chipsByPillar = useMemo(() => {
+    const map = new Map<string, ChipData[]>();
+    for (const chip of chips) {
+      if (!map.has(chip.pillar)) map.set(chip.pillar, []);
+      map.get(chip.pillar)!.push(chip);
+    }
+    return map;
+  }, [chips]);
   const [synthesisTriggered, setSynthesisTriggered] = useState(false);
 
   // Determine which pillars have AI rollups
@@ -152,18 +162,6 @@ export default function ExecDemoIntelPanel({
     });
   }, [rollups, chips]);
 
-  // Unique pillars for legend
-  const activePillars = useMemo(() => {
-    const seen = new Set<string>();
-    const result: string[] = [];
-    for (const c of chips) {
-      if (!seen.has(c.pillar)) {
-        seen.add(c.pillar);
-        result.push(c.pillar);
-      }
-    }
-    return result;
-  }, [chips]);
 
   // Derive current description from milestone keys
   const currentDescription = useMemo(() => {
@@ -203,12 +201,13 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-5 overflow-hidden">
       {/* Persona section */}
       <div
-        className="rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out"
+        className="rounded-2xl px-4 py-4 mb-4 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll"
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
+          maxHeight: showTabs ? "45vh" : undefined,
         }}
       >
         {/* AI Persona Headline — only after synthesis triggered */}
@@ -273,42 +272,40 @@ export default function ExecDemoIntelPanel({
             </button>
 
             {(pillsExpanded || !synthesisTriggered) && (
-              <>
-                {/* Legend */}
-                {activePillars.length > 0 && (
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 mb-2.5">
-                    {activePillars.map((pillar) => {
-                      const c = getColor(pillar);
-                      return (
-                        <span key={pillar} className="flex items-center gap-1 text-[9px] text-slate-500" style={{ animation: "pill-pop 0.3s ease-out both" }}>
-                          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.dot }} />
-                          {pillar}
-                        </span>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Pill cloud */}
-                <div
-                  className="flex flex-wrap gap-1.5 min-h-[28px] overflow-y-auto exec-light-scroll transition-all duration-500"
-                  style={{ maxHeight: showTabs ? 100 : 160 }}
-                >
-                  {chips.map((chip, idx) => {
-                    const isRolledUp = rolledUpPillars.has(chip.pillar);
-                    return (
-                      <AnimatedChip
-                        key={`${chip.pillar}::${chip.label}`}
-                        chip={chip}
-                        isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
-                        onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                        collapsed={synthesisTriggered && isRolledUp}
-                        mergeDelay={idx * 0.06}
-                      />
-                    );
-                  })}
-                </div>
-              </>
+              <div
+                className="transition-all duration-500"
+                style={{
+                  maxHeight: synthesisTriggered ? 100 : undefined,
+                  overflowY: synthesisTriggered ? "auto" : undefined,
+                }}
+              >
+                {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
+                  const c = getColor(pillar);
+                  const allRolledUp = synthesisTriggered && rolledUpPillars.has(pillar);
+                  return (
+                    <div key={pillar} className="mb-2.5" style={{ animation: allRolledUp ? `pill-collapse 0.4s ease-in-out forwards` : undefined }}>
+                      {/* Pillar header */}
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.dot }} />
+                        <span className="text-[10px] font-semibold" style={{ color: c.text }}>{pillar}</span>
+                      </div>
+                      {/* Chips for this pillar */}
+                      <div className="flex flex-wrap gap-1.5 pl-3.5">
+                        {pillarChips.map((chip, idx) => (
+                          <AnimatedChip
+                            key={`${chip.pillar}::${chip.label}`}
+                            chip={chip}
+                            isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
+                            onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                            collapsed={synthesisTriggered && rolledUpPillars.has(chip.pillar)}
+                            mergeDelay={idx * 0.06}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         )}
