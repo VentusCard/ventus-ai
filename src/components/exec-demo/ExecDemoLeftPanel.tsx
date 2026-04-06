@@ -443,21 +443,23 @@ export default function ExecDemoLeftPanel({
         )}
       </div>
 
-      {/* Run Analysis Button */}
-      <div className="px-4 pb-4 pt-2">
-        <button
-          onClick={onRunAnalysis}
-          disabled={isRunning}
-          className={`w-full flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-all duration-200 ${
-            isRunning
-              ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg"
-          }`}
-        >
-          <Play className="w-4 h-4" />
-          {isRunning ? "Analyzing..." : "Behavioral Enrichment"}
-        </button>
-      </div>
+      {/* Run Analysis Button — hidden once analysis completes */}
+      {phase !== "hold" && (
+        <div className="px-4 pb-4 pt-2">
+          <button
+            onClick={onRunAnalysis}
+            disabled={isRunning}
+            className={`w-full flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-all duration-200 ${
+              isRunning
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg"
+            }`}
+          >
+            <Play className="w-4 h-4" />
+            {isRunning ? "Analyzing..." : "Behavioral Enrichment"}
+          </button>
+        </div>
+      )}
 
       <style>{`
         @keyframes exec-rapid-scroll {
