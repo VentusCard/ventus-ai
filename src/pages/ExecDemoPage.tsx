@@ -38,6 +38,8 @@ export default function ExecDemoPage() {
   const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string } | null>(null);
   const [activePillarFilter, setActivePillarFilter] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -195,12 +197,50 @@ export default function ExecDemoPage() {
     fireClassification(csv);
   }, [clearTimeouts, fireClassification]);
 
+  const revealStep = useCallback((idx: number, p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
+    const tabKey = TAB_ORDER[idx];
+    const card = p.intelligence[tabKey];
+    setActiveTab(tabKey);
+    setCurrentCardColor(card.accent);
+    setCollectedIndices(card.txIndices);
+    setRevealedTabs(TAB_ORDER.slice(0, idx + 1));
+    setStepIndex(idx);
+  }, []);
+
+  // Arrow key navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (phase !== "hold") return;
+      const p = profileRef.current;
+      if (!p) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setStepIndex((prev) => {
+          const next = Math.min(prev + 1, TAB_ORDER.length - 1);
+          revealStep(next, p);
+          return next;
+        });
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setStepIndex((prev) => {
+          const next = Math.max(prev - 1, 0);
+          revealStep(next, p);
+          return next;
+        });
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [phase, revealStep]);
+
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
     setProcessedSignals([]);
     setRevealedTabs([]);
     setActiveTab(null);
     setCollectedIndices([]);
+    profileRef.current = p;
 
     const txCount = p.transactions.length;
     const signalInterval = TIMINGS.scroll / (txCount + 1);
@@ -214,44 +254,13 @@ export default function ExecDemoPage() {
       }
     }
 
-    let elapsed = TIMINGS.scroll + TIMINGS.personaPause;
-
-    TAB_ORDER.forEach((tabKey) => {
-      const card = p.intelligence[tabKey];
-      const cardElapsed = elapsed;
-      const cardCollectDuration =
-        card.txIndices.length * TIMINGS.collectInterval + TIMINGS.collectBuffer;
-
-      schedule(() => {
-        setPhase("cardScan");
-        setCollectedIndices([]);
-        setCurrentCardColor(card.accent);
-        setActiveTab(tabKey);
-      }, cardElapsed);
-
-      const collectStart = cardElapsed + TIMINGS.cardScan;
-      schedule(() => {
-        setPhase("cardCycle");
-      }, collectStart);
-
-      card.txIndices.forEach((txIdx, j) => {
-        schedule(() => {
-          setCollectedIndices((prev) => [...prev, txIdx]);
-        }, collectStart + (j + 1) * TIMINGS.collectInterval);
-      });
-
-      schedule(() => {
-        setRevealedTabs((prev) => [...prev, tabKey]);
-      }, collectStart + cardCollectDuration);
-
-      elapsed += TIMINGS.cardScan + cardCollectDuration + TIMINGS.cardReveal;
-    });
+    const elapsed = TIMINGS.scroll + TIMINGS.personaPause;
 
     schedule(() => {
       setPhase("hold");
-      setActiveTab("analytics");
+      revealStep(0, p);
     }, elapsed);
-  }, [schedule]);
+  }, [schedule, revealStep]);
 
   const handleRunAnalysis = useCallback(async () => {
     if (isRunning) return;

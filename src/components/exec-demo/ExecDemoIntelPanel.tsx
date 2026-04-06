@@ -313,30 +313,39 @@ export default function ExecDemoIntelPanel({
 
       {/* Tab bar — visible whenever enrichment is active */}
       {showProfile && phase !== "idle" && (
-        <div className="flex rounded-lg bg-slate-100 p-0.5 mb-3 shrink-0">
-          {TAB_ORDER.map((key) => {
-            const meta = TAB_META[key];
-            const Icon = meta.icon;
-            const isActive = activeTab === key;
-            const isRevealed = revealedTabs.includes(key);
-            return (
-              <button
-                key={key}
-                onClick={() => isRevealed && onTabClick(key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
-                  isActive
-                    ? "bg-white text-slate-800 shadow-sm"
-                    : isRevealed
-                    ? "text-slate-500 hover:text-slate-700 cursor-pointer"
-                    : "text-slate-300 cursor-default"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {meta.label}
-              </button>
-            );
-          })}
-        </div>
+        <>
+          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1 shrink-0">
+            {TAB_ORDER.map((key) => {
+              const meta = TAB_META[key];
+              const Icon = meta.icon;
+              const isActive = activeTab === key;
+              const isRevealed = revealedTabs.includes(key);
+              return (
+                <button
+                  key={key}
+                  onClick={() => isRevealed && onTabClick(key)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                    isActive
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : isRevealed
+                      ? "text-slate-500 hover:text-slate-700 cursor-pointer"
+                      : "text-slate-300 cursor-default"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {meta.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Arrow key hint */}
+          {revealedTabs.length > 0 && revealedTabs.length < 3 && (
+            <div className="text-center mb-2">
+              <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
+            </div>
+          )}
+        </>
       )}
 
       {/* Processing shimmer */}
