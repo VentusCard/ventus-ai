@@ -379,26 +379,28 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
                     </div>
                   );
                 })}
                 <div className="border-t border-slate-100 my-1" />
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim />;
+                  const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} />;
                 })}
               </>
             ) : (
               <>
                 {collected.map(({ tx, i }) => (
                   <div key={`col-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} />
+                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
                   </div>
                 ))}
-                {uncollected.map(({ tx, i }) => (
-                  <TxRow key={`unc-${i}`} tx={tx} dim />
-                ))}
+                {uncollected.map(({ tx, i }) => {
+                  const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
+                  return <TxRow key={`unc-${i}`} tx={tx} dim pillarColor={pc} />;
+                })}
               </>
             )}
           </div>
