@@ -99,21 +99,47 @@ function clampProb(v: number): number {
   return Math.max(1, Math.min(99, Math.round(v * 100)));
 }
 
-function SignalDots({ prob, color }: { prob: number; color: string }) {
-  const filled = prob >= 75 ? 4 : prob >= 50 ? 3 : prob >= 25 ? 2 : prob >= 10 ? 1 : 0;
-  return (
-    <span className="inline-flex gap-[2px]">
-      {[0, 1, 2, 3].map(i => (
-        <span
-          key={i}
-          className="inline-block w-[5px] h-[5px] rounded-full"
-          style={{
-            background: i < filled ? color : "#e2e8f0",
-          }}
-        />
-      ))}
-    </span>
-  );
+function formatDaysEstimate(activeMonths: number): string {
+  const days = Math.min(90, Math.round(30 / Math.max(activeMonths, 1)));
+  if (days <= 7) return `~${days}d`;
+  if (days <= 30) return `~${Math.round(days / 7)}wk`;
+  return `~${Math.round(days / 30)}mo`;
+}
+
+function buildReasonString(
+  activeMonths: number,
+  velocity: number,
+  monthlySpend: number[],
+  lastMonthAgo: number,
+  peak: number,
+): string {
+  const parts: string[] = [];
+
+  // Cadence
+  if (activeMonths >= 10) parts.push("Weekly cadence");
+  else if (activeMonths >= 6) parts.push("Bi-monthly pattern");
+  else if (activeMonths >= 3) parts.push("Quarterly pattern");
+  else parts.push("Occasional");
+
+  // Velocity
+  if (Math.abs(velocity) >= 15) {
+    parts.push(velocity > 0 ? `accelerating +${velocity}%` : `declining ${velocity}%`);
+  }
+
+  // Seasonality — check if next month historically has spend
+  const nextMonth = (CURRENT_MONTH + 1) % 12;
+  if (monthlySpend[nextMonth] > 0) {
+    parts.push("peak season");
+  } else if (monthlySpend[peak] > 0) {
+    parts.push(`peaks in ${MONTHS[peak]}`);
+  }
+
+  // Recency
+  if (lastMonthAgo >= 3) {
+    parts.push(`last seen ${lastMonthAgo}mo ago`);
+  }
+
+  return parts.join(" · ");
 }
 
 function ConfidenceBadge({ confidence }: { confidence: "High" | "Medium" | "Low" }) {
@@ -468,67 +494,67 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
             </span>
           </div>
 
-          {/* Column headers */}
-          <div className="flex items-center gap-2 mb-1.5 px-0">
-            <div className="w-[66px] shrink-0" />
-            <div className="flex-1" />
-            {["30d", "60d", "90d"].map(label => (
-              <div key={label} className="w-[52px] shrink-0 text-center">
-                <span className="text-[7px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
-              </div>
-            ))}
-            <div className="w-[28px] shrink-0" />
-          </div>
-
-          {/* Probability rows */}
-          <div className="space-y-[3px]">
+          {/* Probability cards */}
+          <div className="space-y-1.5">
             {probabilityRows.map((pr, ri) => {
               const c = getColor(pr.pillar);
-              const probs = [pr.prob30, pr.prob60, pr.prob90];
+              const matchingRow = rows.find(r => r.label === pr.label && r.pillar === pr.pillar);
+              const velocity = matchingRow?.velocity ?? 0;
+              const peak = matchingRow?.peak ?? 0;
+              const monthlySpend = matchingRow?.monthlySpend ?? new Array(12).fill(0);
+              const reason = buildReasonString(pr.activeMonths, velocity, monthlySpend, pr.lastMonthAgo, peak);
+              const daysEst = formatDaysEstimate(pr.activeMonths);
+
+              const cardBg = pr.prob30 >= 70
+                ? "rgba(16,185,129,0.05)"
+                : pr.prob30 >= 40
+                ? "rgba(245,158,11,0.04)"
+                : "rgba(148,163,184,0.04)";
 
               return (
                 <div
                   key={`prob-${pr.pillar}::${pr.label}`}
-                  className="flex items-center gap-2 rounded-md px-1 py-[3px]"
+                  className="rounded-lg px-3 py-2 border"
                   style={{
-                    background: pr.prob30 >= 70
-                      ? "rgba(16,185,129,0.04)"
-                      : pr.prob30 >= 40
-                      ? "rgba(245,158,11,0.03)"
-                      : "transparent",
-                    animation: `exec-card-reveal 0.35s ease-out ${0.7 + ri * 0.06}s both`,
+                    background: cardBg,
+                    borderColor: `${c.dot}18`,
+                    animation: `exec-card-reveal 0.35s ease-out ${0.7 + ri * 0.08}s both`,
                   }}
                 >
-                  {/* Category label */}
-                  <div className="w-[66px] shrink-0 text-right pr-1">
-                    <span className="text-[10px] font-semibold truncate block" style={{ color: c.text }}>
+                  {/* Top line: name + prob + timing */}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-bold" style={{ color: c.text }}>
                       {pr.label}
                     </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-slate-400">{daysEst}</span>
+                      <span
+                        className="text-[12px] font-black tabular-nums"
+                        style={{ color: pr.prob30 >= 70 ? "#059669" : pr.prob30 >= 40 ? "#d97706" : "#94a3b8" }}
+                      >
+                        {pr.prob30}%
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Spacer matching heatmap */}
-                  <div className="flex-1" />
-
-                  {/* 3 probability cells */}
-                  {probs.map((prob, pi) => {
-                    const probColor = prob >= 70 ? "#059669" : prob >= 40 ? "#d97706" : "#94a3b8";
-                    return (
-                      <div key={pi} className="w-[52px] shrink-0 flex items-center justify-center gap-1">
-                        <SignalDots prob={prob} color={c.dot} />
-                        <span
-                          className="text-[9px] font-bold tabular-nums"
-                          style={{ color: probColor }}
-                        >
-                          {prob}%
-                        </span>
-                      </div>
-                    );
-                  })}
-
-                  {/* Confidence badge */}
-                  <div className="w-[28px] shrink-0 flex justify-center">
-                    <ConfidenceBadge confidence={pr.confidence} />
+                  {/* Gradient bar */}
+                  <div className="relative h-[6px] rounded-full overflow-hidden" style={{ background: "#e2e8f0" }}>
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full"
+                      style={{
+                        width: `${pr.prob30}%`,
+                        background: `linear-gradient(90deg, ${c.dot}90, ${c.dot})`,
+                        transition: "width 0.6s ease-out",
+                      }}
+                    />
+                    {/* Confidence badge overlaid at right end */}
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                      <ConfidenceBadge confidence={pr.confidence} />
+                    </div>
                   </div>
+
+                  {/* Reason sub-text */}
+                  <p className="text-[8px] text-slate-400 mt-1 leading-snug">{reason}</p>
                 </div>
               );
             })}
