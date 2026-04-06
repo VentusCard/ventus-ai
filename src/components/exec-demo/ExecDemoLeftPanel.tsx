@@ -93,6 +93,11 @@ export default function ExecDemoLeftPanel({
   collapsed,
   onExpand,
 }: Props) {
+  const [showCustom, setShowCustom] = useState(false);
+  const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
+  const [copied, setCopied] = useState(false);
+  const [pasteValue, setPasteValue] = useState("");
+
   if (collapsed) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-4 gap-2">
@@ -106,10 +111,6 @@ export default function ExecDemoLeftPanel({
       </div>
     );
   }
-  const [showCustom, setShowCustom] = useState(false);
-  const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
-  const [copied, setCopied] = useState(false);
-  const [pasteValue, setPasteValue] = useState("");
 
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
   const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
