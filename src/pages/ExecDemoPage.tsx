@@ -375,8 +375,8 @@ export default function ExecDemoPage() {
             personaIcon={execProfile.persona.icon}
             personaTitle={execProfile.persona.title}
             filteredIndices={filteredIndices}
-            activePillLabel={activePillFilter?.label || null}
-            onClearFilter={() => setActivePillFilter(null)}
+            activePillLabel={activePillarFilter || activePillFilter?.label || null}
+            onClearFilter={() => { setActivePillFilter(null); setActivePillarFilter(null); }}
           />
         </div>
 
@@ -392,6 +392,8 @@ export default function ExecDemoPage() {
             onTabClick={handleTabClick}
             activePillFilter={activePillFilter}
             onPillClick={handlePillClick}
+            activePillarFilter={activePillarFilter}
+            onPillarClick={handlePillarClick}
             personaSynthesis={personaSynthesis}
           />
         </div>
