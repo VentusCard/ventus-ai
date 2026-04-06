@@ -1,78 +1,65 @@
 
 
-## Fix Merchant Name vs Description Across All Sample CSVs
+## Fix: Pills Not Clickable After AI Classification Upgrade
 
-### Problem
-Transaction data has specific details in the `description` field when they should be in `merchant_name`. Real bank statements encode identifying info (artist names, destinations, store details) in the merchant string. The description should be a generic purchase type.
+### Root Cause
 
-### Principle
-- **merchant_name**: What appears on the statement — includes processor prefix + specific identifiers (e.g., `PAYPAL*TICKETMASTR Sabrina Carpenter`, `DELTA AIR LINES 0184 LGA`)
-- **description**: Generic category label (e.g., `Concert tickets from Ticketmaster.com`, `Flight booking`)
+When the AI classification callback fires (`onClassifiedCallbackRef`), it replaces `profile.persona.signalMap` with new AI-derived labels. However, `processedSignals` — which drives the rendered chips — still contains the **old MCC-based** signal entries from animation time. 
 
-### Scope — All 4 sample CSVs in `src/lib/sampleData.ts`
+When you click a chip (e.g., MCC label "Pharmacy Shopper"), `filteredIndices` searches the **new** signalMap for that label, but the signalMap now uses AI labels (e.g., "Prenatal Health & Wellness"). No indices match → no transactions highlight → appears "not clickable."
 
-**SAMPLE_CSV (Sarah Mitchell, lines 220–296)**
-Key fixes:
-- `PAYPAL*TICKETMASTR,Concert tickets - Sabrina Carpenter` → `PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster`
-- `AplPAY UBER EATS,Food delivery via Apple Pay` → `AplPAY UBER EATS,Food delivery order`
-- `AMAZON.COM,Online shopping - books` → `AMAZON.COM AMZN Books,Online purchase`
-- `PAYPAL*ETSY,Handmade home decor` → `PAYPAL*ETSY HomeVibes Shop,Home decor purchase`
-- `DELTA AIR LINES,Flight to NYC JFK` → `DELTA AIR LINES 0062 JFK,Flight booking`
-- `MARRIOTT HOTELS,Hotel stay 3 nights` → `MARRIOTT HOTELS NYC MIDTOWN,Hotel accommodation`
-- `PAYPAL*STUBHUB,Broadway show tickets` → `PAYPAL*STUBHUB Hamilton NYC,Event tickets via StubHub`
-- `SOUTHWEST AIRLINES,Flight booking` → `SOUTHWEST AIRLINES WN3847,Flight booking`
-- `DELTA AIR LINES NYC,Flight to LaGuardia NYC` → `DELTA AIR LINES 0184 LGA,Flight booking`
-- `MARRIOTT TIMES SQUARE,Hotel check-in NYC 4 nights` → `MARRIOTT TIMES SQ NYC,Hotel accommodation`
-- `BROADWAY THEATRE,Hamilton tickets` → `BROADWAY THEATRE Hamilton,Show admission`
-- `MET MUSEUM NYC,Museum admission` → `MET MUSEUM NYC,Museum admission` (already fine)
-- `AplPAY APPLE.COM,App Store purchases via Apple Pay` → `AplPAY APPLE.COM/BILL,App Store purchase`
-- Various descriptions with "- [specific item]" pattern: move specifics into merchant name
+### Fix — `src/pages/ExecDemoPage.tsx`
 
-**SAMPLE_CSV_SPORTS_WELLNESS (James Rodriguez, lines 298–377)**
-Key fixes:
-- `AUSTIN OB GYN ASSOCIATES,Prenatal checkup` → fine (merchant IS the info)
-- `BUY BUY BABY,Nursery furniture and crib` → `BUY BUY BABY #0847,Nursery purchase`
-- `POTTERY BARN KIDS,Nursery decor and bedding` → `POTTERY BARN KIDS #214,Home decor purchase`
-- Most are already good — merchant names like `EQUINOX AUSTIN`, `REI CO-OP` carry the info. Descriptions like "Monthly gym membership premium" are appropriately generic.
+1. **Re-sync `processedSignals` when signalMap updates**: Add a `useEffect` that watches `profile?.persona.signalMap`. When it changes (i.e., after AI upgrade), rebuild `processedSignals` from the new signalMap — preserving only the indices that were already processed during animation.
 
-**SAMPLE_CSV_FOOD_HOME (Robert Garcia, lines 379–458)**
-Key fixes:
-- `GUARANTEED RATE MORTGAGE,Pre-approval application fee` → `GUARANTEED RATE MORTGAGE,Mortgage application fee`
-- `CHICAGO HOME INSPECTIONS,Home inspection service` → fine
-- `CHICAGO TITLE COMPANY,Title search and escrow` → fine
-- Most descriptions here are reasonably generic already.
+```typescript
+// When signalMap upgrades (AI classification), re-sync processedSignals
+useEffect(() => {
+  if (!profile?.persona.signalMap) return;
+  setProcessedSignals((prev) => {
+    if (prev.length === 0) return prev;
+    // Re-derive from updated signalMap, keeping same transaction indices
+    const sm = profile.persona.signalMap;
+    const updated: SignalEntry[] = [];
+    // processedSignals were added in order of tx index — rebuild from signalMap
+    const seenIndices = new Set<number>();
+    for (const oldSignal of prev) {
+      // Find which index this was — look for matching index in signalMap
+      for (const [idxStr, entry] of Object.entries(sm)) {
+        const idx = Number(idxStr);
+        if (!seenIndices.has(idx)) {
+          seenIndices.add(idx);
+          updated.push(entry);
+          break;
+        }
+      }
+    }
+    return updated.length > 0 ? updated : prev;
+  });
+}, [profile?.persona.signalMap]);
+```
 
-**SAMPLE_CSV_TRAVEL_FAMILY_12 (Emily Chen, lines 501–707)**
-Key fixes:
-- `UNITED AIRLINES,Flight to Bozeman family` → `UNITED AIRLINES UA2847 BOZ,Flight booking`
-- `YELLOWSTONE LODGE,Hotel 4 nights` → `YELLOWSTONE LODGE,Hotel accommodation`
-- `ANA ALL NIPPON,Flight to Tokyo family` → `ANA ALL NIPPON NH007 NRT,Flight booking`
-- `KEIO PLAZA TOKYO,Hotel 9 nights` → `KEIO PLAZA TOKYO,Hotel accommodation`
-- `BRITISH AIRWAYS,Flight to London family` → `BRITISH AIRWAYS BA287 LHR,Flight booking`
-- `PREMIER INN LONDON,Hotel 5 nights` → `PREMIER INN LONDON WC2,Hotel accommodation`
-- `MERCURE PARIS,Hotel 6 nights` → `MERCURE PARIS CHAMPS,Hotel accommodation`
-- All "Return flight home" → "Return flight"
-- Trip descriptions with "family" qualifier: move to merchant or drop (the enrichment engine should detect this)
+Actually, a cleaner approach: track which **indices** have been processed, then derive signals from the current signalMap.
 
-**SAMPLE_CSV_NYC_SPORTS_HOME_12 (Marcus Thompson, lines 709–end)**
-- `JETBLUE,Flight to Miami` → `JETBLUE B6 1247 MIA,Flight booking`
-- `MARRIOTT SOUTH BEACH,Hotel 3 nights` → `MARRIOTT SOUTH BEACH,Hotel accommodation`
-- `JAMES ALLEN DIAMONDS,Engagement ring purchase` → `JAMES ALLEN DIAMONDS,Jewelry purchase`
-- `FOUR SEASONS CHICAGO,Wedding venue deposit` → `FOUR SEASONS CHICAGO,Event venue deposit`
-- `SHANNON GAIL WEDDINGS,Wedding planner retainer` → `SHANNON GAIL WEDDINGS,Event planning retainer`
-- `NORTHWESTERN OB GYN,First prenatal visit` → `NORTHWESTERN OB GYN,Medical appointment`
+2. **Better approach — track processed indices separately**:
+   - Add `processedIndices` state (`number[]`) — populated during animation (push `i` for each transaction that has a signal)
+   - Derive `processedSignals` via `useMemo` from `processedIndices` + `profile.persona.signalMap`
+   - When signalMap upgrades, `processedSignals` automatically re-derives with new labels
 
-**SAMPLE_CSV_CHICAGO_SPORTS_WELLNESS (Olivia Parker, lines ~940–1202)**
-- `JAMES ALLEN DIAMONDS,Engagement ring purchase` → `JAMES ALLEN DIAMONDS,Jewelry purchase`
-- `FOUR SEASONS CHICAGO,Wedding venue deposit` → `FOUR SEASONS CHICAGO,Event venue deposit`
-- `SHANNON GAIL WEDDINGS,Wedding planner retainer` → `SHANNON GAIL WEDDINGS,Event planning retainer`
-- `NORTHWESTERN OB GYN,First prenatal visit` → `NORTHWESTERN OB GYN,Medical appointment`
-- `NORTHWESTERN MUTUAL,Life insurance application` → fine
-- `SIDLEY AUSTIN LLP,Estate planning will update` → `SIDLEY AUSTIN LLP,Legal services`
+### Changes
 
-### File
-- `src/lib/sampleData.ts` — single file, all CSVs
+**`src/pages/ExecDemoPage.tsx`**:
+- Add `const [processedIndices, setProcessedIndices] = useState<number[]>([])` 
+- In `runAnimationWithProfile`, instead of `setProcessedSignals(prev => [...prev, signal])`, do `setProcessedIndices(prev => [...prev, i])`
+- Add `const processedSignals = useMemo(() => processedIndices.map(i => execProfile.persona.signalMap[i]).filter(Boolean), [processedIndices, execProfile.persona.signalMap])`
+- Remove `setProcessedSignals` state; reset `processedIndices` where `processedSignals` was reset
+- Clear `activePillFilter` when signalMap changes (so stale filter doesn't persist)
 
-### Approach
-Systematically go through each CSV block, applying the principle: if a description contains specific identifying details (names, destinations, item types), move those into the merchant name and make the description generic.
+### Result
+- Pills always reflect the current signalMap labels
+- When AI classification arrives and upgrades signalMap, chips seamlessly update labels
+- Clicking any pill correctly filters transactions because chip labels and signalMap labels are always in sync
+
+### Files
+- `src/pages/ExecDemoPage.tsx`
 
