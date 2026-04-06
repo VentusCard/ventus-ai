@@ -46,7 +46,7 @@ export default function ExecDemoPage() {
   const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
-  const [pillsExpanded, setPillsExpanded] = useState(false);
+  
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
 
@@ -367,7 +367,7 @@ export default function ExecDemoPage() {
       </div>
 
       {/* Main content — 3 columns */}
-      <div className={`flex-1 min-h-0 transition-all duration-500 ${pillsExpanded ? "grid grid-cols-[48px_1fr_48px]" : "grid grid-cols-[320px_1fr_360px]"}`}>
+      <div className="flex-1 min-h-0 grid grid-cols-[320px_1fr_360px]">
         {/* Col 1 — Customer selection + transaction feed */}
         <div className="border-r border-slate-200 bg-white overflow-hidden">
           <ExecDemoLeftPanel
@@ -394,8 +394,6 @@ export default function ExecDemoPage() {
                   : "#10b981"
             }
             onClearFilter={() => { setActivePillFilter(null); setActivePillarFilter(null); }}
-            collapsed={pillsExpanded}
-            onExpand={() => setPillsExpanded(false)}
           />
         </div>
 
@@ -414,8 +412,6 @@ export default function ExecDemoPage() {
             activePillarFilter={activePillarFilter}
             onPillarClick={handlePillarClick}
             personaSynthesis={personaSynthesis}
-            pillsExpanded={pillsExpanded}
-            onPillsExpandedChange={setPillsExpanded}
           />
         </div>
 
@@ -426,8 +422,6 @@ export default function ExecDemoPage() {
             activeTab={activeTab}
             phase={phase}
             showContent={false}
-            collapsed={pillsExpanded}
-            onExpand={() => setPillsExpanded(false)}
           />
         </div>
       </div>

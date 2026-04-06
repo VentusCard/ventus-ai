@@ -29,8 +29,6 @@ interface Props {
   activePillarFilter?: string | null;
   onPillarClick?: (pillar: string) => void;
   personaSynthesis?: PersonaSynthesis | null;
-  pillsExpanded?: boolean;
-  onPillsExpandedChange?: (expanded: boolean) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -127,9 +125,8 @@ export default function ExecDemoIntelPanel({
   activePillarFilter,
   onPillarClick,
   personaSynthesis,
-  pillsExpanded = false,
-  onPillsExpandedChange,
 }: Props) {
+  const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
@@ -204,7 +201,7 @@ export default function ExecDemoIntelPanel({
   // Reset pills expansion when phase changes
   useEffect(() => {
     if (phase === "idle") {
-      onPillsExpandedChange?.(false);
+      setPillsExpanded(false);
       setSynthesisTriggered(false);
     }
   }, [phase]);
@@ -278,7 +275,7 @@ export default function ExecDemoIntelPanel({
             )}
 
             <button
-              onClick={() => onPillsExpandedChange?.(!pillsExpanded)}
+              onClick={() => setPillsExpanded(!pillsExpanded)}
               className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
             >
               {pillsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -321,60 +318,64 @@ export default function ExecDemoIntelPanel({
         )}
       </div>
 
-      {/* Tab bar — visible whenever enrichment is active */}
-      {showProfile && phase !== "idle" && (
+      {/* Tab bar + content — hidden when evidence is expanded post-synthesis */}
+      {!(synthesisTriggered && pillsExpanded) && (
         <>
-          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1 shrink-0">
-            {TAB_ORDER.map((key) => {
-              const meta = TAB_META[key];
-              const Icon = meta.icon;
-              const isActive = activeTab === key;
-              const isRevealed = revealedTabs.includes(key);
-              return (
-                <button
-                  key={key}
-                  onClick={() => isRevealed && onTabClick(key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
-                    isActive
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : isRevealed
-                      ? "text-slate-500 hover:text-slate-700 cursor-pointer"
-                      : "text-slate-300 cursor-default"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {meta.label}
-                </button>
-              );
-            })}
-          </div>
+          {/* Tab bar — visible whenever enrichment is active */}
+          {showProfile && phase !== "idle" && (
+            <>
+              <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1 shrink-0">
+                {TAB_ORDER.map((key) => {
+                  const meta = TAB_META[key];
+                  const Icon = meta.icon;
+                  const isActive = activeTab === key;
+                  const isRevealed = revealedTabs.includes(key);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => isRevealed && onTabClick(key)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                        isActive
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : isRevealed
+                          ? "text-slate-500 hover:text-slate-700 cursor-pointer"
+                          : "text-slate-300 cursor-default"
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {meta.label}
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Arrow key hint */}
-          {revealedTabs.length > 0 && revealedTabs.length < 3 && (
-            <div className="text-center mb-2">
-              <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
+              {/* Arrow key hint */}
+              {revealedTabs.length > 0 && revealedTabs.length < 3 && (
+                <div className="text-center mb-2">
+                  <span className="text-[10px] text-slate-300 font-mono">← → to navigate</span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Tab content — only after synthesis */}
+          {showTabs && synthesisTriggered && (
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-auto">
+                {activeTab && revealedTabs.includes(activeTab) && (
+                  <IntelCardContent card={intelligence[activeTab]} />
+                )}
+                {!activeTab && (
+                  <div className="flex items-center justify-center h-full">
+                    <span className="text-[11px] text-slate-300 font-mono">
+                      Analyzing transactions...
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </>
-      )}
-
-
-      {/* Tab content — only after synthesis */}
-      {showTabs && synthesisTriggered && (
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-auto">
-            {activeTab && revealedTabs.includes(activeTab) && (
-              <IntelCardContent card={intelligence[activeTab]} />
-            )}
-            {!activeTab && (
-              <div className="flex items-center justify-center h-full">
-                <span className="text-[11px] text-slate-300 font-mono">
-                  Analyzing transactions...
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
       )}
 
       {/* Idle placeholder */}
