@@ -39,17 +39,21 @@ serve(async (req) => {
 
 2. **insights**: Exactly 3 short insight sentences (each 10-20 words). Each should surface a non-obvious behavioral pattern, cross-sell opportunity, or life-stage signal. Use specific dollar amounts and frequencies from the data. Be concrete, not vague.
 
-3. **pillar_rollups**: For each spending pillar that has 2 or more distinct categories, generate a single vivid rollup label that synthesizes those categories into one behavioral archetype. Rules:
+3. **pillar_rollups**: Optionally group categories within the same pillar into vivid rollup labels. Rules:
    - CRITICAL: The "pillar" field MUST be one of these EXACT strings from the input data: ${distinctPillars.map(p => `"${p}"`).join(", ")}. Do NOT paraphrase, rename, or abbreviate pillar names.
    - ONLY combine categories within the SAME pillar. NEVER mix categories from different pillars.
-   - Only generate a rollup for pillars with 2+ distinct categories.
+   - **ROLLUPS ARE OPTIONAL.** Only create a rollup when the categories genuinely share a behavioral theme.
+   - You may return ZERO rollups for a pillar, ONE rollup, or MULTIPLE smaller rollups within the same pillar.
+   - **NEVER force unrelated categories into a single rollup just because they share a pillar.** Gas/commuting and kids/nursery are NOT related. Grocery and streaming are NOT related. If categories don't belong together, leave them as separate signals — do NOT roll them up.
+   - **LIFE-STAGE LABELS require strong evidence.** Never use labels like "Suburban Nursery", "New Parent", "Family Setup", "Nesting" etc. unless there are at least 3 corroborating categories clearly about that theme (e.g., baby store + pediatric + childcare). A single merchant like Pottery Barn Kids does NOT justify a nursery/family label.
+   - **ONE-OFF purchases should NOT define a rollup.** A single high-ticket purchase at one merchant does not warrant grouping with unrelated recurring transactions.
    - CRITICAL TIER ACCURACY: Look at the [Budget/Standard/Premium] tier tag AND the actual merchant names provided. Do NOT use "Premium", "Luxury", or "Elite" unless the tier is explicitly [Premium] AND the merchants confirm it (e.g. Nobu, Four Seasons, Gucci). Chipotle + Olive Garden + Trader Joe's = NOT premium. Be honest about the spending level.
    - USE SUBCATEGORY SIGNALS for specificity when available. If subcategories include "Golf", say "Avid Golfer" not "Sports Enthusiast". If merchants are Netflix + Hulu + Spotify, say "Streaming Entertainment Buff" not "Digital Subscriber". Always prefer the most specific, descriptive label.
    - Prefer descriptive, intuitive labels that capture WHAT the person actually does, not corporate jargon.
    - Good: "Streaming Entertainment Buff", "Casual Dining Regular", "Weekend Golfer", "Boutique Fitness Fan", "Budget-Friendly Foodie"
-   - Bad: "Connected Digital Subscriber", "Premium Urban Gastronome", "Holistic Wellness Advocate", "Integrated Lifestyle Curator"
+   - Bad: "Connected Digital Subscriber", "Premium Urban Gastronome", "Holistic Wellness Advocate", "Integrated Lifestyle Curator", "Suburban Nursery Setup"
    - Include the exact category names that were combined.
-   - CRITICAL: For "category_indices", return the [N] row indices from the input that this rollup covers.
+   - CRITICAL: For "category_indices", return the [N] row indices from the input that this rollup covers. Every listed category MUST have its index included.
 
 Rules:
 - Never use generic phrases like "diverse spending" or "various categories"
@@ -109,7 +113,7 @@ Rules:
                       required: ["pillar", "label", "categories", "category_indices"],
                       additionalProperties: false,
                     },
-                    description: "Per-pillar rollup labels for pillars with 2+ categories. Only same-pillar categories.",
+                    description: "Optional per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
                   },
                 },
                 required: ["headline", "insights", "pillar_rollups"],
