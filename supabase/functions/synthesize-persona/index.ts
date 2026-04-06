@@ -21,6 +21,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    // Extract distinct pillar names from input for strict enum enforcement
+    const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
+
     const pillarSummary = pillars
       .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string }) =>
         `${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${p.frequency ? `, ${p.frequency}` : ""}`)
@@ -33,6 +36,7 @@ serve(async (req) => {
 2. **insights**: Exactly 3 short insight sentences (each 10-20 words). Each should surface a non-obvious behavioral pattern, cross-sell opportunity, or life-stage signal. Use specific dollar amounts and frequencies from the data. Be concrete, not vague.
 
 3. **pillar_rollups**: For each spending pillar that has 2 or more distinct categories, generate a single vivid rollup label that synthesizes those categories into one behavioral archetype. Rules:
+   - CRITICAL: The "pillar" field MUST be one of these EXACT strings from the input data: ${distinctPillars.map(p => `"${p}"`).join(", ")}. Do NOT paraphrase, rename, or abbreviate pillar names.
    - ONLY combine categories within the SAME pillar. NEVER mix categories from different pillars.
    - Only generate a rollup for pillars with 2+ distinct categories.
    - The label should be 2-4 words, vivid and spend-tier-aware (high spend → "Premium", "Luxury", "Elite" prefixes).
@@ -81,7 +85,7 @@ Rules:
                     items: {
                       type: "object",
                       properties: {
-                        pillar: { type: "string", description: "The pillar name exactly as provided in input" },
+                        pillar: { type: "string", enum: distinctPillars, description: "The pillar name — MUST be one of the exact input pillar names" },
                         label: { type: "string", description: "2-4 word vivid rollup label for this pillar" },
                         categories: {
                           type: "array",

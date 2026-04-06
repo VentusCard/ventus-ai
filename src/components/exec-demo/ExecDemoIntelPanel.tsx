@@ -70,7 +70,7 @@ const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; 
 
 const DEFAULT_COLOR = { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" };
 
-function getColor(pillar: string) {
+export function getColor(pillar: string) {
   return PILLAR_COLORS[pillar] || DEFAULT_COLOR;
 }
 
@@ -152,10 +152,21 @@ export default function ExecDemoIntelPanel({
     [chips, rolledUpPillars]
   );
 
-  // Compute rollup stats from chips
+  // Compute rollup stats from chips with fuzzy pillar matching
   const rollupStats = useMemo(() => {
     return rollups.map(r => {
-      const pillarChips = chips.filter(c => c.pillar === r.pillar);
+      // Try exact match first, then case-insensitive, then substring
+      let pillarChips = chips.filter(c => c.pillar === r.pillar);
+      if (pillarChips.length === 0) {
+        const rLower = r.pillar.toLowerCase();
+        pillarChips = chips.filter(c => c.pillar.toLowerCase() === rLower);
+      }
+      if (pillarChips.length === 0) {
+        const rLower = r.pillar.toLowerCase();
+        pillarChips = chips.filter(c =>
+          rLower.includes(c.pillar.toLowerCase()) || c.pillar.toLowerCase().includes(rLower)
+        );
+      }
       const totalSpend = pillarChips.reduce((s, c) => s + c.totalSpend, 0);
       const totalCount = pillarChips.reduce((s, c) => s + c.count, 0);
       return { ...r, totalSpend, totalCount };
