@@ -290,7 +290,7 @@ export default function ExecDemoLeftPanel({
                       <div className="text-[11px] text-slate-400 truncate">
                         {c.profile.segment} · {c.txnCount} txns
                       </div>
-                      <div className="text-[10px] text-blue-400 truncate">{c.lifestyleType}</div>
+                      
                     </div>
                     {isSelected && (
                       <button
@@ -344,7 +344,7 @@ export default function ExecDemoLeftPanel({
         {phase === "idle" && (
           (isCustomMode && transactions.length > 0) || (!isCustomMode && confirmedIdx !== null) ? (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
-              {previewTxns.map((tx, i) => (
+              {cappedTxns.map((tx, i) => (
                 <TxRow key={`idle-${i}`} tx={tx} dim={false} />
               ))}
             </div>
