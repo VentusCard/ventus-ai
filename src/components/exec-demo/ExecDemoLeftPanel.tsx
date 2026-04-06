@@ -420,7 +420,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
                     </div>
                   );
                 })}
@@ -428,19 +428,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
                 })}
               </>
             ) : (
               <>
-                {collected.map(({ tx, i }) => (
-                  <div key={`col-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                    <TxRow tx={tx} dim={false} highlight highlightColor={currentCardColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
-                  </div>
-                ))}
-                {uncollected.map(({ tx, i }) => {
+                {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`unc-${i}`} tx={tx} dim pillarColor={pc} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
                 })}
               </>
             )}
