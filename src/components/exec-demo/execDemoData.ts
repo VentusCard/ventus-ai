@@ -1,7 +1,16 @@
+import {
+  SAMPLE_CSV,
+  SAMPLE_CSV_SPORTS_WELLNESS,
+  SAMPLE_CSV_FOOD_HOME,
+  SAMPLE_CSV_TRAVEL_FAMILY_12,
+  SAMPLE_CSV_NYC_SPORTS_HOME_12,
+  SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
+} from "@/lib/sampleData";
+
 export const SOURCE_COLORS = ["#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#fb7185"];
 
 export interface Transaction {
-  account: string;
+  date: string;
   merchant: string;
   amount: string;
 }
@@ -22,323 +31,438 @@ export interface ExecIntelligence {
   relationship: IntelCard;
 }
 
+export interface SignalEntry {
+  pillar: string;
+  label: string;
+  amount: number;
+  frequency?: string;
+}
+
 export interface ExecPersona {
   accent: string;
   icon: string;
   title: string;
   pills: string[];
+  signalMap: Record<number, SignalEntry>;
+  descriptions?: Record<number, string>;
 }
+
+// ---------- CSV → Transaction[] ----------
+
+function maskSource(source: string): string {
+  const hash = Array.from(source).reduce((a, c) => a + c.charCodeAt(0), 0);
+  const last4 = String(hash % 10000).padStart(4, "0");
+  return `••${last4}`;
+}
+
+export function parseCsvToTransactions(csv: string): Transaction[] {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const merchantIdx = header.indexOf("merchant_name");
+  const amountIdx = header.indexOf("amount");
+  const dateIdx = header.indexOf("date");
+
+  return lines.slice(1).filter((l) => l.trim()).map((line) => {
+    const cols = line.split(",").map((c) => c.trim());
+    const rawAmt = parseFloat(cols[amountIdx] || "0");
+    const fmt = rawAmt >= 1000
+      ? `$${rawAmt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : `$${rawAmt.toFixed(2)}`;
+    const rawDate = cols[dateIdx] || "";
+    const dateParts = rawDate.split("-");
+    const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}` : rawDate.slice(5);
+    return {
+      date: shortDate,
+      merchant: cols[merchantIdx] || "Unknown",
+      amount: fmt,
+    };
+  });
+}
+
+
+// ---------- MCC → Signal mapping ----------
+
+const MCC_SIGNAL_MAP: Record<string, Omit<SignalEntry, 'amount'>> = {
+  "4511": { pillar: "Travel & Transport", label: "Airlines" },
+  "3058": { pillar: "Travel & Transport", label: "Airlines" },
+  "7011": { pillar: "Travel & Transport", label: "Hotels" },
+  "4121": { pillar: "Travel & Transport", label: "Rideshare" },
+  "5541": { pillar: "Travel & Transport", label: "Gas" },
+  "4111": { pillar: "Travel & Transport", label: "Transit" },
+  "7512": { pillar: "Travel & Transport", label: "Car Rental" },
+  "4789": { pillar: "Travel & Transport", label: "Transit" },
+  "7523": { pillar: "Travel & Transport", label: "Parking" },
+  "5411": { pillar: "Food & Dining", label: "Grocery" },
+  "5300": { pillar: "Food & Dining", label: "Wholesale" },
+  "5812": { pillar: "Food & Dining", label: "Dining" },
+  "5814": { pillar: "Food & Dining", label: "Fast Casual" },
+  "5499": { pillar: "Food & Dining", label: "Supplements" },
+  "7997": { pillar: "Wellness & Fitness", label: "Gym" },
+  "7298": { pillar: "Wellness & Fitness", label: "Spa" },
+  "8049": { pillar: "Wellness & Fitness", label: "Chiropractic" },
+  "5651": { pillar: "Shopping", label: "Apparel" },
+  "5655": { pillar: "Shopping", label: "Athletic Wear" },
+  "5661": { pillar: "Shopping", label: "Shoes" },
+  "5977": { pillar: "Shopping", label: "Beauty" },
+  "5969": { pillar: "Shopping", label: "Marketplace" },
+  "5942": { pillar: "Shopping", label: "Books" },
+  "5734": { pillar: "Technology", label: "Software" },
+  "5722": { pillar: "Home & Living", label: "Appliances" },
+  "5995": { pillar: "Pets & Care", label: "Pet Care" },
+  "0742": { pillar: "Pets & Care", label: "Veterinary" },
+  "4899": { pillar: "Entertainment", label: "Streaming" },
+  "7922": { pillar: "Entertainment", label: "Events" },
+  "7832": { pillar: "Entertainment", label: "Movies" },
+  "7996": { pillar: "Entertainment", label: "Attractions" },
+  "7998": { pillar: "Entertainment", label: "Attractions" },
+  "7999": { pillar: "Entertainment", label: "Activities" },
+  "5211": { pillar: "Home & Living", label: "Home Improvement" },
+  "5712": { pillar: "Home & Living", label: "Furniture" },
+  "5714": { pillar: "Home & Living", label: "Home Décor" },
+  "5251": { pillar: "Home & Living", label: "Hardware" },
+  "7217": { pillar: "Home & Living", label: "Cleaning" },
+  "1711": { pillar: "Home & Living", label: "Services" },
+  "8299": { pillar: "Education & Family", label: "Education" },
+  "7941": { pillar: "Education & Family", label: "Kids Sports" },
+  "5945": { pillar: "Education & Family", label: "Toys" },
+  "5912": { pillar: "Healthcare", label: "Pharmacy" },
+  "8011": { pillar: "Healthcare", label: "Medical" },
+  "5641": { pillar: "Education & Family", label: "Baby" },
+  "5941": { pillar: "Sports & Active", label: "Sporting Goods" },
+  "5999": { pillar: "Shopping", label: "General" },
+  "4900": { pillar: "Home & Living", label: "Utilities" },
+  "6163": { pillar: "Financial Planning", label: "Mortgage" },
+  "6411": { pillar: "Financial Planning", label: "Title & Escrow" },
+  "6531": { pillar: "Financial Planning", label: "Real Estate" },
+  "7389": { pillar: "Home & Living", label: "Inspection" },
+  "8111": { pillar: "Financial Planning", label: "Estate" },
+};
+
+function buildSignalMap(csv: string): Record<number, SignalEntry> {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return {};
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const mccIdx = header.indexOf("mcc");
+  const amountIdx = header.indexOf("amount");
+
+  const map: Record<number, SignalEntry> = {};
+  const rows = lines.slice(1).filter((l) => l.trim());
+
+  rows.forEach((line, i) => {
+    const cols = line.split(",").map((c) => c.trim());
+    const mcc = cols[mccIdx] || "";
+    const rawAmt = parseFloat(cols[amountIdx] || "0");
+    const signal = MCC_SIGNAL_MAP[mcc];
+    if (signal) {
+      map[i] = { ...signal, amount: rawAmt };
+    } else {
+      map[i] = { pillar: "Miscellaneous", label: "Other", amount: rawAmt };
+    }
+  });
+
+  return map;
+}
+
+// ---------- Build profiles from real CSVs ----------
+
+const CSV_LIST = [
+  SAMPLE_CSV,
+  SAMPLE_CSV_SPORTS_WELLNESS,
+  SAMPLE_CSV_FOOD_HOME,
+  SAMPLE_CSV_TRAVEL_FAMILY_12,
+  SAMPLE_CSV_NYC_SPORTS_HOME_12,
+  SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
+];
+
+const PERSONA_META: { pills: string[] }[] = [
+  { pills: ["Wellness Explorer", "Career Focused", "Active Lifestyle", "Organic Consumer"] },
+  { pills: ["Tech Enthusiast", "Fitness Focused", "Home Buyer", "Gaming Lifestyle"] },
+  { pills: ["Family Planner", "Home Investor", "Education Focused", "Multi-Generational Care"] },
+  { pills: ["Golf Enthusiast", "Wine Connoisseur", "Travel Regular", "Pre-Retiree"] },
+  { pills: ["Urban Professional", "Fashion Forward", "Culture Lover", "Career Ambitious"] },
+  { pills: ["Adventurer", "Active Investor", "Tennis Player", "Philanthropist"] },
+];
+
+const INTELLIGENCE_META: ExecIntelligence[] = [
+  {
+    analytics: {
+      accent: "#60a5fa", icon: "◆", title: "Analytics Intelligence",
+      subtitle: "Spend patterns reveal lifestyle segments",
+      content: "Travel 34% · Dining 22% · Wellness 18% of wallet. Career Advancement signals detected — LinkedIn Premium + coaching spend cluster.",
+      txIndices: [0, 2, 8, 12, 20],
+    },
+    rewards: {
+      accent: "#34d399", icon: "★", title: "Smart Rewards",
+      subtitle: "Hyper-personalized deal matching",
+      content: "", pills: ["REI 10% Back", "Sweetgreen $5 Off", "Equinox First Month Free", "Away 20% Off"],
+      txIndices: [1, 3, 5, 11, 19],
+    },
+    relationship: {
+      accent: "#fbbf24", icon: "⚡", title: "Relationship Intelligence",
+      subtitle: "Life events & next-best-product",
+      content: "Life Event: Career Advancement detected. Recommend Premium Travel Card upgrade + investment advisory introduction.",
+      txIndices: [7, 9, 14, 28],
+    },
+  },
+  {
+    analytics: {
+      accent: "#60a5fa", icon: "◆", title: "Analytics Intelligence",
+      subtitle: "Spend patterns reveal lifestyle segments",
+      content: "Fitness 30% · Grocery 22% · Outdoor 18% of wallet. Family Formation pattern detected — prenatal + nursery purchases.",
+      txIndices: [0, 2, 5, 7, 14],
+    },
+    rewards: {
+      accent: "#34d399", icon: "★", title: "Smart Rewards",
+      subtitle: "Hyper-personalized deal matching",
+      content: "", pills: ["Lululemon 15% Off", "REI $50 Credit", "Equinox Free Month", "Whole Foods 10% Back"],
+      txIndices: [1, 3, 6, 10, 20],
+    },
+    relationship: {
+      accent: "#fbbf24", icon: "⚡", title: "Relationship Intelligence",
+      subtitle: "Life events & next-best-product",
+      content: "Life Event: Family Formation detected. Recommend 529 plan setup + family insurance advisory.",
+      txIndices: [11, 49, 75, 76],
+    },
+  },
+  {
+    analytics: {
+      accent: "#60a5fa", icon: "◆", title: "Analytics Intelligence",
+      subtitle: "Spend patterns reveal lifestyle segments",
+      content: "Home 30% · Grocery 25% · Dining 20% of wallet. Home Purchase pattern detected — mortgage + inspection + title cluster.",
+      txIndices: [0, 2, 6, 12, 24],
+    },
+    rewards: {
+      accent: "#34d399", icon: "★", title: "Smart Rewards",
+      subtitle: "Hyper-personalized deal matching",
+      content: "", pills: ["Home Depot 10% Off", "Costco $50 Credit", "HelloFresh Free Week", "Target 20% Back"],
+      txIndices: [1, 3, 7, 14, 22],
+    },
+    relationship: {
+      accent: "#fbbf24", icon: "⚡", title: "Relationship Intelligence",
+      subtitle: "Life events & next-best-product",
+      content: "Life Event: Home Purchase detected. Recommend mortgage pre-approval + home insurance bundle.",
+      txIndices: [23, 60, 61, 76],
+    },
+  },
+  {
+    analytics: {
+      accent: "#60a5fa", icon: "◆", title: "Analytics Intelligence",
+      subtitle: "Spend patterns reveal lifestyle segments",
+      content: "Travel 35% · Family Activities 22% · Grocery 18% of wallet. Multiple international family trips detected across 3 continents.",
+      txIndices: [6, 8, 49, 87, 131],
+    },
+    rewards: {
+      accent: "#34d399", icon: "★", title: "Smart Rewards",
+      subtitle: "Hyper-personalized deal matching",
+      content: "", pills: ["United 50K Miles", "Costco $100 Credit", "Four Seasons Upgrade", "Budget Rental Free Day"],
+      txIndices: [3, 10, 23, 27, 38],
+    },
+    relationship: {
+      accent: "#fbbf24", icon: "⚡", title: "Relationship Intelligence",
+      subtitle: "Life events & next-best-product",
+      content: "Life Events: College Prep + Retirement Planning detected. Recommend 529 plan + estate planning consultation.",
+      txIndices: [50, 89, 190, 204],
+    },
+  },
+  {
+    analytics: {
+      accent: "#60a5fa", icon: "◆", title: "Analytics Intelligence",
+      subtitle: "Spend patterns reveal lifestyle segments",
+      content: "Fitness 26% · Dining 22% · Home 20% of wallet. Urban wellness lifestyle with apartment upgrade pattern.",
+      txIndices: [0, 4, 9, 16, 22],
+    },
+    rewards: {
+      accent: "#34d399", icon: "★", title: "Smart Rewards",
+      subtitle: "Hyper-personalized deal matching",
+      content: "", pills: ["Equinox Free Month", "Sweetgreen $5 Off", "West Elm 15% Off", "SoulCycle 3 Free Rides"],
+      txIndices: [1, 5, 7, 11, 17],
+    },
+    relationship: {
+      accent: "#fbbf24", icon: "⚡", title: "Relationship Intelligence",
+      subtitle: "Life events & next-best-product",
+      content: "Life Events: Education Funding + Career Change detected. Recommend 529 plan advisory + executive banking upgrade.",
+      txIndices: [38, 56, 70, 85],
+    },
+  },
+  {
+    analytics: {
+      accent: "#60a5fa", icon: "◆", title: "Analytics Intelligence",
+      subtitle: "Spend patterns reveal lifestyle segments",
+      content: "Dining 28% · Fitness 22% · Investments 20% of wallet. Retirement Planning at 91% confidence — 401k max + AARP signals.",
+      txIndices: [0, 2, 5, 10, 18],
+    },
+    rewards: {
+      accent: "#34d399", icon: "★", title: "Smart Rewards",
+      subtitle: "Hyper-personalized deal matching",
+      content: "", pills: ["Delta 100K Miles", "Schwab Free Consult", "OpenTable $50 Credit", "TaylorMade 25% Off"],
+      txIndices: [1, 3, 6, 12, 20],
+    },
+    relationship: {
+      accent: "#fbbf24", icon: "⚡", title: "Relationship Intelligence",
+      subtitle: "Life events & next-best-product",
+      content: "Life Events: Retirement + Wealth Transfer detected. Recommend dynasty trust setup + charitable foundation advisory.",
+      txIndices: [30, 45, 60, 75],
+    },
+  },
+];
+
+const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }[] =
+  CSV_LIST.map((csv, i) => {
+    const transactions = parseCsvToTransactions(csv);
+    const signalMap = buildSignalMap(csv);
+    // Clamp txIndices to actual array length
+    const intel = INTELLIGENCE_META[i];
+    const clamp = (indices: number[]) => indices.filter((idx) => idx < transactions.length);
+    return {
+      transactions,
+      persona: {
+        accent: "#a78bfa",
+        icon: "◈",
+        title: "Dynamic Persona",
+        pills: PERSONA_META[i].pills,
+        signalMap,
+      },
+      intelligence: {
+        analytics: { ...intel.analytics, txIndices: clamp(intel.analytics.txIndices) },
+        rewards: { ...intel.rewards, txIndices: clamp(intel.rewards.txIndices) },
+        relationship: { ...intel.relationship, txIndices: clamp(intel.relationship.txIndices) },
+      },
+    };
+  });
 
 /** Map a DemoCustomer index to exec-demo intelligence cards */
 export function getIntelligenceForCustomer(customerIdx: number): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
   return EXEC_PROFILES[customerIdx % EXEC_PROFILES.length];
 }
 
-const EXEC_PROFILES: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }[] = [
-  // c1 — Wellness Explorer (Michael R. style)
-  {
-    transactions: [
-      { account: "••4821", merchant: "Equinox Fitness", amount: "$200.00" },
-      { account: "••9053", merchant: "Whole Foods Market", amount: "$157.00" },
-      { account: "••7390", merchant: "Delta Air Lines", amount: "$450.00" },
-      { account: "••2156", merchant: "Sephora", amount: "$157.00" },
-      { account: "••4821", merchant: "REI Co-op", amount: "$235.00" },
-      { account: "••9053", merchant: "Sweetgreen", amount: "$34.00" },
-      { account: "••7390", merchant: "Away Luggage", amount: "$295.00" },
-      { account: "••2156", merchant: "LinkedIn Premium", amount: "$59.99" },
-      { account: "••4821", merchant: "Peloton", amount: "$44.00" },
-      { account: "••9053", merchant: "Trader Joe's", amount: "$94.20" },
-      { account: "••7390", merchant: "Marriott Bonvoy", amount: "$892.00" },
-      { account: "••2156", merchant: "Lululemon", amount: "$148.00" },
-    ],
-    persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: ["Wellness Explorer", "Career Focused", "Active Lifestyle", "Organic Consumer"],
-    },
-    intelligence: {
-      analytics: {
-        accent: "#60a5fa",
-        icon: "◆",
-        title: "Analytics Intelligence",
-        subtitle: "Spend patterns reveal lifestyle segments",
-        content: "Travel 34% · Dining 22% · Wellness 18% of wallet. Career Advancement signals detected — LinkedIn Premium + coaching spend cluster.",
-        txIndices: [0, 2, 4, 6, 8],
-      },
-      rewards: {
-        accent: "#34d399",
-        icon: "★",
-        title: "Smart Rewards",
-        subtitle: "Hyper-personalized deal matching",
-        content: "",
-        pills: ["REI 10% Back", "Sweetgreen $5 Off", "Equinox First Month Free", "Away 20% Off"],
-        txIndices: [1, 3, 5, 9, 11],
-      },
-      relationship: {
-        accent: "#fbbf24",
-        icon: "⚡",
-        title: "Relationship Intelligence",
-        subtitle: "Life events & next-best-product",
-        content: "Life Event: Career Advancement detected. Recommend Premium Travel Card upgrade + investment advisory introduction.",
-        txIndices: [7, 10, 2, 6],
-      },
-    },
-  },
-  // c2 — Tech Enthusiast
-  {
-    transactions: [
-      { account: "••3347", merchant: "Equinox Austin", amount: "$250.00" },
-      { account: "••8812", merchant: "Barry's Bootcamp", amount: "$150.00" },
-      { account: "••5501", merchant: "REI Co-op", amount: "$235.00" },
-      { account: "••6274", merchant: "Nike Store", amount: "$160.00" },
-      { account: "••3347", merchant: "Best Buy", amount: "$1,299.00" },
-      { account: "••8812", merchant: "Home Depot", amount: "$847.00" },
-      { account: "••5501", merchant: "Peloton", amount: "$44.00" },
-      { account: "••6274", merchant: "DoorDash", amount: "$87.40" },
-      { account: "••3347", merchant: "PlayStation Store", amount: "$69.99" },
-      { account: "••8812", merchant: "U-Haul", amount: "$189.00" },
-      { account: "••5501", merchant: "Zillow Premium", amount: "$29.99" },
-      { account: "••6274", merchant: "Ring Doorbell", amount: "$199.00" },
-    ],
-    persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: ["Tech Enthusiast", "Fitness Focused", "Home Buyer", "Gaming Lifestyle"],
-    },
-    intelligence: {
-      analytics: {
-        accent: "#60a5fa",
-        icon: "◆",
-        title: "Analytics Intelligence",
-        subtitle: "Spend patterns reveal lifestyle segments",
-        content: "Technology 28% · Dining 24% · Fitness 20% of wallet. Home Purchase pattern detected — earnest money + home improvement cluster.",
-        txIndices: [4, 5, 8, 9, 10, 11],
-      },
-      rewards: {
-        accent: "#34d399",
-        icon: "★",
-        title: "Smart Rewards",
-        subtitle: "Hyper-personalized deal matching",
-        content: "",
-        pills: ["Best Buy 15% Off", "Peloton 3mo Free", "DoorDash Free Delivery", "PlayStation $50 Off"],
-        txIndices: [0, 1, 2, 3, 6],
-      },
-      relationship: {
-        accent: "#fbbf24",
-        icon: "⚡",
-        title: "Relationship Intelligence",
-        subtitle: "Life events & next-best-product",
-        content: "Life Event: Home Purchase detected. Recommend mortgage pre-approval + home insurance bundle.",
-        txIndices: [5, 9, 10, 11],
-      },
-    },
-  },
-  // c3 — Family Planner
-  {
-    transactions: [
-      { account: "••4821", merchant: "Home Depot", amount: "$157.00" },
-      { account: "••9053", merchant: "Costco Wholesale", amount: "$299.00" },
-      { account: "••7390", merchant: "Gibsons Steakhouse", amount: "$288.00" },
-      { account: "••2156", merchant: "Crate and Barrel", amount: "$157.00" },
-      { account: "••4821", merchant: "Target", amount: "$234.00" },
-      { account: "••9053", merchant: "Kumon Tutoring", amount: "$180.00" },
-      { account: "••7390", merchant: "Instacart", amount: "$87.00" },
-      { account: "••2156", merchant: "Estate Attorney", amount: "$450.00" },
-      { account: "••4821", merchant: "Sunrise Senior Living", amount: "$3,200.00" },
-      { account: "••9053", merchant: "AARP Medicare", amount: "$189.00" },
-      { account: "••7390", merchant: "Disney World", amount: "$1,245.00" },
-      { account: "••2156", merchant: "Lowe's", amount: "$312.00" },
-    ],
-    persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: ["Family Planner", "Home Investor", "Education Focused", "Multi-Generational Care"],
-    },
-    intelligence: {
-      analytics: {
-        accent: "#60a5fa",
-        icon: "◆",
-        title: "Analytics Intelligence",
-        subtitle: "Spend patterns reveal lifestyle segments",
-        content: "Family 30% · Home 25% · Education 20% of wallet. Wealth Transfer and Elder Care patterns detected across 3 accounts.",
-        txIndices: [0, 1, 3, 4, 11],
-      },
-      rewards: {
-        accent: "#34d399",
-        icon: "★",
-        title: "Smart Rewards",
-        subtitle: "Hyper-personalized deal matching",
-        content: "",
-        pills: ["Target 20% Back-to-School", "Lowe's 10% Off", "Kumon First Month Free", "Instacart 6mo Delivery"],
-        txIndices: [2, 5, 6, 10],
-      },
-      relationship: {
-        accent: "#fbbf24",
-        icon: "⚡",
-        title: "Relationship Intelligence",
-        subtitle: "Life events & next-best-product",
-        content: "Life Events: Wealth Transfer + Elder Care detected. Recommend trust documentation package + Medicare supplement advisory.",
-        txIndices: [7, 8, 9],
-      },
-    },
-  },
-  // c4 — Golf & Leisure
-  {
-    transactions: [
-      { account: "••6102", merchant: "United Airlines", amount: "$1,345.00" },
-      { account: "••7745", merchant: "Yellowstone Lodge", amount: "$1,234.00" },
-      { account: "••3318", merchant: "Kids Soccer League", amount: "$295.00" },
-      { account: "••9901", merchant: "Safeway", amount: "$179.00" },
-      { account: "••6102", merchant: "Callaway Golf", amount: "$890.00" },
-      { account: "••7745", merchant: "Wine Access", amount: "$245.00" },
-      { account: "••3318", merchant: "Hilton Honors", amount: "$892.00" },
-      { account: "••9901", merchant: "OpenTable", amount: "$156.00" },
-      { account: "••6102", merchant: "Retirement Calculator", amount: "$0.00" },
-      { account: "••7745", merchant: "Schwab Rollover", amount: "$5,000.00" },
-      { account: "••3318", merchant: "Travel Agency", amount: "$350.00" },
-      { account: "••9901", merchant: "Estate Attorney", amount: "$600.00" },
-    ],
-    persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: ["Golf Enthusiast", "Wine Connoisseur", "Travel Regular", "Pre-Retiree"],
-    },
-    intelligence: {
-      analytics: {
-        accent: "#60a5fa",
-        icon: "◆",
-        title: "Analytics Intelligence",
-        subtitle: "Spend patterns reveal lifestyle segments",
-        content: "Golf 32% · Dining 22% · Travel 20% of wallet. Retirement Planning pattern detected — consolidation signals across multiple accounts.",
-        txIndices: [0, 1, 4, 5, 6],
-      },
-      rewards: {
-        accent: "#34d399",
-        icon: "★",
-        title: "Smart Rewards",
-        subtitle: "Hyper-personalized deal matching",
-        content: "",
-        pills: ["Callaway 20% Off Clubs", "Wine Access $50 Credit", "Hilton 80K Points", "OpenTable $25 Dining"],
-        txIndices: [3, 7, 2, 10],
-      },
-      relationship: {
-        accent: "#fbbf24",
-        icon: "⚡",
-        title: "Relationship Intelligence",
-        subtitle: "Life events & next-best-product",
-        content: "Life Event: Retirement Planning detected. Recommend wealth management upgrade + estate planning consultation.",
-        txIndices: [8, 9, 11],
-      },
-    },
-  },
-  // c5 — Urban Professional
-  {
-    transactions: [
-      { account: "••4821", merchant: "Equinox Gramercy", amount: "$245.00" },
-      { account: "••9053", merchant: "SoulCycle Flatiron", amount: "$175.00" },
-      { account: "••7390", merchant: "West Elm", amount: "$389.00" },
-      { account: "••2156", merchant: "Whole Foods Union Sq", amount: "$125.00" },
-      { account: "••4821", merchant: "Net-a-Porter", amount: "$780.00" },
-      { account: "••9053", merchant: "Exhale Spa", amount: "$220.00" },
-      { account: "••7390", merchant: "Lincoln Center", amount: "$350.00" },
-      { account: "••2156", merchant: "529 Plan Research", amount: "$0.00" },
-      { account: "••4821", merchant: "School Tour Fees", amount: "$150.00" },
-      { account: "••9053", merchant: "MBA Program App", amount: "$250.00" },
-      { account: "••7390", merchant: "Air France", amount: "$1,890.00" },
-      { account: "••2156", merchant: "Michelin Restaurant", amount: "$340.00" },
-    ],
-    persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: ["Urban Professional", "Fashion Forward", "Culture Lover", "Career Ambitious"],
-    },
-    intelligence: {
-      analytics: {
-        accent: "#60a5fa",
-        icon: "◆",
-        title: "Analytics Intelligence",
-        subtitle: "Spend patterns reveal lifestyle segments",
-        content: "Dining 28% · Fashion 24% · Wellness 20% of wallet. Education Funding and Career Change signals detected.",
-        txIndices: [0, 1, 4, 5, 6],
-      },
-      rewards: {
-        accent: "#34d399",
-        icon: "★",
-        title: "Smart Rewards",
-        subtitle: "Hyper-personalized deal matching",
-        content: "",
-        pills: ["Sweetgreen $5 Off", "Net-a-Porter 15% Off", "Exhale 30% First Visit", "Lincoln Center Pass"],
-        txIndices: [3, 2, 10, 11],
-      },
-      relationship: {
-        accent: "#fbbf24",
-        icon: "⚡",
-        title: "Relationship Intelligence",
-        subtitle: "Life events & next-best-product",
-        content: "Life Events: Education Funding + Career Change detected. Recommend 529 plan advisory + executive banking upgrade.",
-        txIndices: [7, 8, 9],
-      },
-    },
-  },
-  // c6 — Adventurer & Investor
-  {
-    transactions: [
-      { account: "••6102", merchant: "East Bank Club", amount: "$295.00" },
-      { account: "••7745", merchant: "Tennis Pro Shop", amount: "$85.00" },
-      { account: "••3318", merchant: "RPM Italian", amount: "$88.00" },
-      { account: "••9901", merchant: "Lululemon Chicago", amount: "$156.00" },
-      { account: "••6102", merchant: "Delta SkyMiles", amount: "$2,400.00" },
-      { account: "••7745", merchant: "Charles Schwab", amount: "$5,000.00" },
-      { account: "••3318", merchant: "OpenTable", amount: "$120.00" },
-      { account: "••9901", merchant: "TaylorMade Golf", amount: "$890.00" },
-      { account: "••6102", merchant: "401k Max Contrib", amount: "$23,000.00" },
-      { account: "••7745", merchant: "AARP Enrollment", amount: "$16.00" },
-      { account: "••3318", merchant: "Dynasty Trust Research", amount: "$0.00" },
-      { account: "••9901", merchant: "Charitable Foundation", amount: "$10,000.00" },
-    ],
-    persona: {
-      accent: "#a78bfa",
-      icon: "◈",
-      title: "Dynamic Persona",
-      pills: ["Adventurer", "Active Investor", "Tennis Player", "Philanthropist"],
-    },
-    intelligence: {
-      analytics: {
-        accent: "#60a5fa",
-        icon: "◆",
-        title: "Analytics Intelligence",
-        subtitle: "Spend patterns reveal lifestyle segments",
-        content: "Travel 30% · Investments 25% · Dining 18% of wallet. Retirement Planning at 91% confidence — max 401k + AARP signals.",
-        txIndices: [0, 1, 4, 5, 7],
-      },
-      rewards: {
-        accent: "#34d399",
-        icon: "★",
-        title: "Smart Rewards",
-        subtitle: "Hyper-personalized deal matching",
-        content: "",
-        pills: ["Delta 100K Miles", "Schwab Free Consult", "OpenTable $50 Credit", "TaylorMade 25% Off"],
-        txIndices: [2, 3, 6],
-      },
-      relationship: {
-        accent: "#fbbf24",
-        icon: "⚡",
-        title: "Relationship Intelligence",
-        subtitle: "Life events & next-best-product",
-        content: "Life Events: Retirement + Wealth Transfer detected. Recommend dynasty trust setup + charitable foundation advisory.",
-        txIndices: [8, 9, 10, 11],
-      },
-    },
-  },
-];
-
-export const getSourceColor = (transactions: Transaction[], account: string): string => {
-  const uniqueAccounts = [...new Set(transactions.map((t) => t.account))];
-  const idx = uniqueAccounts.indexOf(account);
+export const getSourceColor = (transactions: Transaction[], date: string): string => {
+  const uniqueDates = [...new Set(transactions.map((t) => t.date))];
+  const idx = uniqueDates.indexOf(date);
   return SOURCE_COLORS[idx % SOURCE_COLORS.length];
 };
+
+/** Get raw CSV for a given customer index */
+export function getCsvForCustomer(customerIdx: number): string {
+  return CSV_LIST[customerIdx % CSV_LIST.length];
+}
+
+/** Build a local-only profile using MCC signal map (instant, no AI) */
+export function buildLocalProfile(csv: string, customerIdx: number, customName?: string): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
+  const transactions = parseCsvToTransactions(csv);
+  const signalMap = buildSignalMap(csv);
+  const fallback = EXEC_PROFILES[customerIdx % EXEC_PROFILES.length];
+  const clamp = (indices: number[]) => indices.filter((idx) => idx < transactions.length);
+
+  // For custom data, generate evenly-spaced txIndices
+  const customTxIndices = (count: number) => {
+    const step = Math.max(1, Math.floor(transactions.length / count));
+    return Array.from({ length: count }, (_, i) => Math.min(i * step, transactions.length - 1));
+  };
+
+  const isCustom = !!customName;
+
+  return {
+    transactions,
+    persona: {
+      accent: "#a78bfa",
+      icon: "◈",
+      title: customName || "Dynamic Persona",
+      pills: isCustom ? ["Analyzing...", "Processing Signals"] : PERSONA_META[customerIdx % PERSONA_META.length].pills,
+      signalMap,
+    },
+    intelligence: isCustom ? {
+      analytics: { ...fallback.intelligence.analytics, txIndices: customTxIndices(5) },
+      rewards: { ...fallback.intelligence.rewards, txIndices: customTxIndices(5) },
+      relationship: { ...fallback.intelligence.relationship, txIndices: customTxIndices(4) },
+    } : {
+      analytics: { ...fallback.intelligence.analytics, txIndices: clamp(fallback.intelligence.analytics.txIndices) },
+      rewards: { ...fallback.intelligence.rewards, txIndices: clamp(fallback.intelligence.rewards.txIndices) },
+      relationship: { ...fallback.intelligence.relationship, txIndices: clamp(fallback.intelligence.relationship.txIndices) },
+    },
+  };
+}
+
+/** Convert CSV to the payload format expected by classify-transactions */
+export function csvToClassifyPayload(csv: string): { transaction_id: string; merchant_name: string; amount: number; date: string }[] {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const merchantIdx = header.indexOf("merchant_name");
+  const amountIdx = header.indexOf("amount");
+  const dateIdx = header.indexOf("date");
+
+  return lines.slice(1).filter((l) => l.trim()).map((line, i) => {
+    const cols = line.split(",").map((c) => c.trim());
+    return {
+      transaction_id: `tx-${i}`,
+      merchant_name: cols[merchantIdx] || "Unknown",
+      amount: Math.abs(parseFloat(cols[amountIdx] || "0")),
+      date: cols[dateIdx] || "",
+    };
+  });
+}
+
+/** Enriched transaction from classify-transactions */
+export interface EnrichedTransaction {
+  transaction_id: string;
+  merchant_name: string;
+  amount: number;
+  pillar: string;
+  category: string;
+  subcategories: string[];
+  spending_tier: string;
+  purchase_frequency?: string;
+}
+
+/** Build signal map from AI-classified enriched transactions */
+export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[]): Record<number, SignalEntry> {
+  const map: Record<number, SignalEntry> = {};
+  enrichedTxs.forEach((tx) => {
+    const idx = parseInt(tx.transaction_id.replace("tx-", ""), 10);
+    if (isNaN(idx)) return;
+    map[idx] = {
+      pillar: tx.pillar || "Miscellaneous",
+      label: tx.category || "General",
+      amount: tx.amount || 0,
+      frequency: tx.purchase_frequency,
+    };
+  });
+  return map;
+}
+
+/** Merge AI results (pills, descriptions, intelligence) into an existing local profile */
+export function mergeAiResults(
+  localProfile: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] },
+  aiResult: {
+    pills: string[];
+    descriptions: Record<string, string>;
+    intelligence: {
+      analytics: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
+      rewards: { accent: string; icon: string; title: string; subtitle: string; pills: string[]; txIndices: number[] };
+      relationship: { accent: string; icon: string; title: string; subtitle: string; content: string; txIndices: number[] };
+    };
+  }
+): { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } {
+  const txCount = localProfile.transactions.length;
+  const clamp = (indices: number[]) => indices.filter((idx) => idx < txCount);
+
+  const descriptions: Record<number, string> = {};
+  for (const [key, val] of Object.entries(aiResult.descriptions)) {
+    descriptions[parseInt(key, 10)] = val;
+  }
+
+  return {
+    transactions: localProfile.transactions,
+    persona: {
+      ...localProfile.persona,
+      pills: aiResult.pills.length > 0 ? aiResult.pills : localProfile.persona.pills,
+      descriptions,
+    },
+    intelligence: {
+      analytics: { ...aiResult.intelligence.analytics, txIndices: clamp(aiResult.intelligence.analytics.txIndices) },
+      rewards: { ...aiResult.intelligence.rewards, content: "", txIndices: clamp(aiResult.intelligence.rewards.txIndices) },
+      relationship: { ...aiResult.intelligence.relationship, txIndices: clamp(aiResult.intelligence.relationship.txIndices) },
+    },
+  };
+}
