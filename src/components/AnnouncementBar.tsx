@@ -8,7 +8,7 @@ const AnnouncementBar = ({ onDismiss }: {onDismiss: () => void;}) =>
       Ventus AI in the demoing lineup at <strong>Finovate Spring —</strong> May 5–7
     </span>
     <span className="sm:hidden">
-      <Link to="/contact" className="underline underline-offset-2 font-semibold hover:text-white/90">
+      <Link to="/contact" className="underline underline-offset-2 font-semibold hover:text-white/90 text-sm">
         Meet us at Finovate · May 5–7 →
       </Link>
     </span>
