@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 
 const AnnouncementBar = ({ onDismiss }: {onDismiss: () => void;}) =>
