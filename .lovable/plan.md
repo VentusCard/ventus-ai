@@ -1,43 +1,26 @@
 
 
-## Update Transaction Table to 3 Columns + Rewrite Description → MCC Description
+## Add All Columns Back to Transaction Table
 
-### Overview
-Simplify the transaction preview table to show only 3 columns and repurpose the existing `description` CSV column to hold standard MCC descriptions instead of the current verbose text.
+### Change
+Update `ExecDemoSelectionDialog.tsx` to show all 8 CSV columns instead of just 3.
 
-### Changes
+**`RawRow` interface** — add back `transaction_id`, `amount`, `date`, `zip_code`, `source`.
 
-**1. `src/lib/sampleData.ts`** — Rewrite the `description` column across all 6 CSVs
+**`parseCsvRows`** — extract all 8 fields.
 
-Replace every human-readable description with the standard MCC category label for that row's MCC code. Examples:
+**Table columns** (in order):
+1. Transaction ID (mono, truncated)
+2. Date
+3. Merchant Name (truncated)
+4. MCC (mono)
+5. MCC Description
+6. Amount (right-aligned)
+7. Zip Code
+8. Source
 
-| MCC | Current description | New description |
-|-----|---|---|
-| 5814 | Coffee and pastry purchase | Eating Places, Restaurants |
-| 5411 | Weekly grocery shopping | Grocery Stores, Supermarkets |
-| 5655 | Yoga pants and sports bra | Family Clothing Stores |
-| 7997 | Monthly gym membership | Membership Clubs, Recreation |
-| 3000–3299 | Flight booking | Airlines, Air Carriers |
-| 7011 | Hotel accommodation | Hotels, Motels, Resorts |
-| 5912 | Prescription pickup | Drug Stores, Pharmacies |
-| 4121 | Ride to downtown | Taxicabs and Rideshares |
-| 5813 | Cocktails at bar | Drinking Places, Bars |
-| 5944 | Birthday gift | Jewelry, Watch, Clock Stores |
-| 7832 | Movie night | Motion Picture Theaters |
-| 8011 | Doctor visit | Physicians, Medical Services |
+Compact styling (`text-[11px]`) with horizontal scroll if needed.
 
-All ~600 rows across the 6 CSV blocks will be updated.
-
-**2. `src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — Show only 3 columns
-
-Update the table to display:
-- **Merchant Name** — the raw descriptor string (e.g., `STARBUCKS COFFEE #1234`)
-- **MCC** — the 4-digit code (e.g., `5814`)
-- **MCC Description** — the generic label (e.g., `Eating Places, Restaurants`)
-
-Remove the Date, Amount, Zip Code, Source, and Transaction ID columns from the table. Simplify the `RawRow` interface and parser accordingly.
-
-### Files
-1. `src/lib/sampleData.ts` — rewrite `description` field in all 6 CSVs to MCC description labels
-2. `src/components/exec-demo/ExecDemoSelectionDialog.tsx` — reduce table to 3 columns
+### File
+- `src/components/exec-demo/ExecDemoSelectionDialog.tsx`
 
