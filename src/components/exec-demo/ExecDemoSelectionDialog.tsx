@@ -6,14 +6,9 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RawRow {
-  transaction_id: string;
   merchant_name: string;
-  description: string;
   mcc: string;
-  amount: string;
-  date: string;
-  zip_code: string;
-  source: string;
+  description: string;
 }
 
 function parseCsvRows(csv: string): RawRow[] {
