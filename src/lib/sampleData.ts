@@ -222,14 +222,14 @@ txn_001,STARBUCKS COFFEE #1234,Coffee and pastry purchase,5814,12.45,2024-11-01,
 txn_002,WHOLE FOODS MARKET,Weekly grocery shopping,5411,156.78,2024-11-06,94102,Cashback Card
 txn_003,EQUINOX FITNESS,Monthly gym membership fee,7997,200.00,2024-11-12,94102,Premium Card
 txn_004,SHELL OIL 78945,Gasoline fill-up,5541,45.20,2024-11-17,94103,Cashback Card
-txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7922,287.50,2024-11-23,,Cashback Card287.50,2024-11-23,,Cashback Card
+txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7922,287.50,2024-11-23,,Cashback Card
 txn_006,AplPAY UBER EATS,Food delivery order,5814,45.30,2024-12-06,,Cashback Card
 txn_007,AMAZON.COM AMZN Books,Online purchase,5942,34.99,2024-12-12,,Cashback Card
 txn_008,PAYPAL*ETSY HomeVibes Shop,Home decor purchase,5969,78.25,2024-12-17,,Cashback Card
 txn_009,DELTA AIR LINES 0062 JFK,Flight booking,4511,450.00,2024-12-23,94102,Travel Card
 txn_010,MARRIOTT HOTELS NYC MIDTOWN,Hotel accommodation,7011,600.00,2024-12-28,10036,Travel Card
 txn_011,CVS PHARMACY,Prescription medication,5912,28.50,2025-01-08,94102,HSA
-txn_012,LULULEMON,Athletic wear purchase,5655,89.00,2025-01-15,94102,Premium Card89.00,2025-01-15,94102,Premium Card
+txn_012,LULULEMON,Athletic wear purchase,5655,89.00,2025-01-15,94102,Premium Card
 txn_013,CHEWY.COM,Dog food and supplies,5995,67.89,2025-01-22,94102,Cashback Card
 txn_014,NETFLIX.COM,Monthly streaming subscription,4899,15.99,2025-01-28,,Cashback Card
 txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Travel Card
@@ -288,7 +288,7 @@ txn_069,UBER NYC,Ride to airport,4121,52.90,2025-09-28,11101,Travel Card
 txn_070,DELTA AIR LINES 0062 SFO,Return flight,4511,480.00,2025-09-28,,Travel Card
 txn_071,SHELL OIL LOCAL,Gas station home,5541,49.10,2025-09-29,94102,Cashback Card
 txn_072,STARBUCKS COFFEE,Morning coffee home,5814,6.75,2025-09-30,94102,Cashback Card
-txn_052,WARBY PARKER,Prescription glasses,8043,195.00,2025-10-08,94102,HSA195.00,2025-10-08,94102,HSA
+txn_052,WARBY PARKER,Prescription glasses,8043,195.00,2025-10-08,94102,HSA
 txn_075,STANFORD VISITOR PARKING,Campus tour parking,7523,25.00,2025-10-14,94305,Cashback Card
 txn_053,GRUBHUB,Dinner delivery,5814,42.30,2025-10-15,,Cashback Card
 txn_054,LOWES,Garden supplies,5211,87.45,2025-10-21,94103,Checking
