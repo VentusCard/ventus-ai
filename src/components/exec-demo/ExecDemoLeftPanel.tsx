@@ -12,6 +12,7 @@ interface Props {
   onSelectCustomer: (idx: number) => void;
   onRunAnalysis: () => void;
   onLoadCustomCsv?: (csv: string, name: string) => void;
+  onChangeCustomer?: () => void;
   isRunning: boolean;
   phase: string;
   collectedIndices: number[];
@@ -99,6 +100,7 @@ export default function ExecDemoLeftPanel({
   onSelectCustomer,
   onRunAnalysis,
   onLoadCustomCsv,
+  onChangeCustomer,
   isRunning,
   phase,
   collectedIndices,
