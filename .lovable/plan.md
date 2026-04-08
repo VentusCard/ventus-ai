@@ -1,49 +1,33 @@
 
 
-## Redesign: Vertically Stacked Customer Selection Dialog
+## Show Full Raw Transactions from CSV in Selection Dialog
 
-### Layout Change
-Replace the current two-column (left cards / right preview) layout with a **single-column vertical stack**:
+### Problem
+The dialog currently shows only 4 hardcoded `sampleTransactions` per customer. Each customer actually has a full CSV (`customer.csv`) with 50+ raw transactions containing all columns: `transaction_id`, `merchant_name`, `description`, `mcc`, `amount`, `date`, `zip_code`, `source`.
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│  Ventus AI · Select a Customer Profile                  [X]  │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  [Sarah Chen · 156 txns] [Marcus · 180] [Emily · 210]       │
-│  [Isabella · 240] [Priya · 190] [Robert · 320] [✏️ Custom]  │
-│                                                              │
-├──────────────────────────────────────────────────────────────┤
-│  Date    Merchant          Category   Amount   Zip    Source │
-│  Aug 15  Equinox Fitness   Wellness   $200     94102  Prem.  │
-│  Aug 16  Whole Foods       Grocery    $157     94102  Cash.  │
-│  Aug 12  Delta Air Lines   Travel     $450     94102  Travel │
-│  ...scrollable full-width table of all transactions...       │
-│                                                              │
-├──────────────────────────────────────────────────────────────┤
-│          [ ▶ Run Behavioral Enrichment ]                     │
-└──────────────────────────────────────────────────────────────┘
-```
+### Solution
+Parse the customer's `csv` field into rows and display ALL raw transactions in the table, showing every available column before enrichment.
 
 ### Changes to `ExecDemoSelectionDialog.tsx`
 
-**Top section — Customer pills (horizontal row)**:
-- Replace the left-column card list with a horizontal wrapping row of compact pills
-- Each pill shows only: **name** and **txn count** (e.g., "Sarah Chen · 156 txns")
-- No lifestyle type, no pillar chips, no icons
-- Selected pill gets blue bg + white text; others are slate outline
-- "Custom" pill with pencil icon at the end (opens existing paste flow inline below the pills)
+1. **Add CSV parser** — a simple function that splits `customer.csv` by newlines, extracts headers, and returns an array of row objects. Columns: `transaction_id`, `merchant_name`, `description`, `mcc`, `amount`, `date`, `zip_code`, `source`.
 
-**Bottom section — Full-width transaction table**:
-- Remove the two-column grid entirely; table spans full dialog width
-- Show **all available columns**: Date, Merchant, Category, Amount, Zip Code, Source
-- All `sampleTransactions` for the selected customer displayed in a `ScrollArea`
-- Compact header with customer name + txn count + date range above the table
+2. **Replace `sampleTransactions` with parsed CSV** — use `useMemo` to parse the selected customer's CSV on selection change.
 
-**Footer**: Keep the "Run Behavioral Enrichment" CTA unchanged.
+3. **Update table columns** to show all raw fields:
+   - Transaction ID
+   - Merchant Name (raw string like `STARBUCKS COFFEE #1234`)
+   - Description
+   - MCC
+   - Amount (numeric)
+   - Date
+   - Zip Code
+   - Source
 
-**Custom flow**: When "Custom" pill is clicked, the paste flow appears between the pill row and the table area (same logic as today).
+4. **Update header stats** — show the actual parsed row count instead of `customer.txnCount`.
+
+5. **Table styling** — compact rows (`text-[11px]`), full-width scrollable area filling all available vertical space (the `flex-1 min-h-0` pattern already in place).
 
 ### Files
-1. **`src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — Rewrite layout from two-column grid to vertical stack with pill row + full-width table.
+- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` — add CSV parser, replace table data source and columns.
 
