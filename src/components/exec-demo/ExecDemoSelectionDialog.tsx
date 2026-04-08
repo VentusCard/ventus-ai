@@ -67,6 +67,7 @@ const MCC_DESCRIPTIONS: Record<string, string> = {
   "8111": "Attorneys, Legal Services",
   "8299": "Schools And Educational Services–Not Elsewhere Classified",
   "8721": "Accounting, Auditing and Bookkeeping Services",
+  "8043": "Opticians, Optical Goods and Eyeglasses",
   "8999": "Professional Services–Not Elsewhere Classified",
 };
 
