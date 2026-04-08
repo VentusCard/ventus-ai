@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DEMO_CUSTOMERS, buildCustomDemoCustomer, buildCustomerPrompt, parseUnifiedOutput, type DemoCustomer } from "@/lib/demoData";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Loader2, Sparkles, CheckCircle2, Circle, Copy, Check, Lock } from "lucide-react";
+import { Loader2, Sparkles, CheckCircle2, Circle, Copy, Check, Lock, ArrowLeft } from "lucide-react";
 import type { NodeReadiness } from "@/hooks/useDemoEnrichment";
 import type { Transaction } from "@/types/transaction";
 import { ALL_MODULES, type ModuleKey } from "@/types/demo";
@@ -57,6 +58,7 @@ const MODULE_CONFIG: { mod: ModuleKey; label: string; team: string; description:
     checkColor: "text-purple-600",
   },
 ];
+
 export default function DemoCustomerPanel({
   open, onOpenChange,
   customer, parsedTransactions,
@@ -64,7 +66,13 @@ export default function DemoCustomerPanel({
   onEnrich, isProcessing, statusMessage, currentPhase, nodeReadiness,
   enabledModules, onModulesChange,
 }: Props) {
+  const [selectionPhase, setSelectionPhase] = useState(!customer);
   const allOn = ALL_MODULES.every(m => enabledModules.has(m));
+
+  // Reset to selection phase when dialog opens without a customer
+  useEffect(() => {
+    if (open && !customer) setSelectionPhase(true);
+  }, [open, customer]);
 
   const toggleModule = (mod: ModuleKey) => {
     if (mod === "Analytics") return;
@@ -82,6 +90,54 @@ export default function DemoCustomerPanel({
     }
   };
 
+  const handleSelectAndProceed = (c: DemoCustomer) => {
+    onSelect(c);
+  };
+
+  const handleProceedToConfig = () => {
+    if (customer) setSelectionPhase(false);
+  };
+
+  if (selectionPhase) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          className="max-w-none w-[70vw] p-0 gap-0 flex flex-col overflow-hidden bg-slate-50/50 border-0"
+          style={{ fontFamily: "Manrope, sans-serif", colorScheme: "light" }}
+        >
+          <Card className="border-0 shadow-none bg-transparent rounded-none flex flex-col h-full">
+            <CardHeader className="px-8 pt-7 pb-5 border-b border-slate-100 bg-white">
+              <CardTitle className="text-xl tracking-tight">Transaction Enrichment Setup</CardTitle>
+              <CardDescription className="text-[13px] mt-1">
+                Select a sample customer or load custom data to get started.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-y-auto px-8 py-6" style={{ scrollbarWidth: "thin" }}>
+              <SelectionView
+                customer={customer}
+                parsedTransactions={parsedTransactions}
+                onSelect={handleSelectAndProceed}
+              />
+            </CardContent>
+            <div className="px-8 py-5 border-t border-slate-100 bg-white">
+              <Button
+                onClick={handleProceedToConfig}
+                disabled={!customer}
+                variant="ai"
+                size="default"
+                className="w-full"
+              >
+                <Sparkles className="h-4 w-4" />
+                Continue to Configuration
+              </Button>
+            </div>
+          </Card>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Phase 2: Configuration view (two-column)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -96,17 +152,72 @@ export default function DemoCustomerPanel({
 
         {/* Two-column body */}
         <div className="flex-1 grid grid-cols-2 gap-0 overflow-hidden">
-          {/* Left: Customer Selection */}
+          {/* Left: Customer Summary */}
           <div className="border-r border-slate-100 p-8 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-            <h3 className="text-xs tracking-[0.15em] uppercase mb-4 text-primary-foreground font-extrabold">Select Customer</h3>
-            <CustomerSlot
-              label="Customer"
-              color="#3b82f6"
-              customId="custom-a"
-              selected={customer}
-              onSelect={onSelect}
-              transactions={parsedTransactions}
-            />
+            <h3 className="text-xs tracking-[0.15em] uppercase mb-4 text-primary-foreground font-extrabold">Selected Customer</h3>
+            
+            {/* Selected customer badge */}
+            <div className="flex items-center gap-3 mb-4">
+              <span className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-blue-600 text-white border border-blue-600">
+                {customer?.profile.name ?? "—"}
+              </span>
+              <button
+                onClick={() => setSelectionPhase(true)}
+                className="px-3 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-colors flex items-center gap-1"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Change
+              </button>
+            </div>
+
+            {/* Transaction table */}
+            <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+              <div className="max-h-[320px] overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+                <table className="w-full text-[11px]">
+                  <thead className="sticky top-0 bg-slate-50">
+                    <tr className="border-b border-slate-100">
+                      <th className="text-left px-3 py-2 font-medium text-slate-500">Date</th>
+                      <th className="text-left px-3 py-2 font-medium text-slate-500">Merchant</th>
+                      <th className="text-right px-3 py-2 font-medium text-slate-500">Amt</th>
+                      <th className="text-right px-3 py-2 font-medium text-slate-500">Zip</th>
+                      <th className="text-center px-3 py-2 font-medium text-slate-500">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parsedTransactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-3 py-8 text-center text-slate-400 text-[12px] italic">
+                          No transactions loaded
+                        </td>
+                      </tr>
+                    ) : (
+                      parsedTransactions.map((t, i) => (
+                        <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                          <td className="px-3 py-1.5 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
+                          <td className="px-3 py-1.5 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                          <td className="px-3 py-1.5 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
+                          <td className="px-3 py-1.5 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
+                          <td className="px-3 py-1.5 text-center">
+                            {t.source && (
+                              <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
+                                t.source === "Checking" ? "bg-slate-100 text-slate-600" :
+                                t.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                                t.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                                t.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                                t.source === "HSA" ? "bg-amber-50 text-amber-700" :
+                                "bg-slate-50 text-slate-500"
+                              }`}>
+                                {t.source}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           {/* Right: Platform Modules */}
@@ -225,18 +336,15 @@ function PhaseDot({ label, active, done }: { label: string; active: boolean; don
   );
 }
 
-function CustomerSlot({
-  customId,
-  selected,
+/* Phase 1: Wide card selection view (tepilot-style) */
+function SelectionView({
+  customer,
+  parsedTransactions,
   onSelect,
-  transactions,
 }: {
-  label: string;
-  color: string;
-  customId: string;
-  selected: DemoCustomer | null;
+  customer: DemoCustomer | null;
+  parsedTransactions: Transaction[];
   onSelect: (c: DemoCustomer) => void;
-  transactions: Transaction[];
 }) {
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [outputText, setOutputText] = useState("");
@@ -265,46 +373,42 @@ function CustomerSlot({
       setParseError("Could not parse output. Make sure it contains === PROFILE === and === TRANSACTIONS === sections.");
       return;
     }
-    const customer = buildCustomDemoCustomer(customId, parsed.csv, parsed.demographics, parsed.zip);
-    onSelect(customer);
+    const cust = buildCustomDemoCustomer("custom-a", parsed.csv, parsed.demographics, parsed.zip);
+    onSelect(cust);
     setIsCustomMode(false);
     setOutputText("");
   };
 
-  const isCustomSelected = selected?.id?.startsWith("custom-");
+  const isCustomSelected = customer?.id?.startsWith("custom-");
 
   return (
     <div>
-      {/* Button pills for customer selection */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      {/* Button row — tepilot style */}
+      <div className="flex gap-2 mb-6">
         {DEMO_CUSTOMERS.map((d) => (
-          <button
+          <Button
             key={d.id}
+            variant={!isCustomMode && customer?.id === d.id ? "default" : "outline"}
+            size="sm"
             onClick={() => handleSelectCustomer(d.id)}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
-              !isCustomMode && selected?.id === d.id
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-            }`}
+            className="flex-1"
           >
             {d.profile.name}
-          </button>
+          </Button>
         ))}
-        <button
+        <Button
+          variant={isCustomMode || isCustomSelected ? "default" : "outline"}
+          size="sm"
           onClick={() => { setIsCustomMode(true); setParseError(""); }}
-          className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
-            isCustomMode || isCustomSelected
-              ? "bg-blue-600 text-white border-blue-600"
-              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-          }`}
+          className="flex-1"
         >
           ✏️ Custom
-        </button>
+        </Button>
       </div>
 
       {/* Custom mode: prompt + paste flow */}
       {isCustomMode && (
-        <div className="space-y-3 mb-4">
+        <div className="space-y-3 mb-6 p-4 rounded-lg border border-slate-200 bg-white">
           <div>
             <span className="text-[11px] font-medium text-slate-500 mb-1.5 block">1. Copy prompt → paste into ChatGPT / Claude</span>
             <Button
@@ -329,9 +433,7 @@ function CustomerSlot({
             />
           </div>
 
-          {parseError && (
-            <p className="text-[11px] text-red-500">{parseError}</p>
-          )}
+          {parseError && <p className="text-[11px] text-red-500">{parseError}</p>}
 
           <Button size="sm" className="w-full h-8 text-[11px]" onClick={handleLoad} disabled={!outputText.trim()}>
             Load Customer
@@ -339,9 +441,9 @@ function CustomerSlot({
         </div>
       )}
 
-      {/* Transaction table — always visible */}
+      {/* Transaction table */}
       <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-        <div className="max-h-[320px] overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+        <div className="max-h-[400px] overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
           <table className="w-full text-[11px]">
             <thead className="sticky top-0 bg-slate-50">
               <tr className="border-b border-slate-100">
@@ -353,17 +455,17 @@ function CustomerSlot({
               </tr>
             </thead>
             <tbody>
-              {transactions.length === 0 ? (
+              {parsedTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center text-slate-400 text-[12px] italic">
+                  <td colSpan={5} className="px-3 py-12 text-center text-slate-400 text-[13px] italic">
                     Select a customer above to preview transactions
                   </td>
                 </tr>
               ) : (
-                transactions.map((t, i) => (
+                parsedTransactions.map((t, i) => (
                   <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
                     <td className="px-3 py-1.5 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
-                    <td className="px-3 py-1.5 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                    <td className="px-3 py-1.5 text-slate-700 truncate max-w-[200px]">{t.merchant_name}</td>
                     <td className="px-3 py-1.5 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
                     <td className="px-3 py-1.5 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
                     <td className="px-3 py-1.5 text-center">
