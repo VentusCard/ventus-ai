@@ -1,9 +1,42 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Pencil, Copy, Check, ArrowLeft, Play } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface RawRow {
+  transaction_id: string;
+  merchant_name: string;
+  description: string;
+  mcc: string;
+  amount: string;
+  date: string;
+  zip_code: string;
+  source: string;
+}
+
+function parseCsvRows(csv: string): RawRow[] {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const idx = (col: string) => header.indexOf(col);
+
+  return lines.slice(1).filter((l) => l.trim()).map((line) => {
+    const cols = line.split(",").map((c) => c.trim());
+    const get = (col: string) => cols[idx(col)] || "";
+    return {
+      transaction_id: get("transaction_id"),
+      merchant_name: get("merchant_name"),
+      description: get("description"),
+      mcc: get("mcc"),
+      amount: get("amount"),
+      date: get("date"),
+      zip_code: get("zip_code") || get("home_zip"),
+      source: get("source"),
+    };
+  });
+}
 
 interface Props {
   open: boolean;
@@ -30,6 +63,7 @@ export default function ExecDemoSelectionDialog({
   const [pasteValue, setPasteValue] = useState("");
 
   const customer = DEMO_CUSTOMERS[selectedIdx];
+  const rawRows = useMemo(() => parseCsvRows(customer.csv), [customer.csv]);
 
   const handleRun = () => {
     onOpenChange(false);
