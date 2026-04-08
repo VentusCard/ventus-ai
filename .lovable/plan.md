@@ -1,35 +1,27 @@
 
 
-## Rewrite `synthesize-persona` Prompt to Think Like an Analyst
+## Fix: 3 Malformed CSV Rows in Sample Data
 
 ### Problem
-The current prompt is a wall of negative rules ("NEVER do X", "do NOT do Y"). The LLM struggles with long prohibition lists and still produces incoherent rollups — e.g., grouping gym visits with hotel stays into "Strategic Domestic Travel" because they share a trip window.
+Three rows in `src/lib/sampleData.ts` have their columns duplicated from `amount` onward — a copy-paste artifact. This causes the parser to read corrupted `source` values like `Cashback Card287.50` and produces extra dangling columns.
 
-### Approach
-Replace the rule-heavy prompt with a shorter, principle-driven prompt that teaches the model **how to think** rather than what to avoid. The key insight: a good analyst asks "what does this person *do regularly*?" not "which rows can I combine?"
+### Affected rows
 
-### Changes
+| Line | Merchant | Issue |
+|------|----------|-------|
+| 225 | PAYPAL*TICKETMASTR Sabrina Carpenter | `Cashback Card287.50,2024-11-23,,Cashback Card` |
+| 232 | LULULEMON | `Premium Card89.00,2025-01-15,94102,Premium Card` |
+| 291 | WARBY PARKER | `HSA195.00,2025-10-08,94102,HSA` |
 
-**File: `supabase/functions/synthesize-persona/index.ts`** — Rewrite the system prompt (~lines 36-63)
+### Fix
+**File: `src/lib/sampleData.ts`** — 3 line replacements
 
-New prompt philosophy:
-- **Think in habits, not categories.** A rollup should describe a recurring behavior pattern you'd mention to a colleague: "this person is clearly a fitness nut" or "they eat out 3x a week at mid-range spots." If you wouldn't say it out loud about a real person, don't create the rollup.
-- **Same-pillar rule stays** (it's structural, not a hack) but framed positively: "Rollups group categories within a single pillar that reflect the same lifestyle habit."
-- **Behavioral coherence test:** Before creating a rollup, ask: "Would a friend describe this person this way?" A person who stays at a Hilton in Dallas and also goes to Orange Theory is a fitness enthusiast who traveled — not a "strategic domestic traveler."
-- **Tier honesty framed as empathy:** "Describe their spending the way they'd describe it to a friend. Chipotle regulars call themselves foodies, not premium gastronomes."
-- **Specificity from merchants:** "Use the merchant names to be specific. Netflix + Hulu + Spotify → 'Streaming Junkie', not 'Digital Subscriber'."
-- **Rollups are optional:** "If categories don't share a clear habit, leave them ungrouped. Fewer rollups with real insight beats more rollups with filler."
+Each row trimmed to the correct 8 columns:
+```
+txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7922,287.50,2024-11-23,,Cashback Card
+txn_012,LULULEMON,Athletic wear purchase,5655,89.00,2025-01-15,94102,Premium Card
+txn_052,WARBY PARKER,Prescription glasses,8043,195.00,2025-10-08,94102,HSA
+```
 
-Remove all the "NEVER", "CRITICAL", "BAD/GOOD example" lists. Replace with 2-3 natural principles and a single illustrative example.
-
-### What stays the same
-- The pillar enum constraint (structural correctness)
-- The tool-calling schema and response format
-- The `category_indices` requirement
-- The 3-insight and headline structure
-
-### Summary
-- 1 file changed: `supabase/functions/synthesize-persona/index.ts`
-- Prompt rewrite only — no client-side changes, no schema changes
-- No hard-coded incompatible pairs
+One file, three lines.
 
