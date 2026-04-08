@@ -191,7 +191,7 @@ export default function ExecDemoSelectionDialog({
                         </span>
                       </td>
                       <td className="py-1.5 pr-4 text-right font-semibold text-slate-700 tabular-nums">{tx.amount}</td>
-                      <td className="py-1.5 pr-4 text-slate-400 text-[10px]">{tx.zip || "—"}</td>
+                      <td className="py-1.5 pr-4 text-slate-400 text-[10px]">{tx.zip_code || "—"}</td>
                       <td className="py-1.5 text-slate-400 text-[10px]">{tx.source || "—"}</td>
                     </tr>
                   ))}
