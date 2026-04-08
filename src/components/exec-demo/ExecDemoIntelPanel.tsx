@@ -256,8 +256,8 @@ export default function ExecDemoIntelPanel({
           </div>
         )}
 
-        {/* Synthesize button — appears when AI data ready but not yet triggered */}
-        {hasSynthesis && !synthesisTriggered && chips.length > 0 && (
+        {/* Synthesize button — appears when AI data ready, pills done animating, and not yet triggered */}
+        {hasSynthesis && !synthesisTriggered && chips.length > 0 && phase === "hold" && (
           <button
             onClick={() => setSynthesisTriggered(true)}
             className="flex items-center gap-2 mx-auto mb-3 px-4 py-2 rounded-full text-[12px] font-semibold transition-all duration-300 hover:scale-105"
