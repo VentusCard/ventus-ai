@@ -1,33 +1,90 @@
 
 
-## Show Full Raw Transactions from CSV in Selection Dialog
+## Replace "Description" Column with Official MCC Descriptions
 
-### Problem
-The dialog currently shows only 4 hardcoded `sampleTransactions` per customer. Each customer actually has a full CSV (`customer.csv`) with 50+ raw transactions containing all columns: `transaction_id`, `merchant_name`, `description`, `mcc`, `amount`, `date`, `zip_code`, `source`.
+### What Changes
+In `ExecDemoSelectionDialog.tsx`, rename the "Description" column to **"MCC Description"** and populate it using a lookup map built from the official Visa/MasterCard MCC reference document (the PDF you uploaded), instead of the CSV's `description` field.
 
-### Solution
-Parse the customer's `csv` field into rows and display ALL raw transactions in the table, showing every available column before enrichment.
+### MCC Description Map (from official PDF)
+A `const MCC_DESCRIPTIONS: Record<string, string>` containing all MCCs used in sample data, with exact wording from the document:
 
-### Changes to `ExecDemoSelectionDialog.tsx`
+| MCC | Official Description |
+|-----|---------------------|
+| 0742 | Veterinary Services |
+| 1711 | Air Conditioning, Heating and Plumbing Contractors |
+| 3058 | Air Carriers, Airlines (mapped to 4511 range) |
+| 4111 | Transportation–Suburban and Local Commuter Passenger, including Ferries |
+| 4121 | Taxicabs and Limousines |
+| 4511 | Air Carriers, Airlines–not elsewhere classified |
+| 4789 | Transportation Services Not Elsewhere Classified |
+| 4899 | Cable, Satellite, and Other Pay Television and Radio Services |
+| 4900 | Utilities–Electric, Gas, Heating Oil, Sanitary, Water |
+| 5211 | Building Materials, Lumber Stores |
+| 5251 | Hardware Stores |
+| 5300 | Wholesale Clubs |
+| 5411 | Grocery Stores, Supermarkets |
+| 5499 | Miscellaneous Food Stores–Convenience Stores, Markets, Specialty Stores |
+| 5541 | Service Stations (With or Without Ancillary Services) |
+| 5641 | Children's and Infants' Wear Stores |
+| 5651 | Family Clothing Stores |
+| 5655 | Sports Apparel, and Riding Apparel Stores |
+| 5661 | Shoe Stores |
+| 5712 | Equipment, Furniture and Home Furnishings Stores |
+| 5714 | Drapery, Upholstery and Window Coverings Stores |
+| 5722 | Household Appliance Stores |
+| 5732 | Electronics Sales |
+| 5734 | Computer Software Stores |
+| 5812 | Eating Places and Restaurants |
+| 5814 | Fast Food Restaurants |
+| 5912 | Drug Stores and Pharmacies |
+| 5941 | Sporting Goods Stores |
+| 5942 | Book Stores |
+| 5944 | Clock, Jewelry, Watch and Silverware Stores |
+| 5945 | Game, Toy and Hobby Shops |
+| 5968 | Direct Marketing–Continuity/Subscription Merchants |
+| 5969 | Direct Marketing–Other Direct Marketers–Not Elsewhere Classified |
+| 5977 | Cosmetic Stores |
+| 5995 | Pet Shops, Pet Food and Supplies |
+| 5999 | Miscellaneous and Specialty Retail Stores |
+| 6163 | (not in PDF — use "Mortgage Brokers") |
+| 6211 | Securities–Brokers and Dealers |
+| 6311 | Insurance Sales, Underwriting and Premiums |
+| 6411 | (not in PDF — use "Title Abstract and Escrow") |
+| 6531 | Real Estate Agents and Managers–Rentals |
+| 7011 | Lodging–Hotels, Motels, Resorts–not elsewhere classified |
+| 7012 | Timeshares |
+| 7217 | Carpet and Upholstery Cleaning |
+| 7298 | Health and Beauty Spas |
+| 7389 | Business Services Not Elsewhere Classified |
+| 7399 | Business Services Not Elsewhere Classified |
+| 7512 | Automobile Rental Agency–Not Elsewhere Classified |
+| 7523 | Automobile Parking Lots and Garages |
+| 7832 | Motion Picture Theaters |
+| 7922 | Theatrical Producers, Ticket Agencies |
+| 7941 | Athletic Fields, Commercial Sports, Professional Sports Clubs |
+| 7996 | Amusement Parks, Carnivals, Circuses |
+| 7997 | Clubs–Country Clubs, Membership (Athletic, Recreation, Sports) |
+| 7998 | Aquariums, Dolphinariums, Zoos and Seaquariums |
+| 7999 | Recreation Services–Not Elsewhere Classified |
+| 8011 | Doctors–not elsewhere classified |
+| 8049 | Chiropodists, Podiatrists |
+| 8111 | Attorneys, Legal Services |
+| 8299 | Schools And Educational Services–Not Elsewhere Classified |
+| 8721 | Accounting, Auditing and Bookkeeping Services |
+| 8999 | Professional Services–Not Elsewhere Classified |
 
-1. **Add CSV parser** — a simple function that splits `customer.csv` by newlines, extracts headers, and returns an array of row objects. Columns: `transaction_id`, `merchant_name`, `description`, `mcc`, `amount`, `date`, `zip_code`, `source`.
+### Code Changes in `ExecDemoSelectionDialog.tsx`
 
-2. **Replace `sampleTransactions` with parsed CSV** — use `useMemo` to parse the selected customer's CSV on selection change.
+1. Add the `MCC_DESCRIPTIONS` constant at the top of the file.
 
-3. **Update table columns** to show all raw fields:
-   - Transaction ID
-   - Merchant Name (raw string like `STARBUCKS COFFEE #1234`)
-   - Description
-   - MCC
-   - Amount (numeric)
-   - Date
-   - Zip Code
-   - Source
+2. In `RawRow` interface: rename `description` → `mcc_description`.
 
-4. **Update header stats** — show the actual parsed row count instead of `customer.txnCount`.
+3. In `parseCsvRows`: compute `mcc_description` as `MCC_DESCRIPTIONS[mcc] || csvDescription || "—"` (falls back to CSV description if MCC not in map).
 
-5. **Table styling** — compact rows (`text-[11px]`), full-width scrollable area filling all available vertical space (the `flex-1 min-h-0` pattern already in place).
+4. Table header: rename "Description" → "MCC Description".
+
+5. Table cell: render `row.mcc_description` instead of `row.description`.
 
 ### Files
-- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` — add CSV parser, replace table data source and columns.
+- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` — only file changed.
 
