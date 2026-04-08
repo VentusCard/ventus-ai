@@ -1,33 +1,43 @@
 
 
-## Show Full Raw Transactions from CSV in Selection Dialog
+## Update Transaction Table to 3 Columns + Rewrite Description → MCC Description
 
-### Problem
-The dialog currently shows only 4 hardcoded `sampleTransactions` per customer. Each customer actually has a full CSV (`customer.csv`) with 50+ raw transactions containing all columns: `transaction_id`, `merchant_name`, `description`, `mcc`, `amount`, `date`, `zip_code`, `source`.
+### Overview
+Simplify the transaction preview table to show only 3 columns and repurpose the existing `description` CSV column to hold standard MCC descriptions instead of the current verbose text.
 
-### Solution
-Parse the customer's `csv` field into rows and display ALL raw transactions in the table, showing every available column before enrichment.
+### Changes
 
-### Changes to `ExecDemoSelectionDialog.tsx`
+**1. `src/lib/sampleData.ts`** — Rewrite the `description` column across all 6 CSVs
 
-1. **Add CSV parser** — a simple function that splits `customer.csv` by newlines, extracts headers, and returns an array of row objects. Columns: `transaction_id`, `merchant_name`, `description`, `mcc`, `amount`, `date`, `zip_code`, `source`.
+Replace every human-readable description with the standard MCC category label for that row's MCC code. Examples:
 
-2. **Replace `sampleTransactions` with parsed CSV** — use `useMemo` to parse the selected customer's CSV on selection change.
+| MCC | Current description | New description |
+|-----|---|---|
+| 5814 | Coffee and pastry purchase | Eating Places, Restaurants |
+| 5411 | Weekly grocery shopping | Grocery Stores, Supermarkets |
+| 5655 | Yoga pants and sports bra | Family Clothing Stores |
+| 7997 | Monthly gym membership | Membership Clubs, Recreation |
+| 3000–3299 | Flight booking | Airlines, Air Carriers |
+| 7011 | Hotel accommodation | Hotels, Motels, Resorts |
+| 5912 | Prescription pickup | Drug Stores, Pharmacies |
+| 4121 | Ride to downtown | Taxicabs and Rideshares |
+| 5813 | Cocktails at bar | Drinking Places, Bars |
+| 5944 | Birthday gift | Jewelry, Watch, Clock Stores |
+| 7832 | Movie night | Motion Picture Theaters |
+| 8011 | Doctor visit | Physicians, Medical Services |
 
-3. **Update table columns** to show all raw fields:
-   - Transaction ID
-   - Merchant Name (raw string like `STARBUCKS COFFEE #1234`)
-   - Description
-   - MCC
-   - Amount (numeric)
-   - Date
-   - Zip Code
-   - Source
+All ~600 rows across the 6 CSV blocks will be updated.
 
-4. **Update header stats** — show the actual parsed row count instead of `customer.txnCount`.
+**2. `src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — Show only 3 columns
 
-5. **Table styling** — compact rows (`text-[11px]`), full-width scrollable area filling all available vertical space (the `flex-1 min-h-0` pattern already in place).
+Update the table to display:
+- **Merchant Name** — the raw descriptor string (e.g., `STARBUCKS COFFEE #1234`)
+- **MCC** — the 4-digit code (e.g., `5814`)
+- **MCC Description** — the generic label (e.g., `Eating Places, Restaurants`)
+
+Remove the Date, Amount, Zip Code, Source, and Transaction ID columns from the table. Simplify the `RawRow` interface and parser accordingly.
 
 ### Files
-- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` — add CSV parser, replace table data source and columns.
+1. `src/lib/sampleData.ts` — rewrite `description` field in all 6 CSVs to MCC description labels
+2. `src/components/exec-demo/ExecDemoSelectionDialog.tsx` — reduce table to 3 columns
 
