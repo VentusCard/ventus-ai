@@ -226,8 +226,6 @@ function PhaseDot({ label, active, done }: { label: string; active: boolean; don
 }
 
 function CustomerSlot({
-  label,
-  color,
   customId,
   selected,
   onSelect,
@@ -245,16 +243,11 @@ function CustomerSlot({
   const [copied, setCopied] = useState(false);
   const [parseError, setParseError] = useState("");
 
-  const handleDropdownChange = (value: string) => {
-    if (value === "custom") {
-      setIsCustomMode(true);
-      setParseError("");
-    } else {
-      setIsCustomMode(false);
-      setParseError("");
-      const c = DEMO_CUSTOMERS.find((d) => d.id === value);
-      if (c) onSelect(c);
-    }
+  const handleSelectCustomer = (id: string) => {
+    setIsCustomMode(false);
+    setParseError("");
+    const c = DEMO_CUSTOMERS.find((d) => d.id === id);
+    if (c) onSelect(c);
   };
 
   const handleCopyPrompt = async () => {
@@ -278,28 +271,40 @@ function CustomerSlot({
     setOutputText("");
   };
 
-  const totalSpend = transactions.reduce((sum, t) => sum + t.amount, 0);
-  const dates = transactions.map(t => t.date).sort();
-  const dateRange = dates.length > 0
-    ? `${formatShortDate(dates[0])} – ${formatShortDate(dates[dates.length - 1])}`
-    : "";
+  const isCustomSelected = selected?.id?.startsWith("custom-");
 
   return (
     <div>
-      <select
-        className="w-full bg-white text-slate-900 text-sm rounded-lg px-3 py-2.5 border border-slate-200 focus:outline-none focus:border-blue-500 mb-4"
-        value={isCustomMode ? "custom" : selected?.id?.startsWith("custom-") ? "custom" : (selected?.id ?? "")}
-        onChange={(e) => handleDropdownChange(e.target.value)}
-      >
-        {!selected && !isCustomMode && <option value="" disabled>Select a customer…</option>}
+      {/* Button pills for customer selection */}
+      <div className="flex flex-wrap gap-2 mb-4">
         {DEMO_CUSTOMERS.map((d) => (
-          <option key={d.id} value={d.id}>{d.profile.name}</option>
+          <button
+            key={d.id}
+            onClick={() => handleSelectCustomer(d.id)}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
+              !isCustomMode && selected?.id === d.id
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            {d.profile.name}
+          </button>
         ))}
-        <option value="custom">✏️ Custom</option>
-      </select>
+        <button
+          onClick={() => { setIsCustomMode(true); setParseError(""); }}
+          className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-colors ${
+            isCustomMode || isCustomSelected
+              ? "bg-blue-600 text-white border-blue-600"
+              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          ✏️ Custom
+        </button>
+      </div>
 
-      {isCustomMode ? (
-        <div className="space-y-3">
+      {/* Custom mode: prompt + paste flow */}
+      {isCustomMode && (
+        <div className="space-y-3 mb-4">
           <div>
             <span className="text-[11px] font-medium text-slate-500 mb-1.5 block">1. Copy prompt → paste into ChatGPT / Claude</span>
             <Button
@@ -332,109 +337,56 @@ function CustomerSlot({
             Load Customer
           </Button>
         </div>
-      ) : !selected ? (
-        <p className="text-[12px] text-slate-400 italic py-4">Select a customer above to view their transaction data</p>
-      ) : (
-        <>
-          {/* Demographics */}
-          {(selected.profile.demographics.industry || selected.profile.demographics.incomeLevel) && (
-            <div className="mb-3 flex items-center gap-2 border-t border-slate-100 pt-3 text-[11px] text-slate-500">
-              {selected.profile.demographics.industry && (
-                <span>Industry: <span className="font-medium text-slate-600">{selected.profile.demographics.industry}</span></span>
-              )}
-              {selected.profile.demographics.industry && selected.profile.demographics.incomeLevel && (
-                <span className="text-slate-300">·</span>
-              )}
-              {selected.profile.demographics.incomeLevel && (
-                <span>Income: <span className="font-medium text-slate-600">{selected.profile.demographics.incomeLevel}</span></span>
-              )}
-            </div>
-          )}
-
-          {/* Summary stats */}
-          <div className="flex items-center gap-2 flex-wrap mb-2 text-[11px] text-slate-500">
-            <span><span className="font-semibold text-slate-700">{transactions.length}</span> txns</span>
-            <span className="text-slate-300">·</span>
-            <span><span className="font-semibold text-slate-700">${totalSpend.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span> total</span>
-            {dateRange && (
-              <>
-                <span className="text-slate-300">·</span>
-                <span className="text-slate-400">{dateRange}</span>
-              </>
-            )}
-          </div>
-
-          {/* Source pills */}
-          {(() => {
-            const sources = [...new Set(transactions.map(t => t.source).filter(Boolean))];
-            return sources.length > 0 ? (
-              <div className="flex items-center gap-1.5 flex-wrap mb-3 text-[10px]">
-                <span className="text-slate-500 font-medium">Sources:</span>
-                {sources.map(s => (
-                  <span key={s} className={`inline-block px-1.5 py-px rounded-full text-[9px] font-medium ${
-                    s === "Checking" ? "bg-slate-100 text-slate-600" :
-                    s === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
-                    s === "Travel Card" ? "bg-blue-50 text-blue-700" :
-                    s === "Premium Card" ? "bg-purple-50 text-purple-700" :
-                    s === "HSA" ? "bg-amber-50 text-amber-700" :
-                    "bg-slate-50 text-slate-500"
-                  }`}>{s}</span>
-                ))}
-              </div>
-            ) : null;
-          })()}
-
-          {/* Transaction table */}
-          <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-            <div className="max-h-[320px] overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
-              <table className="w-full text-[11px]">
-                <thead className="sticky top-0 bg-slate-50">
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left px-3 py-2 font-medium text-slate-500">Date</th>
-                    <th className="text-left px-3 py-2 font-medium text-slate-500">Merchant</th>
-                    <th className="text-right px-3 py-2 font-medium text-slate-500">Amt</th>
-                    <th className="text-right px-3 py-2 font-medium text-slate-500">Zip</th>
-                    <th className="text-center px-3 py-2 font-medium text-slate-500">Source</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.map((t, i) => (
-                    <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
-                      <td className="px-3 py-1.5 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
-                      <td className="px-3 py-1.5 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
-                      <td className="px-3 py-1.5 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
-                      <td className="px-3 py-1.5 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
-                      <td className="px-3 py-1.5 text-center">
-                        {t.source && (
-                          <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
-                            t.source === "Checking" ? "bg-slate-100 text-slate-600" :
-                            t.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
-                            t.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
-                            t.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
-                            t.source === "HSA" ? "bg-amber-50 text-amber-700" :
-                            "bg-slate-50 text-slate-500"
-                          }`}>
-                            {t.source}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
       )}
+
+      {/* Transaction table — always visible */}
+      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+        <div className="max-h-[320px] overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
+          <table className="w-full text-[11px]">
+            <thead className="sticky top-0 bg-slate-50">
+              <tr className="border-b border-slate-100">
+                <th className="text-left px-3 py-2 font-medium text-slate-500">Date</th>
+                <th className="text-left px-3 py-2 font-medium text-slate-500">Merchant</th>
+                <th className="text-right px-3 py-2 font-medium text-slate-500">Amt</th>
+                <th className="text-right px-3 py-2 font-medium text-slate-500">Zip</th>
+                <th className="text-center px-3 py-2 font-medium text-slate-500">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-3 py-8 text-center text-slate-400 text-[12px] italic">
+                    Select a customer above to preview transactions
+                  </td>
+                </tr>
+              ) : (
+                transactions.map((t, i) => (
+                  <tr key={`${t.transaction_id}-${i}`} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                    <td className="px-3 py-1.5 text-slate-400 text-[10px] whitespace-nowrap">{t.date}</td>
+                    <td className="px-3 py-1.5 text-slate-700 truncate max-w-[140px]">{t.merchant_name}</td>
+                    <td className="px-3 py-1.5 text-right font-mono text-slate-600">${t.amount.toFixed(0)}</td>
+                    <td className="px-3 py-1.5 text-right text-slate-400 font-mono text-[10px]">{t.zip_code || "—"}</td>
+                    <td className="px-3 py-1.5 text-center">
+                      {t.source && (
+                        <span className={`inline-block px-1.5 py-px rounded text-[8px] font-medium whitespace-nowrap ${
+                          t.source === "Checking" ? "bg-slate-100 text-slate-600" :
+                          t.source === "Cashback Card" ? "bg-emerald-50 text-emerald-700" :
+                          t.source === "Travel Card" ? "bg-blue-50 text-blue-700" :
+                          t.source === "Premium Card" ? "bg-purple-50 text-purple-700" :
+                          t.source === "HSA" ? "bg-amber-50 text-amber-700" :
+                          "bg-slate-50 text-slate-500"
+                        }`}>
+                          {t.source}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
-}
-
-function formatShortDate(dateStr: string): string {
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  } catch {
-    return dateStr;
-  }
 }
