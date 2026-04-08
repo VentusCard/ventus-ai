@@ -1,11 +1,8 @@
-import { Play, User, Pencil, Copy, Check, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { Play, User, Pencil } from "lucide-react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
-import { buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { getIntelligenceForCustomer } from "./execDemoData";
 import type { Transaction, SignalEntry } from "./execDemoData";
 import { getColor } from "./ExecDemoIntelPanel";
-import { toast } from "sonner";
 
 interface Props {
   selectedIdx: number;
