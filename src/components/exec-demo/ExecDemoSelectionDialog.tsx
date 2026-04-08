@@ -275,8 +275,8 @@ export default function ExecDemoSelectionDialog({
                     <th className="pb-2 pr-3 pt-1">ID</th>
                     <th className="pb-2 pr-3 pt-1">Date</th>
                     <th className="pb-2 pr-3 pt-1">Merchant Name</th>
-                    <th className="pb-2 pr-3 pt-1">Description</th>
                     <th className="pb-2 pr-3 pt-1">MCC</th>
+                    <th className="pb-2 pr-3 pt-1">MCC Description</th>
                     <th className="pb-2 pr-3 pt-1 text-right">Amount</th>
                     <th className="pb-2 pr-3 pt-1">Zip</th>
                     <th className="pb-2 pt-1">Source</th>
