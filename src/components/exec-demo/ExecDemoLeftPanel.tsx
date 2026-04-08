@@ -175,17 +175,18 @@ export default function ExecDemoLeftPanel({
           Transaction Feed
         </div>
 
-        {phase === "idle" && transactions.length > 0 ? (
+        {phase === "idle" && transactions.length > 0 && (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
                 <TxRow key={`idle-${i}`} tx={tx} dim={false} />
               ))}
             </div>
-          ) : (
+        )}
+
+        {phase === "idle" && transactions.length === 0 && (
             <div className="text-[10px] text-slate-300 mt-2 font-mono">
               Select a customer to preview transactions...
             </div>
-          )
         )}
 
         {showScrolling && (
