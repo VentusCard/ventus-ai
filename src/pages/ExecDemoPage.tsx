@@ -29,6 +29,7 @@ const TIMINGS = {
 
 export default function ExecDemoPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
   const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
@@ -292,6 +293,10 @@ export default function ExecDemoPage() {
     },
     [clearTimeouts, fireClassification]
   );
+
+  const handleChangeCustomer = useCallback(() => {
+    setSelectionDialogOpen(true);
+  }, []);
 
   const handleLoadCustomCsv = useCallback((csv: string, name: string) => {
     clearTimeouts();
