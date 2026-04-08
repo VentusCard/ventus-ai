@@ -21,14 +21,9 @@ function parseCsvRows(csv: string): RawRow[] {
     const cols = line.split(",").map((c) => c.trim());
     const get = (col: string) => cols[idx(col)] || "";
     return {
-      transaction_id: get("transaction_id"),
       merchant_name: get("merchant_name"),
-      description: get("description"),
       mcc: get("mcc"),
-      amount: get("amount"),
-      date: get("date"),
-      zip_code: get("zip_code") || get("home_zip"),
-      source: get("source"),
+      description: get("description"),
     };
   });
 }
