@@ -1,9 +1,42 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Pencil, Copy, Check, ArrowLeft, Play } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface RawRow {
+  transaction_id: string;
+  merchant_name: string;
+  description: string;
+  mcc: string;
+  amount: string;
+  date: string;
+  zip_code: string;
+  source: string;
+}
+
+function parseCsvRows(csv: string): RawRow[] {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const idx = (col: string) => header.indexOf(col);
+
+  return lines.slice(1).filter((l) => l.trim()).map((line) => {
+    const cols = line.split(",").map((c) => c.trim());
+    const get = (col: string) => cols[idx(col)] || "";
+    return {
+      transaction_id: get("transaction_id"),
+      merchant_name: get("merchant_name"),
+      description: get("description"),
+      mcc: get("mcc"),
+      amount: get("amount"),
+      date: get("date"),
+      zip_code: get("zip_code") || get("home_zip"),
+      source: get("source"),
+    };
+  });
+}
 
 interface Props {
   open: boolean;
@@ -30,6 +63,7 @@ export default function ExecDemoSelectionDialog({
   const [pasteValue, setPasteValue] = useState("");
 
   const customer = DEMO_CUSTOMERS[selectedIdx];
+  const rawRows = useMemo(() => parseCsvRows(customer.csv), [customer.csv]);
 
   const handleRun = () => {
     onOpenChange(false);
@@ -163,44 +197,48 @@ export default function ExecDemoSelectionDialog({
             <div className="px-6 pt-3 pb-2 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <span className="text-[13px] font-bold text-slate-800">{customer.profile.name}</span>
-                <span className="text-[11px] text-slate-400">{customer.txnCount} transactions · {customer.txnTotal} · {customer.dateRange}</span>
+                <span className="text-[11px] text-slate-400">{rawRows.length} transactions · {customer.txnTotal} · {customer.dateRange}</span>
               </div>
             </div>
 
             {/* Scrollable table */}
-            <ScrollArea className="flex-1 min-h-0 px-6">
+            <ScrollArea className="flex-1 min-h-0 px-6 pb-2">
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-white z-10">
                   <tr className="text-left text-[9px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
-                    <th className="pb-2 pr-4 pt-1">Date</th>
-                    <th className="pb-2 pr-4 pt-1">Merchant</th>
-                    <th className="pb-2 pr-4 pt-1">Category</th>
-                    <th className="pb-2 pr-4 pt-1 text-right">Amount</th>
-                    <th className="pb-2 pr-4 pt-1">Zip Code</th>
+                    <th className="pb-2 pr-3 pt-1">ID</th>
+                    <th className="pb-2 pr-3 pt-1">Date</th>
+                    <th className="pb-2 pr-3 pt-1">Merchant Name</th>
+                    <th className="pb-2 pr-3 pt-1">Description</th>
+                    <th className="pb-2 pr-3 pt-1">MCC</th>
+                    <th className="pb-2 pr-3 pt-1 text-right">Amount</th>
+                    <th className="pb-2 pr-3 pt-1">Zip</th>
                     <th className="pb-2 pt-1">Source</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {customer.sampleTransactions.map((tx, i) => (
-                    <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="py-1.5 pr-4 text-slate-500 tabular-nums whitespace-nowrap">{tx.date}</td>
-                      <td className="py-1.5 pr-4 font-medium text-slate-800">{tx.merchant}</td>
-                      <td className="py-1.5 pr-4">
-                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-                          {tx.category}
-                        </span>
-                      </td>
-                      <td className="py-1.5 pr-4 text-right font-semibold text-slate-700 tabular-nums">{tx.amount}</td>
-                      <td className="py-1.5 pr-4 text-slate-400 text-[10px]">{tx.zip_code || "—"}</td>
-                      <td className="py-1.5 text-slate-400 text-[10px]">{tx.source || "—"}</td>
-                    </tr>
-                  ))}
+                  {rawRows.map((row, i) => {
+                    const amt = parseFloat(row.amount);
+                    const fmtAmt = isNaN(amt) ? row.amount : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    return (
+                      <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.transaction_id || i + 1}</td>
+                        <td className="py-1.5 pr-3 text-slate-500 tabular-nums whitespace-nowrap">{row.date}</td>
+                        <td className="py-1.5 pr-3 font-medium text-slate-800 max-w-[220px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
+                        <td className="py-1.5 pr-3 text-slate-500 max-w-[180px] truncate" title={row.description}>{row.description || "—"}</td>
+                        <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.mcc || "—"}</td>
+                        <td className="py-1.5 pr-3 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">{fmtAmt}</td>
+                        <td className="py-1.5 pr-3 text-slate-400 text-[10px]">{row.zip_code || "—"}</td>
+                        <td className="py-1.5 text-slate-400 text-[10px]">{row.source || "—"}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
 
-              {customer.sampleTransactions.length === 0 && (
+              {rawRows.length === 0 && (
                 <div className="text-center text-[11px] text-slate-300 py-12">
-                  No sample transactions available
+                  No transactions available
                 </div>
               )}
             </ScrollArea>
