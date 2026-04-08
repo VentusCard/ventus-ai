@@ -26,7 +26,7 @@ const Hero = () => {
               className={`text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed transition-all duration-700 ${
               showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`
               }>
-              A modular, autonomous AI layer that enables personalized banking across functions.
+              Lifestyle, Purchase cycle, Life Events, Well-being and more, all in a modular, autonomous AI layer that does it all
             </p>
 
             <div
