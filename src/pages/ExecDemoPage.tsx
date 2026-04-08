@@ -535,6 +535,7 @@ export default function ExecDemoPage() {
             onSelectCustomer={handleSelectCustomer}
             onRunAnalysis={handleRunAnalysis}
             onLoadCustomCsv={handleLoadCustomCsv}
+            onChangeCustomer={handleChangeCustomer}
             isRunning={isRunning}
             phase={phase}
             collectedIndices={collectedIndices}
