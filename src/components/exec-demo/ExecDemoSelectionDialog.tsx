@@ -291,8 +291,8 @@ export default function ExecDemoSelectionDialog({
                         <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.transaction_id || i + 1}</td>
                         <td className="py-1.5 pr-3 text-slate-500 tabular-nums whitespace-nowrap">{row.date}</td>
                         <td className="py-1.5 pr-3 font-medium text-slate-800 max-w-[220px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
-                        <td className="py-1.5 pr-3 text-slate-500 max-w-[180px] truncate" title={row.description}>{row.description || "—"}</td>
                         <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.mcc || "—"}</td>
+                        <td className="py-1.5 pr-3 text-slate-500 max-w-[220px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
                         <td className="py-1.5 pr-3 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">{fmtAmt}</td>
                         <td className="py-1.5 pr-3 text-slate-400 text-[10px]">{row.zip_code || "—"}</td>
                         <td className="py-1.5 text-slate-400 text-[10px]">{row.source || "—"}</td>
