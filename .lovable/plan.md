@@ -1,24 +1,34 @@
 
 
-## Redesign: Demo Customer Selection (tepilot-style)
+## Plan: Wide Card Selection Popup (tepilot-style)
 
-### Current Problem
-The left column shows a dropdown selector that, once a customer is picked, immediately displays demographics, transaction stats, source pills, and a full transaction table — revealing too much insight before enrichment even runs.
+### What Changes
 
-### New Design
-Mirror the `/tepilot` `UploadOrPasteContainer` pattern:
+Replace the current two-column dialog with a **two-phase** approach:
 
-1. **Top section**: A row of buttons for each sample customer (by name), plus a "Custom" button — no dropdown
-2. **Below**: An empty transaction preview table (with column headers but no rows) until a customer is selected
-3. **On selection**: The table populates with raw transaction rows only (date, merchant, amount, zip, source) — no demographics, no pillar breakdowns, no stats summary, no source pills
-4. **Custom flow**: Clicking "Custom" shows the existing copy-prompt + paste-output flow inline, same as today
+**Phase 1 — Selection (no customer yet, or user clicks "Change")**
+The dialog renders a single wide `Card` component (matching tepilot's `UploadOrPasteContainer` style) — no grid split, no modules column. The card spans the full dialog width (`max-w-4xl`).
 
-### Changes
+Layout inside the Card:
+- `CardHeader`: Title "Transaction Enrichment Setup" + description "Select a sample customer or load custom data"
+- Below title: a row of buttons — one pill per `DEMO_CUSTOMERS` name + a "Custom" pill (styled like tepilot's `Load Sample Data` / `Paste Text` / `Upload Files` buttons using `Button` component with `variant="default"` for active, `variant="outline"` for inactive, `size="sm"`, `flex-1`)
+- `CardContent`: The transaction preview table (headers always visible, empty state when nothing selected). Custom paste flow also renders here when "Custom" is active.
+- Footer area: "Create Experience" button
 
-**`src/components/demo/DemoCustomerPanel.tsx`**:
+**Phase 2 — Configuration (customer already selected, dialog reopened)**
+Shows the existing two-column layout (customer summary on left with "Change" button, modules on right). Clicking "Change" returns to Phase 1.
 
-1. Replace the `<select>` dropdown in `CustomerSlot` with a horizontal/wrapped button group showing each customer name from `DEMO_CUSTOMERS` plus a "Custom" option — styled like the tepilot sample data buttons (pill-shaped, active state highlighted)
-2. Remove the demographics section (industry/income), summary stats row (txn count, total, date range), and source pills that currently render after selection
-3. Keep only the transaction table, but show it always with headers visible and an empty-state message ("Select a customer above") when nothing is selected
-4. Transaction table columns stay the same: Date, Merchant, Amt, Zip, Source
+### File: `src/components/demo/DemoCustomerPanel.tsx`
+
+1. Add `selectionPhase` state — defaults to `true` when `customer` is null, also set to `true` when user clicks "Change"
+2. When `selectionPhase === true`:
+   - Dialog uses `max-w-4xl` (wide single card, no grid)
+   - Render a `Card` with `CardHeader` (title + description + button row) and `CardContent` (transaction table + custom flow)
+   - Button row uses `Button` components with `flex-1` sizing, matching tepilot styling
+   - No modules column visible
+   - Footer has "Create Experience" button that triggers enrichment and flips to Phase 2
+3. When `selectionPhase === false`:
+   - Current two-column grid layout (`w-[60vw]`)
+   - Left column shows selected customer name as highlighted pill + "Change" button + compact transaction table
+   - Right column: module cards (unchanged)
 
