@@ -100,6 +100,7 @@ const MCC_SIGNAL_MAP: Record<string, Omit<SignalEntry, 'amount'>> = {
   "5499": { pillar: "Food & Dining", label: "Supplements" },
   "7997": { pillar: "Wellness & Fitness", label: "Gym" },
   "7298": { pillar: "Wellness & Fitness", label: "Spa" },
+  "8043": { pillar: "Healthcare", label: "Optician" },
   "8049": { pillar: "Wellness & Fitness", label: "Chiropractic" },
   "5651": { pillar: "Shopping", label: "Apparel" },
   "5655": { pillar: "Shopping", label: "Athletic Wear" },
