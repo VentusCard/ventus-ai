@@ -134,114 +134,38 @@ export default function ExecDemoLeftPanel({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Customer Selector */}
-      <div className="px-4 pt-3 pb-1">
-        <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
-          Select Customer
-        </div>
-        <div className="space-y-1">
-          {/* Custom mode active */}
-          {isCustomMode && (
+      {/* Current Customer Header */}
+      <div className="px-4 pt-3 pb-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400">
+            Customer
+          </div>
+          {!isRunning && (
             <button
-              className="w-full text-left rounded-lg px-3 py-2 border border-blue-300 bg-blue-50 shadow-sm cursor-default"
+              onClick={onChangeCustomer}
+              className="text-[10px] text-blue-500 hover:text-blue-700 font-medium"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold bg-violet-500 text-white">
-                  <Pencil className="w-3 h-3" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-semibold text-slate-800 truncate">{customName || "Custom"}</div>
-                  <div className="text-[9px] text-slate-400 truncate">Custom · Pasted Data</div>
-                  {phase !== "idle" && personaTitle && (
-                    <div className="text-[9px] italic text-violet-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
-                  )}
-                </div>
-                {phase !== "idle" ? (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onSelectCustomer(0); }}
-                    className="text-[9px] text-blue-500 hover:text-blue-700 font-medium shrink-0"
-                    style={{ pointerEvents: isRunning ? "none" : "auto" }}
-                  >
-                    Change
-                  </button>
-                ) : null}
-              </div>
+              Change
             </button>
           )}
-
-          {/* Pre-built customers */}
-          {!isCustomMode && DEMO_CUSTOMERS.map((c, i) => {
-            const isSelected = confirmedIdx === i;
-            const isHidden = confirmedIdx !== null && confirmedIdx !== i;
-            return (
-              <div
-                key={c.id}
-                className="transition-all duration-300 overflow-hidden"
-                style={{
-                  maxHeight: isHidden ? 0 : 80,
-                  opacity: isHidden ? 0 : 1,
-                  marginBottom: isHidden ? 0 : 6,
-                }}
-              >
-                <button
-                  onClick={() => handleCardClick(i)}
-                  className={`w-full text-left rounded-lg px-3 py-2 border transition-all duration-200 ${
-                    isSelected
-                      ? "border-blue-300 bg-blue-50 shadow-sm"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                  } ${isRunning || isSelected ? "cursor-default" : "cursor-pointer"}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-blue-500 text-white shrink-0">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[13px] font-semibold text-slate-800 truncate">{c.profile.name}</div>
-                      <div className="text-[11px] text-slate-400 truncate">
-                        {c.profile.segment} · {c.txnCount} txns
-                      </div>
-                      
-                    </div>
-                    {isSelected && (
-                      <button
-                        onClick={handleChangeCustomer}
-                        className="text-[10px] text-blue-500 hover:text-blue-700 font-medium shrink-0"
-                        style={{ pointerEvents: isRunning ? "none" : "auto" }}
-                      >
-                        Change
-                      </button>
-                    )}
-                  </div>
-                </button>
-              </div>
-            );
-          })}
-
-          {/* Custom button (only when no customer confirmed) */}
-          {!isCustomMode && (
-            <div
-              className="transition-all duration-300 overflow-hidden"
-              style={{
-                maxHeight: confirmedIdx !== null ? 0 : 80,
-                opacity: confirmedIdx !== null ? 0 : 1,
-              }}
-            >
-              <button
-                onClick={() => setShowCustom(true)}
-                className="w-full text-left rounded-lg px-4 py-3 border border-dashed border-slate-300 bg-white hover:border-violet-300 hover:bg-violet-50/50 transition-all duration-200 cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-violet-100 text-violet-600 shrink-0">
-                    <Pencil className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-semibold text-slate-600">Custom</div>
-                    <div className="text-[11px] text-slate-400">Paste your own data</div>
-                  </div>
-                </div>
-              </button>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg px-3 py-2 border border-blue-200 bg-blue-50/60">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold bg-blue-500 text-white shrink-0">
+            {isCustomMode ? <Pencil className="w-3 h-3" /> : <User className="w-3.5 h-3.5" />}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[12px] font-semibold text-slate-800 truncate">
+              {isCustomMode ? (customName || "Custom") : currentCustomer?.profile.name}
             </div>
-          )}
+            <div className="text-[9px] text-slate-400 truncate">
+              {isCustomMode
+                ? "Custom · Pasted Data"
+                : `${currentCustomer?.lifestyleType} · ${currentCustomer?.txnCount} txns`}
+            </div>
+            {phase !== "idle" && personaTitle && (
+              <div className="text-[9px] italic text-blue-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -251,8 +175,7 @@ export default function ExecDemoLeftPanel({
           Transaction Feed
         </div>
 
-        {phase === "idle" && (
-          (isCustomMode && transactions.length > 0) || (!isCustomMode && confirmedIdx !== null) ? (
+        {phase === "idle" && transactions.length > 0 ? (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
                 <TxRow key={`idle-${i}`} tx={tx} dim={false} />
