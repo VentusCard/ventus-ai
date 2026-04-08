@@ -6,9 +6,14 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RawRow {
+  transaction_id: string;
+  date: string;
   merchant_name: string;
   mcc: string;
   description: string;
+  amount: string;
+  zip_code: string;
+  source: string;
 }
 
 function parseCsvRows(csv: string): RawRow[] {
@@ -21,9 +26,14 @@ function parseCsvRows(csv: string): RawRow[] {
     const cols = line.split(",").map((c) => c.trim());
     const get = (col: string) => cols[idx(col)] || "";
     return {
+      transaction_id: get("transaction_id"),
+      date: get("date"),
       merchant_name: get("merchant_name"),
       mcc: get("mcc"),
       description: get("description"),
+      amount: get("amount"),
+      zip_code: get("zip_code"),
+      source: get("source"),
     };
   });
 }
