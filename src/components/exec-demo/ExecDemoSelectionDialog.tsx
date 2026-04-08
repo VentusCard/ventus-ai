@@ -6,9 +6,14 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RawRow {
+  transaction_id: string;
+  date: string;
   merchant_name: string;
   mcc: string;
   description: string;
+  amount: string;
+  zip_code: string;
+  source: string;
 }
 
 function parseCsvRows(csv: string): RawRow[] {
@@ -21,9 +26,14 @@ function parseCsvRows(csv: string): RawRow[] {
     const cols = line.split(",").map((c) => c.trim());
     const get = (col: string) => cols[idx(col)] || "";
     return {
+      transaction_id: get("transaction_id"),
+      date: get("date"),
       merchant_name: get("merchant_name"),
       mcc: get("mcc"),
       description: get("description"),
+      amount: get("amount"),
+      zip_code: get("zip_code"),
+      source: get("source"),
     };
   });
 }
@@ -192,25 +202,37 @@ export default function ExecDemoSelectionDialog({
             </div>
 
             {/* Scrollable table */}
-            <ScrollArea className="flex-1 min-h-0 px-6 pb-2">
-              <table className="w-full text-[11px]">
+             <ScrollArea className="flex-1 min-h-0 px-6 pb-2">
+              <div className="overflow-x-auto">
+              <table className="w-full text-[11px] min-w-[900px]">
                 <thead className="sticky top-0 bg-white z-10">
                   <tr className="text-left text-[9px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
+                    <th className="pb-2 pr-3 pt-1">Txn ID</th>
+                    <th className="pb-2 pr-3 pt-1">Date</th>
                     <th className="pb-2 pr-3 pt-1">Merchant Name</th>
                     <th className="pb-2 pr-3 pt-1">MCC</th>
-                    <th className="pb-2 pt-1">MCC Description</th>
+                    <th className="pb-2 pr-3 pt-1">MCC Description</th>
+                    <th className="pb-2 pr-3 pt-1 text-right">Amount</th>
+                    <th className="pb-2 pr-3 pt-1">Zip</th>
+                    <th className="pb-2 pt-1">Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rawRows.map((row, i) => (
                     <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="py-1.5 pr-3 font-medium text-slate-800 max-w-[320px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
+                      <td className="py-1.5 pr-3 font-mono text-[10px] text-slate-400 max-w-[90px] truncate" title={row.transaction_id}>{row.transaction_id || "—"}</td>
+                      <td className="py-1.5 pr-3 text-slate-600 whitespace-nowrap">{row.date || "—"}</td>
+                      <td className="py-1.5 pr-3 font-medium text-slate-800 max-w-[240px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
                       <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.mcc || "—"}</td>
-                      <td className="py-1.5 text-slate-500">{row.description || "—"}</td>
+                      <td className="py-1.5 pr-3 text-slate-500">{row.description || "—"}</td>
+                      <td className="py-1.5 pr-3 text-right font-mono text-slate-800">{row.amount ? `$${row.amount}` : "—"}</td>
+                      <td className="py-1.5 pr-3 font-mono text-[10px] text-slate-400">{row.zip_code || "—"}</td>
+                      <td className="py-1.5 text-slate-500 text-[10px]">{row.source || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
 
               {rawRows.length === 0 && (
                 <div className="text-center text-[11px] text-slate-300 py-12">
