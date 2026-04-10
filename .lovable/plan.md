@@ -1,27 +1,35 @@
 
 
-## Fix: 3 Malformed CSV Rows in Sample Data
+## Replace Current-Month Blue Highlight with a Vertical "Now" Line
 
 ### Problem
-Three rows in `src/lib/sampleData.ts` have their columns duplicated from `amount` onward — a copy-paste artifact. This causes the parser to read corrupted `source` values like `Cashback Card287.50` and produces extra dangling columns.
+The current-month cells are highlighted with a blue outline and the month label is blue. The user wants a single vertical line crossing the entire heatmap at the current month instead.
 
-### Affected rows
+### Changes
 
-| Line | Merchant | Issue |
-|------|----------|-------|
-| 225 | PAYPAL*TICKETMASTR Sabrina Carpenter | `Cashback Card287.50,2024-11-23,,Cashback Card` |
-| 232 | LULULEMON | `Premium Card89.00,2025-01-15,94102,Premium Card` |
-| 291 | WARBY PARKER | `HSA195.00,2025-10-08,94102,HSA` |
+**File: `src/components/exec-demo/PurchaseCycleTimeline.tsx`**
 
-### Fix
-**File: `src/lib/sampleData.ts`** — 3 line replacements
+1. **Month legend bar (~line 318-331):** Remove the blue color/bold styling on the current month label — all months same style.
 
-Each row trimmed to the correct 8 columns:
+2. **Heatmap bars (~line 370-373):** Remove the `outline: isCurrentMonth ? '1.5px solid #3b82f6' : undefined` and the `isCurrentMonth` special background opacity. Treat current month bars the same as any other.
+
+3. **Add a vertical "now" line overlay:** Wrap the rows section (lines 334-416) and the month legend (lines 318-331) in a `relative` container. Add an absolutely-positioned vertical line element whose `left` is calculated as `(CURRENT_MONTH + 0.5) / 12 * 100%`, offset by the same `74px` left padding used for labels. The line will be a thin (1-2px) dashed or solid blue line (`#3b82f6`) spanning the full height of the heatmap area, with a small "Now" label or dot at the top.
+
+### Implementation detail
+
 ```
-txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7922,287.50,2024-11-23,,Cashback Card
-txn_012,LULULEMON,Athletic wear purchase,5655,89.00,2025-01-15,94102,Premium Card
-txn_052,WARBY PARKER,Prescription glasses,8043,195.00,2025-10-08,94102,HSA
+<!-- Pseudo-structure -->
+<div className="relative">
+  {/* Month legend */}
+  {/* Rows */}
+  
+  {/* Vertical "now" line */}
+  <div className="absolute top-0 bottom-0 w-px bg-blue-500 pointer-events-none"
+       style={{ left: `calc(74px + ${(CURRENT_MONTH + 0.5) / 12 * 100}% * (1 - 74px/totalWidth))` }} />
+</div>
 ```
 
-One file, three lines.
+The left offset needs to account for the 66px label column + 8px gap (74px total) and the 72px right status column — the flex-1 bar area sits between those. We'll use a wrapper around just the bar area with `relative` positioning, and place the line inside that wrapper calculated as a simple percentage: `(CURRENT_MONTH + 0.5) / 12 * 100%`.
+
+One file, ~15 lines changed.
 
