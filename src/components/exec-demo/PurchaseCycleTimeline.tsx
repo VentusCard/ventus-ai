@@ -314,105 +314,111 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
         </span>
       </div>
 
-      {/* Month legend bar */}
-      <div className="flex gap-px mb-2 px-[74px]">
-        {MONTHS.map((m, i) => (
-          <span
-            key={m}
-            className="flex-1 text-center text-[7px] font-medium"
-            style={{
-              color: i === CURRENT_MONTH ? "#3b82f6" : "#94a3b8",
-              fontWeight: i === CURRENT_MONTH ? 700 : 400,
-            }}
-          >
-            {m}
-          </span>
-        ))}
-      </div>
-
-      {/* Rows */}
-      <div className="space-y-1">
-        {rows.map((row, ri) => {
-          const c = getColor(row.pillar);
-          const isAtPeak = row.monthsUntilPeak === 0;
-          const isNearPeak = row.monthsUntilPeak <= 2;
-          const rowMax = Math.max(...row.monthlySpend, 1);
-
-          return (
-            <div
-              key={`${row.pillar}::${row.label}`}
-              className="flex items-center gap-2"
-              style={{ animation: `exec-card-reveal 0.35s ease-out ${ri * 0.06}s both` }}
+      {/* Month legend bar + Rows with vertical "now" line */}
+      <div className="relative">
+        <div className="flex gap-px mb-2 px-[74px]">
+          {MONTHS.map((m) => (
+            <span
+              key={m}
+              className="flex-1 text-center text-[7px] font-medium"
+              style={{ color: "#94a3b8" }}
             >
-              <div className="w-[66px] shrink-0 text-right pr-1">
-                <span className="text-[10px] font-semibold truncate block" style={{ color: c.text }}>
-                  {row.label}
-                </span>
-              </div>
+              {m}
+            </span>
+          ))}
+        </div>
 
-              <div className="flex gap-px flex-1 h-[18px] items-end">
-                {row.monthlySpend.map((val, mi) => {
-                  const norm = rowMax > 0 ? val / rowMax : 0;
-                  const isCurrentMonth = mi === CURRENT_MONTH;
-                  const isPeak = mi === row.peak && val > 0;
-                  const isEmpty = val === 0;
-                  return (
-                    <div
-                      key={mi}
-                      className="flex-1 rounded-sm relative"
+        {/* Rows */}
+        <div className="space-y-1">
+          {rows.map((row, ri) => {
+            const c = getColor(row.pillar);
+            const isAtPeak = row.monthsUntilPeak === 0;
+            const isNearPeak = row.monthsUntilPeak <= 2;
+            const rowMax = Math.max(...row.monthlySpend, 1);
+
+            return (
+              <div
+                key={`${row.pillar}::${row.label}`}
+                className="flex items-center gap-2"
+                style={{ animation: `exec-card-reveal 0.35s ease-out ${ri * 0.06}s both` }}
+              >
+                <div className="w-[66px] shrink-0 text-right pr-1">
+                  <span className="text-[10px] font-semibold truncate block" style={{ color: c.text }}>
+                    {row.label}
+                  </span>
+                </div>
+
+                <div className="flex gap-px flex-1 h-[18px] items-end">
+                  {row.monthlySpend.map((val, mi) => {
+                    const norm = rowMax > 0 ? val / rowMax : 0;
+                    const isPeak = mi === row.peak && val > 0;
+                    const isEmpty = val === 0;
+                    return (
+                      <div
+                        key={mi}
+                        className="flex-1 rounded-sm relative"
+                        style={{
+                          height: isEmpty ? "3px" : `${Math.max(20, norm * 100)}%`,
+                          background: isEmpty
+                            ? "#e2e8f0"
+                            : isPeak
+                            ? c.dot
+                            : `${c.dot}${Math.round(norm * 40 + 10).toString(16).padStart(2, "0")}`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                <div className="w-[72px] shrink-0 flex items-center gap-1">
+                  {isAtPeak ? (
+                    <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                       style={{
-                        height: isEmpty ? "3px" : `${Math.max(20, norm * 100)}%`,
-                        background: isEmpty
-                          ? "#e2e8f0"
-                          : isPeak
-                          ? c.dot
-                          : isCurrentMonth
-                          ? `${c.dot}90`
-                          : `${c.dot}${Math.round(norm * 40 + 10).toString(16).padStart(2, "0")}`,
-                        outline: isCurrentMonth ? `1.5px solid #3b82f6` : undefined,
-                        outlineOffset: "0.5px",
+                        background: `${c.dot}20`,
+                        color: c.dot,
+                        animation: "purchase-pulse 2s ease-in-out infinite",
                       }}
-                    />
-                  );
-                })}
-              </div>
-
-              <div className="w-[72px] shrink-0 flex items-center gap-1">
-                {isAtPeak ? (
-                  <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{
-                      background: `${c.dot}20`,
-                      color: c.dot,
-                      animation: "purchase-pulse 2s ease-in-out infinite",
-                    }}
-                  >
-                    <Flame className="w-2.5 h-2.5" /> PEAK
-                  </span>
-                ) : isNearPeak ? (
-                  <span className="text-[9px] font-semibold text-amber-600">
-                    ↑ {row.monthsUntilPeak}mo
-                  </span>
-                ) : (
-                  <span className="text-[9px] text-slate-400">
-                    {row.monthsUntilPeak}mo
-                  </span>
-                )}
-
-                {row.velocity !== 0 && (
-                  row.velocity >= 0 ? (
-                    <span className="inline-flex items-center text-[8px] font-bold text-emerald-600">
-                      <TrendingUp className="w-2.5 h-2.5" />+{row.velocity}%
+                    >
+                      <Flame className="w-2.5 h-2.5" /> PEAK
+                    </span>
+                  ) : isNearPeak ? (
+                    <span className="text-[9px] font-semibold text-amber-600">
+                      ↑ {row.monthsUntilPeak}mo
                     </span>
                   ) : (
-                    <span className="inline-flex items-center text-[8px] font-bold text-red-400">
-                      <TrendingDown className="w-2.5 h-2.5" />{row.velocity}%
+                    <span className="text-[9px] text-slate-400">
+                      {row.monthsUntilPeak}mo
                     </span>
-                  )
-                )}
+                  )}
+
+                  {row.velocity !== 0 && (
+                    row.velocity >= 0 ? (
+                      <span className="inline-flex items-center text-[8px] font-bold text-emerald-600">
+                        <TrendingUp className="w-2.5 h-2.5" />+{row.velocity}%
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center text-[8px] font-bold text-red-400">
+                        <TrendingDown className="w-2.5 h-2.5" />{row.velocity}%
+                      </span>
+                    )
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        {/* Vertical "Now" line */}
+        <div
+          className="absolute top-0 bottom-0 pointer-events-none flex flex-col items-center"
+          style={{
+            left: `calc(74px + (100% - 74px - 80px) * ${(CURRENT_MONTH + 0.5) / 12})`,
+            width: "1px",
+          }}
+        >
+          <span className="text-[6px] font-bold text-blue-500 -translate-x-1/2 whitespace-nowrap mb-0.5">Now</span>
+          <div className="flex-1 w-px" style={{ background: "rgba(59,130,246,0.5)", backgroundImage: "repeating-linear-gradient(to bottom, #3b82f6 0px, #3b82f6 3px, transparent 3px, transparent 6px)" }} />
+        </div>
       </div>
 
       {/* Insight callout */}
