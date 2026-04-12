@@ -1,11 +1,12 @@
+import { useState, useEffect } from "react";
 import { Sparkles, Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import DemoEngagementView from "@/components/demo/DemoEngagementView";
 import DemoRewardsView from "@/components/demo/DemoRewardsView";
-import DemoWealthView from "@/components/demo/DemoWealthView";
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
+import RelationshipPhoneView from "./RelationshipPhoneView";
 import type { GeneratedOffer } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
@@ -38,7 +39,13 @@ interface Props {
 }
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards }: Props) {
-  const consumerTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
+  const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
+  const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
+
+  // Sync with external activeTab changes
+  useEffect(() => {
+    setConsumerTab(mappedTab);
+  }, [mappedTab]);
 
   const renderContent = () => {
     switch (consumerTab) {
@@ -59,16 +66,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
         );
       case "relationship":
-        return (
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto border-b border-slate-100">
-              <DemoWealthView customer={customer} />
-            </div>
-            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-              <ConsumerAIChatView customer={customer} />
-            </div>
-          </div>
-        );
+        return <RelationshipPhoneView customer={customer} onGoToAI={() => setConsumerTab("ai")} />;
       case "ai":
         return <ConsumerAIChatView customer={customer} />;
       default:
@@ -109,7 +107,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Content */}
-        <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || consumerTab === 'relationship') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
           {showContent ? (
             renderContent()
           ) : (
