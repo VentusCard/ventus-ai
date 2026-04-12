@@ -20,6 +20,8 @@ interface Props {
   enriched?: EnrichedTransaction[];
   detectedEvents?: DetectedLifeEventResult[];
   personalizedDeals?: PersonalizedDealData | null;
+  initialMessage?: string | null;
+  onInitialMessageConsumed?: () => void;
 }
 
 const QUICK_ACTIONS = [
@@ -136,11 +138,12 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, initialMessage, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const initialMessageSentRef = useRef(false);
 
   const context = useMemo(
     () => buildContext(customer, enriched, detectedEvents, personalizedDeals),
@@ -152,6 +155,14 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (initialMessage && !initialMessageSentRef.current) {
+      initialMessageSentRef.current = true;
+      sendMessage(initialMessage);
+      onInitialMessageConsumed?.();
+    }
+  }, [initialMessage]);
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
