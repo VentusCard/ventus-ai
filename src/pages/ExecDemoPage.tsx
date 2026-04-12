@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
+import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
@@ -48,6 +49,8 @@ export default function ExecDemoPage() {
   const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
+  const [generatedOffers, setGeneratedOffers] = useState<GeneratedOffer[] | null>(null);
+  const [offersLoading, setOffersLoading] = useState(false);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
