@@ -105,7 +105,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               TCBY Bank · {customer.profile.name.split(" ")[0]}
             </span>
           </div>
-          <span className="text-[8px] text-slate-400 px-1">Using Bank of America product information as reference.</span>
+          {(consumerTab === 'product' || consumerTab === 'ai') && <span className="text-[8px] text-slate-400 px-1">Using Bank of America product information as reference.</span>}
         </div>
 
         {/* Content */}
