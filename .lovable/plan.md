@@ -1,83 +1,27 @@
 
 
-## Redesign Relationship Tab: Compact Card + AI Hooks
+## Use AI Chat Presets as Relationship Tab Hooks
 
-### What Changes
+### Problem
+The Relationship tab has static "Insights for You" hooks that don't send messages to the AI. Meanwhile, the AI tab already has working `QUICK_ACTIONS` presets. We should reuse those.
 
-The relationship tab in `ExecDemoPhoneView` currently renders the full `DemoWealthView` + full `ConsumerAIChatView` in a 50/50 split. This is too dense for a phone mockup. The redesign:
+### Changes
 
-**Top half** — A new compact relationship summary card with:
-- Greeting + segment badge
-- 4-item financial snapshot (deposits, credit, mortgage, investments) — same data, tighter layout
-- Relationship tenure + branch info (one line)
-- Wellness score mini-ring
+**1. `src/components/exec-demo/RelationshipPhoneView.tsx`**
+- Replace the static `INSIGHT_HOOKS` array with a curated subset of the AI chat's `QUICK_ACTIONS` (e.g., "Product recommendations", "Life event insights", "Where does most of my money go?")
+- Change `onGoToAI` signature to `onGoToAI: (message: string) => void`
+- Each hook button passes its text as the message: `onClick={() => onGoToAI("Product recommendations")}`
 
-**Bottom half** — AI hook section titled "Insights for You" with 2-3 tappable insight cards that act as teasers. Each card has an icon, a short insight/tip, and a "Chat with AI →" affordance. Clicking any card switches to the "AI" tab. Example hooks:
-- "Your savings rate is trending up 12% — want to optimize further?"
-- "You have a milestone coming up. Let's plan together."
-- "Your spending patterns suggest a travel card could save you $400/yr."
+**2. `src/components/exec-demo/ExecDemoPhoneView.tsx`**
+- Add `pendingAIMessage` state
+- Update the `onGoToAI` callback to accept a message string, store it, and switch to `"ai"` tab
+- Pass `initialMessage={pendingAIMessage}` to `ConsumerAIChatView`
+- Clear `pendingAIMessage` after it's consumed
 
-### Files
+**3. `src/components/demo/ConsumerAIChatView.tsx`**
+- Add optional `initialMessage?: string` prop
+- On mount/change, if `initialMessage` is set, auto-send it via `sendMessage()` so the AI responds immediately
 
-**1. New: `src/components/exec-demo/RelationshipPhoneView.tsx`**
-
-A self-contained component for the relationship tab:
-- Accepts `customer: DemoCustomer` and `onGoToAI: () => void`
-- Top section: compact card pulling from `customer.profile.holdings`, tenure, segment
-- Bottom section: 2-3 styled insight hook cards, each with `onClick={onGoToAI}`
-- Hooks are derived from customer data (holdings, segment, deals) — static but contextual
-
-**2. Update: `src/components/exec-demo/ExecDemoPhoneView.tsx`**
-
-- Import `RelationshipPhoneView`
-- Add internal state or callback to switch `consumerTab` to `"ai"` 
-- In the `relationship` case, render `<RelationshipPhoneView customer={customer} onGoToAI={() => setConsumerTab("ai")} />`
-- Add `consumerTab` as local state initialized from `activeTab` prop, so clicking a hook can switch to the AI tab within the phone
-
-### Layout (phone mockup, 340×660)
-
-```text
-┌──────────────────────┐
-│  Welcome, Sarah      │
-│  ● Premium Member    │
-├──────────────────────┤
-│  💰 Savings  $45K    │
-│  💳 Credit   $12K    │  Compact 2×2 grid
-│  🏠 Mortgage $280K   │
-│  📈 Invest   $95K    │
-├──────────────────────┤
-│  ⭐ Member since 2018 │
-│  📍 TCBY Westfield   │
-│  Wellness: 78 ●●●    │
-├──────────────────────┤
-│                      │
-│  ✨ Insights for You  │
-│                      │
-│  ┌────────────────┐  │
-│  │ 📈 Your savings │  │
-│  │ rate is up 12%  │  │
-│  │ Chat with AI → │  │
-│  └────────────────┘  │
-│  ┌────────────────┐  │
-│  │ 🎓 Milestone    │  │
-│  │ ahead — plan?   │  │
-│  │ Chat with AI → │  │
-│  └────────────────┘  │
-│  ┌────────────────┐  │
-│  │ ✈️ A travel card │  │
-│  │ could save $400 │  │
-│  │ Chat with AI → │  │
-│  └────────────────┘  │
-└──────────────────────┘
-```
-
-### Key Details
-
-- The hooks feel like smart nudges, not ads — consistent with the Ventus thesis
-- Clicking any hook transitions the phone to the full AI chatbot tab
-- `consumerTab` becomes local state in `ExecDemoPhoneView`, initialized from `TAB_MAP[activeTab]`, so the phone can internally navigate
-- The bottom tab bar highlights "AI" when the user clicks through
-- No edge function needed — hooks are derived from existing customer data
-
-Two files total: one new component, one updated.
+### Result
+User clicks "Product recommendations" hook on Relationship tab → switches to AI tab → message auto-sends → AI responds with contextual product recommendations. Same presets, one source of truth.
 
