@@ -619,6 +619,8 @@ export default function ExecDemoPage() {
             onRollupClick={handleRollupClick}
             personaSynthesis={personaSynthesis}
             transactions={execProfile.transactions}
+            generatedOffers={generatedOffers}
+            offersLoading={offersLoading}
           />
         </div>
 
@@ -629,6 +631,7 @@ export default function ExecDemoPage() {
             activeTab={activeTab}
             phase={phase}
             showContent={activeTab === "rewards" && phase !== "idle"}
+            generatedOffers={generatedOffers}
           />
         </div>
       </div>
