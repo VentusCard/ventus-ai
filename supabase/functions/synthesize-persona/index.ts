@@ -21,7 +21,6 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // Extract distinct pillar names from input for strict enum enforcement
     const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
 
     const pillarSummary = pillars
@@ -35,13 +34,7 @@ serve(async (req) => {
 
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
-Given aggregated spending signals, produce:
-
-1. **headline**: A punchy 3-5 word persona archetype that captures this specific person. Not corporate jargon — something you'd actually say: "Weekend Golfer & Foodie", "Fitness-Obsessed Road Tripper", "Budget-Conscious Young Family".
-
-2. **insights**: Exactly 3 short sentences (10-20 words each). Each should surface a non-obvious pattern — cross-sell opportunities, life-stage signals, or behavioral quirks. Use specific dollar amounts, frequencies, and merchant names from the data. Think like a human analyst briefing a colleague.
-
-3. **pillar_rollups**: Optionally group categories into vivid behavioral labels. Think of each rollup as answering: "What habit does this person have?"
+Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
 **How to think about rollups:**
 
@@ -76,19 +69,10 @@ Given aggregated spending signals, produce:
             type: "function",
             function: {
               name: "return_persona",
-              description: "Return the synthesized persona headline, insights, and per-pillar rollup labels",
+              description: "Return the per-pillar rollup labels",
               parameters: {
                 type: "object",
                 properties: {
-                  headline: {
-                    type: "string",
-                    description: "3-5 word persona archetype headline",
-                  },
-                  insights: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "Exactly 3 insight sentences",
-                  },
                   pillar_rollups: {
                     type: "array",
                     items: {
@@ -110,10 +94,10 @@ Given aggregated spending signals, produce:
                       required: ["pillar", "label", "categories", "category_indices"],
                       additionalProperties: false,
                     },
-                    description: "Optional per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
                   },
                 },
-                required: ["headline", "insights", "pillar_rollups"],
+                required: ["pillar_rollups"],
                 additionalProperties: false,
               },
             },
@@ -155,8 +139,6 @@ Given aggregated spending signals, produce:
       : toolCall.function.arguments;
 
     return new Response(JSON.stringify({
-      headline: raw.headline || "Dynamic Persona",
-      insights: (raw.insights || []).slice(0, 3),
       pillar_rollups: (raw.pillar_rollups || []).map((r: any) => ({
         pillar: r.pillar,
         label: r.label,
