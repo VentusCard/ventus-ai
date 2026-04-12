@@ -68,7 +68,7 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
       {/* Strategy header */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-[11px] font-semibold text-slate-500">
-          {lifeEvents.length} life event{lifeEvents.length !== 1 ? "s" : ""} detected
+          {productEvents.length} life event{productEvents.length !== 1 ? "s" : ""} detected
         </span>
         <ArrowRight className="w-3 h-3 text-slate-300" />
         <span className="text-[11px] font-bold text-violet-600">
