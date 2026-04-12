@@ -21,7 +21,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Sparkles; color: string }[] = [
-  { key: "ux", label: "UX", icon: Sparkles, color: "#f59e0b" },
+  { key: "ux", label: "Profile", icon: Sparkles, color: "#f59e0b" },
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
   { key: "product", label: "Products", icon: CreditCard, color: "#6366f1" },
   { key: "relationship", label: "Relationship", icon: Users, color: "#8b5cf6" },
@@ -125,7 +125,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             return (
               <button
                 key={tab.key}
-                className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-default"
+                onClick={() => setConsumerTab(tab.key)}
+                className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
               >
                 <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
                 <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
