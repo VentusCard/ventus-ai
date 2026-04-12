@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
+import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
@@ -48,6 +49,8 @@ export default function ExecDemoPage() {
   const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
+  const [generatedOffers, setGeneratedOffers] = useState<GeneratedOffer[] | null>(null);
+  const [offersLoading, setOffersLoading] = useState(false);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -256,10 +259,48 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
+      // Fire next-offers generation
+      fireNextOffers(synthesis, pillars);
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+
+  /** Generate AI-powered deal recommendations from persona + pillars */
+  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[]) => {
+    setOffersLoading(true);
+    setGeneratedOffers(null);
+    try {
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics = demoCustomer?.profile?.demographics || {};
+      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
+        body: {
+          persona: {
+            headline: synthesis.headline,
+            insights: synthesis.insights,
+            pillarRollups: synthesis.pillarRollups,
+          },
+          pillars: pillars.slice(0, 8).map(p => ({
+            pillar: p.pillar,
+            label: p.label,
+            count: p.count,
+            totalSpend: p.totalSpend,
+            topMerchants: p.topMerchants,
+            subcategories: p.subcategories,
+          })),
+          demographics,
+        },
+      });
+      if (error) throw error;
+      setGeneratedOffers(data.offers || []);
+      console.log("[PRELOAD] Next-offers ready:", data.offers?.length);
+    } catch (err) {
+      console.error("[PRELOAD] Next-offers failed:", err);
+      setOffersLoading(false);
+    } finally {
+      setOffersLoading(false);
+    }
+  }, [selectedIdx]);
   firePersonaSynthesisRef.current = firePersonaSynthesis;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
@@ -287,6 +328,8 @@ export default function ExecDemoPage() {
       setActiveRollup(null);
       setCustomCsv(null);
       setCustomName(null);
+      setGeneratedOffers(null);
+      setOffersLoading(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
@@ -576,6 +619,8 @@ export default function ExecDemoPage() {
             onRollupClick={handleRollupClick}
             personaSynthesis={personaSynthesis}
             transactions={execProfile.transactions}
+            generatedOffers={generatedOffers}
+            offersLoading={offersLoading}
           />
         </div>
 
@@ -586,6 +631,7 @@ export default function ExecDemoPage() {
             activeTab={activeTab}
             phase={phase}
             showContent={activeTab === "rewards" && phase !== "idle"}
+            generatedOffers={generatedOffers}
           />
         </div>
       </div>
