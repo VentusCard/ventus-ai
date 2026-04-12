@@ -373,6 +373,8 @@ export default function ExecDemoIntelPanel({
             {activeTab && revealedTabs.includes(activeTab) && (
               activeTab === "analytics" && synthesisTriggered ? (
                 <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
+              ) : activeTab === "rewards" && synthesisTriggered ? (
+                <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
               ) : (
                 <IntelCardContent card={intelligence[activeTab]} />
               )
