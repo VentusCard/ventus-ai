@@ -6,6 +6,14 @@ import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-purple-50 text-purple-700",
+  "HSA": "bg-amber-50 text-amber-700",
+};
+
 interface RawRow {
   transaction_id: string;
   merchant_name: string;
@@ -231,7 +239,11 @@ export default function ExecDemoSelectionDialog({
                         <td className="py-1.5 pr-3 text-slate-500 max-w-[220px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
                         <td className="py-1.5 pr-3 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">{fmtAmt}</td>
                         <td className="py-1.5 pr-3 text-slate-400 text-[10px]">{row.zip_code || "—"}</td>
-                        <td className="py-1.5 text-slate-400 text-[10px]">{row.source || "—"}</td>
+                        <td className="py-1.5">
+                          <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                            {row.source || "—"}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })}
