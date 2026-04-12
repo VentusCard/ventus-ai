@@ -1,16 +1,14 @@
 
 
-## Two Chatbot Changes
+## Conditionally Show Disclaimer on Products & AI Tabs Only
 
-### 1. Add disclaimer subtitle below "TCBY Bank · Sarah" header
+### Changes
 
-Add a small text line "Using Bank of America product information as reference." directly below the header in both phone views:
+**1. `src/components/exec-demo/ExecDemoPhoneView.tsx` (line 108)**
+- Wrap the disclaimer `<span>` in a condition: only render when `consumerTab === 'product' || consumerTab === 'ai'`
 
-- **`src/components/exec-demo/ExecDemoPhoneView.tsx`** (line ~107): Add `<span className="text-[8px] text-slate-400">Using Bank of America product information as reference.</span>` below the existing header span
-- **`src/components/demo/DemoDetailOverlay.tsx`** (line ~228): Same subtitle below "TCBY Bank"
+**2. `src/components/demo/DemoDetailOverlay.tsx` (line 230)**
+- Same conditional: only render when `activeTab === 'product' || activeTab === 'ai'`
 
-### 2. Remove disclaimer from chatbot system prompt & shorten responses
-
-- **`supabase/functions/consumer-chat/index.ts`** (lines 32-33): Remove the "IMPORTANT DISCLAIMER" instruction since it's now shown in the UI header
-- Same file, TONE & RULES section: Change "2-4 sentences max" to "1-3 sentences max" and add instruction "Keep responses extremely concise — 25% shorter than you normally would."
+Two one-line edits, no new files.
 
