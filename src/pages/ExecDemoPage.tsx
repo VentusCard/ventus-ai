@@ -723,6 +723,7 @@ export default function ExecDemoPage() {
             offersLoading={offersLoading}
             detectedLifeEvents={detectedLifeEvents}
             productsLoading={productsLoading}
+            productCards={productCards}
           />
         </div>
 
