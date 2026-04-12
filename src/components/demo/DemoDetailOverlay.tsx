@@ -227,7 +227,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
               <span>9:41 AM</span>
               <div className="flex flex-col items-center">
                 <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
-                <span className="text-[8px] text-slate-400">Using Bank of America product information as reference.</span>
+                {(activeTab === 'ai') && <span className="text-[8px] text-slate-400">Using Bank of America product information as reference.</span>}
               </div>
               <div className="flex items-center gap-1.5">
                 <Wifi className="w-3 h-3" />
