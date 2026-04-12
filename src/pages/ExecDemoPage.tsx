@@ -735,6 +735,7 @@ export default function ExecDemoPage() {
             showContent={activeTab !== null && phase !== "idle"}
             generatedOffers={generatedOffers}
             detectedLifeEvents={detectedLifeEvents}
+            productCards={productCards}
           />
         </div>
       </div>

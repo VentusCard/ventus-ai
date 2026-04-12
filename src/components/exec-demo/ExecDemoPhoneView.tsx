@@ -5,7 +5,7 @@ import DemoRewardsView from "@/components/demo/DemoRewardsView";
 import DemoWealthView from "@/components/demo/DemoWealthView";
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
-import ProductRecommendationPhoneView from "./ProductRecommendationPhoneView";
+import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import type { GeneratedOffer } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
@@ -34,9 +34,10 @@ interface Props {
   showContent?: boolean;
   generatedOffers?: GeneratedOffer[] | null;
   detectedLifeEvents?: LifeEvent[] | null;
+  productCards?: ProductCard[] | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards }: Props) {
   const consumerTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
 
   const renderContent = () => {
@@ -49,8 +50,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         }
         return <DemoRewardsView customer={customer} />;
       case "product":
-        if (detectedLifeEvents && detectedLifeEvents.length > 0) {
-          return <ProductRecommendationPhoneView lifeEvents={detectedLifeEvents} customerName={customer.profile.name} />;
+        if (productCards && productCards.length > 0) {
+          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
