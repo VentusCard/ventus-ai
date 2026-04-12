@@ -1,35 +1,30 @@
 
 
-## Replace Current-Month Blue Highlight with a Vertical "Now" Line
+## Color-Code Source Labels in the Exec Demo Selection Dialog
 
 ### Problem
-The current-month cells are highlighted with a blue outline and the month label is blue. The user wants a single vertical line crossing the entire heatmap at the current month instead.
+The initial customer selection dialog on `/demo` shows a `Source` column as plain grey text. The user wants it color-coded like other parts of the app.
 
 ### Changes
 
-**File: `src/components/exec-demo/PurchaseCycleTimeline.tsx`**
+**File: `src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — ~10 lines changed
 
-1. **Month legend bar (~line 318-331):** Remove the blue color/bold styling on the current month label — all months same style.
+1. Add a `SOURCE_COLORS` map at the top of the file:
+   - Checking → `bg-slate-100 text-slate-600`
+   - Cashback Card → `bg-emerald-50 text-emerald-700`
+   - Travel Card → `bg-blue-50 text-blue-700`
+   - Premium Card → `bg-purple-50 text-purple-700`
+   - HSA → `bg-amber-50 text-amber-700`
+   - Fallback → `bg-slate-50 text-slate-500`
 
-2. **Heatmap bars (~line 370-373):** Remove the `outline: isCurrentMonth ? '1.5px solid #3b82f6' : undefined` and the `isCurrentMonth` special background opacity. Treat current month bars the same as any other.
+2. Replace the plain text source cell (line 234) with a color-coded pill:
+   ```tsx
+   <td className="py-1.5">
+     <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium ${SOURCE_COLORS[row.source] || 'bg-slate-50 text-slate-500'}`}>
+       {row.source || "—"}
+     </span>
+   </td>
+   ```
 
-3. **Add a vertical "now" line overlay:** Wrap the rows section (lines 334-416) and the month legend (lines 318-331) in a `relative` container. Add an absolutely-positioned vertical line element whose `left` is calculated as `(CURRENT_MONTH + 0.5) / 12 * 100%`, offset by the same `74px` left padding used for labels. The line will be a thin (1-2px) dashed or solid blue line (`#3b82f6`) spanning the full height of the heatmap area, with a small "Now" label or dot at the top.
-
-### Implementation detail
-
-```
-<!-- Pseudo-structure -->
-<div className="relative">
-  {/* Month legend */}
-  {/* Rows */}
-  
-  {/* Vertical "now" line */}
-  <div className="absolute top-0 bottom-0 w-px bg-blue-500 pointer-events-none"
-       style={{ left: `calc(74px + ${(CURRENT_MONTH + 0.5) / 12 * 100}% * (1 - 74px/totalWidth))` }} />
-</div>
-```
-
-The left offset needs to account for the 66px label column + 8px gap (74px total) and the 72px right status column — the flex-1 bar area sits between those. We'll use a wrapper around just the bar area with `relative` positioning, and place the line inside that wrapper calculated as a simple percentage: `(CURRENT_MONTH + 0.5) / 12 * 100%`.
-
-One file, ~15 lines changed.
+One file, ~10 lines changed.
 
