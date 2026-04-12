@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
+import type { LifeEvent } from "@/types/lifestyle-signals";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
@@ -13,10 +14,10 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import { supabase } from "@/integrations/supabase/client";
 
-type TabKey = "analytics" | "rewards" | "relationship";
+type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
 
-const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
+const TAB_ORDER: TabKey[] = ["analytics", "rewards", "product", "relationship"];
 
 const TIMINGS = {
   scroll: 9000,
@@ -51,6 +52,8 @@ export default function ExecDemoPage() {
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
   const [generatedOffers, setGeneratedOffers] = useState<GeneratedOffer[] | null>(null);
   const [offersLoading, setOffersLoading] = useState(false);
+  const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
+  const [productsLoading, setProductsLoading] = useState(false);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -259,8 +262,9 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
-      // Fire next-offers generation
+      // Fire next-offers and life event detection in parallel
       fireNextOffers(synthesis, pillars);
+      fireLifeEventDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
