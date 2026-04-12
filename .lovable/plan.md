@@ -1,26 +1,96 @@
 
 
-## Show Personalized Rewards in Phone View on "Next-Offer" Tab
+## AI-Generated Deal Recommendations for Next-Offer
 
-### Problem
-The iPhone mockup in the exec demo always shows "Waiting for analysis..." — it never renders actual content. When the "Next-Offer" (rewards) tab is active, it should display the personalized rewards view with deals, AI-personalized messages, and location-based perks.
+### Concept
+Instead of searching a static deal library, a new edge function will use the synthesized persona + enriched transaction data to **generate** contextually extended deals — inferring adjacent products from behavioral patterns (skier → GoPro, boards) and personalizing messages using demographic context (family of 4 → "Capture precious family moments").
+
+### Architecture
+
+```text
+classify-transactions → synthesize-persona
+                              ↓
+                     generate-next-offers  ← NEW edge function
+                              ↓
+                     Phone View (deals + messages)
+                     Intel Panel (rationale cards)
+```
 
 ### Changes
 
-**File: `src/pages/ExecDemoPage.tsx`** — 2 lines changed
+**New edge function: `supabase/functions/generate-next-offers/index.ts`** (~120 lines)
 
-1. Change `showContent={false}` to `showContent={activeTab === "rewards" && phase !== "idle"}` — this enables the phone content only when the rewards tab is selected and analysis has started.
+Takes as input:
+- `persona`: headline + pillar rollups (from synthesize-persona)
+- `pillars`: top spending categories with merchants, spend, subcategories
+- `demographics`: occupation, family status, income tier
+- `timeline`: purchase cycle data (recency, frequency, seasonality)
 
-**File: `src/components/exec-demo/ExecDemoPhoneView.tsx`** — ~5 lines changed
+The AI prompt instructs it to:
+1. For each top pillar rollup, generate 1-2 **extended** deals — adjacent products the customer would logically want but hasn't bought (skier → GoPro, snowboard gear)
+2. Generate 1 discovery deal from an untapped category
+3. For each deal, produce: merchant name, product, reward value, a personalized message (using demographics), and a short rationale explaining the behavioral inference
+4. Return 4-6 deals total
 
-1. When `consumerTab === "rewards"`, pass the customer's enriched transactions (from `classifiedRef` if available) to `DemoRewardsView`. Since the phone view doesn't currently receive enriched data, and `DemoRewardsView` already gracefully handles the case with no enriched transactions (it uses `deriveCustomerProfile` from the customer's CSV data internally), the view will work immediately with deals, personalized messages via the edge function, and location perks based on the customer's zip code.
+Output shape:
+```json
+{
+  "offers": [
+    {
+      "id": "gen_1",
+      "merchant": "GoPro",
+      "product": "HERO13 Black",
+      "category": "Technology",
+      "rewardType": "discount",
+      "rewardValue": "15% Off",
+      "message": "Capture precious family moments on the mountain with helmet-mounted HERO13",
+      "cta": "Gear Up for Slopes",
+      "rationale": "Active skier with family of 4 — high affinity for action cameras",
+      "sourceRollup": "Mountain Enthusiast"
+    }
+  ]
+}
+```
 
-The `DemoRewardsView` component already:
-- Derives a customer profile from enriched transactions (or works without them)
-- Selects 11 relevant deals proportionally by pillar
-- Calls the `deal-personalization` edge function for AI messages
-- Shows location-based perks via `getCityFromZip` + `getPerksForCity`
-- Renders hero deal, category filters, deal grid, and local perks section
+Uses `google/gemini-3-flash-preview` via Lovable AI gateway. Standard CORS headers.
 
-Two files, ~7 lines changed.
+**New component: `src/components/exec-demo/NextOfferRationale.tsx`** (~160 lines)
+
+The middle panel content when "Next-Offer" tab is active. Shows:
+1. **Strategy header**: "X behavioral signals → Y personalized offers" with persona headline badge
+2. **Offer rationale cards** (one per generated deal): pillar-colored left border, merchant + product + reward, the personalized message, and a "why" section showing the behavioral inference chain (e.g., "Ski passes + jackets + family of 4 → action camera")
+3. Loading skeleton while the edge function runs
+
+Props: `personaSynthesis`, `enrichedTransactions`, `demographics` (from customer profile)
+
+**File: `src/components/exec-demo/ExecDemoPhoneView.tsx`** (~15 lines changed)
+
+- Accept new `generatedOffers` prop
+- When `consumerTab === "rewards"` and offers exist, render a new lightweight `GeneratedOffersPhoneView` instead of `DemoRewardsView`
+- This view shows the AI-generated deals as compact cards in the phone mockup (merchant logo placeholder, reward badge, personalized message, CTA button)
+
+**File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`** (~5 lines changed)
+
+- Import `NextOfferRationale`
+- When `activeTab === "rewards" && synthesisTriggered`, render `NextOfferRationale` instead of `IntelCardContent`
+
+**File: `src/pages/ExecDemoPage.tsx`** (~25 lines changed)
+
+- Add `generatedOffers` state and ref
+- After persona synthesis completes, fire `generate-next-offers` with persona + pillars + demographics + timeline
+- Pass `generatedOffers` down to both `ExecDemoIntelPanel` and `ExecDemoPhoneView`
+- Update `showContent` condition to also check for offers readiness
+
+**File: `supabase/config.toml`** — add function config block:
+```toml
+[functions.generate-next-offers]
+verify_jwt = false
+```
+
+### Data flow
+1. Classification completes → persona synthesis fires
+2. Persona synthesis completes → `generate-next-offers` fires (uses persona rollups + enriched pillars + customer demographics)
+3. Offers arrive → Intel panel shows rationale cards, phone view shows deal cards with personalized messages
+
+Six files total, ~330 lines new code.
 
