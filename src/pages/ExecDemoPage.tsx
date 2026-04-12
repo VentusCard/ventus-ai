@@ -8,7 +8,7 @@ import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
+import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
@@ -521,20 +521,6 @@ export default function ExecDemoPage() {
     // 2. Start animation immediately
     runAnimationWithProfile(localProfile);
 
-    // 3. Fire AI in background for richer pills, descriptions, intelligence
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-exec-profile", {
-        body: { csv },
-      });
-
-      if (error) throw error;
-
-      // Merge AI results into the profile (keeps signalMap, upgrades everything else)
-      const merged = mergeAiResults(localProfile, data);
-      setProfile(merged);
-    } catch (err) {
-      console.error("AI enrichment failed (local profile still active):", err);
-    }
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
