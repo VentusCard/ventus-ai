@@ -138,6 +138,7 @@ export default function ExecDemoPage() {
       pillar: string; label: string; count: number; totalSpend: number;
       frequency?: string; txIndices: number[];
       topMerchants: string[]; spendingTier: string; subcategories: string[];
+      dates: string[];
     }>();
     for (const [txIdx, tx] of enrichedTxs.entries()) {
       const key = `${tx.pillar}::${tx.category}`;
@@ -146,6 +147,7 @@ export default function ExecDemoPage() {
         existing.count += 1;
         existing.totalSpend += tx.amount;
         existing.txIndices.push(txIdx);
+        if (tx.date) existing.dates.push(tx.date);
         if (tx.merchant_name && !existing.topMerchants.includes(tx.merchant_name))
           existing.topMerchants.push(tx.merchant_name);
         if (tx.subcategories) tx.subcategories.forEach(sc => {
@@ -163,6 +165,7 @@ export default function ExecDemoPage() {
           topMerchants: tx.merchant_name ? [tx.merchant_name] : [],
           spendingTier: tx.spending_tier || "Standard",
           subcategories: tx.subcategories ? [...tx.subcategories] : [],
+          dates: tx.date ? [tx.date] : [],
         });
       }
     }

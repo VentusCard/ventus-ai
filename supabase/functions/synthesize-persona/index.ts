@@ -6,6 +6,25 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/** Compute a human-readable cadence hint from an array of date strings */
+function cadenceHint(dates: string[]): string {
+  if (!dates || dates.length < 2) return "";
+  const sorted = dates.map(d => new Date(d).getTime()).filter(t => !isNaN(t)).sort((a, b) => a - b);
+  if (sorted.length < 2) return "";
+  const spanMs = sorted[sorted.length - 1] - sorted[0];
+  const spanWeeks = spanMs / (7 * 24 * 60 * 60 * 1000);
+  const spanYears = spanMs / (365.25 * 24 * 60 * 60 * 1000);
+  const count = sorted.length;
+
+  if (spanWeeks < 1) return `${count}x in one week`;
+  if (spanYears >= 1) {
+    const perYear = count / spanYears;
+    return `~${perYear.toFixed(0)}x/yr over ${Math.round(spanYears)}yr`;
+  }
+  const perWeek = count / spanWeeks;
+  return `~${perWeek.toFixed(1)}x/wk over ${Math.round(spanWeeks)}wk`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -24,11 +43,13 @@ serve(async (req) => {
     const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
 
     const pillarSummary = pillars
-      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; topMerchants?: string[]; spendingTier?: string; subcategories?: string[] }, i: number) => {
+      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; topMerchants?: string[]; spendingTier?: string; subcategories?: string[]; dates?: string[] }, i: number) => {
         const merchants = p.topMerchants?.length ? ` merchants: ${p.topMerchants.slice(0, 5).join(", ")}` : "";
         const tier = p.spendingTier ? ` [${p.spendingTier}]` : "";
         const subs = p.subcategories?.length ? ` subs: ${p.subcategories.slice(0, 5).join(", ")}` : "";
-        return `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${tier}${merchants}${subs}${p.frequency ? `, ${p.frequency}` : ""}`;
+        const cadence = cadenceHint(p.dates || []);
+        const cadenceStr = cadence ? ` (${cadence})` : "";
+        return `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${tier}${merchants}${subs}${cadenceStr}`;
       })
       .join("\n");
 
@@ -47,6 +68,8 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 - Be honest about tier. Look at the actual merchants. Chipotle + Olive Garden + Trader Joe's is a "Casual Dining Regular" or "Budget-Friendly Foodie", not a "Premium Gastronome." Describe spending the way the person would describe it themselves.
 
 - Be specific using merchant names and subcategories. Netflix + Hulu + Spotify = "Streaming Junkie", not "Digital Subscriber." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
+
+- When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
