@@ -521,20 +521,6 @@ export default function ExecDemoPage() {
     // 2. Start animation immediately
     runAnimationWithProfile(localProfile);
 
-    // 3. Fire AI in background for richer pills, descriptions, intelligence
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-exec-profile", {
-        body: { csv },
-      });
-
-      if (error) throw error;
-
-      // Merge AI results into the profile (keeps signalMap, upgrades everything else)
-      const merged = mergeAiResults(localProfile, data);
-      setProfile(merged);
-    } catch (err) {
-      console.error("AI enrichment failed (local profile still active):", err);
-    }
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
