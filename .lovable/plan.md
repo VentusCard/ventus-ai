@@ -1,84 +1,83 @@
-## New Edge Function: Generate Consumer Product Cards
 
-### What It Does
 
-A new edge function `generate-product-cards` that takes life events + persona/spending data and returns exactly **two consumer-facing product recommendation cards**:
+## Redesign Relationship Tab: Compact Card + AI Hooks
 
-1. **Behavioral card** — tied to spending patterns/persona rollups (e.g., frequent Hawaii trips → travel card). Specific enough to feel personal, vague enough to not feel creepy.
-2. **Life-event card** — tied to a detected life event (e.g., college prep → 529/HYSA). Subtle, empathetic copy that feels like "good timing" not surveillance.
+### What Changes
 
-Each card has: a product name, a one-liner quote, a short rationale, and a color/theme hint.
+The relationship tab in `ExecDemoPhoneView` currently renders the full `DemoWealthView` + full `ConsumerAIChatView` in a 50/50 split. This is too dense for a phone mockup. The redesign:
 
-### Changes
+**Top half** — A new compact relationship summary card with:
+- Greeting + segment badge
+- 4-item financial snapshot (deposits, credit, mortgage, investments) — same data, tighter layout
+- Relationship tenure + branch info (one line)
+- Wellness score mini-ring
 
-**1. New edge function: `supabase/functions/generate-product-cards/index.ts**`
+**Bottom half** — AI hook section titled "Insights for You" with 2-3 tappable insight cards that act as teasers. Each card has an icon, a short insight/tip, and a "Chat with AI →" affordance. Clicking any card switches to the "AI" tab. Example hooks:
+- "Your savings rate is trending up 12% — want to optimize further?"
+- "You have a milestone coming up. Let's plan together."
+- "Your spending patterns suggest a travel card could save you $400/yr."
 
-- Accepts: `{ life_events, persona_rollups, pillars, demographics }`
-- Uses Lovable AI (Gemini 2.5 Flash) with a carefully crafted prompt enforcing the "sweet spot" tone
-- Returns exactly 2 cards via tool calling:
-  ```json
-  {
-    "cards": [
-           {
-        "type": "behavioral",
-        "product_name": "Venture X Travel Card",
-        "quote": "Reward your tropical getaways. A travel card that works as hard as you vacation.",
-        "behavioral_signal": "Annual Hawaiian trips",
-        "theme": "travel"
-         }    
-         {
-        "type": "life_event",
-        "product_name": "529 College Savings Plan",
-        "quote": "Big milestones ahead? Start putting your money to work now — explore a 529 or High-Yield Savings Account.",
-        "event_name": "College Preparation",
-        "theme": "education"
-      },
-      
-    ]
-  }
-  ```
-- Prompt enforces the Ventus thesis: specific enough to feel "they get me", vague enough to never feel surveilled
+### Files
 
-**2. Update `src/pages/ExecDemoPage.tsx**`
+**1. New: `src/components/exec-demo/RelationshipPhoneView.tsx`**
 
-- Add state: `productCards` and `productCardsLoading`
-- After persona synthesis completes, fire `generate-product-cards` in parallel with existing calls, passing life events (once available) + persona rollups + pillars + demographics
-- Pass `productCards` down to `ExecDemoPhoneView`
+A self-contained component for the relationship tab:
+- Accepts `customer: DemoCustomer` and `onGoToAI: () => void`
+- Top section: compact card pulling from `customer.profile.holdings`, tenure, segment
+- Bottom section: 2-3 styled insight hook cards, each with `onClick={onGoToAI}`
+- Hooks are derived from customer data (holdings, segment, deals) — static but contextual
 
-**3. New component: `src/components/exec-demo/ProductCardsPhoneView.tsx**`
+**2. Update: `src/components/exec-demo/ExecDemoPhoneView.tsx`**
 
-- Renders two styled cards in the phone mockup for the "product" tab
-- Card 1 (life-event): soft colored background matching theme, product name as pill, quote as main text, subtle "Learn More" CTA
-- Card 2 (behavioral): dark gradient card, behavioral signal as subtle tag, quote as main text, product name prominent
-- Clean, consumer-app aesthetic matching existing phone views
+- Import `RelationshipPhoneView`
+- Add internal state or callback to switch `consumerTab` to `"ai"` 
+- In the `relationship` case, render `<RelationshipPhoneView customer={customer} onGoToAI={() => setConsumerTab("ai")} />`
+- Add `consumerTab` as local state initialized from `activeTab` prop, so clicking a hook can switch to the AI tab within the phone
 
-**4. Update `src/components/exec-demo/ExecDemoPhoneView.tsx**`
-
-- Accept new `productCards` prop
-- In the `product` case, render `ProductCardsPhoneView` instead of `ProductRecommendationPhoneView`
-
-**5. Update `src/components/exec-demo/NextProductRationale.tsx**` (intelligence panel)
-
-- Show the two cards' reasoning: which life event triggered card 1, which behavioral pattern triggered card 2
-- Keep existing life event evidence display but reframe around the two-card output
-
-### Prompt Design (Key Excerpt)
-
-The edge function prompt will enforce:
-
-- Card 1 must reference a specific life event but frame the copy as a general financial wellness tip
-- Card 2 must reference a behavioral pattern using a "vaguely specific" descriptor (e.g., "tropical getaways" not "your 3 trips to Maui")
-- Quotes must be 1-2 sentences, conversational, never mention "we noticed" or "based on your transactions"
-- The customer should think "good timing" not "they're watching me"
-
-### Flow
+### Layout (phone mockup, 340×660)
 
 ```text
-persona synthesis completes
-  ├── generate-next-offers (existing, parallel)
-  ├── analyze-lifestyle-signals (existing, parallel)
-  │     └── on complete → generate-product-cards (life_events + persona + pillars)
-  │                          └── sets productCards state → phone renders 2 cards
+┌──────────────────────┐
+│  Welcome, Sarah      │
+│  ● Premium Member    │
+├──────────────────────┤
+│  💰 Savings  $45K    │
+│  💳 Credit   $12K    │  Compact 2×2 grid
+│  🏠 Mortgage $280K   │
+│  📈 Invest   $95K    │
+├──────────────────────┤
+│  ⭐ Member since 2018 │
+│  📍 TCBY Westfield   │
+│  Wellness: 78 ●●●    │
+├──────────────────────┤
+│                      │
+│  ✨ Insights for You  │
+│                      │
+│  ┌────────────────┐  │
+│  │ 📈 Your savings │  │
+│  │ rate is up 12%  │  │
+│  │ Chat with AI → │  │
+│  └────────────────┘  │
+│  ┌────────────────┐  │
+│  │ 🎓 Milestone    │  │
+│  │ ahead — plan?   │  │
+│  │ Chat with AI → │  │
+│  └────────────────┘  │
+│  ┌────────────────┐  │
+│  │ ✈️ A travel card │  │
+│  │ could save $400 │  │
+│  │ Chat with AI → │  │
+│  └────────────────┘  │
+└──────────────────────┘
 ```
 
-One new edge function, one new component, two files updated.
+### Key Details
+
+- The hooks feel like smart nudges, not ads — consistent with the Ventus thesis
+- Clicking any hook transitions the phone to the full AI chatbot tab
+- `consumerTab` becomes local state in `ExecDemoPhoneView`, initialized from `TAB_MAP[activeTab]`, so the phone can internally navigate
+- The bottom tab bar highlights "AI" when the user clicks through
+- No edge function needed — hooks are derived from existing customer data
+
+Two files total: one new component, one updated.
+
