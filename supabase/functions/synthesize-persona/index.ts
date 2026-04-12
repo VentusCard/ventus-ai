@@ -65,9 +65,9 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - Ask yourself: "Would a friend describe this person this way?" If someone stays at a Hilton in Dallas and also does Orange Theory, a friend would say "she's really into fitness and she traveled to Dallas" — two separate things, not "strategic domestic traveler."
 
-- Be honest about tier. Look at the actual merchants. Chipotle + Olive Garden + Trader Joe's is a "Casual Dining Regular" or "Budget-Friendly Foodie", not a "Premium Gastronome." Describe spending the way the person would describe it themselves.
+- Be honest about tier. Look at actual spending levels — frequent fast-casual dining is a "Casual Dining Regular" or "Budget-Friendly Foodie", not a "Premium Gastronome." Describe spending the way the person would describe it themselves.
 
-- Be specific using merchant names and subcategories. Netflix + Hulu + Spotify = "Streaming Junkie", not "Digital Subscriber." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
+- Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = "Style-Conscious Shopper", not "Nordstrom & Sephora Loyalist." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
 
 - When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
 
