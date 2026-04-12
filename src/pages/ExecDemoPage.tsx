@@ -305,6 +305,56 @@ export default function ExecDemoPage() {
       setOffersLoading(false);
     }
   }, [selectedIdx]);
+
+  /** Detect life events using existing analyze-lifestyle-signals edge function */
+  const fireLifeEventDetection = useCallback(async () => {
+    setProductsLoading(true);
+    setDetectedLifeEvents(null);
+    try {
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics = demoCustomer?.profile?.demographics || {};
+      const enrichedTxs = classifiedRef.current || [];
+
+      const client = {
+        name: demoCustomer?.profile?.name || "Customer",
+        age: demographics.age || "Unknown",
+        occupation: demographics.occupation || "Unknown",
+        family_status: demographics.familyStatus || "Unknown",
+      };
+
+      const transactions = enrichedTxs.slice(0, 100).map(tx => ({
+        merchant_name: tx.merchant_name || tx.description,
+        amount: tx.amount,
+        date: tx.date,
+        pillar: tx.pillar,
+        category: tx.category,
+        subcategory: tx.subcategories?.[0] || "",
+      }));
+
+      const topCategories = [...new Set(enrichedTxs.map(tx => tx.category))].slice(0, 5);
+      const totalSpend = enrichedTxs.reduce((s, tx) => s + tx.amount, 0);
+
+      const { data, error } = await supabase.functions.invoke("analyze-lifestyle-signals", {
+        body: {
+          client,
+          transactions,
+          spending_summary: {
+            total_spend: totalSpend,
+            top_categories: topCategories,
+          },
+        },
+      });
+      if (error) throw error;
+      const events: LifeEvent[] = data.detected_events || [];
+      setDetectedLifeEvents(events.slice(0, 3));
+      console.log("[PRELOAD] Life events detected:", events.length);
+    } catch (err) {
+      console.error("[PRELOAD] Life event detection failed:", err);
+    } finally {
+      setProductsLoading(false);
+    }
+  }, [selectedIdx]);
+
   firePersonaSynthesisRef.current = firePersonaSynthesis;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
