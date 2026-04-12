@@ -442,6 +442,8 @@ export default function ExecDemoPage() {
       setOffersLoading(false);
       setDetectedLifeEvents(null);
       setProductsLoading(false);
+      setProductCards(null);
+      setProductCardsLoading(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
