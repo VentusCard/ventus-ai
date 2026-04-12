@@ -358,7 +358,7 @@ export default function ExecDemoPage() {
     } finally {
       setProductsLoading(false);
     }
-  }, [selectedIdx]);
+  }, [selectedIdx, customCsv]);
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
 
@@ -389,6 +389,8 @@ export default function ExecDemoPage() {
       setCustomName(null);
       setGeneratedOffers(null);
       setOffersLoading(false);
+      setDetectedLifeEvents(null);
+      setProductsLoading(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
