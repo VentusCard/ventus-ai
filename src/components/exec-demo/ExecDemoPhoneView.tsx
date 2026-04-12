@@ -41,6 +41,7 @@ interface Props {
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
+  const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
 
   // Sync with external activeTab changes
   useEffect(() => {
@@ -66,9 +67,9 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
         );
       case "relationship":
-        return <RelationshipPhoneView customer={customer} onGoToAI={() => setConsumerTab("ai")} />;
+        return <RelationshipPhoneView customer={customer} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "ai":
-        return <ConsumerAIChatView customer={customer} />;
+        return <ConsumerAIChatView customer={customer} initialMessage={pendingAIMessage} onInitialMessageConsumed={() => setPendingAIMessage(null)} />;
       default:
         return <DemoEngagementView customer={customer} />;
     }

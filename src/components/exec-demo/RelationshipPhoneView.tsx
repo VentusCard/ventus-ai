@@ -1,9 +1,9 @@
-import { TrendingUp, GraduationCap, Plane, ChevronRight, Landmark, CreditCard, Home, BarChart3, Star, MapPin } from "lucide-react";
+import { ChevronRight, Landmark, CreditCard, Home, BarChart3, Star, MapPin, Sparkles } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 
 interface Props {
   customer: DemoCustomer;
-  onGoToAI: () => void;
+  onGoToAI: (message: string) => void;
 }
 
 const HOLDINGS_ITEMS = [
@@ -14,27 +14,9 @@ const HOLDINGS_ITEMS = [
 ];
 
 const INSIGHT_HOOKS = [
-  {
-    icon: TrendingUp,
-    color: "#22c55e",
-    bg: "bg-emerald-50",
-    title: "Your savings rate is up 12%",
-    subtitle: "Want to optimize further?",
-  },
-  {
-    icon: GraduationCap,
-    color: "#6366f1",
-    bg: "bg-indigo-50",
-    title: "A milestone is coming up",
-    subtitle: "Let's plan together.",
-  },
-  {
-    icon: Plane,
-    color: "#f59e0b",
-    bg: "bg-amber-50",
-    title: "A travel card could save you $400/yr",
-    subtitle: "Based on your lifestyle.",
-  },
+  { text: "Product recommendations", color: "#6366f1", bg: "bg-indigo-50" },
+  { text: "Life event insights", color: "#22c55e", bg: "bg-emerald-50" },
+  { text: "Where does most of my money go?", color: "#f59e0b", bg: "bg-amber-50" },
 ];
 
 export default function RelationshipPhoneView({ customer, onGoToAI }: Props) {
@@ -71,7 +53,7 @@ export default function RelationshipPhoneView({ customer, onGoToAI }: Props) {
         })}
       </div>
 
-      {/* Tenure + Branch + Wellness */}
+      {/* Tenure + Branch */}
       <div className="flex items-center justify-between text-[9px] text-slate-500 px-1">
         <span className="flex items-center gap-1">
           <Star className="w-2.5 h-2.5 text-amber-400" />
@@ -83,7 +65,6 @@ export default function RelationshipPhoneView({ customer, onGoToAI }: Props) {
         </span>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-slate-100" />
 
       {/* AI Hooks */}
@@ -92,25 +73,22 @@ export default function RelationshipPhoneView({ customer, onGoToAI }: Props) {
           ✨ Insights for You
         </p>
         <div className="flex flex-col gap-2">
-          {INSIGHT_HOOKS.map((hook, i) => {
-            const Icon = hook.icon;
-            return (
-              <button
-                key={i}
-                onClick={onGoToAI}
-                className={`flex items-center gap-2.5 rounded-xl ${hook.bg} px-3 py-2.5 text-left transition-all hover:scale-[1.01] active:scale-[0.99]`}
-              >
-                <div className="shrink-0 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center">
-                  <Icon className="w-3.5 h-3.5" style={{ color: hook.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-semibold text-slate-800 leading-tight">{hook.title}</p>
-                  <p className="text-[9px] text-slate-500 mt-0.5">{hook.subtitle}</p>
-                </div>
-                <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
-              </button>
-            );
-          })}
+          {INSIGHT_HOOKS.map((hook, i) => (
+            <button
+              key={i}
+              onClick={() => onGoToAI(hook.text)}
+              className={`flex items-center gap-2.5 rounded-xl ${hook.bg} px-3 py-2.5 text-left transition-all hover:scale-[1.01] active:scale-[0.99]`}
+            >
+              <div className="shrink-0 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5" style={{ color: hook.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-semibold text-slate-800 leading-tight">{hook.text}</p>
+                <p className="text-[9px] text-slate-500 mt-0.5">Ask AI →</p>
+              </div>
+              <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
+            </button>
+          ))}
         </div>
       </div>
     </div>
