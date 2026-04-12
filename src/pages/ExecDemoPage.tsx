@@ -585,7 +585,7 @@ export default function ExecDemoPage() {
             customer={demoCustomer}
             activeTab={activeTab}
             phase={phase}
-            showContent={false}
+            showContent={activeTab === "rewards" && phase !== "idle"}
           />
         </div>
       </div>
