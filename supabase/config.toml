@@ -48,5 +48,8 @@ verify_jwt = false
 [functions.generate-product-cards]
 verify_jwt = false
 
+[functions.generate-financial-tip]
+verify_jwt = false
+
 [functions.detect-risk-transactions]
 verify_jwt = false
