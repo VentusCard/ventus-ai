@@ -678,7 +678,7 @@ export default function ExecDemoPage() {
             customer={demoCustomer}
             activeTab={activeTab}
             phase={phase}
-            showContent={(activeTab === "rewards" || activeTab === "product") && phase !== "idle"}
+            showContent={activeTab !== null && phase !== "idle"}
             generatedOffers={generatedOffers}
             detectedLifeEvents={detectedLifeEvents}
           />
