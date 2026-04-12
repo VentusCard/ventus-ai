@@ -682,6 +682,8 @@ export default function ExecDemoPage() {
             transactions={execProfile.transactions}
             generatedOffers={generatedOffers}
             offersLoading={offersLoading}
+            detectedLifeEvents={detectedLifeEvents}
+            productsLoading={productsLoading}
           />
         </div>
 
@@ -691,8 +693,9 @@ export default function ExecDemoPage() {
             customer={demoCustomer}
             activeTab={activeTab}
             phase={phase}
-            showContent={activeTab === "rewards" && phase !== "idle"}
+            showContent={(activeTab === "rewards" || activeTab === "product") && phase !== "idle"}
             generatedOffers={generatedOffers}
+            detectedLifeEvents={detectedLifeEvents}
           />
         </div>
       </div>
