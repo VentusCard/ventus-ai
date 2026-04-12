@@ -59,7 +59,7 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
     );
   }
 
-  const totalProducts = lifeEvents.reduce(
+  const totalProducts = productEvents.reduce(
     (sum, e) => sum + (e.financial_projection?.recommended_funding_sources?.length || 0), 0
   );
 
