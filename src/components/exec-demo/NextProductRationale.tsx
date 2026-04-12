@@ -47,7 +47,11 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
     );
   }
 
-  if (lifeEvents.length === 0) {
+  const productEvents = lifeEvents.filter(
+    e => (e.financial_projection?.recommended_funding_sources?.length ?? 0) > 0
+  );
+
+  if (productEvents.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <span className="text-[11px] text-slate-300">No life events detected</span>
@@ -55,7 +59,7 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
     );
   }
 
-  const totalProducts = lifeEvents.reduce(
+  const totalProducts = productEvents.reduce(
     (sum, e) => sum + (e.financial_projection?.recommended_funding_sources?.length || 0), 0
   );
 
@@ -64,7 +68,7 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
       {/* Strategy header */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-[11px] font-semibold text-slate-500">
-          {lifeEvents.length} life event{lifeEvents.length !== 1 ? "s" : ""} detected
+          {productEvents.length} life event{productEvents.length !== 1 ? "s" : ""} detected
         </span>
         <ArrowRight className="w-3 h-3 text-slate-300" />
         <span className="text-[11px] font-bold text-violet-600">
@@ -73,7 +77,7 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
       </div>
 
       {/* Life event → product cards */}
-      {lifeEvents.map((event, i) => {
+      {productEvents.map((event, i) => {
         const sources = event.financial_projection?.recommended_funding_sources || [];
         const confidenceColor = event.confidence >= 85 ? "#16a34a" : event.confidence >= 70 ? "#d97706" : "#94a3b8";
         const pillarKey = event.financial_projection?.project_type === "education"
