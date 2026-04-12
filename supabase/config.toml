@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.generate-next-offers]
 verify_jwt = false
+
+[functions.generate-product-cards]
+verify_jwt = false

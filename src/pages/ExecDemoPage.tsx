@@ -6,6 +6,7 @@ import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
@@ -54,6 +55,8 @@ export default function ExecDemoPage() {
   const [offersLoading, setOffersLoading] = useState(false);
   const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
   const [productsLoading, setProductsLoading] = useState(false);
+  const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
+  const [productCardsLoading, setProductCardsLoading] = useState(false);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
