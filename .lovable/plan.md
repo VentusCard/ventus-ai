@@ -1,30 +1,26 @@
 
 
-## Color-Code Source Labels in the Exec Demo Selection Dialog
+## Show Personalized Rewards in Phone View on "Next-Offer" Tab
 
 ### Problem
-The initial customer selection dialog on `/demo` shows a `Source` column as plain grey text. The user wants it color-coded like other parts of the app.
+The iPhone mockup in the exec demo always shows "Waiting for analysis..." — it never renders actual content. When the "Next-Offer" (rewards) tab is active, it should display the personalized rewards view with deals, AI-personalized messages, and location-based perks.
 
 ### Changes
 
-**File: `src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — ~10 lines changed
+**File: `src/pages/ExecDemoPage.tsx`** — 2 lines changed
 
-1. Add a `SOURCE_COLORS` map at the top of the file:
-   - Checking → `bg-slate-100 text-slate-600`
-   - Cashback Card → `bg-emerald-50 text-emerald-700`
-   - Travel Card → `bg-blue-50 text-blue-700`
-   - Premium Card → `bg-purple-50 text-purple-700`
-   - HSA → `bg-amber-50 text-amber-700`
-   - Fallback → `bg-slate-50 text-slate-500`
+1. Change `showContent={false}` to `showContent={activeTab === "rewards" && phase !== "idle"}` — this enables the phone content only when the rewards tab is selected and analysis has started.
 
-2. Replace the plain text source cell (line 234) with a color-coded pill:
-   ```tsx
-   <td className="py-1.5">
-     <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium ${SOURCE_COLORS[row.source] || 'bg-slate-50 text-slate-500'}`}>
-       {row.source || "—"}
-     </span>
-   </td>
-   ```
+**File: `src/components/exec-demo/ExecDemoPhoneView.tsx`** — ~5 lines changed
 
-One file, ~10 lines changed.
+1. When `consumerTab === "rewards"`, pass the customer's enriched transactions (from `classifiedRef` if available) to `DemoRewardsView`. Since the phone view doesn't currently receive enriched data, and `DemoRewardsView` already gracefully handles the case with no enriched transactions (it uses `deriveCustomerProfile` from the customer's CSV data internally), the view will work immediately with deals, personalized messages via the edge function, and location perks based on the customer's zip code.
+
+The `DemoRewardsView` component already:
+- Derives a customer profile from enriched transactions (or works without them)
+- Selects 11 relevant deals proportionally by pillar
+- Calls the `deal-personalization` edge function for AI messages
+- Shows location-based perks via `getCityFromZip` + `getPerksForCity`
+- Renders hero deal, category filters, deal grid, and local perks section
+
+Two files, ~7 lines changed.
 
