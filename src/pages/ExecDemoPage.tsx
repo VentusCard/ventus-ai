@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
+import type { LifeEvent } from "@/types/lifestyle-signals";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
@@ -13,10 +14,10 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import { supabase } from "@/integrations/supabase/client";
 
-type TabKey = "analytics" | "rewards" | "relationship";
+type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
 
-const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
+const TAB_ORDER: TabKey[] = ["analytics", "rewards", "product", "relationship"];
 
 const TIMINGS = {
   scroll: 9000,
@@ -51,6 +52,8 @@ export default function ExecDemoPage() {
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
   const [generatedOffers, setGeneratedOffers] = useState<GeneratedOffer[] | null>(null);
   const [offersLoading, setOffersLoading] = useState(false);
+  const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
+  const [productsLoading, setProductsLoading] = useState(false);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -259,8 +262,9 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
-      // Fire next-offers generation
+      // Fire next-offers and life event detection in parallel
       fireNextOffers(synthesis, pillars);
+      fireLifeEventDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
@@ -301,6 +305,61 @@ export default function ExecDemoPage() {
       setOffersLoading(false);
     }
   }, [selectedIdx]);
+
+  /** Detect life events using existing analyze-lifestyle-signals edge function */
+  const fireLifeEventDetection = useCallback(async () => {
+    setProductsLoading(true);
+    setDetectedLifeEvents(null);
+    try {
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics = demoCustomer?.profile?.demographics as Record<string, string> || {};
+      const enrichedTxs = classifiedRef.current || [];
+
+      const client = {
+        name: demoCustomer?.profile?.name || "Customer",
+        age: demographics.age || "Unknown",
+        occupation: demographics.occupation || "Unknown",
+        family_status: demographics.familyStatus || "Unknown",
+      };
+
+      // Build transactions from CSV rows (enriched txs lack dates, so use raw profile)
+      const csvRows = (customCsv || getCsvForCustomer(selectedIdx)).split("\n").slice(1).filter(Boolean);
+      const transactions = enrichedTxs.slice(0, 100).map((tx, i) => {
+        const csvRow = csvRows[i]?.split(",") || [];
+        return {
+          merchant_name: tx.merchant_name,
+          amount: tx.amount,
+          date: csvRow[0] || "2025-01-01",
+          pillar: tx.pillar,
+          category: tx.category,
+          subcategory: tx.subcategories?.[0] || "",
+        };
+      });
+
+      const topCategories = [...new Set(enrichedTxs.map(tx => tx.category))].slice(0, 5);
+      const totalSpend = enrichedTxs.reduce((s, tx) => s + tx.amount, 0);
+
+      const { data, error } = await supabase.functions.invoke("analyze-lifestyle-signals", {
+        body: {
+          client,
+          transactions,
+          spending_summary: {
+            total_spend: totalSpend,
+            top_categories: topCategories,
+          },
+        },
+      });
+      if (error) throw error;
+      const events: LifeEvent[] = data.detected_events || [];
+      setDetectedLifeEvents(events.slice(0, 3));
+      console.log("[PRELOAD] Life events detected:", events.length);
+    } catch (err) {
+      console.error("[PRELOAD] Life event detection failed:", err);
+    } finally {
+      setProductsLoading(false);
+    }
+  }, [selectedIdx, customCsv]);
+
   firePersonaSynthesisRef.current = firePersonaSynthesis;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
@@ -330,6 +389,8 @@ export default function ExecDemoPage() {
       setCustomName(null);
       setGeneratedOffers(null);
       setOffersLoading(false);
+      setDetectedLifeEvents(null);
+      setProductsLoading(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
@@ -621,6 +682,8 @@ export default function ExecDemoPage() {
             transactions={execProfile.transactions}
             generatedOffers={generatedOffers}
             offersLoading={offersLoading}
+            detectedLifeEvents={detectedLifeEvents}
+            productsLoading={productsLoading}
           />
         </div>
 
@@ -630,8 +693,9 @@ export default function ExecDemoPage() {
             customer={demoCustomer}
             activeTab={activeTab}
             phase={phase}
-            showContent={activeTab === "rewards" && phase !== "idle"}
+            showContent={(activeTab === "rewards" || activeTab === "product") && phase !== "idle"}
             generatedOffers={generatedOffers}
+            detectedLifeEvents={detectedLifeEvents}
           />
         </div>
       </div>

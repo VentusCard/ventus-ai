@@ -1,24 +1,28 @@
-import { Sparkles, Gift, Users, Bot, Wifi, Battery } from "lucide-react";
+import { Sparkles, Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import DemoEngagementView from "@/components/demo/DemoEngagementView";
 import DemoRewardsView from "@/components/demo/DemoRewardsView";
 import DemoWealthView from "@/components/demo/DemoWealthView";
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
+import ProductRecommendationPhoneView from "./ProductRecommendationPhoneView";
 import type { GeneratedOffer } from "./NextOfferRationale";
+import type { LifeEvent } from "@/types/lifestyle-signals";
 
-type TabKey = "analytics" | "rewards" | "relationship";
-type ConsumerTab = "ux" | "rewards" | "relationship" | "ai";
+type TabKey = "analytics" | "rewards" | "product" | "relationship";
+type ConsumerTab = "ux" | "rewards" | "product" | "relationship" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "ux",
   rewards: "rewards",
+  product: "product",
   relationship: "relationship",
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Sparkles; color: string }[] = [
   { key: "ux", label: "UX", icon: Sparkles, color: "#f59e0b" },
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
+  { key: "product", label: "Products", icon: CreditCard, color: "#6366f1" },
   { key: "relationship", label: "Relationship", icon: Users, color: "#8b5cf6" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
@@ -29,9 +33,10 @@ interface Props {
   phase: string;
   showContent?: boolean;
   generatedOffers?: GeneratedOffer[] | null;
+  detectedLifeEvents?: LifeEvent[] | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents }: Props) {
   const consumerTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
 
   const renderContent = () => {
@@ -43,6 +48,15 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           return <GeneratedOffersPhoneView offers={generatedOffers} customerName={customer.profile.name} />;
         }
         return <DemoRewardsView customer={customer} />;
+      case "product":
+        if (detectedLifeEvents && detectedLifeEvents.length > 0) {
+          return <ProductRecommendationPhoneView lifeEvents={detectedLifeEvents} customerName={customer.profile.name} />;
+        }
+        return (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-[11px] text-slate-300">Detecting life events...</span>
+          </div>
+        );
       case "relationship":
         return <DemoWealthView customer={customer} />;
       case "ai":
