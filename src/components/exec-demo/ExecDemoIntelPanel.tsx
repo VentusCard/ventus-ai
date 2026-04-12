@@ -365,19 +365,16 @@ export default function ExecDemoIntelPanel({
       )}
 
       {/* Tab content — only after synthesis, hidden when evidence expanded */}
-      {showTabs && synthesisTriggered && !(synthesisTriggered && pillsExpanded) && (
+      {showTabs && !pillsExpanded && activeTab && (
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex-1 min-h-0 overflow-auto">
-            {activeTab && revealedTabs.includes(activeTab) && (
-              activeTab === "analytics" && synthesisTriggered ? (
-                <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
-              ) : activeTab === "rewards" && synthesisTriggered ? (
-                <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
-              ) : (
-                <IntelCardContent card={intelligence[activeTab]} />
-              )
-            )}
-            {!activeTab && (
+            {activeTab === "analytics" && synthesisTriggered ? (
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
+            ) : activeTab === "rewards" ? (
+              <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
+            ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
+              <IntelCardContent card={intelligence.relationship} />
+            ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
                   Analyzing transactions...
