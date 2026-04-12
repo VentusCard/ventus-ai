@@ -259,10 +259,48 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
+      // Fire next-offers generation
+      fireNextOffers(synthesis, pillars);
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+
+  /** Generate AI-powered deal recommendations from persona + pillars */
+  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[]) => {
+    setOffersLoading(true);
+    setGeneratedOffers(null);
+    try {
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics = demoCustomer?.profile?.demographics || {};
+      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
+        body: {
+          persona: {
+            headline: synthesis.headline,
+            insights: synthesis.insights,
+            pillarRollups: synthesis.pillarRollups,
+          },
+          pillars: pillars.slice(0, 8).map(p => ({
+            pillar: p.pillar,
+            label: p.label,
+            count: p.count,
+            totalSpend: p.totalSpend,
+            topMerchants: p.topMerchants,
+            subcategories: p.subcategories,
+          })),
+          demographics,
+        },
+      });
+      if (error) throw error;
+      setGeneratedOffers(data.offers || []);
+      console.log("[PRELOAD] Next-offers ready:", data.offers?.length);
+    } catch (err) {
+      console.error("[PRELOAD] Next-offers failed:", err);
+      setOffersLoading(false);
+    } finally {
+      setOffersLoading(false);
+    }
+  }, [selectedIdx]);
   firePersonaSynthesisRef.current = firePersonaSynthesis;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
