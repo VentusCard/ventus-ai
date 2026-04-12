@@ -47,7 +47,11 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
     );
   }
 
-  if (lifeEvents.length === 0) {
+  const productEvents = lifeEvents.filter(
+    e => (e.financial_projection?.recommended_funding_sources?.length ?? 0) > 0
+  );
+
+  if (productEvents.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <span className="text-[11px] text-slate-300">No life events detected</span>
