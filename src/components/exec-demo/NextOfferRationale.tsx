@@ -56,12 +56,6 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
         </span>
       </div>
 
-      {personaSynthesis?.headline && (
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-50 border border-amber-200 w-fit">
-          <Sparkles className="w-3 h-3 text-amber-500" />
-          <span className="text-[10px] font-semibold text-amber-700">{personaSynthesis.headline}</span>
-        </div>
-      )}
 
       {/* Offer rationale cards */}
       {offers.map((offer, i) => {

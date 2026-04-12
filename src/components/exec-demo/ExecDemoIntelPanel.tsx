@@ -20,8 +20,6 @@ export interface PillarRollup {
 }
 
 export interface PersonaSynthesis {
-  headline: string;
-  insights: string[];
   pillarRollups?: PillarRollup[];
 }
 
@@ -231,7 +229,7 @@ export default function ExecDemoIntelPanel({
     }
   }, [phase]);
 
-  const hasSynthesis = personaSynthesis && personaSynthesis.headline;
+  const hasSynthesis = personaSynthesis && personaSynthesis.pillarRollups && personaSynthesis.pillarRollups.length > 0;
 
   return (
     <div className="flex flex-col h-full px-5 py-2 overflow-hidden">
@@ -246,17 +244,6 @@ export default function ExecDemoIntelPanel({
           maxHeight: synthesisTriggered && !pillsExpanded ? "45vh" : undefined,
         }}
       >
-        {/* AI Persona Headline — only after synthesis triggered */}
-        {hasSynthesis && synthesisTriggered && (
-          <div style={{ animation: "desc-crossfade 0.6s ease-out 0.5s both" }}>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-[15px] font-bold text-slate-800 tracking-tight">
-                {personaSynthesis!.headline}
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Evolving persona description (shown while AI synthesis loads) */}
         {!synthesisTriggered && displayedDesc && (
