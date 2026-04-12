@@ -30,7 +30,7 @@ const QUICK_ACTIONS = [
   "Product recommendations",
   "Life event insights",
   "Where does most of my money go?",
-  "My top merchants",
+  "Risk factors & alerts",
 ];
 
 function buildContext(
@@ -164,6 +164,48 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     }
   }, [initialMessage]);
 
+  const formatRiskFlags = (data: { flags: any[]; summary: string }): string => {
+    if (!data.flags || data.flags.length === 0) {
+      return `✅ **No significant risk factors detected.**\n\n${data.summary}`;
+    }
+
+    const categoryLabels: Record<string, { icon: string; label: string }> = {
+      fraud: { icon: "🚨", label: "Fraud Signals" },
+      aml: { icon: "🔍", label: "AML Patterns" },
+      vice: { icon: "⚠️", label: "Vice Indicators" },
+      habit_shift: { icon: "📊", label: "Spending Habit Shifts" },
+    };
+
+    const severityBadge: Record<string, string> = {
+      high: "🔴 HIGH",
+      medium: "🟠 MEDIUM",
+      low: "🟡 LOW",
+    };
+
+    // Group flags by category
+    const grouped: Record<string, any[]> = {};
+    for (const flag of data.flags) {
+      const cat = flag.category || "other";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(flag);
+    }
+
+    let md = `## 🛡️ Risk Analysis Report\n\n`;
+    md += `${data.summary}\n\n---\n\n`;
+
+    for (const [cat, flags] of Object.entries(grouped)) {
+      const info = categoryLabels[cat] || { icon: "❓", label: cat };
+      md += `### ${info.icon} ${info.label}\n\n`;
+      for (const f of flags) {
+        const badge = severityBadge[f.severity] || f.severity;
+        md += `- **${f.merchant}** — $${Math.abs(f.amount).toLocaleString()} (${f.date}) [${badge}]\n  ${f.reason}\n`;
+      }
+      md += `\n`;
+    }
+
+    return md;
+  };
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
@@ -171,21 +213,36 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setInputValue("");
     setIsLoading(true);
 
+    const isRiskAction = text.toLowerCase().includes("risk factors");
+
     try {
-      const { data, error } = await supabase.functions.invoke("consumer-chat", {
-        body: {
-          message: text,
-          conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
-          context,
-        },
-      });
+      if (isRiskAction && enriched && enriched.length > 0) {
+        const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
+          body: { transactions: enriched },
+        });
+        if (error) throw error;
 
-      if (error) throw error;
+        const formatted = formatRiskFlags(data);
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: formatted },
+        ]);
+      } else {
+        const { data, error } = await supabase.functions.invoke("consumer-chat", {
+          body: {
+            message: text,
+            conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
+            context,
+          },
+        });
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
-      ]);
+        if (error) throw error;
+
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
+        ]);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
