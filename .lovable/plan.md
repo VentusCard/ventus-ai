@@ -1,27 +1,21 @@
 
 
-## Use AI Chat Presets as Relationship Tab Hooks
+## Fix: Constrain AI Chat Response Formatting in Phone Mockup
 
 ### Problem
-The Relationship tab has static "Insights for You" hooks that don't send messages to the AI. Meanwhile, the AI tab already has working `QUICK_ACTIONS` presets. We should reuse those.
+The AI assistant's markdown responses render with default prose sizing, causing text, lists, and headings to overflow the phone mockup's chat bubble, triggering scrollbars.
 
-### Changes
+### Solution
+Tighten the markdown prose styles inside the assistant message bubble in `ConsumerAIChatView.tsx` (line 252):
 
-**1. `src/components/exec-demo/RelationshipPhoneView.tsx`**
-- Replace the static `INSIGHT_HOOKS` array with a curated subset of the AI chat's `QUICK_ACTIONS` (e.g., "Product recommendations", "Life event insights", "Where does most of my money go?")
-- Change `onGoToAI` signature to `onGoToAI: (message: string) => void`
-- Each hook button passes its text as the message: `onClick={() => onGoToAI("Product recommendations")}`
+**File: `src/components/demo/ConsumerAIChatView.tsx`**
 
-**2. `src/components/exec-demo/ExecDemoPhoneView.tsx`**
-- Add `pendingAIMessage` state
-- Update the `onGoToAI` callback to accept a message string, store it, and switch to `"ai"` tab
-- Pass `initialMessage={pendingAIMessage}` to `ConsumerAIChatView`
-- Clear `pendingAIMessage` after it's consumed
+Update the prose wrapper div (line 252) to:
+- Force smaller text: `text-xs` base, `[&_h1]:text-sm [&_h2]:text-xs [&_h3]:text-xs`
+- Compress spacing: `[&_p]:mb-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-xs [&_li]:leading-tight`
+- Prevent table/code overflow: `[&_pre]:overflow-x-auto [&_pre]:text-[10px] [&_table]:text-[10px]`
+- Remove excessive margins: `[&_h1]:mt-1 [&_h2]:mt-1 [&_h3]:mt-0.5 [&_p]:leading-snug`
+- Add `overflow-hidden break-words` to the bubble container itself (line 244-249) to prevent horizontal overflow
 
-**3. `src/components/demo/ConsumerAIChatView.tsx`**
-- Add optional `initialMessage?: string` prop
-- On mount/change, if `initialMessage` is set, auto-send it via `sendMessage()` so the AI responds immediately
-
-### Result
-User clicks "Product recommendations" hook on Relationship tab → switches to AI tab → message auto-sends → AI responds with contextual product recommendations. Same presets, one source of truth.
+One file, ~5 lines changed.
 
