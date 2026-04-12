@@ -27,6 +27,7 @@ interface Props {
   localExperiences?: LocalExperiencesData;
   personalizedDeals?: PersonalizedDealData | null;
   detectedEvents?: DetectedLifeEventResult[];
+  riskFlags?: { flags: any[]; summary: string } | null;
   apiPayloads?: ApiPayloads;
   tip?: FinancialTip | null;
   onClose: () => void;
@@ -168,7 +169,7 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
   );
 }
 
-export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose, enabledModules }: Props) {
+export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, riskFlags, apiPayloads, tip, onClose, enabledModules }: Props) {
   const { title, color } = NODE_TITLES[node];
   const isBankWide = BANK_WIDE_NODES.has(node);
   const isConsumer = CONSUMER_NODES.has(node);
