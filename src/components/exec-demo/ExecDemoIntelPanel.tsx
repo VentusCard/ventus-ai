@@ -347,13 +347,11 @@ export default function ExecDemoIntelPanel({
               return (
                 <button
                   key={key}
-                  onClick={() => isRevealed && onTabClick(key)}
+                  onClick={() => onTabClick(key)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-white text-slate-800 shadow-sm"
-                      : isRevealed
-                      ? "text-slate-500 hover:text-slate-700 cursor-pointer"
-                      : "text-slate-300 cursor-default"
+                      : "text-slate-500 hover:text-slate-700 cursor-pointer"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
