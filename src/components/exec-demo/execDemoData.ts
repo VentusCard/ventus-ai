@@ -409,6 +409,7 @@ export interface EnrichedTransaction {
   transaction_id: string;
   merchant_name: string;
   amount: number;
+  date?: string;
   pillar: string;
   category: string;
   subcategories: string[];
