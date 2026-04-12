@@ -175,8 +175,6 @@ export default function ExecDemoPage() {
       });
       if (error) throw error;
       const synthesis: PersonaSynthesis = {
-        headline: data.headline || "Dynamic Persona",
-        insights: data.insights || [],
         pillarRollups: (data.pillar_rollups || []).map((r: any) => {
           const catIndices: number[] = r.category_indices || [];
           // Resolve contributing groups via index + fallback category name matching
@@ -261,7 +259,7 @@ export default function ExecDemoPage() {
       };
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
-      console.log("[PRELOAD] Persona synthesis ready:", synthesis.headline);
+      console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
       // Fire next-offers and life event detection in parallel
       fireNextOffers(synthesis, pillars);
       fireLifeEventDetection();
@@ -280,8 +278,6 @@ export default function ExecDemoPage() {
       const { data, error } = await supabase.functions.invoke("generate-next-offers", {
         body: {
           persona: {
-            headline: synthesis.headline,
-            insights: synthesis.insights,
             pillarRollups: synthesis.pillarRollups,
           },
           pillars: pillars.slice(0, 8).map(p => ({
