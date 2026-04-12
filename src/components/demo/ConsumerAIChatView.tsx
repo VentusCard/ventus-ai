@@ -20,6 +20,7 @@ interface Props {
   enriched?: EnrichedTransaction[];
   detectedEvents?: DetectedLifeEventResult[];
   personalizedDeals?: PersonalizedDealData | null;
+  riskFlags?: { flags: any[]; summary: string } | null;
   initialMessage?: string | null;
   onInitialMessageConsumed?: () => void;
 }
@@ -138,7 +139,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, initialMessage, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, riskFlags, initialMessage, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -216,17 +217,29 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     const isRiskAction = text.toLowerCase().includes("risk factors");
 
     try {
-      if (isRiskAction && enriched && enriched.length > 0) {
-        const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
-          body: { transactions: enriched },
-        });
-        if (error) throw error;
+      if (isRiskAction) {
+        // Use pre-computed risk flags if available, otherwise call edge function
+        let riskData = riskFlags;
+        if (!riskData && enriched && enriched.length > 0) {
+          const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
+            body: { transactions: enriched },
+          });
+          if (error) throw error;
+          riskData = data;
+        }
 
-        const formatted = formatRiskFlags(data);
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: formatted },
-        ]);
+        if (riskData) {
+          const formatted = formatRiskFlags(riskData);
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: formatted },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: "Risk analysis is still processing. Please try again in a moment." },
+          ]);
+        }
       } else {
         const { data, error } = await supabase.functions.invoke("consumer-chat", {
           body: {

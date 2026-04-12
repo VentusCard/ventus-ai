@@ -199,6 +199,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
             enriched={enriched}
             detectedEvents={detectedEvents}
             personalizedDeals={personalizedDeals}
+            riskFlags={riskFlags}
           />
         );
     }
