@@ -1,96 +1,64 @@
 
 
-## AI-Generated Deal Recommendations for Next-Offer
+## Add "Next-Product" Tab Using Existing Life Events Detection
 
 ### Concept
-Instead of searching a static deal library, a new edge function will use the synthesized persona + enriched transaction data to **generate** contextually extended deals — inferring adjacent products from behavioral patterns (skier → GoPro, boards) and personalizing messages using demographic context (family of 4 → "Capture precious family moments").
+Reuse the existing `analyze-lifestyle-signals` edge function (which already detects life events like college prep, home purchase, etc. and returns financial projections with recommended products) to power a new "Next-Product" tab. No new edge function needed — just call the existing one after persona synthesis and map its output to personalized product cards.
 
-### Architecture
-
+### Data Flow
 ```text
-classify-transactions → synthesize-persona
+classify-transactions → persona synthesis
                               ↓
-                     generate-next-offers  ← NEW edge function
+              analyze-lifestyle-signals  (EXISTING)
                               ↓
-                     Phone View (deals + messages)
-                     Intel Panel (rationale cards)
+              Intel Panel: life event → product rationale
+              Phone View: personalized product card
 ```
+
+The `analyze-lifestyle-signals` already returns per-event:
+- `event_name` (e.g., "College Preparation for Dependent")
+- `confidence` score
+- `evidence` (merchant, amount, date, relevance)
+- `talking_points`
+- `financial_projection.recommended_funding_sources` (529, HYSA, etc.)
 
 ### Changes
 
-**New edge function: `supabase/functions/generate-next-offers/index.ts`** (~120 lines)
+**File: `src/pages/ExecDemoPage.tsx`** (~30 lines changed)
+- Add `"product"` to `TabKey` union and `TAB_ORDER`
+- Add `detectedLifeEvents` state + `productsLoading` state
+- After persona synthesis completes, fire `analyze-lifestyle-signals` (passing the customer profile + enriched transactions) in parallel with `generate-next-offers`
+- Pass `detectedLifeEvents` + `productsLoading` down to intel panel and phone view
+- Enable phone content when product tab is active
 
-Takes as input:
-- `persona`: headline + pillar rollups (from synthesize-persona)
-- `pillars`: top spending categories with merchants, spend, subcategories
-- `demographics`: occupation, family status, income tier
-- `timeline`: purchase cycle data (recency, frequency, seasonality)
+**New component: `src/components/exec-demo/NextProductRationale.tsx`** (~140 lines)
+- Intel panel content for the "Next-Product" tab
+- Strategy header: "X life events detected → Y product recommendations"
+- Per-event cards showing: event name, confidence badge, evidence chain (merchant names), and recommended financial products (529 Plan, HYSA, etc.) with personalized messages derived from talking points
+- Loading skeleton matching existing pattern
 
-The AI prompt instructs it to:
-1. For each top pillar rollup, generate 1-2 **extended** deals — adjacent products the customer would logically want but hasn't bought (skier → GoPro, snowboard gear)
-2. Generate 1 discovery deal from an untapped category
-3. For each deal, produce: merchant name, product, reward value, a personalized message (using demographics), and a short rationale explaining the behavioral inference
-4. Return 4-6 deals total
+**New component: `src/components/exec-demo/ProductRecommendationPhoneView.tsx`** (~100 lines)
+- Consumer-facing phone mockup view
+- Hero card with warm personalized message (e.g., "Big milestones for the family ahead? Start putting your money to work now — explore a 529 Plan or High-Yield Savings Account.")
+- Uses `talking_points` from the life event for the message copy
+- Product badges from `recommended_funding_sources`
+- Smaller secondary cards for additional detected events
 
-Output shape:
-```json
-{
-  "offers": [
-    {
-      "id": "gen_1",
-      "merchant": "GoPro",
-      "product": "HERO13 Black",
-      "category": "Technology",
-      "rewardType": "discount",
-      "rewardValue": "15% Off",
-      "message": "Capture precious family moments on the mountain with helmet-mounted HERO13",
-      "cta": "Gear Up for Slopes",
-      "rationale": "Active skier with family of 4 — high affinity for action cameras",
-      "sourceRollup": "Mountain Enthusiast"
-    }
-  ]
-}
-```
-
-Uses `google/gemini-3-flash-preview` via Lovable AI gateway. Standard CORS headers.
-
-**New component: `src/components/exec-demo/NextOfferRationale.tsx`** (~160 lines)
-
-The middle panel content when "Next-Offer" tab is active. Shows:
-1. **Strategy header**: "X behavioral signals → Y personalized offers" with persona headline badge
-2. **Offer rationale cards** (one per generated deal): pillar-colored left border, merchant + product + reward, the personalized message, and a "why" section showing the behavioral inference chain (e.g., "Ski passes + jackets + family of 4 → action camera")
-3. Loading skeleton while the edge function runs
-
-Props: `personaSynthesis`, `enrichedTransactions`, `demographics` (from customer profile)
+**File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`** (~15 lines changed)
+- Add `"product"` to `TabKey`, `TAB_ORDER`, and `TAB_META` (icon: `CreditCard`, label: "Next-Product")
+- Add `detectedLifeEvents` and `productsLoading` props
+- Render `NextProductRationale` when `activeTab === "product"`
 
 **File: `src/components/exec-demo/ExecDemoPhoneView.tsx`** (~15 lines changed)
+- Add `"product"` to `TabKey` and tab mapping
+- Accept `detectedLifeEvents` prop
+- Render `ProductRecommendationPhoneView` when product tab is active and events exist
 
-- Accept new `generatedOffers` prop
-- When `consumerTab === "rewards"` and offers exist, render a new lightweight `GeneratedOffersPhoneView` instead of `DemoRewardsView`
-- This view shows the AI-generated deals as compact cards in the phone mockup (merchant logo placeholder, reward badge, personalized message, CTA button)
+### Technical Details
+- The `analyze-lifestyle-signals` function takes `{ client, transactions, spending_summary }` — we construct `client` from the demo customer profile (name, age, occupation, family status) and pass enriched transactions
+- The response shape `{ detected_events: [...] }` maps directly to product cards
+- Each `financial_projection.recommended_funding_sources[].type` maps to a product name (529 → "529 College Savings Plan", HYSA → "High-Yield Savings Account", etc.)
+- Each event's `talking_points` provide ready-made personalized messages for the phone view
 
-**File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`** (~5 lines changed)
-
-- Import `NextOfferRationale`
-- When `activeTab === "rewards" && synthesisTriggered`, render `NextOfferRationale` instead of `IntelCardContent`
-
-**File: `src/pages/ExecDemoPage.tsx`** (~25 lines changed)
-
-- Add `generatedOffers` state and ref
-- After persona synthesis completes, fire `generate-next-offers` with persona + pillars + demographics + timeline
-- Pass `generatedOffers` down to both `ExecDemoIntelPanel` and `ExecDemoPhoneView`
-- Update `showContent` condition to also check for offers readiness
-
-**File: `supabase/config.toml`** — add function config block:
-```toml
-[functions.generate-next-offers]
-verify_jwt = false
-```
-
-### Data flow
-1. Classification completes → persona synthesis fires
-2. Persona synthesis completes → `generate-next-offers` fires (uses persona rollups + enriched pillars + customer demographics)
-3. Offers arrive → Intel panel shows rationale cards, phone view shows deal cards with personalized messages
-
-Six files total, ~330 lines new code.
+Five files, ~300 lines new code. Zero new edge functions.
 
