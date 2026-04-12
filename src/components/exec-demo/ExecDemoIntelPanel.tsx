@@ -347,13 +347,11 @@ export default function ExecDemoIntelPanel({
               return (
                 <button
                   key={key}
-                  onClick={() => isRevealed && onTabClick(key)}
+                  onClick={() => onTabClick(key)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-white text-slate-800 shadow-sm"
-                      : isRevealed
-                      ? "text-slate-500 hover:text-slate-700 cursor-pointer"
-                      : "text-slate-300 cursor-default"
+                      : "text-slate-500 hover:text-slate-700 cursor-pointer"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -367,19 +365,16 @@ export default function ExecDemoIntelPanel({
       )}
 
       {/* Tab content — only after synthesis, hidden when evidence expanded */}
-      {showTabs && synthesisTriggered && !(synthesisTriggered && pillsExpanded) && (
+      {showTabs && !pillsExpanded && activeTab && (
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex-1 min-h-0 overflow-auto">
-            {activeTab && revealedTabs.includes(activeTab) && (
-              activeTab === "analytics" && synthesisTriggered ? (
-                <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
-              ) : activeTab === "rewards" && synthesisTriggered ? (
-                <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
-              ) : (
-                <IntelCardContent card={intelligence[activeTab]} />
-              )
-            )}
-            {!activeTab && (
+            {activeTab === "analytics" && synthesisTriggered ? (
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
+            ) : activeTab === "rewards" ? (
+              <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
+            ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
+              <IntelCardContent card={intelligence.relationship} />
+            ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
                   Analyzing transactions...
