@@ -4,6 +4,7 @@ import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./ex
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
 import NextProductRationale from "./NextProductRationale";
+import NextConversationRationale from "./NextConversationRationale";
 import type { GeneratedOffer } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
@@ -372,7 +373,7 @@ export default function ExecDemoIntelPanel({
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} />
             ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
-              <IntelCardContent card={intelligence.relationship} />
+              <NextConversationRationale />
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
