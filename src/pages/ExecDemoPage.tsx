@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
+import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, mergeAiResults, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
@@ -28,6 +29,7 @@ const TIMINGS = {
 
 export default function ExecDemoPage() {
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
   const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
@@ -292,6 +294,10 @@ export default function ExecDemoPage() {
     [clearTimeouts, fireClassification]
   );
 
+  const handleChangeCustomer = useCallback(() => {
+    setSelectionDialogOpen(true);
+  }, []);
+
   const handleLoadCustomCsv = useCallback((csv: string, name: string) => {
     clearTimeouts();
     setCustomCsv(csv);
@@ -500,6 +506,12 @@ export default function ExecDemoPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={handleChangeCustomer}
+            className="text-[12px] font-medium text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            Change Customer
+          </button>
+          <button
             onClick={() => setContactOpen(true)}
             className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
@@ -523,6 +535,7 @@ export default function ExecDemoPage() {
             onSelectCustomer={handleSelectCustomer}
             onRunAnalysis={handleRunAnalysis}
             onLoadCustomCsv={handleLoadCustomCsv}
+            onChangeCustomer={handleChangeCustomer}
             isRunning={isRunning}
             phase={phase}
             collectedIndices={collectedIndices}
@@ -578,6 +591,14 @@ export default function ExecDemoPage() {
       </div>
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
+      <ExecDemoSelectionDialog
+        open={selectionDialogOpen}
+        onOpenChange={setSelectionDialogOpen}
+        selectedIdx={selectedIdx}
+        onSelectCustomer={handleSelectCustomer}
+        onRunAnalysis={handleRunAnalysis}
+        onLoadCustomCsv={handleLoadCustomCsv}
+      />
     </div>
     </SimplePasswordGate>
   );

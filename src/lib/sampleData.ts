@@ -222,14 +222,14 @@ txn_001,STARBUCKS COFFEE #1234,Coffee and pastry purchase,5814,12.45,2024-11-01,
 txn_002,WHOLE FOODS MARKET,Weekly grocery shopping,5411,156.78,2024-11-06,94102,Cashback Card
 txn_003,EQUINOX FITNESS,Monthly gym membership fee,7997,200.00,2024-11-12,94102,Premium Card
 txn_004,SHELL OIL 78945,Gasoline fill-up,5541,45.20,2024-11-17,94103,Cashback Card
-txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7996,287.50,2024-11-23,,Cashback Card
+txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7922,287.50,2024-11-23,,Cashback Card
 txn_006,AplPAY UBER EATS,Food delivery order,5814,45.30,2024-12-06,,Cashback Card
 txn_007,AMAZON.COM AMZN Books,Online purchase,5942,34.99,2024-12-12,,Cashback Card
 txn_008,PAYPAL*ETSY HomeVibes Shop,Home decor purchase,5969,78.25,2024-12-17,,Cashback Card
 txn_009,DELTA AIR LINES 0062 JFK,Flight booking,4511,450.00,2024-12-23,94102,Travel Card
 txn_010,MARRIOTT HOTELS NYC MIDTOWN,Hotel accommodation,7011,600.00,2024-12-28,10036,Travel Card
 txn_011,CVS PHARMACY,Prescription medication,5912,28.50,2025-01-08,94102,HSA
-txn_012,LULULEMON,Athletic wear purchase,5651,89.00,2025-01-15,94102,Premium Card
+txn_012,LULULEMON,Athletic wear purchase,5655,89.00,2025-01-15,94102,Premium Card
 txn_013,CHEWY.COM,Dog food and supplies,5995,67.89,2025-01-22,94102,Cashback Card
 txn_014,NETFLIX.COM,Monthly streaming subscription,4899,15.99,2025-01-28,,Cashback Card
 txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Travel Card
@@ -288,7 +288,7 @@ txn_069,UBER NYC,Ride to airport,4121,52.90,2025-09-28,11101,Travel Card
 txn_070,DELTA AIR LINES 0062 SFO,Return flight,4511,480.00,2025-09-28,,Travel Card
 txn_071,SHELL OIL LOCAL,Gas station home,5541,49.10,2025-09-29,94102,Cashback Card
 txn_072,STARBUCKS COFFEE,Morning coffee home,5814,6.75,2025-09-30,94102,Cashback Card
-txn_052,WARBY PARKER,Prescription glasses,5995,195.00,2025-10-08,94102,HSA
+txn_052,WARBY PARKER,Prescription glasses,8043,195.00,2025-10-08,94102,HSA
 txn_075,STANFORD VISITOR PARKING,Campus tour parking,7523,25.00,2025-10-14,94305,Cashback Card
 txn_053,GRUBHUB,Dinner delivery,5814,42.30,2025-10-15,,Cashback Card
 txn_054,LOWES,Garden supplies,5211,87.45,2025-10-21,94103,Checking
@@ -766,7 +766,7 @@ txn_ny055,REI NYC,Ski gear rental,5941,189.00,2025-01-04,10003,Cashback Card
 txn_ny056,AMTRAK,Train to Vermont,4111,145.00,2025-01-10,10001,Travel Card
 txn_ny057,BUDGET BURLINGTON,Car rental 3 days,7512,187.00,2025-01-10,05401,Travel Card
 txn_ny058,SHELL VERMONT,Gas fill-up,5541,52.30,2025-01-10,05401,Travel Card
-txn_ny059,STOWE MOUNTAIN,Lift tickets 2 days,7012,298.00,2025-01-11,05672,Travel Card
+txn_ny059,STOWE MOUNTAIN,Lift tickets 2 days,7941,298.00,2025-01-11,05672,Travel Card298.00,2025-01-11,05672,Travel Card
 txn_ny060,MOUNTAIN LODGE VT,Hotel 2 nights,7011,345.00,2025-01-10,05672,Travel Card
 txn_ny061,SKI RENTAL STOWE,Equipment rental,7999,89.00,2025-01-11,05672,Travel Card
 txn_ny062,SLOPE SIDE CAFE,Lunch on mountain,5814,34.80,2025-01-11,05672,Travel Card
@@ -1200,3 +1200,69 @@ txn_ch241,LULULEMON CHICAGO,Winter workout preview,5655,178.00,2025-10-28,60610,
 txn_ch242,TENNIS LESSONS,Private coaching,7999,120.00,2025-10-29,60610,Checking
 txn_ch248,SIDLEY AUSTIN LLP,Legal services,8111,1200.00,2025-11-22,60603,Checking
 `;
+
+export const MCC_DESCRIPTIONS: Record<string, string> = {
+  "0742": "Veterinary Services",
+  "1711": "Air Conditioning, Heating and Plumbing Contractors",
+  "3058": "Air Carriers, Airlines",
+  "4111": "Transportation–Suburban and Local Commuter Passenger, including Ferries",
+  "4121": "Taxicabs and Limousines",
+  "4511": "Air Carriers, Airlines–not elsewhere classified",
+  "4789": "Transportation Services Not Elsewhere Classified",
+  "4899": "Cable, Satellite, and Other Pay Television and Radio Services",
+  "4900": "Utilities–Electric, Gas, Heating Oil, Sanitary, Water",
+  "5211": "Building Materials, Lumber Stores",
+  "5251": "Hardware Stores",
+  "5300": "Wholesale Clubs",
+  "5411": "Grocery Stores, Supermarkets",
+  "5499": "Miscellaneous Food Stores–Convenience Stores, Markets, Specialty Stores",
+  "5541": "Service Stations (With or Without Ancillary Services)",
+  "5641": "Children's and Infants' Wear Stores",
+  "5651": "Family Clothing Stores",
+  "5655": "Sports Apparel, and Riding Apparel Stores",
+  "5661": "Shoe Stores",
+  "5712": "Equipment, Furniture and Home Furnishings Stores",
+  "5714": "Drapery, Upholstery and Window Coverings Stores",
+  "5722": "Household Appliance Stores",
+  "5732": "Electronics Sales",
+  "5734": "Computer Software Stores",
+  "5812": "Eating Places and Restaurants",
+  "5814": "Fast Food Restaurants",
+  "5912": "Drug Stores and Pharmacies",
+  "5941": "Sporting Goods Stores",
+  "5942": "Book Stores",
+  "5944": "Clock, Jewelry, Watch and Silverware Stores",
+  "5945": "Game, Toy and Hobby Shops",
+  "5968": "Direct Marketing–Continuity/Subscription Merchants",
+  "5969": "Direct Marketing–Other Direct Marketers–Not Elsewhere Classified",
+  "5977": "Cosmetic Stores",
+  "5995": "Pet Shops, Pet Food and Supplies",
+  "5999": "Miscellaneous and Specialty Retail Stores",
+  "6163": "Mortgage Brokers",
+  "6211": "Securities–Brokers and Dealers",
+  "6311": "Insurance Sales, Underwriting and Premiums",
+  "6411": "Title Abstract and Escrow",
+  "6531": "Real Estate Agents and Managers–Rentals",
+  "7011": "Lodging–Hotels, Motels, Resorts–not elsewhere classified",
+  "7012": "Timeshares",
+  "7217": "Carpet and Upholstery Cleaning",
+  "7298": "Health and Beauty Spas",
+  "7389": "Business Services Not Elsewhere Classified",
+  "7399": "Business Services Not Elsewhere Classified",
+  "7512": "Automobile Rental Agency–Not Elsewhere Classified",
+  "7523": "Automobile Parking Lots and Garages",
+  "7832": "Motion Picture Theaters",
+  "7922": "Theatrical Producers, Ticket Agencies",
+  "7941": "Athletic Fields, Commercial Sports, Professional Sports Clubs",
+  "7996": "Amusement Parks, Carnivals, Circuses",
+  "7997": "Clubs–Country Clubs, Membership (Athletic, Recreation, Sports)",
+  "7998": "Aquariums, Dolphinariums, Zoos and Seaquariums",
+  "7999": "Recreation Services–Not Elsewhere Classified",
+  "8011": "Doctors–not elsewhere classified",
+  "8043": "Opticians, Optical Goods and Eyeglasses",
+  "8049": "Chiropodists, Podiatrists",
+  "8111": "Attorneys, Legal Services",
+  "8299": "Schools And Educational Services–Not Elsewhere Classified",
+  "8721": "Accounting, Auditing and Bookkeeping Services",
+  "8999": "Professional Services–Not Elsewhere Classified",
+};

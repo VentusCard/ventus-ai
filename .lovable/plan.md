@@ -1,68 +1,35 @@
 
 
-## Redesign: Next-Purchase Probability Section
+## Replace Current-Month Blue Highlight with a Vertical "Now" Line
 
 ### Problem
-The current probability section mirrors the heatmap's tabular grid layout (columns, signal dots, percentages), making the two sections look like duplicates rather than offering a distinct visual insight.
-
-### New Design: Ranked Horizontal Bar Cards
-
-Replace the table with a stacked list of compact **mini-cards**, each showing a horizontal gradient probability bar. This visually contrasts with the grid-based heatmap above and feels more like a "prediction dashboard."
-
-```text
-┌──────────────────────────────────────────────┐
-│ 🎯 NEXT-PURCHASE PROBABILITY                │
-├──────────────────────────────────────────────┤
-│ ┌──────────────────────────────────────────┐ │
-│ │ Groceries                   94% · 5 days │ │
-│ │ ██████████████████████████████░░░░  High  │ │
-│ │ Weekly cadence · peak season              │ │
-│ └──────────────────────────────────────────┘ │
-│ ┌──────────────────────────────────────────┐ │
-│ │ Pet Care                    41% · ~3 wks │ │
-│ │ ██████████░░░░░░░░░░░░░░░░░░░░░░  Med   │ │
-│ │ Monthly pattern · last seen 2mo ago      │ │
-│ └──────────────────────────────────────────┘ │
-│ ┌──────────────────────────────────────────┐ │
-│ │ Travel                      22% · ~6 wks │ │
-│ │ █████░░░░░░░░░░░░░░░░░░░░░░░░░░░  Low   │ │
-│ │ Seasonal — historically peaks in Sep     │ │
-│ └──────────────────────────────────────────┘ │
-├──────────────────────────────────────────────┤
-│ 💡 Groceries expected within 5 days based   │
-│    on weekly cadence.                        │
-└──────────────────────────────────────────────┘
-```
-
-### Per-Card Elements
-- **Top line**: Category name (pillar-colored) + bold probability % + estimated "days until next" (derived from frequency: `30 / activeMonths` approximation)
-- **Gradient bar**: Fills left-to-right proportional to the 30-day probability, using the pillar's color with a subtle gradient. Background is a light neutral track.
-- **Confidence tag**: "High" / "Med" / "Low" badge anchored at the right end of the bar
-- **Sub-text**: A one-line reason string auto-generated from the data (e.g., "Weekly cadence · accelerating +15%" or "Seasonal — peaks in Sep · last seen 3mo ago")
-
-### Color Treatment
-- Bar fill: pillar dot color → faded pillar color gradient
-- >70% probability: subtle green-tinted card background
-- 40–70%: subtle amber tint
-- <40%: neutral/transparent
-
-### Reason String Logic
-Compose from available data:
-- **Cadence**: `activeMonths >= 10` → "Weekly cadence" | `>= 6` → "Bi-monthly" | `>= 3` → "Quarterly" | else → "Occasional"
-- **Velocity**: if `|velocity| >= 15`, append "accelerating +X%" or "declining -X%"
-- **Seasonality**: if next month has historical spend, append "peak season" or "historically peaks in {month}"
-- **Recency**: if `lastMonthAgo >= 3`, append "last seen Xmo ago"
+The current-month cells are highlighted with a blue outline and the month label is blue. The user wants a single vertical line crossing the entire heatmap at the current month instead.
 
 ### Changes
 
-**`src/components/exec-demo/PurchaseCycleTimeline.tsx`**:
+**File: `src/components/exec-demo/PurchaseCycleTimeline.tsx`**
 
-1. Remove `SignalDots` component and the table-style column headers / row grid (lines 102-117, 471-534)
-2. Add a `daysUntilEstimate` helper: `Math.round(30 / Math.max(activeMonths, 1))` capped at 90
-3. Add a `buildReasonString(pr, rows)` helper using the cadence/velocity/seasonality logic above
-4. Replace the probability section render with the new card-based layout:
-   - Each card is a `div` with rounded corners, subtle pillar-tinted background, containing the name + percentage row, a full-width progress bar `div`, and a reason sub-text
-   - Cards stagger-animate in with existing `exec-card-reveal` keyframes
-5. Keep the `ConfidenceBadge` component (repositioned inside the bar area)
-6. Keep the predictive insight card at the bottom (already has distinct styling)
+1. **Month legend bar (~line 318-331):** Remove the blue color/bold styling on the current month label — all months same style.
+
+2. **Heatmap bars (~line 370-373):** Remove the `outline: isCurrentMonth ? '1.5px solid #3b82f6' : undefined` and the `isCurrentMonth` special background opacity. Treat current month bars the same as any other.
+
+3. **Add a vertical "now" line overlay:** Wrap the rows section (lines 334-416) and the month legend (lines 318-331) in a `relative` container. Add an absolutely-positioned vertical line element whose `left` is calculated as `(CURRENT_MONTH + 0.5) / 12 * 100%`, offset by the same `74px` left padding used for labels. The line will be a thin (1-2px) dashed or solid blue line (`#3b82f6`) spanning the full height of the heatmap area, with a small "Now" label or dot at the top.
+
+### Implementation detail
+
+```
+<!-- Pseudo-structure -->
+<div className="relative">
+  {/* Month legend */}
+  {/* Rows */}
+  
+  {/* Vertical "now" line */}
+  <div className="absolute top-0 bottom-0 w-px bg-blue-500 pointer-events-none"
+       style={{ left: `calc(74px + ${(CURRENT_MONTH + 0.5) / 12 * 100}% * (1 - 74px/totalWidth))` }} />
+</div>
+```
+
+The left offset needs to account for the 66px label column + 8px gap (74px total) and the 72px right status column — the flex-1 bar area sits between those. We'll use a wrapper around just the bar area with `relative` positioning, and place the line inside that wrapper calculated as a simple percentage: `(CURRENT_MONTH + 0.5) / 12 * 100%`.
+
+One file, ~15 lines changed.
 
