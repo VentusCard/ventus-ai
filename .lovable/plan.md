@@ -1,17 +1,47 @@
 
 
-## Fix: Keep Persona Rollups Behavioral, Drop Brand Names
+## Split Phone View for "Next Conversation" Tab
 
-### Problem
-Line 70 explicitly tells the AI to "Be specific using merchant names" — e.g., "Netflix + Hulu + Spotify = Streaming Junkie". This causes brand-focused labels like "Nordstrom, Sephora & Warby Parker Loyalists" instead of behavioral ones like "Style-Conscious Shopper."
+### What Changes
 
-### Fix
-**File: `supabase/functions/synthesize-persona/index.ts`** — update two prompt lines:
+**File: `src/components/exec-demo/ExecDemoPhoneView.tsx`** (~15 lines)
 
-1. **Replace line 70** (merchant-name instruction) with:
-   `"Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = 'Style-Conscious Shopper', not 'Nordstrom & Sephora Loyalist.'"`
+When `consumerTab === "relationship"`, instead of rendering just `DemoWealthView`, render a split layout:
 
-2. **Update line 68** — remove the merchant examples from the tier instruction so it doesn't encourage brand references in labels either. Keep the tier-honesty principle but frame it behaviorally.
+- **Top half** (~50%): `DemoWealthView` (the existing relationship/wealth view from /deckmo) in a scrollable container with a subtle bottom border
+- **Bottom half** (~50%): `ConsumerAIChatView` (the existing AI chatbot) in a flex container that handles its own scroll
 
-One file, two lines changed. Redeploy edge function.
+The split only applies to the `relationship` tab — all other tabs remain unchanged.
+
+### Layout
+
+```text
+┌──────────────────────┐
+│      Status Bar      │
+│      Header          │
+├──────────────────────┤
+│                      │
+│   DemoWealthView     │  ← top 50%, overflow-y-auto
+│   (Relationship)     │
+│                      │
+├─ thin divider ───────┤
+│                      │
+│  ConsumerAIChatView  │  ← bottom 50%, flex col
+│   (AI Assistant)     │
+│                      │
+├──────────────────────┤
+│     Tab Bar          │
+│   Home Indicator     │
+└──────────────────────┘
+```
+
+### Implementation Detail
+
+In `renderContent()`, the `relationship` case returns a new wrapper div with `flex flex-col h-full`:
+- Top: `<div className="flex-1 min-h-0 overflow-y-auto border-b">` containing `DemoWealthView`
+- Bottom: `<div className="flex-1 min-h-0 overflow-hidden flex flex-col">` containing `ConsumerAIChatView`
+
+The parent content div will use `overflow-hidden flex flex-col` (same treatment as the current `ai` tab) when `relationship` is active.
+
+One file, ~15 lines changed.
 
