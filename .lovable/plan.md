@@ -1,22 +1,23 @@
 
 
-## Fix: Phone View Shows "Waiting for analysis..." on Relationship Tab
+## Fix: Only Show Life Events With Product Recommendations
 
 ### Problem
-Line 681 in `ExecDemoPage.tsx` only sets `showContent={true}` for `rewards` and `product` tabs. The `relationship` (and `analytics`) tabs never pass `showContent=true`, so the phone always shows "Waiting for analysis...".
+The `analyze-lifestyle-signals` edge function returns all detected events — including "standout transaction signals" like `[NOTABLE] Increased Travel and Entertainment Spending` that have no `recommended_funding_sources`. The `NextProductRationale` component renders all of them, even when there's no product to recommend.
 
 ### Fix
-**File: `src/pages/ExecDemoPage.tsx`** — line 681
 
-Change the `showContent` condition to also include `analytics` and `relationship`:
+**File: `src/components/exec-demo/NextProductRationale.tsx`** — ~2 lines
+
+Filter `lifeEvents` before rendering to only include events that have at least one `recommended_funding_source`:
 
 ```typescript
-// Before
-showContent={(activeTab === "rewards" || activeTab === "product") && phase !== "idle"}
-
-// After  
-showContent={activeTab !== null && phase !== "idle"}
+const productEvents = lifeEvents.filter(
+  e => (e.financial_projection?.recommended_funding_sources?.length ?? 0) > 0
+);
 ```
 
-This makes the phone view show content for any active tab once the demo is past the idle phase. One line changed.
+Then use `productEvents` instead of `lifeEvents` for the count header and the `.map()` rendering loop. This ensures only events with concrete product recommendations (like 529 Plan, HYSA) are shown — behavioral signals without products are silently dropped.
+
+One file, ~3 lines changed.
 
