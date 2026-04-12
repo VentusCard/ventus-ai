@@ -1,14 +1,16 @@
 
 
-## Fix: Remove Horizontal Scrollbar from Quick Action Buttons
+## Fix: Uniform 13px Text in AI Chat Responses
 
 ### Problem
-The "next question" quick action buttons (line 286) use `overflow-x-auto` which creates a visible horizontal scrollbar when buttons exceed the container width.
+Mixed font sizes in chat bubbles — some text renders at 12px (`text-xs`), some at 14px (`text-sm`).
 
 ### Fix
-**File: `src/components/demo/ConsumerAIChatView.tsx`** — Line 286
+**File: `src/components/demo/ConsumerAIChatView.tsx`**
 
-Change `overflow-x-auto no-scrollbar` to `overflow-hidden flex-wrap` so buttons wrap to the next line instead of scrolling horizontally. This keeps everything within the chat window without any scrollbar.
+1. **Line ~245** — Change bubble container from `text-sm` to `text-[13px]`
+2. **Line ~252** — Replace `prose-sm` and `text-xs` with `text-[13px]`, and update all arbitrary variants to `text-[13px]`: `[&_p]:text-[13px] [&_li]:text-[13px] [&_h1]:text-[14px] [&_h2]:text-[13px] [&_h3]:text-[13px] [&_strong]:text-[13px] [&_em]:text-[13px] [&_pre]:text-[11px] [&_table]:text-[11px]`
+3. **User message bubble** — already inherits from container, will be 13px
 
-One line change.
+One file, two lines changed.
 
