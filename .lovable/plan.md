@@ -1,49 +1,16 @@
 
 
-## Fire All Edge Functions ASAP — Pipeline Optimization
+## Two Chatbot Changes
 
-### Current Flow
-```text
-t=0 ─── classify-transactions (SSE stream, ~8-10s)
-     ├── local-experiences × 3 (parallel, ~4-5s)
-     │
-     └── [waits for classification to finish]
-         ├── deal-personalization (~2-3s)
-         ├── analyze-lifestyle-signals (~5-7s)
-         └── generate-financial-tip (~3-4s)
+### 1. Add disclaimer subtitle below "TCBY Bank · Sarah" header
 
-detect-risk-transactions: NOT fired until user manually clicks button
-```
+Add a small text line "Using Bank of America product information as reference." directly below the header in both phone views:
 
-### Optimized Flow
-```text
-t=0 ─── classify-transactions (SSE stream, ~8-10s)
-     ├── local-experiences × 3 (parallel, ~4-5s)
-     │
-     └── [classification complete → fire ALL Phase 2 in parallel]
-         ├── deal-personalization (~2-3s)
-         ├── analyze-lifestyle-signals (~5-7s)
-         ├── generate-financial-tip (~3-4s)
-         └── detect-risk-transactions (~3-4s)  ← NEW: pre-fired
-```
+- **`src/components/exec-demo/ExecDemoPhoneView.tsx`** (line ~107): Add `<span className="text-[8px] text-slate-400">Using Bank of America product information as reference.</span>` below the existing header span
+- **`src/components/demo/DemoDetailOverlay.tsx`** (line ~228): Same subtitle below "TCBY Bank"
 
-All four Phase 2 functions already depend on classified/enriched data (pillar, spending_tier, etc.), so they genuinely cannot fire before classification. The only real optimization is **pre-firing `detect-risk-transactions`** during Phase 2 instead of waiting for user interaction.
+### 2. Remove disclaimer from chatbot system prompt & shorten responses
 
-### Technical Changes
-
-**1. `src/hooks/useDemoEnrichment.ts`**
-- Add `riskFlags` state to hold pre-computed risk analysis results
-- Fire `detect-risk-transactions` in parallel with the other Phase 2 functions inside `maybeStartPhase2`
-- Expose `riskFlags` in the return object
-
-**2. `src/components/demo/ConsumerAIChatView.tsx`**
-- Accept `riskFlags` as a prop (pre-computed data)
-- When user clicks "Risk factors & alerts", use cached `riskFlags` instantly instead of calling the edge function
-- Fall back to live call if `riskFlags` is null (e.g., enrichment still running)
-
-**3. `supabase/config.toml`**
-- Add missing `generate-financial-tip` function config entry with `verify_jwt = false`
-
-### Result
-Risk analysis results are ready the moment the user opens the chatbot, making the "Risk factors & alerts" button feel instant instead of waiting 3-4 seconds for an API call.
+- **`supabase/functions/consumer-chat/index.ts`** (lines 32-33): Remove the "IMPORTANT DISCLAIMER" instruction since it's now shown in the UI header
+- Same file, TONE & RULES section: Change "2-4 sentences max" to "1-3 sentences max" and add instruction "Keep responses extremely concise — 25% shorter than you normally would."
 
