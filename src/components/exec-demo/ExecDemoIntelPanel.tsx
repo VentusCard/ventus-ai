@@ -6,6 +6,7 @@ import NextOfferRationale from "./NextOfferRationale";
 import NextProductRationale from "./NextProductRationale";
 import type { GeneratedOffer } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { ProductCard } from "./ProductCardsPhoneView";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 
@@ -42,6 +43,7 @@ interface Props {
   offersLoading?: boolean;
   detectedLifeEvents?: LifeEvent[] | null;
   productsLoading?: boolean;
+  productCards?: ProductCard[] | null;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -145,6 +147,7 @@ export default function ExecDemoIntelPanel({
   offersLoading,
   detectedLifeEvents,
   productsLoading,
+  productCards,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -367,7 +370,7 @@ export default function ExecDemoIntelPanel({
             ) : activeTab === "rewards" ? (
               <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} />
             ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
               <IntelCardContent card={intelligence.relationship} />
             ) : (

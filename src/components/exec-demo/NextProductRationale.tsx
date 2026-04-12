@@ -1,34 +1,15 @@
-import { Sparkles, ArrowRight, ShieldCheck, TrendingUp } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
-
-const FUNDING_LABELS: Record<string, string> = {
-  "529": "529 College Savings Plan",
-  gifts: "Gift Contributions",
-  taxable: "Taxable Brokerage Account",
-  roth_ira: "Roth IRA",
-  utma: "UTMA/UGMA Custodial Account",
-  loan: "Personal Loan",
-  savings: "High-Yield Savings Account",
-  home_equity: "Home Equity Line of Credit",
-  pension: "Pension Plan",
-  social_security: "Social Security",
-  "401k": "401(k) Plan",
-  ira_traditional: "Traditional IRA",
-  business_loan: "Business Loan",
-  investor: "Investor Funding",
-  grant: "Grant / Scholarship",
-  credit: "Credit Facility",
-  inheritance: "Inheritance Planning",
-  other: "Other Financial Product",
-};
+import type { ProductCard } from "./ProductCardsPhoneView";
 
 interface Props {
   lifeEvents: LifeEvent[] | null;
   loading: boolean;
+  productCards?: ProductCard[] | null;
 }
 
-export default function NextProductRationale({ lifeEvents, loading }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards }: Props) {
   if (loading || !lifeEvents) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -51,125 +32,130 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
     e => (e.financial_projection?.recommended_funding_sources?.length ?? 0) > 0
   );
 
-  if (productEvents.length === 0) {
+  // Show product cards rationale if available
+  if (productCards && productCards.length > 0) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-[11px] text-slate-300">No life events detected</span>
+      <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] font-semibold text-slate-500">
+            {productCards.length} product card{productCards.length !== 1 ? "s" : ""} generated
+          </span>
+          <ArrowRight className="w-3 h-3 text-slate-300" />
+          <span className="text-[11px] font-bold text-violet-600">
+            Consumer notifications ready
+          </span>
+        </div>
+
+        {/* Card rationale */}
+        {productCards.map((card, i) => {
+          const isBehavioral = card.type === "behavioral";
+          const c = isBehavioral
+            ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
+            : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
+
+          return (
+            <div
+              key={i}
+              className="rounded-xl border overflow-hidden"
+              style={{
+                borderColor: c.border,
+                borderLeftWidth: 3,
+                borderLeftColor: c.dot,
+                animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
+              }}
+            >
+              <div className="px-3 py-2.5">
+                {/* Type badge + product name */}
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {isBehavioral ? (
+                      <Zap className="w-3.5 h-3.5" style={{ color: c.dot }} />
+                    ) : (
+                      <ShieldCheck className="w-3.5 h-3.5" style={{ color: c.dot }} />
+                    )}
+                    <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
+                  </div>
+                  <span
+                    className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
+                    style={{ background: `${c.dot}15`, color: c.dot }}
+                  >
+                    {isBehavioral ? "Behavioral" : "Life Event"}
+                  </span>
+                </div>
+
+                {/* Signal */}
+                <div className="flex items-start gap-1 mb-1.5">
+                  <span className="text-[9px] text-slate-400 font-semibold uppercase shrink-0 mt-px">
+                    {isBehavioral ? "Signal:" : "Trigger:"}
+                  </span>
+                  <span className="text-[10px] text-slate-500">{card.signal_label}</span>
+                </div>
+
+                {/* Quote preview */}
+                <p className="text-[11px] text-slate-600 leading-relaxed italic">
+                  "{card.quote}"
+                </p>
+
+                {/* Trigger badge */}
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span
+                    className="text-[9px] font-medium px-1.5 py-0.5 rounded"
+                    style={{ background: `${c.dot}10`, color: c.dot }}
+                  >
+                    <CreditCard className="w-2.5 h-2.5 inline mr-0.5" />
+                    {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Supporting evidence from life events */}
+        {productEvents.length > 0 && (
+          <div className="mt-2 pt-2 border-t border-slate-100">
+            <span className="text-[9px] text-slate-400 font-semibold uppercase">Supporting Evidence</span>
+            {productEvents.slice(0, 2).map((event, i) => (
+              <div key={i} className="mt-1.5 flex items-start gap-1">
+                <TrendingUp className="w-3 h-3 text-slate-300 mt-0.5 shrink-0" />
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-600">{event.event_name}</span>
+                  <span className="text-[10px] text-slate-400 ml-1">({event.confidence}%)</span>
+                  <p className="text-[9px] text-slate-400 leading-relaxed">
+                    {event.evidence.slice(0, 3).map(e => e.merchant).join(" → ")}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <style>{`
+          @keyframes exec-product-reveal {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
       </div>
     );
   }
 
-  const totalProducts = productEvents.reduce(
-    (sum, e) => sum + (e.financial_projection?.recommended_funding_sources?.length || 0), 0
-  );
+  // Fallback: no product cards yet but have life events
+  if (productEvents.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <span className="text-[11px] text-slate-300">No product recommendations detected</span>
+      </div>
+    );
+  }
 
   return (
     <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
-      {/* Strategy header */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[11px] font-semibold text-slate-500">
-          {productEvents.length} life event{productEvents.length !== 1 ? "s" : ""} detected
-        </span>
-        <ArrowRight className="w-3 h-3 text-slate-300" />
-        <span className="text-[11px] font-bold text-violet-600">
-          {totalProducts} product recommendation{totalProducts !== 1 ? "s" : ""}
-        </span>
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-violet-500 animate-pulse" />
+        <span className="text-[12px] font-semibold text-slate-500">Generating product cards...</span>
       </div>
-
-      {/* Life event → product cards */}
-      {productEvents.map((event, i) => {
-        const sources = event.financial_projection?.recommended_funding_sources || [];
-        const confidenceColor = event.confidence >= 85 ? "#16a34a" : event.confidence >= 70 ? "#d97706" : "#94a3b8";
-        const pillarKey = event.financial_projection?.project_type === "education"
-          ? "Education & Family"
-          : event.financial_projection?.project_type === "home"
-            ? "Home & Living"
-            : "Financial Planning";
-        const c = getColor(pillarKey);
-
-        return (
-          <div
-            key={i}
-            className="rounded-xl border overflow-hidden"
-            style={{
-              borderColor: c.border,
-              borderLeftWidth: 3,
-              borderLeftColor: c.dot,
-              animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
-            }}
-          >
-            <div className="px-3 py-2.5">
-              {/* Event name + confidence */}
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[12px] font-bold text-slate-800">{event.event_name}</span>
-                <span
-                  className="text-[9px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: `${confidenceColor}15`, color: confidenceColor }}
-                >
-                  {event.confidence}% confidence
-                </span>
-              </div>
-
-              {/* Talking point as personalized message */}
-              {event.talking_points?.[0] && (
-                <p className="text-[11px] text-slate-600 leading-relaxed mb-2 italic">
-                  "{event.talking_points[0]}"
-                </p>
-              )}
-
-              {/* Evidence chain */}
-              <div className="flex items-start gap-1 mb-2">
-                <span className="text-[9px] text-slate-400 font-semibold uppercase shrink-0 mt-px">Signals:</span>
-                <span className="text-[10px] text-slate-400 leading-relaxed">
-                  {event.evidence.slice(0, 4).map(e => e.merchant).join(" → ")}
-                </span>
-              </div>
-
-              {/* Recommended products */}
-              {sources.length > 0 && (
-                <div className="space-y-1">
-                  <span className="text-[9px] text-slate-400 font-semibold uppercase">Recommended Products:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {sources.map((src, si) => (
-                      <div
-                        key={si}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px]"
-                        style={{ background: c.bg, color: c.text }}
-                      >
-                        <ShieldCheck className="w-3 h-3" />
-                        <span className="font-semibold">{FUNDING_LABELS[src.type] || src.type}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {sources[0]?.rationale && (
-                    <p className="text-[10px] text-slate-400 leading-relaxed mt-1">
-                      {sources[0].rationale}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Trigger badge */}
-              <div className="flex items-center gap-1.5 mt-2">
-                <span
-                  className="text-[9px] font-medium px-1.5 py-0.5 rounded"
-                  style={{ background: c.bg, color: c.text }}
-                >
-                  <TrendingUp className="w-2.5 h-2.5 inline mr-0.5" />
-                  Life Event Trigger
-                </span>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      <style>{`
-        @keyframes exec-product-reveal {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
@@ -54,6 +55,8 @@ export default function ExecDemoPage() {
   const [offersLoading, setOffersLoading] = useState(false);
   const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
   const [productsLoading, setProductsLoading] = useState(false);
+  const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
+  const [productCardsLoading, setProductCardsLoading] = useState(false);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -352,12 +355,61 @@ export default function ExecDemoPage() {
       const events: LifeEvent[] = data.detected_events || [];
       setDetectedLifeEvents(events.slice(0, 3));
       console.log("[PRELOAD] Life events detected:", events.length);
+      // Fire product cards generation with life events + persona data
+      fireProductCards(events, personaSynthesisRef.current);
     } catch (err) {
       console.error("[PRELOAD] Life event detection failed:", err);
     } finally {
       setProductsLoading(false);
     }
   }, [selectedIdx, customCsv]);
+
+  /** Generate consumer product cards from life events + persona rollups */
+  const fireProductCards = useCallback(async (events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
+    setProductCardsLoading(true);
+    setProductCards(null);
+    try {
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics = demoCustomer?.profile?.demographics || {};
+      const enrichedTxs = classifiedRef.current || [];
+
+      // Rebuild pillars summary for the function
+      const grouped = new Map<string, any>();
+      for (const tx of enrichedTxs) {
+        const key = `${tx.pillar}::${tx.category}`;
+        const existing = grouped.get(key);
+        if (existing) {
+          existing.count += 1;
+          existing.totalSpend += tx.amount;
+          if (tx.subcategories) tx.subcategories.forEach((sc: string) => {
+            if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
+          });
+        } else {
+          grouped.set(key, {
+            pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount,
+            subcategories: tx.subcategories ? [...tx.subcategories] : [],
+          });
+        }
+      }
+      const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+
+      const { data, error } = await supabase.functions.invoke("generate-product-cards", {
+        body: {
+          life_events: events,
+          persona_rollups: synthesis?.pillarRollups || [],
+          pillars: pillars.slice(0, 8),
+          demographics,
+        },
+      });
+      if (error) throw error;
+      setProductCards(data.cards || []);
+      console.log("[PRELOAD] Product cards ready:", data.cards?.length);
+    } catch (err) {
+      console.error("[PRELOAD] Product cards failed:", err);
+    } finally {
+      setProductCardsLoading(false);
+    }
+  }, [selectedIdx]);
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
 
@@ -390,6 +442,8 @@ export default function ExecDemoPage() {
       setOffersLoading(false);
       setDetectedLifeEvents(null);
       setProductsLoading(false);
+      setProductCards(null);
+      setProductCardsLoading(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
@@ -669,6 +723,7 @@ export default function ExecDemoPage() {
             offersLoading={offersLoading}
             detectedLifeEvents={detectedLifeEvents}
             productsLoading={productsLoading}
+            productCards={productCards}
           />
         </div>
 
@@ -681,6 +736,7 @@ export default function ExecDemoPage() {
             showContent={activeTab !== null && phase !== "idle"}
             generatedOffers={generatedOffers}
             detectedLifeEvents={detectedLifeEvents}
+            productCards={productCards}
           />
         </div>
       </div>
