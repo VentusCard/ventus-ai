@@ -1,27 +1,21 @@
 
 
-## Prevent Persona Section Shrink Before Synthesis
+## Remove Headline from Persona Synthesis — Keep Only Pillar Rollups
 
 ### Problem
-When the "Synthesize Persona" button appears (phase enters "hold"), the tab content area below simultaneously gains `flex-1`, competing for vertical space and shrinking the persona/pills section.
-
-### Fix
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx`, the tab content container (line 376) should only take `flex-1` when `synthesisTriggered` is true. Before synthesis, it should remain minimal height so the persona section keeps its full space.
+The `synthesize-persona` edge function currently returns a `headline` (e.g., "Weekend Golfer & Foodie") and `insights` array alongside `pillar_rollups`. The headline is unnecessary — only the pillar rollups matter.
 
 ### Changes
 
-**File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+**File: `supabase/functions/synthesize-persona/index.ts`**
+- Remove `headline` and `insights` from the system prompt instructions (items 1 and 2)
+- Simplify prompt to focus solely on generating pillar rollups
+- Remove `headline` and `insights` from the tool schema `parameters.properties` and `required` array
+- Remove `headline` and `insights` from the response mapping (return only `pillar_rollups`)
 
-Line 376 — change the tab content wrapper from always being `flex-1` to conditionally:
-```tsx
-// Before:
-<div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+**File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`** (or wherever headline/insights are rendered)
+- Remove any UI rendering of `persona.headline` and `persona.insights`
+- Keep only the rollup pill display
 
-// After:
-<div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
-```
-
-This way the persona section retains full height when the button first appears. Once the user clicks "Synthesize Persona", the tab content area expands and the persona section shrinks to its constrained `45vh` as intended.
-
-One file, one line changed.
+Two files changed, net reduction in code.
 
