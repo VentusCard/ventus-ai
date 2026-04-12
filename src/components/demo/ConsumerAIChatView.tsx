@@ -283,7 +283,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
       {/* Quick actions after conversation started */}
       {!showWelcome && !isLoading && (
-        <div className="px-3 pb-1 flex gap-1 overflow-x-auto no-scrollbar shrink-0">
+        <div className="px-3 pb-1 flex gap-1 overflow-hidden flex-wrap shrink-0">
           {QUICK_ACTIONS.slice(0, 3).map((action) => (
             <button
               key={action}
