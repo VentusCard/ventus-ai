@@ -312,7 +312,7 @@ export default function ExecDemoPage() {
     setDetectedLifeEvents(null);
     try {
       const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics = demoCustomer?.profile?.demographics || {};
+      const demographics = demoCustomer?.profile?.demographics as Record<string, string> || {};
       const enrichedTxs = classifiedRef.current || [];
 
       const client = {
@@ -322,14 +322,19 @@ export default function ExecDemoPage() {
         family_status: demographics.familyStatus || "Unknown",
       };
 
-      const transactions = enrichedTxs.slice(0, 100).map(tx => ({
-        merchant_name: tx.merchant_name || tx.description,
-        amount: tx.amount,
-        date: tx.date,
-        pillar: tx.pillar,
-        category: tx.category,
-        subcategory: tx.subcategories?.[0] || "",
-      }));
+      // Build transactions from CSV rows (enriched txs lack dates, so use raw profile)
+      const csvRows = (customCsv || getCsvForCustomer(selectedIdx)).split("\n").slice(1).filter(Boolean);
+      const transactions = enrichedTxs.slice(0, 100).map((tx, i) => {
+        const csvRow = csvRows[i]?.split(",") || [];
+        return {
+          merchant_name: tx.merchant_name,
+          amount: tx.amount,
+          date: csvRow[0] || "2025-01-01",
+          pillar: tx.pillar,
+          category: tx.category,
+          subcategory: tx.subcategories?.[0] || "",
+        };
+      });
 
       const topCategories = [...new Set(enrichedTxs.map(tx => tx.category))].slice(0, 5);
       const totalSpend = enrichedTxs.reduce((s, tx) => s + tx.amount, 0);
