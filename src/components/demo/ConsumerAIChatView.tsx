@@ -242,14 +242,14 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                 )}
                 <div
                   className={cn(
-                    "rounded-2xl px-3 py-2 text-sm max-w-[80%]",
+                    "rounded-2xl px-3 py-2 text-sm max-w-[80%] overflow-hidden break-words",
                     msg.role === "user"
                       ? "bg-blue-600 text-white rounded-br-sm"
                       : "bg-slate-100 text-slate-800 rounded-bl-sm"
                   )}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm prose-slate max-w-none [&_p]:mb-1 [&_ul]:mt-1 [&_li]:text-sm [&_a]:text-blue-600">
+                    <div className="prose prose-sm prose-slate max-w-none text-xs leading-snug [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-sm [&_h1]:mt-1 [&_h2]:text-xs [&_h2]:mt-1 [&_h3]:text-xs [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-xs [&_li]:leading-tight [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[10px] [&_table]:text-[10px]">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   ) : (
