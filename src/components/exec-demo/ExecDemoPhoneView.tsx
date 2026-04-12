@@ -4,6 +4,8 @@ import DemoEngagementView from "@/components/demo/DemoEngagementView";
 import DemoRewardsView from "@/components/demo/DemoRewardsView";
 import DemoWealthView from "@/components/demo/DemoWealthView";
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
+import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
+import type { GeneratedOffer } from "./NextOfferRationale";
 
 type TabKey = "analytics" | "rewards" | "relationship";
 type ConsumerTab = "ux" | "rewards" | "relationship" | "ai";
@@ -26,9 +28,10 @@ interface Props {
   activeTab: TabKey | null;
   phase: string;
   showContent?: boolean;
+  generatedOffers?: GeneratedOffer[] | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers }: Props) {
   const consumerTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
 
   const renderContent = () => {
@@ -36,6 +39,9 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
       case "ux":
         return <DemoEngagementView customer={customer} />;
       case "rewards":
+        if (generatedOffers && generatedOffers.length > 0) {
+          return <GeneratedOffersPhoneView offers={generatedOffers} customerName={customer.profile.name} />;
+        }
         return <DemoRewardsView customer={customer} />;
       case "relationship":
         return <DemoWealthView customer={customer} />;
