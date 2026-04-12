@@ -1,26 +1,17 @@
 
 
-## Add Repeat Pattern Detection to Persona Synthesis
+## Fix: Keep Persona Rollups Behavioral, Drop Brand Names
 
-### What Changes
+### Problem
+Line 70 explicitly tells the AI to "Be specific using merchant names" — e.g., "Netflix + Hulu + Spotify = Streaming Junkie". This causes brand-focused labels like "Nordstrom, Sephora & Warby Parker Loyalists" instead of behavioral ones like "Style-Conscious Shopper."
 
-**File: `src/pages/ExecDemoPage.tsx`** (~10 lines)
-- In `firePersonaSynthesis`, collect transaction dates per category group and include `dates: string[]` in each pillar entry sent to the edge function
+### Fix
+**File: `supabase/functions/synthesize-persona/index.ts`** — update two prompt lines:
 
-**File: `supabase/functions/synthesize-persona/index.ts`** (~25 lines)
-- Compute simple cadence from `dates` array (visits/week, span in weeks) for each category
-- Append a natural-language cadence hint to each input line, e.g. `~3x/wk over 10wk` or `~1x/yr over 2yr`
-- Add one line to the system prompt: "When a category shows a clear repeat cadence, bake it into the label naturally — 'workday coffee runs', 'weekly grocery runs', 'annual hawaii trips'. Don't use stats like '3.2x/wk' — describe it the way a friend would."
+1. **Replace line 70** (merchant-name instruction) with:
+   `"Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = 'Style-Conscious Shopper', not 'Nordstrom & Sephora Loyalist.'"`
 
-### Example AI Input
-```text
-[0] Food & Dining > Coffee Shops: 38 txns, $247 [Budget] merchants: Starbucks (~3x/wk over 12wk)
-[1] Travel > Hotels: 2 txns, $1,840 [Premium] merchants: Four Seasons Maui (~1x/yr over 2yr)
-```
+2. **Update line 68** — remove the merchant examples from the tier instruction so it doesn't encourage brand references in labels either. Keep the tier-honesty principle but frame it behaviorally.
 
-### Expected Output
-- "Workday Coffee Runs" instead of "Coffee Enthusiast"
-- "Annual Hawaii Trips" instead of "Domestic Traveler"
-
-Two files, ~35 lines changed. No new edge functions or schema changes.
+One file, two lines changed. Redeploy edge function.
 
