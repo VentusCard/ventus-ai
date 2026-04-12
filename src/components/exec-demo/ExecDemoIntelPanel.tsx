@@ -147,6 +147,7 @@ export default function ExecDemoIntelPanel({
   offersLoading,
   detectedLifeEvents,
   productsLoading,
+  productCards,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -369,7 +370,7 @@ export default function ExecDemoIntelPanel({
             ) : activeTab === "rewards" ? (
               <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} />
             ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
               <IntelCardContent card={intelligence.relationship} />
             ) : (
