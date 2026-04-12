@@ -1,42 +1,49 @@
 
 
-## Risk Factors & Standout Transactions — Consumer Chatbot Integration
+## Fire All Edge Functions ASAP — Pipeline Optimization
 
-### What We're Building
-A new edge function `detect-risk-transactions` that analyzes enriched transactions for four risk categories, surfaced as a quick action button in the consumer chatbot.
-
-### How It Works
-
+### Current Flow
 ```text
-User taps "Risk factors" quick action
-        ↓
-Frontend calls detect-risk-transactions edge function
-  with enriched transaction data
-        ↓
-Edge function (Gemini 3 Flash) analyzes for:
-  • Fraud signals (unusual merchants, duplicate charges, geo anomalies)
-  • AML patterns (structuring, round-number deposits, rapid movement)
-  • Vice indicators (gambling, adult content, cash advances, payday loans)
-  • Spending habit shifts (sudden spikes, new high-frequency categories)
-        ↓
-Returns structured JSON: array of flagged transactions with
-  category, severity (low/medium/high), description
-        ↓
-Chatbot formats and displays results as a markdown message
+t=0 ─── classify-transactions (SSE stream, ~8-10s)
+     ├── local-experiences × 3 (parallel, ~4-5s)
+     │
+     └── [waits for classification to finish]
+         ├── deal-personalization (~2-3s)
+         ├── analyze-lifestyle-signals (~5-7s)
+         └── generate-financial-tip (~3-4s)
+
+detect-risk-transactions: NOT fired until user manually clicks button
 ```
 
-### Technical Details
+### Optimized Flow
+```text
+t=0 ─── classify-transactions (SSE stream, ~8-10s)
+     ├── local-experiences × 3 (parallel, ~4-5s)
+     │
+     └── [classification complete → fire ALL Phase 2 in parallel]
+         ├── deal-personalization (~2-3s)
+         ├── analyze-lifestyle-signals (~5-7s)
+         ├── generate-financial-tip (~3-4s)
+         └── detect-risk-transactions (~3-4s)  ← NEW: pre-fired
+```
 
-**New edge function:** `supabase/functions/detect-risk-transactions/index.ts`
-- Receives enriched transactions array (merchant, amount, date, pillar, category, subcategory, frequency, spending_tier)
-- Sends to Gemini 3 Flash with a structured analysis prompt
-- Returns JSON: `{ flags: [{ transaction_id, category: "fraud"|"aml"|"vice"|"habit_shift", severity, merchant, amount, date, reason }], summary: string }`
+All four Phase 2 functions already depend on classified/enriched data (pillar, spending_tier, etc.), so they genuinely cannot fire before classification. The only real optimization is **pre-firing `detect-risk-transactions`** during Phase 2 instead of waiting for user interaction.
 
-**Edit:** `src/components/demo/ConsumerAIChatView.tsx`
-- Add "Risk factors & alerts" to `QUICK_ACTIONS` array
-- In `sendMessage`, detect this specific action and call `detect-risk-transactions` instead of `consumer-chat`
-- Format the returned flags into a readable markdown message (grouped by category with severity badges) and push as an assistant message
-- Follow-up questions about flagged items continue through the normal `consumer-chat` flow (the flags are added to conversation history as context)
+### Technical Changes
 
-**No database changes needed.** One new edge function, one file edit.
+**1. `src/hooks/useDemoEnrichment.ts`**
+- Add `riskFlags` state to hold pre-computed risk analysis results
+- Fire `detect-risk-transactions` in parallel with the other Phase 2 functions inside `maybeStartPhase2`
+- Expose `riskFlags` in the return object
+
+**2. `src/components/demo/ConsumerAIChatView.tsx`**
+- Accept `riskFlags` as a prop (pre-computed data)
+- When user clicks "Risk factors & alerts", use cached `riskFlags` instantly instead of calling the edge function
+- Fall back to live call if `riskFlags` is null (e.g., enrichment still running)
+
+**3. `supabase/config.toml`**
+- Add missing `generate-financial-tip` function config entry with `verify_jwt = false`
+
+### Result
+Risk analysis results are ready the moment the user opens the chatbot, making the "Risk factors & alerts" button feel instant instead of waiting 3-4 seconds for an API call.
 
