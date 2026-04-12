@@ -1,11 +1,13 @@
 import { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
+import NextProductRationale from "./NextProductRationale";
 import type { GeneratedOffer } from "./NextOfferRationale";
+import type { LifeEvent } from "@/types/lifestyle-signals";
 
-type TabKey = "analytics" | "rewards" | "relationship";
+type TabKey = "analytics" | "rewards" | "product" | "relationship";
 
 export interface PillarRollup {
   pillar: string;
@@ -40,15 +42,18 @@ interface Props {
   transactions?: import("./execDemoData").Transaction[];
   generatedOffers?: GeneratedOffer[] | null;
   offersLoading?: boolean;
+  detectedLifeEvents?: LifeEvent[] | null;
+  productsLoading?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
   analytics: { icon: BarChart3, label: "Next-Purchase" },
   rewards: { icon: Gift, label: "Next-Offer" },
+  product: { icon: CreditCard, label: "Next-Product" },
   relationship: { icon: Users, label: "Next Conversation" },
 };
 
-const TAB_ORDER: TabKey[] = ["analytics", "rewards", "relationship"];
+const TAB_ORDER: TabKey[] = ["analytics", "rewards", "product", "relationship"];
 
 // Color palette per pillar
 const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
@@ -140,6 +145,8 @@ export default function ExecDemoIntelPanel({
   transactions,
   generatedOffers,
   offersLoading,
+  detectedLifeEvents,
+  productsLoading,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -372,6 +379,8 @@ export default function ExecDemoIntelPanel({
               <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
             ) : activeTab === "rewards" ? (
               <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
+            ) : activeTab === "product" ? (
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} />
             ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
               <IntelCardContent card={intelligence.relationship} />
             ) : (
