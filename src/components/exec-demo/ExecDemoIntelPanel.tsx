@@ -2,6 +2,8 @@ import { useMemo, useRef, useEffect, useState } from "react";
 import { BarChart3, Gift, Users, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
+import NextOfferRationale from "./NextOfferRationale";
+import type { GeneratedOffer } from "./NextOfferRationale";
 
 type TabKey = "analytics" | "rewards" | "relationship";
 
@@ -36,6 +38,8 @@ interface Props {
   onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
   transactions?: import("./execDemoData").Transaction[];
+  generatedOffers?: GeneratedOffer[] | null;
+  offersLoading?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -134,6 +138,8 @@ export default function ExecDemoIntelPanel({
   onRollupClick,
   personaSynthesis,
   transactions,
+  generatedOffers,
+  offersLoading,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
