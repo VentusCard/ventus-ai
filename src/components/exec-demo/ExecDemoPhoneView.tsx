@@ -58,7 +58,16 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
         );
       case "relationship":
-        return <DemoWealthView customer={customer} />;
+        return (
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-y-auto border-b border-slate-100">
+              <DemoWealthView customer={customer} />
+            </div>
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+              <ConsumerAIChatView customer={customer} />
+            </div>
+          </div>
+        );
       case "ai":
         return <ConsumerAIChatView customer={customer} />;
       default:
@@ -99,7 +108,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Content */}
-        <div className={`flex-1 min-h-0 bg-white ${consumerTab === 'ai' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || consumerTab === 'relationship') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
           {showContent ? (
             renderContent()
           ) : (
