@@ -108,7 +108,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Content */}
-        <div className={`flex-1 min-h-0 bg-white ${consumerTab === 'ai' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || consumerTab === 'relationship') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
           {showContent ? (
             renderContent()
           ) : (
