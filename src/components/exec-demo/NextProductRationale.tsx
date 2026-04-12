@@ -77,7 +77,7 @@ export default function NextProductRationale({ lifeEvents, loading }: Props) {
       </div>
 
       {/* Life event → product cards */}
-      {lifeEvents.map((event, i) => {
+      {productEvents.map((event, i) => {
         const sources = event.financial_projection?.recommended_funding_sources || [];
         const confidenceColor = event.confidence >= 85 ? "#16a34a" : event.confidence >= 70 ? "#d97706" : "#94a3b8";
         const pillarKey = event.financial_projection?.project_type === "education"
