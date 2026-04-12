@@ -372,7 +372,7 @@ export default function ExecDemoIntelPanel({
               <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} />
-            ) : activeTab === "relationship" && revealedTabs.includes("relationship") ? (
+            ) : activeTab === "relationship" ? (
               <NextConversationRationale />
             ) : (
               <div className="flex items-center justify-center h-full">
