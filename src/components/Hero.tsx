@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import EnrichmentMockup from "@/components/hero/EnrichmentMockup";
 import AnimatedHeroTitle from "@/components/hero/AnimatedHeroTitle";
-const scrollToPlatform = () => {
-  const el = document.getElementById("platform");
+const scrollToIntegration = () => {
+  const el = document.getElementById("integration");
   if (el) el.scrollIntoView({ behavior: "smooth" });
 };
 
@@ -39,7 +39,7 @@ const Hero = () => {
                   Schedule Demo
                 </Button>
               </Link>
-              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" onClick={scrollToPlatform}>
+              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" onClick={scrollToIntegration}>
                 Learn More
               </Button>
             </div>
