@@ -43,7 +43,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
 
   return (
-    <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+    <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
       {PRODUCT_CATALOG.map(name => {
         const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
