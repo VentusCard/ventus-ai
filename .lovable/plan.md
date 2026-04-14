@@ -1,24 +1,32 @@
 
 
-## Fix: Tooltip clipped by scrollable container
+## Plan: Three-level pill hierarchy — Pillar → Category → Subcategory pills
 
-The tooltip is absolutely positioned inside a `div` with `overflow-y-auto`, which clips it. The fix is to use `position: fixed` instead of `position: absolute`, calculating the tooltip position from the row's bounding rect on hover.
+### What the user wants
 
-### Changes in `src/components/exec-demo/ExecDemoLeftPanel.tsx`
+Currently pills show **category** names grouped under pillar headers. The user wants:
 
-1. **Convert `TxRow` tooltip to fixed positioning** — use `onMouseEnter`/`onMouseLeave` + a ref to get the row's `getBoundingClientRect()`, then position the tooltip with `position: fixed; top/left` based on the row's screen coordinates.
+```text
+Travel & Exploration          ← pillar header (colored dot)
+  Hotels & Lodging:           ← category sub-header
+    [Boutique Hotels] [Resorts]  ← subcategory pills
+  Flights:
+    [Airlines] [Budget Airlines]
+```
 
-2. **Use a React portal** (`ReactDOM.createPortal`) to render the tooltip at `document.body` level, ensuring it floats above everything including the scroll container.
+### Changes in `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-3. **Set `z-index: 9999`** on the tooltip so it renders above all other UI elements.
+1. **Revert `deriveChips`** to group by subcategory (`label`) again instead of category — each chip represents a subcategory.
 
-### Technical detail
-- Add `useState` for hover state and coordinates in `TxRow`
-- On `mouseEnter`: set `{ x: rect.left, y: rect.top }` and show tooltip
-- On `mouseLeave`: hide tooltip
-- Render tooltip via `createPortal(tooltipDiv, document.body)` with `position: fixed`
-- Position tooltip above the row (`bottom` of tooltip aligns with top of row) to avoid being cut off at container bottom
+2. **Change `chipsByPillar`** to a nested structure: `Map<pillar, Map<category, ChipData[]>>`. For each signal, use `s.category || s.pillar` as the category key, and `s.label` as the subcategory chip label.
+
+3. **Update the rendering** in the pills section to iterate three levels:
+   - **Pillar header**: colored dot + pillar name (existing)
+   - **Category header**: indented, smaller text showing category name followed by a colon
+   - **Subcategory pills**: the actual clickable chips, indented further under the category
+
+4. **Increase font sizes slightly** — pillar header from `text-[9px]` to `text-[10px]`, category header `text-[9px]`, pills remain as-is.
 
 ### Files modified
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx`
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
