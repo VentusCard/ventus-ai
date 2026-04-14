@@ -314,71 +314,8 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap, 
         </div>
       </div>
 
-      {/* Insight callout */}
-      {rows[0] && (
-        <div
-          className="mt-3 rounded-lg px-3 py-2.5 border"
-          style={{
-            background: "linear-gradient(135deg, rgba(96,165,250,.06), rgba(167,139,250,.06))",
-            borderColor: "rgba(96,165,250,.2)",
-            animation: "exec-card-reveal 0.4s ease-out 0.5s both",
-          }}
-        >
-          <div className="flex items-center gap-1.5 mb-1">
-            <BarChart3 className="w-3 h-3 text-blue-400" />
-            <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-              Spending Pattern Insight
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-600 leading-relaxed">
-            {(() => {
-              const withConc = rows.filter(r => r.concentration);
-              const withVelocity = rows.filter(r => Math.abs(r.velocity) >= 15);
 
-              if (withConc.length > 0) {
-                const top = withConc[0];
-                const c = getColor(top.pillar);
-                return (
-                  <>
-                    <span className="font-semibold" style={{ color: c.text }}>{top.label}</span>
-                    {" "}spend clusters in{" "}
-                    <span className="font-bold text-slate-800">{top.concentration!.months}</span>
-                    {" "}({top.concentration!.pct}% of total — {formatSpend(top.totalSpend)})
-                    {top.velocity > 0 && (
-                      <span className="text-emerald-600 font-semibold"> · accelerating +{top.velocity}%</span>
-                    )}
-                  </>
-                );
-              }
 
-              if (withVelocity.length > 0) {
-                const top = withVelocity.sort((a, b) => Math.abs(b.velocity) - Math.abs(a.velocity))[0];
-                const c = getColor(top.pillar);
-                const direction = top.velocity > 0 ? "accelerating" : "decelerating";
-                return (
-                  <>
-                    <span className="font-semibold" style={{ color: c.text }}>{top.label}</span>
-                    {" "}is {direction} at{" "}
-                    <span className="font-bold text-slate-800">{top.velocity > 0 ? "+" : ""}{top.velocity}%</span>
-                    {" "}— peaks in {MONTHS[top.peak]} ({formatSpend(top.monthlySpend[top.peak])})
-                  </>
-                );
-              }
-
-              const upcoming = rows.find(r => r.monthsUntilPeak > 0) || rows[0];
-              const c = getColor(upcoming.pillar);
-              return (
-                <>
-                  <span className="font-semibold" style={{ color: c.text }}>{upcoming.label}</span>
-                  {" "}peaks in{" "}
-                  <span className="font-bold text-slate-800">{MONTHS[upcoming.peak]}</span>
-                  {" "}— {formatSpend(upcoming.monthlySpend[upcoming.peak])} projected
-                </>
-              );
-            })()}
-          </p>
-        </div>
-      )}
 
       {/* ═══ NEXT-OFFER RECOMMENDATIONS ═══ */}
       <div className="mt-4">
