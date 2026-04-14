@@ -54,7 +54,7 @@ const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
   relationship: { icon: Users, label: "Next Conversation" },
 };
 
-const TAB_ORDER: TabKey[] = ["analytics", "rewards", "product", "relationship"];
+const TAB_ORDER: TabKey[] = ["analytics", "product", "relationship"];
 
 // Color palette per pillar
 const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
@@ -367,9 +367,7 @@ export default function ExecDemoIntelPanel({
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto">
             {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} />
-            ) : activeTab === "rewards" ? (
-              <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} />
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} />
             ) : activeTab === "relationship" ? (
