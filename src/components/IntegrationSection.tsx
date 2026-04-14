@@ -23,9 +23,9 @@ const statsData = [
 ];
 
 const orchestrateStats = [
-  { value: "94%", label: "Retention Rate" },
-  { value: "3.2×", label: "Customer LTV" },
-  { value: "+41%", label: "AUM Growth" },
+  { value: "Higher", label: "Retention Rate" },
+  { value: "Higher", label: "Customer LTV" },
+  { value: "Higher", label: "AUM Growth" },
 ];
 
 
