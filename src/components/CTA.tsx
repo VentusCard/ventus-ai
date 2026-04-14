@@ -13,7 +13,7 @@ const CTA = () => {
         </p>
         <Link to="/contact">
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-            Contact Us
+            Schedule a Demo
           </Button>
         </Link>
       </div>
