@@ -125,6 +125,7 @@ const personas = [
 ];
 
 const ScrollDrivenHero = () => {
+  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
