@@ -43,16 +43,21 @@ CARD 1 — BEHAVIORAL:
 
 CARD 2 — LIFE EVENT:
 - Based on a detected life event (education, home, retirement, etc.)
+- CRITICAL: NEVER name the life event directly. Don't say "new baby", "college", "retirement", "wedding", "moving", "divorce", etc.
+- Use indirect, euphemistic language that feels timely without revealing what was detected
+  - BAD: "Planning for a new baby?", "Getting ready for college?", "Preparing for retirement?"
+  - GOOD: "A major family milestone is worth planning for", "Big life chapters deserve a solid financial foundation", "When the next chapter starts, you'll want a plan in place"
 - Frame as a general financial wellness tip, not "we detected X"
 - Never say "we noticed", "based on your transactions", "our data shows"
 - Product should be a concrete financial instrument (529, HYSA, HELOC, etc.)
-- Quote: 1-2 sentences, empathetic, forward-looking
+- Quote: 1-2 sentences, empathetic, forward-looking, WITHOUT naming the specific event
 
 TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
 - Conversational, warm, never corporate or pushy
 - No exclamation marks in quotes
-- No urgency tactics ("limited time", "act now")`;
+- No urgency tactics ("limited time", "act now")
+- The customer should think "good timing" — never "the bank knows what's happening in my life"`;
 
     const userPrompt = `Generate two product recommendation cards based on this customer profile.
 
@@ -131,7 +136,7 @@ Return exactly 2 cards using the generate_product_cards function.`;
                         },
                         signal_label: {
                           type: "string",
-                          description: "For behavioral: the vaguely-specific descriptor (e.g. 'Tropical getaways'). For life_event: the event name (e.g. 'College Preparation')",
+                          description: "For behavioral: the vaguely-specific descriptor (e.g. 'Tropical getaways'). For life_event: use an indirect, euphemistic label — NEVER name the event directly. E.g. 'Major family milestone', 'An exciting new chapter', 'Planning ahead' — NOT 'New Baby', 'College Preparation', 'Retirement'",
                         },
                         theme: {
                           type: "string",
