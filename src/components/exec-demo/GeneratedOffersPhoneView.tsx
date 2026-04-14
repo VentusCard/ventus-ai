@@ -102,11 +102,11 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
         </div>
 
         {/* Merchant pills */}
-        <div className="flex flex-wrap gap-1.5 px-4 pb-3">
+        <div className="flex items-center gap-1 px-4 pb-3 overflow-hidden">
           {activeDeals.map((deal) => (
             <span
               key={deal.id}
-              className="inline-flex items-center text-[9px] font-semibold px-2 py-0.5 rounded-full border border-slate-100 bg-white text-slate-700 shadow-sm"
+              className="inline-flex items-center text-[8px] font-medium px-1.5 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
             >
               {deal.merchant}
             </span>
