@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -11,6 +11,7 @@ const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics"
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
@@ -18,8 +19,19 @@ const Navbar = () => {
   const isTransparent = isDarkHero && !isMobileMenuOpen;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const scrollToFaq = (e: React.MouseEvent) => {
+    e.preventDefault();
+    closeMobileMenu();
+    if (location.pathname === "/") {
+      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
   };
 
   const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
@@ -36,7 +48,7 @@ const Navbar = () => {
             <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
           </Link>
           <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
-          <a href="/#faq" className={`${textColor} text-sm font-medium transition-colors`}>FAQ</a>
+          <a href="/#faq" onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors cursor-pointer`}>FAQ</a>
 
         </div>
         <Link to="/contact">
@@ -73,7 +85,7 @@ const Navbar = () => {
       >
         <div style={{ padding: '1.5rem' }}>
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
-          <a href="/#faq" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</a>
+          <a href="/#faq" onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left cursor-pointer">FAQ</a>
 
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
