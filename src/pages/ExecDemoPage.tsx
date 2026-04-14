@@ -618,7 +618,13 @@ export default function ExecDemoPage() {
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
     const normalizePillar = (value: string) =>
-      value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
+      value
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\band\b/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 
     const pillarAliasGroups = [
       ["travel leisure", "travel exploration", "travel transport"],
