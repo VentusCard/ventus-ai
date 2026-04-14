@@ -295,7 +295,12 @@ export default function ExecDemoIntelPanel({
             {/* Header text - always visible */}
             {synthesisTriggered && rollupStats.length > 0 ? (
               <div className="mb-2.5">
-                <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category spending patterns</span></p>
+                <div className="flex items-start justify-between">
+                  <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category spending patterns</span></p>
+                  <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
+                    <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                 {rollupStats.map((r, i) => (
                   <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
@@ -303,16 +308,13 @@ export default function ExecDemoIntelPanel({
                 </div>
               </div>
             ) : (
-              <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
+              <div className="flex items-start justify-between">
+                <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
+                <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
+                  <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
+                </button>
+              </div>
             )}
-
-            <button
-              onClick={() => setPillsExpanded(!pillsExpanded)}
-              className="flex items-center gap-1.5 text-[10.5px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2.5"
-            >
-              {pillsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              {synthesisTriggered ? "Full Analysis" : "Signal breakdown"} · {chips.length} categories
-            </button>
 
             {(pillsExpanded || !synthesisTriggered) && (
               <div
