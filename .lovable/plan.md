@@ -1,20 +1,19 @@
 
 
-## Sort product cards: life event cards above behavioral cards
+## Make AI product card copy more subtle — avoid naming life events directly
 
-### Change: `src/components/exec-demo/NextProductRationale.tsx`
+The `generate-product-cards` edge function prompt currently allows life event cards to reference the detected event directly (e.g., "new baby", "college planning"). The fix is to update the system prompt to instruct the AI to use softer, indirect language like "major family milestone" instead.
 
-In the section where `productCards.map((card, i) => ...)` renders cards (line ~130), sort the cards before mapping so that life event cards (`card.type !== "behavioral"`) appear first and behavioral cards appear after.
+### Change: `supabase/functions/generate-product-cards/index.ts`
 
-Replace the direct `.map()` with a sorted copy:
+Update the system prompt's **CARD 2 — LIFE EVENT** section and **TONE RULES** to add explicit instructions:
 
-```typescript
-const sortedCards = [...productCards].sort((a, b) => {
-  if (a.type === "behavioral" && b.type !== "behavioral") return 1;
-  if (a.type !== "behavioral" && b.type === "behavioral") return -1;
-  return 0;
-});
-```
+- Never name the life event directly (e.g., don't say "new baby", "college", "retirement", "wedding")
+- Use indirect, euphemistic language: "major family milestone", "an exciting new chapter", "a big life transition", "planning for the future"
+- The customer should feel the recommendation is timely without the bank revealing what it detected
+- Add examples of good vs. bad phrasing:
+  - BAD: "Planning for a new baby?", "Getting ready for college?"
+  - GOOD: "A major family milestone is worth planning for", "Big life chapters deserve a solid financial foundation"
 
-Then map over `sortedCards` instead of `productCards`. No other files change.
+Also update the `signal_label` field description to use the same indirect framing — so the pill label itself stays subtle too.
 
