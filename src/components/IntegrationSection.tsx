@@ -176,6 +176,14 @@ const IntegrationSection = () => {
             ))}
           </div>
         </div>
+
+        <div className="mt-16 text-center">
+          <a href="/contact">
+            <button className="inline-flex items-center justify-center rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+              Schedule a Demo
+            </button>
+          </a>
+        </div>
       </div>
     </section>
   );
