@@ -1,19 +1,36 @@
 
 
-## Plan: Scrollable transaction feed + hover tooltip
+## Plan: Elaborate transaction hover tooltip with MCC + enrichment details
 
-### Changes in `src/components/exec-demo/ExecDemoLeftPanel.tsx`
+### Data changes in `src/components/exec-demo/execDemoData.ts`
 
-**1. Make the "hold" phase transaction list scrollable**
-- The `showCollected` block (line 218-261) currently renders inside a `div` with no overflow scroll. Wrap it (and the idle phase list) with `overflow-y-auto` so users can scroll through all transactions.
-- The container at line 167 already has `flex-1 min-h-0` but uses `overflow-hidden`. For the hold/idle phases, allow `overflow-y-auto` on the inner content div.
+1. **Extend `SignalEntry` interface** — add `mcc`, `mccDescription`, `category`, `subcategory`, `tier` fields:
+   ```ts
+   export interface SignalEntry {
+     pillar: string;
+     label: string;       // subcategory
+     amount: number;
+     frequency?: string;
+     mcc?: string;
+     mccDescription?: string;
+     category?: string;
+     tier?: string;
+   }
+   ```
 
-**2. Add hover tooltip on each transaction row**
-- Use a CSS-only tooltip or a lightweight `group/hover` approach (no new dependency needed).
-- On hover, show a small floating bubble below/beside the row displaying enrichment metadata from `signalMap`: **pillar**, **label** (subcategory), **frequency**, and **amount**.
-- Add a `signalEntry` prop to `TxRow`, and render a hidden tooltip div that appears on hover using Tailwind `group-hover` classes.
-- The tooltip will be a compact dark chip (e.g., `bg-slate-800 text-white text-[9px] rounded px-2 py-1`) positioned absolutely below the row.
+2. **Extend `MCC_SIGNAL_MAP`** — add `category`, `tier`, and `frequency` to each entry where appropriate (e.g. Airlines → category: "Air Travel", tier: "Premium", frequency: "Occasional").
+
+3. **Update `buildSignalMap`** — import `MCC_DESCRIPTIONS` from `@/lib/sampleData` and populate `mcc` and `mccDescription` on each `SignalEntry` from the CSV row's MCC code.
+
+### Tooltip changes in `src/components/exec-demo/ExecDemoLeftPanel.tsx`
+
+4. **Redesign the tooltip** in `TxRow` to show two rows:
+   - **Row 1**: `MCC: 4511 · Airlines — Scheduled Air Transportation`
+   - **Row 2**: `Pillar: Travel & Transport · Category: Air Travel · Subcategory: Airlines · Tier: Premium · Frequency: Occasional`
+
+   Uses a stacked layout inside the existing dark tooltip div, with the pillar name colored by its dot color.
 
 ### Files modified
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx` only
+- `src/components/exec-demo/execDemoData.ts`
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx`
 
