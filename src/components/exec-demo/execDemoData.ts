@@ -422,6 +422,7 @@ export interface EnrichedTransaction {
   subcategories: string[];
   spending_tier: string;
   purchase_frequency?: string;
+  confidence?: number;
 }
 
 /** Build signal map from AI-classified enriched transactions, preserving MCC data from raw CSV */
