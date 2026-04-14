@@ -68,37 +68,15 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           </p>
         </div>
 
-        {/* Deal tiles – horizontal scroll */}
-        <div className="flex gap-2 overflow-x-auto px-4 pb-3.5 scrollbar-hide">
+        {/* Deal pills – compact wrapped layout */}
+        <div className="flex flex-wrap gap-1.5 px-4 pb-3.5">
           {activeDeals.map((deal) => (
-            <div
+            <span
               key={deal.id}
-              className="w-[105px] shrink-0 rounded-xl border border-slate-100 bg-white p-2.5 flex flex-col gap-1.5 shadow-sm"
+              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full border border-slate-100 bg-white text-slate-700 shadow-sm"
             >
-              <div className="flex items-center gap-1">
-                <Gift className="w-3 h-3 text-emerald-500 shrink-0" />
-                <span className="text-[10px] font-bold text-slate-800 truncate">{deal.merchant}</span>
-              </div>
-              <span className="text-[9px] text-slate-400 line-clamp-1">{deal.product}</span>
-              <span
-                className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-center w-fit"
-                style={{ background: c.bg, color: c.text }}
-              >
-                {deal.rewardValue}
-              </span>
-              {deal.signal === "boost" && (
-                <div className="flex items-center gap-0.5">
-                  <TrendingUp className="w-2 h-2 text-emerald-500" />
-                  <span className="text-[8px] text-emerald-600 font-semibold">Boosted</span>
-                </div>
-              )}
-              <button
-                className="mt-auto text-[8px] font-semibold px-2 py-1 rounded-full text-center"
-                style={{ background: c.bg, color: c.text }}
-              >
-                {deal.cta}
-              </button>
-            </div>
+              {deal.merchant} · {deal.rewardValue}
+            </span>
           ))}
         </div>
       </div>
