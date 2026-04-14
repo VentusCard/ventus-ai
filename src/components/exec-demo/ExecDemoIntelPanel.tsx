@@ -102,7 +102,9 @@ interface ChipData {
 function deriveChips(signals: SignalEntry[]): ChipData[] {
   const map = new Map<string, ChipData & { freqCounts: Map<string, number> }>();
   for (const s of signals) {
-    const key = `${s.pillar}::${s.label}`;
+    // Group by category (higher-level) instead of subcategory label
+    const displayLabel = s.category || s.label;
+    const key = `${s.pillar}::${displayLabel}`;
     const existing = map.get(key);
     if (existing) {
       existing.count += 1;
@@ -111,7 +113,7 @@ function deriveChips(signals: SignalEntry[]): ChipData[] {
     } else {
       const freqCounts = new Map<string, number>();
       if (s.frequency) freqCounts.set(s.frequency, 1);
-      map.set(key, { pillar: s.pillar, label: s.label, count: 1, totalSpend: s.amount || 0, freqCounts });
+      map.set(key, { pillar: s.pillar, label: displayLabel, count: 1, totalSpend: s.amount || 0, freqCounts });
     }
   }
   return Array.from(map.values()).map(({ freqCounts, ...rest }) => {
