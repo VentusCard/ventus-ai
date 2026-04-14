@@ -71,7 +71,7 @@ const IntegrationSection = () => {
   return (
     <section id="integration" className="bg-white py-24 scroll-mt-20">
       {/* Section header */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 mb-20">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 mb-10">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
         <h2 className="text-3xl font-bold text-gray-900 md:text-4xl max-w-2xl">
           A modular intelligence layer that works with your existing stack.
