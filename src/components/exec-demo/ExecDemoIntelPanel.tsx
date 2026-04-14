@@ -241,7 +241,7 @@ export default function ExecDemoIntelPanel({
   const hasSynthesis = personaSynthesis && personaSynthesis.pillarRollups && personaSynthesis.pillarRollups.length > 0;
 
   return (
-    <div className="flex flex-col h-full px-5 py-2 overflow-hidden">
+    <div className="flex flex-col h-full px-6 py-4 overflow-hidden">
       {/* Persona section */}
       <div
         className={`rounded-2xl px-4 py-3 mb-2 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
