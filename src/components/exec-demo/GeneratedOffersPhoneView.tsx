@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Gift, Sparkles, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 
