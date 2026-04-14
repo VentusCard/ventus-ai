@@ -72,11 +72,11 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
       {/* Horizontal deal tiles */}
       {group.deals.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto px-3 pb-2.5 scrollbar-hide">
+        <div className="grid grid-cols-5 gap-1.5 px-3 pb-2.5">
           {group.deals.map(deal => (
             <div
               key={deal.id}
-              className="w-[115px] shrink-0 flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-2"
+              className="min-w-0 flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-2"
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-slate-800 truncate">{deal.merchant}</span>
