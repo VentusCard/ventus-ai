@@ -36,7 +36,8 @@ const Navbar = () => {
             <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
           </Link>
           <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
-          
+          <a href="/#faq" className={`${textColor} text-sm font-medium transition-colors`}>FAQ</a>
+
         </div>
         <Link to="/contact">
           <Button
@@ -72,7 +73,8 @@ const Navbar = () => {
       >
         <div style={{ padding: '1.5rem' }}>
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
-          
+          <a href="/#faq" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</a>
+
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
