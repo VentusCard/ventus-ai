@@ -48,7 +48,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
       {/* Collection Card */}
       <div
         key={`${active.pillar}::${active.rollup}`}
-        className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[120px]"
+        className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[160px]"
         style={{
           background: "linear-gradient(145deg, #f8fafc, #ffffff)",
           animation: `collection-slide-${direction} 0.35s ease-out`,
