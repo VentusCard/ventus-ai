@@ -16,36 +16,49 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const rollups = persona?.pillarRollups || [];
+    
+    // Build per-rollup spending context so AI knows what's already purchased
     const rollupList = rollups
       .filter((r: any) => (r.totalCount ?? 0) > 0)
-      .map((r: any, i: number) => `${i + 1}. "${r.label}" (${r.pillar}) — categories: ${(r.categories || []).join(", ")}`)
+      .map((r: any, i: number) => {
+        const cats = (r.categories || []).join(", ");
+        const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
+        return `${i + 1}. "${r.label}" (${r.pillar}) — categories: ${cats}${merchants ? ` | recent merchants: ${merchants}` : ""}`;
+      })
       .join("\n");
 
     const pillarContext = (pillars || []).slice(0, 8).map((p: any, i: number) =>
       `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`
     ).join("\n");
 
-    const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster.
+    const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost/suppress signals based on recent spending.
 
 RULES:
-1. For EACH behavioral cluster provided, generate 3-5 deals that extend or complement the cluster's lifestyle.
+1. For EACH behavioral cluster provided, generate 5-7 deals total. Some should be BOOSTED (gaps in their spending journey), some SUPPRESSED (already purchased), and some NEUTRAL.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
 3. Good message: "Upgrade your travels with sleek, durable luggage from Away"
-4. Bad message: "As a Product Director on the move, upgrade your commute from JFK with sleek, durable luggage designed for your fast-paced lifestyle."
-5. Each deal needs: merchant name, specific product, reward value, short message, and a 2-4 word lifestyle CTA.
+4. Bad message: "As a Product Director on the move, upgrade your commute"
+5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, a signal, and signalReason.
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
-7. Think laterally for each cluster: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
+7. Think laterally: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
+
+SIGNAL LOGIC:
+- "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap (e.g., "No action cam in purchase history")
+- "suppress": The customer has ALREADY purchased something similar recently. signalReason should reference what was found (e.g., "Ski pass purchased in Feb")
+- "neutral": Standard relevance, no strong signal either way. signalReason can be brief (e.g., "Complements lifestyle")
+
+AIM for 2-3 suppressed, 2-3 boosted, and 1-2 neutral per cluster.
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA"},...]},...]}`; 
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason"},...]},...]}`; 
 
-    const userPrompt = `BEHAVIORAL CLUSTERS:
+    const userPrompt = `BEHAVIORAL CLUSTERS (with recent spending/merchants):
 ${rollupList}
 
 SPENDING CONTEXT:
 ${pillarContext}
 
-Generate 3-5 deals for EACH cluster above. Return valid JSON only.`;
+Generate 5-7 deals for EACH cluster above with boost/suppress/neutral signals. Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
