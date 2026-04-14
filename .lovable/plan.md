@@ -1,31 +1,22 @@
 
 
-## Plan: Compact Collection Cards for Phone Screen
-
-### Problem
-The current deal tiles are too detailed (icon, product, reward badge, boost indicator, CTA button) taking up too much vertical space in the phone mockup. Need to slim down to just merchant name labels.
+## Plan: Simplify Collection Card — Remove Rollup Pill and Deal Terms
 
 ### Changes
 
-**`src/components/exec-demo/GeneratedOffersPhoneView.tsx`** — Simplify deal tiles:
+**`src/components/exec-demo/GeneratedOffersPhoneView.tsx`** — Two tweaks:
 
-- Replace the tall deal cards with a **wrapped row of small merchant-name pills** inside the collection card
-- Each pill is just: merchant name + reward value (e.g., "Bose · $40 off")
-- Use `flex flex-wrap gap-1.5` instead of horizontal scroll — fits naturally in the phone width
-- Remove the Gift icon, product subtitle, boost indicator, and CTA button from each tile
-- Keep the collection card structure: rollup pill badge → collection message → merchant pills
-- Keep the auto-rotation, dots, and arrows unchanged
-- Reduce overall padding slightly for a tighter phone fit
+1. **Remove the rollup pill badge** (lines 59-65) — the colored `✦ Frequent Traveler` chip. The collection message alone is enough context.
 
-Layout per collection card:
+2. **Show only merchant names** in the deal pills — change `{deal.merchant} · {deal.rewardValue}` to just `{deal.merchant}`. Make pills slightly smaller (`text-[9px]`, `px-2 py-0.5`).
+
+Result:
 ```text
 ┌──────────────────────────────┐
-│ ✦ Frequent Traveler          │
 │ "Travel smarter with new     │
 │  gear and perks"             │
 │                              │
-│ [Away · 15%] [Bose · $40]   │
-│ [TSA · Free] [Samsonite·10%]│
+│ [Away] [Bose] [TSA] [Samsonite]│
 │                              │
 │         ● ○ ○                │
 └──────────────────────────────┘
