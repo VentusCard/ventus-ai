@@ -665,12 +665,15 @@ export default function ExecDemoPage() {
       if (activePillFilter.evidenceMerchants && activePillFilter.evidenceMerchants.length > 0) {
         const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
         const evidenceNorm = activePillFilter.evidenceMerchants.map(normalize);
-        const matched = Object.entries(sm)
-          .filter(([, s]) => {
-            const txNorm = normalize(s.label);
-            return evidenceNorm.some(ev => txNorm.includes(ev) || ev.includes(txNorm));
-          })
-          .map(([idx]) => Number(idx));
+        const txs = execProfile.transactions;
+        const matched = Object.keys(sm)
+          .map(Number)
+          .filter((idx) => {
+            const tx = txs[idx];
+            if (!tx) return false;
+            const merchantNorm = normalize(tx.merchant);
+            return evidenceNorm.some(ev => merchantNorm.includes(ev) || ev.includes(merchantNorm));
+          });
         if (matched.length > 0) return matched;
       }
 
