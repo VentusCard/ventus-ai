@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
-import type { GeneratedOffer } from "@/components/exec-demo/NextOfferRationale";
+import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
@@ -51,7 +51,7 @@ export default function ExecDemoPage() {
   const classifiedRef = useRef<EnrichedTransaction[] | null>(null);
   const classifyAbortRef = useRef<AbortController | null>(null);
   const [personaSynthesis, setPersonaSynthesis] = useState<PersonaSynthesis | null>(null);
-  const [generatedOffers, setGeneratedOffers] = useState<GeneratedOffer[] | null>(null);
+  const [generatedOffers, setGeneratedOffers] = useState<RollupOfferGroup[] | null>(null);
   const [offersLoading, setOffersLoading] = useState(false);
   const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
   const [productsLoading, setProductsLoading] = useState(false);
@@ -298,8 +298,8 @@ export default function ExecDemoPage() {
         },
       });
       if (error) throw error;
-      setGeneratedOffers(data.offers || []);
-      console.log("[PRELOAD] Next-offers ready:", data.offers?.length);
+      setGeneratedOffers(data.rollupOffers || []);
+      console.log("[PRELOAD] Next-offers ready:", data.rollupOffers?.length, "groups");
     } catch (err) {
       console.error("[PRELOAD] Next-offers failed:", err);
       setOffersLoading(false);
