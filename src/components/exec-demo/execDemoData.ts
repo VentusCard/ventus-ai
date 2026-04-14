@@ -14,6 +14,7 @@ export interface Transaction {
   date: string;
   merchant: string;
   amount: string;
+  source?: string;
 }
 
 export interface IntelCard {
@@ -68,6 +69,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
   const merchantIdx = header.indexOf("merchant_name");
   const amountIdx = header.indexOf("amount");
   const dateIdx = header.indexOf("date");
+  const sourceIdx = header.indexOf("source");
 
   return lines.slice(1).filter((l) => l.trim()).map((line) => {
     const cols = line.split(",").map((c) => c.trim());
@@ -82,6 +84,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
       date: shortDate,
       merchant: cols[merchantIdx] || "Unknown",
       amount: fmt,
+      source: sourceIdx >= 0 ? (cols[sourceIdx] || undefined) : undefined,
     };
   });
 }
