@@ -24,7 +24,7 @@ function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] })
     <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Current Holdings</span>
       {sources.map(([source, count]) => (
-        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
+        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5 shrink-0">
           <CheckCircle2 className="w-3 h-3 text-emerald-500" />
           {source} ({count})
         </span>
