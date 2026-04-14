@@ -691,7 +691,7 @@ export default function ExecDemoPage() {
       return pillarMatches.map(([idx]) => Number(idx));
     }
     return null;
-  }, [activePillFilter, activeRollup, execProfile.persona.signalMap]);
+  }, [activePillFilter, activeRollup, execProfile.persona.signalMap, execProfile.transactions]);
 
   return (
     <SimplePasswordGate>
