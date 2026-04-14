@@ -34,7 +34,7 @@ serve(async (req) => {
     const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost/suppress signals based on recent spending.
 
 RULES:
-1. For EACH behavioral cluster provided, generate 5-7 deals total. Some should be BOOSTED (gaps in their spending journey), some SUPPRESSED (already purchased), and some NEUTRAL.
+1. For EACH behavioral cluster provided, generate exactly 5 deals. Some should be BOOSTED (gaps in their spending journey), some SUPPRESSED (already purchased), and some NEUTRAL.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
 3. Good message: "Upgrade your travels with sleek, durable luggage from Away"
 4. Bad message: "As a Product Director on the move, upgrade your commute"
@@ -67,7 +67,7 @@ ${rollupList}
 SPENDING CONTEXT:
 ${pillarContext}
 
-Generate 5-7 deals for EACH cluster above with boost/suppress/neutral signals. Return valid JSON only.`;
+Generate exactly 5 deals for EACH cluster above with boost/suppress/neutral signals. Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
