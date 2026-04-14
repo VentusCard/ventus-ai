@@ -328,8 +328,10 @@ const ScrollDrivenHero = () => {
                 <div style={{ color: "#6b7280" }}>{activePersona.callout}</div>
               </div>
             )}
+          </div>
         </div>
         </div>
+      </div>
     </div>
   );
 };
