@@ -141,10 +141,10 @@ const IntegrationSection = () => {
           <p className="mb-8 text-center text-xs font-semibold uppercase tracking-widest text-gray-400">
             Integration Partners
           </p>
-          <div className="flex items-center justify-center gap-16 md:gap-24 flex-wrap">
-            {partners.map(({ name, Logo }) => (
+          <div className="flex items-center justify-center gap-12 md:gap-20 flex-wrap">
+            {partners.map(({ name, src, height }) => (
               <div key={name} className="flex items-center justify-center px-4 py-4">
-                <Logo />
+                <img src={src} alt={name} className={`${height} w-auto`} />
               </div>
             ))}
           </div>
