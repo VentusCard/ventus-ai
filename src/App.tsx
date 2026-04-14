@@ -17,7 +17,7 @@ import RecommendationsPage from "./pages/RecommendationsPage";
 import AdvisorConsolePage from "./pages/AdvisorConsolePage";
 import FinancialPlanningPage from "./pages/FinancialPlanningPage";
 import RewardsPipelinePage from "./pages/RewardsPipelinePage";
-import FAQ from "./pages/FAQ";
+
 import SmartRewards from "./pages/SmartRewards";
 import Engagement from "./pages/Engagement";
 import Wealth from "./pages/Wealth";
@@ -45,7 +45,7 @@ const AppLayout = () => {
           <Route path="/platform" element={<Platform />} />
           
           
-          <Route path="/faq" element={<FAQ />} />
+          
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
           <Route path="/wealth" element={<Wealth />} />
