@@ -133,58 +133,95 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
             : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
+          const matchingEvent = lifeEvents?.find(e =>
+            e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
+            card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
+          );
+          const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
+          const isExpanded = expandedTrigger === i;
+
           return (
-            <div
-              key={i}
-              className="rounded-xl border overflow-hidden"
-              style={{
-                borderColor: c.border,
-                borderLeftWidth: 3,
-                borderLeftColor: c.dot,
-                animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
-              }}
-            >
-              <div className="px-3 py-2.5">
-                {/* Type badge + product name */}
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    {isBehavioral ? (
-                      <Zap className="w-3.5 h-3.5" style={{ color: c.dot }} />
-                    ) : (
-                      <ShieldCheck className="w-3.5 h-3.5" style={{ color: c.dot }} />
-                    )}
-                    <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
+            <div key={i} className="space-y-0">
+              {/* Trigger pill */}
+              <div
+                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 ${hasEvidence ? "cursor-pointer" : ""}`}
+                style={{ background: `${c.dot}15`, color: c.dot }}
+                onClick={() => hasEvidence && setExpandedTrigger(isExpanded ? null : i)}
+              >
+                {isBehavioral ? (
+                  <Zap className="w-3 h-3" />
+                ) : (
+                  <ShieldCheck className="w-3 h-3" />
+                )}
+                {card.signal_label}
+                {hasEvidence && (isExpanded
+                  ? <ChevronUp className="w-3 h-3 ml-0.5" />
+                  : <ChevronDown className="w-3 h-3 ml-0.5" />
+                )}
+              </div>
+
+              {/* Expanded evidence */}
+              {isExpanded && matchingEvent && (
+                <div
+                  className="rounded-lg border mb-1 px-2.5 py-2 space-y-1"
+                  style={{ borderColor: c.border, borderLeftWidth: 3, borderLeftColor: c.dot, background: `${c.dot}05` }}
+                >
+                  {matchingEvent.evidence.map((ev, ei) => (
+                    <div key={ei} className="flex items-center justify-between text-[9px] py-0.5 border-b border-slate-50 last:border-0">
+                      <span className="font-semibold text-slate-700">{ev.merchant}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400">{ev.date}</span>
+                        <span className="font-medium text-slate-600">${ev.amount.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Product card */}
+              <div
+                className="rounded-xl border overflow-hidden"
+                style={{
+                  borderColor: c.border,
+                  borderLeftWidth: 3,
+                  borderLeftColor: c.dot,
+                  animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
+                }}
+              >
+                <div className="px-3 py-2.5">
+                  {/* Type badge + product name */}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      {isBehavioral ? (
+                        <Zap className="w-3.5 h-3.5" style={{ color: c.dot }} />
+                      ) : (
+                        <ShieldCheck className="w-3.5 h-3.5" style={{ color: c.dot }} />
+                      )}
+                      <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
+                    </div>
+                    <span
+                      className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
+                      style={{ background: `${c.dot}15`, color: c.dot }}
+                    >
+                      {isBehavioral ? "Behavioral" : "Life Event"}
+                    </span>
                   </div>
-                  <span
-                    className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
-                    style={{ background: `${c.dot}15`, color: c.dot }}
-                  >
-                    {isBehavioral ? "Behavioral" : "Life Event"}
-                  </span>
-                </div>
 
-                {/* Signal */}
-                <div className="flex items-start gap-1 mb-1.5">
-                  <span className="text-[9px] text-slate-400 font-semibold uppercase shrink-0 mt-px">
-                    {isBehavioral ? "Signal:" : "Trigger:"}
-                  </span>
-                  <span className="text-[10px] text-slate-500">{card.signal_label}</span>
-                </div>
+                  {/* Quote preview */}
+                  <p className="text-[11px] text-slate-600 leading-relaxed italic">
+                    "{card.quote}"
+                  </p>
 
-                {/* Quote preview */}
-                <p className="text-[11px] text-slate-600 leading-relaxed italic">
-                  "{card.quote}"
-                </p>
-
-                {/* Trigger badge */}
-                <div className="flex items-center gap-1.5 mt-2">
-                  <span
-                    className="text-[9px] font-medium px-1.5 py-0.5 rounded"
-                    style={{ background: `${c.dot}10`, color: c.dot }}
-                  >
-                    <CreditCard className="w-2.5 h-2.5 inline mr-0.5" />
-                    {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
-                  </span>
+                  {/* Trigger badge */}
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <span
+                      className="text-[9px] font-medium px-1.5 py-0.5 rounded"
+                      style={{ background: `${c.dot}10`, color: c.dot }}
+                    >
+                      <CreditCard className="w-2.5 h-2.5 inline mr-0.5" />
+                      {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
