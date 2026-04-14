@@ -1,42 +1,18 @@
 
 
-# Horizontal Current vs. Recommended Cross-Check
+## Simplify Current vs. Recommended to a pill row
 
-## What we're building
+Replace the complex 3-column grid `CurrentVsRecommended` section with a simple horizontal row of pills showing the customer's current products extracted from transaction sources.
 
-A compact horizontal section at the top of the Next-Product intelligence panel that shows the customer's **current banking products** (left) connected via **logic pills** to **recommended next products** (right). This sits above the existing "N product cards generated → Consumer notifications ready" header.
+### Change: `src/components/exec-demo/NextProductRationale.tsx`
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│ CURRENT HOLDINGS              →           RECOMMENDED NEXT   │
-│ ┌──────────────┐  ┌────────────────┐  ┌──────────────────┐  │
-│ │ ✓ Checking   │  │ Education ↑    │  │ 529 Plan         │  │
-│ │   12 txns    │──│ Family of 4    │──│ Life Event       │  │
-│ └──────────────┘  └────────────────┘  └──────────────────┘  │
-│ ┌──────────────┐  ┌────────────────┐  ┌──────────────────┐  │
-│ │ ✓ Cashback   │  │ Travel Pattern │  │ Travel Rewards   │  │
-│ │   42 txns    │──│ Spending ↑     │──│ Behavioral       │  │
-│ └──────────────┘  └────────────────┘  └──────────────────┘  │
-│ ✓ HSA (2)  ✓ Premium (4)  ✓ Travel (8)  ← unmatched       │
-└──────────────────────────────────────────────────────────────┘
-│ 2 product cards generated → Consumer notifications ready     │
-│ [existing card rationale below...]                           │
-```
+**Remove** the entire `CurrentVsRecommended` function (~100 lines including the grid layout, matched/unmatched logic, signal connectors, and keyframe animation).
 
-## Technical changes
+**Replace with** a simple inline pill row:
+- Extract unique `source` values from transactions with counts (same logic)
+- Render as a single `flex-wrap` row of small pills, each showing: `✓ Source Name (count)`
+- Green-tinted pills for current holdings, similar styling to the unmatched pills that already exist at the bottom of the old section
+- No columns, no connectors, no signal logic — just a compact row labeled "Current Holdings" above the existing product cards header
 
-### 1. `src/components/exec-demo/execDemoData.ts`
-- Add `source` field to the `Transaction` interface
-- Parse the `source` column from CSV in `parseCsvToTransactions`
-
-### 2. `src/components/exec-demo/NextProductRationale.tsx`
-- Accept new `transactions` prop
-- Add a `CurrentVsRecommended` sub-component rendered **above** the existing header
-- **Left column**: Extract unique `source` values from transactions, render as green-tinted pills with transaction counts
-- **Right column**: Render recommended products from `productCards` as themed pills (violet for behavioral, colored for life-event)
-- **Center connector**: Logic pills showing the signal/trigger from each product card (e.g. "Education Spending ↑") with arrow connectors between matched current → recommended pairs
-- Unmatched current products shown as smaller gray pills at the bottom
-
-### 3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- Pass `transactions` prop to `NextProductRationale`
+The rendering spot stays the same (above the "N product cards generated" line), just drastically simplified.
 
