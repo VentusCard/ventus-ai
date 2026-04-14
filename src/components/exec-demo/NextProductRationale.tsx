@@ -145,7 +145,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
             const matchedIndices = transactions
               .map((tx, idx) => {
-                const merchant = (tx.merchant || tx.merchant_name || "").toLowerCase();
+                const merchant = (tx.merchant || "").toLowerCase();
                 const isMatch = evidenceMerchants.some(em =>
                   merchant.includes(em) || em.includes(merchant)
                 );
