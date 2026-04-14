@@ -167,88 +167,115 @@ const ScrollDrivenHero = () => {
       style={{ height: "250vh", background: "#ffffff" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex items-start overflow-hidden">
-        {/* Left — Sticky Headline */}
-        <div className="hidden lg:flex flex-col justify-center pl-12 xl:pl-20 pr-8 pt-40 w-[45%] shrink-0">
-          <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-bold tracking-tight text-gray-900 leading-tight">
-            Turn transaction data into{" "}
-            <span className="italic text-blue-600">behavioral intelligence</span>
-          </h1>
-        </div>
-
-        {/* Mobile headline */}
-        <h1 className="lg:hidden text-3xl font-bold tracking-tight text-gray-900 leading-tight text-center px-6 pt-28 pb-6 w-full">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
+        {/* Centered Headline */}
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight text-center mb-8 px-6 max-w-4xl">
           Turn transaction data into{" "}
           <span className="italic text-blue-600">behavioral intelligence</span>
         </h1>
 
-        {/* Right — Card + Callout */}
-        <div className="hidden lg:flex flex-1 items-start justify-center pt-32 relative">
+        {/* Card + Callout wrapper */}
+        <div className="relative flex items-start justify-center gap-6">
           {/* The Card */}
           <div
             className="rounded-2xl overflow-hidden transition-colors duration-[400ms] ease-in-out"
             style={{
-              width: 420,
+              width: 480,
               maxWidth: "calc(100vw - 48px)",
               background: cardBg,
               boxShadow: "0 25px 60px -12px rgba(0,0,0,0.4)",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-              <span className="font-mono text-xs text-gray-400">cust_013</span>
-              <div className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full transition-colors duration-[400ms]"
-                  style={{
-                    background: stage >= 2 ? "#22c55e" : "#6b7280",
-                    animation: stage === 1 ? "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" : "none",
-                  }}
-                />
-                <span
-                  className="text-[11px] font-mono transition-colors duration-[400ms]"
-                  style={{ color: stage >= 2 ? "#22c55e" : "#6b7280" }}
-                >
-                  {stage >= 2 ? "Profile Built" : "Analyzing..."}
-                </span>
+            {/* Customer Profile — top 1/3 */}
+            <div
+              className="px-5 pt-5 pb-4 border-b transition-all duration-[400ms]"
+              style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-[400ms]"
+                    style={{
+                      background: stage >= 2 ? "rgba(59,130,246,0.2)" : "rgba(107,114,128,0.2)",
+                      color: stage >= 2 ? "#60a5fa" : "#9ca3af",
+                    }}
+                  >
+                    MR
+                  </div>
+                  <div>
+                    <div className="text-white text-sm font-semibold">Michael R.</div>
+                    <div className="text-[11px] text-gray-500 font-mono">cust_013</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-2 h-2 rounded-full transition-colors duration-[400ms]"
+                    style={{
+                      background: stage >= 2 ? "#22c55e" : "#6b7280",
+                      animation: stage === 1 ? "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" : "none",
+                    }}
+                  />
+                  <span
+                    className="text-[11px] font-mono transition-colors duration-[400ms]"
+                    style={{ color: stage >= 2 ? "#22c55e" : "#6b7280" }}
+                  >
+                    {stage >= 2 ? "Profile Built" : "Analyzing..."}
+                  </span>
+                </div>
+              </div>
+
+              {/* Profile details */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-0.5">Household</div>
+                  <div className="text-[12px] text-gray-300 font-medium">Family of 4</div>
+                </div>
+                <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-0.5">Location</div>
+                  <div className="text-[12px] text-gray-300 font-medium">Wellesley, MA</div>
+                </div>
+                <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-0.5">Segment</div>
+                  <div className="text-[12px] text-gray-300 font-medium">High Income</div>
+                </div>
+              </div>
+
+              {/* Persona pills — Stage 2+ */}
+              <div
+                className="flex flex-wrap gap-2 mt-3 transition-all duration-[400ms]"
+                style={{
+                  maxHeight: stage >= 2 ? 48 : 0,
+                  opacity: stage >= 2 ? 1 : 0,
+                  overflow: "hidden",
+                }}
+              >
+                {personas.map((p, i) => {
+                  const isActive = stage === 3 && activePersona?.id === p.id;
+                  return (
+                    <span
+                      key={p.id}
+                      className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
+                      style={{
+                        background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
+                        color: p.color,
+                        border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
+                        opacity: stage2Progress > (i * 0.3) ? 1 : 0,
+                        transform: stage2Progress > (i * 0.3) ? "translateY(0)" : "translateY(8px)",
+                        transitionDelay: `${i * 200}ms`,
+                      }}
+                    >
+                      {p.label}
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Persona pills — Stage 2+ */}
-            <div
-              className="flex flex-wrap gap-2 px-5 pt-3 transition-all duration-[400ms]"
-              style={{
-                maxHeight: stage >= 2 ? 48 : 0,
-                opacity: stage >= 2 ? 1 : 0,
-                overflow: "hidden",
-              }}
-            >
-              {personas.map((p, i) => {
-                const isActive = stage === 3 && activePersona?.id === p.id;
-                return (
-                  <span
-                    key={p.id}
-                    className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
-                    style={{
-                      background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
-                      color: isActive ? p.color : p.color,
-                      border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
-                      opacity: stage2Progress > (i * 0.3) ? 1 : 0,
-                      transform: stage2Progress > (i * 0.3) ? "translateY(0)" : "translateY(8px)",
-                      transitionDelay: `${i * 200}ms`,
-                    }}
-                  >
-                    {p.label}
-                  </span>
-                );
-              })}
-            </div>
-
-            {/* Transaction list */}
-            <div className="px-5 py-3 overflow-hidden" style={{ height: 340 }}>
+            {/* Transaction list — bottom 2/3 */}
+            <div className="px-5 py-3 overflow-hidden" style={{ height: 280 }}>
               {stage === 1 ? (
-                /* Raw transactions — scrolling */
                 <div
                   className="space-y-0 transition-transform"
                   style={{ transform: `translateY(-${scrollOffset}px)` }}
@@ -264,9 +291,8 @@ const ScrollDrivenHero = () => {
                   ))}
                 </div>
               ) : (
-                /* Enriched rows */
                 <div className="space-y-0">
-                  {enrichedData.slice(0, 25).map((row, i) => {
+                  {enrichedData.slice(0, 20).map((row, i) => {
                     const isHighlighted = stage === 3 && activePersona && row.persona === activePersona.id;
                     const isDimmed = stage === 3 && activePersona && row.persona !== activePersona.id;
                     return (
@@ -304,7 +330,7 @@ const ScrollDrivenHero = () => {
 
           {/* Floating callout — Stage 3 */}
           <div
-            className="hidden lg:block absolute -right-[280px] top-[120px] w-[240px] transition-all duration-[400ms]"
+            className="hidden lg:block absolute -right-[280px] top-[140px] w-[240px] transition-all duration-[400ms]"
             style={{
               opacity: stage === 3 ? 1 : 0,
               transform: stage === 3 ? "translateX(0)" : "translateX(-12px)",
@@ -319,10 +345,7 @@ const ScrollDrivenHero = () => {
                   color: activePersona.color,
                 }}
               >
-                <div
-                  className="font-semibold mb-1 text-[13px]"
-                  style={{ color: activePersona.color }}
-                >
+                <div className="font-semibold mb-1 text-[13px]" style={{ color: activePersona.color }}>
                   {activePersona.label}
                 </div>
                 <div style={{ color: "#6b7280" }}>{activePersona.callout}</div>
