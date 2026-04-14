@@ -7,7 +7,7 @@ import AnnouncementBar from "./AnnouncementBar";
 
 
 /** Pages where the hero has a dark background and the navbar should start transparent */
-const DARK_HERO_PAGES = ["/", "/smartrewards", "/engagement", "/wealth", "/analytics", "/travel", "/insights"];
+const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel", "/insights"];
 
 const Navbar = () => {
   const location = useLocation();
