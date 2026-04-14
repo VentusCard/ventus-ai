@@ -211,6 +211,75 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
           const isClickable = hasEvidence || (transactions && signalKeywords.length > 0);
 
+          if (isBehavioral) {
+            // Behavioral cards: merged rollup-card style
+            return (
+              <div
+                key={i}
+                className={`rounded-xl border overflow-hidden ${isClickable ? "cursor-pointer" : ""}`}
+                style={{
+                  borderColor: isActive ? c.dot : c.border,
+                  borderTopWidth: 3,
+                  borderTopColor: c.dot,
+                  boxShadow: isActive ? `0 0 14px ${c.dot}30` : `0 2px 8px ${c.dot}10`,
+                  transform: isActive ? "scale(1.02)" : "scale(1)",
+                  transition: "all 0.2s ease",
+                  animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
+                }}
+                onClick={handlePillClick}
+              >
+                <div className="px-3 py-2.5">
+                  {/* Header: rollup pill + BEHAVIORAL badge */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div
+                      className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full"
+                      style={{
+                        background: `linear-gradient(135deg, ${c.dot}10, ${c.dot}20)`,
+                        color: c.text,
+                        border: `1.5px solid ${c.dot}`,
+                      }}
+                    >
+                      <span style={{ color: c.dot }}>✦</span>
+                      {card.signal_label}
+                      {txnCount > 0 && (
+                        <span className="text-[9px] font-medium opacity-70 ml-1">
+                          {txnCount} txns · {formatSpend(txnSpend)}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className="text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                      style={{ background: `${c.dot}15`, color: c.dot }}
+                    >
+                      Behavioral
+                    </span>
+                  </div>
+
+                  {/* Product name */}
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[12px] font-bold" style={{ color: c.dot }}>✦</span>
+                    <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
+                  </div>
+
+                  {/* Quote */}
+                  <p className="text-[11px] text-slate-600 leading-relaxed italic mb-1.5">
+                    "{card.quote}"
+                  </p>
+
+                  {/* Trigger badge */}
+                  <span
+                    className="text-[9px] font-medium px-1.5 py-0.5 rounded inline-flex items-center gap-0.5"
+                    style={{ background: `${c.dot}10`, color: c.dot }}
+                  >
+                    <CreditCard className="w-2.5 h-2.5" />
+                    Spending Pattern
+                  </span>
+                </div>
+              </div>
+            );
+          }
+
+          // Life event cards: keep existing separate pill + card layout
           return (
             <div key={i} className="space-y-0">
               {/* Trigger pill — rollup style */}
@@ -246,7 +315,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 }}
               >
                 <div className="px-3 py-2.5">
-                  {/* Type badge + product name */}
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[12px] font-bold" style={{ color: c.dot }}>✦</span>
@@ -256,23 +324,19 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                       className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
                       style={{ background: `${c.dot}15`, color: c.dot }}
                     >
-                      {isBehavioral ? "Behavioral" : "Life Event"}
+                      Life Event
                     </span>
                   </div>
-
-                  {/* Quote preview */}
                   <p className="text-[11px] text-slate-600 leading-relaxed italic">
                     "{card.quote}"
                   </p>
-
-                  {/* Trigger badge */}
                   <div className="flex items-center gap-1.5 mt-2">
                     <span
                       className="text-[9px] font-medium px-1.5 py-0.5 rounded"
                       style={{ background: `${c.dot}10`, color: c.dot }}
                     >
                       <CreditCard className="w-2.5 h-2.5 inline mr-0.5" />
-                      {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
+                      Life Event Trigger
                     </span>
                   </div>
                 </div>
