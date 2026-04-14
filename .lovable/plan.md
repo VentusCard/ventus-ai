@@ -1,31 +1,34 @@
 
 
-## Plan: Three-level pill hierarchy — Pillar → Category → Subcategory pills
+## Plan: Pillar headers as a left column with dividers
 
-### What the user wants
+### What changes
 
-Currently pills show **category** names grouped under pillar headers. The user wants:
+Restructure the pills section from a stacked layout (pillar header on top, chips below) into a **two-column layout**: pillar names in a narrow left column with subtle horizontal dividers between rows, and the category + subcategory pills flowing in the right column.
 
 ```text
-Travel & Exploration          ← pillar header (colored dot)
-  Hotels & Lodging:           ← category sub-header
-    [Boutique Hotels] [Resorts]  ← subcategory pills
-  Flights:
-    [Airlines] [Budget Airlines]
+┌──────────────┬──────────────────────────────────────────┐
+│ Travel &     │ Hotels: [Boutique] [Resorts]  Flights:   │
+│ Exploration  │ [Airlines] [Budget]                      │
+├──────────────┼──────────────────────────────────────────┤
+│ Food &       │ Restaurants: [Fine Dining] [Cafes]       │
+│ Dining       │ Delivery: [Apps]                         │
+└──────────────┴──────────────────────────────────────────┘
 ```
 
 ### Changes in `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-1. **Revert `deriveChips`** to group by subcategory (`label`) again instead of category — each chip represents a subcategory.
+**Lines ~316–347** — Replace the current pillar rendering with a table-like layout:
 
-2. **Change `chipsByPillar`** to a nested structure: `Map<pillar, Map<category, ChipData[]>>`. For each signal, use `s.category || s.pillar` as the category key, and `s.label` as the subcategory chip label.
+1. Each pillar row becomes a `flex` row with two children:
+   - **Left column** (~80px, `shrink-0`): Pillar name with colored dot, vertically centered
+   - **Right column** (`flex-1`): The existing inline category labels + subcategory pills
 
-3. **Update the rendering** in the pills section to iterate three levels:
-   - **Pillar header**: colored dot + pillar name (existing)
-   - **Category header**: indented, smaller text showing category name followed by a colon
-   - **Subcategory pills**: the actual clickable chips, indented further under the category
+2. Add a subtle bottom border (`border-b border-slate-200/40`) on each row except the last, acting as a divider between pillars.
 
-4. **Increase font sizes slightly** — pillar header from `text-[9px]` to `text-[10px]`, category header `text-[9px]`, pills remain as-is.
+3. Remove the current `mb-2` spacing on pillar containers and use `py-1.5` padding instead for consistent row height.
+
+4. Remove the separate pillar header `<div>` — the pillar name moves into the left column cell.
 
 ### Files modified
 - `src/components/exec-demo/ExecDemoIntelPanel.tsx`
