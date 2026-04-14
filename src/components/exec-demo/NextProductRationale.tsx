@@ -21,10 +21,10 @@ function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] })
   if (sources.length === 0) return null;
 
   return (
-    <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Current Holdings</span>
+    <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Current Holdings</span>
       {sources.map(([source, count]) => (
-        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
+        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5 shrink-0">
           <CheckCircle2 className="w-3 h-3 text-emerald-500" />
           {source} ({count})
         </span>
@@ -43,14 +43,14 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
 
   return (
-    <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
+    <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Product Catalog</span>
       {PRODUCT_CATALOG.map(name => {
         const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
         return (
           <span
             key={name}
-            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${
+            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border shrink-0 ${
               isMatch
                 ? "text-blue-700 bg-blue-50 border-blue-200"
                 : "text-slate-400 bg-slate-50 border-slate-100"
