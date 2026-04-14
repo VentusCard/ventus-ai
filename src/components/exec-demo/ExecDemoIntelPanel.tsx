@@ -324,11 +324,11 @@ export default function ExecDemoIntelPanel({
                       </div>
                       {/* Categories under this pillar */}
                       {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
-                        <div key={category} className="ml-2.5 mb-1">
-                          <div className="text-[9px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">
+                        <div key={category} className="ml-2.5 mb-1 flex items-start gap-1.5">
+                          <span className="text-[9px] text-slate-400 font-medium uppercase tracking-wider whitespace-nowrap pt-[3px]">
                             {category}:
-                          </div>
-                          <div className="flex flex-wrap gap-1 ml-1">
+                          </span>
+                          <div className="flex flex-wrap gap-1">
                             {catChips.map((chip, idx) => (
                               <AnimatedChip
                                 key={`${chip.pillar}::${chip.category}::${chip.label}`}
