@@ -2,7 +2,7 @@ import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
-import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
+
 import { Layers, Heart, Activity, Search } from "lucide-react";
 import {
   Accordion,
@@ -55,19 +55,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* How It Works — Enrichment Engine Demo */}
-        <section id="how-it-works" className="py-24 bg-white scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
-              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
-                Watch how Ventus builds a behavioral profile from a real customer's transaction history.
-              </p>
-            </ScrollReveal>
-            <VentusTransactionEnrichment />
-          </div>
-        </section>
 
         <IntegrationSection />
 
