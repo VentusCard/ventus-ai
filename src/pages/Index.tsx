@@ -3,12 +3,20 @@ import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 
+import { Layers, Heart, Activity, Search } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+
+const signalLayers = [
+  { icon: Layers, title: "Lifestyle Pillars", desc: "12 behavioral categories extracted from spending patterns. From Travel & Adventure to Financial Planning." },
+  { icon: Heart, title: "Life Event Detection", desc: "20+ life events detected in real time. New baby, home purchase, retirement, relocation, and more." },
+  { icon: Activity, title: "Well-being Signals", desc: "Financial wellness indicators surfaced from transaction behavior — stress, stability, and momentum." },
+  { icon: Search, title: "Purchase Cycle Intel", desc: "Detect what customers are planning next. We surface intent signals before they become transactions." },
+];
 
 const faqs = [
   { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
@@ -34,75 +42,15 @@ const Index = () => {
               </h2>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Card 1 — Lifestyle Pillars */}
-              <ScrollReveal>
-                <div className="rounded-xl p-5 min-h-[200px]" style={{ background: "#0A1628" }}>
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-blue-400 mb-4">Lifestyle Pillars</p>
-                  <div className="space-y-3 mb-4">
-                    {[
-                      { cat: "Travel & Exploration", amount: "$1,338", color: "#3b82f6" },
-                      { cat: "Family & Community", amount: "$889", color: "#22c55e" },
-                      { cat: "Sports & Fitness", amount: "$228", color: "#f59e0b" },
-                    ].map(r => (
-                      <div key={r.cat} className="flex items-center justify-between pl-3" style={{ borderLeft: `2px solid ${r.color}` }}>
-                        <span className="text-white text-sm">{r.cat}</span>
-                        <span className="text-white text-sm font-semibold">{r.amount}</span>
-                      </div>
-                    ))}
+              {signalLayers.map((cap, i) => (
+                <ScrollReveal key={cap.title} delay={i * 0.1}>
+                  <div className="rounded-xl p-6 shadow-sm min-h-[140px]" style={{ background: "#f0f6ff" }}>
+                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
                   </div>
-                  <p className="text-gray-500 text-xs">12 behavioral categories extracted from spending patterns</p>
-                </div>
-              </ScrollReveal>
-
-              {/* Card 2 — Life Event Detection */}
-              <ScrollReveal delay={0.1}>
-                <div className="rounded-xl p-5 min-h-[200px]" style={{ background: "#0A1628" }}>
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-400 mb-4">Life Event Detection</p>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-white text-lg font-bold">● New Parent</span>
-                    <span className="text-[10px] font-semibold text-emerald-400 px-2 py-0.5 rounded-full" style={{ background: "rgba(16,185,129,0.15)" }}>95% confidence</span>
-                  </div>
-                  <div className="space-y-1 mb-4">
-                    {["Buy Buy Baby   $234.50", "Pottery Barn Kids   $189.00", "Carter's   $124.50"].map(t => (
-                      <p key={t} className="text-gray-500 text-xs font-mono">{t}</p>
-                    ))}
-                  </div>
-                  <p className="text-gray-500 text-xs">20+ life events detected in real time</p>
-                </div>
-              </ScrollReveal>
-
-              {/* Card 3 — Well-being Signals */}
-              <ScrollReveal delay={0.2}>
-                <div className="rounded-xl p-5 min-h-[200px]" style={{ background: "#0A1628" }}>
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-purple-400 mb-4">Well-being Signals</p>
-                  <div className="space-y-3 mb-4">
-                    {[
-                      { label: "Stable Income", dot: "#22c55e", prefix: "●" },
-                      { label: "Building Emergency Fund", dot: "#3b82f6", prefix: "●" },
-                      { label: "Increasing Discretionary Spend", dot: "#f59e0b", prefix: "↑" },
-                    ].map(r => (
-                      <div key={r.label} className="flex items-center gap-2">
-                        <span className="text-sm" style={{ color: r.dot }}>{r.prefix}</span>
-                        <span className="text-white text-sm">{r.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-gray-500 text-xs">Financial wellness indicators from transaction behavior</p>
-                </div>
-              </ScrollReveal>
-
-              {/* Card 4 — Purchase Cycle Intel */}
-              <ScrollReveal delay={0.3}>
-                <div className="rounded-xl p-5 min-h-[200px]" style={{ background: "#0A1628" }}>
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-orange-400 mb-4">Purchase Cycle Intel</p>
-                  <p className="text-white text-lg font-bold mb-1">Next: Home Improvement</p>
-                  <p className="text-gray-500 text-xs mb-3">78% confidence · within 30 days</p>
-                  <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: "#1e2d4a" }}>
-                    <div className="h-full rounded-full" style={{ background: "#f97316", width: "78%" }} />
-                  </div>
-                  <p className="text-gray-500 text-xs">Surface intent signals before they become transactions</p>
-                </div>
-              </ScrollReveal>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
         </section>
