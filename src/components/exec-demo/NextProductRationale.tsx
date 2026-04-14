@@ -60,9 +60,9 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   if (productCards && productCards.length > 0) {
     return (
       <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
-        {/* Cross-check section */}
+        {/* Current holdings pills */}
         {transactions && transactions.length > 0 && (
-          <CurrentVsRecommended transactions={transactions} productCards={productCards} />
+          <CurrentHoldingsPills transactions={transactions} />
         )}
 
         {/* Header */}
