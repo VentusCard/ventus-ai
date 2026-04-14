@@ -44,6 +44,7 @@ interface Props {
 export default function GeneratedOffersPhoneView({ offerGroups, customerName }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
+  const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
 
   const groups = offerGroups.filter(g => g.deals.filter(d => d.signal !== "suppress").length > 0);
 
@@ -53,16 +54,90 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   }, [current]);
 
   useEffect(() => {
-    if (groups.length <= 1) return;
+    if (groups.length <= 1 || expandedGroup) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % groups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [groups.length]);
+  }, [groups.length, expandedGroup]);
 
   if (groups.length === 0) return null;
 
+  // ── Deal Detail View ──
+  if (expandedGroup) {
+    const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
+    const imgSrc = getCollectionImage(expandedGroup.rollup, expandedGroup.pillar);
+    const c = getColor(expandedGroup.pillar || "");
+
+    return (
+      <div className="px-0 py-0 flex flex-col h-full" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
+        {/* Header */}
+        <button
+          onClick={() => setExpandedGroup(null)}
+          className="flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="text-[11px] font-medium">Back</span>
+        </button>
+
+        {/* Banner */}
+        <div className="h-[90px] w-full overflow-hidden">
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+        </div>
+
+        <div className="px-3 pt-2.5 pb-1">
+          <p className="text-[13px] font-bold text-slate-800">{expandedGroup.rollup}</p>
+          <p className="text-[10px] text-slate-500">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
+        </div>
+
+        {/* Deal list */}
+        <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
+          {deals.map((deal) => (
+            <div
+              key={deal.id}
+              className="rounded-xl border border-slate-100 bg-white p-3 flex items-start justify-between gap-2"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchant}</p>
+                {deal.product_name && (
+                  <p className="text-[11px] text-slate-500 truncate">{deal.product_name}</p>
+                )}
+                {deal.message && (
+                  <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{deal.message}</p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                {deal.reward_value && (
+                  <span
+                    className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
+                    style={{ background: c.dot }}
+                  >
+                    {deal.reward_value}
+                  </span>
+                )}
+                <button
+                  className="text-[9px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
+                  style={{ borderColor: c.dot, color: c.dot }}
+                >
+                  {deal.cta_button_text || "Activate"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <style>{`
+          @keyframes detail-slide-in {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // ── Carousel View ──
   const active = groups[current % groups.length];
   const activeDeals = active.deals.filter(d => d.signal !== "suppress");
   const imgSrc = getCollectionImage(active.rollup, active.pillar);
@@ -78,30 +153,21 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
 
       <div
         key={`${active.pillar}::${active.rollup}`}
-        className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[160px]"
+        className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[160px] cursor-pointer hover:shadow-md transition-shadow"
         style={{
           background: "linear-gradient(145deg, #f8fafc, #ffffff)",
           animation: `collection-slide-${direction} 0.35s ease-out`,
         }}
+        onClick={() => setExpandedGroup(active)}
       >
-        {/* Stock photo banner */}
         <div className="h-[80px] w-full overflow-hidden">
-          <img
-            src={imgSrc}
-            alt=""
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
         </div>
-
-        {/* Collection message */}
         <div className="px-4 pt-2.5 pb-1.5 flex-1">
           <p className="text-[13px] font-semibold text-slate-800 leading-snug">
             {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
           </p>
         </div>
-
-        {/* Merchant pills */}
         <div className="flex items-center gap-1 px-4 pb-3 overflow-hidden">
           {activeDeals.map((deal) => (
             <span
