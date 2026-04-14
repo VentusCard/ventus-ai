@@ -1,20 +1,19 @@
 
 
-## Sort product cards: life event cards above behavioral cards
+## Make life event product card copy more subtle
 
-### Change: `src/components/exec-demo/NextProductRationale.tsx`
+### Problem
+The AI-generated `quote` on life event cards currently references the life event directly (e.g., "as you plan for college..."). The user wants the copy to use indirect language — e.g., "major family milestone" instead of "new baby," "big transition ahead" instead of "retirement."
 
-In the section where `productCards.map((card, i) => ...)` renders cards (line ~130), sort the cards before mapping so that life event cards (`card.type !== "behavioral"`) appear first and behavioral cards appear after.
+The `signal_label` (the trigger pill text) should remain explicit (e.g., "College Preparation").
 
-Replace the direct `.map()` with a sorted copy:
+### Change: `supabase/functions/generate-product-cards/index.ts`
 
-```typescript
-const sortedCards = [...productCards].sort((a, b) => {
-  if (a.type === "behavioral" && b.type !== "behavioral") return 1;
-  if (a.type !== "behavioral" && b.type === "behavioral") return -1;
-  return 0;
-});
-```
+Update the **CARD 2 — LIFE EVENT** section of the system prompt (~lines 44-50) to add explicit instructions:
 
-Then map over `sortedCards` instead of `productCards`. No other files change.
+- The `quote` must **never** name the life event directly — use indirect, euphemistic language instead
+- Add concrete examples: "new baby" → "major family milestone", "college" → "an upcoming chapter", "retirement" → "the next phase", "home purchase" → "putting down roots"
+- Clarify that `signal_label` should still use the explicit event name (this is already the case but worth reinforcing)
+
+No other files change. The edge function will auto-deploy.
 
