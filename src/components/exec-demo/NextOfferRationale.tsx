@@ -11,6 +11,8 @@ export interface GeneratedOffer {
   cta: string;
   signal: "boost" | "suppress" | "neutral";
   signalReason: string;
+  suppressedCategory?: string;
+  boostCategory?: string;
 }
 
 export interface RollupOfferGroup {
