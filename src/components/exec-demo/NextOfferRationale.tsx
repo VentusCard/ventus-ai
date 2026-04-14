@@ -139,7 +139,7 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
   const totalSuppressed = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "suppress").length, 0);
 
   return (
-    <div className="px-3 py-3 space-y-2.5 overflow-y-auto scrollbar-light">
+    <div className="px-3 py-3 space-y-2.5">
 
       {/* Strategy header */}
       <div className="flex items-center gap-2 flex-wrap">
