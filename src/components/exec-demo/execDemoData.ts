@@ -41,6 +41,7 @@ export interface SignalEntry {
   mccDescription?: string;
   category?: string;
   tier?: string;
+  confidence?: number;
 }
 
 export interface ExecPersona {
@@ -421,6 +422,7 @@ export interface EnrichedTransaction {
   subcategories: string[];
   spending_tier: string;
   purchase_frequency?: string;
+  confidence?: number;
 }
 
 /** Build signal map from AI-classified enriched transactions, preserving MCC data from raw CSV */
@@ -452,6 +454,7 @@ export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[],
       amount: tx.amount || 0,
       frequency: tx.purchase_frequency,
       tier: tx.spending_tier,
+      confidence: tx.confidence,
       mcc: csvMcc?.mcc || "",
       mccDescription: csvMcc?.mccDescription || "Unknown",
     };
