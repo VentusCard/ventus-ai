@@ -1,10 +1,8 @@
-import { useState, useCallback } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3, Plane } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 import AnnouncementBar from "./AnnouncementBar";
 
 
@@ -48,17 +46,14 @@ const insightTools = [
   },
 ];
 
-const allProducts = [coreProduct, ...insightTools];
+
 
 /** Pages where the hero has a dark background and the navbar should start transparent */
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel", "/insights"];
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
@@ -67,12 +62,7 @@ const Navbar = () => {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-    setIsMobileProductsOpen(false);
   };
-  const goToFaq = useCallback(() => {
-    closeMobileMenu();
-    navigate("/faq");
-  }, [navigate]);
 
   const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
   const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
@@ -123,26 +113,6 @@ const Navbar = () => {
         }`}
       >
         <div style={{ padding: '1.5rem' }}>
-          <button
-            onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100"
-          >
-            Platform
-            <ChevronDown className={`h-4 w-4 transition-transform ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
-          </button>
-          <div className={`overflow-hidden transition-all duration-300 ${isMobileProductsOpen ? 'max-h-96' : 'max-h-0'}`}>
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-3 pb-1">One Tech Core</p>
-              <Link to={coreProduct.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
-                {coreProduct.title}
-              </Link>
-              <div className="ml-4 my-1 border-t border-gray-100" />
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-2 pb-1">Five Insight Tools</p>
-              {insightTools.map((p) => (
-                <Link key={p.href} to={p.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
-                  {p.title}
-                </Link>
-              ))}
-            </div>
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
           <Link to="/faq" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</Link>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
