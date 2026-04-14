@@ -199,6 +199,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   </span>
                 </div>
               </div>
+              </div>
             </div>
           );
         })}
