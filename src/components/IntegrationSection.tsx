@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const steps = [
   { step: "01", title: "Connect", desc: "Banks and vendors securely share transaction data via API. No changes to core banking systems required." },
@@ -10,6 +10,12 @@ const stats = [
   { target: 3000, suffix: "+", label: "Dynamic labels" },
   { target: 50, suffix: "+", label: "Lifestyle dimensions" },
   { target: 20, suffix: "+", label: "Life events detected" },
+];
+
+const partners = [
+  { name: "Salesforce", logo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg" },
+  { name: "FIS", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/FIS_%28company%29_2022.svg/1200px-FIS_%28company%29_2022.svg.png" },
+  { name: "Jack Henry", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Jack_Henry_Logo.svg/1200px-Jack_Henry_Logo.svg.png" },
 ];
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
@@ -62,7 +68,6 @@ const IntegrationSection = () => {
 
         {/* Steps with connector */}
         <div ref={sectionRef} className="relative grid md:grid-cols-3 gap-8">
-          {/* Horizontal connector line (desktop only) */}
           <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
             <div
               className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
@@ -101,6 +106,18 @@ const IntegrationSection = () => {
           <div>
             <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count2 : 0}{stats[2].suffix}</p>
             <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[2].label}</p>
+          </div>
+        </div>
+
+        {/* Integration Partners */}
+        <div className="mt-20 text-center">
+          <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-8">Integration Partners</p>
+          <div className="flex items-center justify-center gap-12 md:gap-16 flex-wrap">
+            {partners.map((p) => (
+              <div key={p.name} className="flex items-center justify-center h-10 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <img src={p.logo} alt={p.name} className="h-8 md:h-10 w-auto brightness-0 invert" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
