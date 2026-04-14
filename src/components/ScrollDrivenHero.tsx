@@ -167,20 +167,28 @@ const ScrollDrivenHero = () => {
       style={{ height: "250vh", background: "#ffffff" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-32 md:pt-36 overflow-hidden">
-        {/* Headline */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight text-center mb-10 px-6 max-w-4xl">
+      <div className="sticky top-0 h-screen flex items-start overflow-hidden">
+        {/* Left — Sticky Headline */}
+        <div className="hidden lg:flex flex-col justify-center pl-12 xl:pl-20 pr-8 pt-40 w-[45%] shrink-0">
+          <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] xl:text-6xl font-bold tracking-tight text-gray-900 leading-tight">
+            Turn transaction data into{" "}
+            <span className="italic text-blue-600">behavioral intelligence</span>
+          </h1>
+        </div>
+
+        {/* Mobile headline */}
+        <h1 className="lg:hidden text-3xl font-bold tracking-tight text-gray-900 leading-tight text-center px-6 pt-28 pb-6 w-full">
           Turn transaction data into{" "}
           <span className="italic text-blue-600">behavioral intelligence</span>
         </h1>
 
-        {/* Card + Callout wrapper */}
-        <div className="relative flex items-start justify-center gap-6">
+        {/* Right — Card + Callout */}
+        <div className="hidden lg:flex flex-1 items-start justify-center pt-32 relative">
           {/* The Card */}
           <div
             className="rounded-2xl overflow-hidden transition-colors duration-[400ms] ease-in-out"
             style={{
-              width: 480,
+              width: 420,
               maxWidth: "calc(100vw - 48px)",
               background: cardBg,
               boxShadow: "0 25px 60px -12px rgba(0,0,0,0.4)",
@@ -266,7 +274,7 @@ const ScrollDrivenHero = () => {
                         key={i}
                         className="flex items-center justify-between py-[3px] transition-all duration-[400ms]"
                         style={{
-                          opacity: isDimmed ? 0.2 : 1,
+                          opacity: isDimmed ? 0.1 : 1,
                           borderLeft: isHighlighted ? `3px solid ${activePersona!.color}` : "3px solid transparent",
                           paddingLeft: 8,
                         }}
@@ -304,10 +312,10 @@ const ScrollDrivenHero = () => {
           >
             {activePersona && (
               <div
-                className="rounded-xl px-4 py-3 text-[12px] leading-relaxed border transition-all duration-[400ms]"
+                className="rounded-xl px-4 py-3 text-[12px] leading-relaxed transition-all duration-[400ms]"
                 style={{
                   background: `${activePersona.color}10`,
-                  borderColor: `${activePersona.color}30`,
+                  borderLeft: `4px solid ${activePersona.color}`,
                   color: activePersona.color,
                 }}
               >
@@ -320,9 +328,8 @@ const ScrollDrivenHero = () => {
                 <div style={{ color: "#6b7280" }}>{activePersona.callout}</div>
               </div>
             )}
-          </div>
         </div>
-      </div>
+        </div>
     </div>
   );
 };
