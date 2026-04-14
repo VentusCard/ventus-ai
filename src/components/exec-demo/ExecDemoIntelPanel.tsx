@@ -420,7 +420,7 @@ export default function ExecDemoIntelPanel({
             {activeTab === "analytics" && synthesisTriggered ? (
               <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} />
             ) : activeTab === "relationship" ? (
               <NextConversationRationale />
             ) : (
