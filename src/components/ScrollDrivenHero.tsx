@@ -170,13 +170,10 @@ const ScrollDrivenHero = () => {
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
         {/* Centered Headline */}
-        <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-white leading-[1.15] text-center mb-4 px-6 max-w-4xl">
+        <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-white leading-[1.15] text-center mb-6 px-6 max-w-4xl">
           Turn transaction data into{" "}
           <span className="italic text-blue-400">behavioral intelligence</span>
         </h1>
-        <p className="text-sm md:text-base text-gray-400 max-w-2xl text-center leading-relaxed mb-10 px-6">
-          A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
-        </p>
 
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
@@ -358,11 +355,15 @@ const ScrollDrivenHero = () => {
           </div>
         </div>
 
+        <p className="text-sm md:text-base text-gray-400 max-w-2xl text-center leading-relaxed mt-6 px-6">
+          A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
+        </p>
+
         {/* Learn More button below card */}
         <Button
           variant="outline"
           size="lg"
-          className="mt-8 border-gray-600 text-gray-300 hover:bg-white/10 hover:text-white"
+          className="mt-4 border-gray-600 text-gray-300 hover:bg-white/10 hover:text-white"
           onClick={() => {
             document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
           }}
