@@ -182,41 +182,8 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap, 
       .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak);
   }, [transactions, signalMap, personaSynthesis]);
 
-  // Next-Purchase Probability computation
-  const probabilityRows: ProbabilityRow[] = useMemo(() => {
-    if (rows.length === 0) return [];
 
-    return rows
-      .map(row => {
-        const recency = calcRecency(row.monthlySpend);
-        const frequency = calcFrequency(row.monthlySpend);
 
-        const s1 = calcSeasonality(row.monthlySpend, 1);
-        const s2 = calcSeasonality(row.monthlySpend, 2);
-        const s3 = calcSeasonality(row.monthlySpend, 3);
-
-        const prob30 = clampProb(recency * 0.40 + frequency * 0.35 + s1 * 0.25);
-        const prob60 = clampProb(recency * 0.40 + frequency * 0.35 + s2 * 0.25);
-        const prob90 = clampProb(recency * 0.40 + frequency * 0.35 + s3 * 0.25);
-
-        const confidence: "High" | "Medium" | "Low" =
-          row.count > 6 ? "High" : row.count >= 3 ? "Medium" : "Low";
-
-        return {
-          label: row.label,
-          pillar: row.pillar,
-          prob30,
-          prob60,
-          prob90,
-          confidence,
-          count: row.count,
-          lastMonthAgo: lastPurchaseMonthsAgo(row.monthlySpend),
-          activeMonths: row.monthlySpend.filter(v => v > 0).length,
-        };
-      })
-      .sort((a, b) => b.prob30 - a.prob30)
-      .slice(0, 6);
-  }, [rows]);
 
   if (rows.length === 0) {
     return (
