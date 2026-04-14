@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import EnrichmentMockup from "@/components/hero/EnrichmentMockup";
 import AnimatedHeroTitle from "@/components/hero/AnimatedHeroTitle";
 
@@ -21,6 +22,19 @@ const Hero = () => {
               }>
               A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
             </p>
+
+            <Button
+              variant="outline"
+              size="lg"
+              className={`border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-700 ${
+                showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+              }`}
+              onClick={() => {
+                document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              Learn More
+            </Button>
           </div>
 
           <div className="hidden lg:flex justify-center">
