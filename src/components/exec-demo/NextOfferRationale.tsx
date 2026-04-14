@@ -1,4 +1,4 @@
-import { Sparkles, ArrowRight, Compass } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 
@@ -6,18 +6,19 @@ export interface GeneratedOffer {
   id: string;
   merchant: string;
   product: string;
-  category: string;
-  rewardType: string;
   rewardValue: string;
   message: string;
   cta: string;
-  rationale: string;
-  sourceRollup: string;
-  isDiscovery?: boolean;
+}
+
+export interface RollupOfferGroup {
+  rollup: string;
+  pillar: string;
+  deals: GeneratedOffer[];
 }
 
 interface Props {
-  offers: GeneratedOffer[] | null;
+  offers: RollupOfferGroup[] | null;
   personaSynthesis: PersonaSynthesis | null;
   loading: boolean;
 }
@@ -41,10 +42,10 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
     );
   }
 
-  const rollupCount = personaSynthesis?.pillarRollups?.length || 0;
+  const totalDeals = offers.reduce((sum, g) => sum + g.deals.length, 0);
 
   return (
-    <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
+    <div className="px-3 py-3 space-y-3 overflow-y-auto">
       {/* Rollup pills */}
       {personaSynthesis?.pillarRollups && personaSynthesis.pillarRollups.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-1">
@@ -72,73 +73,70 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
       {/* Strategy header */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-[11px] font-semibold text-slate-500">
-          {rollupCount} behavioral clusters
+          {offers.length} behavioral clusters
         </span>
         <ArrowRight className="w-3 h-3 text-slate-300" />
         <span className="text-[11px] font-bold text-emerald-600">
-          {offers.length} personalized offers
+          {totalDeals} personalized deals
         </span>
       </div>
 
-
-      {/* Offer rationale cards */}
-      {offers.map((offer, i) => {
-        const c = getColor(offer.category);
+      {/* Grouped offer sections */}
+      {offers.map((group, gi) => {
+        const c = getColor(group.pillar);
         return (
-          <div
-            key={offer.id}
-            className="rounded-xl border overflow-hidden"
-            style={{
-              borderColor: offer.isDiscovery ? "rgba(168,85,247,.25)" : c.border,
-              borderLeftWidth: 3,
-              borderLeftColor: offer.isDiscovery ? "#a855f7" : c.dot,
-              animation: `exec-card-reveal 0.4s ease-out ${i * 0.12}s both`,
-            }}
-          >
-            <div className="px-3 py-2.5">
-              {/* Merchant + reward */}
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1.5">
-                  {offer.isDiscovery && <Compass className="w-3 h-3 text-purple-500" />}
-                  <span className="text-[12px] font-bold text-slate-800">{offer.merchant}</span>
-                  <span className="text-[10px] text-slate-400">·</span>
-                  <span className="text-[10px] text-slate-500">{offer.product}</span>
-                </div>
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{
-                    background: offer.isDiscovery ? "rgba(168,85,247,.1)" : c.bg,
-                    color: offer.isDiscovery ? "#7c3aed" : c.text,
-                  }}
-                >
-                  {offer.rewardValue}
-                </span>
-              </div>
-
-              {/* Personalized message */}
-              <p className="text-[11px] text-slate-600 leading-relaxed mb-1.5 italic">
-                "{offer.message}"
-              </p>
-
-              {/* Rationale */}
-              <div className="flex items-start gap-1">
-                <span className="text-[9px] text-slate-400 font-semibold uppercase shrink-0 mt-px">Why:</span>
-                <span className="text-[10px] text-slate-400 leading-relaxed">{offer.rationale}</span>
-              </div>
-
-              {/* Source rollup tag */}
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <span
-                  className="text-[9px] font-medium px-1.5 py-0.5 rounded"
-                  style={{
-                    background: offer.isDiscovery ? "rgba(168,85,247,.08)" : c.bg,
-                    color: offer.isDiscovery ? "#7c3aed" : c.text,
-                  }}
-                >
-                  {offer.isDiscovery ? "🔮 Discovery" : `✦ ${offer.sourceRollup}`}
-                </span>
-              </div>
+          <div key={`${group.pillar}::${group.rollup}`} className="space-y-1.5">
+            {/* Section header — rollup pill */}
+            <div className="flex items-center gap-1.5 pt-1">
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  background: c.bg,
+                  color: c.text,
+                  border: `1px solid ${c.border}`,
+                }}
+              >
+                <span style={{ color: c.dot }}>✦</span>
+                {group.rollup}
+              </span>
+              <span className="text-[10px] text-slate-400">{group.deals.length} deals</span>
             </div>
+
+            {/* Deal cards */}
+            {group.deals.map((deal, di) => (
+              <div
+                key={deal.id}
+                className="rounded-xl border border-slate-100 px-3 py-2 bg-white"
+                style={{
+                  borderLeftWidth: 3,
+                  borderLeftColor: c.dot,
+                  animation: `exec-card-reveal 0.4s ease-out ${gi * 0.15 + di * 0.08}s both`,
+                }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[12px] font-bold text-slate-800">{deal.merchant}</span>
+                    <span className="text-[10px] text-slate-400">·</span>
+                    <span className="text-[10px] text-slate-500">{deal.product}</span>
+                  </div>
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                    style={{ background: c.bg, color: c.text }}
+                  >
+                    {deal.rewardValue}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed italic mb-1.5">
+                  "{deal.message}"
+                </p>
+                <button
+                  className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: c.bg, color: c.text }}
+                >
+                  {deal.cta}
+                </button>
+              </div>
+            ))}
           </div>
         );
       })}
