@@ -1,28 +1,52 @@
 
 
-## Plan: Category-Level Signal Pills in Rollup Headers
+## Plan: Collection Cards with Rotating Messages in Phone Rewards Tab
 
 ### Goal
-Replace brand-name suppressed pills with **category-level signal pills** that tell the story: what's already covered (✓ Hotels, ✓ Airlines) and what the opportunities are (↑ Headphones, ↑ Luggage). This makes the header a quick legend for the deals below.
+Replace the current per-rollup layout (pill + hero card + grid of deals) with a **collection card** design. Each rollup becomes a visually rich collection card that auto-rotates, showing a curated message (e.g., "Travel smarter and with style with new gears and perks") and the deals grouped under it.
 
 ### Changes
 
-**1. `supabase/functions/generate-next-offers/index.ts`** — Update the prompt and output schema:
-- Add `suppressedCategory` field to suppressed deals (e.g., "Hotels" not "Marriott")
-- Add `boostCategory` field to boosted deals (e.g., "Headphones" not "Sony WH-1000XM5")
-- Prompt instructs AI: suppressed items use broad category labels, boosted items use short product-type labels
+**`src/components/exec-demo/GeneratedOffersPhoneView.tsx`** — Full rewrite:
 
-**2. `src/components/exec-demo/NextOfferRationale.tsx`** — Add boost pills alongside suppressed pills in the header:
-- Suppressed pills: gray with `✓` checkmark + category label (e.g., `✓ Hotels`)
-- Boosted pills: light green with `↑` arrow + category label (e.g., `↑ Headphones`)
-- Neutral deals get no pill — only suppressed and boosted show in the header
-- Deduplicate pills when multiple deals share the same category
+- Replace the current layout with a **single rotating collection card** that cycles through rollup groups every ~4 seconds
+- Each collection card shows:
+  - A short lifestyle-aligned headline message (derived from the rollup name + deals context, e.g., "Travel smarter with new gear and perks")
+  - The rollup pill badge
+  - A horizontal row or compact grid of deal tiles (merchant, reward value, CTA)
+  - Dot indicators at the bottom showing which collection is active
+- Auto-rotation with smooth crossfade/slide transition between collections
+- Tap on dots to jump to a specific collection
 
-Result per rollup card header:
+**`supabase/functions/generate-next-offers/index.ts`** — Add a `collectionMessage` field per rollup group:
+
+- Update the prompt to generate a short, inspiring collection tagline per rollup (8-15 words, lifestyle-focused)
+- Add `collectionMessage` to the rollup group schema (e.g., "Travel smarter and in style with new gear and perks")
+- This message displays as the headline on each collection card
+
+**`src/components/exec-demo/NextOfferRationale.tsx`** — Update the `RollupOfferGroup` interface:
+
+- Add `collectionMessage?: string` to the type so it flows through
+
+### Visual Layout (per collection card)
+
 ```text
-✦ Frequent Traveler  ✓ Hotels  ✓ Airlines  ↑ Headphones  ↑ Luggage
-[deal tiles below...]
+┌─────────────────────────────────┐
+│  ✦ Frequent Traveler            │
+│                                 │
+│  "Travel smarter and in style   │
+│   with new gear and perks"      │
+│                                 │
+│  ┌─────┐ ┌─────┐ ┌─────┐      │
+│  │Away │ │Bose │ │TSA  │      │
+│  │15%  │ │$40  │ │Free │      │
+│  │[CTA]│ │[CTA]│ │[CTA]│      │
+│  └─────┘ └─────┘ └─────┘      │
+│                                 │
+│         ● ○ ○                   │
+└─────────────────────────────────┘
 ```
 
 ### No other files change
+Parent components pass the same `generatedOffers` array — no structural changes needed.
 
