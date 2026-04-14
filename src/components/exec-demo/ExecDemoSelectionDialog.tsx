@@ -106,12 +106,16 @@ export default function ExecDemoSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[85vw] w-[85vw] h-[85vh] max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl border-slate-200 bg-white flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 shrink-0">
-          <h2 className="text-[15px] font-bold text-slate-800 tracking-tight">
-            Ventus AI · Select a Customer Profile
-          </h2>
+        <div className="px-6 py-3 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2">
+            <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
+            <span className="text-[13px] text-slate-400">·</span>
+            <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
+              Select a Customer Profile
+            </h2>
+          </div>
           <p className="text-[11px] text-slate-400 mt-0.5">
-            Choose a sample customer to explore behavioral enrichment
+            Choose a sample customer to explore semantic enrichment
           </p>
         </div>
 
