@@ -157,8 +157,7 @@ const ScrollDrivenHero = () => {
   const activePersonaIndex = personaProgress < 0.33 ? 0 : personaProgress < 0.66 ? 1 : 2;
   const activePersona = stage === 3 ? personas[activePersonaIndex] : null;
 
-  // Card bg transition
-  const cardBg = stage === 1 ? "#1C1C1E" : "#0A1628";
+  // Scroll offset for raw text
 
   // Scroll offset for raw text
   const scrollOffset = useMemo(() => scrollProgress * 200, [scrollProgress]);
