@@ -48,91 +48,109 @@ const TxRow = ({
   pillarColor?: string;
   categoryLabel?: string;
   signalEntry?: SignalEntry;
-}) => (
-  <div className="group/row relative">
+}) => {
+  const [hovered, setHovered] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (!signalEntry || dim) return;
+    const rect = rowRef.current?.getBoundingClientRect();
+    if (rect) {
+      setCoords({ x: rect.left + 16, y: rect.top });
+      setHovered(true);
+    }
+  };
+
+  return (
     <div
-      className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
-      style={{
-        color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
-        background: highlight ? `${highlightColor}18` : "transparent",
-        borderLeft: highlight
-          ? `3px solid ${highlightColor}`
-          : pillarColor
-            ? `3px solid ${pillarColor}80`
-            : "3px solid transparent",
-      }}
+      ref={rowRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setHovered(false)}
     >
-      {pillarColor && !dim && (
-        <span
-          className="w-2 h-2 rounded-full shrink-0"
-          style={{ background: pillarColor }}
-        />
-      )}
-      <span
-        className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
+      <div
+        className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
         style={{
-          color: dim ? "#94a3b8" : "#334155",
-          opacity: dim ? 0.5 : 1,
+          color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
+          background: highlight ? `${highlightColor}18` : "transparent",
+          borderLeft: highlight
+            ? `3px solid ${highlightColor}`
+            : pillarColor
+              ? `3px solid ${pillarColor}80`
+              : "3px solid transparent",
         }}
       >
-        {tx.date}
-      </span>
-      <span className="truncate font-medium">{tx.merchant}</span>
-      <span
-        className="shrink-0 tabular-nums font-semibold"
-        style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
-      >
-        {tx.amount}
-      </span>
-      {categoryLabel && pillarColor && !dim && (
+        {pillarColor && !dim && (
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ background: pillarColor }}
+          />
+        )}
         <span
-          className="text-[8px] font-bold shrink-0 truncate max-w-[100px] rounded px-1.5 py-[1px] text-white"
-          style={{ background: pillarColor }}
+          className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
+          style={{
+            color: dim ? "#94a3b8" : "#334155",
+            opacity: dim ? 0.5 : 1,
+          }}
         >
-          {categoryLabel}
+          {tx.date}
         </span>
+        <span className="truncate font-medium">{tx.merchant}</span>
+        <span
+          className="shrink-0 tabular-nums font-semibold"
+          style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
+        >
+          {tx.amount}
+        </span>
+        {categoryLabel && pillarColor && !dim && (
+          <span
+            className="text-[8px] font-bold shrink-0 truncate max-w-[100px] rounded px-1.5 py-[1px] text-white"
+            style={{ background: pillarColor }}
+          >
+            {categoryLabel}
+          </span>
+        )}
+      </div>
+      {hovered && signalEntry && createPortal(
+        <div
+          className="fixed pointer-events-none bg-slate-800 text-white rounded-md px-3 py-2 shadow-2xl space-y-1"
+          style={{ left: coords.x, top: coords.y - 100, zIndex: 9999 }}
+        >
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400 font-medium">MCC:</span>
+            <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
+            <span className="mx-0.5 text-slate-600">·</span>
+            <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
+          </div>
+          <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
+            Ventus Semantic Enrichment:
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400">Pillar:</span>
+            <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Category:</span>
+            <span className="text-slate-200">{signalEntry.category || "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Sub:</span>
+            <span className="text-slate-200">{signalEntry.label}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400">Tier:</span>
+            <span className="text-slate-200">{signalEntry.tier || "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Frequency:</span>
+            <span className="text-slate-200">{signalEntry.frequency || "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Confidence:</span>
+            <span className="text-emerald-400 font-semibold">High</span>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
-    {/* Hover tooltip */}
-    {signalEntry && !dim && (
-      <div className="hidden group-hover/row:block absolute left-4 top-full z-20 mt-0.5 bg-slate-800 text-white rounded-md px-3 py-2 shadow-lg whitespace-nowrap pointer-events-none space-y-1">
-        {/* Row 1: MCC code + description */}
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="text-slate-400 font-medium">MCC:</span>
-          <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
-          <span className="mx-0.5 text-slate-600">·</span>
-          <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
-        </div>
-        {/* Row 2: Header */}
-        <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
-          Ventus Semantic Enrichment:
-        </div>
-        {/* Row 3: Pillar, Category, Sub-category */}
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="text-slate-400">Pillar:</span>
-          <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-400">Category:</span>
-          <span className="text-slate-200">{signalEntry.category || "—"}</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-400">Sub:</span>
-          <span className="text-slate-200">{signalEntry.label}</span>
-        </div>
-        {/* Row 4: Tier, Frequency, Confidence */}
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="text-slate-400">Tier:</span>
-          <span className="text-slate-200">{signalEntry.tier || "—"}</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-400">Frequency:</span>
-          <span className="text-slate-200">{signalEntry.frequency || "—"}</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-400">Confidence:</span>
-          <span className="text-emerald-400 font-semibold">High</span>
-        </div>
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 const DEFAULT_PERSONA = "A 35-year-old tech professional in San Francisco who loves hiking, craft coffee, and is saving for a first home.";
 
