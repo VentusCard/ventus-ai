@@ -41,7 +41,7 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
-  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string } | null>(null);
+  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string; isCategory?: boolean } | null>(null);
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
