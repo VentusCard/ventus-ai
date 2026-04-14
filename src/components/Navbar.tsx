@@ -6,48 +6,6 @@ import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
 
 
-const coreProduct = {
-  title: "Transaction Enrichment",
-  desc: "Extract lifestyle pillars, intent signals, and behavioral patterns from every transaction.",
-  icon: Layers,
-  href: "/platform",
-};
-
-const insightTools = [
-  {
-    title: "Bank-Wide Analytics",
-    desc: "Portfolio-level intelligence with behavioral segmentation and campaign targeting.",
-    icon: BarChart3,
-    href: "/analytics",
-  },
-  {
-    title: "Consumer Rewards",
-    desc: "Deep purchase analysis powers personalized offer messaging with cross-category recommendations.",
-    icon: Gift,
-    href: "/smartrewards",
-  },
-  {
-    title: "Customer Experience",
-    desc: "Transaction intelligence powering personalized banking interfaces, lifestyle-aware budgeting, and contextual nudges.",
-    icon: Users,
-    href: "/engagement",
-  },
-  {
-    title: "Travel Experience",
-    desc: "Turn every trip into a banking moment with privacy-first travel intelligence.",
-    icon: Plane,
-    href: "/travel",
-  },
-  {
-    title: "Wealth Management",
-    desc: "AI-powered relationship intelligence with life event detection for advisors.",
-    icon: Briefcase,
-    href: "/wealth",
-  },
-];
-
-
-
 /** Pages where the hero has a dark background and the navbar should start transparent */
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel", "/insights"];
 
