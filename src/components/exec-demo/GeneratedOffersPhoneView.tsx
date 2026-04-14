@@ -68,7 +68,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   const imgSrc = getCollectionImage(active.rollup, active.pillar);
 
   return (
-    <div className="px-3 py-3 space-y-2">
+    <div className="px-3 py-3 space-y-2" style={{ overflow: 'hidden', scrollbarWidth: 'none' }}>
       <div className="flex items-center gap-1.5">
         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
         <span className="text-[11px] font-bold text-slate-700">
