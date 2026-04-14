@@ -18,13 +18,25 @@ const FAQ = () => {
   return (
     <div>
       <main>
-        <section className="pt-32 pb-24 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-5 gap-16">
-            <ScrollReveal className="md:col-span-2">
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">FAQ</p>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-snug">Frequently Asked Questions</h1>
+        {/* Hero */}
+        <section className="pt-40 pb-16 bg-white">
+          <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">FAQ</p>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                Frequently Asked{"\n"}Questions
+              </h1>
+              <p className="mt-5 text-gray-500 text-lg max-w-xl mx-auto">
+                Adopting AI can feel complex. Here are the questions operators ask most often before getting started with Ventus.
+              </p>
             </ScrollReveal>
-            <ScrollReveal delay={0.2} className="md:col-span-3">
+          </div>
+        </section>
+
+        {/* Accordion */}
+        <section className="pb-24 bg-white">
+          <div className="max-w-3xl mx-auto px-6 md:px-8">
+            <ScrollReveal delay={0.15}>
               <Accordion type="single" collapsible className="w-full">
                 {faqs.map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`} className="border-b border-gray-200">
