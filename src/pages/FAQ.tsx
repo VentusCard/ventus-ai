@@ -27,7 +27,7 @@ const FAQ = () => {
                 Frequently Asked{"\n"}Questions
               </h1>
               <p className="mt-5 text-gray-500 text-lg max-w-xl mx-auto">
-                Adopting AI can feel complex. Here are the questions operators ask most often before getting started with Ventus.
+                Here are the questions operators ask most often before getting started with Ventus.
               </p>
             </ScrollReveal>
           </div>
