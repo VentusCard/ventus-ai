@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 
 const rawTransactions = [
   "SQ *POTTERY BARN KIDS 4829 $234.50",
@@ -164,15 +165,18 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "250vh", background: "#ffffff" }}
+      style={{ height: "250vh", background: "#0A1628" }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
         {/* Centered Headline */}
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight text-center mb-8 px-6 max-w-4xl">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight text-center mb-3 px-6 max-w-4xl">
           Turn transaction data into{" "}
-          <span className="italic text-blue-600">behavioral intelligence</span>
+          <span className="italic text-blue-400">behavioral intelligence</span>
         </h1>
+        <p className="text-base md:text-lg text-gray-400 max-w-2xl text-center leading-relaxed mb-8 px-6">
+          A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
+        </p>
 
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
@@ -353,6 +357,18 @@ const ScrollDrivenHero = () => {
             )}
           </div>
         </div>
+
+        {/* Learn More button below card */}
+        <Button
+          variant="outline"
+          size="lg"
+          className="mt-8 border-gray-600 text-gray-300 hover:bg-white/10 hover:text-white"
+          onClick={() => {
+            document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          Learn More
+        </Button>
       </div>
     </div>
   );
