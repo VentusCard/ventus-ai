@@ -1,5 +1,6 @@
 import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap, CheckCircle2, Star } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
+import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import type { Transaction } from "./execDemoData";
@@ -11,6 +12,7 @@ interface Props {
   transactions?: Transaction[];
   onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
   activeTriggerLabel?: string | null;
+  pillarRollups?: PillarRollup[];
 }
 
 /* ─── Current holdings pill row ─── */
@@ -79,7 +81,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, pillarRollups }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -138,7 +140,26 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
           );
           const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
-          const isActive = activeTriggerLabel === card.signal_label;
+
+          // Derive short pill label: life event name for life-event cards, rollup label for behavioral
+          let pillLabel = card.signal_label;
+          if (!isBehavioral && matchingEvent) {
+            pillLabel = matchingEvent.event_name;
+          } else if (isBehavioral && pillarRollups && pillarRollups.length > 0) {
+            // Find the first rollup whose pillar/theme matches the card
+            const themeToPillar: Record<string, string[]> = {
+              travel: ["Travel"], dining: ["Food", "Dining"], fitness: ["Wellness", "Fitness", "Sports", "Active"],
+              shopping: ["Shopping", "Style"], entertainment: ["Entertainment", "Culture"],
+              home: ["Home", "Living"], education: ["Education", "Family"], wellness: ["Wellness", "Health"],
+            };
+            const keywords = themeToPillar[card.theme] || [];
+            const matchingRollup = pillarRollups.find(r =>
+              keywords.some(kw => r.pillar.toLowerCase().includes(kw.toLowerCase()) || r.label.toLowerCase().includes(kw.toLowerCase()))
+            );
+            if (matchingRollup) pillLabel = matchingRollup.label;
+          }
+
+          const isActive = activeTriggerLabel === pillLabel;
 
           const handlePillClick = () => {
             if (!hasEvidence || !transactions || !matchingEvent) return;
@@ -152,7 +173,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 return isMatch ? idx : -1;
               })
               .filter(idx => idx !== -1);
-            onTriggerPillClick?.(card.signal_label, matchedIndices, c.dot);
+            onTriggerPillClick?.(pillLabel, matchedIndices, c.dot);
           };
 
           return (
@@ -174,7 +195,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 ) : (
                   <ShieldCheck className="w-3 h-3" />
                 )}
-                {card.signal_label}
+                {pillLabel}
               </div>
 
               {/* Product card */}
