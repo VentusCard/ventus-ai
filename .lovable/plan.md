@@ -1,40 +1,31 @@
 
 
-## Fix: Product card pills not filtering transactions
+## Fix: Life Event pills should highlight evidence transactions
 
-### Root Cause
-The pill click passes `card.signal_label` (e.g., "Frequent Domestic Traveler") as the filter label, but the filtering logic at `ExecDemoPage.tsx:632` matches against `signalMap[i].label` which contains granular subcategory labels like "Airlines" or "Hotels". These never match.
+### Problem
+Clicking a Life Event pill does a broad pillar match instead of highlighting the specific evidence transactions (e.g., COLLEGEBOARD SAT, KAPLAN TEST PREP, STANFORD VISITOR PARKING) that the AI returned as supporting evidence.
 
-### Fix
+### Approach
+Pass the evidence merchants directly through the pill click, then match transactions by merchant name.
+
+### Changes
 
 **`src/components/exec-demo/NextProductRationale.tsx`**
-- Change the `onPillClick` call to pass `isCategory: true` and use the **pillar name** as the label instead of `card.signal_label`. This will match all transactions in that pillar (e.g., all "Travel & Leisure" transactions).
-- Update the `onPillClick` prop type to accept `isCategory`.
+- For life-event card pills, find the matching `LifeEvent` from the `lifeEvents` prop using `card.signal_label` ↔ `event.event_name`.
+- Pass the event's `evidence[]` merchant names via `onPillClick` as a new optional parameter (e.g., `evidenceMerchants: string[]`).
+- Behavioral pills remain unchanged (pillar-based filtering).
 
-```tsx
-// Change from:
-onClick={() => onPillClick?.(themeToPillar[card.theme] || "Lifestyle", card.signal_label)}
-
-// To: filter by pillar's category — pass pillar as both pillar and use a pillar-level filter
-onClick={() => onPillClick?.(themeToPillar[card.theme] || "Lifestyle", card.signal_label, false)}
-```
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+- Update `onPillClick` prop type to include optional `evidenceMerchants`.
 
 **`src/pages/ExecDemoPage.tsx`**
-- Update the `filteredIndices` logic to add a fallback: when `activePillFilter` is set but no transactions match by label, fall back to matching all transactions in that pillar.
+- Extend `activePillFilter` state to support an optional `evidenceMerchants: string[]` field.
+- In `filteredIndices`, when `evidenceMerchants` is present, match transactions by normalized merchant name against the evidence list instead of using pillar matching.
+- Matching logic: normalize both sides (lowercase, strip punctuation) and check if either contains the other.
 
-Specifically at line 630-633, change:
-```tsx
-if (activePillFilter) {
-  const byLabel = Object.entries(sm)
-    .filter(([, s]) => s.pillar === activePillFilter.pillar && 
-      (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label))
-    .map(([idx]) => Number(idx));
-  // Fallback: if no matches by label, show all transactions for that pillar
-  if (byLabel.length > 0) return byLabel;
-  return Object.entries(sm)
-    .filter(([, s]) => s.pillar === activePillFilter.pillar)
-    .map(([idx]) => Number(idx));
-}
-```
+### Example flow
+1. User clicks "College Preparation" pill
+2. `onPillClick("Education & Family", "College Preparation", false, ["COLLEGEBOARD SAT", "KAPLAN TEST PREP", "STANFORD VISITOR PARKING"])`
+3. `filteredIndices` finds transactions whose merchant names match those 3 evidence merchants
+4. Left panel highlights exactly those 3 rows
 
-This ensures clicking "Frequent Domestic Traveler" (mapped to "Travel & Leisure" pillar) highlights all travel-related transactions in the left panel.
