@@ -1,39 +1,40 @@
 
 
-## Make product card pills match Current Holdings size and clickable
+## Fix: Product card pills not filtering transactions
 
-### Problem
-The "Behavioral:" / "Life Event:" pills above each product card are smaller than the Current Holdings pills and not interactive.
+### Root Cause
+The pill click passes `card.signal_label` (e.g., "Frequent Domestic Traveler") as the filter label, but the filtering logic at `ExecDemoPage.tsx:632` matches against `signalMap[i].label` which contains granular subcategory labels like "Airlines" or "Hotels". These never match.
 
-### Changes
+### Fix
 
 **`src/components/exec-demo/NextProductRationale.tsx`**
+- Change the `onPillClick` call to pass `isCategory: true` and use the **pillar name** as the label instead of `card.signal_label`. This will match all transactions in that pillar (e.g., all "Travel & Leisure" transactions).
+- Update the `onPillClick` prop type to accept `isCategory`.
 
-1. **Add `onPillClick` prop** to the component interface, threading it from `ExecDemoIntelPanel`.
+```tsx
+// Change from:
+onClick={() => onPillClick?.(themeToPillar[card.theme] || "Lifestyle", card.signal_label)}
 
-2. **Resize the rolled-up pills** above each card to match the Current Holdings style:
-   - Change from `text-[9px]` label + `text-[10px] px-2 py-0.5` pill → use same `text-[10px] font-medium px-2 py-0.5 rounded-full border` styling as Current Holdings pills
-   - Use the card's theme color for the pill background/border (matching the existing color scheme)
+// To: filter by pillar's category — pass pillar as both pillar and use a pillar-level filter
+onClick={() => onPillClick?.(themeToPillar[card.theme] || "Lifestyle", card.signal_label, false)}
+```
 
-3. **Make pills clickable**: On click, call `onPillClick(themeToPillar(card.theme), card.signal_label)` to highlight associated transactions in the left panel. Map the card's `theme` to the pillar name used by the filter system (e.g., `travel` → `Travel & Leisure`, `dining` → `Dining & Nightlife`, etc.). Add `cursor-pointer` and hover effect.
+**`src/pages/ExecDemoPage.tsx`**
+- Update the `filteredIndices` logic to add a fallback: when `activePillFilter` is set but no transactions match by label, fall back to matching all transactions in that pillar.
 
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+Specifically at line 630-633, change:
+```tsx
+if (activePillFilter) {
+  const byLabel = Object.entries(sm)
+    .filter(([, s]) => s.pillar === activePillFilter.pillar && 
+      (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label))
+    .map(([idx]) => Number(idx));
+  // Fallback: if no matches by label, show all transactions for that pillar
+  if (byLabel.length > 0) return byLabel;
+  return Object.entries(sm)
+    .filter(([, s]) => s.pillar === activePillFilter.pillar)
+    .map(([idx]) => Number(idx));
+}
+```
 
-4. **Pass `onPillClick` through** to `NextProductRationale`:
-   ```tsx
-   <NextProductRationale ... onPillClick={onPillClick} />
-   ```
-
-### Theme-to-Pillar mapping
-A simple lookup will map card themes to the pillar names used in the signal system:
-- `travel` → `Travel & Leisure`
-- `dining` → `Dining & Nightlife`
-- `fitness`/`wellness` → `Health & Wellness`
-- `shopping` → `Shopping & Retail`
-- `entertainment` → `Entertainment`
-- `home` → `Home & Living`
-- `education`/`family` → `Education & Family`
-- `retirement` → `Financial Planning`
-- `business` → `Business`
-- `lifestyle` → `Lifestyle`
-
+This ensures clicking "Frequent Domestic Traveler" (mapped to "Travel & Leisure" pillar) highlights all travel-related transactions in the left panel.
