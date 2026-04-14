@@ -167,14 +167,14 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "360vh", background: "#0A1628" }}
+      style={{ height: "360vh", background: "#F5F5EF" }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-20 md:pt-24 overflow-visible">
         {/* Centered Headline */}
-        <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-white leading-[1.15] text-center mb-6 px-6 max-w-4xl">
+        <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-gray-900 leading-[1.15] text-center mb-6 px-6 max-w-4xl">
           Turn transaction data into{" "}
-          <span className="italic text-blue-400">behavioral intelligence</span>
+          <span className="italic text-blue-600">behavioral intelligence</span>
         </h1>
 
         {/* Card + Callout wrapper */}
@@ -185,95 +185,62 @@ const ScrollDrivenHero = () => {
             style={{
               width: 440,
               maxWidth: "calc(100vw - 48px)",
-              background: cardBg,
-              boxShadow: "0 25px 60px -12px rgba(0,0,0,0.4)",
+              background: "#0A1628",
+              boxShadow: "0 25px 60px -12px rgba(0,0,0,0.25)",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {/* Customer Profile — top 1/3 */}
+            {/* Header row */}
             <div
-              className="px-4 pt-4 pb-3 border-b transition-all duration-[400ms]"
+              className="flex items-center justify-between px-5 pt-4 pb-3 border-b"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  {/* Avatar */}
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-[400ms]"
+              <span className="font-mono text-xs text-gray-500">cust_013</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full transition-colors duration-[400ms]"
+                  style={{
+                    background: stage >= 2 ? "#22c55e" : "#6b7280",
+                    animation: stage === 1 ? "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" : "none",
+                  }}
+                />
+                <span
+                  className="text-[11px] font-mono transition-colors duration-[400ms]"
+                  style={{ color: stage >= 2 ? "#22c55e" : "#6b7280" }}
+                >
+                  {stage >= 2 ? "Profile Built" : "Analyzing..."}
+                </span>
+              </div>
+            </div>
+
+            {/* Persona pills — Stage 2+ */}
+            <div
+              className="flex flex-wrap gap-2 px-5 pt-3 transition-all duration-[400ms]"
+              style={{
+                maxHeight: stage >= 2 ? 48 : 0,
+                opacity: stage >= 2 ? 1 : 0,
+                overflow: "hidden",
+              }}
+            >
+              {personas.map((p, i) => {
+                const isActive = stage === 3 && activePersona?.id === p.id;
+                return (
+                  <span
+                    key={p.id}
+                    className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
                     style={{
-                      background: stage >= 2 ? "rgba(59,130,246,0.2)" : "rgba(107,114,128,0.2)",
-                      color: stage >= 2 ? "#60a5fa" : "#9ca3af",
+                      background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
+                      color: p.color,
+                      border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
+                      opacity: stage2Progress > (i * 0.3) ? 1 : 0,
+                      transform: stage2Progress > (i * 0.3) ? "translateY(0)" : "translateY(8px)",
+                      transitionDelay: `${i * 200}ms`,
                     }}
                   >
-                    MR
-                  </div>
-                  <div>
-                    <div className="text-white text-sm font-semibold">Michael R.</div>
-                    <div className="text-[11px] text-gray-500 font-mono">cust_013</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-2 h-2 rounded-full transition-colors duration-[400ms]"
-                    style={{
-                      background: stage >= 2 ? "#22c55e" : "#6b7280",
-                      animation: stage === 1 ? "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" : "none",
-                    }}
-                  />
-                  <span
-                    className="text-[11px] font-mono transition-colors duration-[400ms]"
-                    style={{ color: stage >= 2 ? "#22c55e" : "#6b7280" }}
-                  >
-                    {stage >= 2 ? "Profile Built" : "Analyzing..."}
+                    {p.label}
                   </span>
-                </div>
-              </div>
-
-              {/* Profile details */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)" }}>
-                  <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-0.5">Household</div>
-                  <div className="text-[12px] text-gray-300 font-medium">Family of 4</div>
-                </div>
-                <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)" }}>
-                  <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-0.5">Location</div>
-                  <div className="text-[12px] text-gray-300 font-medium">Wellesley, MA</div>
-                </div>
-                <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)" }}>
-                  <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-0.5">Segment</div>
-                  <div className="text-[12px] text-gray-300 font-medium">High Income</div>
-                </div>
-              </div>
-
-              {/* Persona pills — Stage 2+ */}
-              <div
-                className="flex flex-wrap gap-2 mt-3 transition-all duration-[400ms]"
-                style={{
-                  maxHeight: stage >= 2 ? 48 : 0,
-                  opacity: stage >= 2 ? 1 : 0,
-                  overflow: "hidden",
-                }}
-              >
-                {personas.map((p, i) => {
-                  const isActive = stage === 3 && activePersona?.id === p.id;
-                  return (
-                    <span
-                      key={p.id}
-                      className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
-                      style={{
-                        background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
-                        color: p.color,
-                        border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
-                        opacity: stage2Progress > (i * 0.3) ? 1 : 0,
-                        transform: stage2Progress > (i * 0.3) ? "translateY(0)" : "translateY(8px)",
-                        transitionDelay: `${i * 200}ms`,
-                      }}
-                    >
-                      {p.label}
-                    </span>
-                  );
-                })}
-              </div>
+                );
+              })}
             </div>
 
             {/* Transaction list — bottom 2/3 */}
