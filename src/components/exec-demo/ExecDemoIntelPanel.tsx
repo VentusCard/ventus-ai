@@ -1,5 +1,5 @@
 import { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
@@ -264,17 +264,23 @@ export default function ExecDemoIntelPanel({
         {hasSynthesis && !synthesisTriggered && chips.length > 0 && phase === "hold" && (
           <button
             onClick={() => setSynthesisTriggered(true)}
-            className="flex items-center gap-2 mx-auto mb-3 px-4 py-2 rounded-full text-[12px] font-semibold transition-all duration-300 hover:scale-105"
+            className="flex items-center gap-2 mx-auto mb-3 px-5 py-2.5 rounded-lg text-[12px] font-bold tracking-wide uppercase transition-all duration-300 hover:scale-[1.03]"
             style={{
-              background: "linear-gradient(135deg, rgba(251,191,36,.15), rgba(245,158,11,.25))",
-              color: "#92400e",
-              border: "1.5px solid rgba(245,158,11,.4)",
-              boxShadow: "0 0 16px rgba(245,158,11,.2)",
-              animation: "synthesize-glow 2s ease-in-out infinite",
+              background: "rgba(15,23,42,.92)",
+              color: "#67e8f9",
+              border: "1px solid rgba(6,182,212,.45)",
+              boxShadow: "0 0 20px rgba(6,182,212,.2), inset 0 1px 0 rgba(6,182,212,.1)",
+              animation: "intel-ready-pulse 2.5s ease-in-out infinite",
+              letterSpacing: "0.08em",
             }}
           >
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            ✦ Synthesize Persona
+            <Cpu className="w-4 h-4" style={{ color: "#22d3ee" }} />
+            <span style={{ color: "#e0f2fe" }}>Behavioral Intelligence:</span>
+            <span style={{ color: "#22d3ee", marginLeft: "-2px" }}>Ready</span>
+            <span className="relative flex h-2 w-2 ml-1">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "#22d3ee" }} />
+              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#06b6d4" }} />
+            </span>
           </button>
         )}
 
@@ -423,9 +429,9 @@ export default function ExecDemoIntelPanel({
           0% { opacity: 1; transform: scale(1); max-width: 200px; padding: 4px 10px; margin: 0 3px; }
           100% { opacity: 0; transform: scale(0.3); max-width: 0; padding: 0; margin: 0; overflow: hidden; }
         }
-        @keyframes synthesize-glow {
-          0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,.15); }
-          50% { box-shadow: 0 0 24px rgba(245,158,11,.35); }
+        @keyframes intel-ready-pulse {
+          0%, 100% { box-shadow: 0 0 16px rgba(6,182,212,.15), inset 0 1px 0 rgba(6,182,212,.1); }
+          50% { box-shadow: 0 0 28px rgba(6,182,212,.35), inset 0 1px 0 rgba(6,182,212,.2); border-color: rgba(6,182,212,.7); }
         }
       `}</style>
     </div>
