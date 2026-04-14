@@ -2,16 +2,14 @@ import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
+import CapabilityCards from "@/components/CapabilityCards";
 
-import { Layers, Heart, Activity, Search } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-/* signal layer cards are now rendered inline below */
 
 const faqs = [
   { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
@@ -36,20 +34,9 @@ const Index = () => {
                 Four signal layers. Built from your transaction history.
               </h2>
             </ScrollReveal>
-            <div className="grid md:grid-cols-2 gap-6">
-              {signalLayers.map((cap, i) => (
-                <ScrollReveal key={cap.title} delay={i * 0.1}>
-                  <div className="rounded-xl p-6 shadow-sm min-h-[140px]" style={{ background: "#f0f6ff" }}>
-                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
+            <CapabilityCards />
           </div>
         </section>
-
 
         <IntegrationSection />
 
@@ -57,7 +44,6 @@ const Index = () => {
         <section id="faq" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
-              {/* Left column */}
               <div className="lg:col-span-2">
                 <ScrollReveal>
                   <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">FAQ</p>
@@ -69,7 +55,6 @@ const Index = () => {
                   </p>
                 </ScrollReveal>
               </div>
-              {/* Right column */}
               <div className="lg:col-span-3">
                 <ScrollReveal delay={0.1}>
                   <Accordion type="single" collapsible className="w-full">
