@@ -31,35 +31,33 @@ serve(async (req) => {
       `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`
     ).join("\n");
 
-    const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost/suppress signals based on recent spending.
+    const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
 RULES:
-1. For EACH behavioral cluster provided, generate exactly 5 deals. Some should be BOOSTED (gaps in their spending journey), some SUPPRESSED (already purchased), and some NEUTRAL.
+1. For EACH behavioral cluster provided, generate exactly 5 ACTIVE deals (signal: "boost" or "neutral" ONLY).
+   Do NOT include suppressed deals in the deals array.
+   Instead, list any already-covered spending categories in a separate "suppressedCategories" string array on the rollup object.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
 3. Good message: "Upgrade your travels with sleek, durable luggage from Away"
 4. Bad message: "As a Product Director on the move, upgrade your commute"
-5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, a signal, signalReason, and CATEGORY LABELS (see below).
+5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, a signal ("boost" or "neutral"), signalReason, and optionally boostCategory.
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
 7. Think laterally: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
 
 SIGNAL LOGIC:
-- "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap (e.g., "No action cam in purchase history")
-- "suppress": The customer has ALREADY purchased something similar recently. signalReason should reference what was found (e.g., "Ski pass purchased in Feb")
-- "neutral": Standard relevance, no strong signal either way. signalReason can be brief (e.g., "Complements lifestyle")
+- "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap. Add "boostCategory" — a short product-type label (e.g., "Headphones", "Luggage").
+- "neutral": Standard relevance, no strong signal either way. signalReason can be brief. Omit boostCategory.
 
-CATEGORY LABELS:
-- For SUPPRESSED deals: add "suppressedCategory" — a broad spending category the user already covers (e.g., "Hotels", "Airlines", "Ski Passes", "Coffee", "Streaming"). NOT a brand name.
-- For BOOSTED deals: add "boostCategory" — a short product-type label for the opportunity (e.g., "Headphones", "Luggage", "Action Cameras", "Cookware"). NOT a brand name.
-- Neutral deals: omit both fields.
+AIM for 1-2 boosted and the rest neutral per cluster.
 
-AIM for 0-2 suppressed, 1-2 boosted, and the rest neutral per cluster. Most deals should be neutral — only suppress when there's a clear recent purchase match.
+suppressedCategories: For each cluster, identify 0-3 broad spending categories the user already covers (e.g., "Hotels", "Airlines", "Ski Passes", "Coffee", "Streaming") and list them in the suppressedCategories array. These are NOT deals — just metadata about what the customer already has.
 
 COLLECTION MESSAGE:
-- For each cluster, generate a "collectionMessage" — a short, inspiring 8-15 word lifestyle tagline that introduces the collection of deals (e.g., "Travel smarter and in style with new gear and perks", "Elevate your mornings with bold flavors and smooth brews").
+- For each cluster, generate a "collectionMessage" — a short, inspiring 8-15 word lifestyle tagline that introduces the collection of deals.
 - Do NOT reference demographics. Keep it aspirational and lifestyle-focused.
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
     const userPrompt = `BEHAVIORAL CLUSTERS (with recent spending/merchants):
 ${rollupList}
