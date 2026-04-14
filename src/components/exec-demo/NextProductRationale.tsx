@@ -9,7 +9,7 @@ interface Props {
   loading: boolean;
   productCards?: ProductCard[] | null;
   transactions?: Transaction[];
-  onPillClick?: (pillar: string, label: string) => void;
+  onPillClick?: (pillar: string, label: string, isCategory?: boolean, evidenceMerchants?: string[]) => void;
 }
 
 const themeToPillar: Record<string, string> = {
@@ -156,11 +156,20 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 >
                   {isBehavioral ? "Behavioral:" : "Life Event:"}
                 </span>
-                <button
-                  onClick={() => {
-                    const pillar = themeToPillar[card.theme] || "Lifestyle";
-                    onPillClick?.(pillar, pillar);
-                  }}
+                  <button
+                    onClick={() => {
+                      const pillar = themeToPillar[card.theme] || "Lifestyle";
+                      // For life-event cards, find matching event and pass evidence merchants
+                      const isBehavioral = card.type === "behavioral";
+                      let evidenceMerchants: string[] | undefined;
+                      if (!isBehavioral && lifeEvents) {
+                        const matchingEvent = lifeEvents.find(e => e.event_name === card.signal_label);
+                        if (matchingEvent?.evidence?.length) {
+                          evidenceMerchants = matchingEvent.evidence.map(e => e.merchant);
+                        }
+                      }
+                      onPillClick?.(pillar, card.signal_label, false, evidenceMerchants);
+                    }}
                   className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ background: `${c.dot}10`, color: c.dot, borderColor: `${c.dot}30` }}
                 >

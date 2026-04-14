@@ -41,7 +41,7 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
-  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string; isCategory?: boolean } | null>(null);
+  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string; isCategory?: boolean; evidenceMerchants?: string[] } | null>(null);
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -582,10 +582,10 @@ export default function ExecDemoPage() {
     setActiveTab(tab);
   }, []);
 
-  const handlePillClick = useCallback((pillar: string, label: string, isCategory?: boolean) => {
+  const handlePillClick = useCallback((pillar: string, label: string, isCategory?: boolean, evidenceMerchants?: string[]) => {
     setActiveRollup(null);
     setActivePillFilter((prev) =>
-      prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory ? null : { pillar, label, isCategory: !!isCategory }
+      prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory ? null : { pillar, label, isCategory: !!isCategory, evidenceMerchants }
     );
   }, []);
 
@@ -661,6 +661,22 @@ export default function ExecDemoPage() {
         .map(([idx]) => Number(idx));
     }
     if (activePillFilter) {
+      // Evidence-based matching: match transactions by merchant name
+      if (activePillFilter.evidenceMerchants && activePillFilter.evidenceMerchants.length > 0) {
+        const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const evidenceNorm = activePillFilter.evidenceMerchants.map(normalize);
+        const txs = execProfile.transactions;
+        const matched = Object.keys(sm)
+          .map(Number)
+          .filter((idx) => {
+            const tx = txs[idx];
+            if (!tx) return false;
+            const merchantNorm = normalize(tx.merchant);
+            return evidenceNorm.some(ev => merchantNorm.includes(ev) || ev.includes(merchantNorm));
+          });
+        if (matched.length > 0) return matched;
+      }
+
       const pillarMatches = Object.entries(sm).filter(([, s]) =>
         pillarMatchesFilter(s.pillar, activePillFilter.pillar)
       );
@@ -675,7 +691,7 @@ export default function ExecDemoPage() {
       return pillarMatches.map(([idx]) => Number(idx));
     }
     return null;
-  }, [activePillFilter, activeRollup, execProfile.persona.signalMap]);
+  }, [activePillFilter, activeRollup, execProfile.persona.signalMap, execProfile.transactions]);
 
   return (
     <SimplePasswordGate>
