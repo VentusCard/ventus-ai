@@ -131,16 +131,31 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
           return (
-            <div
-              key={i}
-              className="rounded-xl border overflow-hidden"
-              style={{
-                borderColor: c.border,
-                borderLeftWidth: 3,
-                borderLeftColor: c.dot,
-                animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
-              }}
-            >
+            <div key={i} className="space-y-1" style={{ animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both` }}>
+              {/* Rolled-up pill above the card */}
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="text-[9px] font-bold uppercase tracking-wider"
+                  style={{ color: c.dot }}
+                >
+                  {isBehavioral ? "Behavioral:" : "Life Event:"}
+                </span>
+                <span
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
+                  style={{ background: `${c.dot}10`, color: c.dot, borderColor: `${c.dot}30` }}
+                >
+                  {card.signal_label}
+                </span>
+              </div>
+
+              <div
+                className="rounded-xl border overflow-hidden"
+                style={{
+                  borderColor: c.border,
+                  borderLeftWidth: 3,
+                  borderLeftColor: c.dot,
+                }}
+              >
               <div className="px-3 py-2.5">
                 {/* Type badge + product name */}
                 <div className="flex items-center justify-between mb-1.5">
@@ -183,6 +198,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                     {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
                   </span>
                 </div>
+              </div>
               </div>
             </div>
           );
