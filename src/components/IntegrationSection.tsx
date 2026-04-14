@@ -79,14 +79,10 @@ const IntegrationSection = () => {
       title: "Connect",
       desc: "Banks and vendors securely share transaction data via API. No changes to core banking systems required.",
       extra: (
-        <div className="mt-6 overflow-hidden relative">
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-          <div className="flex items-center gap-10 animate-marquee whitespace-nowrap">
-            {[...partners, ...partners].map(({ name, src, height }, i) => (
-              <img key={`${name}-${i}`} src={src} alt={name} className={`${height} w-auto opacity-50 grayscale shrink-0`} />
-            ))}
-          </div>
+        <div className="mt-6 flex items-center justify-between gap-6">
+          {partners.map(({ name, src, height }) => (
+            <img key={name} src={src} alt={name} className={`${height} w-auto opacity-50 grayscale shrink-0`} />
+          ))}
         </div>
       ),
     },
@@ -118,7 +114,7 @@ const IntegrationSection = () => {
 
   return (
     <section id="integration" className="bg-white py-24 scroll-mt-20">
-      <div className="max-w-3xl mx-auto px-6 md:px-8">
+      <div className="max-w-4xl mx-auto px-6 md:px-8">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
         <h2 className="mb-14 text-3xl font-bold text-gray-900 md:text-4xl">
           A modular intelligence layer that works with your existing stack.
