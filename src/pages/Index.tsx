@@ -1,4 +1,4 @@
-import Hero from "@/components/Hero";
+import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -30,7 +30,7 @@ const Index = () => {
   return (
     <div>
       <main className="flex flex-col">
-        <Hero />
+        <ScrollDrivenHero />
 
         {/* Capabilities — Four Signal Layers */}
         <section className="py-24 bg-white">
