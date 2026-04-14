@@ -628,8 +628,12 @@ export default function ExecDemoPage() {
         .map(([idx]) => Number(idx));
     }
     if (activePillFilter) {
-      return Object.entries(sm)
+      const byLabel = Object.entries(sm)
         .filter(([, s]) => s.pillar === activePillFilter.pillar && (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label))
+        .map(([idx]) => Number(idx));
+      if (byLabel.length > 0) return byLabel;
+      return Object.entries(sm)
+        .filter(([, s]) => s.pillar === activePillFilter.pillar)
         .map(([idx]) => Number(idx));
     }
     return null;
