@@ -28,7 +28,7 @@ const orchestrateStats = [
   { value: "+41%", label: "AUM Growth" },
 ];
 
-const outcomes = ["Higher Retention", "Higher LTV", "Higher AUM"];
+
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
   const [value, setValue] = useState(0);
