@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics"
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
@@ -18,8 +19,19 @@ const Navbar = () => {
   const isTransparent = isDarkHero && !isMobileMenuOpen;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const scrollToFaq = (e: React.MouseEvent) => {
+    e.preventDefault();
+    closeMobileMenu();
+    if (location.pathname === "/") {
+      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
   };
 
   const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
