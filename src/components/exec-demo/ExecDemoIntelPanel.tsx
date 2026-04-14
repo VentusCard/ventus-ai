@@ -292,8 +292,8 @@ export default function ExecDemoIntelPanel({
         {/* Rollup pills + evidence pills */}
         {chips.length > 0 && (
           <div>
-            {/* Pillar rollup pills - shown after synthesis triggered */}
-            {synthesisTriggered && rollupStats.length > 0 && (
+            {/* Header text - always visible */}
+            {synthesisTriggered && rollupStats.length > 0 ? (
               <div className="mb-2.5">
                 <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category Spending Patterns</span></p>
                 <div className="flex flex-wrap gap-2">
@@ -302,6 +302,8 @@ export default function ExecDemoIntelPanel({
                 ))}
                 </div>
               </div>
+            ) : (
+              <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
             )}
 
             <button
