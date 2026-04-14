@@ -188,7 +188,7 @@ export default function ExecDemoLeftPanel({
         </div>
 
         {phase === "idle" && transactions.length > 0 && (
-            <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
+            <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto scrollbar-light space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
                 <TxRow key={`idle-${i}`} tx={tx} dim={false} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
               ))}
@@ -234,7 +234,7 @@ export default function ExecDemoLeftPanel({
         )}
 
         {showCollected && (
-          <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
+          <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto scrollbar-light space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
             {/* Pill filter header */}
             {filteredIndices && activePillLabel && (
               <div className="flex items-center justify-between mb-1.5 px-1 sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-1">
