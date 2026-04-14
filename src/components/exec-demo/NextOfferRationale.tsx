@@ -83,6 +83,13 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
                 {deal.signal === "boost" && <TrendingUp className="w-2.5 h-2.5 text-emerald-500 shrink-0" />}
                 {deal.signal === "neutral" && <Minus className="w-2.5 h-2.5 text-slate-300 shrink-0" />}
               </div>
+              <span className={`text-[8px] px-1.5 py-0.5 rounded-full line-clamp-1 ${
+                deal.signal === "boost"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                  : "bg-slate-50 text-slate-500 border border-slate-100"
+              }`}>
+                {deal.signal === "boost" ? "↑ " : ""}{deal.signalReason}
+              </span>
               <span
                 className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-center w-fit"
                 style={{ background: c.bg, color: c.text }}
@@ -106,29 +113,6 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
   );
 }
 
-/* ─── Signal badge component ─── */
-function SignalBadge({ signal, reason }: { signal: string; reason: string }) {
-  if (signal === "boost") {
-    return (
-      <div className="flex items-center gap-1">
-        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full">
-          <TrendingUp className="w-2.5 h-2.5" />
-          Boosted
-        </span>
-        <span className="text-[9px] text-slate-400 truncate max-w-[120px]">{reason}</span>
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center gap-1">
-      <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-full">
-        <Minus className="w-2.5 h-2.5" />
-        Neutral
-      </span>
-      <span className="text-[9px] text-slate-300 truncate max-w-[120px]">{reason}</span>
-    </div>
-  );
-}
 
 /* ─── Main component ─── */
 export default function NextOfferRationale({ offers, personaSynthesis, loading }: Props) {
