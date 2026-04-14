@@ -247,18 +247,12 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
               >
                 <div className="px-3 py-2.5">
                   {/* Type badge + product name */}
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[12px] font-bold" style={{ color: c.dot }}>✦</span>
+                    <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                      <span className="text-[11px] font-bold" style={{ color: c.dot }}>
+                        {isBehavioral ? "Behavioral:" : "Life Event:"}
+                      </span>
                       <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
                     </div>
-                    <span
-                      className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
-                      style={{ background: `${c.dot}15`, color: c.dot }}
-                    >
-                      {isBehavioral ? "Behavioral" : "Life Event"}
-                    </span>
-                  </div>
 
                   {/* Quote preview */}
                   <p className="text-[11px] text-slate-600 leading-relaxed italic">
