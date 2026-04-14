@@ -294,10 +294,13 @@ export default function ExecDemoIntelPanel({
           <div>
             {/* Pillar rollup pills - shown after synthesis triggered */}
             {synthesisTriggered && rollupStats.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2.5">
+              <div className="mb-2.5">
+                <p className="text-[12px] font-bold text-white/90 mb-1.5">Behavioral Intelligence: <span className="text-white/60 font-semibold">Personas = Multi-category Spending Patterns</span></p>
+                <div className="flex flex-wrap gap-2">
                 {rollupStats.map((r, i) => (
                   <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
                 ))}
+                </div>
               </div>
             )}
 
