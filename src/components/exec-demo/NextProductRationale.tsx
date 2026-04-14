@@ -213,26 +213,31 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
           return (
             <div key={i} className="space-y-0">
-              {/* Trigger pill — rollup style */}
-              <div
-                className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full mb-1 ${isClickable ? "cursor-pointer" : ""}`}
-                style={{
-                  background: `linear-gradient(135deg, ${c.dot}10, ${c.dot}20)`,
-                  color: c.text,
-                  border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
-                  boxShadow: isActive ? `0 0 14px ${c.dot}30` : `0 2px 8px ${c.dot}15`,
-                  transform: isActive ? "scale(1.08)" : "scale(1)",
-                  transition: "all 0.2s ease",
-                }}
-                onClick={handlePillClick}
-              >
-                <span style={{ color: c.dot }}>✦</span>
-                {card.signal_label}
-                {txnCount > 0 && (
-                  <span className="text-[9px] font-medium opacity-70 ml-1">
-                    {txnCount} txns · {formatSpend(txnSpend)}
-                  </span>
-                )}
+              {/* Type label + Trigger pill */}
+              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                <span className="text-[10px] font-bold shrink-0" style={{ color: c.dot }}>
+                  {isBehavioral ? "Behavioral:" : "Life Event:"}
+                </span>
+                <div
+                  className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""}`}
+                  style={{
+                    background: `linear-gradient(135deg, ${c.dot}10, ${c.dot}20)`,
+                    color: c.text,
+                    border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
+                    boxShadow: isActive ? `0 0 14px ${c.dot}30` : `0 2px 8px ${c.dot}15`,
+                    transform: isActive ? "scale(1.08)" : "scale(1)",
+                    transition: "all 0.2s ease",
+                  }}
+                  onClick={handlePillClick}
+                >
+                  <span style={{ color: c.dot }}>✦</span>
+                  {card.signal_label}
+                  {txnCount > 0 && (
+                    <span className="text-[9px] font-medium opacity-70 ml-1">
+                      {txnCount} txns · {formatSpend(txnSpend)}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Product card */}
@@ -246,11 +251,8 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 }}
               >
                 <div className="px-3 py-2.5">
-                  {/* Type badge + product name */}
-                    <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                      <span className="text-[11px] font-bold" style={{ color: c.dot }}>
-                        {isBehavioral ? "Behavioral:" : "Life Event:"}
-                      </span>
+                  {/* Product name */}
+                    <div className="flex items-center gap-1.5 mb-1.5">
                       <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
                     </div>
 
