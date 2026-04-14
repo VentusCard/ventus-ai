@@ -322,13 +322,13 @@ export default function ExecDemoIntelPanel({
                         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
                         <span className="text-[10px] font-semibold" style={{ color: c.text }}>{pillar}</span>
                       </div>
-                      {/* Categories under this pillar */}
-                      {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
-                        <div key={category} className="ml-2.5 mb-1 flex items-start gap-1.5">
-                          <span className="text-[9px] text-slate-400 font-medium uppercase tracking-wider whitespace-nowrap pt-[3px]">
-                            {category}:
-                          </span>
-                          <div className="flex flex-wrap gap-1">
+                      {/* Categories + subcategory pills inline */}
+                      <div className="flex flex-wrap items-center gap-1 ml-2.5">
+                        {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
+                          <React.Fragment key={category}>
+                            <span className="text-[9px] font-medium uppercase tracking-wider whitespace-nowrap" style={{ color: c.text }}>
+                              {category}:
+                            </span>
                             {catChips.map((chip, idx) => (
                               <AnimatedChip
                                 key={`${chip.pillar}::${chip.category}::${chip.label}`}
@@ -339,9 +339,9 @@ export default function ExecDemoIntelPanel({
                                 mergeDelay={idx * 0.06}
                               />
                             ))}
-                          </div>
-                        </div>
-                      ))}
+                          </React.Fragment>
+                        ))}
+                      </div>
                     </div>
                   );
                 })}
