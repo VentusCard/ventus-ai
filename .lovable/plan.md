@@ -1,21 +1,30 @@
 
 
-## Plan: Add Signal Logic Pills to Each Deal Card
+## Plan: Fix Light-Themed Scrollbar on Middle Section
 
-### Problem
-The `SignalBadge` component exists but is unused. Each deal tile only shows a small icon — the `signalReason` text from the AI is never displayed.
+### Root Cause
 
-### Fix — `src/components/exec-demo/NextOfferRationale.tsx`
+The `scrollbar-light` class on `NextOfferRationale` has no effect because its `overflow-y-auto` never activates — the div has no height constraint, so it grows to full content height. The actual scrolling happens on the **parent** container in `ExecDemoIntelPanel.tsx` line 368:
 
-**Inside each deal tile (lines 81-101)**, add a signal reason pill after the merchant name row:
+```tsx
+<div className="flex-1 min-h-0 overflow-auto">
+```
 
-- For **boost** deals: show a small emerald pill with "↑ {signalReason}"
-- For **neutral** deals: show a small slate pill with the reason text
+This parent uses default browser scrollbar styling, ignoring the `scrollbar-light` class nested below.
 
-The pill should be compact (`text-[8px]`, `line-clamp-1`, `rounded-full`) to fit within the grid column. Place it between the merchant name and the reward value badge.
+### Fix — `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-The `SignalBadge` component (lines 110-131) can be removed since it's unused elsewhere; the pill will be inlined directly in the tile for better sizing control.
+**Line 368**: Add `scrollbar-light` class to the parent scroll container:
 
-### Single file changed
-`src/components/exec-demo/NextOfferRationale.tsx` — add ~5 lines per deal tile for the signal reason pill.
+```tsx
+<div className="flex-1 min-h-0 overflow-auto scrollbar-light">
+```
+
+**`src/components/exec-demo/NextOfferRationale.tsx` line 142**: Remove `overflow-y-auto scrollbar-light` from the inner div since it's not the actual scroll container — the parent handles scrolling:
+
+```tsx
+<div className="px-3 py-3 space-y-2.5">
+```
+
+Two lines changed across two files.
 
