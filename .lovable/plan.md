@@ -1,61 +1,21 @@
 
 
-## Plan: Rollup Cards with Carousel Deals + Boost/Suppress Logic
+## Plan: Simplify Suppressed Deals to Inline Pills
 
-### Design Concept
-
-Each rollup becomes a standalone card. Inside each card, deals rotate horizontally in a carousel. Each deal has a visual **boost/suppress indicator** showing why it was ranked up or down based on recent spending.
-
-```text
-┌─────────────────────────────────────────────┐
-│ ✦ Winter Sports Enthusiast    5 deals    ▸▸ │
-│                                             │
-│  ALREADY PURCHASED (dimmed, struck-through) │
-│  ┄┄ Vail Ski Pass ··· ✓ Bought Feb ┄┄┄┄┄  │
-│  ┄┄ Giro Helmet  ··· ✓ Bought Mar ┄┄┄┄┄   │
-│                                             │
-│  ┌────────────────┐  ┌────────────────┐     │
-│  │ GoPro Hero 12  │  │ Hestra Gloves  │ ◀▶  │
-│  │ 20% Off        │  │ 15% Off        │     │
-│  │ "Capture every │  │ "Keep warm on  │     │
-│  │  run this..."  │  │  the slopes"   │     │
-│  │ ▲ BOOSTED      │  │ ▲ BOOSTED      │     │
-│  │ Gap: No action │  │ Gap: No action │     │
-│  │ cam detected   │  │ gloves bought  │     │
-│  └────────────────┘  └────────────────┘     │
-│  ● ● ○                                     │
-└─────────────────────────────────────────────┘
-```
-
-Each deal card shows a small tag:
-- **▲ Boosted** (green) — "Gap detected: no gloves in history" 
-- **— Neutral** (gray) — standard relevance
-- **▼ Suppressed** (red/dimmed) — "Already purchased: ski pass found in Feb"
-
-Suppressed items appear as a collapsed "Already covered" strip above the carousel, showing what was detected as already purchased, reinforcing the intelligence.
+### Problem
+The current "Already Covered" section is a heavy dashed-border block with a header, merchant names, signal reasons, and checkmark icons — too much analysis. Most deals should be neutral anyway.
 
 ### Changes
 
-**1. Edge function `supabase/functions/generate-next-offers/index.ts`**
-- Add spending context per rollup: pass the actual merchants/categories the customer has already spent on within each cluster
-- Update the prompt to ask the AI to return a `signal` field per deal: `"boost" | "suppress" | "neutral"` with a short `signalReason` (e.g., "No action cam detected", "Ski pass already purchased")
-- Updated output shape per deal: `{ id, merchant, product, rewardValue, message, cta, signal: "boost"|"suppress"|"neutral", signalReason: "short reason" }`
+**1. `src/components/exec-demo/NextOfferRationale.tsx`** — Replace the suppressed strip with inline pills next to the rollup pill in the card header:
+- Remove the entire "Already Covered" `div` block (lines 72-85)
+- In the card header row, after the rollup pill, render suppressed items as small gray pills with a checkmark icon and merchant name (e.g., `✓ Ski Pass`), no signal reason text
+- Remove the "X active · Y covered" counter text on the right side of the header
+- Keep everything else (carousel, signal badges on active deals) unchanged
 
-**2. `src/components/exec-demo/NextOfferRationale.tsx`** — Complete redesign:
-- Each rollup group becomes a **card** with a header pill and deal count
-- **Suppressed deals** render as a compact "Already covered" strip at the top of the card — dimmed merchant names with checkmarks, showing what was detected in their spending
-- **Boosted + neutral deals** render in a horizontal **auto-rotating carousel** (using CSS scroll-snap or a simple interval-based slider)
-- Each deal card in the carousel includes a small colored signal badge: green "▲ Boosted" with reason, or gray "— Neutral"
-- Carousel has dot indicators at the bottom and auto-advances every 4 seconds
-- Cards animate in with staggered reveal
+**2. `supabase/functions/generate-next-offers/index.ts`** — Adjust the prompt to make most deals neutral:
+- Change the guidance from "AIM for 2-3 suppressed, 2-3 boosted" to "AIM for 0-2 suppressed, 1-2 boosted, rest neutral" — most deals should be neutral, suppression only when there's a clear recent purchase match
 
-**3. Types update in `NextOfferRationale.tsx`**
-- `GeneratedOffer` gets two new fields: `signal: "boost" | "suppress" | "neutral"` and `signalReason: string`
-- No changes to parent components needed — the grouped structure stays the same
-
-### What stays the same
-- The seasonal spend heatmap above remains untouched
-- The rollup pills at the very top of the offers section remain
-- The strategy header ("X clusters → Y deals") remains
-- Parent components (`PurchaseCycleTimeline`, `ExecDemoIntelPanel`, `ExecDemoPage`) need no structural changes — same data flow
+### Result
+Card header becomes: `✦ Winter Sports | ✓ Ski Pass | ✓ Helmet | [carousel below]` — clean, compact, informative.
 
