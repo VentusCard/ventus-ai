@@ -1,4 +1,5 @@
-import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap, CheckCircle2, Star } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap, CheckCircle2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
