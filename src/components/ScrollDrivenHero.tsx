@@ -242,8 +242,8 @@ const ScrollDrivenHero = () => {
               })}
             </div>
 
-            {/* Transaction list — bottom 2/3 */}
-            <div className="px-4 py-2 overflow-hidden" style={{ height: 160 }}>
+            {/* Transaction list with gradient fade */}
+            <div className="relative px-4 py-2 overflow-hidden" style={{ height: 200 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
@@ -261,7 +261,7 @@ const ScrollDrivenHero = () => {
                 </div>
               ) : (
                 <div className="space-y-0">
-                  {enrichedData.slice(0, 20).map((row, i) => {
+                  {enrichedData.slice(0, 10).map((row, i) => {
                     const isHighlighted = stage === 3 && activePersona && row.persona === activePersona.id;
                     const isDimmed = stage === 3 && activePersona && row.persona !== activePersona.id;
                     return (
@@ -294,6 +294,11 @@ const ScrollDrivenHero = () => {
                   })}
                 </div>
               )}
+              {/* Bottom gradient fade */}
+              <div
+                className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
+                style={{ background: "linear-gradient(to top, #0A1628, transparent)" }}
+              />
             </div>
           </div>
 
