@@ -72,14 +72,14 @@ const Index = () => {
         <IntegrationSection />
 
         {/* FAQ — Two Column */}
-        <section className="py-24 bg-gray-50/60 border-t border-gray-100">
+        <section id="faq" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
               {/* Left column */}
               <div className="lg:col-span-2">
                 <ScrollReveal>
                   <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">FAQ</p>
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">
+                  <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
                     Frequently Asked Questions
                   </h2>
                   <p className="text-gray-500 text-base leading-relaxed">
