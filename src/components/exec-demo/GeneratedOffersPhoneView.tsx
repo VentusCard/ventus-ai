@@ -1,7 +1,59 @@
-import { useState, useEffect, useCallback } from "react";
-import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
+import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
+
+// ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
+const MERCHANT_LOOKUP: Record<string, string> = {
+  "deal-1":"Starbucks","deal-2":"Chipotle","deal-3":"DoorDash","deal-4":"Uber Eats","deal-5":"McDonald's",
+  "deal-6":"Panera Bread","deal-7":"Chick-fil-A","deal-8":"Dunkin'","deal-9":"Subway","deal-10":"Grubhub",
+  "deal-11":"Olive Garden","deal-12":"Applebees","deal-13":"Buffalo Wild Wings","deal-14":"Taco Bell",
+  "deal-15":"Wendy's","deal-16":"Dominos","deal-17":"Pizza Hut","deal-18":"Sweetgreen","deal-19":"Shake Shack",
+  "deal-20":"Noodles & Company","deal-21":"Five Guys","deal-22":"Instacart","deal-23":"Whole Foods",
+  "deal-24":"Trader Joes","deal-25":"HelloFresh","deal-26":"Delta Airlines","deal-27":"United Airlines",
+  "deal-28":"American Airlines","deal-29":"Southwest Airlines","deal-30":"Marriott","deal-31":"Hilton",
+  "deal-32":"Hyatt","deal-33":"Airbnb","deal-34":"VRBO","deal-35":"Hertz","deal-36":"Enterprise",
+  "deal-37":"Expedia","deal-38":"Booking.com","deal-39":"Kayak","deal-40":"Uber","deal-41":"Lyft",
+  "deal-42":"Carnival Cruise","deal-43":"Royal Caribbean","deal-44":"TSA PreCheck","deal-45":"Global Entry",
+  "deal-46":"Sephora","deal-47":"ULTA","deal-48":"Nordstrom","deal-49":"Nike","deal-50":"Lululemon",
+  "deal-51":"H&M","deal-52":"Zara","deal-53":"Foot Locker","deal-54":"Adidas","deal-55":"Gap",
+  "deal-56":"Old Navy","deal-57":"Macys","deal-58":"Bloomingdales","deal-59":"Anthropologie",
+  "deal-60":"Urban Outfitters","deal-61":"Glossier","deal-62":"Warby Parker","deal-63":"Ray-Ban",
+  "deal-64":"Home Depot","deal-65":"Lowes","deal-66":"Wayfair","deal-67":"IKEA","deal-68":"Bed Bath & Beyond",
+  "deal-69":"Williams-Sonoma","deal-70":"Crate & Barrel","deal-71":"West Elm","deal-72":"Pottery Barn",
+  "deal-73":"Restoration Hardware","deal-74":"Overstock","deal-75":"Ace Hardware","deal-76":"Sherwin-Williams",
+  "deal-77":"Casper","deal-78":"Purple","deal-79":"Dyson","deal-80":"Spotify","deal-81":"Netflix",
+  "deal-82":"Disney+","deal-83":"Hulu","deal-84":"HBO Max","deal-85":"AMC Theatres","deal-86":"Regal Cinemas",
+  "deal-87":"Ticketmaster","deal-88":"StubHub","deal-89":"Audible","deal-90":"Apple Music",
+  "deal-91":"YouTube Premium","deal-92":"Barnes & Noble","deal-93":"GameStop","deal-94":"PlayStation Store",
+  "deal-95":"Xbox Store","deal-96":"Equinox","deal-97":"Planet Fitness","deal-98":"CVS","deal-99":"Walgreens",
+  "deal-100":"Peloton","deal-101":"GNC","deal-102":"Vitamin Shoppe","deal-103":"Orangetheory",
+  "deal-104":"SoulCycle","deal-105":"Calm","deal-106":"Headspace","deal-107":"Massage Envy",
+  "deal-108":"Rite Aid","deal-109":"1-800 Contacts","deal-110":"Noom","deal-111":"ClassPass",
+  "deal-112":"Fitbit","deal-113":"Whoop","deal-114":"Dick's Sporting Goods","deal-115":"REI",
+  "deal-116":"Golf Galaxy","deal-117":"Callaway Golf","deal-118":"TaylorMade","deal-119":"Academy Sports",
+  "deal-120":"Fanatics","deal-121":"NFL Shop","deal-122":"NBA Store","deal-123":"MLB Shop",
+  "deal-124":"Patagonia","deal-125":"The North Face","deal-126":"Columbia Sportswear",
+  "deal-127":"Under Armour","deal-128":"Yeti","deal-129":"Backcountry","deal-130":"Scheels",
+  "deal-131":"Bass Pro Shops","deal-132":"Apple","deal-133":"Best Buy","deal-134":"Amazon",
+  "deal-135":"Samsung","deal-136":"Microsoft","deal-137":"Dell","deal-138":"HP","deal-139":"Bose",
+  "deal-140":"Sonos","deal-141":"Sony","deal-142":"Logitech","deal-143":"B&H Photo","deal-144":"Newegg",
+  "deal-145":"Adobe","deal-146":"Dropbox","deal-147":"AT&T","deal-148":"Verizon","deal-149":"T-Mobile",
+  "deal-150":"Target","deal-151":"Walmart","deal-152":"Costco","deal-153":"Sam's Club",
+  "deal-154":"BuyBuy Baby","deal-155":"Carter's","deal-156":"Gap Kids","deal-157":"The Childrens Place",
+  "deal-158":"LEGO","deal-159":"Disney Store","deal-160":"Build-A-Bear","deal-161":"Pottery Barn Kids",
+  "deal-162":"American Girl","deal-163":"Party City","deal-164":"Hallmark","deal-165":"1-800-Flowers",
+  "deal-166":"Chewy","deal-167":"PetSmart","deal-168":"Petco","deal-169":"BarkBox","deal-170":"Rover",
+  "deal-171":"Wag","deal-172":"Wisdom Panel","deal-173":"Embark","deal-174":"Furbo","deal-175":"Fi Collar",
+  "deal-176":"Nom Nom","deal-177":"The Farmer's Dog","deal-178":"Petplan","deal-179":"Healthy Paws",
+  "deal-180":"Wild One","deal-181":"TurboTax","deal-182":"H&R Block","deal-183":"Credit Karma",
+  "deal-184":"Personal Capital","deal-185":"Mint","deal-186":"Acorns","deal-187":"Robinhood",
+  "deal-188":"Wealthfront","deal-189":"LegalZoom","deal-190":"LifeLock","deal-191":"Shell",
+  "deal-192":"Exxon Mobil","deal-193":"BP","deal-194":"Chevron","deal-195":"AutoZone",
+  "deal-196":"O'Reilly Auto Parts","deal-197":"Advance Auto Parts","deal-198":"Jiffy Lube",
+  "deal-199":"Firestone","deal-200":"Discount Tire",
+};
 
 const COLLECTION_IMAGES: { keywords: string[]; url: string }[] = [
   { keywords: ["travel", "flight", "airline", "airport", "luggage", "vacation"], url: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=200&fit=crop" },
@@ -46,7 +98,56 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
 
-  const groups = offerGroups.filter(g => g.deals.filter(d => d.signal !== "suppress").length > 0);
+  const firstName = customerName.split(" ")[0];
+
+  // Semantic search
+  const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
+
+  // Bridge: convert matching deal IDs → merchant names
+  const matchingMerchants = useMemo(() => {
+    if (!searchQuery.trim() || matchingDealIds.length === 0) return null;
+    const set = new Set<string>();
+    for (const id of matchingDealIds) {
+      const m = MERCHANT_LOOKUP[id];
+      if (m) set.add(m.toLowerCase());
+    }
+    return set;
+  }, [matchingDealIds, searchQuery]);
+
+  // Filter groups based on search
+  const allGroups = useMemo(() => {
+    const base = offerGroups.filter(g => g.deals.filter(d => d.signal !== "suppress").length > 0);
+    if (!matchingMerchants) return base;
+    return base
+      .map(g => ({
+        ...g,
+        deals: g.deals.filter(d => d.signal !== "suppress" && matchingMerchants.has(d.merchant.toLowerCase())),
+      }))
+      .filter(g => g.deals.length > 0);
+  }, [offerGroups, matchingMerchants]);
+
+  const isSearchActive = searchQuery.trim().length > 0;
+
+  // Stable savings number
+  const yearlySavings = (offerGroups.length * 145) + (firstName.length * 12);
+
+  // Top pick: first deal from first group
+  const topPick = useMemo(() => {
+    if (allGroups.length === 0) return null;
+    const g = allGroups[0];
+    const deals = g.deals.filter(d => d.signal !== "suppress");
+    if (deals.length === 0) return null;
+    return { deal: deals[0], group: g };
+  }, [allGroups]);
+
+  // Expiring soon: 2-3 deals from the last group
+  const expiringSoon = useMemo(() => {
+    if (allGroups.length < 2) return [];
+    const g = allGroups[allGroups.length - 1];
+    const deals = g.deals.filter(d => d.signal !== "suppress").slice(0, 3);
+    const hours = [4, 12, 23];
+    return deals.map((d, i) => ({ ...d, hoursLeft: hours[i] || 8, pillar: g.pillar }));
+  }, [allGroups]);
 
   const goTo = useCallback((idx: number) => {
     setDirection(idx > current ? "right" : "left");
@@ -54,15 +155,15 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   }, [current]);
 
   useEffect(() => {
-    if (groups.length <= 1 || expandedGroup) return;
+    if (allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
       setDirection("right");
-      setCurrent(prev => (prev + 1) % groups.length);
+      setCurrent(prev => (prev + 1) % allGroups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [groups.length, expandedGroup]);
+  }, [allGroups.length, expandedGroup, isSearchActive]);
 
-  if (groups.length === 0) return null;
+  if (offerGroups.length === 0) return null;
 
   // ── Deal Detail View ──
   if (expandedGroup) {
@@ -72,7 +173,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
 
     return (
       <div className="px-0 py-0 flex flex-col h-full" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
-        {/* Header */}
         <button
           onClick={() => setExpandedGroup(null)}
           className="flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
@@ -81,7 +181,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        {/* Banner */}
         <div className="h-[90px] w-full overflow-hidden">
           <img src={imgSrc} alt="" className="w-full h-full object-cover" />
         </div>
@@ -91,7 +190,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           <p className="text-[10px] text-slate-500">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        {/* Deal list */}
         <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
@@ -100,19 +198,12 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
             >
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchant}</p>
-                {deal.product && (
-                  <p className="text-[11px] text-slate-500 truncate">{deal.product}</p>
-                )}
-                {deal.message && (
-                  <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{deal.message}</p>
-                )}
+                {deal.product && <p className="text-[11px] text-slate-500 truncate">{deal.product}</p>}
+                {deal.message && <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{deal.message}</p>}
               </div>
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 {deal.rewardValue && (
-                  <span
-                    className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
-                    style={{ background: c.dot }}
-                  >
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: c.dot }}>
                     {deal.rewardValue}
                   </span>
                 )}
@@ -137,78 +228,205 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
     );
   }
 
-  // ── Carousel View ──
-  const active = groups[current % groups.length];
-  const activeDeals = active.deals.filter(d => d.signal !== "suppress");
-  const imgSrc = getCollectionImage(active.rollup, active.pillar);
+  // ── Main View ──
+  const groups = allGroups;
+  const safeIdx = current % Math.max(groups.length, 1);
+  const active = groups[safeIdx];
+  const activeDeals = active ? active.deals.filter(d => d.signal !== "suppress") : [];
+  const imgSrc = active ? getCollectionImage(active.rollup, active.pillar) : DEFAULT_IMAGE;
 
   return (
-    <div className="px-3 py-3 space-y-2" style={{ overflow: 'hidden', scrollbarWidth: 'none' }}>
-      <div className="flex items-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-        <span className="text-[11px] font-bold text-slate-700">
-          Curated for {customerName.split(" ")[0]}
-        </span>
-      </div>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+      <div className="px-3 py-3 space-y-2.5">
 
-      <div
-        key={`${active.pillar}::${active.rollup}`}
-        className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[160px] cursor-pointer hover:shadow-md transition-shadow"
-        style={{
-          background: "linear-gradient(145deg, #f8fafc, #ffffff)",
-          animation: `collection-slide-${direction} 0.35s ease-out`,
-        }}
-        onClick={() => setExpandedGroup(active)}
-      >
-        <div className="h-[80px] w-full overflow-hidden">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
-        </div>
-        <div className="px-4 pt-2.5 pb-1.5 flex-1">
-          <p className="text-[13px] font-semibold text-slate-800 leading-snug">
-            {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-1 px-4 pb-3 overflow-hidden">
-          {activeDeals.map((deal) => (
-            <span
-              key={deal.id}
-              className="inline-flex items-center text-[8px] font-medium px-1.5 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
-            >
-              {deal.merchant}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {groups.length > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-1">
-          <button
-            onClick={() => goTo((current - 1 + groups.length) % groups.length)}
-            className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            <ChevronLeft className="w-3 h-3 text-slate-500" />
-          </button>
-          <div className="flex gap-1.5">
-            {groups.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                  i === current % groups.length
-                    ? "bg-slate-700 scale-125"
-                    : "bg-slate-300 hover:bg-slate-400"
-                }`}
-              />
-            ))}
+        {/* ── Savings Summary Bar ── */}
+        <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #eff6ff, #eef2ff)" }}>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[12px]">👋</span>
+            <span className="text-[11px] font-semibold text-slate-700">Welcome, {firstName}!</span>
           </div>
-          <button
-            onClick={() => goTo((current + 1) % groups.length)}
-            className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            <ChevronRight className="w-3 h-3 text-slate-500" />
-          </button>
+          <div className="flex items-center gap-1">
+            <TrendingUp className="w-3 h-3 text-emerald-500" />
+            <span className="text-[10px] font-bold text-emerald-600">${yearlySavings} saved this year</span>
+          </div>
         </div>
-      )}
+
+        {/* ── Semantic Search Bar ── */}
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="Search deals..."
+            className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+          />
+          {isSearching && (
+            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
+          )}
+          {!isSearching && searchQuery && (
+            <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
+              <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+            </button>
+          )}
+        </div>
+        {searchReasoning && (
+          <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
+            <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
+            <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
+          </div>
+        )}
+
+        {/* ── No results state ── */}
+        {isSearchActive && !isSearching && groups.length === 0 && (
+          <div className="text-center py-4">
+            <p className="text-[11px] text-slate-400">No matching deals found</p>
+          </div>
+        )}
+
+        {/* ── Top Pick For You ── */}
+        {topPick && (
+          <div
+            className="rounded-xl border p-3 cursor-pointer hover:shadow-md transition-shadow"
+            style={{
+              borderColor: getColor(topPick.group.pillar || "").dot + "40",
+              background: `linear-gradient(145deg, ${getColor(topPick.group.pillar || "").dot}08, #ffffff)`,
+            }}
+            onClick={() => setExpandedGroup(topPick.group)}
+          >
+            <div className="flex items-center gap-1 mb-1.5">
+              <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+              <span className="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Top Pick For You</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-bold text-slate-800 truncate">{topPick.deal.merchant}</p>
+                {topPick.deal.message && (
+                  <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{topPick.deal.message}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {topPick.deal.rewardValue && (
+                  <span
+                    className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
+                    style={{ background: getColor(topPick.group.pillar || "").dot }}
+                  >
+                    {topPick.deal.rewardValue}
+                  </span>
+                )}
+                <button
+                  className="text-[9px] font-semibold px-2.5 py-1 rounded-full text-white"
+                  style={{ background: getColor(topPick.group.pillar || "").dot }}
+                >
+                  {topPick.deal.cta || "Activate"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Expiring Soon ── */}
+        {expiringSoon.length > 0 && (
+          <div>
+            <div className="flex items-center gap-1 mb-1.5">
+              <Clock className="w-3 h-3 text-red-500" />
+              <span className="text-[10px] font-bold text-slate-700">Expiring Soon</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+              {expiringSoon.map((deal) => {
+                const isUrgent = deal.hoursLeft < 6;
+                return (
+                  <div
+                    key={deal.id}
+                    className="shrink-0 rounded-lg border border-slate-100 bg-white px-2.5 py-2 min-w-[120px] max-w-[140px]"
+                  >
+                    <p className="text-[10px] font-bold text-slate-800 truncate">{deal.merchant}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      {deal.rewardValue && (
+                        <span className="text-[9px] font-semibold text-slate-600">{deal.rewardValue}</span>
+                      )}
+                      <span className={`text-[8px] font-bold ${isUrgent ? "text-red-500" : "text-amber-500"}`}>
+                        {deal.hoursLeft}h left
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Collection Carousel ── */}
+        {groups.length > 0 && active && (
+          <>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-[11px] font-bold text-slate-700">
+                Curated for {firstName}
+              </span>
+            </div>
+
+            <div
+              key={`${active.pillar}::${active.rollup}`}
+              className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[160px] cursor-pointer hover:shadow-md transition-shadow"
+              style={{
+                background: "linear-gradient(145deg, #f8fafc, #ffffff)",
+                animation: `collection-slide-${direction} 0.35s ease-out`,
+              }}
+              onClick={() => setExpandedGroup(active)}
+            >
+              <div className="h-[80px] w-full overflow-hidden">
+                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div className="px-4 pt-2.5 pb-1.5 flex-1">
+                <p className="text-[13px] font-semibold text-slate-800 leading-snug">
+                  {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 px-4 pb-3 overflow-hidden">
+                {activeDeals.map((deal) => (
+                  <span
+                    key={deal.id}
+                    className="inline-flex items-center text-[8px] font-medium px-1.5 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
+                  >
+                    {deal.merchant}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {groups.length > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-1">
+                <button
+                  onClick={() => goTo((safeIdx - 1 + groups.length) % groups.length)}
+                  className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+                >
+                  <ChevronLeft className="w-3 h-3 text-slate-500" />
+                </button>
+                <div className="flex gap-1.5">
+                  {groups.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => goTo(i)}
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                        i === safeIdx
+                          ? "bg-slate-700 scale-125"
+                          : "bg-slate-300 hover:bg-slate-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => goTo((safeIdx + 1) % groups.length)}
+                  className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+                >
+                  <ChevronRight className="w-3 h-3 text-slate-500" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       <style>{`
         @keyframes collection-slide-right {
@@ -217,6 +435,10 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
         }
         @keyframes collection-slide-left {
           from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes detail-slide-in {
+          from { opacity: 0; transform: translateX(30px); }
           to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
