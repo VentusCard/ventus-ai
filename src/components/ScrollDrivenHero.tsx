@@ -168,7 +168,7 @@ const ScrollDrivenHero = () => {
       style={{ height: "320vh", background: "#0A1628" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-24 md:pt-28 overflow-hidden">
         {/* Centered Headline */}
         <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-white leading-[1.15] text-center mb-6 px-6 max-w-4xl">
           Turn transaction data into{" "}
@@ -362,14 +362,13 @@ const ScrollDrivenHero = () => {
         {/* Schedule a Demo button */}
         <Button
           size="lg"
-          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+          className="mt-4 mb-8 bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => {
             document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
           }}
         >
           Schedule a Demo
         </Button>
-        <div className="pb-12" />
       </div>
     </div>
   );
