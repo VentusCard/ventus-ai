@@ -93,16 +93,37 @@ const TxRow = ({
     </div>
     {/* Hover tooltip */}
     {signalEntry && !dim && (
-      <div className="hidden group-hover/row:block absolute left-4 top-full z-20 mt-0.5 bg-slate-800 text-white text-[9px] rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap pointer-events-none">
-        <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
-        <span className="mx-1 text-slate-500">·</span>
-        <span>{signalEntry.label}</span>
-        {signalEntry.frequency && (
-          <>
-            <span className="mx-1 text-slate-500">·</span>
-            <span className="text-slate-300">{signalEntry.frequency}</span>
-          </>
-        )}
+      <div className="hidden group-hover/row:block absolute left-4 top-full z-20 mt-0.5 bg-slate-800 text-white text-[9px] rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap pointer-events-none space-y-0.5">
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400 font-medium">MCC:</span>
+          <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
+          <span className="mx-0.5 text-slate-600">·</span>
+          <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
+        </div>
+        <div className="flex items-center gap-1 text-[8.5px]">
+          <span className="text-slate-400">Pillar:</span>
+          <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-slate-400">Category:</span>
+          <span className="text-slate-200">{signalEntry.category || "—"}</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-slate-400">Sub:</span>
+          <span className="text-slate-200">{signalEntry.label}</span>
+          {signalEntry.tier && (
+            <>
+              <span className="text-slate-600">·</span>
+              <span className="text-slate-400">Tier:</span>
+              <span className="text-slate-200">{signalEntry.tier}</span>
+            </>
+          )}
+          {signalEntry.frequency && (
+            <>
+              <span className="text-slate-600">·</span>
+              <span className="text-slate-400">Freq:</span>
+              <span className="text-slate-200">{signalEntry.frequency}</span>
+            </>
+          )}
+        </div>
       </div>
     )}
   </div>
