@@ -42,15 +42,24 @@ const PRODUCT_CATALOG = [
 function RecommendedProductsPills({ productCards }: { productCards: ProductCard[] }) {
   const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
 
+  // Sort so matched (blue) pills come first, then take first 5
+  const sorted = [...PRODUCT_CATALOG].sort((a, b) => {
+    const aMatch = recommendedNames.some(r => r.includes(a.toLowerCase()) || a.toLowerCase().includes(r));
+    const bMatch = recommendedNames.some(r => r.includes(b.toLowerCase()) || b.toLowerCase().includes(r));
+    return (bMatch ? 1 : 0) - (aMatch ? 1 : 0);
+  });
+  const visible = sorted.slice(0, 5);
+  const remaining = PRODUCT_CATALOG.length - 5;
+
   return (
     <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Product Catalog</span>
-      {PRODUCT_CATALOG.map(name => {
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
+      {visible.map(name => {
         const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
         return (
           <span
             key={name}
-            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border shrink-0 ${
+            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${
               isMatch
                 ? "text-blue-700 bg-blue-50 border-blue-200"
                 : "text-slate-400 bg-slate-50 border-slate-100"
@@ -61,6 +70,9 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
           </span>
         );
       })}
+      {remaining > 0 && (
+        <span className="text-[10px] text-slate-300 font-medium">+{remaining} more</span>
+      )}
     </div>
   );
 }
