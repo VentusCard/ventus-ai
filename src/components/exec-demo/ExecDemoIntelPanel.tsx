@@ -300,6 +300,7 @@ export default function ExecDemoIntelPanel({
                 {rollupStats.map((r, i) => (
                   <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
                 ))}
+                </div>
               </div>
             )}
 
