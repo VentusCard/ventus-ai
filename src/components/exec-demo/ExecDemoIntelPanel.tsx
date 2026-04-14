@@ -241,10 +241,10 @@ export default function ExecDemoIntelPanel({
   const hasSynthesis = personaSynthesis && personaSynthesis.pillarRollups && personaSynthesis.pillarRollups.length > 0;
 
   return (
-    <div className="flex flex-col h-full px-5 py-2 overflow-hidden">
+    <div className="flex flex-col h-full px-6 py-4 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-3 mb-2 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-5 py-4 mb-3 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
@@ -258,7 +258,7 @@ export default function ExecDemoIntelPanel({
         {!synthesisTriggered && displayedDesc && (
           <div
             key={descKey}
-            className="mb-3 text-[11px] italic text-slate-500 leading-relaxed"
+            className="mb-3 text-[13px] italic text-slate-500 leading-relaxed"
             style={{ animation: "desc-crossfade 0.6s ease-out" }}
           >
             {displayedDesc}
@@ -269,7 +269,7 @@ export default function ExecDemoIntelPanel({
         {hasSynthesis && !synthesisTriggered && chips.length > 0 && phase === "hold" && (
           <button
             onClick={() => setSynthesisTriggered(true)}
-            className="flex items-center gap-2 mx-auto mb-3 px-5 py-2.5 rounded-lg text-[12px] font-bold tracking-wide uppercase transition-all duration-300 hover:scale-[1.03]"
+            className="flex items-center gap-2 mx-auto mb-3 px-6 py-3 rounded-lg text-[13px] font-bold tracking-wide uppercase transition-all duration-300 hover:scale-[1.03]"
             style={{
               background: "rgba(15,23,42,.92)",
               color: "#67e8f9",
@@ -279,9 +279,9 @@ export default function ExecDemoIntelPanel({
               letterSpacing: "0.08em",
             }}
           >
-            <Cpu className="w-4 h-4" style={{ color: "#22d3ee" }} />
-            <span style={{ color: "#e0f2fe" }}>Behavioral Intelligence:</span>
-            <span style={{ color: "#22d3ee", marginLeft: "-2px" }}>Ready</span>
+            <Cpu className="w-5 h-5" style={{ color: "#22d3ee" }} />
+            <span style={{ color: "#e0f2fe" }} className="text-[13px]">Behavioral Intelligence:</span>
+            <span style={{ color: "#22d3ee", marginLeft: "-2px" }} className="text-[13px]">Ready</span>
             <span className="relative flex h-2 w-2 ml-1">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "#22d3ee" }} />
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#06b6d4" }} />
@@ -294,7 +294,7 @@ export default function ExecDemoIntelPanel({
           <div>
             {/* Pillar rollup pills - shown after synthesis triggered */}
             {synthesisTriggered && rollupStats.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="flex flex-wrap gap-2.5 mb-3">
                 {rollupStats.map((r, i) => (
                   <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
                 ))}
@@ -303,7 +303,7 @@ export default function ExecDemoIntelPanel({
 
             <button
               onClick={() => setPillsExpanded(!pillsExpanded)}
-              className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-2"
+              className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition-colors mb-3"
             >
               {pillsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               {synthesisTriggered ? "Full Analysis" : "Signal breakdown"} · {chips.length} categories
@@ -320,20 +320,20 @@ export default function ExecDemoIntelPanel({
                     return (
                       <div
                         key={pillar}
-                        className={`flex py-1.5 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
+                        className={`flex py-2.5 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
                       >
                         {/* Left column — pillar name */}
-                        <div className="w-[90px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
-                          <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-[2px]" style={{ background: c.dot }} />
-                          <span className="text-[10px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
+                        <div className="w-[100px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
+                          <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
+                          <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
                         </div>
                         {/* Right column — categories + subcategory pills */}
-                        <div className="flex-1 flex flex-wrap items-center gap-1">
+                        <div className="flex-1 flex flex-wrap items-center gap-1.5">
                           {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
                             <React.Fragment key={category}>
                               <span
                                 onClick={() => onPillClick?.(pillar, category, true)}
-                                className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
+                                className={`inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
                                   activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
                                     ? "ring-1 ring-offset-1 shadow-sm"
                                     : ""
@@ -352,14 +352,14 @@ export default function ExecDemoIntelPanel({
                                   <span
                                     key={`${chip.pillar}::${chip.category}::${chip.label}`}
                                     onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                    className={`inline-flex items-center gap-0.5 text-[11px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
+                                    className={`inline-flex items-center gap-0.5 text-[12px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
                                     style={{ color: c.text }}
                                   >
                                     {chip.label}
                                     {chip.count > 1 && (
-                                      <span className="text-[10px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
+                                      <span className="text-[11px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
                                     )}
-                                    <span className="text-[10px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
+                                    <span className="text-[11px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
                                     {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
                                   </span>
                                 );
@@ -380,7 +380,7 @@ export default function ExecDemoIntelPanel({
       {/* Tab bar — always visible when enrichment is active */}
       {showProfile && phase !== "idle" && (
         <>
-          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1 shrink-0">
+          <div className="flex rounded-lg bg-slate-100 p-1 mb-2 shrink-0">
             {TAB_ORDER.map((key) => {
               const meta = TAB_META[key];
               const Icon = meta.icon;
@@ -390,13 +390,13 @@ export default function ExecDemoIntelPanel({
                 <button
                   key={key}
                   onClick={() => onTabClick(key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-[12px] font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-700 cursor-pointer"
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-4 h-4" />
                   {meta.label}
                 </button>
               );
