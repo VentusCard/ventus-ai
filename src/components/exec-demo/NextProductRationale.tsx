@@ -159,7 +159,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             <div key={i} className="space-y-0">
               {/* Trigger pill */}
               <div
-                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 ${hasEvidence ? "cursor-pointer" : ""}`}
+                className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full mb-1 ${hasEvidence ? "cursor-pointer" : ""}`}
                 style={{
                   background: `${c.dot}15`,
                   color: c.dot,
