@@ -47,7 +47,7 @@ SIGNAL LOGIC:
 - "suppress": The customer has ALREADY purchased something similar recently. signalReason should reference what was found (e.g., "Ski pass purchased in Feb")
 - "neutral": Standard relevance, no strong signal either way. signalReason can be brief (e.g., "Complements lifestyle")
 
-AIM for 2-3 suppressed, 2-3 boosted, and 1-2 neutral per cluster.
+AIM for 0-2 suppressed, 1-2 boosted, and the rest neutral per cluster. Most deals should be neutral — only suppress when there's a clear recent purchase match.
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason"},...]},...]}`; 

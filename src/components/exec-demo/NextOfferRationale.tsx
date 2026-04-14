@@ -53,36 +53,21 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
       }}
     >
       {/* Card header */}
-      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
-        <div className="flex items-center gap-1.5">
-          <span
-            className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
-          >
-            <span style={{ color: c.dot }}>✦</span>
-            {group.rollup}
-          </span>
-        </div>
-        <span className="text-[9px] text-slate-400 font-medium">
-          {active.length} active · {suppressed.length} covered
+      <div className="flex items-center gap-1.5 flex-wrap px-3 pt-2.5 pb-1.5">
+        <span
+          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
+          style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+        >
+          <span style={{ color: c.dot }}>✦</span>
+          {group.rollup}
         </span>
+        {suppressed.map(d => (
+          <span key={d.id} className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-full">
+            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+            {d.merchant}
+          </span>
+        ))}
       </div>
-
-      {/* Suppressed strip */}
-      {suppressed.length > 0 && (
-        <div className="mx-3 mb-2 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-dashed border-slate-200">
-          <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Already Covered</div>
-          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-            {suppressed.map(d => (
-              <div key={d.id} className="flex items-center gap-1 text-[10px] text-slate-400">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                <span className="line-through">{d.merchant}</span>
-                <span className="text-[9px] text-slate-300">· {d.signalReason}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Carousel */}
       {active.length > 0 && (
