@@ -1,31 +1,21 @@
 
 
-## Fix: Life Event pills should highlight evidence transactions
+## Fix: Life Event pills only matching one transaction
 
-### Problem
-Clicking a Life Event pill does a broad pillar match instead of highlighting the specific evidence transactions (e.g., COLLEGEBOARD SAT, KAPLAN TEST PREP, STANFORD VISITOR PARKING) that the AI returned as supporting evidence.
+### Root Cause
+The evidence matching logic (line 669-677 in `ExecDemoPage.tsx`) iterates over `Object.keys(sm)` — the signalMap keys — but some evidence transactions may not have signalMap entries yet (classification may not have mapped them). Even when they do exist, the code filters by signalMap keys instead of iterating all transactions.
 
-### Approach
-Pass the evidence merchants directly through the pill click, then match transactions by merchant name.
+Additionally, the `matched.length > 0` guard on line 677 means if even ONE transaction matches, it returns only those — but if the normalize+includes check fails for 2 out of 3 evidence merchants (due to LLM reformatting the merchant name slightly), only 1 shows.
 
-### Changes
+### Fix
 
-**`src/components/exec-demo/NextProductRationale.tsx`**
-- For life-event card pills, find the matching `LifeEvent` from the `lifeEvents` prop using `card.signal_label` ↔ `event.event_name`.
-- Pass the event's `evidence[]` merchant names via `onPillClick` as a new optional parameter (e.g., `evidenceMerchants: string[]`).
-- Behavioral pills remain unchanged (pillar-based filtering).
+**`src/pages/ExecDemoPage.tsx`** — Update the evidence matching block (lines 665-678):
+- Iterate over ALL transactions by index (`execProfile.transactions.forEach((tx, idx) => ...)`) instead of only signalMap keys
+- Use a more forgiving matching: split evidence merchant into words and check if the transaction merchant contains enough of those words (fuzzy word overlap), not just substring includes
+- Remove the `if (matched.length > 0)` guard that falls through to pillar matching — evidence-based should always return its results even if empty
 
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-- Update `onPillClick` prop type to include optional `evidenceMerchants`.
-
-**`src/pages/ExecDemoPage.tsx`**
-- Extend `activePillFilter` state to support an optional `evidenceMerchants: string[]` field.
-- In `filteredIndices`, when `evidenceMerchants` is present, match transactions by normalized merchant name against the evidence list instead of using pillar matching.
-- Matching logic: normalize both sides (lowercase, strip punctuation) and check if either contains the other.
-
-### Example flow
-1. User clicks "College Preparation" pill
-2. `onPillClick("Education & Family", "College Preparation", false, ["COLLEGEBOARD SAT", "KAPLAN TEST PREP", "STANFORD VISITOR PARKING"])`
-3. `filteredIndices` finds transactions whose merchant names match those 3 evidence merchants
-4. Left panel highlights exactly those 3 rows
+### Example
+Evidence: `["COLLEGEBOARD SAT", "KAPLAN TEST PREP", "STANFORD VISITOR PARKING"]`
+Transaction merchants: `"COLLEGEBOARD SAT"`, `"KAPLAN TEST PREP"`, `"STANFORD VISITOR PARKING"`
+After normalization, word-overlap matching ensures all 3 match.
 
