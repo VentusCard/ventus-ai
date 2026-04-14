@@ -11,12 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const signalLayers = [
-  { icon: Layers, title: "Lifestyle Pillars", desc: "12 behavioral categories extracted from spending patterns. From Travel & Adventure to Financial Planning." },
-  { icon: Heart, title: "Life Event Detection", desc: "20+ life events detected in real time. New baby, home purchase, retirement, relocation, and more." },
-  { icon: Activity, title: "Well-being Signals", desc: "Financial wellness indicators surfaced from transaction behavior — stress, stability, and momentum." },
-  { icon: Search, title: "Purchase Cycle Intel", desc: "Detect what customers are planning next. We surface intent signals before they become transactions." },
-];
+/* signal layer cards are now rendered inline below */
 
 const faqs = [
   { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
