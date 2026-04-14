@@ -59,7 +59,7 @@ const SalesforceLogo = () => (
 );
 
 const FisLogo = () => (
-  <div className="text-[2.5rem] font-black uppercase tracking-[-0.08em] leading-none text-[#0057B8]">
+  <div className="text-[2.5rem] font-black uppercase tracking-[-0.08em] leading-none text-[#4BCD3E]">
     FIS
   </div>
 );
@@ -168,12 +168,9 @@ const IntegrationSection = () => {
           <p className="mb-8 text-center text-xs font-semibold uppercase tracking-widest text-gray-400">
             Integration Partners
           </p>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="flex items-center justify-center gap-16 md:gap-24 flex-wrap">
             {partners.map(({ name, Logo }) => (
-              <div
-                key={name}
-                className="flex min-h-[116px] items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 px-6 py-8"
-              >
+              <div key={name} className="flex items-center justify-center px-4 py-4">
                 <Logo />
               </div>
             ))}
