@@ -369,6 +369,7 @@ const ScrollDrivenHero = () => {
         >
           Schedule a Demo
         </Button>
+        <div className="pb-12" />
       </div>
     </div>
   );
