@@ -325,7 +325,7 @@ export default function ExecDemoIntelPanel({
                         {/* Left column — pillar name */}
                         <div className="w-[95px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
                           <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
-                          <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
+                          <span className="text-[11px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
                         </div>
                         {/* Right column — categories + subcategory pills */}
                         <div className="flex-1 flex flex-wrap items-center gap-1.5">
@@ -333,7 +333,7 @@ export default function ExecDemoIntelPanel({
                             <React.Fragment key={category}>
                               <span
                                 onClick={() => onPillClick?.(pillar, category, true)}
-                                className={`inline-flex items-center text-[11.5px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
+                                className={`inline-flex items-center text-[10.5px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
                                   activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
                                     ? "ring-1 ring-offset-1 shadow-sm"
                                     : ""
@@ -352,14 +352,14 @@ export default function ExecDemoIntelPanel({
                                   <span
                                     key={`${chip.pillar}::${chip.category}::${chip.label}`}
                                     onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                    className={`inline-flex items-center gap-0.5 text-[12px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
+                                    className={`inline-flex items-center gap-0.5 text-[11.5px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
                                     style={{ color: c.text }}
                                   >
                                     {chip.label}
                                     {chip.count > 1 && (
-                                      <span className="text-[11px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
+                                      <span className="text-[10.5px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
                                     )}
-                                    <span className="text-[11px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
+                                    <span className="text-[10.5px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
                                     {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
                                   </span>
                                 );
