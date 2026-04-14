@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Calendar, Flame, BarChart3, Crosshair } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
+import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
 
 interface ChipData {
@@ -15,6 +16,7 @@ interface Props {
   chips: ChipData[];
   transactions: Transaction[];
   signalMap: Record<number, SignalEntry>;
+  personaSynthesis?: PersonaSynthesis | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -159,8 +161,71 @@ function ConfidenceBadge({ confidence }: { confidence: "High" | "Medium" | "Low"
   );
 }
 
-export default function PurchaseCycleTimeline({ chips, transactions, signalMap }: Props) {
+export default function PurchaseCycleTimeline({ chips, transactions, signalMap, personaSynthesis }: Props) {
   const rows: SeasonalRow[] = useMemo(() => {
+    const rollups = personaSynthesis?.pillarRollups;
+
+    // If we have persona rollups, group by rollup label
+    if (rollups && rollups.length > 0) {
+      return rollups
+        .map(rollup => {
+          const months = new Array(12).fill(0);
+          let total = 0;
+          let count = 0;
+
+          // Use txIndices if available, otherwise categoryIndices mapped through signalMap
+          const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
+          indices.forEach(idx => {
+            const tx = transactions[idx];
+            if (!tx) return;
+            const month = parseMonth(tx.date);
+            if (month === null) return;
+            const amount = parseFloat(String(tx.amount).replace(/[$,]/g, "")) || 0;
+            months[month] += amount;
+            total += amount;
+            count += 1;
+          });
+
+          if (count < 2) return null;
+
+          const peak = months.indexOf(Math.max(...months));
+          const monthsUntil = peak >= CURRENT_MONTH ? peak - CURRENT_MONTH : 12 - CURRENT_MONTH + peak;
+
+          const recentMonths = [0, 1, 2].map(i => months[(CURRENT_MONTH - i + 12) % 12]);
+          const priorMonths = [3, 4, 5].map(i => months[(CURRENT_MONTH - i + 12) % 12]);
+          const recentAvg = recentMonths.reduce((a, b) => a + b, 0) / 3;
+          const priorAvg = priorMonths.reduce((a, b) => a + b, 0) / 3;
+          const velocity = priorAvg > 0 ? Math.round(((recentAvg - priorAvg) / priorAvg) * 100) : 0;
+
+          let bestSum = 0, bestStart = 0;
+          for (let s = 0; s < 12; s++) {
+            const sum3 = months[s] + months[(s + 1) % 12] + months[(s + 2) % 12];
+            if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
+          }
+          const pct = total > 0 ? Math.round((bestSum / total) * 100) : 0;
+          const concentration = pct >= 40 ? {
+            months: `${MONTHS[bestStart]}-${MONTHS[(bestStart + 2) % 12]}`,
+            pct,
+          } : null;
+
+          return {
+            label: rollup.label,
+            pillar: rollup.pillar,
+            monthlySpend: months,
+            peak,
+            monthsUntilPeak: monthsUntil === 0 ? 0 : monthsUntil,
+            totalSpend: total,
+            count,
+            velocity,
+            concentration,
+          };
+        })
+        .filter((r): r is SeasonalRow => r !== null)
+        .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak)
+        .slice(0, 7);
+    }
+
+    // Fallback: group by signal pillar::label (original behavior)
     const categoryMonthly = new Map<string, { pillar: string; months: number[]; total: number; count: number }>();
 
     transactions.forEach((tx, idx) => {
@@ -220,7 +285,7 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap }
         };
       })
       .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak);
-  }, [transactions, signalMap]);
+  }, [transactions, signalMap, personaSynthesis]);
 
   // Next-Purchase Probability computation
   const probabilityRows: ProbabilityRow[] = useMemo(() => {
