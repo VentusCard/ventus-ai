@@ -278,7 +278,7 @@ const ScrollDrivenHero = () => {
             </div>
 
             {/* Transaction list — bottom 2/3 */}
-            <div className="px-4 py-2 overflow-hidden" style={{ height: 220 }}>
+            <div className="px-4 py-2 overflow-hidden" style={{ height: 180 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
