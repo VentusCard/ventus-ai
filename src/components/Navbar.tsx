@@ -69,16 +69,10 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
     setIsMobileProductsOpen(false);
   };
-  const scrollToFaq = useCallback(() => {
+  const goToFaq = useCallback(() => {
     closeMobileMenu();
-    if (location.pathname !== "/") {
-      // Navigate to /?scrollTo=faq — ScrollToTop will handle the scroll
-      navigate("/?scrollTo=faq");
-    } else {
-      const el = document.getElementById("faq");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [location.pathname, navigate]);
+    navigate("/faq");
+  }, [navigate]);
 
   const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
   const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
@@ -153,7 +147,7 @@ const Navbar = () => {
             </div>
           </div>
           <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
-          <button onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors`}>FAQ</button>
+          <Link to="/faq" className={`${textColor} text-sm font-medium transition-colors`}>FAQ</Link>
         </div>
         <Link to="/contact">
           <Button
@@ -209,7 +203,7 @@ const Navbar = () => {
               ))}
             </div>
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
-          <button onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</button>
+          <Link to="/faq" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</Link>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
