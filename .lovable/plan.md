@@ -1,26 +1,24 @@
 
 
-## Separate MCC source data from AI classification in tooltips
+## Fix: Tooltip clipped by scrollable container
 
-**Goal**: Tooltip row 1 (MCC code + description) comes from the raw CSV sample data. Row 2 (pillar, category, subcategory, tier, frequency) comes from the classify-transactions AI function results.
+The tooltip is absolutely positioned inside a `div` with `overflow-y-auto`, which clips it. The fix is to use `position: fixed` instead of `position: absolute`, calculating the tooltip position from the row's bounding rect on hover.
 
-### Current problem
-When AI classification arrives, `buildSignalMapFromClassified` creates a new signal map with only `pillar`, `label`, `amount`, `frequency` — it discards the `mcc`, `mccDescription`, `category`, and `tier` fields that were present in the MCC-based fallback map.
+### Changes in `src/components/exec-demo/ExecDemoLeftPanel.tsx`
 
-### Changes
+1. **Convert `TxRow` tooltip to fixed positioning** — use `onMouseEnter`/`onMouseLeave` + a ref to get the row's `getBoundingClientRect()`, then position the tooltip with `position: fixed; top/left` based on the row's screen coordinates.
 
-**`src/components/exec-demo/execDemoData.ts`**:
-- Update `buildSignalMapFromClassified` to accept an optional `csv` parameter
-- Parse MCC codes and descriptions from the CSV rows (same logic as `buildSignalMap`)
-- Merge: MCC + mccDescription from CSV, pillar/category/label/tier/frequency from the AI `EnrichedTransaction` results
-- Map `subcategories[0]` from AI results into the `label` field (subcategory)
-- Map `spending_tier` into `tier`
+2. **Use a React portal** (`ReactDOM.createPortal`) to render the tooltip at `document.body` level, ensuring it floats above everything including the scroll container.
 
-**`src/pages/ExecDemoPage.tsx`**:
-- Pass the CSV string to both calls of `buildSignalMapFromClassified(classifiedRef.current, csv)` so MCC data is preserved
+3. **Set `z-index: 9999`** on the tooltip so it renders above all other UI elements.
 
-### Result
-- Tooltip Row 1 always shows MCC code + description from raw CSV data
-- Tooltip Row 2 shows AI-enriched pillar, category, subcategory, tier, and frequency
-- When AI hasn't loaded yet, MCC fallback map still provides all fields as before
+### Technical detail
+- Add `useState` for hover state and coordinates in `TxRow`
+- On `mouseEnter`: set `{ x: rect.left, y: rect.top }` and show tooltip
+- On `mouseLeave`: hide tooltip
+- Render tooltip via `createPortal(tooltipDiv, document.body)` with `position: fixed`
+- Position tooltip above the row (`bottom` of tooltip aligns with top of row) to avoid being cut off at container bottom
+
+### Files modified
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx`
 
