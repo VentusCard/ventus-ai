@@ -167,10 +167,10 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "320vh", background: "#0A1628" }}
+      style={{ height: "360vh", background: "#0A1628" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-24 md:pt-28 overflow-hidden">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-20 md:pt-24 overflow-visible">
         {/* Centered Headline */}
         <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-white leading-[1.15] text-center mb-6 px-6 max-w-4xl">
           Turn transaction data into{" "}
@@ -277,7 +277,7 @@ const ScrollDrivenHero = () => {
             </div>
 
             {/* Transaction list — bottom 2/3 */}
-            <div className="px-4 py-2 overflow-hidden" style={{ height: 180 }}>
+            <div className="px-4 py-2 overflow-hidden" style={{ height: 160 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
@@ -357,18 +357,20 @@ const ScrollDrivenHero = () => {
           </div>
         </div>
 
-        <p className="text-sm md:text-base text-gray-400 max-w-2xl text-center leading-relaxed mt-6 px-6">
-          A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
-        </p>
+        <div className="mt-5 flex flex-col items-center pb-20 md:pb-28">
+          <p className="text-sm md:text-base text-gray-400 max-w-2xl text-center leading-relaxed px-6">
+            A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
+          </p>
 
-        {/* Schedule a Demo button */}
-        <Button
-          size="lg"
-          className="mt-4 mb-20 bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => navigate("/contact")}
-        >
-          Schedule a Demo
-        </Button>
+          {/* Schedule a Demo button */}
+          <Button
+            size="lg"
+            className="mt-5 bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => navigate("/contact")}
+          >
+            Schedule a Demo
+          </Button>
+        </div>
       </div>
     </div>
   );
