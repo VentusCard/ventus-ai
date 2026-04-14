@@ -208,29 +208,6 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
 
   return (
     <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
-      {/* Rollup pills */}
-      {personaSynthesis?.pillarRollups && personaSynthesis.pillarRollups.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-1">
-          {personaSynthesis.pillarRollups.filter(r => (r.totalCount ?? 0) > 0).map((r) => {
-            const rc = getColor(r.pillar);
-            return (
-              <span
-                key={`${r.pillar}::${r.label}`}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full"
-                style={{
-                  background: `linear-gradient(135deg, ${rc.bg.replace(".12", ".18")}, ${rc.bg.replace(".12", ".08")})`,
-                  color: rc.text,
-                  border: `1.5px solid ${rc.dot}`,
-                  boxShadow: `0 2px 8px ${rc.bg.replace(".12", ".2")}`,
-                }}
-              >
-                <span style={{ color: rc.dot }}>✦</span>
-                {r.label}
-              </span>
-            );
-          })}
-        </div>
-      )}
 
       {/* Strategy header */}
       <div className="flex items-center gap-2 flex-wrap">
