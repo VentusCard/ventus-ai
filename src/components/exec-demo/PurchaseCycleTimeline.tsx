@@ -407,8 +407,8 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap, 
                 className="flex items-center gap-2"
                 style={{ animation: `exec-card-reveal 0.35s ease-out ${ri * 0.06}s both` }}
               >
-                <div className="w-[66px] shrink-0 text-right pr-1">
-                  <span className="text-[10px] font-semibold truncate block" style={{ color: c.text }}>
+                <div className="w-[130px] shrink-0 text-right pr-1">
+                  <span className="text-[10px] font-semibold block leading-tight" style={{ color: c.text }}>
                     {row.label}
                   </span>
                 </div>
