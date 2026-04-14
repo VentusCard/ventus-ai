@@ -56,7 +56,7 @@ const Index = () => {
         </section>
 
         {/* How It Works — Enrichment Engine Demo */}
-        <section className="py-24 bg-white">
+        <section id="how-it-works" className="py-24 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
