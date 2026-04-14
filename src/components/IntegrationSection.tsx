@@ -64,61 +64,53 @@ const IntegrationSection = () => {
   const count2 = useCountUp(stats[2].target, statsVisible);
 
   return (
-    <section id="integration" className="py-24 scroll-mt-20" style={{ background: "#0a0f1e" }}>
+    <section id="integration" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
-        <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">A modular intelligence layer that works with your existing stack.</h2>
+        <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Integration</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-14">A modular intelligence layer that works with your existing stack.</h2>
 
-        {/* Steps with connector */}
-        <div ref={sectionRef} className="relative grid md:grid-cols-3 gap-8">
-          <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
-            <div
-              className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
-              style={{ animation: "connector-dot 3s ease-in-out infinite" }}
-            />
-          </div>
-
+        {/* Steps */}
+        <div ref={sectionRef} className="grid md:grid-cols-3 gap-6">
           {steps.map((s, i) => (
             <div
               key={s.step}
-              className="relative z-10 rounded-xl p-6 transition-all duration-700"
+              className="rounded-xl border border-gray-200 p-6 bg-white shadow-sm"
               style={{
-                background: "#111827",
                 opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(24px)",
-                transitionDelay: `${i * 200}ms`,
+                transform: visible ? "translateY(0)" : "translateY(16px)",
+                transition: `opacity 0.5s ease ${i * 150}ms, transform 0.5s ease ${i * 150}ms`,
               }}
             >
-              <p className="text-3xl font-bold text-blue-500 mb-3">{s.step}</p>
-              <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
+              <p className="text-3xl font-bold text-blue-600 mb-3">{s.step}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{s.title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
 
         {/* Stats */}
-        <div ref={statsRef} className="mt-20 grid grid-cols-3 gap-4 md:gap-8 text-center -ml-2 md:ml-0">
+        <div ref={statsRef} className="mt-16 grid grid-cols-3 gap-4 md:gap-8 text-center">
           <div>
-            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count0.toLocaleString() : 0}{stats[0].suffix}</p>
-            <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[0].label}</p>
+            <p className="text-2xl md:text-5xl font-bold text-gray-900">{statsVisible ? count0.toLocaleString() : 0}{stats[0].suffix}</p>
+            <p className="text-gray-500 mt-1 text-xs md:text-base">{stats[0].label}</p>
           </div>
           <div>
-            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count1 : 0}{stats[1].suffix}</p>
-            <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[1].label}</p>
+            <p className="text-2xl md:text-5xl font-bold text-gray-900">{statsVisible ? count1 : 0}{stats[1].suffix}</p>
+            <p className="text-gray-500 mt-1 text-xs md:text-base">{stats[1].label}</p>
           </div>
           <div>
-            <p className="text-2xl md:text-5xl font-bold text-white">{statsVisible ? count2 : 0}{stats[2].suffix}</p>
-            <p className="text-gray-400 mt-1 text-xs md:text-base">{stats[2].label}</p>
+            <p className="text-2xl md:text-5xl font-bold text-gray-900">{statsVisible ? count2 : 0}{stats[2].suffix}</p>
+            <p className="text-gray-500 mt-1 text-xs md:text-base">{stats[2].label}</p>
           </div>
         </div>
 
         {/* Integration Partners */}
-        <div className="mt-20 text-center">
-          <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-8">Integration Partners</p>
-          <div className="flex items-center justify-center gap-12 md:gap-16 flex-wrap">
+        <div className="mt-16 text-center">
+          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-8">Integration Partners</p>
+          <div className="flex items-center justify-center gap-12 md:gap-20 flex-wrap">
             {partners.map((p) => (
-              <div key={p.name} className="flex items-center justify-center h-10 opacity-60 hover:opacity-100 transition-opacity duration-300">
-                <img src={p.logo} alt={p.name} className="h-8 md:h-10 w-auto brightness-0 invert" />
+              <div key={p.name} className="flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-300">
+                <img src={p.logo} alt={p.name} className="h-8 md:h-10 w-auto object-contain" loading="lazy" />
               </div>
             ))}
           </div>
