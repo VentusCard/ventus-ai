@@ -1,31 +1,38 @@
 
 
-## Plan: Make category pills clickable to filter transactions
+## Plan: Scale up the middle section content
 
 ### What changes
 
-Category pills (e.g. "Concerts & Events") become clickable. Clicking one filters the left panel to show all transactions matching that category within the pillar — same behavior as subcategory text clicks but at the category level.
+Increase font sizes, spacing, and element sizes throughout the middle intel panel so content fills the available space better and feels less cramped.
 
-### Implementation
+### Changes in `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`** (~lines 334-343):
-- Add `onClick` handler to the category `<span>` pill that calls `onPillClick?.(pillar, category)` with a distinguishing prefix or use the existing mechanism
-- Actually, the existing `activePillFilter` uses `{ pillar, label }`. We can reuse this — when a category pill is clicked, set `label` to the category name. The filtering in `ExecDemoPage.tsx` matches `s.label === activePillFilter.label`. But category names live in `s.category`, not `s.label`.
-- **Better approach**: Add `category` as an optional field to `activePillFilter`. Modify `onPillClick` to accept an optional 3rd param or use a separate callback.
-- **Simplest approach**: Extend `onPillClick` signature to `(pillar: string, label: string, isCategory?: boolean)`. In ExecDemoPage, when `isCategory` is true, filter by `s.category === label` instead of `s.label === label`.
+1. **Outer container** (line 244): Increase padding from `px-5 py-2` → `px-6 py-4`
 
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**:
-- Add `cursor-pointer hover:brightness-95` to category pill styling
-- Call `onPillClick?.(pillar, category, true)` on click
-- Highlight active category pill (check if `activePillFilter` matches)
-- Update `onPillClick` prop type to include the optional boolean
+2. **Persona card** (line 247): Increase padding from `px-4 py-3` → `px-5 py-4`, margin `mb-2` → `mb-3`
 
-**`src/pages/ExecDemoPage.tsx`** (~lines 585-636):
-- Update `handlePillClick` to accept `isCategory?: boolean` and store it in state
-- Update `activePillFilter` type to `{ pillar: string; label: string; isCategory?: boolean }`
-- Update `filteredIndices` memo: when `isCategory` is true, filter `s.category === label` instead of `s.label === label`
+3. **Description text** (line 262): `text-[11px]` → `text-[13px]`
+
+4. **Synthesize button** (line 272): `text-[12px] px-5 py-2.5` → `text-[13px] px-6 py-3`
+
+5. **Behavioral Intelligence button** (lines 270-289): `text-[11px]` → `text-[13px]`, icon `w-4 h-4` → `w-5 h-5`
+
+6. **Rollup pills section** (line 297): `gap-2 mb-2` → `gap-2.5 mb-3`
+
+7. **Signal breakdown toggle** (line 306): `text-[10px]` → `text-[11px]`, `mb-2` → `mb-3`
+
+8. **Pillar rows** (line 323): `py-1.5` → `py-2.5`
+
+9. **Pillar left column** (line 326): `w-[90px]` → `w-[100px]`, pillar dot `w-1.5 h-1.5` → `w-2 h-2`, pillar name `text-[10px]` → `text-[12px]`
+
+10. **Right column categories + subcategories** (line 331): `gap-1` → `gap-1.5`
+    - Category pills (line 336): `text-[10px] px-2 py-0.5` → `text-[11px] px-2.5 py-1`
+    - Subcategory text (line 355): `text-[11px]` → `text-[12px]`
+    - Count/spend spans: `text-[10px]` → `text-[11px]`
+
+11. **Tab bar** (line 383): `p-0.5 mb-1` → `p-1 mb-2`, tab buttons `text-[11px] py-2` → `text-[12px] py-2.5`, icons `w-3.5 h-3.5` → `w-4 h-4`
 
 ### Files modified
 - `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- `src/pages/ExecDemoPage.tsx`
 
