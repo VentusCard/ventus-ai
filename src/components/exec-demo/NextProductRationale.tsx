@@ -9,7 +9,23 @@ interface Props {
   loading: boolean;
   productCards?: ProductCard[] | null;
   transactions?: Transaction[];
+  onPillClick?: (pillar: string, label: string) => void;
 }
+
+const themeToPillar: Record<string, string> = {
+  travel: "Travel & Leisure",
+  dining: "Dining & Nightlife",
+  fitness: "Health & Wellness",
+  wellness: "Health & Wellness",
+  shopping: "Shopping & Retail",
+  entertainment: "Entertainment",
+  home: "Home & Living",
+  education: "Education & Family",
+  family: "Education & Family",
+  retirement: "Financial Planning",
+  business: "Business",
+  lifestyle: "Lifestyle",
+};
 
 /* ─── Current holdings pill row ─── */
 function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] }) {
@@ -77,7 +93,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onPillClick }: Props) {
   if (loading || !lifeEvents) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -135,17 +151,18 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
               {/* Rolled-up pill above the card */}
               <div className="flex items-center gap-1.5">
                 <span
-                  className="text-[9px] font-bold uppercase tracking-wider"
+                  className="text-[10px] font-bold uppercase tracking-wider"
                   style={{ color: c.dot }}
                 >
                   {isBehavioral ? "Behavioral:" : "Life Event:"}
                 </span>
-                <span
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
+                <button
+                  onClick={() => onPillClick?.(themeToPillar[card.theme] || "Lifestyle", card.signal_label)}
+                  className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ background: `${c.dot}10`, color: c.dot, borderColor: `${c.dot}30` }}
                 >
                   {card.signal_label}
-                </span>
+                </button>
               </div>
 
               <div
