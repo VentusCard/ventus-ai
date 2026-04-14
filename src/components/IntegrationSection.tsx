@@ -138,9 +138,16 @@ const IntegrationSection = () => {
         </div>
 
         <div className="mt-16">
-          <div className="flex items-center justify-center gap-12 md:gap-20 flex-nowrap overflow-x-auto">
-            {partners.map(({ name, src, height }) => (
-              <div key={name} className="flex-shrink-0 flex items-center justify-center px-4 py-4">
+          <div className="flex items-center justify-center gap-12 md:gap-20">
+            {partners.slice(0, 3).map(({ name, src, height }) => (
+              <div key={name} className="flex items-center justify-center px-4 py-4">
+                <img src={src} alt={name} className={`${height} w-auto`} />
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-12 md:gap-20 mt-8">
+            {partners.slice(3).map(({ name, src, height }) => (
+              <div key={name} className="flex items-center justify-center px-4 py-4">
                 <img src={src} alt={name} className={`${height} w-auto`} />
               </div>
             ))}
