@@ -7,7 +7,7 @@ import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
-import type { GeneratedOffer } from "./NextOfferRationale";
+import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
@@ -33,7 +33,7 @@ interface Props {
   activeTab: TabKey | null;
   phase: string;
   showContent?: boolean;
-  generatedOffers?: GeneratedOffer[] | null;
+  generatedOffers?: RollupOfferGroup[] | null;
   detectedLifeEvents?: LifeEvent[] | null;
   productCards?: ProductCard[] | null;
 }
@@ -54,7 +54,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         return <DemoEngagementView customer={customer} />;
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offers={generatedOffers} customerName={customer.profile.name} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} />;
         }
         return <DemoRewardsView customer={customer} />;
       case "product":
