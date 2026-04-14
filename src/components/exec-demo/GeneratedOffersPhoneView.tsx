@@ -1,4 +1,4 @@
-import { Gift, Sparkles } from "lucide-react";
+import { Gift, Sparkles, CheckCircle2, TrendingUp } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 
@@ -10,7 +10,6 @@ interface Props {
 export default function GeneratedOffersPhoneView({ offerGroups, customerName }: Props) {
   return (
     <div className="px-3 py-3 space-y-3">
-      {/* Header */}
       <div className="flex items-center gap-1.5">
         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
         <span className="text-[11px] font-bold text-slate-700">
@@ -20,12 +19,13 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
 
       {offerGroups.map((group) => {
         const c = getColor(group.pillar);
-        const hero = group.deals[0];
-        const rest = group.deals.slice(1);
+        const suppressed = group.deals.filter(d => d.signal === "suppress");
+        const active = group.deals.filter(d => d.signal !== "suppress");
+        const hero = active[0];
+        const rest = active.slice(1);
 
         return (
           <div key={`${group.pillar}::${group.rollup}`} className="space-y-2">
-            {/* Rollup label */}
             <div className="flex items-center gap-1.5">
               <span
                 className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -35,7 +35,19 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
               </span>
             </div>
 
-            {/* Hero deal */}
+            {/* Suppressed strip */}
+            {suppressed.length > 0 && (
+              <div className="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-dashed border-slate-200">
+                <div className="text-[8px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Already Covered</div>
+                {suppressed.map(d => (
+                  <div key={d.id} className="flex items-center gap-1 text-[9px] text-slate-400">
+                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                    <span className="line-through">{d.merchant}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {hero && (
               <div
                 className="rounded-2xl overflow-hidden"
@@ -45,6 +57,11 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Gift className="w-3.5 h-3.5 text-emerald-400" />
                     <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Top Pick</span>
+                    {hero.signal === "boost" && (
+                      <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-emerald-300 bg-emerald-900/40 px-1.5 py-0.5 rounded-full">
+                        <TrendingUp className="w-2 h-2" /> Boosted
+                      </span>
+                    )}
                   </div>
                   <div className="text-[13px] font-bold text-white mb-0.5">{hero.merchant}</div>
                   <div className="text-[10px] text-slate-300 mb-1.5">{hero.product}</div>
@@ -59,7 +76,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
               </div>
             )}
 
-            {/* Rest as compact grid */}
             {rest.length > 0 && (
               <div className="grid grid-cols-2 gap-1.5">
                 {rest.map((deal) => (
@@ -73,6 +89,12 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-emerald-600">{deal.rewardValue}</span>
                     </div>
+                    {deal.signal === "boost" && (
+                      <div className="flex items-center gap-0.5 mt-0.5">
+                        <TrendingUp className="w-2 h-2 text-emerald-500" />
+                        <span className="text-[8px] text-emerald-600 font-semibold">Boosted</span>
+                      </div>
+                    )}
                     <button className="mt-1 w-full text-[9px] font-semibold text-emerald-600 bg-emerald-50 py-0.5 rounded-full">
                       {deal.cta}
                     </button>
