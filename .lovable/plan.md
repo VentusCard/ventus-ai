@@ -1,18 +1,15 @@
 
 
-## Simplify Current vs. Recommended to a pill row
+## Add "Recommended Products" pill row
 
-Replace the complex 3-column grid `CurrentVsRecommended` section with a simple horizontal row of pills showing the customer's current products extracted from transaction sources.
+Add a second row of pills below "Current Holdings" showing a catalog of possible next products. Most are gray (not recommended), and the ones matching the generated product cards below are highlighted in blue.
 
 ### Change: `src/components/exec-demo/NextProductRationale.tsx`
 
-**Remove** the entire `CurrentVsRecommended` function (~100 lines including the grid layout, matched/unmatched logic, signal connectors, and keyframe animation).
+**Add a `RecommendedProductsPills` component** rendered between `CurrentHoldingsPills` and the header:
 
-**Replace with** a simple inline pill row:
-- Extract unique `source` values from transactions with counts (same logic)
-- Render as a single `flex-wrap` row of small pills, each showing: `✓ Source Name (count)`
-- Green-tinted pills for current holdings, similar styling to the unmatched pills that already exist at the bottom of the old section
-- No columns, no connectors, no signal logic — just a compact row labeled "Current Holdings" above the existing product cards header
-
-The rendering spot stays the same (above the "N product cards generated" line), just drastically simplified.
+- Define a static list of ~10-12 common banking products (e.g., "Travel Card", "529 Plan", "HYSA", "Home Equity Line", "Auto Loan", "CD Ladder", "Premium Card", "Life Insurance", "Brokerage Account", "Student Loan Refi", "Balance Transfer Card", "Business Card")
+- Cross-reference against `productCards` — if a product name matches (fuzzy/includes), render it as a **blue pill** (`bg-blue-50 border-blue-200 text-blue-700`); otherwise render as **gray pill** (`bg-slate-50 border-slate-100 text-slate-400`)
+- Same compact `flex-wrap` row style as the current holdings row, labeled "Product Catalog"
+- Blue pills get a small spark/star icon; gray pills are plain text
 
