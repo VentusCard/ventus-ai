@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const rawTransactions = [
@@ -363,9 +364,7 @@ const ScrollDrivenHero = () => {
         <Button
           size="lg"
           className="mt-4 mb-20 bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => {
-            document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-          }}
+          onClick={() => navigate("/contact")}
         >
           Schedule a Demo
         </Button>
