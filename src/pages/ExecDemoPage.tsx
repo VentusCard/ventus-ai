@@ -664,17 +664,29 @@ export default function ExecDemoPage() {
       // Evidence-based matching: match transactions by merchant name
       if (activePillFilter.evidenceMerchants && activePillFilter.evidenceMerchants.length > 0) {
         const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const evidenceNorm = activePillFilter.evidenceMerchants.map(normalize);
+        const wordOverlap = (merchant: string, evidence: string) => {
+          const mWords = normalize(merchant).split(/\s*/).filter(Boolean);
+          const eWords = normalize(evidence).split(/\s*/).filter(Boolean);
+          // Check if evidence words appear as substrings in the merchant or vice versa
+          const mNorm = normalize(merchant);
+          const eNorm = normalize(evidence);
+          if (mNorm.includes(eNorm) || eNorm.includes(mNorm)) return true;
+          // Word-level: check if any significant evidence word (3+ chars) appears in merchant
+          const significantWords = evidence.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length >= 3);
+          if (significantWords.length === 0) return false;
+          const merchantLower = merchant.toLowerCase();
+          const matchCount = significantWords.filter(w => merchantLower.includes(w)).length;
+          return matchCount >= Math.max(1, Math.ceil(significantWords.length * 0.5));
+        };
         const txs = execProfile.transactions;
-        const matched = Object.keys(sm)
-          .map(Number)
-          .filter((idx) => {
-            const tx = txs[idx];
-            if (!tx) return false;
-            const merchantNorm = normalize(tx.merchant);
-            return evidenceNorm.some(ev => merchantNorm.includes(ev) || ev.includes(merchantNorm));
-          });
-        if (matched.length > 0) return matched;
+        const matched: number[] = [];
+        txs.forEach((tx, idx) => {
+          if (!tx) return;
+          if (activePillFilter.evidenceMerchants!.some(ev => wordOverlap(tx.merchant, ev))) {
+            matched.push(idx);
+          }
+        });
+        return matched;
       }
 
       const pillarMatches = Object.entries(sm).filter(([, s]) =>
