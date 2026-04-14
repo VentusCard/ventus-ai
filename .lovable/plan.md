@@ -1,26 +1,23 @@
 
 
-## Use Bank of America Products as Reference in Product Card Generation
+## Plan: Use Synthesized Personas in Next-Purchase Tab
 
-### Change
+### Problem
+The Next-Purchase tab (`PurchaseCycleTimeline`) currently groups transactions by raw classification pillars (e.g., "Food & Dining", "Travel & Transport"). Instead, it should use the synthesized persona rollups (e.g., "Weekend Foodie", "Style-Conscious Shopper") which are already computed by `synthesize-persona`.
 
-**`supabase/functions/generate-product-cards/index.ts`** — Update the system prompt to instruct the AI to use real Bank of America product names and offerings as reference when generating cards.
+### Changes
 
-Add to the system prompt after "You are a consumer banking product recommendation copywriter for 'TCBY Bank'":
+**1. Pass `personaSynthesis` to `PurchaseCycleTimeline`** (`ExecDemoIntelPanel.tsx`)
+- Add `personaSynthesis` prop to the `PurchaseCycleTimeline` call on line 370.
 
-```
-Use real Bank of America products as reference for recommendations. Examples:
-- Travel: Bank of America® Travel Rewards credit card, Bank of America® Premium Rewards® credit card
-- Cash back: Bank of America® Customized Cash Rewards credit card, Bank of America® Unlimited Cash Rewards credit card
-- Savings: Bank of America Advantage Savings, Bank of America Advantage SafePass® Savings
-- Investing: Merrill Edge® Self-Directed, Merrill Guided Investing
-- Home: Bank of America home equity line of credit, Bank of America mortgage
-- Education: Merrill 529 College Savings Plan
-- Retirement: Merrill IRA, Merrill Roth IRA
-- Business: Bank of America® Business Advantage credit cards
+**2. Refactor `PurchaseCycleTimeline.tsx` to use rollups as primary grouping**
+- Accept `personaSynthesis` as an optional prop.
+- When rollups exist, use each rollup's `label` (e.g., "Weekend Foodie") as the row label and its `pillar` for coloring.
+- Use `txIndices` or `categoryIndices` from each rollup to pull the matching transactions for that row's monthly spend heatmap.
+- Fall back to the current pillar-based grouping when no synthesis is available (loading state).
+- Update both the Seasonal Spend heatmap rows and the Next-Purchase Probability cards to use rollup labels instead of raw pillar labels.
 
-Adapt the product name to match what Bank of America actually offers. Use their real product naming conventions.
-```
-
-One file edit, redeploy the edge function.
+### What stays the same
+- All calculation logic (recency, frequency, seasonality, probability, velocity) remains identical — only the grouping key changes from `signal.pillar::signal.label` to `rollup.label`.
+- The visual layout, colors, insight cards, and animations are unchanged.
 
