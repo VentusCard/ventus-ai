@@ -20,6 +20,7 @@ export interface RollupOfferGroup {
   pillar: string;
   deals: GeneratedOffer[];
   collectionMessage?: string;
+  suppressedCategories?: string[];
 }
 
 interface Props {
@@ -31,12 +32,8 @@ interface Props {
 /* ─── Single rollup card with horizontal deal tiles ─── */
 function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
   const c = getColor(group.pillar);
-  const active = group.deals.filter(d => d.signal !== "suppress");
 
-  // Deduplicated category pills
-  const suppressedCats = [...new Set(
-    group.deals.filter(d => d.signal === "suppress" && d.suppressedCategory).map(d => d.suppressedCategory!)
-  )];
+  const suppressedCats = group.suppressedCategories || [];
   const boostCats = [...new Set(
     group.deals.filter(d => d.signal === "boost" && d.boostCategory).map(d => d.boostCategory!)
   )];
@@ -74,9 +71,9 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
       </div>
 
       {/* Horizontal deal tiles */}
-      {active.length > 0 && (
+      {group.deals.length > 0 && (
         <div className="flex gap-2 overflow-x-auto px-3 pb-2.5 scrollbar-hide">
-          {active.map(deal => (
+          {group.deals.map(deal => (
             <div
               key={deal.id}
               className="w-[115px] shrink-0 flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-2"
