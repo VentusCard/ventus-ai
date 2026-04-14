@@ -254,23 +254,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         })}
 
         {/* Supporting evidence from life events */}
-        {productEvents.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-slate-100">
-            <span className="text-[9px] text-slate-400 font-semibold uppercase">Supporting Evidence</span>
-            {productEvents.slice(0, 2).map((event, i) => (
-              <div key={i} className="mt-1.5 flex items-start gap-1">
-                <TrendingUp className="w-3 h-3 text-slate-300 mt-0.5 shrink-0" />
-                <div>
-                  <span className="text-[10px] font-semibold text-slate-600">{event.event_name}</span>
-                  <span className="text-[10px] text-slate-400 ml-1">({event.confidence}%)</span>
-                  <p className="text-[9px] text-slate-400 leading-relaxed">
-                    {event.evidence.slice(0, 3).map(e => e.merchant).join(" → ")}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
         <style>{`
           @keyframes exec-product-reveal {
