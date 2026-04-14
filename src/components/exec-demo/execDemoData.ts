@@ -41,6 +41,7 @@ export interface SignalEntry {
   mccDescription?: string;
   category?: string;
   tier?: string;
+  confidence?: number;
 }
 
 export interface ExecPersona {
@@ -452,6 +453,7 @@ export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[],
       amount: tx.amount || 0,
       frequency: tx.purchase_frequency,
       tier: tx.spending_tier,
+      confidence: tx.confidence,
       mcc: csvMcc?.mcc || "",
       mccDescription: csvMcc?.mccDescription || "Unknown",
     };

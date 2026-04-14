@@ -143,7 +143,9 @@ const TxRow = ({
             <span className="text-slate-200">{signalEntry.frequency || "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Confidence:</span>
-            <span className="text-emerald-400 font-semibold">High</span>
+            <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
+              {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
+            </span>
           </div>
         </div>,
         document.body
