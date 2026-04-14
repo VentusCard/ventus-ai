@@ -1,32 +1,60 @@
 
 
-## Make collection cards clickable with deal detail view
+## Enhance Rewards phone tab with semantic search, savings bar, hero spotlight, and expiring soon row
 
-### Problem
-Currently, the rotating collection cards in the Rewards phone tab are display-only. Clicking a collection should open a detail view showing the individual deals within that collection — similar to how a banking app lets you tap a category to see its offers.
+### Summary
+Port four features from the `/deckmo` rewards view into the exec demo's phone mockup (`GeneratedOffersPhoneView.tsx`), layered above the existing collection carousel which remains unchanged.
 
-### Change: `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
+### Layout (top to bottom)
+```text
+┌─────────────────────────┐
+│ Welcome, {name}! $XXX   │  ← Savings Summary Bar
+├─────────────────────────┤
+│ 🔍 Search deals...      │  ← Semantic Search Input
+│ [AI reasoning chip]     │
+├─────────────────────────┤
+│ ⭐ Top Pick For You     │  ← Hero Spotlight Card
+│ {merchant} {rewardValue}│
+├─────────────────────────┤
+│ ⏰ Expiring Soon        │  ← 2-3 deals with countdown
+├─────────────────────────┤
+│ ✨ Curated for {name}   │  ← Existing carousel (unchanged)
+│ [collection cards]      │
+│ [dots + arrows]         │
+└─────────────────────────┘
+```
 
-1. **Add `expandedGroup` state** (`RollupOfferGroup | null`) to track which collection is open.
+### Changes — single file: `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
 
-2. **Make collection cards clickable** — add `onClick` + `cursor-pointer` to the card div. Clicking sets `expandedGroup` to the active group and pauses auto-rotation (clear the interval when expanded).
+1. **Savings Summary Bar** (top)
+   - "Welcome, {firstName}!" with `TrendingUp` icon
+   - Stable yearly savings seeded from `offerGroups.length` (~$380-580)
+   - Blue-50 to indigo-50 gradient background
 
-3. **Build a deal detail view** that renders when `expandedGroup` is set:
-   - **Header**: back arrow (`ChevronLeft`) + collection name + deal count. Tapping back clears `expandedGroup`.
-   - **Banner**: same Unsplash image as the collection card, slightly taller (~100px).
-   - **Deal list**: vertical scrollable list of the group's deals (filtered to non-suppressed), each as a card showing:
-     - Merchant name (bold, 12px)
-     - Product name (11px, muted)
-     - Reward value pill (e.g., "5% back") in a colored badge
-     - CTA button text (e.g., "Activate") — styled as a small pill button
-     - One-line `message` text (10px, slate-500)
-   - Smooth slide-in animation from the right
+2. **Semantic Search Bar**
+   - Import and use `useSemanticDealSearch` hook
+   - Compact input (10px text) with `Search` icon left, `Loader2`/`X` right
+   - AI reasoning chip below when results return (blue-50, 9px, `Sparkles` icon)
+   - **Bridge logic**: edge function returns `deal-N` IDs → build a `Map<dealId, merchantName>` from the server catalog (inline ~200 entries) → convert matching IDs to merchant names → filter `offerGroups` to only show groups/deals with matching merchants
+   - When search is active: pause auto-rotation, filter carousel groups, filter hero/expiring deals
+   - When search is empty: show everything (current behavior)
 
-4. **Conditional render**: if `expandedGroup` is set, show the detail view instead of the carousel. The bottom tab bar remains visible (it's in the parent component).
+3. **Hero "Top Pick" Card**
+   - Takes the first deal from the first collection group
+   - Star icon + "Top Pick For You" label
+   - Merchant name, reward value badge, personalized message, "Activate" CTA
+   - Colored border + subtle gradient matching pillar color
 
-### Visual style
-- Clean white cards with subtle border, matching the existing phone mockup aesthetic
-- Each deal card: rounded-xl, light border, merchant name left-aligned, reward value right-aligned
-- "Activate" / CTA button: small rounded-full pill in the collection's pillar color
-- Back button: simple chevron + "Back" text in slate
+4. **Expiring Soon Row**
+   - Takes 2-3 deals from the last collection, assigns fake countdown hours (4h, 12h, 23h)
+   - Compact horizontal cards with urgency coloring (red for <6h, amber otherwise)
+   - Shows merchant name + reward value + "Xh left"
+
+5. **Existing carousel** — unchanged, just rendered below the new sections. Auto-rotation pauses when search is active (same as `expandedGroup`).
+
+### Technical details
+- New imports: `useSemanticDealSearch`, `Search`, `X`, `Loader2`, `TrendingUp`, `Clock`, `Star` from lucide-react
+- The merchant lookup map (~200 entries, ~3KB) is defined as a module-level constant
+- All new sections use same compact phone-mockup typography (8-13px)
+- No other files change
 
