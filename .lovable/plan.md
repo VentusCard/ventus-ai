@@ -1,19 +1,31 @@
 
 
-## Make life event product card copy more subtle
+## Match trigger pills to rollup pill styling (with txn count + spend)
 
 ### Problem
-The AI-generated `quote` on life event cards currently references the life event directly (e.g., "as you plan for college..."). The user wants the copy to use indirect language — e.g., "major family milestone" instead of "new baby," "big transition ahead" instead of "retirement."
+The "College Preparation" trigger pill in the Next-Product tab looks different from the rollup pills in the Next-Purchase tab. It needs the same visual format: `✦ Label  N txns · $Xk` with gradient background, colored border, and box shadow.
 
-The `signal_label` (the trigger pill text) should remain explicit (e.g., "College Preparation").
+### Change: `src/components/exec-demo/NextProductRationale.tsx`
 
-### Change: `supabase/functions/generate-product-cards/index.ts`
+1. **Add a `formatSpend` helper** (same as in ExecDemoIntelPanel):
+```typescript
+function formatSpend(amount: number): string {
+  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
+  return `$${Math.round(amount)}`;
+}
+```
 
-Update the **CARD 2 — LIFE EVENT** section of the system prompt (~lines 44-50) to add explicit instructions:
+2. **Compute txn count and total spend** from `matchedIndices` before rendering the pill. Move the matching logic above the return so we have the count/spend available:
+   - `txnCount = matchedIndices.length`
+   - `txnSpend = sum of matched transactions' amounts`
 
-- The `quote` must **never** name the life event directly — use indirect, euphemistic language instead
-- Add concrete examples: "new baby" → "major family milestone", "college" → "an upcoming chapter", "retirement" → "the next phase", "home purchase" → "putting down roots"
-- Clarify that `signal_label` should still use the explicit event name (this is already the case but worth reinforcing)
+3. **Restyle the trigger pill** (lines ~187-204) to match `PillarRollupChip` exactly:
+   - Gradient background: `linear-gradient(135deg, ...)`
+   - Border: `1.5px solid ${c.dot}` (or `2px` when active)
+   - Box shadow: `0 2px 8px ...` (or `0 0 14px ...` when active)
+   - Scale: `1.08` when active
+   - Content: `✦ {label}  {count} txns · ${spend}`
+   - Remove the `ShieldCheck`/`Zap` icons, use `✦` sparkle like rollup pills
 
-No other files change. The edge function will auto-deploy.
+No other files change.
 
