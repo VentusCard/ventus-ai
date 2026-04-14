@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import logoSalesforce from "@/assets/logo-salesforce.png";
+import logoFis from "@/assets/logo-fis.png";
+import logoJackHenry from "@/assets/logo-jackhenry.png";
 
 const steps = [
   { step: "01", title: "Connect", desc: "Banks and vendors securely share transaction data via API. No changes to core banking systems required." },
@@ -13,9 +16,9 @@ const stats = [
 ];
 
 const partners = [
-  { name: "Salesforce", logo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg" },
-  { name: "FIS", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/FIS_%28company%29_2022.svg/1200px-FIS_%28company%29_2022.svg.png" },
-  { name: "Jack Henry", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Jack_Henry_Logo.svg/1200px-Jack_Henry_Logo.svg.png" },
+  { name: "Salesforce", logo: logoSalesforce },
+  { name: "FIS", logo: logoFis },
+  { name: "Jack Henry", logo: logoJackHenry },
 ];
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
