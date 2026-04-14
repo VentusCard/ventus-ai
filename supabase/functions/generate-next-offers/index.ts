@@ -54,8 +54,12 @@ CATEGORY LABELS:
 
 AIM for 0-2 suppressed, 1-2 boosted, and the rest neutral per cluster. Most deals should be neutral — only suppress when there's a clear recent purchase match.
 
+COLLECTION MESSAGE:
+- For each cluster, generate a "collectionMessage" — a short, inspiring 8-15 word lifestyle tagline that introduces the collection of deals (e.g., "Travel smarter and in style with new gear and perks", "Elevate your mornings with bold flavors and smooth brews").
+- Do NOT reference demographics. Keep it aspirational and lifestyle-focused.
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
     const userPrompt = `BEHAVIORAL CLUSTERS (with recent spending/merchants):
 ${rollupList}
