@@ -331,8 +331,15 @@ export default function ExecDemoIntelPanel({
                         <div className="flex-1 flex flex-wrap items-center gap-1">
                           {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
                             <React.Fragment key={category}>
-                              <span className="text-[9px] font-medium uppercase tracking-wider whitespace-nowrap" style={{ color: c.text }}>
-                                {category}:
+                              <span
+                                className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                                style={{
+                                  background: c.bg,
+                                  color: c.text,
+                                  border: `1px solid ${c.border}`,
+                                }}
+                              >
+                                {category}
                               </span>
                               {catChips.map((chip, idx) => {
                                 const isActive = activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label;
