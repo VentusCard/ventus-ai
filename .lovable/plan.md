@@ -1,31 +1,24 @@
 
 
-## Match trigger pills to rollup pill styling (with txn count + spend)
+## Fix trigger pill transaction count and amount display
 
 ### Problem
-The "College Preparation" trigger pill in the Next-Product tab looks different from the rollup pills in the Next-Purchase tab. It needs the same visual format: `✦ Label  N txns · $Xk` with gradient background, colored border, and box shadow.
+The `Transaction.amount` field from `execDemoData.ts` is a **formatted string** (e.g., `"$1,234.56"`) — not a number. The current code does `Math.abs(Number(transactions[idx]?.amount))` which yields `NaN` because `Number("$1,234.56")` fails.
 
-### Change: `src/components/exec-demo/NextProductRationale.tsx`
+### Fix: `src/components/exec-demo/NextProductRationale.tsx`
 
-1. **Add a `formatSpend` helper** (same as in ExecDemoIntelPanel):
+On line 207, parse the dollar string before summing:
+
 ```typescript
-function formatSpend(amount: number): string {
-  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
-  return `$${Math.round(amount)}`;
-}
+// Current (broken):
+const txnSpend = transactions ? pillMatchedIndices.reduce((sum, idx) => sum + Math.abs(Number(transactions[idx]?.amount) || 0), 0) : 0;
+
+// Fixed — strip "$" and "," before parsing:
+const txnSpend = transactions ? pillMatchedIndices.reduce((sum, idx) => {
+  const raw = (transactions[idx]?.amount || "").replace(/[$,]/g, "");
+  return sum + Math.abs(parseFloat(raw) || 0);
+}, 0) : 0;
 ```
 
-2. **Compute txn count and total spend** from `matchedIndices` before rendering the pill. Move the matching logic above the return so we have the count/spend available:
-   - `txnCount = matchedIndices.length`
-   - `txnSpend = sum of matched transactions' amounts`
-
-3. **Restyle the trigger pill** (lines ~187-204) to match `PillarRollupChip` exactly:
-   - Gradient background: `linear-gradient(135deg, ...)`
-   - Border: `1.5px solid ${c.dot}` (or `2px` when active)
-   - Box shadow: `0 2px 8px ...` (or `0 0 14px ...` when active)
-   - Scale: `1.08` when active
-   - Content: `✦ {label}  {count} txns · ${spend}`
-   - Remove the `ShieldCheck`/`Zap` icons, use `✦` sparkle like rollup pills
-
-No other files change.
+One line change, no other files affected.
 
