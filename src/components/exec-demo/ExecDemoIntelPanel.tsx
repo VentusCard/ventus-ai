@@ -33,8 +33,8 @@ interface Props {
   revealedTabs: TabKey[];
   activeTab: TabKey | null;
   onTabClick: (tab: TabKey) => void;
-  activePillFilter?: { pillar: string; label: string } | null;
-  onPillClick?: (pillar: string, label: string) => void;
+  activePillFilter?: { pillar: string; label: string; isCategory?: boolean } | null;
+  onPillClick?: (pillar: string, label: string, isCategory?: boolean) => void;
   activePillarFilter?: string | null;
   activeRollup?: PillarRollup | null;
   onRollupClick?: (rollup: PillarRollup) => void;
@@ -332,7 +332,12 @@ export default function ExecDemoIntelPanel({
                           {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
                             <React.Fragment key={category}>
                               <span
-                                className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                                onClick={() => onPillClick?.(pillar, category, true)}
+                                className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
+                                  activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
+                                    ? "ring-1 ring-offset-1 shadow-sm"
+                                    : ""
+                                }`}
                                 style={{
                                   background: c.bg,
                                   color: c.text,
