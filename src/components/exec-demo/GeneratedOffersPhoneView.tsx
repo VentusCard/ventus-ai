@@ -100,8 +100,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
             >
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchant}</p>
-                {deal.product_name && (
-                  <p className="text-[11px] text-slate-500 truncate">{deal.product_name}</p>
+                {deal.product && (
+                  <p className="text-[11px] text-slate-500 truncate">{deal.product}</p>
                 )}
                 {deal.message && (
                   <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{deal.message}</p>
