@@ -313,38 +313,44 @@ export default function ExecDemoIntelPanel({
               <div
                 className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
-                {Array.from(chipsByPillarCategory.entries()).map(([pillar, categoriesMap]) => {
-                  const c = getColor(pillar);
-                  return (
-                    <div key={pillar} className="mb-2">
-                      {/* Pillar header */}
-                      <div className="flex items-center gap-1 mb-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
-                        <span className="text-[10px] font-semibold" style={{ color: c.text }}>{pillar}</span>
+                {(() => {
+                  const entries = Array.from(chipsByPillarCategory.entries());
+                  return entries.map(([pillar, categoriesMap], pillarIdx) => {
+                    const c = getColor(pillar);
+                    return (
+                      <div
+                        key={pillar}
+                        className={`flex py-1.5 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
+                      >
+                        {/* Left column — pillar name */}
+                        <div className="w-[80px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-[2px]" style={{ background: c.dot }} />
+                          <span className="text-[10px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
+                        </div>
+                        {/* Right column — categories + subcategory pills */}
+                        <div className="flex-1 flex flex-wrap items-center gap-1">
+                          {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
+                            <React.Fragment key={category}>
+                              <span className="text-[9px] font-medium uppercase tracking-wider whitespace-nowrap" style={{ color: c.text }}>
+                                {category}:
+                              </span>
+                              {catChips.map((chip, idx) => (
+                                <AnimatedChip
+                                  key={`${chip.pillar}::${chip.category}::${chip.label}`}
+                                  chip={chip}
+                                  isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
+                                  onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                                  collapsed={false}
+                                  mergeDelay={idx * 0.06}
+                                />
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </div>
                       </div>
-                      {/* Categories + subcategory pills inline */}
-                      <div className="flex flex-wrap items-center gap-1 ml-2.5">
-                        {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
-                          <React.Fragment key={category}>
-                            <span className="text-[9px] font-medium uppercase tracking-wider whitespace-nowrap" style={{ color: c.text }}>
-                              {category}:
-                            </span>
-                            {catChips.map((chip, idx) => (
-                              <AnimatedChip
-                                key={`${chip.pillar}::${chip.category}::${chip.label}`}
-                                chip={chip}
-                                isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
-                                onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                collapsed={false}
-                                mergeDelay={idx * 0.06}
-                              />
-                            ))}
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             )}
           </div>
