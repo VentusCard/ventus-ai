@@ -140,20 +140,42 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
           const isActive = activeTriggerLabel === card.signal_label;
 
+          // Build keyword list from the signal label for fallback matching
+          const signalKeywords = card.signal_label.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
+
           const handlePillClick = () => {
-            if (!hasEvidence || !transactions || !matchingEvent) return;
-            const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
-            const matchedIndices = transactions
-              .map((tx, idx) => {
-                const merchant = (tx.merchant || "").toLowerCase();
-                const isMatch = evidenceMerchants.some(em =>
-                  merchant.includes(em) || em.includes(merchant)
-                );
-                return isMatch ? idx : -1;
-              })
-              .filter(idx => idx !== -1);
-            onTriggerPillClick?.(card.signal_label, matchedIndices, c.dot);
+            if (!transactions || !onTriggerPillClick) return;
+
+            let matchedIndices: number[] = [];
+
+            if (hasEvidence && matchingEvent) {
+              // Primary: match via life event evidence merchants
+              const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
+              matchedIndices = transactions
+                .map((tx, idx) => {
+                  const merchant = (tx.merchant || "").toLowerCase();
+                  const isMatch = evidenceMerchants.some(em =>
+                    merchant.includes(em) || em.includes(merchant)
+                  );
+                  return isMatch ? idx : -1;
+                })
+                .filter(idx => idx !== -1);
+            } else {
+              // Fallback: match transactions by signal keywords against merchant/category/pillar
+              matchedIndices = transactions
+                .map((tx, idx) => {
+                  const hay = `${tx.merchant || ""} ${tx.category || ""} ${tx.pillar || ""}`.toLowerCase();
+                  const isMatch = signalKeywords.some(kw => hay.includes(kw));
+                  return isMatch ? idx : -1;
+                })
+                .filter(idx => idx !== -1);
+            }
+
+            if (matchedIndices.length > 0) {
+              onTriggerPillClick(card.signal_label, matchedIndices, c.dot);
+            }
           };
+          const isClickable = hasEvidence || (transactions && signalKeywords.length > 0);
 
           return (
             <div key={i} className="space-y-0">
