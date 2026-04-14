@@ -184,7 +184,7 @@ const ScrollDrivenHero = () => {
           <div
             className="rounded-2xl overflow-hidden transition-colors duration-[400ms] ease-in-out"
             style={{
-              width: 480,
+              width: 440,
               maxWidth: "calc(100vw - 48px)",
               background: cardBg,
               boxShadow: "0 25px 60px -12px rgba(0,0,0,0.4)",
@@ -193,7 +193,7 @@ const ScrollDrivenHero = () => {
           >
             {/* Customer Profile — top 1/3 */}
             <div
-              className="px-5 pt-5 pb-4 border-b transition-all duration-[400ms]"
+              className="px-4 pt-4 pb-3 border-b transition-all duration-[400ms]"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <div className="flex items-center justify-between mb-3">
@@ -278,7 +278,7 @@ const ScrollDrivenHero = () => {
             </div>
 
             {/* Transaction list — bottom 2/3 */}
-            <div className="px-5 py-3 overflow-hidden" style={{ height: 280 }}>
+            <div className="px-4 py-2 overflow-hidden" style={{ height: 220 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
