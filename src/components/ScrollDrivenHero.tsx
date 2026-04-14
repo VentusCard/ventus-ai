@@ -165,7 +165,7 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "300vh", background: "#0A1628" }}
+      style={{ height: "320vh", background: "#0A1628" }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
@@ -359,16 +359,15 @@ const ScrollDrivenHero = () => {
           A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
         </p>
 
-        {/* Learn More button below card */}
+        {/* Schedule a Demo button */}
         <Button
-          variant="outline"
           size="lg"
-          className="mt-4 border-gray-600 text-gray-300 hover:bg-white/10 hover:text-white"
+          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => {
             document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
           }}
         >
-          Learn More
+          Schedule a Demo
         </Button>
       </div>
     </div>
