@@ -204,7 +204,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             }
           }
           const txnCount = pillMatchedIndices.length;
-          const txnSpend = transactions ? pillMatchedIndices.reduce((sum, idx) => sum + Math.abs(transactions[idx]?.amount || 0), 0) : 0;
+          const txnSpend = transactions ? pillMatchedIndices.reduce((sum, idx) => sum + Math.abs(Number(transactions[idx]?.amount) || 0), 0) : 0;
 
           const isClickable = hasEvidence || (transactions && signalKeywords.length > 0);
 
