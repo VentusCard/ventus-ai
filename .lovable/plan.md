@@ -1,18 +1,23 @@
 
 
-## Fix: Show Full Persona Rollup Labels in Next-Purchase Tab
+## Plan: Merge Next-Purchase & Next-Offer into a Single Tab
 
-### Problem
-The rollup labels (e.g., "Style-Conscious Shopper") are truncated because the label column is fixed at `w-[66px]` with `truncate` applied.
+### What changes
 
-### Changes
+**1. Remove the "rewards" tab from the tab bar** (`ExecDemoIntelPanel.tsx`)
+- Remove `"rewards"` from `TAB_ORDER` and `TAB_META`
+- Remove the `rewards` case from the tab content renderer
+- The merged tab stays as `"analytics"` with label "Next-Purchase"
 
-**`src/components/exec-demo/PurchaseCycleTimeline.tsx`**
+**2. Combine content in `PurchaseCycleTimeline.tsx`**
+- **Keep**: The seasonal spend heatmap (timeline graph) + "Now" line + insight callout
+- **Remove**: The "Next-Purchase Probability" section (probability cards, confidence badges, predictive insight card) — everything from line 555 onward
+- **Add**: Render the `NextOfferRationale` component below the timeline graph, passing through `generatedOffers`, `personaSynthesis`, and `offersLoading` as new props
+- Update the `Props` interface to accept `generatedOffers`, `offersLoading`, and `personaSynthesis` (already has personaSynthesis)
 
-1. **Heatmap row labels (line ~410-413)**: Widen the label column from `w-[66px]` to `w-[130px]` and remove the `truncate` class so full persona names wrap naturally. Use `text-right` and allow multi-line with `leading-tight`.
+**3. Update the parent call** (`ExecDemoIntelPanel.tsx`)
+- Pass `generatedOffers` and `offersLoading` props down to `PurchaseCycleTimeline`
 
-2. **Probability card labels**: Search for any other instances where the rollup label is displayed with truncation and apply the same fix — wider container, no truncation.
-
-### What stays the same
-- All calculation logic, colors, animations, and layout structure remain unchanged. Only the label column width and text overflow behavior change.
+### Result
+One unified tab showing the timeline heatmap at the top and AI-generated personalized offers below it. Three tabs remain: Next-Purchase, Next-Product, Next Conversation.
 
