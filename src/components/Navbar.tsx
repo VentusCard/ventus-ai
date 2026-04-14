@@ -12,7 +12,7 @@ const coreProduct = {
   title: "Transaction Enrichment",
   desc: "Extract lifestyle pillars, intent signals, and behavioral patterns from every transaction.",
   icon: Layers,
-  href: "/enrichment",
+  href: "/platform",
 };
 
 const insightTools = [
