@@ -157,11 +157,8 @@ export default function ExecDemoLeftPanel({
             <div className="text-[9px] text-slate-400 truncate">
               {isCustomMode
                 ? "Custom · Pasted Data"
-                : `${currentCustomer?.lifestyleType} · ${currentCustomer?.txnCount} txns`}
+                : `${currentCustomer?.txnCount} txns`}
             </div>
-            {phase !== "idle" && personaTitle && (
-              <div className="text-[9px] italic text-blue-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
-            )}
           </div>
         </div>
       </div>
