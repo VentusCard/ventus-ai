@@ -66,9 +66,9 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           {activeDeals.map((deal) => (
             <span
               key={deal.id}
-              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full border border-slate-100 bg-white text-slate-700 shadow-sm"
+              className="inline-flex items-center text-[9px] font-semibold px-2 py-0.5 rounded-full border border-slate-100 bg-white text-slate-700 shadow-sm"
             >
-              {deal.merchant} · {deal.rewardValue}
+              {deal.merchant}
             </span>
           ))}
         </div>
