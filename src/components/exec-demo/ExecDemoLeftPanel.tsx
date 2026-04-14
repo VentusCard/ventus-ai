@@ -93,14 +93,20 @@ const TxRow = ({
     </div>
     {/* Hover tooltip */}
     {signalEntry && !dim && (
-      <div className="hidden group-hover/row:block absolute left-4 top-full z-20 mt-0.5 bg-slate-800 text-white text-[9px] rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap pointer-events-none space-y-0.5">
-        <div className="flex items-center gap-1">
+      <div className="hidden group-hover/row:block absolute left-4 top-full z-20 mt-0.5 bg-slate-800 text-white rounded-md px-3 py-2 shadow-lg whitespace-nowrap pointer-events-none space-y-1">
+        {/* Row 1: MCC code + description */}
+        <div className="flex items-center gap-1.5 text-[11px]">
           <span className="text-slate-400 font-medium">MCC:</span>
           <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
           <span className="mx-0.5 text-slate-600">·</span>
           <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
         </div>
-        <div className="flex items-center gap-1 text-[8.5px]">
+        {/* Row 2: Header */}
+        <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
+          Ventus Semantic Enrichment:
+        </div>
+        {/* Row 3: Pillar, Category, Sub-category */}
+        <div className="flex items-center gap-1.5 text-[11px]">
           <span className="text-slate-400">Pillar:</span>
           <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
           <span className="text-slate-600">·</span>
@@ -109,20 +115,17 @@ const TxRow = ({
           <span className="text-slate-600">·</span>
           <span className="text-slate-400">Sub:</span>
           <span className="text-slate-200">{signalEntry.label}</span>
-          {signalEntry.tier && (
-            <>
-              <span className="text-slate-600">·</span>
-              <span className="text-slate-400">Tier:</span>
-              <span className="text-slate-200">{signalEntry.tier}</span>
-            </>
-          )}
-          {signalEntry.frequency && (
-            <>
-              <span className="text-slate-600">·</span>
-              <span className="text-slate-400">Freq:</span>
-              <span className="text-slate-200">{signalEntry.frequency}</span>
-            </>
-          )}
+        </div>
+        {/* Row 4: Tier, Frequency, Confidence */}
+        <div className="flex items-center gap-1.5 text-[11px]">
+          <span className="text-slate-400">Tier:</span>
+          <span className="text-slate-200">{signalEntry.tier || "—"}</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-slate-400">Frequency:</span>
+          <span className="text-slate-200">{signalEntry.frequency || "—"}</span>
+          <span className="text-slate-600">·</span>
+          <span className="text-slate-400">Confidence:</span>
+          <span className="text-emerald-400 font-semibold">High</span>
         </div>
       </div>
     )}
