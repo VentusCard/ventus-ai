@@ -103,12 +103,26 @@ Generate exactly 5 deals for EACH cluster above with boost/suppress/neutral sign
     const aiData = await response.json();
     const raw = aiData.choices?.[0]?.message?.content || "";
 
-    const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, raw];
+    // Try multiple extraction strategies
     let parsed;
-    try {
-      parsed = JSON.parse(jsonMatch[1]!.trim());
-    } catch {
-      console.error("Failed to parse AI response:", raw);
+    const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const candidates = [
+      jsonMatch?.[1]?.trim(),
+      raw.trim(),
+      // Try extracting the outermost { ... } object
+      raw.match(/(\{[\s\S]*\})/)?.[1]?.trim(),
+    ].filter(Boolean);
+
+    for (const candidate of candidates) {
+      try {
+        parsed = JSON.parse(candidate!);
+        break;
+      } catch {
+        // try next candidate
+      }
+    }
+    if (!parsed) {
+      console.error("Failed to parse AI response:", raw.slice(0, 500));
       parsed = { rollupOffers: [] };
     }
 
