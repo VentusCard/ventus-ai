@@ -56,14 +56,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
       >
         {/* Collection header */}
         <div className="px-4 pt-3.5 pb-2">
-          <span
-            className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mb-2"
-            style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
-          >
-            <span style={{ color: c.dot }}>✦</span>
-            {active.rollup}
-          </span>
-          <p className="text-[14px] font-semibold text-slate-800 leading-snug mt-1.5">
+          <p className="text-[13px] font-semibold text-slate-800 leading-snug">
             {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
           </p>
         </div>
