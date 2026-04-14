@@ -47,6 +47,14 @@ CARD 2 — LIFE EVENT:
 - Never say "we noticed", "based on your transactions", "our data shows"
 - Product should be a concrete financial instrument (529, HYSA, HELOC, etc.)
 - Quote: 1-2 sentences, empathetic, forward-looking
+- CRITICAL: The quote must NEVER name the life event directly. Use indirect, euphemistic language instead:
+  - "new baby" → "a major family milestone"
+  - "college" / "education" → "an upcoming chapter"
+  - "retirement" → "the next phase"
+  - "home purchase" → "putting down roots"
+  - "wedding" → "a big celebration ahead"
+  - The reader should feel the card is relevant without the bank explicitly stating what it knows
+- The signal_label field MUST still use the explicit event name (e.g. "College Preparation", "New Baby", "Retirement Planning")
 
 TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
