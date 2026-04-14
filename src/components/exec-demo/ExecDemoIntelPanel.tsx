@@ -33,8 +33,8 @@ interface Props {
   revealedTabs: TabKey[];
   activeTab: TabKey | null;
   onTabClick: (tab: TabKey) => void;
-  activePillFilter?: { pillar: string; label: string; isCategory?: boolean } | null;
-  onPillClick?: (pillar: string, label: string, isCategory?: boolean) => void;
+  activePillFilter?: { pillar: string; label: string; isCategory?: boolean; evidenceMerchants?: string[] } | null;
+  onPillClick?: (pillar: string, label: string, isCategory?: boolean, evidenceMerchants?: string[]) => void;
   activePillarFilter?: string | null;
   activeRollup?: PillarRollup | null;
   onRollupClick?: (rollup: PillarRollup) => void;
