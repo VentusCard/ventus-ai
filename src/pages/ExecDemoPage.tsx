@@ -13,6 +13,7 @@ import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, csvTo
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
+import ventusLogo from "@/assets/ventus-logo-blue.png";
 import { supabase } from "@/integrations/supabase/client";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
@@ -640,9 +641,7 @@ export default function ExecDemoPage() {
       {/* Top bar */}
       <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
-          <span className="text-[15px] font-bold text-slate-800 tracking-tight">
-            Ventus AI
-          </span>
+          <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
           <span className="text-[11px] text-slate-400 hidden sm:inline">
             Executive Demo · Personalization Engine
           </span>
