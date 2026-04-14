@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { Sparkles, ArrowRight, ChevronLeft, ChevronRight, CheckCircle2, TrendingUp, Minus, TrendingDown } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, TrendingUp, Minus } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 
