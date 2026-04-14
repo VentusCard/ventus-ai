@@ -4,7 +4,7 @@ import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
 import NextOfferRationale from "./NextOfferRationale";
-import type { GeneratedOffer } from "./NextOfferRationale";
+import type { RollupOfferGroup } from "./NextOfferRationale";
 
 interface ChipData {
   pillar: string;
@@ -19,7 +19,7 @@ interface Props {
   transactions: Transaction[];
   signalMap: Record<number, SignalEntry>;
   personaSynthesis?: PersonaSynthesis | null;
-  generatedOffers?: GeneratedOffer[] | null;
+  generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
 }
 

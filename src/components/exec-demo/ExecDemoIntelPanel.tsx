@@ -5,7 +5,7 @@ import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
 import NextProductRationale from "./NextProductRationale";
 import NextConversationRationale from "./NextConversationRationale";
-import type { GeneratedOffer } from "./NextOfferRationale";
+import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
@@ -40,7 +40,7 @@ interface Props {
   onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
   transactions?: import("./execDemoData").Transaction[];
-  generatedOffers?: GeneratedOffer[] | null;
+  generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
   detectedLifeEvents?: LifeEvent[] | null;
   productsLoading?: boolean;

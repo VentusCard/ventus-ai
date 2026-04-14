@@ -15,53 +15,37 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a hyper-personalization engine for a bank's rewards program. 
-Given a customer's synthesized persona, spending pillars, demographics, and purchase timeline, generate 4-6 personalized deal recommendations.
+    const rollups = persona?.pillarRollups || [];
+    const rollupList = rollups
+      .filter((r: any) => (r.totalCount ?? 0) > 0)
+      .map((r: any, i: number) => `${i + 1}. "${r.label}" (${r.pillar}) — categories: ${(r.categories || []).join(", ")}`)
+      .join("\n");
+
+    const pillarContext = (pillars || []).slice(0, 8).map((p: any, i: number) =>
+      `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`
+    ).join("\n");
+
+    const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster.
 
 RULES:
-1. For each top spending pillar, generate 1-2 EXTENDED deals — adjacent products the customer would logically want but hasn't bought yet. Think laterally: a skier needs GoPro, goggles, après-ski gear. A home cook needs premium knives, cooking classes.
-2. Generate 1 "discovery" deal from a category the customer doesn't spend in, but would likely enjoy based on their profile.
-3. Each deal message MUST be personalized using demographics (family size, occupation, age). E.g. for a family of 4: "Capture precious family moments on the mountain."
-4. Messages should be 15-25 words, emotionally resonant, lifestyle-focused. No banking jargon, no "Shop Now" CTAs.
-5. Rationale must explain the behavioral inference chain (e.g., "Ski passes + jackets + family of 4 → action camera").
-6. Return valid JSON only.`;
+1. For EACH behavioral cluster provided, generate 3-5 deals that extend or complement the cluster's lifestyle.
+2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
+3. Good message: "Upgrade your travels with sleek, durable luggage from Away"
+4. Bad message: "As a Product Director on the move, upgrade your commute from JFK with sleek, durable luggage designed for your fast-paced lifestyle."
+5. Each deal needs: merchant name, specific product, reward value, short message, and a 2-4 word lifestyle CTA.
+6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
+7. Think laterally for each cluster: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
 
-    const userPrompt = `CUSTOMER PROFILE:
-Persona: ${persona?.headline || "Unknown"}
-Insights: ${(persona?.insights || []).join("; ")}
+OUTPUT: Valid JSON only, no markdown. Exact shape:
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA"},...]},...]}`; 
 
-SPENDING PILLARS (ranked by spend):
-${(pillars || []).slice(0, 8).map((p: any, i: number) => 
-  `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}${p.subcategories?.length ? ` [${p.subcategories.slice(0, 4).join(", ")}]` : ""}`
-).join("\n")}
+    const userPrompt = `BEHAVIORAL CLUSTERS:
+${rollupList}
 
-DEMOGRAPHICS:
-- Occupation: ${demographics?.occupation || "Professional"}
-- Family: ${demographics?.familyStatus || "Unknown"}
-- Age: ${demographics?.age || "Unknown"}
-- Income: ${demographics?.incomeLevel || "Unknown"}
+SPENDING CONTEXT:
+${pillarContext}
 
-PILLAR ROLLUPS (behavioral clusters):
-${(persona?.pillarRollups || []).map((r: any) => `• ${r.label} (${r.pillar}): ${r.categories?.join(", ") || "N/A"}`).join("\n")}
-
-Generate 4-6 deals as a JSON object with this exact shape:
-{
-  "offers": [
-    {
-      "id": "gen_1",
-      "merchant": "Brand Name",
-      "product": "Specific Product",
-      "category": "Pillar Name",
-      "rewardType": "discount|cashback|freebie|upgrade",
-      "rewardValue": "15% Off",
-      "message": "Personalized lifestyle message using demographics",
-      "cta": "Lifestyle-driven CTA (3-5 words)",
-      "rationale": "Behavioral inference: signal A + signal B + demographic → this product",
-      "sourceRollup": "Which rollup/pillar this extends from",
-      "isDiscovery": false
-    }
-  ]
-}`;
+Generate 3-5 deals for EACH cluster above. Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -98,14 +82,13 @@ Generate 4-6 deals as a JSON object with this exact shape:
     const aiData = await response.json();
     const raw = aiData.choices?.[0]?.message?.content || "";
 
-    // Extract JSON from response (may be wrapped in markdown code fence)
     const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, raw];
     let parsed;
     try {
       parsed = JSON.parse(jsonMatch[1]!.trim());
     } catch {
       console.error("Failed to parse AI response:", raw);
-      parsed = { offers: [] };
+      parsed = { rollupOffers: [] };
     }
 
     return new Response(JSON.stringify(parsed), {
