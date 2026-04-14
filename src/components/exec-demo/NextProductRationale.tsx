@@ -246,11 +246,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   {/* Type badge + product name */}
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-1.5">
-                      {isBehavioral ? (
-                        <Zap className="w-3.5 h-3.5" style={{ color: c.dot }} />
-                      ) : (
-                        <ShieldCheck className="w-3.5 h-3.5" style={{ color: c.dot }} />
-                      )}
+                      <span className="text-[12px] font-bold" style={{ color: c.dot }}>✦</span>
                       <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
                     </div>
                     <span
