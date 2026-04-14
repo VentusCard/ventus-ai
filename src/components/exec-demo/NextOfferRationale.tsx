@@ -19,6 +19,7 @@ export interface RollupOfferGroup {
   rollup: string;
   pillar: string;
   deals: GeneratedOffer[];
+  collectionMessage?: string;
 }
 
 interface Props {
