@@ -33,6 +33,38 @@ function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] })
   );
 }
 
+const PRODUCT_CATALOG = [
+  "Travel Card", "529 Plan", "HYSA", "Home Equity Line", "Auto Loan",
+  "CD Ladder", "Premium Card", "Life Insurance", "Brokerage Account",
+  "Student Loan Refi", "Balance Transfer Card", "Business Card",
+];
+
+function RecommendedProductsPills({ productCards }: { productCards: ProductCard[] }) {
+  const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
+
+  return (
+    <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
+      {PRODUCT_CATALOG.map(name => {
+        const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
+        return (
+          <span
+            key={name}
+            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${
+              isMatch
+                ? "text-blue-700 bg-blue-50 border-blue-200"
+                : "text-slate-400 bg-slate-50 border-slate-100"
+            }`}
+          >
+            {isMatch && <Star className="w-2.5 h-2.5 text-blue-500 fill-blue-500" />}
+            {name}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function NextProductRationale({ lifeEvents, loading, productCards, transactions }: Props) {
   if (loading || !lifeEvents) {
     return (
