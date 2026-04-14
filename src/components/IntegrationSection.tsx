@@ -126,14 +126,8 @@ const IntegrationSection = () => {
             </div>
           </div>
         </div>
-        {/* Divider with connector */}
-        <div className="relative">
-          <div className="border-t border-gray-100 w-full" />
-          <div className="absolute left-1/2 -translate-x-1/2 -top-3 -bottom-3 flex flex-col items-center">
-            <div className="w-3 h-3 rounded-full bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
-            <div className="w-px h-6 bg-blue-600/30" />
-          </div>
-        </div>
+        {/* Divider */}
+        <div className="border-t border-gray-100 w-full" />
       </div>
 
       {/* Step 02 — Enrich */}
@@ -187,14 +181,8 @@ const IntegrationSection = () => {
             </div>
           </div>
         </div>
-        {/* Divider with connector */}
-        <div className="relative">
-          <div className="border-t border-gray-100 w-full" />
-          <div className="absolute left-1/2 -translate-x-1/2 -top-3 -bottom-3 flex flex-col items-center">
-            <div className="w-3 h-3 rounded-full bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
-            <div className="w-px h-6 bg-blue-600/30" />
-          </div>
-        </div>
+        {/* Divider */}
+        <div className="border-t border-gray-100 w-full" />
       </div>
 
       {/* Step 03 — Orchestrate */}
