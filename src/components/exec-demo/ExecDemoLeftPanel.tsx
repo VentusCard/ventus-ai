@@ -182,7 +182,7 @@ export default function ExecDemoLeftPanel({
       </div>
 
       {/* Transaction Feed */}
-      <div className="flex-1 overflow-hidden relative px-4 pb-2">
+      <div className="flex-1 overflow-hidden relative px-4 pb-2 min-h-0">
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Transaction Feed
         </div>
@@ -190,7 +190,7 @@ export default function ExecDemoLeftPanel({
         {phase === "idle" && transactions.length > 0 && (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`idle-${i}`} tx={tx} dim={false} />
+                <TxRow key={`idle-${i}`} tx={tx} dim={false} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
               ))}
             </div>
         )}
@@ -234,10 +234,10 @@ export default function ExecDemoLeftPanel({
         )}
 
         {showCollected && (
-          <div className="space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
+          <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
             {/* Pill filter header */}
             {filteredIndices && activePillLabel && (
-              <div className="flex items-center justify-between mb-1.5 px-1">
+              <div className="flex items-center justify-between mb-1.5 px-1 sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-1">
                 <span className="text-[9px] font-semibold text-emerald-600">
                   Showing {filteredIndices.length} txns for "{activePillLabel}"
                 </span>
@@ -256,7 +256,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />
                     </div>
                   );
                 })}
@@ -264,14 +264,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             ) : (
               <>
                 {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             )}
