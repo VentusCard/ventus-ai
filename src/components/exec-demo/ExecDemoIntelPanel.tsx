@@ -330,7 +330,7 @@ export default function ExecDemoIntelPanel({
                         className={`flex py-2 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
                       >
                         {/* Left column — pillar name */}
-                        <div className="w-[95px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
+                        <div className="w-[105px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
                           <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
                           <span className="text-[11px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
                         </div>
