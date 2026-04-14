@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { Sparkles, ArrowRight, ChevronLeft, ChevronRight, CheckCircle2, TrendingUp, Minus, TrendingDown } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, TrendingUp, Minus } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 
@@ -26,22 +25,11 @@ interface Props {
   loading: boolean;
 }
 
-/* ─── Single rollup card with carousel ─── */
+/* ─── Single rollup card with horizontal deal tiles ─── */
 function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
   const c = getColor(group.pillar);
   const suppressed = group.deals.filter(d => d.signal === "suppress");
   const active = group.deals.filter(d => d.signal !== "suppress");
-  const [current, setCurrent] = useState(0);
-
-  // Auto-rotate carousel
-  useEffect(() => {
-    if (active.length <= 1) return;
-    const t = setInterval(() => setCurrent(p => (p + 1) % active.length), 4000);
-    return () => clearInterval(t);
-  }, [active.length]);
-
-  const prev = useCallback(() => setCurrent(p => (p - 1 + active.length) % active.length), [active.length]);
-  const next = useCallback(() => setCurrent(p => (p + 1) % active.length), [active.length]);
 
   return (
     <div
@@ -69,89 +57,36 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
         ))}
       </div>
 
-      {/* Carousel */}
+      {/* Horizontal deal tiles */}
       {active.length > 0 && (
-        <div className="relative px-3 pb-2">
-          {/* Navigation arrows */}
-          {active.length > 1 && (
-            <>
-              <button
-                onClick={prev}
-                className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
-              >
-                <ChevronLeft className="w-3 h-3 text-slate-500" />
-              </button>
-              <button
-                onClick={next}
-                className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
-              >
-                <ChevronRight className="w-3 h-3 text-slate-500" />
-              </button>
-            </>
-          )}
-
-          {/* Deal card */}
-          <div className="overflow-hidden rounded-lg">
-            {active.map((deal, di) => (
-              <div
-                key={deal.id}
-                className="transition-all duration-400 ease-in-out"
-                style={{
-                  display: di === current ? "block" : "none",
-                }}
-              >
-                <div className="px-3 py-2.5 bg-gradient-to-br from-slate-50 to-white rounded-lg border border-slate-100">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[12px] font-bold text-slate-800">{deal.merchant}</span>
-                      <span className="text-[10px] text-slate-400">·</span>
-                      <span className="text-[10px] text-slate-500">{deal.product}</span>
-                    </div>
-                    <span
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                      style={{ background: c.bg, color: c.text }}
-                    >
-                      {deal.rewardValue}
-                    </span>
-                  </div>
-
-                  <p className="text-[11px] text-slate-600 leading-relaxed italic mb-2">
-                    "{deal.message}"
-                  </p>
-
-                  {/* Signal badge */}
-                  <div className="flex items-center justify-between">
-                    <SignalBadge signal={deal.signal} reason={deal.signalReason} />
-                    <button
-                      className="text-[9px] font-semibold px-2.5 py-0.5 rounded-full"
-                      style={{ background: c.bg, color: c.text }}
-                    >
-                      {deal.cta}
-                    </button>
-                  </div>
-                </div>
+        <div className="flex gap-2 overflow-x-auto px-3 pb-2.5 scrollbar-hide">
+          {active.map(deal => (
+            <div
+              key={deal.id}
+              className="w-[115px] shrink-0 flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-slate-800 truncate">{deal.merchant}</span>
+                {deal.signal === "boost" && <TrendingUp className="w-2.5 h-2.5 text-emerald-500 shrink-0" />}
+                {deal.signal === "neutral" && <Minus className="w-2.5 h-2.5 text-slate-300 shrink-0" />}
               </div>
-            ))}
-          </div>
-
-          {/* Dot indicators */}
-          {active.length > 1 && (
-            <div className="flex items-center justify-center gap-1 mt-1.5">
-              {active.map((_, di) => (
-                <button
-                  key={di}
-                  onClick={() => setCurrent(di)}
-                  className="transition-all duration-200"
-                  style={{
-                    width: di === current ? 12 : 5,
-                    height: 5,
-                    borderRadius: 3,
-                    background: di === current ? c.dot : "#e2e8f0",
-                  }}
-                />
-              ))}
+              <span
+                className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-center w-fit"
+                style={{ background: c.bg, color: c.text }}
+              >
+                {deal.rewardValue}
+              </span>
+              <p className="text-[9px] text-slate-500 leading-snug line-clamp-2 italic">
+                "{deal.message}"
+              </p>
+              <button
+                className="mt-auto text-[8px] font-semibold px-2 py-0.5 rounded-full text-center"
+                style={{ background: c.bg, color: c.text }}
+              >
+                {deal.cta}
+              </button>
             </div>
-          )}
+          ))}
         </div>
       )}
     </div>
