@@ -423,17 +423,37 @@ export interface EnrichedTransaction {
   purchase_frequency?: string;
 }
 
-/** Build signal map from AI-classified enriched transactions */
-export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[]): Record<number, SignalEntry> {
+/** Build signal map from AI-classified enriched transactions, preserving MCC data from raw CSV */
+export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[], csv?: string): Record<number, SignalEntry> {
+  // Parse MCC codes + descriptions from raw CSV so tooltip row 1 stays accurate
+  const mccFromCsv: Record<number, { mcc: string; mccDescription: string }> = {};
+  if (csv) {
+    const lines = csv.trim().split("\n");
+    if (lines.length >= 2) {
+      const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      const mccIdx = header.indexOf("mcc");
+      lines.slice(1).filter((l) => l.trim()).forEach((line, i) => {
+        const cols = line.split(",").map((c) => c.trim());
+        const mcc = cols[mccIdx] || "";
+        mccFromCsv[i] = { mcc, mccDescription: MCC_DESCRIPTIONS[mcc] || "Unknown" };
+      });
+    }
+  }
+
   const map: Record<number, SignalEntry> = {};
   enrichedTxs.forEach((tx) => {
     const idx = parseInt(tx.transaction_id.replace("tx-", ""), 10);
     if (isNaN(idx)) return;
+    const csvMcc = mccFromCsv[idx];
     map[idx] = {
       pillar: tx.pillar || "Miscellaneous",
-      label: tx.category || "General",
+      label: tx.subcategories?.[0] || tx.category || "General",
+      category: tx.category || "General",
       amount: tx.amount || 0,
       frequency: tx.purchase_frequency,
+      tier: tx.spending_tier,
+      mcc: csvMcc?.mcc || "",
+      mccDescription: csvMcc?.mccDescription || "Unknown",
     };
   });
   return map;
