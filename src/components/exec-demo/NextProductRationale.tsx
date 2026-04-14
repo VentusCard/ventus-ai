@@ -79,6 +79,8 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
 }
 
 export default function NextProductRationale({ lifeEvents, loading, productCards, transactions }: Props) {
+  const [expandedTrigger, setExpandedTrigger] = useState<number | null>(null);
+
   if (loading || !lifeEvents) {
     return (
       <div className="px-3 py-4 space-y-3">
