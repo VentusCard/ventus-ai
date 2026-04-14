@@ -13,6 +13,7 @@ import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, csvTo
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
+import ventusLogo from "@/assets/ventus-logo-blue.png";
 import { supabase } from "@/integrations/supabase/client";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
