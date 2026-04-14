@@ -48,20 +48,20 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
       {/* Collection Card */}
       <div
         key={`${active.pillar}::${active.rollup}`}
-        className="rounded-2xl overflow-hidden border border-slate-100"
+        className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[120px]"
         style={{
           background: "linear-gradient(145deg, #f8fafc, #ffffff)",
           animation: `collection-slide-${direction} 0.35s ease-out`,
         }}
       >
         {/* Collection header */}
-        <div className="px-4 pt-3.5 pb-2">
+        <div className="px-4 pt-3.5 pb-2 flex-1">
           <p className="text-[13px] font-semibold text-slate-800 leading-snug">
             {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
           </p>
         </div>
 
-        {/* Deal pills – compact wrapped layout */}
+        {/* Deal pills – pinned to bottom */}
         <div className="flex flex-wrap gap-1.5 px-4 pb-3.5">
           {activeDeals.map((deal) => (
             <span
