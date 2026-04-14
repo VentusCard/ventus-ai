@@ -1,17 +1,21 @@
 
 
-## Plan: Make 5 Deal Cards Fill the Rollup Space
+## Plan: Add Signal Logic Pills to Each Deal Card
 
 ### Problem
-The deal tiles inside each rollup card are fixed at `w-[115px]` with `shrink-0` and horizontal scroll, so they don't expand to fill the available width of the middle panel.
+The `SignalBadge` component exists but is unused. Each deal tile only shows a small icon — the `signalReason` text from the AI is never displayed.
 
 ### Fix — `src/components/exec-demo/NextOfferRationale.tsx`
 
-**Lines 74-79**: Change the horizontal scroll container and deal tile sizing:
+**Inside each deal tile (lines 81-101)**, add a signal reason pill after the merchant name row:
 
-1. Replace `flex gap-2 overflow-x-auto` with a CSS grid: `grid grid-cols-5 gap-1.5`
-2. Remove `w-[115px] shrink-0` from each deal tile, replace with `min-w-0` so they flex equally across the full width
-3. Keep `px-3 pb-2.5` padding on the container
+- For **boost** deals: show a small emerald pill with "↑ {signalReason}"
+- For **neutral** deals: show a small slate pill with the reason text
 
-This ensures all 5 cards distribute evenly across the rollup card width with no horizontal scrolling.
+The pill should be compact (`text-[8px]`, `line-clamp-1`, `rounded-full`) to fit within the grid column. Place it between the merchant name and the reward value badge.
+
+The `SignalBadge` component (lines 110-131) can be removed since it's unused elsewhere; the pill will be inlined directly in the tile for better sizing control.
+
+### Single file changed
+`src/components/exec-demo/NextOfferRationale.tsx` — add ~5 lines per deal tile for the signal reason pill.
 
