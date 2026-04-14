@@ -11,121 +11,24 @@ interface Props {
   transactions?: Transaction[];
 }
 
-/* ─── Current vs Recommended cross-check ─── */
-function CurrentVsRecommended({ transactions, productCards }: { transactions: Transaction[]; productCards: ProductCard[] }) {
-  // Extract unique sources with counts
+/* ─── Current holdings pill row ─── */
+function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] }) {
   const sourceCounts = new Map<string, number>();
   transactions.forEach(t => {
-    if (t.source) {
-      sourceCounts.set(t.source, (sourceCounts.get(t.source) || 0) + 1);
-    }
+    if (t.source) sourceCounts.set(t.source, (sourceCounts.get(t.source) || 0) + 1);
   });
   const sources = Array.from(sourceCounts.entries()).sort((a, b) => b[1] - a[1]);
-
   if (sources.length === 0) return null;
 
-  // Try to match product cards to sources via signal logic
-  const matched: { source: string; count: number; signal: string; product: ProductCard }[] = [];
-  const unmatchedSources: { source: string; count: number }[] = [];
-  const usedProducts = new Set<number>();
-
-  sources.forEach(([source, count]) => {
-    // Find a product card that isn't already matched
-    const matchIdx = productCards.findIndex((pc, i) => {
-      if (usedProducts.has(i)) return false;
-      // Match heuristically: behavioral cards match spending sources, life-event cards match any
-      return true;
-    });
-    if (matchIdx >= 0 && matched.length < productCards.length) {
-      usedProducts.add(matchIdx);
-      const pc = productCards[matchIdx];
-      matched.push({ source, count, signal: pc.signal_label, product: pc });
-    } else {
-      unmatchedSources.push({ source, count });
-    }
-  });
-
   return (
-    <div className="mb-3 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white overflow-hidden">
-      {/* Header row */}
-      <div className="grid grid-cols-3 px-3 pt-2.5 pb-1.5 border-b border-slate-100">
-        <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Current Holdings</span>
-        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center">Signal</span>
-        <span className="text-[9px] font-bold text-violet-600 uppercase tracking-wider text-right">Recommended Next</span>
-      </div>
-
-      {/* Matched rows */}
-      <div className="px-2 py-1.5 space-y-1.5">
-        {matched.map((m, i) => {
-          const isBehavioral = m.product.type === "behavioral";
-          const c = isBehavioral
-            ? { dot: "#3b82f6", bg: "#eff6ff" }
-            : getColor(m.product.theme === "education" ? "Education & Family" : m.product.theme === "home" ? "Home & Living" : "Financial Planning");
-
-          return (
-            <div
-              key={i}
-              className="grid grid-cols-3 items-center gap-1"
-              style={{ animation: `crosscheck-row 0.35s ease-out ${i * 0.1}s both` }}
-            >
-              {/* Current product pill */}
-              <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1.5">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-emerald-800 block truncate">{m.source}</span>
-                  <span className="text-[9px] text-emerald-500">{m.count} txns</span>
-                </div>
-              </div>
-
-              {/* Signal connector */}
-              <div className="flex items-center justify-center gap-0.5">
-                <div className="h-px w-2 bg-slate-200" />
-                <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-1.5 py-0.5 truncate max-w-[100px] text-center leading-tight">
-                  {m.signal}
-                </span>
-                <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
-              </div>
-
-              {/* Recommended product pill */}
-              <div
-                className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 justify-end"
-                style={{ background: `${c.dot}10`, border: `1px solid ${c.dot}25` }}
-              >
-                {isBehavioral ? (
-                  <Zap className="w-3 h-3 shrink-0" style={{ color: c.dot }} />
-                ) : (
-                  <ShieldCheck className="w-3 h-3 shrink-0" style={{ color: c.dot }} />
-                )}
-                <div className="min-w-0 text-right">
-                  <span className="text-[10px] font-bold block truncate" style={{ color: c.dot }}>{m.product.product_name}</span>
-                  <span className="text-[8px] uppercase font-semibold" style={{ color: `${c.dot}99` }}>
-                    {isBehavioral ? "Behavioral" : "Life Event"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Unmatched current holdings */}
-      {unmatchedSources.length > 0 && (
-        <div className="px-3 pb-2 pt-1 border-t border-slate-100 flex items-center gap-1.5 flex-wrap">
-          {unmatchedSources.map(({ source, count }) => (
-            <span key={source} className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5">
-              <CheckCircle2 className="w-2.5 h-2.5 text-slate-300" />
-              {source} ({count})
-            </span>
-          ))}
-        </div>
-      )}
-
-      <style>{`
-        @keyframes crosscheck-row {
-          from { opacity: 0; transform: translateX(-6px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
+    <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Current Holdings</span>
+      {sources.map(([source, count]) => (
+        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
+          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+          {source} ({count})
+        </span>
+      ))}
     </div>
   );
 }
