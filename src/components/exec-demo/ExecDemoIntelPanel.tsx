@@ -367,7 +367,7 @@ export default function ExecDemoIntelPanel({
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto">
             {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} />
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} />
             ) : activeTab === "rewards" ? (
               <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
             ) : activeTab === "product" ? (

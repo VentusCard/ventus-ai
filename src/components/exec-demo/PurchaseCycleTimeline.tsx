@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Calendar, Flame, BarChart3, Crosshair } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
+import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
 
 interface ChipData {
@@ -15,6 +16,7 @@ interface Props {
   chips: ChipData[];
   transactions: Transaction[];
   signalMap: Record<number, SignalEntry>;
+  personaSynthesis?: PersonaSynthesis | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
