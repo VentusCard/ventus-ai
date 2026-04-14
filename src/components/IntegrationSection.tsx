@@ -23,11 +23,6 @@ const statsData = [
   { target: 20, suffix: "+", label: "Life events detected" },
 ];
 
-const orchestrateStats = [
-  { value: "Higher", label: "Retention Rate" },
-  { value: "Higher", label: "Customer LTV" },
-  { value: "Higher", label: "AUM Growth" },
-];
 
 
 
