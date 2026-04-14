@@ -1,0 +1,330 @@
+import { useEffect, useRef, useState, useMemo } from "react";
+
+const rawTransactions = [
+  "SQ *POTTERY BARN KIDS 4829 $234.50",
+  "MARRIOTT HOTELS 4829 $285.00",
+  "APPLPAY MCDONALD'S F3421 $9.75",
+  "CHECKCARD WHOLE FOODS #123 $87.40",
+  "PRINCETON REVIEW $1299.00",
+  "DELTA AIR LINES $428.00",
+  "CARTER'S $124.50",
+  "PAYPAL *LA FITNESS $45.00",
+  "YALE ADMISSIONS OFFICE $32.00",
+  "COLLEGE ESSAY ADVISOR $850.00",
+  "BUY BUY BABY $234.50",
+  "STANFORD GUEST HOUSE $210.00",
+  "COMMON APP FEE $75.00",
+  "SOUTHWEST AIRLINES $312.00",
+  "TARGET $89.00",
+  "CHECKCARD COSTCO #4821 $142.30",
+  "APPLPAY STARBUCKS $6.45",
+  "VENMO PAYMENT $50.00",
+  "AMAZON MARKETPLACE $67.80",
+  "SHELL OIL #3892 $48.20",
+  "NETFLIX.COM $15.99",
+  "SPOTIFY USA $9.99",
+  "TRADER JOE'S #219 $93.10",
+  "CVS PHARMACY #4201 $24.50",
+  "UBER *TRIP $18.40",
+  "SQ *POTTERY BARN KIDS 4829 $234.50",
+  "MARRIOTT HOTELS 4829 $285.00",
+  "APPLPAY MCDONALD'S F3421 $9.75",
+  "CHECKCARD WHOLE FOODS #123 $87.40",
+  "PRINCETON REVIEW $1299.00",
+  "DELTA AIR LINES $428.00",
+  "CARTER'S $124.50",
+  "PAYPAL *LA FITNESS $45.00",
+  "YALE ADMISSIONS OFFICE $32.00",
+  "COLLEGE ESSAY ADVISOR $850.00",
+  "BUY BUY BABY $234.50",
+  "STANFORD GUEST HOUSE $210.00",
+  "COMMON APP FEE $75.00",
+  "SOUTHWEST AIRLINES $312.00",
+  "TARGET $89.00",
+  "CHECKCARD COSTCO #4821 $142.30",
+  "APPLPAY STARBUCKS $6.45",
+  "VENMO PAYMENT $50.00",
+  "AMAZON MARKETPLACE $67.80",
+  "SHELL OIL #3892 $48.20",
+  "NETFLIX.COM $15.99",
+  "SPOTIFY USA $9.99",
+  "TRADER JOE'S #219 $93.10",
+  "CVS PHARMACY #4201 $24.50",
+  "UBER *TRIP $18.40",
+];
+
+interface EnrichedRow {
+  raw: string;
+  merchant: string;
+  category: string;
+  categoryColor: string;
+  persona?: "travel" | "parent" | "college";
+}
+
+const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
+  const r = raw.toUpperCase();
+  if (r.includes("POTTERY BARN KIDS"))
+    return { raw, merchant: "Pottery Barn Kids", category: "Home & Kids", categoryColor: "#22c55e", persona: "parent" };
+  if (r.includes("MARRIOTT"))
+    return { raw, merchant: "Marriott Hotels", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("MCDONALD"))
+    return { raw, merchant: "McDonald's", category: "Dining", categoryColor: "#f59e0b" };
+  if (r.includes("WHOLE FOODS"))
+    return { raw, merchant: "Whole Foods Market", category: "Grocery", categoryColor: "#22c55e" };
+  if (r.includes("PRINCETON"))
+    return { raw, merchant: "Princeton Review", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+  if (r.includes("DELTA AIR"))
+    return { raw, merchant: "Delta Air Lines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("CARTER"))
+    return { raw, merchant: "Carter's", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+  if (r.includes("LA FITNESS"))
+    return { raw, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
+  if (r.includes("YALE"))
+    return { raw, merchant: "Yale Admissions Office", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+  if (r.includes("COLLEGE ESSAY"))
+    return { raw, merchant: "College Essay Advisor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+  if (r.includes("BUY BUY BABY"))
+    return { raw, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+  if (r.includes("STANFORD GUEST"))
+    return { raw, merchant: "Stanford Guest House", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("COMMON APP"))
+    return { raw, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+  if (r.includes("SOUTHWEST"))
+    return { raw, merchant: "Southwest Airlines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("TARGET"))
+    return { raw, merchant: "Target", category: "Retail", categoryColor: "#ef4444" };
+  if (r.includes("COSTCO"))
+    return { raw, merchant: "Costco", category: "Retail", categoryColor: "#ef4444" };
+  if (r.includes("STARBUCKS"))
+    return { raw, merchant: "Starbucks", category: "Dining", categoryColor: "#f59e0b" };
+  if (r.includes("VENMO"))
+    return { raw, merchant: "Venmo Payment", category: "Transfer", categoryColor: "#6b7280" };
+  if (r.includes("AMAZON"))
+    return { raw, merchant: "Amazon", category: "Shopping", categoryColor: "#ef4444" };
+  if (r.includes("SHELL"))
+    return { raw, merchant: "Shell Oil", category: "Auto", categoryColor: "#6b7280" };
+  if (r.includes("NETFLIX"))
+    return { raw, merchant: "Netflix", category: "Entertainment", categoryColor: "#8b5cf6" };
+  if (r.includes("SPOTIFY"))
+    return { raw, merchant: "Spotify", category: "Entertainment", categoryColor: "#8b5cf6" };
+  if (r.includes("TRADER JOE"))
+    return { raw, merchant: "Trader Joe's", category: "Grocery", categoryColor: "#22c55e" };
+  if (r.includes("CVS"))
+    return { raw, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
+  if (r.includes("UBER"))
+    return { raw, merchant: "Uber", category: "Transport", categoryColor: "#6b7280" };
+  return { raw, merchant: raw.split("$")[0].trim(), category: "Other", categoryColor: "#6b7280" };
+});
+
+const personas = [
+  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", callout: "14 travel transactions · $1,338 total spend" },
+  { id: "parent" as const, label: "New Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", callout: "8 transactions · $889 spend · 95% confidence" },
+  { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", callout: "12 transactions · $2,456 spend · 91% confidence" },
+];
+
+const ScrollDrivenHero = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const rect = container.getBoundingClientRect();
+      const containerHeight = container.offsetHeight;
+      const viewportHeight = window.innerHeight;
+      const scrolled = -rect.top;
+      const totalScrollable = containerHeight - viewportHeight;
+      const progress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Stage logic
+  const stage = scrollProgress < 0.2 ? 1 : scrollProgress < 0.4 ? 2 : 3;
+  const stage2Progress = stage >= 2 ? Math.min(1, (scrollProgress - 0.2) / 0.15) : 0;
+
+  // Stage 3: persona highlight index
+  const personaProgress = stage === 3 ? (scrollProgress - 0.4) / 0.6 : 0;
+  const activePersonaIndex = personaProgress < 0.33 ? 0 : personaProgress < 0.66 ? 1 : 2;
+  const activePersona = stage === 3 ? personas[activePersonaIndex] : null;
+
+  // Card bg transition
+  const cardBg = stage === 1 ? "#1C1C1E" : "#0A1628";
+
+  // Scroll offset for raw text
+  const scrollOffset = useMemo(() => scrollProgress * 200, [scrollProgress]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative"
+      style={{ height: "400vh", background: "#F5F5EF" }}
+    >
+      {/* Sticky container */}
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-32 md:pt-36 overflow-hidden">
+        {/* Headline */}
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight text-center mb-10 px-6 max-w-4xl">
+          Turn transaction data into{" "}
+          <span className="italic text-blue-600">behavioral intelligence</span>
+        </h1>
+
+        {/* Card + Callout wrapper */}
+        <div className="relative flex items-start justify-center gap-6">
+          {/* The Card */}
+          <div
+            className="rounded-2xl overflow-hidden transition-colors duration-[400ms] ease-in-out"
+            style={{
+              width: 480,
+              maxWidth: "calc(100vw - 48px)",
+              background: cardBg,
+              boxShadow: "0 25px 60px -12px rgba(0,0,0,0.4)",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+              <span className="font-mono text-xs text-gray-400">cust_013</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full transition-colors duration-[400ms]"
+                  style={{
+                    background: stage >= 2 ? "#22c55e" : "#6b7280",
+                    animation: stage === 1 ? "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" : "none",
+                  }}
+                />
+                <span
+                  className="text-[11px] font-mono transition-colors duration-[400ms]"
+                  style={{ color: stage >= 2 ? "#22c55e" : "#6b7280" }}
+                >
+                  {stage >= 2 ? "Profile Built" : "Analyzing..."}
+                </span>
+              </div>
+            </div>
+
+            {/* Persona pills — Stage 2+ */}
+            <div
+              className="flex flex-wrap gap-2 px-5 pt-3 transition-all duration-[400ms]"
+              style={{
+                maxHeight: stage >= 2 ? 48 : 0,
+                opacity: stage >= 2 ? 1 : 0,
+                overflow: "hidden",
+              }}
+            >
+              {personas.map((p, i) => {
+                const isActive = stage === 3 && activePersona?.id === p.id;
+                return (
+                  <span
+                    key={p.id}
+                    className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
+                    style={{
+                      background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
+                      color: isActive ? p.color : p.color,
+                      border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
+                      opacity: stage2Progress > (i * 0.3) ? 1 : 0,
+                      transform: stage2Progress > (i * 0.3) ? "translateY(0)" : "translateY(8px)",
+                      transitionDelay: `${i * 200}ms`,
+                    }}
+                  >
+                    {p.label}
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* Transaction list */}
+            <div className="px-5 py-3 overflow-hidden" style={{ height: 340 }}>
+              {stage === 1 ? (
+                /* Raw transactions — scrolling */
+                <div
+                  className="space-y-0 transition-transform"
+                  style={{ transform: `translateY(-${scrollOffset}px)` }}
+                >
+                  {rawTransactions.map((tx, i) => (
+                    <div
+                      key={i}
+                      className="font-mono text-[11px] leading-[22px] truncate"
+                      style={{ color: "rgba(156,163,175,0.7)" }}
+                    >
+                      {tx}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Enriched rows */
+                <div className="space-y-0">
+                  {enrichedData.slice(0, 25).map((row, i) => {
+                    const isHighlighted = stage === 3 && activePersona && row.persona === activePersona.id;
+                    const isDimmed = stage === 3 && activePersona && row.persona !== activePersona.id;
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between py-[3px] transition-all duration-[400ms]"
+                        style={{
+                          opacity: isDimmed ? 0.2 : 1,
+                          borderLeft: isHighlighted ? `3px solid ${activePersona!.color}` : "3px solid transparent",
+                          paddingLeft: 8,
+                        }}
+                      >
+                        <span
+                          className="text-[11px] truncate mr-3 transition-colors duration-[400ms]"
+                          style={{ color: isHighlighted ? "#e2e8f0" : "rgba(203,213,225,0.8)" }}
+                        >
+                          {row.merchant}
+                        </span>
+                        <span
+                          className="shrink-0 text-[9px] font-semibold px-2 py-0.5 rounded-full"
+                          style={{
+                            background: `${row.categoryColor}20`,
+                            color: row.categoryColor,
+                          }}
+                        >
+                          {row.category}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Floating callout — Stage 3 */}
+          <div
+            className="hidden lg:block absolute -right-[280px] top-[120px] w-[240px] transition-all duration-[400ms]"
+            style={{
+              opacity: stage === 3 ? 1 : 0,
+              transform: stage === 3 ? "translateX(0)" : "translateX(-12px)",
+            }}
+          >
+            {activePersona && (
+              <div
+                className="rounded-xl px-4 py-3 text-[12px] leading-relaxed border transition-all duration-[400ms]"
+                style={{
+                  background: `${activePersona.color}10`,
+                  borderColor: `${activePersona.color}30`,
+                  color: activePersona.color,
+                }}
+              >
+                <div
+                  className="font-semibold mb-1 text-[13px]"
+                  style={{ color: activePersona.color }}
+                >
+                  {activePersona.label}
+                </div>
+                <div style={{ color: "#6b7280" }}>{activePersona.callout}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ScrollDrivenHero;
