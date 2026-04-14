@@ -37,6 +37,7 @@ const TxRow = ({
   highlightColor,
   pillarColor,
   categoryLabel,
+  signalEntry,
 }: {
   tx: Transaction;
   dim: boolean;
@@ -44,48 +45,65 @@ const TxRow = ({
   highlightColor?: string;
   pillarColor?: string;
   categoryLabel?: string;
+  signalEntry?: SignalEntry;
 }) => (
-  <div
-    className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
-    style={{
-      color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
-      background: highlight ? `${highlightColor}18` : "transparent",
-      borderLeft: highlight
-        ? `3px solid ${highlightColor}`
-        : pillarColor
-          ? `3px solid ${pillarColor}80`
-          : "3px solid transparent",
-    }}
-  >
-    {pillarColor && !dim && (
-      <span
-        className="w-2 h-2 rounded-full shrink-0"
-        style={{ background: pillarColor }}
-      />
-    )}
-    <span
-      className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
+  <div className="group/row relative">
+    <div
+      className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
       style={{
-        color: dim ? "#94a3b8" : "#334155",
-        opacity: dim ? 0.5 : 1,
+        color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
+        background: highlight ? `${highlightColor}18` : "transparent",
+        borderLeft: highlight
+          ? `3px solid ${highlightColor}`
+          : pillarColor
+            ? `3px solid ${pillarColor}80`
+            : "3px solid transparent",
       }}
     >
-      {tx.date}
-    </span>
-    <span className="truncate font-medium">{tx.merchant}</span>
-    <span
-      className="shrink-0 tabular-nums font-semibold"
-      style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
-    >
-      {tx.amount}
-    </span>
-    {categoryLabel && pillarColor && !dim && (
+      {pillarColor && !dim && (
+        <span
+          className="w-2 h-2 rounded-full shrink-0"
+          style={{ background: pillarColor }}
+        />
+      )}
       <span
-        className="text-[8px] font-bold shrink-0 truncate max-w-[100px] rounded px-1.5 py-[1px] text-white"
-        style={{ background: pillarColor }}
+        className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
+        style={{
+          color: dim ? "#94a3b8" : "#334155",
+          opacity: dim ? 0.5 : 1,
+        }}
       >
-        {categoryLabel}
+        {tx.date}
       </span>
+      <span className="truncate font-medium">{tx.merchant}</span>
+      <span
+        className="shrink-0 tabular-nums font-semibold"
+        style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
+      >
+        {tx.amount}
+      </span>
+      {categoryLabel && pillarColor && !dim && (
+        <span
+          className="text-[8px] font-bold shrink-0 truncate max-w-[100px] rounded px-1.5 py-[1px] text-white"
+          style={{ background: pillarColor }}
+        >
+          {categoryLabel}
+        </span>
+      )}
+    </div>
+    {/* Hover tooltip */}
+    {signalEntry && !dim && (
+      <div className="hidden group-hover/row:block absolute left-4 top-full z-20 mt-0.5 bg-slate-800 text-white text-[9px] rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap pointer-events-none">
+        <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
+        <span className="mx-1 text-slate-500">·</span>
+        <span>{signalEntry.label}</span>
+        {signalEntry.frequency && (
+          <>
+            <span className="mx-1 text-slate-500">·</span>
+            <span className="text-slate-300">{signalEntry.frequency}</span>
+          </>
+        )}
+      </div>
     )}
   </div>
 );
@@ -164,7 +182,7 @@ export default function ExecDemoLeftPanel({
       </div>
 
       {/* Transaction Feed */}
-      <div className="flex-1 overflow-hidden relative px-4 pb-2">
+      <div className="flex-1 overflow-hidden relative px-4 pb-2 min-h-0">
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Transaction Feed
         </div>
@@ -172,7 +190,7 @@ export default function ExecDemoLeftPanel({
         {phase === "idle" && transactions.length > 0 && (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`idle-${i}`} tx={tx} dim={false} />
+                <TxRow key={`idle-${i}`} tx={tx} dim={false} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
               ))}
             </div>
         )}
@@ -216,10 +234,10 @@ export default function ExecDemoLeftPanel({
         )}
 
         {showCollected && (
-          <div className="space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
+          <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
             {/* Pill filter header */}
             {filteredIndices && activePillLabel && (
-              <div className="flex items-center justify-between mb-1.5 px-1">
+              <div className="flex items-center justify-between mb-1.5 px-1 sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-1">
                 <span className="text-[9px] font-semibold text-emerald-600">
                   Showing {filteredIndices.length} txns for "{activePillLabel}"
                 </span>
@@ -238,7 +256,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />
                     </div>
                   );
                 })}
@@ -246,14 +264,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             ) : (
               <>
                 {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             )}
