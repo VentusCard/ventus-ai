@@ -21,7 +21,7 @@ function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] })
   if (sources.length === 0) return null;
 
   return (
-    <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+    <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Current Holdings</span>
       {sources.map(([source, count]) => (
         <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
