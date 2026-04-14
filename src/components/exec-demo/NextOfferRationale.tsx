@@ -11,6 +11,8 @@ export interface GeneratedOffer {
   cta: string;
   signal: "boost" | "suppress" | "neutral";
   signalReason: string;
+  suppressedCategory?: string;
+  boostCategory?: string;
 }
 
 export interface RollupOfferGroup {
@@ -28,8 +30,15 @@ interface Props {
 /* ─── Single rollup card with horizontal deal tiles ─── */
 function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
   const c = getColor(group.pillar);
-  const suppressed = group.deals.filter(d => d.signal === "suppress");
   const active = group.deals.filter(d => d.signal !== "suppress");
+
+  // Deduplicated category pills
+  const suppressedCats = [...new Set(
+    group.deals.filter(d => d.signal === "suppress" && d.suppressedCategory).map(d => d.suppressedCategory!)
+  )];
+  const boostCats = [...new Set(
+    group.deals.filter(d => d.signal === "boost" && d.boostCategory).map(d => d.boostCategory!)
+  )];
 
   return (
     <div
@@ -49,10 +58,16 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
           <span style={{ color: c.dot }}>✦</span>
           {group.rollup}
         </span>
-        {suppressed.map(d => (
-          <span key={d.id} className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-full">
+        {suppressedCats.map(cat => (
+          <span key={cat} className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-full">
             <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
-            {d.merchant}
+            {cat}
+          </span>
+        ))}
+        {boostCats.map(cat => (
+          <span key={cat} className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+            <TrendingUp className="w-2.5 h-2.5 text-emerald-500" />
+            {cat}
           </span>
         ))}
       </div>
