@@ -82,6 +82,7 @@ Generate exactly 5 deals for EACH cluster above with boost/suppress/neutral sign
           { role: "user", content: userPrompt },
         ],
         temperature: 0.8,
+        max_tokens: 4096,
       }),
     });
 
