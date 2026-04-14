@@ -138,12 +138,9 @@ const IntegrationSection = () => {
         </div>
 
         <div className="mt-16">
-          <p className="mb-8 text-center text-xs font-semibold uppercase tracking-widest text-gray-400">
-            Integration Partners
-          </p>
-          <div className="flex items-center justify-center gap-12 md:gap-20 flex-wrap">
+          <div className="flex items-center justify-center gap-12 md:gap-20 flex-nowrap overflow-x-auto">
             {partners.map(({ name, src, height }) => (
-              <div key={name} className="flex items-center justify-center px-4 py-4">
+              <div key={name} className="flex-shrink-0 flex items-center justify-center px-4 py-4">
                 <img src={src} alt={name} className={`${height} w-auto`} />
               </div>
             ))}
