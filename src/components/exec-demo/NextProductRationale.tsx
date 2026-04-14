@@ -200,7 +200,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 ) : (
                   <ShieldCheck className="w-3 h-3" />
                 )}
-                <span className="font-bold">{isBehavioral ? "Behavioral:" : "Life Event:"}</span>
                 {card.signal_label}
               </div>
 
