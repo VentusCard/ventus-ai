@@ -1,36 +1,26 @@
 
 
-## Plan: Elaborate transaction hover tooltip with MCC + enrichment details
+## Separate MCC source data from AI classification in tooltips
 
-### Data changes in `src/components/exec-demo/execDemoData.ts`
+**Goal**: Tooltip row 1 (MCC code + description) comes from the raw CSV sample data. Row 2 (pillar, category, subcategory, tier, frequency) comes from the classify-transactions AI function results.
 
-1. **Extend `SignalEntry` interface** — add `mcc`, `mccDescription`, `category`, `subcategory`, `tier` fields:
-   ```ts
-   export interface SignalEntry {
-     pillar: string;
-     label: string;       // subcategory
-     amount: number;
-     frequency?: string;
-     mcc?: string;
-     mccDescription?: string;
-     category?: string;
-     tier?: string;
-   }
-   ```
+### Current problem
+When AI classification arrives, `buildSignalMapFromClassified` creates a new signal map with only `pillar`, `label`, `amount`, `frequency` — it discards the `mcc`, `mccDescription`, `category`, and `tier` fields that were present in the MCC-based fallback map.
 
-2. **Extend `MCC_SIGNAL_MAP`** — add `category`, `tier`, and `frequency` to each entry where appropriate (e.g. Airlines → category: "Air Travel", tier: "Premium", frequency: "Occasional").
+### Changes
 
-3. **Update `buildSignalMap`** — import `MCC_DESCRIPTIONS` from `@/lib/sampleData` and populate `mcc` and `mccDescription` on each `SignalEntry` from the CSV row's MCC code.
+**`src/components/exec-demo/execDemoData.ts`**:
+- Update `buildSignalMapFromClassified` to accept an optional `csv` parameter
+- Parse MCC codes and descriptions from the CSV rows (same logic as `buildSignalMap`)
+- Merge: MCC + mccDescription from CSV, pillar/category/label/tier/frequency from the AI `EnrichedTransaction` results
+- Map `subcategories[0]` from AI results into the `label` field (subcategory)
+- Map `spending_tier` into `tier`
 
-### Tooltip changes in `src/components/exec-demo/ExecDemoLeftPanel.tsx`
+**`src/pages/ExecDemoPage.tsx`**:
+- Pass the CSV string to both calls of `buildSignalMapFromClassified(classifiedRef.current, csv)` so MCC data is preserved
 
-4. **Redesign the tooltip** in `TxRow` to show two rows:
-   - **Row 1**: `MCC: 4511 · Airlines — Scheduled Air Transportation`
-   - **Row 2**: `Pillar: Travel & Transport · Category: Air Travel · Subcategory: Airlines · Tier: Premium · Frequency: Occasional`
-
-   Uses a stacked layout inside the existing dark tooltip div, with the pillar name colored by its dot color.
-
-### Files modified
-- `src/components/exec-demo/execDemoData.ts`
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx`
+### Result
+- Tooltip Row 1 always shows MCC code + description from raw CSV data
+- Tooltip Row 2 shows AI-enriched pillar, category, subcategory, tier, and frequency
+- When AI hasn't loaded yet, MCC fallback map still provides all fields as before
 
