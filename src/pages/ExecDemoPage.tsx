@@ -58,6 +58,7 @@ export default function ExecDemoPage() {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
+  const [activeTriggerPill, setActiveTriggerPill] = useState<{ label: string; indices: number[]; color: string } | null>(null);
   
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -584,6 +585,7 @@ export default function ExecDemoPage() {
 
   const handlePillClick = useCallback((pillar: string, label: string, isCategory?: boolean) => {
     setActiveRollup(null);
+    setActiveTriggerPill(null);
     setActivePillFilter((prev) =>
       prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory ? null : { pillar, label, isCategory: !!isCategory }
     );
@@ -591,8 +593,17 @@ export default function ExecDemoPage() {
 
   const handleRollupClick = useCallback((rollup: PillarRollup) => {
     setActivePillFilter(null);
+    setActiveTriggerPill(null);
     setActiveRollup((prev) =>
       prev && prev.pillar === rollup.pillar && prev.label === rollup.label ? null : rollup
+    );
+  }, []);
+
+  const handleTriggerPillClick = useCallback((label: string, txIndices: number[], color: string) => {
+    setActivePillFilter(null);
+    setActiveRollup(null);
+    setActiveTriggerPill((prev) =>
+      prev && prev.label === label ? null : { label, indices: txIndices, color }
     );
   }, []);
 
@@ -617,9 +628,11 @@ export default function ExecDemoPage() {
 
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
+    if (activeTriggerPill) {
+      return activeTriggerPill.indices;
+    }
     const sm = execProfile.persona.signalMap;
     if (activeRollup) {
-      // Use txIndices if available, otherwise fall back to pillar-level matching
       if (activeRollup.txIndices && activeRollup.txIndices.length > 0) {
         return activeRollup.txIndices;
       }
@@ -633,7 +646,7 @@ export default function ExecDemoPage() {
         .map(([idx]) => Number(idx));
     }
     return null;
-  }, [activePillFilter, activeRollup, execProfile.persona.signalMap]);
+  }, [activePillFilter, activeRollup, activeTriggerPill, execProfile.persona.signalMap]);
 
   return (
     <SimplePasswordGate>
@@ -689,15 +702,17 @@ export default function ExecDemoPage() {
             personaTitle={execProfile.persona.title}
             filteredIndices={filteredIndices}
             signalMap={execProfile.persona.signalMap}
-            activePillLabel={activeRollup?.label || activePillFilter?.label || null}
+            activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
             activePillColor={
-              activeRollup
-                ? getColor(activeRollup.pillar).dot
-                : activePillFilter
-                  ? getColor(activePillFilter.pillar).dot
-                  : "#10b981"
+              activeTriggerPill
+                ? activeTriggerPill.color
+                : activeRollup
+                  ? getColor(activeRollup.pillar).dot
+                  : activePillFilter
+                    ? getColor(activePillFilter.pillar).dot
+                    : "#10b981"
             }
-            onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); }}
+            onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
           />
         </div>
 
@@ -723,6 +738,8 @@ export default function ExecDemoPage() {
             detectedLifeEvents={detectedLifeEvents}
             productsLoading={productsLoading}
             productCards={productCards}
+            onTriggerPillClick={handleTriggerPillClick}
+            activeTriggerLabel={activeTriggerPill?.label}
           />
         </div>
 

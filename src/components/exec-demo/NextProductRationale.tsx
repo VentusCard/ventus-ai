@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap, CheckCircle2, Star, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap, CheckCircle2, Star } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
@@ -10,6 +9,8 @@ interface Props {
   loading: boolean;
   productCards?: ProductCard[] | null;
   transactions?: Transaction[];
+  onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
+  activeTriggerLabel?: string | null;
 }
 
 /* ─── Current holdings pill row ─── */
@@ -78,8 +79,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions }: Props) {
-  const [expandedTrigger, setExpandedTrigger] = useState<number | null>(null);
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -138,15 +138,36 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
           );
           const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
-          const isExpanded = expandedTrigger === i;
+          const isActive = activeTriggerLabel === card.signal_label;
+
+          const handlePillClick = () => {
+            if (!hasEvidence || !transactions || !matchingEvent) return;
+            const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
+            const matchedIndices = transactions
+              .map((tx, idx) => {
+                const merchant = (tx.merchant || tx.merchant_name || "").toLowerCase();
+                const isMatch = evidenceMerchants.some(em =>
+                  merchant.includes(em) || em.includes(merchant)
+                );
+                return isMatch ? idx : -1;
+              })
+              .filter(idx => idx !== -1);
+            onTriggerPillClick?.(card.signal_label, matchedIndices, c.dot);
+          };
 
           return (
             <div key={i} className="space-y-0">
               {/* Trigger pill */}
               <div
                 className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 ${hasEvidence ? "cursor-pointer" : ""}`}
-                style={{ background: `${c.dot}15`, color: c.dot }}
-                onClick={() => hasEvidence && setExpandedTrigger(isExpanded ? null : i)}
+                style={{
+                  background: `${c.dot}15`,
+                  color: c.dot,
+                  border: isActive ? `2px solid ${c.dot}` : `1px solid transparent`,
+                  transform: isActive ? "scale(1.05)" : "scale(1)",
+                  transition: "all 0.2s ease",
+                }}
+                onClick={handlePillClick}
               >
                 {isBehavioral ? (
                   <Zap className="w-3 h-3" />
@@ -154,29 +175,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   <ShieldCheck className="w-3 h-3" />
                 )}
                 {card.signal_label}
-                {hasEvidence && (isExpanded
-                  ? <ChevronUp className="w-3 h-3 ml-0.5" />
-                  : <ChevronDown className="w-3 h-3 ml-0.5" />
-                )}
               </div>
-
-              {/* Expanded evidence */}
-              {isExpanded && matchingEvent && (
-                <div
-                  className="rounded-lg border mb-1 px-2.5 py-2 space-y-1"
-                  style={{ borderColor: c.border, borderLeftWidth: 3, borderLeftColor: c.dot, background: `${c.dot}05` }}
-                >
-                  {matchingEvent.evidence.map((ev, ei) => (
-                    <div key={ei} className="flex items-center justify-between text-[9px] py-0.5 border-b border-slate-50 last:border-0">
-                      <span className="font-semibold text-slate-700">{ev.merchant}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-400">{ev.date}</span>
-                        <span className="font-medium text-slate-600">${ev.amount.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
 
               {/* Product card */}
               <div
