@@ -44,13 +44,13 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
 
   return (
     <div className="mb-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Product Catalog</span>
       {PRODUCT_CATALOG.map(name => {
         const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
         return (
           <span
             key={name}
-            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${
+            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border shrink-0 ${
               isMatch
                 ? "text-blue-700 bg-blue-50 border-blue-200"
                 : "text-slate-400 bg-slate-50 border-slate-100"
