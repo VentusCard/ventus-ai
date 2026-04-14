@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu } from "lucide-react";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
