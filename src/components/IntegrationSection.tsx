@@ -79,7 +79,7 @@ const IntegrationSection = () => {
       title: "Connect",
       desc: "Banks and vendors securely share transaction data via API. No changes to core banking systems required.",
       extra: (
-        <div className="mt-6 flex flex-wrap items-center gap-6">
+        <div className="mt-6 flex items-center gap-6 flex-nowrap overflow-x-auto">
           {partners.map(({ name, src, height }) => (
             <img key={name} src={src} alt={name} className={`${height} w-auto opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300`} />
           ))}
