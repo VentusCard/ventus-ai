@@ -362,14 +362,13 @@ const ScrollDrivenHero = () => {
         {/* Schedule a Demo button */}
         <Button
           size="lg"
-          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+          className="mt-4 mb-8 bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => {
             document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
           }}
         >
           Schedule a Demo
         </Button>
-        <div className="pb-12" />
       </div>
     </div>
   );
