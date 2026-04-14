@@ -617,6 +617,39 @@ export default function ExecDemoPage() {
 
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
+    const normalizePillar = (value: string) =>
+      value
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\band\b/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const pillarAliasGroups = [
+      ["travel leisure", "travel exploration", "travel transport"],
+      ["dining nightlife", "food dining"],
+      ["health wellness", "wellness fitness", "sports active living", "fitness"],
+      ["shopping retail", "shopping", "style beauty"],
+      ["entertainment", "entertainment culture"],
+      ["home living"],
+      ["education family", "family community"],
+      ["financial planning", "financial aspirational", "retirement"],
+      ["business"],
+      ["lifestyle", "miscellaneous", "miscellaneous unclassified"],
+    ];
+
+    const pillarMatchesFilter = (signalPillar: string, filterPillar: string) => {
+      const normalizedSignal = normalizePillar(signalPillar);
+      const normalizedFilter = normalizePillar(filterPillar);
+
+      if (normalizedSignal === normalizedFilter) return true;
+
+      return pillarAliasGroups.some(
+        (group) => group.includes(normalizedSignal) && group.includes(normalizedFilter)
+      );
+    };
+
     const sm = execProfile.persona.signalMap;
     if (activeRollup) {
       // Use txIndices if available, otherwise fall back to pillar-level matching
@@ -628,13 +661,18 @@ export default function ExecDemoPage() {
         .map(([idx]) => Number(idx));
     }
     if (activePillFilter) {
-      const byLabel = Object.entries(sm)
-        .filter(([, s]) => s.pillar === activePillFilter.pillar && (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label))
+      const pillarMatches = Object.entries(sm).filter(([, s]) =>
+        pillarMatchesFilter(s.pillar, activePillFilter.pillar)
+      );
+
+      const byLabel = pillarMatches
+        .filter(([, s]) =>
+          activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label
+        )
         .map(([idx]) => Number(idx));
+
       if (byLabel.length > 0) return byLabel;
-      return Object.entries(sm)
-        .filter(([, s]) => s.pillar === activePillFilter.pillar)
-        .map(([idx]) => Number(idx));
+      return pillarMatches.map(([idx]) => Number(idx));
     }
     return null;
   }, [activePillFilter, activeRollup, execProfile.persona.signalMap]);

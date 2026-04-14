@@ -157,7 +157,10 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   {isBehavioral ? "Behavioral:" : "Life Event:"}
                 </span>
                 <button
-                  onClick={() => onPillClick?.(themeToPillar[card.theme] || "Lifestyle", card.signal_label)}
+                  onClick={() => {
+                    const pillar = themeToPillar[card.theme] || "Lifestyle";
+                    onPillClick?.(pillar, pillar);
+                  }}
                   className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ background: `${c.dot}10`, color: c.dot, borderColor: `${c.dot}30` }}
                 >
