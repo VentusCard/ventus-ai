@@ -550,7 +550,7 @@ export default function ExecDemoPage() {
 
     if (classifiedRef.current && classifiedRef.current.length > 0) {
       // Override MCC signal map with AI-classified pillars
-      const classifiedSignalMap = buildSignalMapFromClassified(classifiedRef.current);
+      const classifiedSignalMap = buildSignalMapFromClassified(classifiedRef.current, csv);
       localProfile.persona.signalMap = classifiedSignalMap;
       console.log("[PROCESS] Using preloaded AI classification for signals");
       onClassifiedCallbackRef.current = null; // Already have it
@@ -558,7 +558,7 @@ export default function ExecDemoPage() {
       console.log("[PROCESS] AI classification not ready, using MCC fallback — will update when ready");
       // Register callback to upgrade signal map when classification arrives
       onClassifiedCallbackRef.current = (txs: EnrichedTransaction[]) => {
-        const classifiedSignalMap = buildSignalMapFromClassified(txs);
+        const classifiedSignalMap = buildSignalMapFromClassified(txs, csv);
         setProfile((prev) => {
           if (!prev) return prev;
           return {
