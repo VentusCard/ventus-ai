@@ -108,19 +108,19 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
                 )}
               </div>
               <div className="flex flex-col items-end gap-1.5 shrink-0">
-                {deal.reward_value && (
+                {deal.rewardValue && (
                   <span
                     className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
                     style={{ background: c.dot }}
                   >
-                    {deal.reward_value}
+                    {deal.rewardValue}
                   </span>
                 )}
                 <button
                   className="text-[9px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
                   style={{ borderColor: c.dot, color: c.dot }}
                 >
-                  {deal.cta_button_text || "Activate"}
+                  {deal.cta || "Activate"}
                 </button>
               </div>
             </div>
