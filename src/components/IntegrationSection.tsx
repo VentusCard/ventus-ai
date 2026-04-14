@@ -64,16 +64,84 @@ const FisLogo = () => (
   </div>
 );
 
+const FiservLogo = () => (
+  <svg viewBox="0 0 200 40" role="img" aria-label="Fiserv" className="h-10 w-auto">
+    <g fill="#ff6600">
+      <path d="M20.5 8.2h-7.1v23.6h7.1c6.8 0 11.6-5.2 11.6-11.8S27.3 8.2 20.5 8.2zm-1.2 18.4h-3.6v-12.7h3.6c4.4 0 7.5 2.8 7.5 6.4s-3.1 6.3-7.5 6.3z"/>
+      <path d="M37.3 8.2h6.2v23.6h-6.2z"/>
+      <path d="M48.4 20c0-7.1 5.1-12.2 12.1-12.2 3.8 0 7.1 1.7 9.1 4.4l-4.2 3.8c-1.2-1.4-2.9-2.2-4.9-2.2-3.6 0-6.1 2.6-6.1 6.1 0 3.5 2.5 6.1 6.1 6.1 2 0 3.7-.8 4.9-2.2l4.2 3.8c-2 2.7-5.3 4.4-9.1 4.4-7 0-12.1-5.1-12.1-12z"/>
+      <path d="M73.8 8.2h6.2v23.6h-6.2z"/>
+      <path d="M85.3 20c0-7.1 5.3-12.2 12.6-12.2 7.3 0 12.6 5.1 12.6 12.2s-5.3 12.2-12.6 12.2c-7.3 0-12.6-5.1-12.6-12.2zm18.9 0c0-3.7-2.6-6.4-6.3-6.4-3.7 0-6.3 2.7-6.3 6.4s2.6 6.4 6.3 6.4c3.7 0 6.3-2.7 6.3-6.4z"/>
+      <path d="M116.7 20c0-7.1 5.3-12.2 12.6-12.2 4.1 0 7.6 1.8 9.7 4.8l-5 3.3c-1.2-1.7-3-2.6-4.7-2.6-3.7 0-6.3 2.7-6.3 6.4s2.6 6.4 6.3 6.4c1.7 0 3.5-.9 4.7-2.6l5 3.3c-2.1 3-5.6 4.8-9.7 4.8-7.3 0-12.6-5.1-12.6-12.2z"/>
+      <path d="M140.7 20c0-7.1 5.1-12.2 12.1-12.2 3.8 0 7.1 1.7 9.1 4.4l-4.2 3.8c-1.2-1.4-2.9-2.2-4.9-2.2-3.6 0-6.1 2.6-6.1 6.1 0 3.5 2.5 6.1 6.1 6.1 2 0 3.7-.8 4.9-2.2l4.2 3.8c-2 2.7-5.3 4.4-9.1 4.4-7 0-12.1-5.1-12.1-12z"/>
+      <path d="M168.1 8.2h-7.1v23.6h7.1c6.8 0 11.6-5.2 11.6-11.8S175 8.2 168.1 8.2zm-1.2 18.4h-3.6v-12.7h3.6c4.4 0 7.5 2.8 7.5 6.4s-3.1 6.3-7.5 6.3z"/>
+    </g>
+  </svg>
+);
+
 const JackHenryLogo = () => (
-  <div className="text-[2.2rem] font-semibold tracking-[-0.04em] leading-none text-[#0B1736]">
-    Jack Henry
-  </div>
+  <svg viewBox="0 0 180 40" role="img" aria-label="Jack Henry" className="h-10 w-auto">
+    <g>
+      <circle cx="14" cy="20" r="10" fill="#e31837"/>
+      <text
+        x="30"
+        y="26"
+        fill="#1a1a1a"
+        fontSize="16"
+        fontWeight="600"
+        fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      >
+        Jack Henry
+      </text>
+    </g>
+  </svg>
+);
+
+const DatabricksLogo = () => (
+  <svg viewBox="0 0 200 50" role="img" aria-label="Databricks" className="h-10 w-auto">
+    <g>
+      <path fill="#FF3621" d="M16.3 8.5l16.9 9.8v19.5l-16.9-9.8V8.5z"/>
+      <path fill="#FF3621" d="M16.3 8.5L0 18.2v19.6l16.3-9.7V8.5z"/>
+      <path fill="#FF3621" d="M16.3 47.8l16.9-9.7V18.5l-16.9 9.7v19.6z"/>
+      <text
+        x="45"
+        y="32"
+        fill="#1B1B1B"
+        fontSize="18"
+        fontWeight="600"
+        fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      >
+        Databricks
+      </text>
+    </g>
+  </svg>
+);
+
+const SnowflakeLogo = () => (
+  <svg viewBox="0 0 200 50" role="img" aria-label="Snowflake" className="h-10 w-auto">
+    <g>
+      <path fill="#29B5E8" d="M25 5L21.5 11l-6.5-2 2 6.5L10 18l6.5 2.5-2 6.5 6.5-2L21.5 32l3.5-6.5 6.5 2-2-6.5L40 18l-6.5-2.5 2-6.5-6.5 2L25 5z"/>
+      <text
+        x="50"
+        y="32"
+        fill="#29B5E8"
+        fontSize="20"
+        fontWeight="600"
+        fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      >
+        Snowflake
+      </text>
+    </g>
+  </svg>
 );
 
 const partners = [
   { name: "Salesforce", Logo: SalesforceLogo },
   { name: "FIS", Logo: FisLogo },
+  { name: "Fiserv", Logo: FiservLogo },
   { name: "Jack Henry", Logo: JackHenryLogo },
+  { name: "Databricks", Logo: DatabricksLogo },
+  { name: "Snowflake", Logo: SnowflakeLogo },
 ];
 
 const IntegrationSection = () => {
