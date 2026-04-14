@@ -164,7 +164,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
               // Fallback: match transactions by signal keywords against merchant/category/pillar
               matchedIndices = transactions
                 .map((tx, idx) => {
-                  const hay = `${tx.merchant || ""} ${tx.category || ""} ${tx.pillar || ""}`.toLowerCase();
+                  const hay = (tx.merchant || "").toLowerCase();
                   const isMatch = signalKeywords.some(kw => hay.includes(kw));
                   return isMatch ? idx : -1;
                 })
