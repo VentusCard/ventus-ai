@@ -97,6 +97,9 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           <CurrentHoldingsPills transactions={transactions} />
         )}
 
+        {/* Product catalog pills */}
+        <RecommendedProductsPills productCards={productCards} />
+
         {/* Header */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[11px] font-semibold text-slate-500">
