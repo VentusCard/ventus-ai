@@ -1,30 +1,61 @@
 
 
-## Plan: Group Deals by Rollup with Shorter Messages
+## Plan: Rollup Cards with Carousel Deals + Boost/Suppress Logic
+
+### Design Concept
+
+Each rollup becomes a standalone card. Inside each card, deals rotate horizontally in a carousel. Each deal has a visual **boost/suppress indicator** showing why it was ranked up or down based on recent spending.
+
+```text
+┌─────────────────────────────────────────────┐
+│ ✦ Winter Sports Enthusiast    5 deals    ▸▸ │
+│                                             │
+│  ALREADY PURCHASED (dimmed, struck-through) │
+│  ┄┄ Vail Ski Pass ··· ✓ Bought Feb ┄┄┄┄┄  │
+│  ┄┄ Giro Helmet  ··· ✓ Bought Mar ┄┄┄┄┄   │
+│                                             │
+│  ┌────────────────┐  ┌────────────────┐     │
+│  │ GoPro Hero 12  │  │ Hestra Gloves  │ ◀▶  │
+│  │ 20% Off        │  │ 15% Off        │     │
+│  │ "Capture every │  │ "Keep warm on  │     │
+│  │  run this..."  │  │  the slopes"   │     │
+│  │ ▲ BOOSTED      │  │ ▲ BOOSTED      │     │
+│  │ Gap: No action │  │ Gap: No action │     │
+│  │ cam detected   │  │ gloves bought  │     │
+│  └────────────────┘  └────────────────┘     │
+│  ● ● ○                                     │
+└─────────────────────────────────────────────┘
+```
+
+Each deal card shows a small tag:
+- **▲ Boosted** (green) — "Gap detected: no gloves in history" 
+- **— Neutral** (gray) — standard relevance
+- **▼ Suppressed** (red/dimmed) — "Already purchased: ski pass found in Feb"
+
+Suppressed items appear as a collapsed "Already covered" strip above the carousel, showing what was detected as already purchased, reinforcing the intelligence.
 
 ### Changes
 
-**1. Edge function `supabase/functions/generate-next-offers/index.ts`** — Restructure the prompt and output format:
-- Instead of generating 4-6 flat deals, generate **3-5 deals per rollup pill** (behavioral cluster)
-- Output shape changes to: `{ "rollupOffers": [ { "rollup": "Weekend Foodie", "pillar": "Food & Dining", "deals": [ { id, merchant, product, rewardValue, message, cta }, ... ] }, ... ] }`
-- Message guidance changes to: **8-12 words max**, no demographic references (no occupation, family size, age), no over-explanation. Just a clean lifestyle-aligned sentence like "Upgrade your travels with sleek, durable luggage from Away"
-- Remove `rationale`, `sourceRollup`, `isDiscovery` fields — they're no longer needed since deals are already grouped by rollup
-- Remove the "discovery" deal concept (every deal belongs to a rollup)
+**1. Edge function `supabase/functions/generate-next-offers/index.ts`**
+- Add spending context per rollup: pass the actual merchants/categories the customer has already spent on within each cluster
+- Update the prompt to ask the AI to return a `signal` field per deal: `"boost" | "suppress" | "neutral"` with a short `signalReason` (e.g., "No action cam detected", "Ski pass already purchased")
+- Updated output shape per deal: `{ id, merchant, product, rewardValue, message, cta, signal: "boost"|"suppress"|"neutral", signalReason: "short reason" }`
 
-**2. `src/components/exec-demo/NextOfferRationale.tsx`** — Redesign the UI to show grouped deals:
-- Update the `GeneratedOffer` interface: remove `rationale`, `sourceRollup`, `isDiscovery`; add a grouped structure
-- New layout: For each rollup, show the rollup pill as a section header, then render its 3-5 deal cards beneath it in a compact grid/list
-- Each deal card shows: merchant name, product, reward value badge, short message, and CTA button
-- Remove the "Why:" rationale line and the source rollup tag from each card
-- Update the strategy header to reflect the new structure (e.g., "5 clusters → 18 personalized deals")
+**2. `src/components/exec-demo/NextOfferRationale.tsx`** — Complete redesign:
+- Each rollup group becomes a **card** with a header pill and deal count
+- **Suppressed deals** render as a compact "Already covered" strip at the top of the card — dimmed merchant names with checkmarks, showing what was detected in their spending
+- **Boosted + neutral deals** render in a horizontal **auto-rotating carousel** (using CSS scroll-snap or a simple interval-based slider)
+- Each deal card in the carousel includes a small colored signal badge: green "▲ Boosted" with reason, or gray "— Neutral"
+- Carousel has dot indicators at the bottom and auto-advances every 4 seconds
+- Cards animate in with staggered reveal
 
-**3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`** — Update the `GeneratedOffer` type import and any mapping of the response data to match the new grouped structure
-
-**4. `src/components/exec-demo/GeneratedOffersPhoneView.tsx`** — Update to handle the new grouped data structure for the phone preview
+**3. Types update in `NextOfferRationale.tsx`**
+- `GeneratedOffer` gets two new fields: `signal: "boost" | "suppress" | "neutral"` and `signalReason: string`
+- No changes to parent components needed — the grouped structure stays the same
 
 ### What stays the same
-- The rollup pills at the top remain unchanged
-- The heatmap/timeline above remains unchanged
-- Loading skeleton stays the same
-- All other tabs unaffected
+- The seasonal spend heatmap above remains untouched
+- The rollup pills at the very top of the offers section remain
+- The strategy header ("X clusters → Y deals") remains
+- Parent components (`PurchaseCycleTimeline`, `ExecDemoIntelPanel`, `ExecDemoPage`) need no structural changes — same data flow
 
