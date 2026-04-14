@@ -334,16 +334,24 @@ export default function ExecDemoIntelPanel({
                               <span className="text-[9px] font-medium uppercase tracking-wider whitespace-nowrap" style={{ color: c.text }}>
                                 {category}:
                               </span>
-                              {catChips.map((chip, idx) => (
-                                <AnimatedChip
-                                  key={`${chip.pillar}::${chip.category}::${chip.label}`}
-                                  chip={chip}
-                                  isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
-                                  onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                  collapsed={false}
-                                  mergeDelay={idx * 0.06}
-                                />
-                              ))}
+                              {catChips.map((chip, idx) => {
+                                const isActive = activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label;
+                                return (
+                                  <span
+                                    key={`${chip.pillar}::${chip.category}::${chip.label}`}
+                                    onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                                    className={`inline-flex items-center gap-0.5 text-[11px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
+                                    style={{ color: c.text }}
+                                  >
+                                    {chip.label}
+                                    {chip.count > 1 && (
+                                      <span className="text-[10px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
+                                    )}
+                                    <span className="text-[10px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
+                                    {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
+                                  </span>
+                                );
+                              })}
                             </React.Fragment>
                           ))}
                         </div>
