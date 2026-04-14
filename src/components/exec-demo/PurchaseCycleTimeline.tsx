@@ -195,42 +195,8 @@ export default function PurchaseCycleTimeline({ chips, transactions, signalMap, 
 
   const globalMax = Math.max(...rows.flatMap(r => r.monthlySpend), 1);
 
-  // Build insight sentence for probability section
-  const probInsight = (() => {
-    if (probabilityRows.length === 0) return null;
-    const top = probabilityRows[0];
-    const c = getColor(top.pillar);
 
-    const cadenceWord = top.activeMonths >= 10
-      ? "near-weekly"
-      : top.activeMonths >= 6
-      ? "regular monthly"
-      : top.activeMonths >= 3
-      ? "periodic"
-      : "occasional";
 
-    const timeframe = top.lastMonthAgo === 0
-      ? "this month"
-      : top.lastMonthAgo === 1
-      ? "last month"
-      : `${top.lastMonthAgo} months ago`;
-
-    const nextMonth = MONTHS[(CURRENT_MONTH + 1) % 12];
-
-    let secondary = "";
-    if (probabilityRows.length > 1) {
-      const second = probabilityRows[1];
-      if (second.prob30 >= 40) {
-        secondary = ` ${second.label} also likely (${second.prob30}%) based on ${second.activeMonths}/12 months active.`;
-      }
-    }
-
-    return {
-      color: c.text,
-      label: top.label,
-      text: `${top.label} purchase expected in ${nextMonth} (${top.prob30}% probability) based on ${cadenceWord} cadence — last seen ${timeframe}.${secondary}`,
-    };
-  })();
 
   return (
     <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
