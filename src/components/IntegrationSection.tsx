@@ -80,7 +80,7 @@ const IntegrationSection = () => {
 
       {/* Step 01 — Connect */}
       <div ref={step1.ref} className="relative">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-24 md:py-40">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-28">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left */}
             <div
@@ -128,7 +128,7 @@ const IntegrationSection = () => {
 
       {/* Step 02 — Enrich */}
       <div ref={step2.ref} className="relative">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-24 md:py-40">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-28">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left */}
             <div
@@ -183,7 +183,7 @@ const IntegrationSection = () => {
 
       {/* Step 03 — Orchestrate */}
       <div ref={step3.ref} className="relative">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-24 md:py-40">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-28">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left */}
             <div
