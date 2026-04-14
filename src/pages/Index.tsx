@@ -4,6 +4,12 @@ import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
 import { Layers, Heart, Activity, Search } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const signalLayers = [
   { icon: Layers, title: "Lifestyle Pillars", desc: "12 behavioral categories extracted from spending patterns. From Travel & Adventure to Financial Planning." },
@@ -12,10 +18,12 @@ const signalLayers = [
   { icon: Search, title: "Purchase Cycle Intel", desc: "Detect what customers are planning next. We surface intent signals before they become transactions." },
 ];
 
-const proofStats = [
-  { value: "500M+", label: "Transactions processed" },
-  { value: "<200ms", label: "Enrichment latency" },
-  { value: "99.9%", label: "Uptime SLA" },
+const faqs = [
+  { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
+  { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API." },
+  { q: "Is our data secure?", a: "Yes. Ventus operates on SOC 2 compliant infrastructure with VPC isolation, end-to-end encryption, and full audit logging." },
+  { q: "Who is Ventus for?", a: "Built for banks and financial institutions — specifically digital banking teams, rewards and loyalty teams, and wealth management divisions." },
+  { q: "How is Ventus different from traditional enrichment providers?", a: "Traditional enrichment platforms clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
 ];
 
 const Index = () => {
@@ -23,20 +31,6 @@ const Index = () => {
     <div>
       <main className="flex flex-col">
         <Hero />
-
-        {/* Social Proof — Minimal Stats */}
-        <section className="py-14 bg-gray-50/60 border-y border-gray-100">
-          <div className="max-w-5xl mx-auto px-6 md:px-8">
-            <div className="grid grid-cols-3 gap-8 text-center">
-              {proofStats.map((s) => (
-                <div key={s.label}>
-                  <p className="text-2xl md:text-3xl font-bold text-gray-900">{s.value}</p>
-                  <p className="text-sm text-gray-500 mt-1">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Capabilities — Four Signal Layers */}
         <section className="py-24 bg-white">
@@ -76,6 +70,40 @@ const Index = () => {
         </section>
 
         <IntegrationSection />
+
+        {/* FAQ — Two Column */}
+        <section className="py-24 bg-gray-50/60 border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
+              {/* Left column */}
+              <div className="lg:col-span-2">
+                <ScrollReveal>
+                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">FAQ</p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="text-gray-500 text-base leading-relaxed">
+                    Here are the questions operators ask most often before getting started with Ventus.
+                  </p>
+                </ScrollReveal>
+              </div>
+              {/* Right column */}
+              <div className="lg:col-span-3">
+                <ScrollReveal delay={0.1}>
+                  <Accordion type="single" collapsible className="w-full">
+                    {faqs.map((faq, i) => (
+                      <AccordionItem key={i} value={`faq-${i}`} className="border-b border-gray-200">
+                        <AccordionTrigger className="text-left text-base text-gray-900 py-5">{faq.q}</AccordionTrigger>
+                        <AccordionContent className="text-gray-500 text-sm pb-5">{faq.a}</AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </ScrollReveal>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <CTA />
       </main>
     </div>
