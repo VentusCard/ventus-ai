@@ -165,10 +165,10 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "250vh", background: "#0A1628" }}
+      style={{ height: "300vh", background: "#0A1628" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-32 md:pt-40 overflow-hidden">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
         {/* Centered Headline */}
         <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-white leading-[1.15] text-center mb-4 px-6 max-w-4xl">
           Turn transaction data into{" "}
