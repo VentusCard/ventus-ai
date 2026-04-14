@@ -33,8 +33,8 @@ interface Props {
   revealedTabs: TabKey[];
   activeTab: TabKey | null;
   onTabClick: (tab: TabKey) => void;
-  activePillFilter?: { pillar: string; label: string; isCategory?: boolean; evidenceMerchants?: string[] } | null;
-  onPillClick?: (pillar: string, label: string, isCategory?: boolean, evidenceMerchants?: string[]) => void;
+  activePillFilter?: { pillar: string; label: string; isCategory?: boolean } | null;
+  onPillClick?: (pillar: string, label: string, isCategory?: boolean) => void;
   activePillarFilter?: string | null;
   activeRollup?: PillarRollup | null;
   onRollupClick?: (rollup: PillarRollup) => void;
@@ -420,7 +420,7 @@ export default function ExecDemoIntelPanel({
             {activeTab === "analytics" && synthesisTriggered ? (
               <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onPillClick={onPillClick} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} />
             ) : activeTab === "relationship" ? (
               <NextConversationRationale />
             ) : (

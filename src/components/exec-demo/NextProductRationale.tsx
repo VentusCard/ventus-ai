@@ -9,23 +9,7 @@ interface Props {
   loading: boolean;
   productCards?: ProductCard[] | null;
   transactions?: Transaction[];
-  onPillClick?: (pillar: string, label: string, isCategory?: boolean, evidenceMerchants?: string[]) => void;
 }
-
-const themeToPillar: Record<string, string> = {
-  travel: "Travel & Leisure",
-  dining: "Dining & Nightlife",
-  fitness: "Health & Wellness",
-  wellness: "Health & Wellness",
-  shopping: "Shopping & Retail",
-  entertainment: "Entertainment",
-  home: "Home & Living",
-  education: "Education & Family",
-  family: "Education & Family",
-  retirement: "Financial Planning",
-  business: "Business",
-  lifestyle: "Lifestyle",
-};
 
 /* ─── Current holdings pill row ─── */
 function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] }) {
@@ -93,7 +77,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onPillClick }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions }: Props) {
   if (loading || !lifeEvents) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -147,44 +131,16 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
           return (
-            <div key={i} className="space-y-1" style={{ animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both` }}>
-              {/* Rolled-up pill above the card */}
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: c.dot }}
-                >
-                  {isBehavioral ? "Behavioral:" : "Life Event:"}
-                </span>
-                  <button
-                    onClick={() => {
-                      const pillar = themeToPillar[card.theme] || "Lifestyle";
-                      // For life-event cards, find matching event and pass evidence merchants
-                      const isBehavioral = card.type === "behavioral";
-                      let evidenceMerchants: string[] | undefined;
-                      if (!isBehavioral && lifeEvents) {
-                        const matchingEvent = lifeEvents.find(e => e.event_name === card.signal_label);
-                        if (matchingEvent?.evidence?.length) {
-                          evidenceMerchants = matchingEvent.evidence.map(e => e.merchant);
-                        }
-                      }
-                      onPillClick?.(pillar, card.signal_label, false, evidenceMerchants);
-                    }}
-                  className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ background: `${c.dot}10`, color: c.dot, borderColor: `${c.dot}30` }}
-                >
-                  {card.signal_label}
-                </button>
-              </div>
-
-              <div
-                className="rounded-xl border overflow-hidden"
-                style={{
-                  borderColor: c.border,
-                  borderLeftWidth: 3,
-                  borderLeftColor: c.dot,
-                }}
-              >
+            <div
+              key={i}
+              className="rounded-xl border overflow-hidden"
+              style={{
+                borderColor: c.border,
+                borderLeftWidth: 3,
+                borderLeftColor: c.dot,
+                animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
+              }}
+            >
               <div className="px-3 py-2.5">
                 {/* Type badge + product name */}
                 <div className="flex items-center justify-between mb-1.5">
@@ -227,7 +183,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                     {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
                   </span>
                 </div>
-              </div>
               </div>
             </div>
           );

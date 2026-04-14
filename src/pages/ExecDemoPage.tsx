@@ -41,7 +41,7 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
-  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string; isCategory?: boolean; evidenceMerchants?: string[] } | null>(null);
+  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string; isCategory?: boolean } | null>(null);
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -582,10 +582,10 @@ export default function ExecDemoPage() {
     setActiveTab(tab);
   }, []);
 
-  const handlePillClick = useCallback((pillar: string, label: string, isCategory?: boolean, evidenceMerchants?: string[]) => {
+  const handlePillClick = useCallback((pillar: string, label: string, isCategory?: boolean) => {
     setActiveRollup(null);
     setActivePillFilter((prev) =>
-      prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory ? null : { pillar, label, isCategory: !!isCategory, evidenceMerchants }
+      prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory ? null : { pillar, label, isCategory: !!isCategory }
     );
   }, []);
 
@@ -617,39 +617,6 @@ export default function ExecDemoPage() {
 
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
-    const normalizePillar = (value: string) =>
-      value
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[^a-z0-9]+/g, " ")
-        .replace(/\band\b/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-    const pillarAliasGroups = [
-      ["travel leisure", "travel exploration", "travel transport"],
-      ["dining nightlife", "food dining"],
-      ["health wellness", "wellness fitness", "sports active living", "fitness"],
-      ["shopping retail", "shopping", "style beauty"],
-      ["entertainment", "entertainment culture"],
-      ["home living"],
-      ["education family", "family community"],
-      ["financial planning", "financial aspirational", "retirement"],
-      ["business"],
-      ["lifestyle", "miscellaneous", "miscellaneous unclassified"],
-    ];
-
-    const pillarMatchesFilter = (signalPillar: string, filterPillar: string) => {
-      const normalizedSignal = normalizePillar(signalPillar);
-      const normalizedFilter = normalizePillar(filterPillar);
-
-      if (normalizedSignal === normalizedFilter) return true;
-
-      return pillarAliasGroups.some(
-        (group) => group.includes(normalizedSignal) && group.includes(normalizedFilter)
-      );
-    };
-
     const sm = execProfile.persona.signalMap;
     if (activeRollup) {
       // Use txIndices if available, otherwise fall back to pillar-level matching
@@ -661,49 +628,12 @@ export default function ExecDemoPage() {
         .map(([idx]) => Number(idx));
     }
     if (activePillFilter) {
-      // Evidence-based matching: match transactions by merchant name
-      if (activePillFilter.evidenceMerchants && activePillFilter.evidenceMerchants.length > 0) {
-        const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const wordOverlap = (merchant: string, evidence: string) => {
-          const mWords = normalize(merchant).split(/\s*/).filter(Boolean);
-          const eWords = normalize(evidence).split(/\s*/).filter(Boolean);
-          // Check if evidence words appear as substrings in the merchant or vice versa
-          const mNorm = normalize(merchant);
-          const eNorm = normalize(evidence);
-          if (mNorm.includes(eNorm) || eNorm.includes(mNorm)) return true;
-          // Word-level: check if any significant evidence word (3+ chars) appears in merchant
-          const significantWords = evidence.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length >= 3);
-          if (significantWords.length === 0) return false;
-          const merchantLower = merchant.toLowerCase();
-          const matchCount = significantWords.filter(w => merchantLower.includes(w)).length;
-          return matchCount >= Math.max(1, Math.ceil(significantWords.length * 0.5));
-        };
-        const txs = execProfile.transactions;
-        const matched: number[] = [];
-        txs.forEach((tx, idx) => {
-          if (!tx) return;
-          if (activePillFilter.evidenceMerchants!.some(ev => wordOverlap(tx.merchant, ev))) {
-            matched.push(idx);
-          }
-        });
-        return matched;
-      }
-
-      const pillarMatches = Object.entries(sm).filter(([, s]) =>
-        pillarMatchesFilter(s.pillar, activePillFilter.pillar)
-      );
-
-      const byLabel = pillarMatches
-        .filter(([, s]) =>
-          activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label
-        )
+      return Object.entries(sm)
+        .filter(([, s]) => s.pillar === activePillFilter.pillar && (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label))
         .map(([idx]) => Number(idx));
-
-      if (byLabel.length > 0) return byLabel;
-      return pillarMatches.map(([idx]) => Number(idx));
     }
     return null;
-  }, [activePillFilter, activeRollup, execProfile.persona.signalMap, execProfile.transactions]);
+  }, [activePillFilter, activeRollup, execProfile.persona.signalMap]);
 
   return (
     <SimplePasswordGate>
