@@ -1,35 +1,31 @@
 
 
-## Plan: Pillar headers as a left column with dividers
+## Plan: Make category pills clickable to filter transactions
 
 ### What changes
 
-Restructure the pills section from a stacked layout (pillar header on top, chips below) into a **two-column layout**: pillar names in a narrow left column with subtle horizontal dividers between rows, and the category + subcategory pills flowing in the right column.
+Category pills (e.g. "Concerts & Events") become clickable. Clicking one filters the left panel to show all transactions matching that category within the pillar — same behavior as subcategory text clicks but at the category level.
 
-```text
-┌──────────────┬──────────────────────────────────────────┐
-│ Travel &     │ Hotels: [Boutique] [Resorts]  Flights:   │
-│ Exploration  │ [Airlines] [Budget]                      │
-├──────────────┼──────────────────────────────────────────┤
-│ Food &       │ Restaurants: [Fine Dining] [Cafes]       │
-│ Dining       │ Delivery: [Apps]                         │
-└──────────────┴──────────────────────────────────────────┘
-```
+### Implementation
 
-### Changes in `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`** (~lines 334-343):
+- Add `onClick` handler to the category `<span>` pill that calls `onPillClick?.(pillar, category)` with a distinguishing prefix or use the existing mechanism
+- Actually, the existing `activePillFilter` uses `{ pillar, label }`. We can reuse this — when a category pill is clicked, set `label` to the category name. The filtering in `ExecDemoPage.tsx` matches `s.label === activePillFilter.label`. But category names live in `s.category`, not `s.label`.
+- **Better approach**: Add `category` as an optional field to `activePillFilter`. Modify `onPillClick` to accept an optional 3rd param or use a separate callback.
+- **Simplest approach**: Extend `onPillClick` signature to `(pillar: string, label: string, isCategory?: boolean)`. In ExecDemoPage, when `isCategory` is true, filter by `s.category === label` instead of `s.label === label`.
 
-**Lines ~316–347** — Replace the current pillar rendering with a table-like layout:
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**:
+- Add `cursor-pointer hover:brightness-95` to category pill styling
+- Call `onPillClick?.(pillar, category, true)` on click
+- Highlight active category pill (check if `activePillFilter` matches)
+- Update `onPillClick` prop type to include the optional boolean
 
-1. Each pillar row becomes a `flex` row with two children:
-   - **Left column** (~80px, `shrink-0`): Pillar name with colored dot, vertically centered
-   - **Right column** (`flex-1`): The existing inline category labels + subcategory pills
-
-2. Add a subtle bottom border (`border-b border-slate-200/40`) on each row except the last, acting as a divider between pillars.
-
-3. Remove the current `mb-2` spacing on pillar containers and use `py-1.5` padding instead for consistent row height.
-
-4. Remove the separate pillar header `<div>` — the pillar name moves into the left column cell.
+**`src/pages/ExecDemoPage.tsx`** (~lines 585-636):
+- Update `handlePillClick` to accept `isCategory?: boolean` and store it in state
+- Update `activePillFilter` type to `{ pillar: string; label: string; isCategory?: boolean }`
+- Update `filteredIndices` memo: when `isCategory` is true, filter `s.category === label` instead of `s.label === label`
 
 ### Files modified
 - `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- `src/pages/ExecDemoPage.tsx`
 
