@@ -1,7 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import logoSalesforce from "@/assets/logo-salesforce.png";
-import logoFis from "@/assets/logo-fis.png";
-import logoJackHenry from "@/assets/logo-jackhenry.png";
 
 const steps = [
   { step: "01", title: "Connect", desc: "Banks and vendors securely share transaction data via API. No changes to core banking systems required." },
@@ -10,32 +7,74 @@ const steps = [
 ];
 
 const stats = [
-  { target: 3000, suffix: "+", label: "Dynamic labels" },
-  { target: 50, suffix: "+", label: "Lifestyle dimensions" },
-  { target: 20, suffix: "+", label: "Life events detected" },
-];
-
-const partners = [
-  { name: "Salesforce", logo: logoSalesforce },
-  { name: "FIS", logo: logoFis },
-  { name: "Jack Henry", logo: logoJackHenry },
+  { target: 3000, suffix: "+", label: "Dynamic labels", widthClass: "min-w-[6ch]" },
+  { target: 50, suffix: "+", label: "Lifestyle dimensions", widthClass: "min-w-[4ch]" },
+  { target: 20, suffix: "+", label: "Life events detected", widthClass: "min-w-[4ch]" },
 ];
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
   const [value, setValue] = useState(0);
+
   useEffect(() => {
     if (!active || target === null) return;
+
     setValue(0);
     const start = performance.now();
+
     const tick = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
       setValue(Math.round(progress * target));
       if (progress < 1) requestAnimationFrame(tick);
     };
+
     requestAnimationFrame(tick);
   }, [active, target, duration]);
+
   return value;
 };
+
+const SalesforceLogo = () => (
+  <svg viewBox="0 0 320 100" role="img" aria-label="Salesforce" className="h-10 w-auto">
+    <g fill="#00A1E0">
+      <circle cx="90" cy="58" r="28" />
+      <circle cx="122" cy="38" r="30" />
+      <circle cx="162" cy="44" r="34" />
+      <circle cx="206" cy="54" r="28" />
+      <circle cx="238" cy="58" r="24" />
+      <rect x="76" y="38" width="150" height="48" rx="24" />
+    </g>
+    <text
+      x="156"
+      y="66"
+      textAnchor="middle"
+      fill="#FFFFFF"
+      fontSize="28"
+      fontWeight="700"
+      fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      letterSpacing="-0.5"
+    >
+      salesforce
+    </text>
+  </svg>
+);
+
+const FisLogo = () => (
+  <div className="text-[2.5rem] font-black uppercase tracking-[-0.08em] leading-none text-[#0057B8]">
+    FIS
+  </div>
+);
+
+const JackHenryLogo = () => (
+  <div className="text-[2.2rem] font-semibold tracking-[-0.04em] leading-none text-[#0B1736]">
+    Jack Henry
+  </div>
+);
+
+const partners = [
+  { name: "Salesforce", Logo: SalesforceLogo },
+  { name: "FIS", Logo: FisLogo },
+  { name: "Jack Henry", Logo: JackHenryLogo },
+];
 
 const IntegrationSection = () => {
   const [visible, setVisible] = useState(false);
@@ -46,7 +85,17 @@ const IntegrationSection = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.2 });
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -54,7 +103,17 @@ const IntegrationSection = () => {
   useEffect(() => {
     const el = statsRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStatsVisible(true); obs.disconnect(); } }, { threshold: 0.3 });
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStatsVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -62,55 +121,60 @@ const IntegrationSection = () => {
   const count0 = useCountUp(stats[0].target, statsVisible);
   const count1 = useCountUp(stats[1].target, statsVisible);
   const count2 = useCountUp(stats[2].target, statsVisible);
+  const counts = [count0, count1, count2];
 
   return (
-    <section id="integration" className="py-24 bg-white scroll-mt-20">
+    <section id="integration" className="bg-white py-24 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
-        <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Integration</p>
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-14">A modular intelligence layer that works with your existing stack.</h2>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
+        <h2 className="mb-14 text-3xl font-bold text-gray-900 md:text-4xl">
+          A modular intelligence layer that works with your existing stack.
+        </h2>
 
-        {/* Steps */}
-        <div ref={sectionRef} className="grid md:grid-cols-3 gap-6">
-          {steps.map((s, i) => (
+        <div ref={sectionRef} className="grid items-stretch gap-6 md:grid-cols-3">
+          {steps.map((step, index) => (
             <div
-              key={s.step}
-              className="rounded-xl border border-gray-200 p-6 bg-white shadow-sm"
+              key={step.step}
+              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
               style={{
                 opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(16px)",
-                transition: `opacity 0.5s ease ${i * 150}ms, transform 0.5s ease ${i * 150}ms`,
+                transform: visible ? "translateY(0)" : "translateY(12px)",
+                transition: `opacity 0.45s ease ${index * 120}ms, transform 0.45s ease ${index * 120}ms`,
               }}
             >
-              <p className="text-3xl font-bold text-blue-600 mb-3">{s.step}</p>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{s.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+              <p className="mb-3 text-3xl font-bold text-blue-600">{step.step}</p>
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">{step.title}</h3>
+              <p className="text-sm leading-relaxed text-gray-500">{step.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* Stats */}
-        <div ref={statsRef} className="mt-16 grid grid-cols-3 gap-4 md:gap-8 text-center">
-          <div>
-            <p className="text-2xl md:text-5xl font-bold text-gray-900">{statsVisible ? count0.toLocaleString() : 0}{stats[0].suffix}</p>
-            <p className="text-gray-500 mt-1 text-xs md:text-base">{stats[0].label}</p>
-          </div>
-          <div>
-            <p className="text-2xl md:text-5xl font-bold text-gray-900">{statsVisible ? count1 : 0}{stats[1].suffix}</p>
-            <p className="text-gray-500 mt-1 text-xs md:text-base">{stats[1].label}</p>
-          </div>
-          <div>
-            <p className="text-2xl md:text-5xl font-bold text-gray-900">{statsVisible ? count2 : 0}{stats[2].suffix}</p>
-            <p className="text-gray-500 mt-1 text-xs md:text-base">{stats[2].label}</p>
-          </div>
+        <div ref={statsRef} className="mt-16 grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
+          {stats.map((stat, index) => (
+            <div key={stat.label} className="flex flex-col items-center">
+              <p
+                className={`inline-block ${stat.widthClass} tabular-nums text-3xl font-bold text-gray-900 md:text-5xl`}
+                style={{ fontVariantNumeric: "tabular-nums" }}
+              >
+                {statsVisible ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
+                {stat.suffix}
+              </p>
+              <p className="mt-2 text-sm text-gray-500 md:text-base">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Integration Partners */}
-        <div className="mt-16 text-center">
-          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-8">Integration Partners</p>
-          <div className="flex items-center justify-center gap-12 md:gap-20 flex-wrap">
-            {partners.map((p) => (
-              <div key={p.name} className="flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-300">
-                <img src={p.logo} alt={p.name} className="h-8 md:h-10 w-auto object-contain" loading="lazy" />
+        <div className="mt-16">
+          <p className="mb-8 text-center text-xs font-semibold uppercase tracking-widest text-gray-400">
+            Integration Partners
+          </p>
+          <div className="grid gap-4 md:grid-cols-3">
+            {partners.map(({ name, Logo }) => (
+              <div
+                key={name}
+                className="flex min-h-[116px] items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 px-6 py-8"
+              >
+                <Logo />
               </div>
             ))}
           </div>
