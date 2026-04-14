@@ -168,13 +168,13 @@ const ScrollDrivenHero = () => {
       style={{ height: "250vh", background: "#0A1628" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-hidden">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-24 md:pt-28 overflow-hidden">
         {/* Centered Headline */}
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight text-center mb-3 px-6 max-w-4xl">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight text-center mb-2 px-6 max-w-4xl">
           Turn transaction data into{" "}
           <span className="italic text-blue-400">behavioral intelligence</span>
         </h1>
-        <p className="text-base md:text-lg text-gray-400 max-w-2xl text-center leading-relaxed mb-8 px-6">
+        <p className="text-sm md:text-base text-gray-400 max-w-2xl text-center leading-relaxed mb-6 px-6">
           A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
         </p>
 
