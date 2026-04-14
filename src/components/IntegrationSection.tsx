@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { TrendingUp } from "lucide-react";
 
 import salesforceLogo from "@/assets/salesforce-logo.png";
 import fisLogo from "@/assets/fis-logo.svg";
@@ -22,11 +23,6 @@ const statsData = [
   { target: 20, suffix: "+", label: "Life events detected" },
 ];
 
-const orchestrateStats = [
-  { value: "Higher", label: "Retention Rate" },
-  { value: "Higher", label: "Customer LTV" },
-  { value: "Higher", label: "AUM Growth" },
-];
 
 
 
@@ -220,15 +216,10 @@ const IntegrationSection = () => {
               }}
             >
               <div className="grid grid-cols-3 gap-6">
-                {orchestrateStats.map((stat) => (
-                  <div key={stat.label} className="text-center">
-                    <p
-                      className="text-3xl md:text-4xl font-bold text-gray-900 tabular-nums"
-                      style={{ fontVariantNumeric: "tabular-nums" }}
-                    >
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-2">{stat.label}</p>
+                {["Retention Rate", "Customer LTV", "AUM Growth"].map((label) => (
+                  <div key={label} className="flex flex-col items-center text-center">
+                    <TrendingUp size={36} className="text-blue-600 mb-2" strokeWidth={2.5} />
+                    <p className="text-sm text-gray-500 mt-1">{label}</p>
                   </div>
                 ))}
               </div>
