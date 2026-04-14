@@ -22,7 +22,13 @@ const statsData = [
   { target: 20, suffix: "+", label: "Life events detected" },
 ];
 
-const outcomes = ["Higher Retention", "Higher LTV", "Higher AUM"];
+const orchestrateStats = [
+  { value: "94%", label: "Retention Rate" },
+  { value: "3.2×", label: "Customer LTV" },
+  { value: "+41%", label: "AUM Growth" },
+];
+
+
 
 const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
   const [value, setValue] = useState(0);
@@ -78,7 +84,7 @@ const IntegrationSection = () => {
 
       {/* Step 01 — Connect */}
       <div ref={step1.ref} className="relative">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-24 md:py-40">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left */}
             <div
@@ -132,7 +138,7 @@ const IntegrationSection = () => {
 
       {/* Step 02 — Enrich */}
       <div ref={step2.ref} className="relative">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-24 md:py-40">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left */}
             <div
@@ -193,7 +199,7 @@ const IntegrationSection = () => {
 
       {/* Step 03 — Orchestrate */}
       <div ref={step3.ref} className="relative">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-24 md:py-40">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left */}
             <div
@@ -225,14 +231,17 @@ const IntegrationSection = () => {
                 transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
               }}
             >
-              <div className="flex flex-wrap gap-4">
-                {outcomes.map((label) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center px-6 py-3 rounded-full text-base font-semibold bg-blue-50 text-blue-700 border border-blue-100"
-                  >
-                    {label}
-                  </span>
+              <div className="grid grid-cols-3 gap-6">
+                {orchestrateStats.map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <p
+                      className="text-3xl md:text-4xl font-bold text-gray-900 tabular-nums"
+                      style={{ fontVariantNumeric: "tabular-nums" }}
+                    >
+                      {stat.value}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">{stat.label}</p>
+                  </div>
                 ))}
               </div>
             </div>
