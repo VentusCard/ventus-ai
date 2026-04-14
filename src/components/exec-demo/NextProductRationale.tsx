@@ -1,4 +1,4 @@
-import { Sparkles, ArrowRight, ShieldCheck, TrendingUp, CreditCard, Zap, CheckCircle2, Star } from "lucide-react";
+import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
@@ -33,6 +33,11 @@ function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] })
       ))}
     </div>
   );
+}
+
+function formatSpend(amount: number): string {
+  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
+  return `$${Math.round(amount)}`;
 }
 
 const PRODUCT_CATALOG = [
@@ -153,7 +158,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             let matchedIndices: number[] = [];
 
             if (hasEvidence && matchingEvent) {
-              // Primary: match via life event evidence merchants
               const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
               matchedIndices = transactions
                 .map((tx, idx) => {
@@ -165,7 +169,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                 })
                 .filter(idx => idx !== -1);
             } else {
-              // Fallback: match transactions by signal keywords against merchant/category/pillar
               matchedIndices = transactions
                 .map((tx, idx) => {
                   const hay = (tx.merchant || "").toLowerCase();
@@ -179,28 +182,54 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
               onTriggerPillClick(card.signal_label, matchedIndices, c.dot);
             }
           };
+
+          // Pre-compute matched indices for pill stats
+          let pillMatchedIndices: number[] = [];
+          if (transactions) {
+            if (hasEvidence && matchingEvent) {
+              const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
+              pillMatchedIndices = transactions
+                .map((tx, idx) => {
+                  const merchant = (tx.merchant || "").toLowerCase();
+                  return evidenceMerchants.some(em => merchant.includes(em) || em.includes(merchant)) ? idx : -1;
+                })
+                .filter(idx => idx !== -1);
+            } else {
+              pillMatchedIndices = transactions
+                .map((tx, idx) => {
+                  const hay = (tx.merchant || "").toLowerCase();
+                  return signalKeywords.some(kw => hay.includes(kw)) ? idx : -1;
+                })
+                .filter(idx => idx !== -1);
+            }
+          }
+          const txnCount = pillMatchedIndices.length;
+          const txnSpend = transactions ? pillMatchedIndices.reduce((sum, idx) => sum + Math.abs(Number(transactions[idx]?.amount) || 0), 0) : 0;
+
           const isClickable = hasEvidence || (transactions && signalKeywords.length > 0);
 
           return (
             <div key={i} className="space-y-0">
-              {/* Trigger pill */}
+              {/* Trigger pill — rollup style */}
               <div
-                className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full mb-1 ${isClickable ? "cursor-pointer" : ""}`}
+                className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full mb-1 ${isClickable ? "cursor-pointer" : ""}`}
                 style={{
-                  background: `${c.dot}15`,
-                  color: c.dot,
-                  border: isActive ? `2px solid ${c.dot}` : `1px solid transparent`,
-                  transform: isActive ? "scale(1.05)" : "scale(1)",
+                  background: `linear-gradient(135deg, ${c.dot}10, ${c.dot}20)`,
+                  color: c.text,
+                  border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
+                  boxShadow: isActive ? `0 0 14px ${c.dot}30` : `0 2px 8px ${c.dot}15`,
+                  transform: isActive ? "scale(1.08)" : "scale(1)",
                   transition: "all 0.2s ease",
                 }}
                 onClick={handlePillClick}
               >
-                {isBehavioral ? (
-                  <Zap className="w-3 h-3" />
-                ) : (
-                  <ShieldCheck className="w-3 h-3" />
-                )}
+                <span style={{ color: c.dot }}>✦</span>
                 {card.signal_label}
+                {txnCount > 0 && (
+                  <span className="text-[9px] font-medium opacity-70 ml-1">
+                    {txnCount} txns · {formatSpend(txnSpend)}
+                  </span>
+                )}
               </div>
 
               {/* Product card */}
@@ -217,11 +246,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   {/* Type badge + product name */}
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-1.5">
-                      {isBehavioral ? (
-                        <Zap className="w-3.5 h-3.5" style={{ color: c.dot }} />
-                      ) : (
-                        <ShieldCheck className="w-3.5 h-3.5" style={{ color: c.dot }} />
-                      )}
+                      <span className="text-[12px] font-bold" style={{ color: c.dot }}>✦</span>
                       <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
                     </div>
                     <span
