@@ -93,6 +93,7 @@ export function getColor(pillar: string) {
 
 interface ChipData {
   pillar: string;
+  category: string;
   label: string;
   count: number;
   totalSpend: number;
@@ -102,9 +103,9 @@ interface ChipData {
 function deriveChips(signals: SignalEntry[]): ChipData[] {
   const map = new Map<string, ChipData & { freqCounts: Map<string, number> }>();
   for (const s of signals) {
-    // Group by category (higher-level) instead of subcategory label
-    const displayLabel = s.category || s.label;
-    const key = `${s.pillar}::${displayLabel}`;
+    const category = s.category || s.pillar;
+    const subcategory = s.label;
+    const key = `${s.pillar}::${category}::${subcategory}`;
     const existing = map.get(key);
     if (existing) {
       existing.count += 1;
@@ -113,7 +114,7 @@ function deriveChips(signals: SignalEntry[]): ChipData[] {
     } else {
       const freqCounts = new Map<string, number>();
       if (s.frequency) freqCounts.set(s.frequency, 1);
-      map.set(key, { pillar: s.pillar, label: displayLabel, count: 1, totalSpend: s.amount || 0, freqCounts });
+      map.set(key, { pillar: s.pillar, category, label: subcategory, count: 1, totalSpend: s.amount || 0, freqCounts });
     }
   }
   return Array.from(map.values()).map(({ freqCounts, ...rest }) => {
@@ -157,12 +158,14 @@ export default function ExecDemoIntelPanel({
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
 
-  // Group chips by pillar, preserving insertion order
-  const chipsByPillar = useMemo(() => {
-    const map = new Map<string, ChipData[]>();
+  // Group chips by pillar → category → subcategory chips
+  const chipsByPillarCategory = useMemo(() => {
+    const map = new Map<string, Map<string, ChipData[]>>();
     for (const chip of chips) {
-      if (!map.has(chip.pillar)) map.set(chip.pillar, []);
-      map.get(chip.pillar)!.push(chip);
+      if (!map.has(chip.pillar)) map.set(chip.pillar, new Map());
+      const catMap = map.get(chip.pillar)!;
+      if (!catMap.has(chip.category)) catMap.set(chip.category, []);
+      catMap.get(chip.category)!.push(chip);
     }
     return map;
   }, [chips]);
@@ -310,28 +313,35 @@ export default function ExecDemoIntelPanel({
               <div
                 className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
-                {Array.from(chipsByPillar.entries()).map(([pillar, pillarChips]) => {
+                {Array.from(chipsByPillarCategory.entries()).map(([pillar, categoriesMap]) => {
                   const c = getColor(pillar);
                   return (
-                    <div key={pillar} className="mb-1.5">
+                    <div key={pillar} className="mb-2">
                       {/* Pillar header */}
                       <div className="flex items-center gap-1 mb-0.5">
                         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
-                        <span className="text-[9px] font-semibold" style={{ color: c.text }}>{pillar}</span>
+                        <span className="text-[10px] font-semibold" style={{ color: c.text }}>{pillar}</span>
                       </div>
-                      {/* Chips for this pillar */}
-                      <div className="flex flex-wrap gap-1 pl-3">
-                        {pillarChips.map((chip, idx) => (
-                          <AnimatedChip
-                            key={`${chip.pillar}::${chip.label}`}
-                            chip={chip}
-                            isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
-                            onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                            collapsed={false}
-                            mergeDelay={idx * 0.06}
-                          />
-                        ))}
-                      </div>
+                      {/* Categories under this pillar */}
+                      {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
+                        <div key={category} className="ml-2.5 mb-1">
+                          <div className="text-[9px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">
+                            {category}:
+                          </div>
+                          <div className="flex flex-wrap gap-1 ml-1">
+                            {catChips.map((chip, idx) => (
+                              <AnimatedChip
+                                key={`${chip.pillar}::${chip.category}::${chip.label}`}
+                                chip={chip}
+                                isActive={activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label}
+                                onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                                collapsed={false}
+                                mergeDelay={idx * 0.06}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   );
                 })}
