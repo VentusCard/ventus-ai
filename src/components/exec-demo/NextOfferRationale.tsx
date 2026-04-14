@@ -1,4 +1,5 @@
-import { Sparkles, ArrowRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Sparkles, ArrowRight, ChevronLeft, ChevronRight, CheckCircle2, TrendingUp, Minus, TrendingDown } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 
@@ -9,6 +10,8 @@ export interface GeneratedOffer {
   rewardValue: string;
   message: string;
   cta: string;
+  signal: "boost" | "suppress" | "neutral";
+  signalReason: string;
 }
 
 export interface RollupOfferGroup {
@@ -23,6 +26,178 @@ interface Props {
   loading: boolean;
 }
 
+/* ─── Single rollup card with carousel ─── */
+function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
+  const c = getColor(group.pillar);
+  const suppressed = group.deals.filter(d => d.signal === "suppress");
+  const active = group.deals.filter(d => d.signal !== "suppress");
+  const [current, setCurrent] = useState(0);
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (active.length <= 1) return;
+    const t = setInterval(() => setCurrent(p => (p + 1) % active.length), 4000);
+    return () => clearInterval(t);
+  }, [active.length]);
+
+  const prev = useCallback(() => setCurrent(p => (p - 1 + active.length) % active.length), [active.length]);
+  const next = useCallback(() => setCurrent(p => (p + 1) % active.length), [active.length]);
+
+  return (
+    <div
+      className="rounded-xl border border-slate-100 bg-white overflow-hidden"
+      style={{
+        borderTopWidth: 3,
+        borderTopColor: c.dot,
+        animation: `offer-card-in 0.45s ease-out ${index * 0.12}s both`,
+      }}
+    >
+      {/* Card header */}
+      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+        <div className="flex items-center gap-1.5">
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+          >
+            <span style={{ color: c.dot }}>✦</span>
+            {group.rollup}
+          </span>
+        </div>
+        <span className="text-[9px] text-slate-400 font-medium">
+          {active.length} active · {suppressed.length} covered
+        </span>
+      </div>
+
+      {/* Suppressed strip */}
+      {suppressed.length > 0 && (
+        <div className="mx-3 mb-2 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-dashed border-slate-200">
+          <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Already Covered</div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {suppressed.map(d => (
+              <div key={d.id} className="flex items-center gap-1 text-[10px] text-slate-400">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <span className="line-through">{d.merchant}</span>
+                <span className="text-[9px] text-slate-300">· {d.signalReason}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Carousel */}
+      {active.length > 0 && (
+        <div className="relative px-3 pb-2">
+          {/* Navigation arrows */}
+          {active.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
+              >
+                <ChevronLeft className="w-3 h-3 text-slate-500" />
+              </button>
+              <button
+                onClick={next}
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
+              >
+                <ChevronRight className="w-3 h-3 text-slate-500" />
+              </button>
+            </>
+          )}
+
+          {/* Deal card */}
+          <div className="overflow-hidden rounded-lg">
+            {active.map((deal, di) => (
+              <div
+                key={deal.id}
+                className="transition-all duration-400 ease-in-out"
+                style={{
+                  display: di === current ? "block" : "none",
+                }}
+              >
+                <div className="px-3 py-2.5 bg-gradient-to-br from-slate-50 to-white rounded-lg border border-slate-100">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[12px] font-bold text-slate-800">{deal.merchant}</span>
+                      <span className="text-[10px] text-slate-400">·</span>
+                      <span className="text-[10px] text-slate-500">{deal.product}</span>
+                    </div>
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                      style={{ background: c.bg, color: c.text }}
+                    >
+                      {deal.rewardValue}
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-slate-600 leading-relaxed italic mb-2">
+                    "{deal.message}"
+                  </p>
+
+                  {/* Signal badge */}
+                  <div className="flex items-center justify-between">
+                    <SignalBadge signal={deal.signal} reason={deal.signalReason} />
+                    <button
+                      className="text-[9px] font-semibold px-2.5 py-0.5 rounded-full"
+                      style={{ background: c.bg, color: c.text }}
+                    >
+                      {deal.cta}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Dot indicators */}
+          {active.length > 1 && (
+            <div className="flex items-center justify-center gap-1 mt-1.5">
+              {active.map((_, di) => (
+                <button
+                  key={di}
+                  onClick={() => setCurrent(di)}
+                  className="transition-all duration-200"
+                  style={{
+                    width: di === current ? 12 : 5,
+                    height: 5,
+                    borderRadius: 3,
+                    background: di === current ? c.dot : "#e2e8f0",
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Signal badge component ─── */
+function SignalBadge({ signal, reason }: { signal: string; reason: string }) {
+  if (signal === "boost") {
+    return (
+      <div className="flex items-center gap-1">
+        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full">
+          <TrendingUp className="w-2.5 h-2.5" />
+          Boosted
+        </span>
+        <span className="text-[9px] text-slate-400 truncate max-w-[120px]">{reason}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-full">
+        <Minus className="w-2.5 h-2.5" />
+        Neutral
+      </span>
+      <span className="text-[9px] text-slate-300 truncate max-w-[120px]">{reason}</span>
+    </div>
+  );
+}
+
+/* ─── Main component ─── */
 export default function NextOfferRationale({ offers, personaSynthesis, loading }: Props) {
   if (loading || !offers) {
     return (
@@ -43,26 +218,28 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
   }
 
   const totalDeals = offers.reduce((sum, g) => sum + g.deals.length, 0);
+  const totalBoosted = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "boost").length, 0);
+  const totalSuppressed = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "suppress").length, 0);
 
   return (
-    <div className="px-3 py-3 space-y-3 overflow-y-auto">
+    <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
       {/* Rollup pills */}
       {personaSynthesis?.pillarRollups && personaSynthesis.pillarRollups.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-1">
           {personaSynthesis.pillarRollups.filter(r => (r.totalCount ?? 0) > 0).map((r) => {
-            const c = getColor(r.pillar);
+            const rc = getColor(r.pillar);
             return (
               <span
                 key={`${r.pillar}::${r.label}`}
                 className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full"
                 style={{
-                  background: `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
-                  color: c.text,
-                  border: `1.5px solid ${c.dot}`,
-                  boxShadow: `0 2px 8px ${c.bg.replace(".12", ".2")}`,
+                  background: `linear-gradient(135deg, ${rc.bg.replace(".12", ".18")}, ${rc.bg.replace(".12", ".08")})`,
+                  color: rc.text,
+                  border: `1.5px solid ${rc.dot}`,
+                  boxShadow: `0 2px 8px ${rc.bg.replace(".12", ".2")}`,
                 }}
               >
-                <span style={{ color: c.dot }}>✦</span>
+                <span style={{ color: rc.dot }}>✦</span>
                 {r.label}
               </span>
             );
@@ -77,73 +254,21 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
         </span>
         <ArrowRight className="w-3 h-3 text-slate-300" />
         <span className="text-[11px] font-bold text-emerald-600">
-          {totalDeals} personalized deals
+          {totalDeals} deals
+        </span>
+        <span className="text-[9px] text-slate-400">
+          ({totalBoosted} boosted · {totalSuppressed} suppressed)
         </span>
       </div>
 
-      {/* Grouped offer sections */}
-      {offers.map((group, gi) => {
-        const c = getColor(group.pillar);
-        return (
-          <div key={`${group.pillar}::${group.rollup}`} className="space-y-1.5">
-            {/* Section header — rollup pill */}
-            <div className="flex items-center gap-1.5 pt-1">
-              <span
-                className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                style={{
-                  background: c.bg,
-                  color: c.text,
-                  border: `1px solid ${c.border}`,
-                }}
-              >
-                <span style={{ color: c.dot }}>✦</span>
-                {group.rollup}
-              </span>
-              <span className="text-[10px] text-slate-400">{group.deals.length} deals</span>
-            </div>
-
-            {/* Deal cards */}
-            {group.deals.map((deal, di) => (
-              <div
-                key={deal.id}
-                className="rounded-xl border border-slate-100 px-3 py-2 bg-white"
-                style={{
-                  borderLeftWidth: 3,
-                  borderLeftColor: c.dot,
-                  animation: `exec-card-reveal 0.4s ease-out ${gi * 0.15 + di * 0.08}s both`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-slate-800">{deal.merchant}</span>
-                    <span className="text-[10px] text-slate-400">·</span>
-                    <span className="text-[10px] text-slate-500">{deal.product}</span>
-                  </div>
-                  <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                    style={{ background: c.bg, color: c.text }}
-                  >
-                    {deal.rewardValue}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-600 leading-relaxed italic mb-1.5">
-                  "{deal.message}"
-                </p>
-                <button
-                  className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: c.bg, color: c.text }}
-                >
-                  {deal.cta}
-                </button>
-              </div>
-            ))}
-          </div>
-        );
-      })}
+      {/* Rollup cards */}
+      {offers.map((group, gi) => (
+        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
+      ))}
 
       <style>{`
-        @keyframes exec-card-reveal {
-          from { opacity: 0; transform: translateY(8px); }
+        @keyframes offer-card-in {
+          from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
