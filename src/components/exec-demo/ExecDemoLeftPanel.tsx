@@ -1,3 +1,5 @@
+import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Play, User, Pencil } from "lucide-react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getIntelligenceForCustomer } from "./execDemoData";
