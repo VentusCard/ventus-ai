@@ -1,64 +1,17 @@
-import { useState, useCallback } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Layers, Gift, Users, Briefcase, BarChart3, Plane } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ventusLogo from "@/assets/ventus-logo.png";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 import AnnouncementBar from "./AnnouncementBar";
 
-
-const coreProduct = {
-  title: "Transaction Enrichment",
-  desc: "Extract lifestyle pillars, intent signals, and behavioral patterns from every transaction.",
-  icon: Layers,
-  href: "/platform",
-};
-
-const insightTools = [
-  {
-    title: "Bank-Wide Analytics",
-    desc: "Portfolio-level intelligence with behavioral segmentation and campaign targeting.",
-    icon: BarChart3,
-    href: "/analytics",
-  },
-  {
-    title: "Consumer Rewards",
-    desc: "Deep purchase analysis powers personalized offer messaging with cross-category recommendations.",
-    icon: Gift,
-    href: "/smartrewards",
-  },
-  {
-    title: "Customer Experience",
-    desc: "Transaction intelligence powering personalized banking interfaces, lifestyle-aware budgeting, and contextual nudges.",
-    icon: Users,
-    href: "/engagement",
-  },
-  {
-    title: "Travel Experience",
-    desc: "Turn every trip into a banking moment with privacy-first travel intelligence.",
-    icon: Plane,
-    href: "/travel",
-  },
-  {
-    title: "Wealth Management",
-    desc: "AI-powered relationship intelligence with life event detection for advisors.",
-    icon: Briefcase,
-    href: "/wealth",
-  },
-];
-
-const allProducts = [coreProduct, ...insightTools];
 
 /** Pages where the hero has a dark background and the navbar should start transparent */
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel", "/insights"];
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
@@ -67,12 +20,7 @@ const Navbar = () => {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-    setIsMobileProductsOpen(false);
   };
-  const goToFaq = useCallback(() => {
-    closeMobileMenu();
-    navigate("/faq");
-  }, [navigate]);
 
   const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
   const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
@@ -87,65 +35,6 @@ const Navbar = () => {
           <Link to="/" onClick={closeMobileMenu}>
             <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
           </Link>
-          {/* Products dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsProductsOpen(true)}
-            onMouseLeave={() => setIsProductsOpen(false)}
-          >
-            <button className={`flex items-center gap-1 ${textColor} text-sm font-medium transition-colors`}>
-              Platform <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isProductsOpen ? "rotate-180" : ""}`} />
-            </button>
-            <div className={`absolute top-full left-0 pt-3 transition-all duration-200 ${isProductsOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}>
-              <div className="w-[340px] lg:w-[860px] bg-white rounded-xl border border-gray-200 shadow-xl flex flex-col lg:flex-row overflow-hidden max-h-[80vh] overflow-y-auto lg:max-h-none lg:overflow-y-visible">
-                {/* Left: One Tech Core */}
-                <div className="lg:w-[300px] border-b lg:border-b-0 lg:border-r border-gray-100 p-4">
-                  <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-3 pt-1 pb-2">One Tech Core</p>
-                  <Link
-                    to={coreProduct.href}
-                    onClick={() => setIsProductsOpen(false)}
-                    className={`flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 transition-colors group relative ${location.pathname === coreProduct.href ? "bg-blue-50/50" : ""}`}
-                  >
-                    {location.pathname === coreProduct.href && (
-                      <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-blue-600" />
-                    )}
-                    <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <coreProduct.icon className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{coreProduct.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{coreProduct.desc}</p>
-                    </div>
-                  </Link>
-                </div>
-                {/* Right: Five Insight Tools — 2-col grid on desktop, 1-col on tablet */}
-                <div className="flex-1 p-4">
-                  <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase px-3 pt-1 pb-2">Five Insight Tools</p>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-2 gap-y-0.5">
-                    {insightTools.map((p) => (
-                      <Link
-                        key={p.href}
-                        to={p.href}
-                        onClick={() => setIsProductsOpen(false)}
-                        className={`flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 transition-colors group relative ${location.pathname === p.href ? "bg-blue-50/50" : ""}`}
-                      >
-                        {location.pathname === p.href && (
-                          <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-blue-600" />
-                        )}
-                        <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                          <p.icon className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{p.title}</p>
-                          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{p.desc}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
           <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
           <Link to="/faq" className={`${textColor} text-sm font-medium transition-colors`}>FAQ</Link>
         </div>
@@ -182,26 +71,6 @@ const Navbar = () => {
         }`}
       >
         <div style={{ padding: '1.5rem' }}>
-          <button
-            onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100"
-          >
-            Platform
-            <ChevronDown className={`h-4 w-4 transition-transform ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
-          </button>
-          <div className={`overflow-hidden transition-all duration-300 ${isMobileProductsOpen ? 'max-h-96' : 'max-h-0'}`}>
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-3 pb-1">One Tech Core</p>
-              <Link to={coreProduct.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
-                {coreProduct.title}
-              </Link>
-              <div className="ml-4 my-1 border-t border-gray-100" />
-              <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase pl-4 pt-2 pb-1">Five Insight Tools</p>
-              {insightTools.map((p) => (
-                <Link key={p.href} to={p.href} onClick={closeMobileMenu} className="block text-gray-500 hover:text-gray-900 text-sm py-2.5 pl-4">
-                  {p.title}
-                </Link>
-              ))}
-            </div>
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
           <Link to="/faq" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">FAQ</Link>
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
