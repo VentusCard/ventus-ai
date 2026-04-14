@@ -16,7 +16,7 @@ const partners = [
   { name: "Snowflake", src: snowflakeLogo, height: "h-7" },
 ];
 
-const stats = [
+const statsData = [
   { target: 3000, suffix: "+", label: "Dynamic labels" },
   { target: 50, suffix: "+", label: "Lifestyle dimensions" },
   { target: 20, suffix: "+", label: "Life events detected" },
@@ -40,157 +40,196 @@ const useCountUp = (target: number | null, active: boolean, duration = 1500) => 
   return value;
 };
 
+const useInView = (threshold = 0.25) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, inView };
+};
+
 const IntegrationSection = () => {
-  const [visible, setVisible] = useState(false);
-  const [statsVisible, setStatsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
+  const step1 = useInView(0.2);
+  const step2 = useInView(0.2);
+  const step3 = useInView(0.2);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const el = statsRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStatsVisible(true); obs.disconnect(); } },
-      { threshold: 0.3 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  const count0 = useCountUp(stats[0].target, statsVisible);
-  const count1 = useCountUp(stats[1].target, statsVisible);
-  const count2 = useCountUp(stats[2].target, statsVisible);
+  const count0 = useCountUp(statsData[0].target, step2.inView);
+  const count1 = useCountUp(statsData[1].target, step2.inView);
+  const count2 = useCountUp(statsData[2].target, step2.inView);
   const counts = [count0, count1, count2];
 
   return (
     <section id="integration" className="bg-white py-24 scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
+      {/* Section header */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 mb-20">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
-        <h2 className="mb-16 text-3xl font-bold text-gray-900 md:text-4xl">
+        <h2 className="text-3xl font-bold text-gray-900 md:text-4xl max-w-2xl">
           A modular intelligence layer that works with your existing stack.
         </h2>
+      </div>
 
-        <div ref={sectionRef} className="flex flex-col gap-0">
-          {/* 01 — Connect */}
-          <div
-            className="rounded-2xl border border-gray-200 bg-white p-8 md:p-10 shadow-sm"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transition: "opacity 0.5s ease 0ms, transform 0.5s ease 0ms",
-            }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 mb-3">01</p>
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">Connect</h3>
-                <p className="text-sm md:text-base leading-relaxed text-gray-500">
+      {/* Step 01 — Connect */}
+      <div ref={step1.ref} className="relative">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+            {/* Left */}
+            <div
+              className="relative"
+              style={{
+                opacity: step1.inView ? 1 : 0,
+                transform: step1.inView ? "translateX(0)" : "translateX(-40px)",
+                transition: "opacity 0.7s ease, transform 0.7s ease",
+              }}
+            >
+              <span
+                className="absolute -top-8 -left-2 text-[120px] font-bold leading-none select-none pointer-events-none"
+                style={{ color: "rgba(37, 99, 235, 0.08)" }}
+              >
+                01
+              </span>
+              <div className="relative z-10">
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Connect</h3>
+                <p className="text-base md:text-lg leading-relaxed text-gray-500 max-w-md">
                   Banks securely share transaction data via API. No changes to core banking systems required.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-6 items-center justify-items-center">
+            </div>
+            {/* Right */}
+            <div
+              style={{
+                opacity: step1.inView ? 1 : 0,
+                transform: step1.inView ? "translateX(0)" : "translateX(40px)",
+                transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
+              }}
+            >
+              <div className="grid grid-cols-3 gap-8 items-center justify-items-center">
                 {partners.map(({ name, src, height }) => (
-                  <div key={name} className="flex items-center justify-center">
+                  <div key={name} className="flex items-center justify-center p-2">
                     <img src={src} alt={name} className={`${height} w-auto`} />
                   </div>
                 ))}
               </div>
             </div>
           </div>
-
-          {/* Connector */}
-          <div className="flex justify-center py-1">
-            <div className="relative w-px h-10 bg-blue-200">
-              <div
-                className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
-                style={{
-                  background: "#3b82f6",
-                  boxShadow: "0 0 8px rgba(59,130,246,0.6)",
-                  animation: "pipeline-dot 1.5s ease-in-out infinite 0s",
-                }}
-              />
-            </div>
+        </div>
+        {/* Divider with connector */}
+        <div className="relative">
+          <div className="border-t border-gray-100 w-full" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 -bottom-3 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
+            <div className="w-px h-6 bg-blue-600/30" />
           </div>
+        </div>
+      </div>
 
-          {/* 02 — Enrich */}
-          <div
-            ref={statsRef}
-            className="rounded-2xl border border-gray-200 bg-white p-8 md:p-10 shadow-sm"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transition: "opacity 0.5s ease 150ms, transform 0.5s ease 150ms",
-            }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 mb-3">02</p>
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">Enrich</h3>
-                <p className="text-sm md:text-base leading-relaxed text-gray-500">
+      {/* Step 02 — Enrich */}
+      <div ref={step2.ref} className="relative">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+            {/* Left */}
+            <div
+              className="relative"
+              style={{
+                opacity: step2.inView ? 1 : 0,
+                transform: step2.inView ? "translateX(0)" : "translateX(-40px)",
+                transition: "opacity 0.7s ease, transform 0.7s ease",
+              }}
+            >
+              <span
+                className="absolute -top-8 -left-2 text-[120px] font-bold leading-none select-none pointer-events-none"
+                style={{ color: "rgba(37, 99, 235, 0.08)" }}
+              >
+                02
+              </span>
+              <div className="relative z-10">
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Enrich</h3>
+                <p className="text-base md:text-lg leading-relaxed text-gray-500 max-w-md">
                   Ventus analyzes every transaction to detect lifestyle pillars, life events, and purchase signals in real time.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                {stats.map((stat, index) => (
+            </div>
+            {/* Right */}
+            <div
+              style={{
+                opacity: step2.inView ? 1 : 0,
+                transform: step2.inView ? "translateX(0)" : "translateX(40px)",
+                transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
+              }}
+            >
+              <div className="grid grid-cols-3 gap-6">
+                {statsData.map((stat, index) => (
                   <div key={stat.label} className="text-center">
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>
-                      {statsVisible ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
+                    <p
+                      className="text-3xl md:text-4xl font-bold text-gray-900 tabular-nums"
+                      style={{ fontVariantNumeric: "tabular-nums" }}
+                    >
+                      {step2.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
                       {stat.suffix}
                     </p>
-                    <p className="text-xs md:text-sm text-gray-500 mt-1">{stat.label}</p>
+                    <p className="text-sm text-gray-500 mt-2">{stat.label}</p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-
-          {/* Connector */}
-          <div className="flex justify-center py-1">
-            <div className="relative w-px h-10 bg-blue-200">
-              <div
-                className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
-                style={{
-                  background: "#3b82f6",
-                  boxShadow: "0 0 8px rgba(59,130,246,0.6)",
-                  animation: "pipeline-dot 1.5s ease-in-out infinite 0.3s",
-                }}
-              />
-            </div>
+        </div>
+        {/* Divider with connector */}
+        <div className="relative">
+          <div className="border-t border-gray-100 w-full" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 -bottom-3 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
+            <div className="w-px h-6 bg-blue-600/30" />
           </div>
+        </div>
+      </div>
 
-          {/* 03 — Orchestrate */}
-          <div
-            className="rounded-2xl border border-gray-200 bg-white p-8 md:p-10 shadow-sm"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transition: "opacity 0.5s ease 300ms, transform 0.5s ease 300ms",
-            }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <p className="text-4xl md:text-5xl font-bold text-blue-600 mb-3">03</p>
-                <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">Orchestrate</h3>
-                <p className="text-sm md:text-base leading-relaxed text-gray-500">
+      {/* Step 03 — Orchestrate */}
+      <div ref={step3.ref} className="relative">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+            {/* Left */}
+            <div
+              className="relative"
+              style={{
+                opacity: step3.inView ? 1 : 0,
+                transform: step3.inView ? "translateX(0)" : "translateX(-40px)",
+                transition: "opacity 0.7s ease, transform 0.7s ease",
+              }}
+            >
+              <span
+                className="absolute -top-8 -left-2 text-[120px] font-bold leading-none select-none pointer-events-none"
+                style={{ color: "rgba(37, 99, 235, 0.08)" }}
+              >
+                03
+              </span>
+              <div className="relative z-10">
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Orchestrate</h3>
+                <p className="text-base md:text-lg leading-relaxed text-gray-500 max-w-md">
                   Enriched intelligence flows into personalized rewards, advisor tools, and customer experiences automatically.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+            </div>
+            {/* Right */}
+            <div
+              style={{
+                opacity: step3.inView ? 1 : 0,
+                transform: step3.inView ? "translateX(0)" : "translateX(40px)",
+                transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s",
+              }}
+            >
+              <div className="flex flex-wrap gap-4">
                 {outcomes.map((label) => (
                   <span
                     key={label}
-                    className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100"
+                    className="inline-flex items-center px-6 py-3 rounded-full text-base font-semibold bg-blue-50 text-blue-700 border border-blue-100"
                   >
                     {label}
                   </span>
