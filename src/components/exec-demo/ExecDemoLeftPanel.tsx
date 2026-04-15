@@ -232,14 +232,9 @@ export default function ExecDemoLeftPanel({
             {isCustomMode && (
               <div className="text-[9px] text-slate-400 truncate">Custom · Pasted Data</div>
             )}
-            {!isCustomMode && currentCustomer?.profile.demographics && (
-              <div className="mt-0.5 space-y-px">
-                  <div className="text-[9px] text-primary-foreground">
-                  {currentCustomer.profile.demographics.age} · {currentCustomer.profile.demographics.occupation} · {currentCustomer.profile.demographics.familyStatus}
-                </div>
-                <div className="text-[9px] text-primary-foreground">
-                  {currentCustomer.profile.segment} · {currentCustomer.profile.aum} · {currentCustomer.profile.demographics.incomeLevel} · {currentCustomer.profile.demographics.industry}
-                </div>
+            {!isCustomMode && currentCustomer && (
+              <div className="text-[9px] text-slate-500 truncate mt-0.5">
+                {currentCustomer.zip} · {currentCustomer.profile.demographics?.incomeLevel} · {currentCustomer.profile.demographics?.familyStatus}
               </div>
             )}
           </div>
