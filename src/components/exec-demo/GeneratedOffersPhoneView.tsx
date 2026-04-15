@@ -452,6 +452,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
             <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
           </div>
         )}
+      </div>
 
       <style>{`
         @keyframes collection-slide-right {
