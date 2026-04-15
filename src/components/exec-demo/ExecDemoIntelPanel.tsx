@@ -49,6 +49,8 @@ interface Props {
   activeTriggerLabel?: string | null;
   productActions?: import("./NextProductRationale").CardActions[] | null;
   actionsLoading?: boolean;
+  riskFlags?: { flags: any[]; summary: string } | null;
+  riskLoading?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -160,6 +162,8 @@ export default function ExecDemoIntelPanel({
   activeTriggerLabel,
   productActions,
   actionsLoading,
+  riskFlags,
+  riskLoading,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -290,6 +294,71 @@ export default function ExecDemoIntelPanel({
                 {rollupStats.map((r, i) => (
                   <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
                 ))}
+                </div>
+
+                {/* Life Event Detection section */}
+                <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
+                  {productsLoading ? (
+                    <div className="flex gap-2">
+                      <span className="h-6 w-28 rounded-full bg-amber-100 animate-pulse" />
+                      <span className="h-6 w-24 rounded-full bg-amber-100 animate-pulse" />
+                    </div>
+                  ) : detectedLifeEvents && detectedLifeEvents.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {detectedLifeEvents.map((evt, i) => (
+                        <span
+                          key={evt.event_name}
+                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+                          style={{
+                            background: "rgba(245,158,11,.10)",
+                            color: "#92400e",
+                            border: "1px solid rgba(245,158,11,.30)",
+                            animation: `fade-in 0.4s ease-out ${0.3 + i * 0.12}s both`,
+                          }}
+                        >
+                          {evt.event_name}
+                          <span className="text-[10px] opacity-70 tabular-nums">{Math.round(evt.confidence * 100)}%</span>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-400 italic">No significant life events detected</p>
+                  )}
+                </div>
+
+                {/* Risk Factors section */}
+                <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
+                  {riskLoading ? (
+                    <div className="flex gap-2">
+                      <span className="h-6 w-28 rounded-full bg-red-100 animate-pulse" />
+                      <span className="h-6 w-24 rounded-full bg-red-100 animate-pulse" />
+                    </div>
+                  ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {riskFlags.flags.map((flag: any, i: number) => (
+                        <span
+                          key={flag.category || i}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+                          style={{
+                            background: flag.severity === "high" ? "rgba(239,68,68,.10)" : "rgba(245,158,11,.10)",
+                            color: flag.severity === "high" ? "#991b1b" : "#92400e",
+                            border: `1px solid ${flag.severity === "high" ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}`,
+                            animation: `fade-in 0.4s ease-out ${0.5 + i * 0.12}s both`,
+                          }}
+                        >
+                          ⚠ {flag.category || flag.type || "Risk"}
+                          {flag.severity && <span className="text-[9px] uppercase opacity-60 ml-0.5">{flag.severity}</span>}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-emerald-600 italic flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      {riskFlags?.summary || "No significant risks detected"}
+                    </p>
+                  )}
                 </div>
               </div>
             ) : (
