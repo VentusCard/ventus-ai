@@ -60,11 +60,9 @@ interface Props {
 
 export default function ProductCardsPhoneView({ cards, customerName }: Props) {
   const firstName = customerName.split(" ")[0];
+  const sortedCards = [...cards].sort((a, b) => a.type === 'life_event' ? -1 : b.type === 'life_event' ? 1 : 0);
 
   return (
-    const sortedCards = [...cards].sort((a, b) => a.type === 'life_event' ? -1 : b.type === 'life_event' ? 1 : 0);
-
-    return (
     <div className="px-3 py-3 space-y-3">
       {/* Header */}
       <div className="px-1">
@@ -76,7 +74,7 @@ export default function ProductCardsPhoneView({ cards, customerName }: Props) {
       </div>
 
       {/* Cards */}
-      {cards.map((card, i) => {
+      {sortedCards.map((card, i) => {
         const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
         const Icon = style.icon;
         const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
