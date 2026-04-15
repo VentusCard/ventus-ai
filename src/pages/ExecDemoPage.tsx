@@ -761,17 +761,17 @@ export default function ExecDemoPage() {
       <div className="flex-1 min-h-0 flex">
         {/* Col 1 — Transaction feed (collapses to sliver when phone shown) */}
         <div
-          className="border-r border-slate-200 bg-white overflow-hidden transition-all duration-500 ease-in-out relative"
+          className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
             width: activeTab ? (txPanelExpanded ? 400 : 40) : 400,
             minWidth: activeTab ? (txPanelExpanded ? 400 : 40) : 400,
-            opacity: 1,
+            overflow: activeTab && !txPanelExpanded ? "visible" : "hidden",
           }}
         >
           {/* Sliver state — narrow strip with expand button */}
           {activeTab && !txPanelExpanded && (
             <div
-              className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors"
+              className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors"
               onClick={() => setTxPanelExpanded(true)}
             >
               <ChevronRight className="w-4 h-4 text-slate-400 mb-2" />
@@ -783,46 +783,48 @@ export default function ExecDemoPage() {
             </div>
           )}
           {/* Full panel — with optional collapse button when re-expanded */}
-          <div className="w-[400px] h-full" style={{ opacity: activeTab && !txPanelExpanded ? 0 : 1 }}>
-            {activeTab && txPanelExpanded && (
-              <button
-                onClick={() => setTxPanelExpanded(false)}
-                className="absolute top-2 right-2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
-              >
-                <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
-              </button>
-            )}
-            <ExecDemoLeftPanel
-              selectedIdx={selectedIdx}
-              onSelectCustomer={handleSelectCustomer}
-              onRunAnalysis={handleRunAnalysis}
-              onLoadCustomCsv={handleLoadCustomCsv}
-              onChangeCustomer={handleChangeCustomer}
-              isRunning={isRunning}
-              phase={phase}
-              collectedIndices={collectedIndices}
-              currentCardColor={currentCardColor}
-              isCustomMode={!!customCsv}
-              customName={customName || undefined}
-              customTransactions={profile?.transactions}
-              personaIcon={execProfile.persona.icon}
-              personaTitle={execProfile.persona.title}
-              filteredIndices={filteredIndices}
-              signalMap={execProfile.persona.signalMap}
-              activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
-              activePillColor={
-                activeTriggerPill
-                  ? activeTriggerPill.color
-                  : activeRollup
-                    ? getColor(activeRollup.pillar).dot
-                    : activePillFilter
-                      ? getColor(activePillFilter.pillar).dot
-                      : "#10b981"
-              }
-              onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
-              enriched={phase === "cardCycle" || phase === "hold"}
-            />
-          </div>
+          {(!activeTab || txPanelExpanded) && (
+            <div className="w-[400px] h-full relative">
+              {activeTab && txPanelExpanded && (
+                <button
+                  onClick={() => setTxPanelExpanded(false)}
+                  className="absolute top-2 right-2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
+                </button>
+              )}
+              <ExecDemoLeftPanel
+                selectedIdx={selectedIdx}
+                onSelectCustomer={handleSelectCustomer}
+                onRunAnalysis={handleRunAnalysis}
+                onLoadCustomCsv={handleLoadCustomCsv}
+                onChangeCustomer={handleChangeCustomer}
+                isRunning={isRunning}
+                phase={phase}
+                collectedIndices={collectedIndices}
+                currentCardColor={currentCardColor}
+                isCustomMode={!!customCsv}
+                customName={customName || undefined}
+                customTransactions={profile?.transactions}
+                personaIcon={execProfile.persona.icon}
+                personaTitle={execProfile.persona.title}
+                filteredIndices={filteredIndices}
+                signalMap={execProfile.persona.signalMap}
+                activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+                activePillColor={
+                  activeTriggerPill
+                    ? activeTriggerPill.color
+                    : activeRollup
+                      ? getColor(activeRollup.pillar).dot
+                      : activePillFilter
+                        ? getColor(activePillFilter.pillar).dot
+                        : "#10b981"
+                }
+                onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
+                enriched={phase === "cardCycle" || phase === "hold"}
+              />
+            </div>
+          )}
         </div>
 
         {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
