@@ -305,22 +305,43 @@ export default function ExecDemoIntelPanel({
                       <span className="h-6 w-24 rounded-full bg-amber-100 animate-pulse" />
                     </div>
                   ) : detectedLifeEvents && detectedLifeEvents.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {detectedLifeEvents.map((evt, i) => (
-                        <span
-                          key={evt.event_name}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
-                          style={{
-                            background: "rgba(245,158,11,.10)",
-                            color: "#92400e",
-                            border: "1px solid rgba(245,158,11,.30)",
-                            animation: `fade-in 0.4s ease-out ${0.3 + i * 0.12}s both`,
-                          }}
-                        >
-                          {evt.event_name}
-                          <span className="text-[10px] opacity-70 tabular-nums">{evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100)}%</span>
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap gap-2">
+                      {detectedLifeEvents.map((evt, i) => {
+                        const isActive = activeTriggerLabel === evt.event_name;
+                        const evidenceMerchants = evt.evidence?.map(e => e.merchant.toLowerCase()) || [];
+                        const matchedIndices = transactions
+                          ? transactions.map((tx, idx) => {
+                              const m = (tx.merchant || "").toLowerCase();
+                              return evidenceMerchants.some(em => m.includes(em) || em.includes(m)) ? idx : -1;
+                            }).filter(idx => idx !== -1)
+                          : [];
+                        const isClickable = matchedIndices.length > 0;
+                        const confidence = evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
+                        const evCount = evt.evidence?.length ?? 0;
+                        return (
+                          <span
+                            key={evt.event_name}
+                            onClick={() => isClickable && onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                            style={{
+                              background: isActive
+                                ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
+                                : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
+                              color: "#92400e",
+                              border: isActive ? "2px solid #f59e0b" : "1.5px solid #f59e0b",
+                              animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
+                              boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
+                              transform: isActive ? "scale(1.08)" : "scale(1)",
+                            }}
+                          >
+                            <span style={{ color: "#f59e0b" }}>✦</span>
+                            {evt.event_name}
+                            <span className="text-[9px] opacity-60 tabular-nums font-normal">
+                              {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
+                            </span>
+                          </span>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-[11px] text-slate-400 italic">No significant life events detected</p>
@@ -336,22 +357,46 @@ export default function ExecDemoIntelPanel({
                       <span className="h-6 w-24 rounded-full bg-red-100 animate-pulse" />
                     </div>
                   ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {riskFlags.flags.map((flag: any, i: number) => (
-                        <span
-                          key={flag.category || i}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
-                          style={{
-                            background: flag.severity === "high" ? "rgba(239,68,68,.10)" : "rgba(245,158,11,.10)",
-                            color: flag.severity === "high" ? "#991b1b" : "#92400e",
-                            border: `1px solid ${flag.severity === "high" ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}`,
-                            animation: `fade-in 0.4s ease-out ${0.5 + i * 0.12}s both`,
-                          }}
-                        >
-                          ⚠ {flag.category || flag.type || "Risk"}
-                          {flag.severity && <span className="text-[9px] uppercase opacity-60 ml-0.5">{flag.severity}</span>}
-                        </span>
-                      ))}
+                    <div className="flex flex-wrap gap-2">
+                      {riskFlags.flags.map((flag: any, i: number) => {
+                        const flagLabel = flag.category || flag.type || "Risk";
+                        const isActive = activeTriggerLabel === flagLabel;
+                        const isHigh = flag.severity === "high";
+                        const dotColor = isHigh ? "#ef4444" : "#f59e0b";
+                        // Match transactions by merchant patterns or category keywords
+                        const flagKeywords = (flag.merchant_patterns || []).map((p: string) => p.toLowerCase());
+                        if (flagKeywords.length === 0 && flag.category) {
+                          flagKeywords.push(...flag.category.toLowerCase().split(/[\s/&,]+/).filter((w: string) => w.length > 3));
+                        }
+                        const matchedIndices = transactions
+                          ? transactions.map((tx, idx) => {
+                              const m = (tx.merchant || "").toLowerCase();
+                              return flagKeywords.some((kw: string) => m.includes(kw)) ? idx : -1;
+                            }).filter(idx => idx !== -1)
+                          : [];
+                        const isClickable = matchedIndices.length > 0;
+                        return (
+                          <span
+                            key={flag.category || i}
+                            onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                            style={{
+                              background: isActive
+                                ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
+                                : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
+                              color: isHigh ? "#991b1b" : "#92400e",
+                              border: isActive ? `2px solid ${dotColor}` : `1.5px solid ${dotColor}`,
+                              animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
+                              boxShadow: isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
+                              transform: isActive ? "scale(1.08)" : "scale(1)",
+                            }}
+                          >
+                            <span style={{ color: dotColor }}>⚠</span>
+                            {flagLabel}
+                            {flag.severity && <span className="text-[9px] uppercase opacity-60 font-normal">{flag.severity}</span>}
+                          </span>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-[11px] text-emerald-600 italic flex items-center gap-1">
