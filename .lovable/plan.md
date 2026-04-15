@@ -1,37 +1,25 @@
 
 
-## Toggle Panels with Smooth Animation
+## Show Only 3 Action Buttons After Synthesis, Hide Details
 
-### What changes
+### What the user wants
+After clicking "Behavioral Intelligence: Ready", the intel panel should:
+1. Keep the card full height
+2. Hide all the detailed content (rollup pills, life events, risk factors, evidence)
+3. Show only the 3 action buttons (Next-Offer, Next-Product, Next Conversation) centered at the bottom
+4. When a button is clicked, the screen transitions (phone appears, transactions hide)
 
-In `src/pages/ExecDemoPage.tsx`, lines 754–833:
+### Changes — Single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-1. **Derive visibility boolean**: `const showPhone = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship"` — true when any "Next-Offer" tab is active.
+1. **Hide detail sections when no tab is active after synthesis**: Wrap the rollup pills, life events, risk factors sections (lines 285–423) in a condition: only render when `!synthesisTriggered || activeTab !== null`. When `synthesisTriggered && !activeTab`, these sections are hidden.
 
-2. **Replace fixed 3-column grid** with a dynamic layout:
-   - Before Next-Offer: `grid-cols-[400px_1fr]` — transaction panel + intel panel (phone hidden)
-   - After Next-Offer: `grid-cols-[1fr_360px]` — intel panel + phone mockup (transactions hidden)
-   - Add `transition-all duration-500 ease-in-out` on the grid container for smooth resize
+2. **Show centered action buttons when synthesisTriggered && !activeTab**: Replace the collapsed content area with 3 large vertically-stacked or centered action buttons (Next-Offer, Next-Product, Next Conversation) using the existing `TAB_ORDER` and `TAB_META`. Style them as prominent cards/buttons filling the empty space.
 
-3. **Conditionally render columns**:
-   - Col 1 (transactions): render only when `!showPhone`
-   - Col 3 (phone): render only when `showPhone`
-   - Wrap each in a `<div>` with opacity/translate transitions for a fade+slide entrance:
-     - Transactions: `opacity transition-opacity duration-500` (fade out when hiding)
-     - Phone: `animate-fade-in` on mount (slide up + fade in)
+3. **Keep existing tab bar + content behavior**: When a tab IS clicked (`activeTab` is set), the current tab content renders as before (the panel transition to show phone will already work from the previous layout changes).
 
-4. **Add CSS transition classes** in the existing `src/styles/animations.css` — a `panel-enter` keyframe for smooth slide-in from the right for the phone panel:
-   ```css
-   @keyframes panel-slide-in {
-     from { opacity: 0; transform: translateX(20px); }
-     to { opacity: 1; transform: translateX(0); }
-   }
-   .animate-panel-slide-in {
-     animation: panel-slide-in 0.4s ease-out forwards;
-   }
-   ```
+4. **Full-height card**: When `synthesisTriggered && !activeTab`, the persona card stays `flex-1` so it fills the panel height, with the 3 buttons centered inside.
 
-### Files changed
-- `src/pages/ExecDemoPage.tsx` — grid layout logic (lines 754–833)
-- `src/styles/animations.css` — add `panel-slide-in` keyframe
+### Visual result
+- Click "Behavioral Intelligence: Ready" → card fills panel, shows only 3 clean action buttons in the center
+- Click "Next-Offer" → transitions to intel+phone layout with offer content
 
