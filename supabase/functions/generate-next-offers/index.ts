@@ -16,7 +16,7 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const rollups = persona?.pillarRollups || [];
-    
+
     // Build per-rollup spending context so AI knows what's already purchased
     const rollupList = rollups
       .filter((r: any) => (r.totalCount ?? 0) > 0)
@@ -27,9 +27,13 @@ serve(async (req) => {
       })
       .join("\n");
 
-    const pillarContext = (pillars || []).slice(0, 8).map((p: any, i: number) =>
-      `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`
-    ).join("\n");
+    const pillarContext = (pillars || [])
+      .slice(0, 8)
+      .map(
+        (p: any, i: number) =>
+          `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`,
+      )
+      .join("\n");
 
     const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
@@ -38,24 +42,18 @@ RULES:
    Do NOT include suppressed deals in the deals array.
    Instead, list any already-covered spending categories in a separate "suppressedCategories" string array on the rollup object.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
-3. Good message: "Upgrade your travels with sleek, durable luggage from Away"
+3. Good message:"Capture precious family moment on the mountain with GoPro"or"Upgrade your travels with sleek, durable luggage from Away"
 4. Bad message: "As a Product Director on the move, upgrade your commute"
 5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, a signal ("boost" or "neutral"), signalReason, and optionally boostCategory.
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
-7. Think one step adjacent to what they already buy. A frequent flyer needs noise-cancelling headphones, a carry-on suitcase, packing cubes, a portable charger. A fitness enthusiast needs running shoes, a GPS watch, wireless earbuds, gym bag. A home cook needs a quality knife set, cast iron pan, spice subscription. Do NOT suggest supplements, vitamins, hydration packets, essential oils, or any wellness/health product unless the customer's transactions explicitly show health & wellness spending.
-
-PRODUCT RELEVANCE RULE:
-- Every deal must pass the "would this person obviously buy this?" test. The product category must have a direct, common-sense connection to the behavioral cluster's spending patterns — not a loose thematic association.
-- Before finalizing each deal, verify: does this product category appear in or logically extend the customer's top merchant categories? If the answer is no, replace it with something they'd actually use.
-
-NEVER SUGGEST (unless the cluster is explicitly health/wellness):
-- Supplements, vitamins, electrolyte mixes (e.g. Liquid I.V.), protein powders, essential oils, skincare serums, wellness subscriptions. These are statistically unlikely purchases for most personas.
+7. Think laterally: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
 
 SIGNAL LOGIC:
 - "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap. Add "boostCategory" — a short product-type label (e.g., "Headphones", "Luggage").
 - "neutral": Standard relevance, no strong signal either way. signalReason can be brief. Omit boostCategory.
+- "Supressed": The customer has purchased persona defining items such as ski pass for the season, or new eye glasses, and likely will not purchase the samething soon, so they should be surpressed
 
-AIM for 1-2 boosted and the rest neutral per cluster.
+AIM for 2-5 boosted and the rest neutral per cluster.
 
 suppressedCategories: For each cluster, identify 0-3 broad spending categories the user already covers (e.g., "Hotels", "Airlines", "Ski Passes", "Coffee", "Streaming") and list them in the suppressedCategories array. These are NOT deals — just metadata about what the customer already has.
 
@@ -96,12 +94,14 @@ Generate exactly 5 deals for EACH cluster above with boost/suppress/neutral sign
       console.error("AI gateway error:", response.status, errText);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited" }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "Payment required" }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       throw new Error(`AI gateway error: ${response.status}`);
@@ -138,9 +138,9 @@ Generate exactly 5 deals for EACH cluster above with boost/suppress/neutral sign
     });
   } catch (e) {
     console.error("generate-next-offers error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
