@@ -1,47 +1,64 @@
 
 
-## Add action pills below each product card in Next-Product Intelligence
+## AI-Generated Engagement Actions for Product Cards
 
 ### What
-Below each product recommendation card, add contextual "next step" action pills that differ based on card type:
+Replace the hardcoded action pills ("Signal Sent to Mobile App", "Notify Wealth Advisor", etc.) with dynamically generated actions from a new edge function. The AI will receive full customer context (life events, persona, demographics, spending pillars, product cards) and generate 2–5 actions per card that blend standard banking engagement with deeply personal "wow factor" actions — things like sending flowers for an anniversary, a curated college visit itinerary, or a handwritten card for a milestone — that only make sense given the customer's specific life context.
 
-- **Life Event cards**: "Notify Wealth Advisor" and "Schedule Review Meeting"
-- **Behavioral cards**: "Signal Sent to Mobile App" and "Triggered Email Campaign"
+### New Edge Function: `supabase/functions/generate-product-actions/index.ts`
 
-These are decorative/illustrative pills (not functional buttons) showing the automated actions the system would take.
+**Inputs** (same context already available in the pipeline):
+- `product_cards` — the 2 cards from generate-product-cards
+- `persona_rollups` — behavioral persona labels and spending patterns
+- `life_events` — detected life events with evidence
+- `demographics` — age, occupation, family status
+- `pillars` — top spending categories
 
-### Changes
-
-**`src/components/exec-demo/NextProductRationale.tsx`** (single file)
-
-After the trigger badge section (line ~273, closing `</div>` of the product card inner content), add a new row of pills:
-
-```tsx
-{/* Action pills */}
-<div className="flex items-center gap-1.5 mt-2 flex-wrap">
-  {isBehavioral ? (
-    <>
-      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
-        <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
-      </span>
-      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
-        <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
-      </span>
-    </>
-  ) : (
-    <>
-      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
-        <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
-      </span>
-      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
-        <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
-      </span>
-    </>
-  )}
-</div>
+**Output** (via tool calling):
+```json
+{
+  "card_actions": [
+    {
+      "card_index": 0,
+      "actions": [
+        { "label": "Signal Sent to Mobile App", "icon": "smartphone", "color": "blue", "tone": "standard" },
+        { "label": "Send Anniversary Flowers via Concierge", "icon": "heart", "color": "rose", "tone": "wow" }
+      ]
+    }
+  ]
+}
 ```
 
-Add `Smartphone`, `Mail`, `UserCheck`, `CalendarCheck` to the lucide-react imports.
+**Prompt strategy**:
+- 1–2 standard actions (notify advisor, trigger email, push notification, flag for review)
+- 1–3 wow actions that feel like a personal concierge: send a card, flowers, curated itinerary, milestone gift, proactive insurance check, personalized savings challenge — whatever the context justifies
+- Wow actions should feel like "my bank genuinely cares about my life" not "my bank is surveilling me"
+- Model: `google/gemini-2.5-flash` (fast structured output)
 
-No new files or dependencies needed.
+### Frontend Changes
+
+**`src/components/exec-demo/NextProductRationale.tsx`**:
+- Add optional `productActions` prop with type for the response
+- Replace the hardcoded `{isBehavioral ? ... : ...}` action pills block with dynamic rendering from `productActions`
+- Map icon strings → lucide components (smartphone, mail, user-check, calendar, heart, gift, shield, lightbulb, star, compass, flower, pen-line)
+- "Wow" actions get a subtle sparkle accent and slightly richer styling (gradient border or star prefix)
+- Fallback: show current hardcoded pills while actions are loading or if the call fails
+
+**`src/pages/ExecDemoPage.tsx`**:
+- Add `productActions` state
+- After `generate-product-cards` resolves, fire `generate-product-actions` with product cards + same context
+- Pass `productActions` to `NextProductRationale`
+
+### Config
+
+Add to `supabase/config.toml`:
+```toml
+[functions.generate-product-actions]
+verify_jwt = false
+```
+
+### Technical Details
+- Icon set: ~12 lucide icons mapped by string name
+- Fallback: if edge function fails or is loading, render current hardcoded pills unchanged
+- No new dependencies
 
