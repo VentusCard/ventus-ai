@@ -558,15 +558,14 @@ export default function ExecDemoIntelPanel({
         )}
       </div>
 
-      {/* Tab bar — always visible when enrichment is active */}
-      {showProfile && phase !== "idle" && (
+      {/* Tab bar — visible when enrichment active AND a tab has been selected */}
+      {showProfile && phase !== "idle" && activeTab && (
         <>
           <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1.5 shrink-0">
             {TAB_ORDER.map((key) => {
               const meta = TAB_META[key];
               const Icon = meta.icon;
               const isActive = activeTab === key;
-              const isRevealed = revealedTabs.includes(key);
               return (
                 <button
                   key={key}
@@ -583,7 +582,6 @@ export default function ExecDemoIntelPanel({
               );
             })}
           </div>
-
         </>
       )}
 
