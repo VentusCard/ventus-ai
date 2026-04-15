@@ -510,6 +510,7 @@ export default function ExecDemoPage() {
       setProcessedIndices([]);
       setRevealedTabs([]);
       setActiveTab(null);
+      setTxPanelExpanded(false);
       setCollectedIndices([]);
       setProfile(null);
       setActivePillFilter(null);
