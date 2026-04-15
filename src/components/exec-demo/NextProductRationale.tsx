@@ -307,62 +307,86 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                       {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
                     </span>
                   {/* Action pills — dynamic or fallback */}
-                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    {(() => {
-                      const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
-                      
-                      if (dynamicActions && dynamicActions.length > 0) {
-                        return dynamicActions.map((action, ai) => {
-                          const IconComp = ICON_MAP[action.icon] || Bell;
-                          const colors = COLOR_MAP[action.color] || COLOR_MAP.blue;
-                          const isWow = action.tone === "wow";
-                          return (
-                            <span
-                              key={ai}
-                              className={`inline-flex items-center gap-1 text-[9px] font-medium rounded-full px-2 py-0.5 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
-                              style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
-                            >
-                              {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
-                              <IconComp className="w-2.5 h-2.5" />
-                              {action.label}
-                            </span>
-                          );
-                        });
-                      }
-                      
-                      // Fallback: loading or hardcoded
-                      if (actionsLoading) {
-                        return (
-                          <>
-                            <span className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-300 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5 animate-pulse">
-                              <Sparkles className="w-2.5 h-2.5" /> Generating actions...
-                            </span>
-                          </>
-                        );
-                      }
-                      
-                      // Static fallback
-                      return isBehavioral ? (
-                        <>
-                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
-                            <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
-                            <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
-                            <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
-                            <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
-                          </span>
-                        </>
+                  {(() => {
+                    const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
+
+                    const renderPill = (action: CardAction, ai: number) => {
+                      const IconComp = ICON_MAP[action.icon] || Bell;
+                      const colors = COLOR_MAP[action.color] || COLOR_MAP.blue;
+                      const isWow = action.tone === "wow";
+                      return (
+                        <span
+                          key={ai}
+                          className={`inline-flex items-center gap-1 text-[9px] font-medium rounded-full px-2 py-0.5 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
+                          style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
+                        >
+                          {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
+                          <IconComp className="w-2.5 h-2.5" />
+                          {action.label}
+                        </span>
                       );
-                    })()}
-                  </div>
+                    };
+
+                    if (dynamicActions && dynamicActions.length > 0) {
+                      const standard = dynamicActions.filter(a => a.tone === "standard");
+                      const wow = dynamicActions.filter(a => a.tone === "wow");
+
+                      return (
+                        <div className="mt-2 space-y-1.5">
+                          {standard.length > 0 && (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
+                              {standard.map((action, ai) => renderPill(action, ai))}
+                            </div>
+                          )}
+                          {wow.length > 0 && (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Concierge Touch</span>
+                              {wow.map((action, ai) => renderPill(action, ai))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    if (actionsLoading) {
+                      return (
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-300 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5 animate-pulse">
+                            <Sparkles className="w-2.5 h-2.5" /> Generating actions...
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    // Static fallback with two-row layout
+                    return (
+                      <div className="mt-2 space-y-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
+                          {isBehavioral ? (
+                            <>
+                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+                                <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
+                                <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
+                                <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
+                                <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   </div>
                 </div>
               </div>
