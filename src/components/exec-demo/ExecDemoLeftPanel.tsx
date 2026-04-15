@@ -183,6 +183,7 @@ export default function ExecDemoLeftPanel({
   activePillLabel,
   activePillColor = "#10b981",
   onClearFilter,
+  enriched,
 }: Props) {
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
   const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
