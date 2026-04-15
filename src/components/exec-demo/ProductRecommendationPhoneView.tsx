@@ -1,6 +1,11 @@
 import { ShieldCheck, ChevronRight, Sparkles } from "lucide-react";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
+const oneSentence = (text: string) => {
+  const match = text.match(/^[^.!?]+[.!?]/);
+  return match ? match[0] : text;
+};
+
 const FUNDING_LABELS: Record<string, string> = {
   "529": "529 Plan",
   savings: "High-Yield Savings",
