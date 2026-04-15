@@ -3,6 +3,14 @@ import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { useState } from "react";
+import advisor1 from "@/assets/advisors/advisor-1.jpg";
+import advisor2 from "@/assets/advisors/advisor-2.jpg";
+import advisor3 from "@/assets/advisors/advisor-3.jpg";
+import advisor4 from "@/assets/advisors/advisor-4.jpg";
+import advisor5 from "@/assets/advisors/advisor-5.jpg";
+import advisor6 from "@/assets/advisors/advisor-6.jpg";
+import advisor7 from "@/assets/advisors/advisor-7.jpg";
+import advisor8 from "@/assets/advisors/advisor-8.jpg";
 
 interface Props {
   customer: DemoCustomer;
