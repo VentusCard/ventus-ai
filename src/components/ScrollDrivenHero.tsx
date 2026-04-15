@@ -251,7 +251,7 @@ const ScrollDrivenHero = () => {
                 </div>
               ) : (
                 <div className="space-y-0">
-                  {enrichedData.slice(0, 10).map((row, i) => {
+                  {enrichedData.slice(0, 12).map((row, i) => {
                     const isHighlighted = stage === 3 && activePersona && row.persona === activePersona.id;
                     const isDimmed = stage === 3 && activePersona && row.persona !== activePersona.id;
                     return (
