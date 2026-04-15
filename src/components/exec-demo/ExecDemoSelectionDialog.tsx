@@ -210,30 +210,23 @@ export default function ExecDemoSelectionDialog({
           <div className="flex-1 min-h-0 flex flex-col">
             {/* Table header info */}
             <div className="px-6 pt-3 pb-2 shrink-0">
-              <div className="flex items-center gap-2 flex-wrap text-[13px] text-slate-700 font-medium">
-                <span className="font-bold text-slate-900">{customer.profile.name}</span>
-                <span className="text-slate-300">·</span>
-                <span>{rawRows.length} transactions</span>
-                <span className="text-slate-300">·</span>
-                <span>{customer.txnTotal}</span>
-                {customer.profile.demographics && (
-                  <>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.demographics.age}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.demographics.occupation}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.demographics.familyStatus}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.segment}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.aum}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.demographics.incomeLevel}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{customer.profile.demographics.industry}</span>
-                  </>
-                )}
+              <div className="grid grid-cols-7 gap-4">
+                {/* Header row */}
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Name</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Segment</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">AUM</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Tenure</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Age</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Household</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Transactions</span>
+                {/* Value row */}
+                <span className="font-bold text-slate-900 text-[13px]">{customer.profile.name}</span>
+                <span className="text-slate-700 text-[13px]">{customer.profile.segment}</span>
+                <span className="text-slate-700 text-[13px]">{customer.profile.aum}</span>
+                <span className="text-slate-700 text-[13px]">{customer.profile.tenure}</span>
+                <span className="text-slate-700 text-[13px]">{customer.profile.demographics?.age}</span>
+                <span className="text-slate-700 text-[13px]">{customer.profile.demographics?.familyStatus}</span>
+                <span className="text-slate-700 text-[13px]">{rawRows.length} · {customer.txnTotal}</span>
               </div>
             </div>
 
