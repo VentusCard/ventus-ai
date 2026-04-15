@@ -47,6 +47,8 @@ interface Props {
   productCards?: ProductCard[] | null;
   onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
   activeTriggerLabel?: string | null;
+  productActions?: import("./NextProductRationale").CardActions[] | null;
+  actionsLoading?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
