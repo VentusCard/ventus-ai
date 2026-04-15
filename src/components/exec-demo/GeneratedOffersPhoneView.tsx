@@ -236,8 +236,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   const imgSrc = active ? getCollectionImage(active.rollup, active.pillar) : DEFAULT_IMAGE;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-      <div className="px-3 py-3 space-y-2.5">
+    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
         {/* ── Savings Summary Bar ── */}
         <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #eff6ff, #eef2ff)" }}>
