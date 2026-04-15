@@ -1,42 +1,32 @@
 
 
-## Add Life Events & Risk Factors to Executive Demo Intelligence Panel
+## Unify Life Event & Risk Factor Pills with Behavioral Pill Styling
 
-### What Changes
-After clicking "Behavioral Intelligence: Ready" in the `/demo` executive demo, the intelligence panel currently shows only **Behavioral Intelligence** (persona rollup pills). We'll add two new sections below it: **Life Event Detection** and **Risk Factors**, each calling their respective edge functions (`analyze-lifestyle-signals` and `detect-risk-transactions`).
+### Problem
+Life event and risk factor pills currently use simple flat `<span>` elements with basic colors. They look different from the behavioral `PillarRollupChip` pills which have gradient backgrounds, `✦` icon, glow animations, cursor-pointer, and click-to-highlight-transactions behavior.
 
-### Layout After Clicking "Ready"
+### Changes — Single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-```text
-┌──────────────────────────────────────────┐
-│ Behavioral Intelligence:                 │
-│ Personas = Multi-category patterns       │
-│ [✦ Wellness Explorer] [✦ Travel Hub]     │
-│                                          │
-│ Life Event Detection:                    │
-│ [College Planning 92%] [Growing Family]  │
-│                                          │
-│ Risk Factors:                            │
-│ [⚠ Subscription Creep] [⚠ Cash Adv.]   │
-│ "No significant risks detected" fallback │
-└──────────────────────────────────────────┘
-```
+#### 1. Create shared pill components
 
-### Files Changed
+- **`LifeEventChip`**: Reuse the exact `PillarRollupChip` visual pattern — gradient background, `✦` prefix, `1.5px solid` border, `rollup-entrance` + `rollup-glow` animations, `cursor-pointer`, scale on active. Color palette: amber tones. Shows `{event_name}` + `{confidence}%` + `{evidence.length} txns` stats.
+  
+- **`RiskFlagChip`**: Same visual pattern but with red/amber tones based on severity. Shows `⚠` prefix instead of `✦`, flag category, and severity level.
 
-#### 1. `src/pages/ExecDemoPage.tsx`
-- Add `riskFlags` state (`{ flags: any[]; summary: string } | null`) and `riskLoading` boolean
-- Add `fireRiskDetection` callback that calls `detect-risk-transactions` with `classifiedRef.current`, triggered alongside `fireLifeEventDetection()` after persona synthesis completes (line ~275)
-- Pass `riskFlags`, `riskLoading`, `detectedLifeEvents`, and `productsLoading` to `ExecDemoIntelPanel`
+#### 2. Click-to-highlight behavior
 
-#### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- Accept new props: `riskFlags`, `riskLoading`
-- After the existing "Behavioral Intelligence" rollup pills section (around line 294), add two new sections that appear **only when `synthesisTriggered` is true**:
-  - **Life Event Detection** section: Shows `detectedLifeEvents` as amber-toned pills with confidence percentages, or a loading shimmer. Already available via props.
-  - **Risk Factors** section: Shows `riskFlags.flags` as red/amber-toned pills with severity badges, or `riskFlags.summary` as a green "clean" message if no flags. Loading shimmer while `riskLoading`.
-- Each section has a tiny uppercase label (`BEHAVIORAL INTELLIGENCE`, `LIFE EVENT DETECTION`, `RISK FACTORS`) consistent with existing styling
-- Stagger entrance animations: behavioral → life events (200ms delay) → risk factors (400ms delay)
-- All three sections are inside the scrollable persona card area, collapsible with the existing chevron
+Both new pill types will be clickable, calling the existing `onTriggerPillClick` prop (already wired up for transaction highlighting):
 
-### No edge function changes needed — both `analyze-lifestyle-signals` and `detect-risk-transactions` already accept the enriched transaction format used in the exec demo.
+- **Life event pills**: Match `evidence[].merchant` against `transactions` to find indices, same logic already used in `NextProductRationale`.
+- **Risk flag pills**: Match `flag.transactions` or `flag.merchant_patterns` (from the edge function response) against transaction merchants. If no transaction data in the flag, use keyword matching from the flag category.
+
+#### 3. Active state tracking
+
+Use `activeTriggerLabel` (already a prop) to track which pill is active, applying the same `scale(1.08)` + `boxShadow` glow effect used by behavioral pills.
+
+#### 4. Replace current rendering (lines 299-361)
+
+Replace the current simple `<span>` pills in both sections with the new chip components, keeping the section headers (`LIFE EVENT DETECTION`, `RISK FACTORS`) and staggered animation delays.
+
+### No new props or page-level changes needed — all required data (`detectedLifeEvents`, `riskFlags`, `transactions`, `onTriggerPillClick`, `activeTriggerLabel`) are already passed in.
 
