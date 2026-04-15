@@ -154,16 +154,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Header */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] font-semibold text-slate-500">
-            {productCards.length} product card{productCards.length !== 1 ? "s" : ""} generated
-          </span>
-          <ArrowRight className="w-3 h-3 text-slate-300" />
-          <span className="text-[11px] font-bold text-violet-600">
-            Consumer notifications ready
-          </span>
-        </div>
 
         {/* Card rationale */}
         {[...productCards].map((card, origIdx) => ({ card, origIdx }))
