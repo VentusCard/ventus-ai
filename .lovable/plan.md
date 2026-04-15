@@ -1,26 +1,47 @@
 
 
-## Show enrichment fields as "—" before analysis runs
+## Add action pills below each product card in Next-Product Intelligence
 
-### Problem
-The tooltip currently shows fully populated enrichment data (Pillar, Category, Tier, etc.) even before "Semantic Enrichment" is clicked, because `signalMap` is built immediately from local MCC data.
+### What
+Below each product recommendation card, add contextual "next step" action pills that differ based on card type:
 
-### Solution
-Add an `enriched` boolean prop to `TxRow` and `ExecDemoLeftPanel`. When `enriched` is false, the "Ventus Semantic Enrichment" section still renders but every field shows "—" in muted styling instead of real values.
+- **Life Event cards**: "Notify Wealth Advisor" and "Schedule Review Meeting"
+- **Behavioral cards**: "Signal Sent to Mobile App" and "Triggered Email Campaign"
+
+These are decorative/illustrative pills (not functional buttons) showing the automated actions the system would take.
 
 ### Changes
 
-**`src/components/exec-demo/ExecDemoLeftPanel.tsx`**
+**`src/components/exec-demo/NextProductRationale.tsx`** (single file)
 
-1. Add `enriched?: boolean` prop to both `TxRow` and the main component
-2. In the tooltip (lines 125-149), when `!enriched`:
-   - Keep MCC row as-is (always shows real data)
-   - Render "Ventus Semantic Enrichment:" header as-is
-   - Replace Pillar/Category/Sub values with "—" in `text-slate-500`
-   - Replace Tier/Frequency/Confidence values with "—" in `text-slate-500`
-3. Pass `enriched` through to all `TxRow` usages in the idle, scroll, cardScan, and hold phases
+After the trigger badge section (line ~273, closing `</div>` of the product card inner content), add a new row of pills:
 
-**`src/pages/ExecDemoPage.tsx`**
+```tsx
+{/* Action pills */}
+<div className="flex items-center gap-1.5 mt-2 flex-wrap">
+  {isBehavioral ? (
+    <>
+      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+        <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
+      </span>
+      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
+        <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
+      </span>
+    </>
+  ) : (
+    <>
+      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
+        <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
+      </span>
+      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
+        <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
+      </span>
+    </>
+  )}
+</div>
+```
 
-Pass `enriched={phase === "hold" || phase === "cardCycle"}` (or whatever flag indicates enrichment is complete) to `ExecDemoLeftPanel`.
+Add `Smartphone`, `Mail`, `UserCheck`, `CalendarCheck` to the lucide-react imports.
+
+No new files or dependencies needed.
 
