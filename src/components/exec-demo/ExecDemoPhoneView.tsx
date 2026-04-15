@@ -71,7 +71,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
         );
       case "relationship":
-        return <RelationshipPhoneView customer={customer} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "ai":
         return <ConsumerAIChatView customer={customer} initialMessage={pendingAIMessage} onInitialMessageConsumed={() => setPendingAIMessage(null)} />;
       default:
