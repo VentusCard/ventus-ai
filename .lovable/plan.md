@@ -1,39 +1,25 @@
 
 
-## Add slim Location Experience card to Rewards phone mockup
+## Better ranking of Rewards phone mockup sections
 
-### What
-Add a compact "Welcome to New York" location perks card between the Expiring Soon row and the Collection Carousel. It shows a city welcome header and two nested perk mini-cards (one Art, one Sports) from the hardcoded `INITIAL_PERKS` data.
+The current order feels slightly random. A more natural flow would prioritize urgency and personalization at the top, then contextual/ambient features, then browsing.
 
-### Change: `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
+### Proposed order (top to bottom)
 
-**Add a new section between the Expiring Soon block (~line 354) and the Collection Carousel header (~line 356):**
-
-1. **City welcome header**: `MapPin` icon + "Welcome to New York" in 11px bold + "Explore perks for TCBY Members" in 9px slate-500
-2. **Two nested perk cards** (hardcoded from `locationPerksData`):
-   - **Art**: MoMA Private Viewing — indigo left accent bar, "Art" badge, partner name, value pill
-   - **Sports**: Mets Home Game Access — green left accent bar, "Sports" badge, partner name, value pill
-3. Each card: `rounded-lg`, left-colored border (4px), compact layout (9-10px text), non-interactive
-
-**New import**: `MapPin` from lucide-react (add to existing import line)
-
-No other files change. The perks are hardcoded inline — no need to import from `locationPerksData`.
-
-### Visual
 ```text
-┌─────────────────────────┐
-│ 📍 Welcome to New York  │
-│ Explore perks for TCBY  │
-│ ┌──┬──────────────────┐ │
-│ │▎ │ 🎨 Art            │ │
-│ │▎ │ MoMA Private View │ │
-│ │▎ │ Free entry        │ │
-│ └──┴──────────────────┘ │
-│ ┌──┬──────────────────┐ │
-│ │▎ │ ⚾ Sports          │ │
-│ │▎ │ Mets Home Game    │ │
-│ │▎ │ $250/game         │ │
-│ └──┴──────────────────┘ │
-└─────────────────────────┘
+1. Savings Summary Bar       — greeting + progress (anchor)
+2. Top Pick For You          — strongest personal signal, immediate action
+3. Expiring Soon             — urgency, time-sensitive
+4. Location Experience       — contextual/ambient, "you're here now"
+5. Collection Carousel       — browsable lifestyle categories
+6. Semantic Search           — moved to bottom as a utility/fallback
 ```
+
+### Rationale
+- **Top Pick** rises above Expiring — it's the single best recommendation, should be the first thing after the greeting.
+- **Search** moves to the bottom — power users scroll down to find it; casual users engage with curated content first. This mirrors how modern reward apps (e.g., Chase Offers, Amex) bury search below featured content.
+- **Location Experience** stays between urgency and browsing — it's contextual but not time-critical.
+
+### Change
+Single file: `src/components/exec-demo/GeneratedOffersPhoneView.tsx` — reorder the JSX blocks within the `space-y-2.5` container (~lines 240–470). No logic changes, just move the blocks.
 
