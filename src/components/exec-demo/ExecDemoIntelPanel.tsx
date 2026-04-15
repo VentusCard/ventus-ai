@@ -256,7 +256,7 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
@@ -282,43 +282,7 @@ export default function ExecDemoIntelPanel({
         {chips.length > 0 && (
           <div>
             {/* Header text - always visible */}
-            {synthesisTriggered && !activeTab ? (
-              /* ─── Action buttons only (post-synthesis, no tab selected) ─── */
-              <div className="flex-1 flex flex-col items-center justify-center py-8 gap-4">
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Choose an action</p>
-                {(["analytics", "product", "relationship"] as TabKey[]).map((key, i) => {
-                  const meta = TAB_META[key];
-                  const Icon = meta.icon;
-                  const descriptions: Record<string, string> = {
-                    analytics: "AI-curated deals based on behavioral spending patterns",
-                    product: "Product recommendations triggered by life events",
-                    relationship: "Talking points and relationship context for advisors",
-                  };
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => onTabClick(key)}
-                      className="w-full max-w-xs flex items-center gap-4 px-5 py-4 rounded-xl border border-slate-200 bg-white hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
-                      style={{ animation: `offer-card-in 0.45s ease-out ${i * 0.1}s both` }}
-                    >
-                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 group-hover:bg-primary/10 transition-colors">
-                        <Icon className="w-5 h-5 text-slate-600 group-hover:text-primary transition-colors" />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors">{meta.label}</span>
-                        <p className="text-[11px] text-slate-400 leading-snug mt-0.5">{descriptions[key]}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-                <style>{`
-                  @keyframes offer-card-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                  }
-                `}</style>
-              </div>
-            ) : synthesisTriggered && rollupStats.length > 0 ? (
+            {synthesisTriggered && rollupStats.length > 0 ? (
               <div className="mb-2.5">
                 <div className="flex items-start justify-between">
                   <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category spending patterns</span></p>
@@ -455,6 +419,33 @@ export default function ExecDemoIntelPanel({
                     </div>
                   )}
                 </div>
+
+                {/* Action buttons — shown when no tab is active */}
+                {!activeTab && (
+                  <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-slate-200/60">
+                    {(["analytics", "product", "relationship"] as TabKey[]).map((key, i) => {
+                      const meta = TAB_META[key];
+                      const Icon = meta.icon;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => onTabClick(key)}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
+                          style={{ animation: `offer-card-in 0.45s ease-out ${i * 0.1}s both` }}
+                        >
+                          <Icon className="w-4 h-4 text-slate-500 group-hover:text-primary transition-colors" />
+                          <span className="text-xs font-bold text-slate-700 group-hover:text-primary transition-colors">{meta.label}</span>
+                        </button>
+                      );
+                    })}
+                    <style>{`
+                      @keyframes offer-card-in {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                      }
+                    `}</style>
+                  </div>
+                )}
               </div>
             ) : (
               <>
