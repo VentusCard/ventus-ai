@@ -210,7 +210,7 @@ export default function ExecDemoSelectionDialog({
           <div className="flex-1 min-h-0 flex flex-col">
             {/* Table header info */}
             <div className="px-6 pt-3 pb-2 shrink-0">
-              <div className="grid grid-cols-7 gap-4">
+              <div className="grid grid-cols-8 gap-4">
                 {/* Header row */}
                 <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Name</span>
                 <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Segment</span>
@@ -218,6 +218,7 @@ export default function ExecDemoSelectionDialog({
                 <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Tenure</span>
                 <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Age</span>
                 <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Household</span>
+                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Zip Code</span>
                 <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Transactions</span>
                 {/* Value row */}
                 <span className="font-bold text-slate-900 text-[13px]">{customer.profile.name}</span>
@@ -226,6 +227,7 @@ export default function ExecDemoSelectionDialog({
                 <span className="text-slate-700 text-[13px]">{customer.profile.tenure}</span>
                 <span className="text-slate-700 text-[13px]">{customer.profile.demographics?.age}</span>
                 <span className="text-slate-700 text-[13px]">{customer.profile.demographics?.familyStatus}</span>
+                <span className="text-slate-700 text-[13px]">{customer.profile.contact?.address?.match(/\d{5}/)?.[0] || rawRows[0]?.zip_code || "—"}</span>
                 <span className="text-slate-700 text-[13px]">{rawRows.length} · {customer.txnTotal}</span>
               </div>
             </div>
