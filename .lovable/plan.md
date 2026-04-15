@@ -1,19 +1,37 @@
 
 
-## Remove "Profile" Tab & Map "rewards" activeTab Directly
+## Toggle Panels with Smooth Animation
 
-### Problem
-The phone mockup has a "Profile" (ux) tab that should be removed. When the intel panel's "Next-Offer" tab is active (`activeTab === "rewards"`), the phone should go directly to the Rewards tab instead of Profile.
+### What changes
 
-### Changes — Single file: `src/components/exec-demo/ExecDemoPhoneView.tsx`
+In `src/pages/ExecDemoPage.tsx`, lines 754–833:
 
-1. **Remove the "ux" / "Profile" entry** from the `CONSUMER_TABS` array (line 24). The bottom bar will show 4 tabs: Rewards, Offers, Membership, AI.
+1. **Derive visibility boolean**: `const showPhone = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship"` — true when any "Next-Offer" tab is active.
 
-2. **Update `ConsumerTab` type** — remove `"ux"` from the union.
+2. **Replace fixed 3-column grid** with a dynamic layout:
+   - Before Next-Offer: `grid-cols-[400px_1fr]` — transaction panel + intel panel (phone hidden)
+   - After Next-Offer: `grid-cols-[1fr_360px]` — intel panel + phone mockup (transactions hidden)
+   - Add `transition-all duration-500 ease-in-out` on the grid container for smooth resize
 
-3. **Update `TAB_MAP`** — change `analytics: "ux"` to `analytics: "rewards"` so the analytics intel tab also maps to the Rewards phone tab (since Profile no longer exists).
+3. **Conditionally render columns**:
+   - Col 1 (transactions): render only when `!showPhone`
+   - Col 3 (phone): render only when `showPhone`
+   - Wrap each in a `<div>` with opacity/translate transitions for a fade+slide entrance:
+     - Transactions: `opacity transition-opacity duration-500` (fade out when hiding)
+     - Phone: `animate-fade-in` on mount (slide up + fade in)
 
-4. **Update default tab** — change the fallback from `"ux"` to `"rewards"` (line 42).
+4. **Add CSS transition classes** in the existing `src/styles/animations.css` — a `panel-enter` keyframe for smooth slide-in from the right for the phone panel:
+   ```css
+   @keyframes panel-slide-in {
+     from { opacity: 0; transform: translateX(20px); }
+     to { opacity: 1; transform: translateX(0); }
+   }
+   .animate-panel-slide-in {
+     animation: panel-slide-in 0.4s ease-out forwards;
+   }
+   ```
 
-5. **Remove the `case "ux"` branch** in `renderContent()` that renders `DemoEngagementView`. The `DemoEngagementView` import can also be removed.
+### Files changed
+- `src/pages/ExecDemoPage.tsx` — grid layout logic (lines 754–833)
+- `src/styles/animations.css` — add `panel-slide-in` keyframe
 
