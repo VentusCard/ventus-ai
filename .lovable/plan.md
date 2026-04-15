@@ -1,22 +1,49 @@
 
 
-## Compact Offers cards to fit without scrolling, life event first
+## Add life-event "How we can help" + advisor card to Relationship tab
+
+### What
+Replace the current AI Hooks section in `RelationshipPhoneView` with the life-event-driven card from `DemoWealthView` — the two-column layout with "How we can help" suggestions, CTAs, and the James Rivera advisor card. Keep the greeting, holdings grid, and tenure row.
 
 ### Changes
 
-**File: `src/components/exec-demo/ProductCardsPhoneView.tsx`**
+**File: `src/components/exec-demo/ExecDemoPhoneView.tsx`**
+- Pass `detectedLifeEvents` through to `RelationshipPhoneView` as a new prop
 
-1. **Sort cards**: life_event type first, behavioral second — simple `.sort()` before mapping
-2. **Compact card layout** to fit both cards + header + disclaimer in ~600px visible area:
-   - Card padding: `p-5` → `p-3.5`
-   - Category tag margin: `mb-3` → `mb-1.5`
-   - Product name: `text-[15px] mb-1.5` → `text-[13px] mb-1`
-   - Quote: `text-[12px] mb-4` → `text-[11px] mb-2`
-   - Benefits spacing: `space-y-2 mb-4` → `space-y-1.5 mb-2`
-   - Value line: `mb-4` → `mb-2.5`
-   - CTA button: `py-2.5` → `py-2`
-   - Outer container: `space-y-4 py-4` → `space-y-3 py-3`
-3. **Header**: Tighten slightly — `px-4 py-4` → `px-3 py-2`
+**File: `src/components/exec-demo/RelationshipPhoneView.tsx`**
+1. Add `detectedLifeEvents` prop (reuse the `LifeEvent` type)
+2. Copy the `EVENT_META` map and `resolveEventMeta` logic from `DemoWealthView` — maps event names like "Education Funding" to icon, color, suggestions, and CTAs
+3. Replace the "Insights for You" AI hooks section with the life event card:
+   - Event header: icon + event name + description
+   - Two-column grid below:
+     - Left: "How we can help" with 3 bullet suggestions + 2 CTA buttons
+     - Right: Advisor card — JR avatar, "James Rivera", "Senior Relationship Manager", personalized quote, Schedule + Message buttons
+4. Scale down slightly for phone viewport (text sizes ~1-2px smaller than the iPad version to fit without scrolling)
+5. If no detected events, show the first event from `EVENT_META` as a fallback (Education Funding) so the card always renders
+6. Keep the `onGoToAI` prop — wire the "Message" button to it
 
-Single file, ~15 lines of sizing tweaks plus a 1-line sort.
+### Layout (phone-sized)
+```text
+┌──────────────────────────┐
+│ Welcome, Sarah           │
+│ ● Preferred Member       │
+├──────────────────────────┤
+│ [Savings] [Credit]       │
+│ [Mortgage][Investments]  │
+│ ★ Member since 2018  📍 │
+├──────────────────────────┤
+│ 🎓 Education Funding     │
+│ "Education is a big..."  │
+│ ┌───────────┬──────────┐ │
+│ │How we can │  JR      │ │
+│ │help       │James R.  │ │
+│ │• Edu svgs │"Hi Sarah"│ │
+│ │• Flex pay │[Sched]   │ │
+│ │• Scholar  │[Message] │ │
+│ │[529][HY]  │          │ │
+│ └───────────┴──────────┘ │
+└──────────────────────────┘
+```
+
+Single-file logic change + one prop pass-through. No new components or edge functions.
 
