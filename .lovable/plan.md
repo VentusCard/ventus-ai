@@ -1,64 +1,49 @@
 
 
-## AI-Generated Engagement Actions for Product Cards
+## Consolidate customer info to one line in ExecDemoSelectionDialog
 
 ### What
-Replace the hardcoded action pills ("Signal Sent to Mobile App", "Notify Wealth Advisor", etc.) with dynamically generated actions from a new edge function. The AI will receive full customer context (life events, persona, demographics, spending pillars, product cards) and generate 2–5 actions per card that blend standard banking engagement with deeply personal "wow factor" actions — things like sending flowers for an anniversary, a curated college visit itinerary, or a handwritten card for a milestone — that only make sense given the customer's specific life context.
+Collapse the 3-line customer info block (name + txn count + total + date range, then demographics line 1, then demographics line 2) into a single, more visible line. Remove date ranges. Increase text size and darken colors.
 
-### New Edge Function: `supabase/functions/generate-product-actions/index.ts`
+### Changes
 
-**Inputs** (same context already available in the pipeline):
-- `product_cards` — the 2 cards from generate-product-cards
-- `persona_rollups` — behavioral persona labels and spending patterns
-- `life_events` — detected life events with evidence
-- `demographics` — age, occupation, family status
-- `pillars` — top spending categories
+**`src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — lines 212–228
 
-**Output** (via tool calling):
-```json
-{
-  "card_actions": [
-    {
-      "card_index": 0,
-      "actions": [
-        { "label": "Signal Sent to Mobile App", "icon": "smartphone", "color": "blue", "tone": "standard" },
-        { "label": "Send Anniversary Flowers via Concierge", "icon": "heart", "color": "rose", "tone": "wow" }
-      ]
-    }
-  ]
-}
+Replace the current 3-line layout with a single line:
+
+```tsx
+<div className="px-6 pt-3 pb-2 shrink-0">
+  <div className="flex items-center gap-2 flex-wrap text-[13px] text-slate-700 font-medium">
+    <span className="font-bold text-slate-900">{customer.profile.name}</span>
+    <span className="text-slate-300">·</span>
+    <span>{rawRows.length} transactions</span>
+    <span className="text-slate-300">·</span>
+    <span>{customer.txnTotal}</span>
+    {customer.profile.demographics && (
+      <>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.demographics.age}</span>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.demographics.occupation}</span>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.demographics.familyStatus}</span>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.segment}</span>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.aum}</span>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.demographics.incomeLevel}</span>
+        <span className="text-slate-300">·</span>
+        <span>{customer.profile.demographics.industry}</span>
+      </>
+    )}
+  </div>
+</div>
 ```
 
-**Prompt strategy**:
-- 1–2 standard actions (notify advisor, trigger email, push notification, flag for review)
-- 1–3 wow actions that feel like a personal concierge: send a card, flowers, curated itinerary, milestone gift, proactive insurance check, personalized savings challenge — whatever the context justifies
-- Wow actions should feel like "my bank genuinely cares about my life" not "my bank is surveilling me"
-- Model: `google/gemini-2.5-flash` (fast structured output)
-
-### Frontend Changes
-
-**`src/components/exec-demo/NextProductRationale.tsx`**:
-- Add optional `productActions` prop with type for the response
-- Replace the hardcoded `{isBehavioral ? ... : ...}` action pills block with dynamic rendering from `productActions`
-- Map icon strings → lucide components (smartphone, mail, user-check, calendar, heart, gift, shield, lightbulb, star, compass, flower, pen-line)
-- "Wow" actions get a subtle sparkle accent and slightly richer styling (gradient border or star prefix)
-- Fallback: show current hardcoded pills while actions are loading or if the call fails
-
-**`src/pages/ExecDemoPage.tsx`**:
-- Add `productActions` state
-- After `generate-product-cards` resolves, fire `generate-product-actions` with product cards + same context
-- Pass `productActions` to `NextProductRationale`
-
-### Config
-
-Add to `supabase/config.toml`:
-```toml
-[functions.generate-product-actions]
-verify_jwt = false
-```
-
-### Technical Details
-- Icon set: ~12 lucide icons mapped by string name
-- Fallback: if edge function fails or is loading, render current hardcoded pills unchanged
-- No new dependencies
+Key differences:
+- Single line with dot separators instead of 3 stacked lines
+- Text bumped from 10–11px to 13px
+- Colors darkened from slate-400/500 to slate-700/900
+- Date range (`customer.dateRange`) removed entirely
 
