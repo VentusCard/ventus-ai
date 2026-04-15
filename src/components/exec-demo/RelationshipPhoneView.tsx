@@ -1,4 +1,4 @@
-import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare, Star, Gift, Sparkles, MapPin, Clock } from "lucide-react";
+import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare, Sparkles, MapPin, Clock } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
@@ -28,17 +28,22 @@ const HOLDING_META = [
   { key: "investments" as const, label: "Investments", icon: BarChart3, color: "#3b82f6" },
 ];
 
-const PILLAR_DEALS: Record<string, { merchant: string; offer: string }> = {
-  "Travel & Exploration": { merchant: "Delta SkyMiles", offer: "2x miles on travel" },
-  "Food & Dining": { merchant: "Whole Foods", offer: "5% back on groceries" },
-  "Sports & Active Living": { merchant: "REI Co-op", offer: "10% back on outdoor gear" },
-  "Health & Wellness": { merchant: "Equinox", offer: "$50 off membership" },
-  "Entertainment & Culture": { merchant: "AMC Theatres", offer: "Buy 1 get 1 free" },
-  "Style & Beauty": { merchant: "Nordstrom", offer: "3x points on apparel" },
-  "Technology & Digital Life": { merchant: "Apple", offer: "0% APR 24 months" },
-  "Home & Living": { merchant: "Home Depot", offer: "10% back on home" },
-};
-const DEFAULT_DEAL = { merchant: "Amazon", offer: "3% back on all purchases" };
+const ADVISORS = [
+  { name: "James Rivera", title: "Senior Relationship Manager", photo: "https://randomuser.me/api/portraits/men/32.jpg" },
+  { name: "Emily Chen", title: "Wealth Advisor", photo: "https://randomuser.me/api/portraits/women/44.jpg" },
+  { name: "Michael Torres", title: "Financial Advisor", photo: "https://randomuser.me/api/portraits/men/75.jpg" },
+  { name: "Sarah Nguyen", title: "Private Banker", photo: "https://randomuser.me/api/portraits/women/68.jpg" },
+  { name: "David Park", title: "Relationship Manager", photo: "https://randomuser.me/api/portraits/men/52.jpg" },
+  { name: "Rachel Adams", title: "Senior Financial Advisor", photo: "https://randomuser.me/api/portraits/women/26.jpg" },
+  { name: "Thomas Wright", title: "Private Client Advisor", photo: "https://randomuser.me/api/portraits/men/18.jpg" },
+  { name: "Lisa Patel", title: "Wealth Management Associate", photo: "https://randomuser.me/api/portraits/women/55.jpg" },
+];
+
+function getAdvisor(customerId: string) {
+  let hash = 0;
+  for (let i = 0; i < customerId.length; i++) hash = ((hash << 5) - hash + customerId.charCodeAt(i)) | 0;
+  return ADVISORS[Math.abs(hash) % ADVISORS.length];
+}
 
 function computeWellness(holdings: Record<string, string | undefined>) {
   const savings = parseCurrency(holdings.deposit || "$0");
@@ -61,10 +66,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
 
   const holdingValues = HOLDING_META.map(h => ({ ...h, value: parseCurrency(holdings[h.key] || "$0") }));
   const wellness = computeWellness(holdings);
-
-  // Pick a deal based on top pillar from life events or default
-  const topPillar = detectedLifeEvents?.[0]?.event_name;
-  const deal = (topPillar && PILLAR_DEALS[topPillar]) || DEFAULT_DEAL;
+  const advisor = getAdvisor(customer.id);
 
   return (
     <div className="flex flex-col h-full">
@@ -152,12 +154,10 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
           </div>
           <p className="text-[8px] text-slate-400 mb-2">Main St Branch · Downtown</p>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-[10px] font-bold text-blue-700">JR</span>
-            </div>
+            <img src={advisor.photo} alt={advisor.name} className="w-9 h-9 rounded-full object-cover border border-blue-200 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold text-slate-800">James Rivera</p>
-              <p className="text-[8px] text-slate-400">Senior Relationship Manager</p>
+              <p className="text-[11px] font-semibold text-slate-800">{advisor.name}</p>
+              <p className="text-[8px] text-slate-400">{advisor.title}</p>
             </div>
           </div>
           <p className="text-[10px] text-slate-500 italic mt-2 leading-snug">
