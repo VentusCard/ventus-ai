@@ -309,8 +309,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   {/* Action pills — dynamic or fallback */}
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                     {(() => {
-                      const cardIdx = i;
-                      const dynamicActions = productActions?.find(ca => ca.card_index === cardIdx)?.actions;
+                      const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
                       
                       if (dynamicActions && dynamicActions.length > 0) {
                         return dynamicActions.map((action, ai) => {
