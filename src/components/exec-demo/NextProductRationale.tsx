@@ -145,7 +145,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   // Show product cards rationale if available
   if (productCards && productCards.length > 0) {
     return (
-      <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
+      <div className="px-3 py-3 space-y-4 overflow-y-auto">
         {/* Current holdings pills */}
         {transactions && transactions.length > 0 && (
           <CurrentHoldingsPills transactions={transactions} />
@@ -250,12 +250,12 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           return (
             <div key={i} className="space-y-0">
               {/* Type label + Trigger pill */}
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span className="text-[10px] font-bold shrink-0" style={{ color: c.dot }}>
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span className="text-[11px] font-bold shrink-0" style={{ color: c.dot }}>
                   {isBehavioral ? "Behavioral:" : "Life Event:"}
                 </span>
                 <div
-                  className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""}`}
+                  className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""}`}
                   style={{
                     background: `linear-gradient(135deg, ${c.dot}10, ${c.dot}20)`,
                     color: c.text,
@@ -274,6 +274,11 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                     </span>
                   )}
                 </div>
+                {matchingEvent && (
+                  <span className="text-[10px] font-medium text-slate-400">
+                    {matchingEvent.confidence}% confidence · {matchingEvent.evidence.length} txn{matchingEvent.evidence.length !== 1 ? "s" : ""}
+                  </span>
+                )}
               </div>
 
               {/* Product card */}
@@ -286,24 +291,24 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
                 }}
               >
-                <div className="px-3 py-2.5">
+                <div className="px-4 py-3.5">
                   {/* Product name */}
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-[12px] font-bold text-slate-800">{card.product_name}</span>
+                      <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
                     </div>
 
                   {/* Quote preview */}
-                  <p className="text-[11px] text-slate-600 leading-relaxed italic">
+                  <p className="text-[12px] text-slate-600 leading-relaxed italic">
                     "{card.quote}"
                   </p>
 
                   {/* Trigger badge */}
-                  <div className="flex items-center gap-1.5 mt-2">
+                  <div className="flex items-center gap-1.5 mt-2.5">
                     <span
-                      className="text-[9px] font-medium px-1.5 py-0.5 rounded"
+                      className="text-[10px] font-medium px-2 py-0.5 rounded"
                       style={{ background: `${c.dot}10`, color: c.dot }}
                     >
-                      <CreditCard className="w-2.5 h-2.5 inline mr-0.5" />
+                      <CreditCard className="w-3 h-3 inline mr-0.5" />
                       {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
                     </span>
                   {/* Action pills — dynamic or fallback */}
@@ -317,7 +322,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                       return (
                         <span
                           key={ai}
-                          className={`inline-flex items-center gap-1 text-[9px] font-medium rounded-full px-2 py-0.5 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
+                          className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2.5 py-1 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
                           style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
                         >
                           {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
@@ -335,13 +340,13 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                         <div className="mt-2 space-y-1.5">
                           {standard.length > 0 && (
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
+                               <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
                               {standard.map((action, ai) => renderPill(action, ai))}
                             </div>
                           )}
                           {wow.length > 0 && (
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Concierge Touch</span>
+                              <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Concierge Touch</span>
                               {wow.map((action, ai) => renderPill(action, ai))}
                             </div>
                           )}
@@ -363,23 +368,23 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                     return (
                       <div className="mt-2 space-y-1.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
+                          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
                           {isBehavioral ? (
                             <>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
-                                <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2.5 py-1">
+                                <Smartphone className="w-3 h-3" /> Signal Sent to Mobile App
                               </span>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
-                                <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2.5 py-1">
+                                <Mail className="w-3 h-3" /> Triggered Email Campaign
                               </span>
                             </>
                           ) : (
                             <>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
-                                <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2.5 py-1">
+                                <UserCheck className="w-3 h-3" /> Notify Wealth Advisor
                               </span>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
-                                <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2.5 py-1">
+                                <CalendarCheck className="w-3 h-3" /> Schedule Review Meeting
                               </span>
                             </>
                           )}
@@ -390,6 +395,17 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   </div>
                 </div>
               </div>
+              {/* Talking point */}
+              {matchingEvent?.talking_points?.[0] && (
+                <div className="mt-1.5 px-4 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="flex items-start gap-1.5">
+                    <Lightbulb className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      {matchingEvent.talking_points[0]}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
