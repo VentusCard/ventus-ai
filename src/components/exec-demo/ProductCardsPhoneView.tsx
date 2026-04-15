@@ -64,14 +64,6 @@ export default function ProductCardsPhoneView({ cards, customerName }: Props) {
 
   return (
     <div className="px-3 py-3 space-y-3">
-      {/* Header */}
-      <div className="px-1">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-violet-500" />
-          <span className="text-[14px] font-bold text-slate-800">Your Offers</span>
-        </div>
-        <p className="text-[10px] text-slate-400 mt-0.5 pl-6">Personalized for {firstName}</p>
-      </div>
 
       {/* Cards */}
       {sortedCards.map((card, i) => {
