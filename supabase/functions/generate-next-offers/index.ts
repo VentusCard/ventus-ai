@@ -42,7 +42,14 @@ RULES:
 4. Bad message: "As a Product Director on the move, upgrade your commute"
 5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, a signal ("boost" or "neutral"), signalReason, and optionally boostCategory.
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
-7. Think laterally: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
+7. Think one step adjacent to what they already buy. A frequent flyer needs noise-cancelling headphones, a carry-on suitcase, packing cubes, a portable charger. A fitness enthusiast needs running shoes, a GPS watch, wireless earbuds, gym bag. A home cook needs a quality knife set, cast iron pan, spice subscription. Do NOT suggest supplements, vitamins, hydration packets, essential oils, or any wellness/health product unless the customer's transactions explicitly show health & wellness spending.
+
+PRODUCT RELEVANCE RULE:
+- Every deal must pass the "would this person obviously buy this?" test. The product category must have a direct, common-sense connection to the behavioral cluster's spending patterns — not a loose thematic association.
+- Before finalizing each deal, verify: does this product category appear in or logically extend the customer's top merchant categories? If the answer is no, replace it with something they'd actually use.
+
+NEVER SUGGEST (unless the cluster is explicitly health/wellness):
+- Supplements, vitamins, electrolyte mixes (e.g. Liquid I.V.), protein powders, essential oils, skincare serums, wellness subscriptions. These are statistically unlikely purchases for most personas.
 
 SIGNAL LOGIC:
 - "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap. Add "boostCategory" — a short product-type label (e.g., "Headphones", "Luggage").
