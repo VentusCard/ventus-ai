@@ -126,25 +126,36 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
 
           {/* Financial Wellness */}
           <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 mb-1">
               <Sparkles className="w-3 h-3 text-indigo-500" />
-              <span className="text-[8px] font-bold text-slate-700">Wellness</span>
+              <span className="text-[8px] font-bold text-slate-700">Financial Wellness</span>
             </div>
-            <div className="flex justify-center">
-              <div className="w-7 h-7 rounded-full border-2 flex items-center justify-center"
-                style={{ borderColor: wellness.score >= 75 ? "#22c55e" : wellness.score >= 50 ? "#f59e0b" : "#ef4444" }}>
-                <span className="text-[9px] font-bold text-slate-800">{wellness.score}</span>
+            <div className="flex items-center gap-2.5">
+              {/* Donut score */}
+              <div className="relative w-10 h-10 shrink-0">
+                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="3.5" />
+                  <circle cx="18" cy="18" r="14" fill="none"
+                    stroke={wellness.score >= 75 ? "#22c55e" : wellness.score >= 50 ? "#f59e0b" : "#ef4444"}
+                    strokeWidth="3.5" strokeLinecap="round"
+                    strokeDasharray={`${(wellness.score / 100) * 88} 88`} />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-slate-800">
+                  {wellness.score}
+                </span>
               </div>
-            </div>
-            <div className="space-y-0.5">
-              {wellness.items.map((item, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <span className="text-[6.5px] text-slate-500 truncate">{item.label}</span>
-                  <span className={`text-[6.5px] font-semibold ${item.ok ? "text-emerald-600" : "text-amber-600"}`}>
-                    {item.ok ? item.goodText : item.badText}
-                  </span>
-                </div>
-              ))}
+              {/* Status items */}
+              <div className="space-y-1 flex-1">
+                {wellness.items.map((item, i) => (
+                  <div key={i} className="flex items-center gap-1">
+                    <span className={`w-1 h-1 rounded-full shrink-0 ${item.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
+                    <span className="text-[7px] text-slate-500">{item.label}:</span>
+                    <span className={`text-[7px] font-semibold ${item.ok ? "text-emerald-600" : "text-amber-600"}`}>
+                      {item.ok ? item.goodText : item.badText}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
