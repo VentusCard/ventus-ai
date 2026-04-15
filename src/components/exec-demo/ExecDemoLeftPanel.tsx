@@ -217,12 +217,13 @@ export default function ExecDemoLeftPanel({
           <div className="min-w-0 flex-1">
             <div className="text-[12px] font-semibold text-slate-800 truncate">
               {isCustomMode ? (customName || "Custom") : currentCustomer?.profile.name}
+              {!isCustomMode && currentCustomer && (
+                <span className="text-[9px] font-normal text-slate-400 ml-1.5">{currentCustomer.txnCount} txns</span>
+              )}
             </div>
-            <div className="text-[9px] text-slate-400 truncate">
-              {isCustomMode
-                ? "Custom · Pasted Data"
-                : `${currentCustomer?.txnCount} txns`}
-            </div>
+            {isCustomMode && (
+              <div className="text-[9px] text-slate-400 truncate">Custom · Pasted Data</div>
+            )}
             {!isCustomMode && currentCustomer?.profile.demographics && (
               <div className="mt-0.5 space-y-px">
                 <div className="text-[9px] text-slate-400">
