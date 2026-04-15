@@ -290,10 +290,13 @@ export default function ExecDemoIntelPanel({
                     <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                {rollupStats.map((r, i) => (
-                  <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
-                ))}
+                <div className="mb-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Behavioral Intelligence</p>
+                  <div className="flex flex-wrap gap-2">
+                    {rollupStats.map((r, i) => (
+                      <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Life Event Detection section */}
