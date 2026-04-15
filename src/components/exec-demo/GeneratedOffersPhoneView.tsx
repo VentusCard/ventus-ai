@@ -365,18 +365,16 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           <div className="grid grid-cols-2 gap-1.5">
             <div className="flex rounded-lg border border-slate-100 bg-white overflow-hidden">
               <div className="w-1 bg-indigo-500 shrink-0" />
-              <div className="px-2 py-1.5 flex-1 min-w-0">
-                <p className="text-[9px] font-medium text-slate-500 truncate">MoMA</p>
-                <p className="text-[10px] font-bold text-slate-800 leading-tight">Private Gallery Viewing</p>
-                <span className="text-[9px] font-semibold text-emerald-600 mt-0.5 inline-block">Free entry</span>
+              <div className="px-2 py-1 flex-1 min-w-0">
+                <p className="text-[8px] text-slate-500 truncate">MoMA</p>
+                <p className="text-[9px] font-bold text-slate-800 leading-tight">Private Gallery Viewing</p>
               </div>
             </div>
             <div className="flex rounded-lg border border-slate-100 bg-white overflow-hidden">
               <div className="w-1 bg-green-500 shrink-0" />
-              <div className="px-2 py-1.5 flex-1 min-w-0">
-                <p className="text-[9px] font-medium text-slate-500 truncate">NY Mets</p>
-                <p className="text-[10px] font-bold text-slate-800 leading-tight">Home Game Access</p>
-                <span className="text-[9px] font-semibold text-emerald-600 mt-0.5 inline-block">$250 / game</span>
+              <div className="px-2 py-1 flex-1 min-w-0">
+                <p className="text-[8px] text-slate-500 truncate">NY Mets</p>
+                <p className="text-[9px] font-bold text-slate-800 leading-tight">Home Game Access</p>
               </div>
             </div>
           </div>
