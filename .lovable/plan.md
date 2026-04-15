@@ -1,31 +1,25 @@
 
 
-## Collapse Intel Header to Rolled-Up Pills on Tab Select
+## Show Only 3 Action Buttons After Synthesis, Hide Details
 
 ### What the user wants
-When clicking "Next-Offer" (or any action button), the top section of the intel panel (persona description, life events, risk factors) should collapse down to only show the rolled-up spending pattern pills in a compact horizontal strip. The tab content (PurchaseCycleTimeline, etc.) and phone mockup then expand upward to fill the freed space.
-
-### Current behavior
-- After synthesis + tab click: the top persona card keeps its full height (up to `45vh` with `maxHeight`), showing rollups, life events, risk factors
-- Tab content renders below in remaining space
+After clicking "Behavioral Intelligence: Ready", the intel panel should:
+1. Keep the card full height
+2. Hide all the detailed content (rollup pills, life events, risk factors, evidence)
+3. Show only the 3 action buttons (Next-Offer, Next-Product, Next Conversation) centered at the bottom
+4. When a button is clicked, the screen transitions (phone appears, transactions hide)
 
 ### Changes — Single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-1. **Collapse persona card when a tab is active**: When `synthesisTriggered && activeTab`, change the persona card wrapper to:
-   - Remove `flex-1` — no longer fills available space
-   - Set `maxHeight` to a small value (~auto, no constraint) so it shrinks to content
-   - Remove the life events section, risk factors section, and header text — only keep the rollup pills row in a single compact horizontal strip
-   - The rollup pills become a dense, non-expandable summary bar
+1. **Hide detail sections when no tab is active after synthesis**: Wrap the rollup pills, life events, risk factors sections (lines 285–423) in a condition: only render when `!synthesisTriggered || activeTab !== null`. When `synthesisTriggered && !activeTab`, these sections are hidden.
 
-2. **Restructure the `synthesisTriggered && rollupStats.length > 0` branch** (lines 321–458):
-   - When `activeTab` is set: render only the rollup pills row (lines 329–336) in a compact single-line style, hiding the "Behavioral Intelligence" header, life events, and risk factors
-   - When `activeTab` is null: render the 3 action buttons (existing behavior from lines 286–320)
+2. **Show centered action buttons when synthesisTriggered && !activeTab**: Replace the collapsed content area with 3 large vertically-stacked or centered action buttons (Next-Offer, Next-Product, Next Conversation) using the existing `TAB_ORDER` and `TAB_META`. Style them as prominent cards/buttons filling the empty space.
 
-3. **Tab content gets `flex-1`**: The tab content section (lines 588–607) already has `flex-1` when `synthesisTriggered` — this will naturally expand upward when the persona card shrinks.
+3. **Keep existing tab bar + content behavior**: When a tab IS clicked (`activeTab` is set), the current tab content renders as before (the panel transition to show phone will already work from the previous layout changes).
 
-4. **Smooth transition**: The persona card already has `transition-all duration-700 ease-out` — the height collapse will animate smoothly.
+4. **Full-height card**: When `synthesisTriggered && !activeTab`, the persona card stays `flex-1` so it fills the panel height, with the 3 buttons centered inside.
 
 ### Visual result
-- Click "Behavioral Intelligence: Ready" → 3 action buttons centered
-- Click "Next-Offer" → top collapses to a slim pill strip, tab content expands up, phone slides in from right
+- Click "Behavioral Intelligence: Ready" → card fills panel, shows only 3 clean action buttons in the center
+- Click "Next-Offer" → transitions to intel+phone layout with offer content
 
