@@ -1,32 +1,23 @@
 
 
-## Add Collapsed Sliver with Expand Button for Transaction Panel
+## Remove Row Headers in Collapsed State — Compile All Pills Together
 
 ### What changes
-When `activeTab` is set (panel collapses), instead of shrinking to `width: 0`, keep a narrow 40px sliver with a small expand/chevron button. Clicking it temporarily re-expands the transaction panel.
+When the card is collapsed (`synthesisTriggered && !pillsExpanded && activeTab`), remove the section headers ("Spending Patterns", "Life Event Detection", "Risk Factors") and render all pills (rollup pills, life event pills, risk pills) in a single `flex-wrap` container.
 
-### Changes — `src/pages/ExecDemoPage.tsx`
+### Changes — `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-1. **Add state**: `const [txPanelExpanded, setTxPanelExpanded] = useState(false)`
+In the block starting at line ~286 (the `synthesisTriggered && rollupStats.length > 0` branch):
 
-2. **Reset on tab change**: When `activeTab` changes to null, reset `txPanelExpanded = false`
+1. **Detect collapsed state**: Use `const isCollapsed = !pillsExpanded && !!activeTab`
 
-3. **Update left panel width logic** (line 761):
-   - When `!activeTab`: width 400 (full, as now)
-   - When `activeTab && txPanelExpanded`: width 400 (re-expanded)
-   - When `activeTab && !txPanelExpanded`: width 40 (sliver)
+2. **When collapsed** — replace the three separate sections (Spending Patterns div at lines 293-300, Life Event Detection div at lines 302-352, Risk Factors div at lines 354-421) with a single `<div className="flex flex-wrap gap-2">` that renders:
+   - All `PillarRollupChip` components (from `rollupStats`)
+   - All life event pills (from `detectedLifeEvents`)
+   - The risk factor pills or the "No Risk Factors Detected" pill
+   - No `<p>` headers at all
 
-4. **Render sliver content**: When `activeTab && !txPanelExpanded`, show a narrow vertical strip with:
-   - A `PanelLeft` or `ChevronRight` icon button centered vertically
-   - Subtle vertical text "Transactions" rotated 90° (optional, keeps it clean)
-   - On click → `setTxPanelExpanded(true)`
+3. **When expanded** — keep the current layout with section headers exactly as-is (no change)
 
-5. **Add collapse button**: When `activeTab && txPanelExpanded`, add a small collapse button at the top of the transaction panel to set `txPanelExpanded(false)`
-
-6. **Opacity**: Keep opacity at 1 for the sliver state (not 0)
-
-### Visual result
-- Select an action → left panel shrinks to a 40px sliver with a small expand arrow
-- Click the arrow → panel re-expands to show the full transaction list
-- Click collapse → returns to sliver
+This is purely a conditional render split inside the existing `synthesisTriggered` block. No new components or state needed.
 
