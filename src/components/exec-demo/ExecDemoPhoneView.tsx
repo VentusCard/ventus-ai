@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Sparkles, Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import DemoEngagementView from "@/components/demo/DemoEngagementView";
-import DemoRewardsView from "@/components/demo/DemoRewardsView";
+
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
@@ -56,7 +56,11 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         if (generatedOffers && generatedOffers.length > 0) {
           return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} />;
         }
-        return <DemoRewardsView customer={customer} />;
+        return (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-[11px] text-slate-300">Personalizing rewards...</span>
+          </div>
+        );
       case "product":
         if (productCards && productCards.length > 0) {
           return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} />;
