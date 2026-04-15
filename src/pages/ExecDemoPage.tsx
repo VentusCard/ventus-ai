@@ -713,6 +713,7 @@ export default function ExecDemoPage() {
                     : "#10b981"
             }
             onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
+            enriched={phase === "cardCycle" || phase === "hold"}
           />
         </div>
 

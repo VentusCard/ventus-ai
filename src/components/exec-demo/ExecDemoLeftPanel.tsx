@@ -26,6 +26,7 @@ interface Props {
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
+  enriched?: boolean;
 }
 
 const SCROLL_DURATION = 6000;
@@ -40,6 +41,7 @@ const TxRow = ({
   pillarColor,
   categoryLabel,
   signalEntry,
+  enriched,
 }: {
   tx: Transaction;
   dim: boolean;
@@ -48,6 +50,7 @@ const TxRow = ({
   pillarColor?: string;
   categoryLabel?: string;
   signalEntry?: SignalEntry;
+  enriched?: boolean;
 }) => {
   const [hovered, setHovered] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -127,25 +130,29 @@ const TxRow = ({
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="text-slate-400">Pillar:</span>
-            <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
+            <span className={enriched ? "font-semibold" : "text-slate-500"} style={enriched ? { color: pillarColor || "#67e8f9" } : undefined}>{enriched ? signalEntry.pillar : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Category:</span>
-            <span className="text-slate-200">{signalEntry.category || "—"}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.category || "—") : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Sub:</span>
-            <span className="text-slate-200">{signalEntry.label}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? signalEntry.label : "—"}</span>
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="text-slate-400">Tier:</span>
-            <span className="text-slate-200">{signalEntry.tier || "—"}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.tier || "—") : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Frequency:</span>
-            <span className="text-slate-200">{signalEntry.frequency || "—"}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.frequency || "—") : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Confidence:</span>
-            <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
-              {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
-            </span>
+            {enriched ? (
+              <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
+                {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
+              </span>
+            ) : (
+              <span className="text-slate-500">—</span>
+            )}
           </div>
         </div>,
         document.body
@@ -176,6 +183,7 @@ export default function ExecDemoLeftPanel({
   activePillLabel,
   activePillColor = "#10b981",
   onClearFilter,
+  enriched,
 }: Props) {
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
   const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
@@ -247,7 +255,7 @@ export default function ExecDemoLeftPanel({
         {phase === "idle" && transactions.length > 0 && (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto scrollbar-light space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`idle-${i}`} tx={tx} dim={false} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
+                <TxRow key={`idle-${i}`} tx={tx} dim={false} enriched={enriched} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
               ))}
             </div>
         )}
@@ -313,7 +321,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} enriched={enriched} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />
                     </div>
                   );
                 })}
@@ -321,14 +329,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim enriched={enriched} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             ) : (
               <>
                 {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} enriched={enriched} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             )}
