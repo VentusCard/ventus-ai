@@ -607,13 +607,7 @@ export default function ExecDemoIntelPanel({
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} />
             ) : activeTab === "relationship" ? (
               <NextConversationRationale />
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <span className="text-[11px] text-slate-300 font-mono">
-                  Analyzing transactions...
-                </span>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}
