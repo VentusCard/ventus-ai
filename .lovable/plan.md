@@ -1,51 +1,29 @@
 
 
-## Restructure customer info as a table header row
+## Fix mismatched product actions on Next-Product cards
 
-### What
-Replace the dot-separated inline text with a proper table-style header showing column labels above the values. Also trim demographics to fields a bank would realistically have from account opening data.
+### Problem
+Product cards are sorted (life event first, behavioral last) on line 169-173 before rendering. But the action lookup on line 311 uses the loop index `i` (post-sort position) to match against `productActions[].card_index` (which references the original pre-sort order). This swaps the actions between cards.
 
-### Fields to keep (bank-realistic)
-- **Name** — from account application
-- **Segment** — bank-assigned tier (Preferred/Private/Premium)
-- **AUM** — tracked by the bank
-- **Tenure** — known from account opening date
-- **Age** — from DOB on file
-- **Household** — family status from application (rename from "familyStatus")
-- **Transactions** — count from the dataset
-- **Total** — sum from the dataset
+### Fix
 
-### Fields to remove
-- **Occupation** — banks collect this but it's not typically surfaced in a customer selector
-- **Income Level** — collected at application but sensitive; not displayed in a quick-select view
-- **Industry** — not standard bank data
+**`src/components/exec-demo/NextProductRationale.tsx`** — one change:
 
-### UI change in `ExecDemoSelectionDialog.tsx` (lines 212–238)
+On the sorted `.map()` (line 169-173), track the original index of each card and use that for the `productActions` lookup instead of `i`.
 
-Replace the current `flex-wrap` dot-separated block with a mini table-style layout:
-
+Replace the sort+map with:
 ```tsx
-<div className="px-6 pt-3 pb-2 shrink-0">
-  <div className="grid grid-cols-7 gap-4 text-[11px]">
-    {/* Header row */}
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Name</span>
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Segment</span>
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">AUM</span>
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Tenure</span>
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Age</span>
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Household</span>
-    <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Transactions</span>
-    {/* Value row */}
-    <span className="font-bold text-slate-900 text-[13px]">{customer.profile.name}</span>
-    <span className="text-slate-700 text-[13px]">{customer.profile.segment}</span>
-    <span className="text-slate-700 text-[13px]">{customer.profile.aum}</span>
-    <span className="text-slate-700 text-[13px]">{customer.profile.tenure}</span>
-    <span className="text-slate-700 text-[13px]">{customer.profile.demographics?.age}</span>
-    <span className="text-slate-700 text-[13px]">{customer.profile.demographics?.familyStatus}</span>
-    <span className="text-slate-700 text-[13px]">{rawRows.length} · {customer.txnTotal}</span>
-  </div>
-</div>
+{[...productCards].map((card, origIdx) => ({ card, origIdx }))
+  .sort((a, b) => {
+    if (a.card.type === "behavioral" && b.card.type !== "behavioral") return 1;
+    if (a.card.type !== "behavioral" && b.card.type === "behavioral") return -1;
+    return 0;
+  })
+  .map(({ card, origIdx }, i) => {
+    // ... existing rendering code ...
+    // Line 311: use origIdx instead of i
+    const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
 ```
 
-Single file change: `src/components/exec-demo/ExecDemoSelectionDialog.tsx`, lines 212–238.
+Single file, ~4 lines changed.
 
