@@ -1,4 +1,4 @@
-import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare, Star, Gift, Sparkles, MapPin, Clock } from "lucide-react";
+import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare, Sparkles, MapPin, Clock } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
