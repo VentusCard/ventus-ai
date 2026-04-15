@@ -1,25 +1,55 @@
 
 
-## Simplify customer profile card in executive demo
+## Separate product actions into two labeled rows
 
 ### What
-Trim the two-line demographics block in the top-left customer card to show only: Zip Code, Income Level, and Marital Status. Remove Segment, AUM, Age, Occupation, and Industry.
+Split the AI-generated action pills on each product card into two visually distinct rows:
+1. **Standard Response** — operational actions (email campaign, schedule meeting, push notification, etc.) where `tone === "standard"`
+2. **Concierge Touch** — relationship-building / wow-factor actions where `tone === "wow"`
+
+Each row gets a tiny label prefix (e.g. `Standard Response ·` and `Concierge Touch ·`) in slate-400 text before the pills.
 
 ### Change
 
-**File**: `src/components/exec-demo/ExecDemoLeftPanel.tsx`, lines 236-243
+**File**: `src/components/exec-demo/NextProductRationale.tsx`, lines ~310-365
 
-Replace the two `<div>` lines with a single line:
+Replace the single `flex-wrap` div of action pills with two grouped rows:
 
 ```tsx
-{!isCustomMode && currentCustomer && (
-  <div className="text-[9px] text-slate-500 truncate mt-0.5">
-    {currentCustomer.zip} · {currentCustomer.profile.demographics?.incomeLevel} · {currentCustomer.profile.demographics?.familyStatus}
-  </div>
-)}
+{(() => {
+  const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
+
+  if (dynamicActions && dynamicActions.length > 0) {
+    const standard = dynamicActions.filter(a => a.tone === "standard");
+    const wow = dynamicActions.filter(a => a.tone === "wow");
+
+    return (
+      <div className="mt-2 space-y-1.5">
+        {standard.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide">Standard Response</span>
+            {standard.map((action, ai) => (
+              /* existing pill rendering, no ring/sparkle */
+            ))}
+          </div>
+        )}
+        {wow.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide">Concierge Touch</span>
+            {wow.map((action, ai) => (
+              /* existing pill rendering with sparkle + ring */
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Loading and static fallbacks remain unchanged
+})()}
 ```
 
-This shows e.g. `94102 · $150K–$200K · Married, 1 dependent` in one compact line.
+Also update the static fallbacks to use the same two-row layout with labels.
 
-Single file, ~8 lines replaced with ~4.
+Single file, ~30 lines changed.
 
