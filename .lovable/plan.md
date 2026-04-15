@@ -1,29 +1,25 @@
 
 
-## Fix mismatched product actions on Next-Product cards
+## Simplify customer profile card in executive demo
 
-### Problem
-Product cards are sorted (life event first, behavioral last) on line 169-173 before rendering. But the action lookup on line 311 uses the loop index `i` (post-sort position) to match against `productActions[].card_index` (which references the original pre-sort order). This swaps the actions between cards.
+### What
+Trim the two-line demographics block in the top-left customer card to show only: Zip Code, Income Level, and Marital Status. Remove Segment, AUM, Age, Occupation, and Industry.
 
-### Fix
+### Change
 
-**`src/components/exec-demo/NextProductRationale.tsx`** — one change:
+**File**: `src/components/exec-demo/ExecDemoLeftPanel.tsx`, lines 236-243
 
-On the sorted `.map()` (line 169-173), track the original index of each card and use that for the `productActions` lookup instead of `i`.
+Replace the two `<div>` lines with a single line:
 
-Replace the sort+map with:
 ```tsx
-{[...productCards].map((card, origIdx) => ({ card, origIdx }))
-  .sort((a, b) => {
-    if (a.card.type === "behavioral" && b.card.type !== "behavioral") return 1;
-    if (a.card.type !== "behavioral" && b.card.type === "behavioral") return -1;
-    return 0;
-  })
-  .map(({ card, origIdx }, i) => {
-    // ... existing rendering code ...
-    // Line 311: use origIdx instead of i
-    const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
+{!isCustomMode && currentCustomer && (
+  <div className="text-[9px] text-slate-500 truncate mt-0.5">
+    {currentCustomer.zip} · {currentCustomer.profile.demographics?.incomeLevel} · {currentCustomer.profile.demographics?.familyStatus}
+  </div>
+)}
 ```
 
-Single file, ~4 lines changed.
+This shows e.g. `94102 · $150K–$200K · Married, 1 dependent` in one compact line.
+
+Single file, ~8 lines replaced with ~4.
 
