@@ -45,7 +45,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
   const firstName = customer.profile.name.split(" ")[0];
   const holdings = customer.profile.holdings ?? {};
   const eventName = detectedLifeEvents?.[0]?.event_name ?? "financial goals";
-  const tip = generateFinancialTip(customer.enrichedTransactions ?? []);
+  const tip = generateFinancialTip([]);
   const [tipDismissed, setTipDismissed] = useState(false);
 
   // Compute totals
