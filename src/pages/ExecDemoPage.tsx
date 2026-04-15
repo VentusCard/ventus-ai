@@ -711,12 +711,6 @@ export default function ExecDemoPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={handleChangeCustomer}
-            className="text-[12px] font-medium text-slate-500 hover:text-slate-700 transition-colors"
-          >
-            Change Customer
-          </button>
-          <button
             onClick={() => setContactOpen(true)}
             className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
