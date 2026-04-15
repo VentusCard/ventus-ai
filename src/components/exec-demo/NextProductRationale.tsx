@@ -145,7 +145,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   // Show product cards rationale if available
   if (productCards && productCards.length > 0) {
     return (
-      <div className="px-3 py-3 space-y-2.5 overflow-y-auto">
+      <div className="px-3 py-3 space-y-4 overflow-y-auto">
         {/* Current holdings pills */}
         {transactions && transactions.length > 0 && (
           <CurrentHoldingsPills transactions={transactions} />
