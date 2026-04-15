@@ -41,6 +41,7 @@ const TxRow = ({
   pillarColor,
   categoryLabel,
   signalEntry,
+  enriched,
 }: {
   tx: Transaction;
   dim: boolean;
