@@ -158,6 +158,8 @@ export default function ExecDemoIntelPanel({
   productCards,
   onTriggerPillClick,
   activeTriggerLabel,
+  productActions,
+  actionsLoading,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
