@@ -154,12 +154,10 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
           </div>
           <p className="text-[8px] text-slate-400 mb-2">Main St Branch · Downtown</p>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-[10px] font-bold text-blue-700">JR</span>
-            </div>
+            <img src={advisor.photo} alt={advisor.name} className="w-9 h-9 rounded-full object-cover border border-blue-200 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold text-slate-800">James Rivera</p>
-              <p className="text-[8px] text-slate-400">Senior Relationship Manager</p>
+              <p className="text-[11px] font-semibold text-slate-800">{advisor.name}</p>
+              <p className="text-[8px] text-slate-400">{advisor.title}</p>
             </div>
           </div>
           <p className="text-[10px] text-slate-500 italic mt-2 leading-snug">
