@@ -166,11 +166,13 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         </div>
 
         {/* Card rationale */}
-        {[...productCards].sort((a, b) => {
-          if (a.type === "behavioral" && b.type !== "behavioral") return 1;
-          if (a.type !== "behavioral" && b.type === "behavioral") return -1;
-          return 0;
-        }).map((card, i) => {
+        {[...productCards].map((card, origIdx) => ({ card, origIdx }))
+          .sort((a, b) => {
+            if (a.card.type === "behavioral" && b.card.type !== "behavioral") return 1;
+            if (a.card.type !== "behavioral" && b.card.type === "behavioral") return -1;
+            return 0;
+          })
+          .map(({ card, origIdx }, i) => {
           const isBehavioral = card.type === "behavioral";
           const c = isBehavioral
             ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
