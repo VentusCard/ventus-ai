@@ -751,41 +751,47 @@ export default function ExecDemoPage() {
         </div>
       </div>
 
-      {/* Main content — 3 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-[400px_1fr_360px]">
-        {/* Col 1 — Customer selection + transaction feed */}
-        <div className="border-r border-slate-200 bg-white overflow-hidden">
-          <ExecDemoLeftPanel
-            selectedIdx={selectedIdx}
-            onSelectCustomer={handleSelectCustomer}
-            onRunAnalysis={handleRunAnalysis}
-            onLoadCustomCsv={handleLoadCustomCsv}
-            onChangeCustomer={handleChangeCustomer}
-            isRunning={isRunning}
-            phase={phase}
-            collectedIndices={collectedIndices}
-            currentCardColor={currentCardColor}
-            isCustomMode={!!customCsv}
-            customName={customName || undefined}
-            customTransactions={profile?.transactions}
-            personaIcon={execProfile.persona.icon}
-            personaTitle={execProfile.persona.title}
-            filteredIndices={filteredIndices}
-            signalMap={execProfile.persona.signalMap}
-            activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
-            activePillColor={
-              activeTriggerPill
-                ? activeTriggerPill.color
-                : activeRollup
-                  ? getColor(activeRollup.pillar).dot
-                  : activePillFilter
-                    ? getColor(activePillFilter.pillar).dot
-                    : "#10b981"
-            }
-            onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
-            enriched={phase === "cardCycle" || phase === "hold"}
-          />
-        </div>
+      {/* Main content — dynamic 2-column layout */}
+      <div className={`flex-1 min-h-0 grid transition-all duration-500 ease-in-out ${
+        (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship")
+          ? "grid-cols-[1fr_360px]"
+          : "grid-cols-[400px_1fr]"
+      }`}>
+        {/* Col 1 — Customer selection + transaction feed (hidden when phone is shown) */}
+        {!(activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") && (
+          <div className="border-r border-slate-200 bg-white overflow-hidden animate-fade-in">
+            <ExecDemoLeftPanel
+              selectedIdx={selectedIdx}
+              onSelectCustomer={handleSelectCustomer}
+              onRunAnalysis={handleRunAnalysis}
+              onLoadCustomCsv={handleLoadCustomCsv}
+              onChangeCustomer={handleChangeCustomer}
+              isRunning={isRunning}
+              phase={phase}
+              collectedIndices={collectedIndices}
+              currentCardColor={currentCardColor}
+              isCustomMode={!!customCsv}
+              customName={customName || undefined}
+              customTransactions={profile?.transactions}
+              personaIcon={execProfile.persona.icon}
+              personaTitle={execProfile.persona.title}
+              filteredIndices={filteredIndices}
+              signalMap={execProfile.persona.signalMap}
+              activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+              activePillColor={
+                activeTriggerPill
+                  ? activeTriggerPill.color
+                  : activeRollup
+                    ? getColor(activeRollup.pillar).dot
+                    : activePillFilter
+                      ? getColor(activePillFilter.pillar).dot
+                      : "#10b981"
+              }
+              onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
+              enriched={phase === "cardCycle" || phase === "hold"}
+            />
+          </div>
+        )}
 
         {/* Col 2 — Intelligence panel */}
         <div className="border-r border-slate-200 bg-white overflow-hidden">
@@ -818,18 +824,20 @@ export default function ExecDemoPage() {
           />
         </div>
 
-        {/* Col 3 — iPhone with /deckmo views */}
-        <div className="bg-slate-50 overflow-hidden">
-          <ExecDemoPhoneView
-            customer={demoCustomer}
-            activeTab={activeTab}
-            phase={phase}
-            showContent={activeTab !== null && phase !== "idle"}
-            generatedOffers={generatedOffers}
-            detectedLifeEvents={detectedLifeEvents}
-            productCards={productCards}
-          />
-        </div>
+        {/* Col 3 — iPhone (shown when Next-Offer tab is active) */}
+        {(activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") && (
+          <div className="bg-slate-50 overflow-hidden animate-panel-slide-in">
+            <ExecDemoPhoneView
+              customer={demoCustomer}
+              activeTab={activeTab}
+              phase={phase}
+              showContent={activeTab !== null && phase !== "idle"}
+              generatedOffers={generatedOffers}
+              detectedLifeEvents={detectedLifeEvents}
+              productCards={productCards}
+            />
+          </div>
+        )}
       </div>
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
