@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { persona, pillars, demographics, timeline } = await req.json();
+    const { persona, pillars, demographics, timeline, lifeEvents } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -33,6 +33,14 @@ serve(async (req) => {
         (p: any, i: number) =>
           `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`,
       )
+      .join("\n");
+
+    // Build life event context if provided
+    const lifeEventList = (lifeEvents || [])
+      .map((e: any, i: number) => {
+        const merchants = (e.evidence_merchants || []).slice(0, 6).join(", ");
+        return `${i + 1}. "${e.event_name}" (confidence: ${Math.round((e.confidence || 0) * 100)}%)${merchants ? ` — evidence merchants: ${merchants}` : ""}`;
+      })
       .join("\n");
 
     const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
@@ -61,16 +69,30 @@ COLLECTION MESSAGE:
 - For each cluster, generate a "collectionMessage" — a short, inspiring 8-15 word lifestyle tagline that introduces the collection of deals.
 - Do NOT reference demographics. Keep it aspirational and lifestyle-focused.
 
+LIFE EVENT CLUSTERS:
+- If LIFE EVENT CLUSTERS are provided, generate an additional rollup group for EACH life event with 5 deals that support that life transition.
+- Use the life event name as the rollup label and "Life Event" as the pillar.
+- Deals should be products/services that help someone going through that specific life event.
+- Example: "Moving to New Home" → furniture, moving supplies, home insurance, smart home devices, cleaning services.
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
-    const userPrompt = `BEHAVIORAL CLUSTERS (with recent spending/merchants):
-${rollupList}
+    let userPrompt = "";
 
-SPENDING CONTEXT:
-${pillarContext}
+    if (rollupList) {
+      userPrompt += `BEHAVIORAL CLUSTERS (with recent spending/merchants):\n${rollupList}\n\n`;
+    }
 
-Generate exactly 5 deals for EACH cluster above with boost/suppress/neutral signals. Return valid JSON only.`;
+    if (pillarContext) {
+      userPrompt += `SPENDING CONTEXT:\n${pillarContext}\n\n`;
+    }
+
+    if (lifeEventList) {
+      userPrompt += `LIFE EVENT CLUSTERS (generate 5 deals per event):\n${lifeEventList}\n\n`;
+    }
+
+    userPrompt += `Generate exactly 5 deals for EACH cluster above with boost/neutral signals. Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

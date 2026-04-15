@@ -366,12 +366,37 @@ export default function ExecDemoPage() {
       console.log("[PRELOAD] Life events detected:", events.length);
       // Fire product cards generation with life events + persona data
       fireProductCards(events, personaSynthesisRef.current);
+      // Fire supplemental life-event-based offers
+      if (events.length > 0) {
+        fireLifeEventOffers(events);
+      }
     } catch (err) {
       console.error("[PRELOAD] Life event detection failed:", err);
     } finally {
       setProductsLoading(false);
     }
   }, [selectedIdx, customCsv]);
+
+  /** Generate life-event-based deal recommendations */
+  const fireLifeEventOffers = useCallback(async (events: LifeEvent[]) => {
+    try {
+      const lifeEventClusters = events.map(e => ({
+        event_name: e.event_name,
+        confidence: e.confidence,
+        evidence_merchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
+      }));
+      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
+        body: { lifeEvents: lifeEventClusters },
+      });
+      if (error) throw error;
+      if (data?.rollupOffers?.length) {
+        setGeneratedOffers(prev => [...(prev || []), ...data.rollupOffers]);
+        console.log("[PRELOAD] Life-event offers appended:", data.rollupOffers.length, "groups");
+      }
+    } catch (err) {
+      console.error("[PRELOAD] Life-event offers failed:", err);
+    }
+  }, []);
 
   /** Detect risk factors using detect-risk-transactions edge function */
   const fireRiskDetection = useCallback(async () => {
