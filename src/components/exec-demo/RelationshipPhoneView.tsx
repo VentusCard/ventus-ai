@@ -65,6 +65,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
   const [tipDismissed, setTipDismissed] = useState(false);
 
   const holdingValues = HOLDING_META.map(h => ({ ...h, value: parseCurrency(holdings[h.key] || "$0") }));
+  const wellness = computeWellness(holdings);
   const advisor = getAdvisor(customer.id);
 
   return (
