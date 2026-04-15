@@ -786,9 +786,9 @@ export default function ExecDemoPage() {
           {(!activeTab || txPanelExpanded) && (
             <div className="w-[400px] h-full relative">
               {activeTab && txPanelExpanded && (
-                <button
+              <button
                   onClick={() => setTxPanelExpanded(false)}
-                  className="absolute top-2 right-2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
                 >
                   <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
                 </button>
