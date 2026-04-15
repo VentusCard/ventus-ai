@@ -60,20 +60,21 @@ interface Props {
 
 export default function ProductCardsPhoneView({ cards, customerName }: Props) {
   const firstName = customerName.split(" ")[0];
+  const sortedCards = [...cards].sort((a, b) => a.type === 'life_event' ? -1 : b.type === 'life_event' ? 1 : 0);
 
   return (
-    <div className="px-4 py-4 space-y-4">
+    <div className="px-3 py-3 space-y-3">
       {/* Header */}
       <div className="px-1">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-violet-500" />
-          <span className="text-[15px] font-bold text-slate-800">Your Offers</span>
+          <span className="text-[14px] font-bold text-slate-800">Your Offers</span>
         </div>
-        <p className="text-[11px] text-slate-400 mt-0.5 pl-6">Personalized for {firstName}</p>
+        <p className="text-[10px] text-slate-400 mt-0.5 pl-6">Personalized for {firstName}</p>
       </div>
 
       {/* Cards */}
-      {cards.map((card, i) => {
+      {sortedCards.map((card, i) => {
         const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
         const Icon = style.icon;
         const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
@@ -88,30 +89,16 @@ export default function ProductCardsPhoneView({ cards, customerName }: Props) {
               animation: `phone-card-reveal 0.4s ease-out ${i * 0.18}s both`,
             }}
           >
-            <div className="p-5">
-              {/* Category tag */}
-              <div className="flex items-center gap-1.5 mb-3">
+            <div className="p-3.5">
+              <div className="flex items-center gap-1.5 mb-1.5">
                 <Icon className="w-3.5 h-3.5" style={{ color: style.accent }} />
-                <span
-                  className="text-[10px] font-semibold uppercase tracking-wider"
-                  style={{ color: style.accent }}
-                >
+                <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: style.accent }}>
                   {card.signal_label}
                 </span>
               </div>
-
-              {/* Product name */}
-              <p className="text-[15px] font-bold text-slate-800 leading-snug mb-1.5">
-                {card.product_name}
-              </p>
-
-              {/* Quote */}
-              <p className="text-[12px] text-slate-500 italic leading-relaxed mb-4">
-                "{card.quote}"
-              </p>
-
-              {/* Benefits */}
-              <div className="space-y-2 mb-4">
+              <p className="text-[13px] font-bold text-slate-800 leading-snug mb-1">{card.product_name}</p>
+              <p className="text-[11px] text-slate-500 italic leading-relaxed mb-2">"{card.quote}"</p>
+              <div className="space-y-1.5 mb-2">
                 {benefits.map((b, bi) => (
                   <div key={bi} className="flex items-start gap-2">
                     <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
@@ -119,17 +106,8 @@ export default function ProductCardsPhoneView({ cards, customerName }: Props) {
                   </div>
                 ))}
               </div>
-
-              {/* Value */}
-              <p className="text-[11px] font-bold mb-4" style={{ color: style.accent }}>
-                Est. value: {value}
-              </p>
-
-              {/* CTA */}
-              <button
-                className="w-full py-2.5 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1"
-                style={{ background: style.accent }}
-              >
+              <p className="text-[11px] font-bold mb-2.5" style={{ color: style.accent }}>Est. value: {value}</p>
+              <button className="w-full py-2 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1" style={{ background: style.accent }}>
                 Learn More <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
