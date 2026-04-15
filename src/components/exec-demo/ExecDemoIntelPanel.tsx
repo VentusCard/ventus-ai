@@ -256,13 +256,13 @@ export default function ExecDemoIntelPanel({
     <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${synthesisTriggered && activeTab ? "" : (!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : "flex-1 min-h-0"}`}
         style={{
           background: "rgba(11,26,58,.022)",
           border: "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: synthesisTriggered && !pillsExpanded ? "45vh" : undefined,
+          maxHeight: synthesisTriggered && activeTab ? undefined : synthesisTriggered && !pillsExpanded ? "45vh" : undefined,
         }}
       >
 
