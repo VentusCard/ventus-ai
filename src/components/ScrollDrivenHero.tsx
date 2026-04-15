@@ -251,7 +251,7 @@ const ScrollDrivenHero = () => {
                 </div>
               ) : (
                 <div className="space-y-0">
-                  {enrichedData.slice(0, 12).map((row, i) => {
+                  {enrichedSorted.map((row, i) => {
                     const isHighlighted = stage === 3 && activePersona && row.persona === activePersona.id;
                     const isDimmed = stage === 3 && activePersona && row.persona !== activePersona.id;
                     return (
@@ -259,17 +259,32 @@ const ScrollDrivenHero = () => {
                         key={i}
                         className="flex items-center justify-between py-[3px] transition-all duration-[400ms]"
                         style={{
-                          opacity: isDimmed ? 0.1 : 1,
+                          opacity: isDimmed ? 0.08 : 1,
                           borderLeft: isHighlighted ? `3px solid ${activePersona!.color}` : "3px solid transparent",
                           paddingLeft: 8,
                         }}
                       >
-                        <span
-                          className="text-[11px] truncate mr-3 transition-colors duration-[400ms]"
-                          style={{ color: isHighlighted ? "#e2e8f0" : "rgba(203,213,225,0.8)" }}
-                        >
-                          {row.merchant}
-                        </span>
+                        <div className="flex flex-col min-w-0 mr-3">
+                          {/* Show raw → clean transformation in stage 2 */}
+                          {stage === 2 && (
+                            <span
+                              className="font-mono text-[9px] truncate transition-all duration-500"
+                              style={{
+                                color: "rgba(100,116,139,0.5)",
+                                textDecoration: "line-through",
+                                textDecorationColor: "rgba(239,68,68,0.4)",
+                              }}
+                            >
+                              {row.raw.split("$")[0].trim()}
+                            </span>
+                          )}
+                          <span
+                            className="text-[11px] truncate transition-colors duration-[400ms]"
+                            style={{ color: isHighlighted ? "#e2e8f0" : "rgba(203,213,225,0.8)" }}
+                          >
+                            {row.merchant}
+                          </span>
+                        </div>
                         <span
                           className="shrink-0 text-[9px] font-semibold px-2 py-0.5 rounded-full"
                           style={{
