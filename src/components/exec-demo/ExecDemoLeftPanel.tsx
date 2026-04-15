@@ -152,6 +152,7 @@ const TxRow = ({
             ) : (
               <span className="text-slate-500">—</span>
             )}
+          </div>
         </div>,
         document.body
       )}
