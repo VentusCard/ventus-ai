@@ -1,29 +1,42 @@
-## Enlarge product cards and add more relevant data
+
+
+## Redesign Offers tab as a premium consumer banking experience
 
 ### What
+Rewrite `ProductCardsPhoneView.tsx` to feel like a real Chase/Amex mobile offers screen. The two AI-generated cards stay central but are presented with richer context, bigger type, and real-feeling product details — all consumer-facing (no banker jargon).
 
-The two product cards in the Next-Product intelligence panel are currently compact (12px titles, 11px quotes, tiny badges). Scale them up and surface additional context from the matching life event data.
+### Design
+
+**Header**: "Your Offers" with a sparkle accent and subtle "Personalized for you" subline.
+
+**Card 1 (Behavioral)** — Full-width white card with colored left border accent:
+- Theme icon + signal label as a subtle category tag (e.g. "Tropical Getaways")
+- Product name in bold 15px as the headline
+- The AI quote in 13px as the description
+- 3 hardcoded benefit bullets based on theme (e.g. travel → "3X points on travel & dining", "No foreign transaction fees", "$100 annual travel credit")
+- Estimated annual value line (e.g. "Est. value: $450–$680/yr") from a theme lookup
+- Full-width themed "Learn More →" button
+
+**Card 2 (Life Event)** — Same white card layout, softer accent color:
+- Same structure: tag → product name → quote → benefits → value → CTA
+- Benefits and value come from a `THEME_BENEFITS` / `THEME_VALUE` static map
+
+**Footer**: Tiny "Recommendations based on your financial profile" disclaimer
 
 ### Changes
 
-**File**: `src/components/exec-demo/NextProductRationale.tsx`
+**File: `src/components/exec-demo/ProductCardsPhoneView.tsx`** — Full rewrite (~190 lines)
 
-1. **Increase card sizing**:
-  - Product name: `text-[12px]` → `text-[14px]`
-  - Quote text: `text-[11px]` → `text-[12px]`, increase line height
-  - Card padding: `px-3 py-2.5` → `px-4 py-3.5`
-  - Trigger pill text: `text-[10px]` → `text-[11px]`
-  - Action pill text: `text-[9px]` → `text-[10px]`
-  - Row labels: `text-[8px]` → `text-[9px]`
-  - Trigger badge: `text-[9px]` → `text-[10px]`
-2. **Add contextual data from matching life event** (when available):
-  - **Confidence score**: Show as a small percentage bar or badge next to the trigger label (e.g. "92% confidence")
-  - **Evidence count**: Show number of supporting transactions (e.g. "Based on 4 transactions")
-  - **Talking point**: Display the first talking point from the life event as a short advisor tip beneath the card
-3. **Adjust outer spacing**: Increase gap between cards from `space-y-2.5` to `space-y-4` for breathing room.
+- Add `THEME_BENEFITS: Record<string, string[]>` with 3 bullets per theme (travel, dining, home, education, retirement, etc.)
+- Add `THEME_VALUE: Record<string, string>` with estimated value strings per theme
+- Both card types use the same unified layout: white background, 3px left border in accent color, larger padding (p-5), bigger fonts
+- Signal label as a small colored tag at top
+- Product name: `text-[15px] font-bold`
+- Quote: `text-[12px]` italic style
+- Benefits: 3 check-mark bullets at `text-[11px]`
+- Value: bold accent-colored line
+- CTA: full-width rounded button
+- Staggered fade-up animation (existing pattern)
 
-### Technical detail
+No edge function changes. `ProductCard` interface unchanged.
 
-All changes in one file. The matching life event (`matchingEvent`) is already resolved at line 181-184. We just need to pull `matchingEvent.confidence`, `matchingEvent.financial_projection`, `matchingEvent.evidence.length`, and `matchingEvent.talking_points[0]` into the card render block.
-
-Estimated ~40 lines changed across the card render section (lines 280-393).
