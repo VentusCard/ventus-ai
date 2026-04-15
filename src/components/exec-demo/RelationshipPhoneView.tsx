@@ -102,20 +102,8 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
           </div>
         </div>
 
-        {/* 3-Card Row */}
-        <div className="grid grid-cols-2 gap-1.5">
-          {/* Your Relationship */}
-          <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 text-amber-500" fill="#f59e0b" />
-              <span className="text-[8px] font-bold text-slate-700">Your Relationship</span>
-            </div>
-            <p className="text-[8px] text-slate-500 leading-snug">Valued member since 2018</p>
-          </div>
-
-
-
-
+        {/* Wellness Card */}
+        <div className="grid grid-cols-1 gap-1.5">
           {/* Financial Wellness */}
           <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
             <div className="flex items-center gap-1 mb-1">
