@@ -230,10 +230,7 @@ export default function ExecDemoLeftPanel({
                   {currentCustomer.profile.demographics.age} · {currentCustomer.profile.demographics.occupation} · {currentCustomer.profile.demographics.familyStatus}
                 </div>
                 <div className="text-[9px] text-slate-400">
-                  {currentCustomer.profile.segment} · {currentCustomer.profile.aum}
-                </div>
-                <div className="text-[9px] text-slate-400">
-                  {currentCustomer.profile.demographics.incomeLevel} · {currentCustomer.profile.demographics.industry}
+                  {currentCustomer.profile.segment} · {currentCustomer.profile.aum} · {currentCustomer.profile.demographics.incomeLevel} · {currentCustomer.profile.demographics.industry}
                 </div>
               </div>
             )}
