@@ -118,7 +118,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading }: Props) {
 
   if (loading || !lifeEvents) {
     return (
