@@ -52,7 +52,7 @@ interface Props {
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
-  analytics: { icon: BarChart3, label: "Next-Purchase" },
+  analytics: { icon: BarChart3, label: "Next-Offer" },
   rewards: { icon: Gift, label: "Next-Offer" },
   product: { icon: CreditCard, label: "Next-Product" },
   relationship: { icon: Users, label: "Next Conversation" },
