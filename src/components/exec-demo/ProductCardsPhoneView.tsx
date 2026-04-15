@@ -1,4 +1,4 @@
-import { ChevronRight, Sparkles, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
+import { ChevronRight, Sparkles, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
   type: "behavioral" | "life_event";
@@ -8,19 +8,49 @@ export interface ProductCard {
   theme: string;
 }
 
-const THEME_STYLES: Record<string, { bg: string; accent: string; text: string; icon: typeof Plane }> = {
-  travel: { bg: "#eef6ff", accent: "#3b82f6", text: "#1e3a5f", icon: Plane },
-  dining: { bg: "#fef3e2", accent: "#f59e0b", text: "#92400e", icon: Utensils },
-  fitness: { bg: "#ecfdf5", accent: "#10b981", text: "#065f46", icon: Dumbbell },
-  shopping: { bg: "#fdf2f8", accent: "#ec4899", text: "#9d174d", icon: ShoppingBag },
-  entertainment: { bg: "#f5f3ff", accent: "#8b5cf6", text: "#4c1d95", icon: Music },
-  home: { bg: "#ecfdf5", accent: "#10b981", text: "#065f46", icon: Home },
-  education: { bg: "#eef2ff", accent: "#6366f1", text: "#3730a3", icon: GraduationCap },
-  retirement: { bg: "#fff7ed", accent: "#f59e0b", text: "#92400e", icon: TrendingUp },
-  family: { bg: "#fdf2f8", accent: "#f472b6", text: "#9d174d", icon: Heart },
-  business: { bg: "#f0f9ff", accent: "#0ea5e9", text: "#0c4a6e", icon: Briefcase },
-  wellness: { bg: "#ecfdf5", accent: "#14b8a6", text: "#115e59", icon: Leaf },
-  lifestyle: { bg: "#f8fafc", accent: "#64748b", text: "#334155", icon: Star },
+const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane }> = {
+  travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane },
+  dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils },
+  fitness: { accent: "#10b981", text: "#065f46", icon: Dumbbell },
+  shopping: { accent: "#ec4899", text: "#9d174d", icon: ShoppingBag },
+  entertainment: { accent: "#8b5cf6", text: "#4c1d95", icon: Music },
+  home: { accent: "#10b981", text: "#065f46", icon: Home },
+  education: { accent: "#6366f1", text: "#3730a3", icon: GraduationCap },
+  retirement: { accent: "#f59e0b", text: "#92400e", icon: TrendingUp },
+  family: { accent: "#f472b6", text: "#9d174d", icon: Heart },
+  business: { accent: "#0ea5e9", text: "#0c4a6e", icon: Briefcase },
+  wellness: { accent: "#14b8a6", text: "#115e59", icon: Leaf },
+  lifestyle: { accent: "#64748b", text: "#334155", icon: Star },
+};
+
+const THEME_BENEFITS: Record<string, string[]> = {
+  travel: ["3X points on travel & dining", "No foreign transaction fees", "$100 annual travel credit"],
+  dining: ["4X points at restaurants", "Complimentary DashPass", "$50 dining credit annually"],
+  fitness: ["Gym membership credits", "Wellness reward multipliers", "Wearable purchase cashback"],
+  shopping: ["5% cashback on select retail", "Extended warranty protection", "Price-match guarantee"],
+  entertainment: ["3X on streaming & events", "Early-access concert tickets", "Annual entertainment credit"],
+  home: ["Competitive HELOC rates", "No closing costs", "Rate lock guarantee"],
+  education: ["Tax-advantaged growth", "Flexible investment options", "Low account minimums"],
+  retirement: ["Tax-efficient withdrawals", "Personalized glide path", "Fee-free advisory sessions"],
+  family: ["Family spending insights", "Child account linking", "College savings match"],
+  business: ["2% cashback on operations", "Expense management tools", "Higher credit limits"],
+  wellness: ["HSA contribution matching", "Preventive care rewards", "Mental health benefits"],
+  lifestyle: ["Preferred rates across products", "Priority customer service", "Annual loyalty bonus"],
+};
+
+const THEME_VALUE: Record<string, string> = {
+  travel: "$450–$680/yr in travel rewards",
+  dining: "$220–$340/yr in dining cashback",
+  fitness: "$180–$260/yr in wellness credits",
+  shopping: "$300–$520/yr in retail cashback",
+  entertainment: "$200–$380/yr in entertainment value",
+  home: "Save $3,200+ in closing costs",
+  education: "Tax-free growth up to $10K/yr",
+  retirement: "Save $1,800+/yr in advisory fees",
+  family: "$280–$450/yr in family benefits",
+  business: "$600–$1,200/yr in cashback",
+  wellness: "$240–$400/yr in health savings",
+  lifestyle: "$150–$300/yr in loyalty rewards",
 };
 
 interface Props {
@@ -32,104 +62,85 @@ export default function ProductCardsPhoneView({ cards, customerName }: Props) {
   const firstName = customerName.split(" ")[0];
 
   return (
-    <div className="px-3 py-3 space-y-3">
-      {/* Greeting */}
-      <div className="flex items-center gap-1.5 px-1">
-        <Sparkles className="w-3.5 h-3.5 text-violet-500" />
-        <span className="text-[11px] font-semibold text-slate-600">
-          Recommended for {firstName}
-        </span>
+    <div className="px-4 py-4 space-y-4">
+      {/* Header */}
+      <div className="px-1">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-violet-500" />
+          <span className="text-[15px] font-bold text-slate-800">Your Offers</span>
+        </div>
+        <p className="text-[11px] text-slate-400 mt-0.5 pl-6">Personalized for {firstName}</p>
       </div>
 
+      {/* Cards */}
       {cards.map((card, i) => {
         const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
         const Icon = style.icon;
+        const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
+        const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
 
-        if (card.type === "behavioral") {
-          // Dark gradient card for behavioral
-          return (
-            <div
-              key={i}
-              className="rounded-2xl p-4 relative overflow-hidden"
-              style={{
-                background: `linear-gradient(135deg, ${style.accent}, ${style.accent}cc)`,
-                animation: `phone-card-reveal 0.4s ease-out ${i * 0.15}s both`,
-              }}
-            >
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-10 -translate-y-8 translate-x-8 bg-white" />
-              
-              {/* Signal tag */}
-              <div className="flex items-center gap-1.5 mb-2.5">
-                <Icon className="w-3.5 h-3.5 text-white/80" />
-                <span className="text-[9px] font-semibold text-white/70 uppercase tracking-wider">
+        return (
+          <div
+            key={i}
+            className="bg-white rounded-2xl shadow-sm overflow-hidden"
+            style={{
+              borderLeft: `3px solid ${style.accent}`,
+              animation: `phone-card-reveal 0.4s ease-out ${i * 0.18}s both`,
+            }}
+          >
+            <div className="p-5">
+              {/* Category tag */}
+              <div className="flex items-center gap-1.5 mb-3">
+                <Icon className="w-3.5 h-3.5" style={{ color: style.accent }} />
+                <span
+                  className="text-[10px] font-semibold uppercase tracking-wider"
+                  style={{ color: style.accent }}
+                >
                   {card.signal_label}
                 </span>
               </div>
 
+              {/* Product name */}
+              <p className="text-[15px] font-bold text-slate-800 leading-snug mb-1.5">
+                {card.product_name}
+              </p>
+
               {/* Quote */}
-              <p className="text-[13px] font-medium text-white leading-relaxed mb-3">
+              <p className="text-[12px] text-slate-500 italic leading-relaxed mb-4">
                 "{card.quote}"
               </p>
 
-              {/* Product pill */}
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-white/90 bg-white/20 px-2.5 py-1 rounded-full">
-                  {card.product_name}
-                </span>
-                <button className="flex items-center gap-0.5 text-[10px] font-semibold text-white/90">
-                  Learn More <ChevronRight className="w-3 h-3" />
-                </button>
+              {/* Benefits */}
+              <div className="space-y-2 mb-4">
+                {benefits.map((b, bi) => (
+                  <div key={bi} className="flex items-start gap-2">
+                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                    <span className="text-[11px] text-slate-600 leading-snug">{b}</span>
+                  </div>
+                ))}
               </div>
-            </div>
-          );
-        }
 
-        // Soft colored card for life event
-        return (
-          <div
-            key={i}
-            className="rounded-2xl p-4 relative overflow-hidden"
-            style={{
-              background: style.bg,
-              animation: `phone-card-reveal 0.4s ease-out ${i * 0.15}s both`,
-            }}
-          >
-            <div
-              className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-15 -translate-y-6 translate-x-6"
-              style={{ background: style.accent }}
-            />
+              {/* Value */}
+              <p className="text-[11px] font-bold mb-4" style={{ color: style.accent }}>
+                Est. value: {value}
+              </p>
 
-            {/* Event tag */}
-            <div className="flex items-center gap-1.5 mb-2">
-              <Icon className="w-3.5 h-3.5" style={{ color: style.accent }} />
-              <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: `${style.accent}99` }}>
-                {card.signal_label}
-              </span>
-            </div>
-
-            {/* Quote */}
-            <p className="text-[13px] font-medium leading-relaxed mb-3" style={{ color: style.text }}>
-              "{card.quote}"
-            </p>
-
-            {/* Product + CTA */}
-            <div className="flex items-center justify-between">
-              <span
-                className="text-[10px] font-bold px-2.5 py-1 rounded-full text-white"
+              {/* CTA */}
+              <button
+                className="w-full py-2.5 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1"
                 style={{ background: style.accent }}
               >
-                {card.product_name}
-              </span>
-              <button
-                className="flex items-center gap-0.5 text-[10px] font-semibold"
-                style={{ color: style.accent }}
-              >
-                Explore <ChevronRight className="w-3 h-3" />
+                Learn More <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         );
       })}
+
+      {/* Disclaimer */}
+      <p className="text-[9px] text-slate-300 text-center px-4">
+        Recommendations based on your financial profile
+      </p>
 
       <style>{`
         @keyframes phone-card-reveal {
