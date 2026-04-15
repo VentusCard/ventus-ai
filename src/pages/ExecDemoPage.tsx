@@ -62,6 +62,8 @@ export default function ExecDemoPage() {
   const [activeTriggerPill, setActiveTriggerPill] = useState<{ label: string; indices: number[]; color: string } | null>(null);
   const [productActions, setProductActions] = useState<CardActions[] | null>(null);
   const [actionsLoading, setActionsLoading] = useState(false);
+  const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
+  const [riskLoading, setRiskLoading] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
@@ -270,9 +272,10 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
-      // Fire next-offers and life event detection in parallel
+      // Fire next-offers, life event detection, and risk detection in parallel
       fireNextOffers(synthesis, pillars);
       fireLifeEventDetection();
+      fireRiskDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
@@ -367,6 +370,29 @@ export default function ExecDemoPage() {
       setProductsLoading(false);
     }
   }, [selectedIdx, customCsv]);
+
+  /** Detect risk factors using detect-risk-transactions edge function */
+  const fireRiskDetection = useCallback(async () => {
+    setRiskLoading(true);
+    setRiskFlags(null);
+    try {
+      const enrichedTxs = classifiedRef.current || [];
+      if (enrichedTxs.length === 0) {
+        setRiskLoading(false);
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
+        body: { transactions: enrichedTxs.slice(0, 100) },
+      });
+      if (error) throw error;
+      setRiskFlags(data);
+      console.log("[PRELOAD] Risk detection ready:", data?.flags?.length, "flags");
+    } catch (err) {
+      console.error("[PRELOAD] Risk detection failed:", err);
+    } finally {
+      setRiskLoading(false);
+    }
+  }, []);
 
   /** Generate consumer product cards from life events + persona rollups */
   const fireProductCards = useCallback(async (events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
@@ -783,6 +809,8 @@ export default function ExecDemoPage() {
             detectedLifeEvents={detectedLifeEvents}
             productsLoading={productsLoading}
             productCards={productCards}
+            riskFlags={riskFlags}
+            riskLoading={riskLoading}
             onTriggerPillClick={handleTriggerPillClick}
             activeTriggerLabel={activeTriggerPill?.label}
             productActions={productActions}
