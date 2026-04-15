@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
-import DemoEngagementView from "@/components/demo/DemoEngagementView";
 
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
@@ -11,17 +10,16 @@ import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "ux" | "rewards" | "product" | "relationship" | "ai";
+type ConsumerTab = "rewards" | "product" | "relationship" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
-  analytics: "ux",
+  analytics: "rewards",
   rewards: "rewards",
   product: "product",
   relationship: "relationship",
 };
 
-const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Sparkles; color: string }[] = [
-  { key: "ux", label: "Profile", icon: Sparkles, color: "#f59e0b" },
+const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
   { key: "product", label: "Offers", icon: CreditCard, color: "#6366f1" },
   { key: "relationship", label: "Membership", icon: Users, color: "#8b5cf6" },
@@ -39,7 +37,7 @@ interface Props {
 }
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards }: Props) {
-  const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "ux";
+  const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
 
@@ -50,8 +48,6 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
 
   const renderContent = () => {
     switch (consumerTab) {
-      case "ux":
-        return <DemoEngagementView customer={customer} />;
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
           return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} />;
@@ -75,7 +71,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
       case "ai":
         return <ConsumerAIChatView customer={customer} initialMessage={pendingAIMessage} onInitialMessageConsumed={() => setPendingAIMessage(null)} />;
       default:
-        return <DemoEngagementView customer={customer} />;
+        return null;
     }
   };
 
