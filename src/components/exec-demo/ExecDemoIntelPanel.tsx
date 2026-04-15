@@ -318,7 +318,7 @@ export default function ExecDemoIntelPanel({
                           }}
                         >
                           {evt.event_name}
-                          <span className="text-[10px] opacity-70 tabular-nums">{Math.round(evt.confidence * 100)}%</span>
+                          <span className="text-[10px] opacity-70 tabular-nums">{evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100)}%</span>
                         </span>
                       ))}
                     </div>
