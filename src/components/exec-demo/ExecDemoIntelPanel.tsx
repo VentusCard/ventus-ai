@@ -262,7 +262,7 @@ export default function ExecDemoIntelPanel({
           border: "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: synthesisTriggered && !pillsExpanded ? "45vh" : undefined,
+          maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
         }}
       >
 
@@ -481,7 +481,7 @@ export default function ExecDemoIntelPanel({
               </>
             )}
 
-            {(pillsExpanded || !synthesisTriggered) && (
+            {(pillsExpanded || !synthesisTriggered || !activeTab) && (
               <div
                 className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
