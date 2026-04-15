@@ -791,6 +791,8 @@ export default function ExecDemoPage() {
             productCards={productCards}
             onTriggerPillClick={handleTriggerPillClick}
             activeTriggerLabel={activeTriggerPill?.label}
+            productActions={productActions}
+            actionsLoading={actionsLoading}
           />
         </div>
 
