@@ -214,7 +214,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           return (
             <div key={i} className="space-y-0">
               {/* Type label + Trigger pill */}
-              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span className="text-[10px] font-bold shrink-0" style={{ color: c.dot }}>
                   {isBehavioral ? "Behavioral:" : "Life Event:"}
                 </span>
