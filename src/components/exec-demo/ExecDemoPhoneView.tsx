@@ -83,7 +83,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     <div className="flex items-center justify-center h-full py-4">
       {/* iPhone frame */}
       <div
-        className="relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
+        className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
         style={{ width: 340, height: 740 }}
       >
         {/* Notch */}
