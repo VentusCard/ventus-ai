@@ -414,7 +414,7 @@ export default function ExecDemoIntelPanel({
                         }}
                       >
                         <span style={{ color: "#10b981" }}>✓</span>
-                        None Detected
+                        No Risk Factors Detected
                       </span>
                     </div>
                   )}
