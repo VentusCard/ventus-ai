@@ -47,6 +47,8 @@ interface Props {
   productCards?: ProductCard[] | null;
   onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
   activeTriggerLabel?: string | null;
+  productActions?: import("./NextProductRationale").CardActions[] | null;
+  actionsLoading?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -156,6 +158,8 @@ export default function ExecDemoIntelPanel({
   productCards,
   onTriggerPillClick,
   activeTriggerLabel,
+  productActions,
+  actionsLoading,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -424,7 +428,7 @@ export default function ExecDemoIntelPanel({
             {activeTab === "analytics" && synthesisTriggered ? (
               <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} />
             ) : activeTab === "relationship" ? (
               <NextConversationRationale />
             ) : (

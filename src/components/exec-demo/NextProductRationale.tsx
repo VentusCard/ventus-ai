@@ -1,8 +1,40 @@
-import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck } from "lucide-react";
+import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import type { Transaction } from "./execDemoData";
+
+export interface CardAction {
+  label: string;
+  icon: string;
+  color: string;
+  tone: "standard" | "wow";
+}
+
+export interface CardActions {
+  card_index: number;
+  actions: CardAction[];
+}
+
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  smartphone: Smartphone, mail: Mail, "user-check": UserCheck, calendar: CalendarCheck,
+  heart: Heart, gift: Gift, shield: Shield, lightbulb: Lightbulb, star: Star,
+  compass: Compass, flower: Flower, "pen-line": PenLine, cake: Cake, plane: Plane,
+  home: Home, briefcase: Briefcase, bell: Bell,
+};
+
+const COLOR_MAP: Record<string, { text: string; bg: string; border: string }> = {
+  blue: { text: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+  amber: { text: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
+  violet: { text: "text-violet-600", bg: "bg-violet-50", border: "border-violet-100" },
+  teal: { text: "text-teal-600", bg: "bg-teal-50", border: "border-teal-100" },
+  emerald: { text: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
+  rose: { text: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" },
+  sky: { text: "text-sky-600", bg: "bg-sky-50", border: "border-sky-100" },
+  orange: { text: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" },
+  indigo: { text: "text-indigo-600", bg: "bg-indigo-50", border: "border-indigo-100" },
+  pink: { text: "text-pink-600", bg: "bg-pink-50", border: "border-pink-100" },
+};
 
 interface Props {
   lifeEvents: LifeEvent[] | null;
@@ -11,6 +43,8 @@ interface Props {
   transactions?: Transaction[];
   onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
   activeTriggerLabel?: string | null;
+  productActions?: CardActions[] | null;
+  actionsLoading?: boolean;
 }
 
 /* ─── Current holdings pill row ─── */
@@ -84,7 +118,7 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -270,27 +304,63 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                       <CreditCard className="w-2.5 h-2.5 inline mr-0.5" />
                       {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
                     </span>
-                  {/* Action pills */}
+                  {/* Action pills — dynamic or fallback */}
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    {isBehavioral ? (
-                      <>
-                        <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
-                          <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
-                          <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
-                          <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
-                          <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
-                        </span>
-                      </>
-                    )}
+                    {(() => {
+                      const cardIdx = i;
+                      const dynamicActions = productActions?.find(ca => ca.card_index === cardIdx)?.actions;
+                      
+                      if (dynamicActions && dynamicActions.length > 0) {
+                        return dynamicActions.map((action, ai) => {
+                          const IconComp = ICON_MAP[action.icon] || Bell;
+                          const colors = COLOR_MAP[action.color] || COLOR_MAP.blue;
+                          const isWow = action.tone === "wow";
+                          return (
+                            <span
+                              key={ai}
+                              className={`inline-flex items-center gap-1 text-[9px] font-medium rounded-full px-2 py-0.5 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
+                              style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
+                            >
+                              {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
+                              <IconComp className="w-2.5 h-2.5" />
+                              {action.label}
+                            </span>
+                          );
+                        });
+                      }
+                      
+                      // Fallback: loading or hardcoded
+                      if (actionsLoading) {
+                        return (
+                          <>
+                            <span className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-300 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5 animate-pulse">
+                              <Sparkles className="w-2.5 h-2.5" /> Generating actions...
+                            </span>
+                          </>
+                        );
+                      }
+                      
+                      // Static fallback
+                      return isBehavioral ? (
+                        <>
+                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+                            <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
+                            <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
+                            <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
+                            <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                   </div>
                 </div>
