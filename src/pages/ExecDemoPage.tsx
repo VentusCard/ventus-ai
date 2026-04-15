@@ -751,15 +751,18 @@ export default function ExecDemoPage() {
         </div>
       </div>
 
-      {/* Main content — dynamic 2-column layout */}
-      <div className={`flex-1 min-h-0 grid transition-all duration-500 ease-in-out ${
-        (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship")
-          ? "grid-cols-[1fr_360px]"
-          : "grid-cols-[400px_1fr]"
-      }`}>
-        {/* Col 1 — Customer selection + transaction feed (hidden when phone is shown) */}
-        {!(activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") && (
-          <div className="border-r border-slate-200 bg-white overflow-hidden animate-fade-in">
+      {/* Main content — 3 columns with animated collapse */}
+      <div className="flex-1 min-h-0 flex">
+        {/* Col 1 — Transaction feed (collapses when phone shown) */}
+        <div
+          className="border-r border-slate-200 bg-white overflow-hidden transition-all duration-500 ease-in-out"
+          style={{
+            width: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 0 : 400,
+            minWidth: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 0 : 400,
+            opacity: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 0 : 1,
+          }}
+        >
+          <div className="w-[400px] h-full">
             <ExecDemoLeftPanel
               selectedIdx={selectedIdx}
               onSelectCustomer={handleSelectCustomer}
@@ -791,10 +794,10 @@ export default function ExecDemoPage() {
               enriched={phase === "cardCycle" || phase === "hold"}
             />
           </div>
-        )}
+        </div>
 
-        {/* Col 2 — Intelligence panel */}
-        <div className="border-r border-slate-200 bg-white overflow-hidden">
+        {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
+        <div className="flex-1 border-r border-slate-200 bg-white overflow-hidden min-w-0">
           <ExecDemoIntelPanel
             persona={execProfile.persona}
             intelligence={execProfile.intelligence}
@@ -824,9 +827,16 @@ export default function ExecDemoPage() {
           />
         </div>
 
-        {/* Col 3 — iPhone (shown when Next-Offer tab is active) */}
-        {(activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") && (
-          <div className="bg-slate-50 overflow-hidden animate-panel-slide-in">
+        {/* Col 3 — Phone mockup (expands when Next-Offer active) */}
+        <div
+          className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out"
+          style={{
+            width: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 360 : 0,
+            minWidth: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 360 : 0,
+            opacity: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 1 : 0,
+          }}
+        >
+          <div className="w-[360px] h-full">
             <ExecDemoPhoneView
               customer={demoCustomer}
               activeTab={activeTab}
@@ -837,7 +847,7 @@ export default function ExecDemoPage() {
               productCards={productCards}
             />
           </div>
-        )}
+        </div>
       </div>
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
