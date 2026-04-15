@@ -23,7 +23,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Sparkles; color: string }[] = [
   { key: "ux", label: "Profile", icon: Sparkles, color: "#f59e0b" },
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
-  { key: "product", label: "Products", icon: CreditCard, color: "#6366f1" },
+  { key: "product", label: "Offers", icon: CreditCard, color: "#6366f1" },
   { key: "relationship", label: "Relationship", icon: Users, color: "#8b5cf6" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
