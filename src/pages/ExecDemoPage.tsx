@@ -406,12 +406,58 @@ export default function ExecDemoPage() {
         },
       });
       if (error) throw error;
-      setProductCards(data.cards || []);
-      console.log("[PRELOAD] Product cards ready:", data.cards?.length);
+      const cards = data.cards || [];
+      setProductCards(cards);
+      console.log("[PRELOAD] Product cards ready:", cards.length);
+      // Fire action generation with full context
+      if (cards.length > 0) {
+        fireProductActions(cards, events, synthesis);
+      }
     } catch (err) {
       console.error("[PRELOAD] Product cards failed:", err);
     } finally {
       setProductCardsLoading(false);
+    }
+  }, [selectedIdx]);
+
+  /** Generate AI-powered engagement actions for each product card */
+  const fireProductActions = useCallback(async (cards: ProductCard[], events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
+    setActionsLoading(true);
+    setProductActions(null);
+    try {
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics = demoCustomer?.profile?.demographics || {};
+      const enrichedTxs = classifiedRef.current || [];
+
+      const grouped = new Map<string, any>();
+      for (const tx of enrichedTxs) {
+        const key = `${tx.pillar}::${tx.category}`;
+        const existing = grouped.get(key);
+        if (existing) {
+          existing.count += 1;
+          existing.totalSpend += tx.amount;
+        } else {
+          grouped.set(key, { pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount });
+        }
+      }
+      const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+
+      const { data, error } = await supabase.functions.invoke("generate-product-actions", {
+        body: {
+          product_cards: cards,
+          persona_rollups: synthesis?.pillarRollups || [],
+          life_events: events.slice(0, 3),
+          demographics,
+          pillars: pillars.slice(0, 6),
+        },
+      });
+      if (error) throw error;
+      setProductActions(data.card_actions || []);
+      console.log("[PRELOAD] Product actions ready:", data.card_actions?.length, "cards");
+    } catch (err) {
+      console.error("[PRELOAD] Product actions failed:", err);
+    } finally {
+      setActionsLoading(false);
     }
   }, [selectedIdx]);
 
