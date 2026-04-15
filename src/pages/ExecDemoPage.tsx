@@ -60,7 +60,8 @@ export default function ExecDemoPage() {
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
   const [activeTriggerPill, setActiveTriggerPill] = useState<{ label: string; indices: number[]; color: string } | null>(null);
-  
+  const [productActions, setProductActions] = useState<CardActions[] | null>(null);
+  const [actionsLoading, setActionsLoading] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
