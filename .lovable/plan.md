@@ -1,32 +1,28 @@
 
 
-## Unify Life Event & Risk Factor Pills with Behavioral Pill Styling
+## Refocus Risk Detection on Vice & Suspicious International Activity
 
 ### Problem
-Life event and risk factor pills currently use simple flat `<span>` elements with basic colors. They look different from the behavioral `PillarRollupChip` pills which have gradient backgrounds, `✦` icon, glow animations, cursor-pointer, and click-to-highlight-transactions behavior.
+The edge function currently flags generic fraud (duplicate charges, geo anomalies) and habit shifts (spending spikes, tier changes) — producing noisy results like "Fraud medium" and "Habit Shift low" that aren't useful. The user wants this focused on genuinely concerning patterns: gambling, adult content, and suspicious international transactions.
 
-### Changes — Single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+### Changes — Single file: `supabase/functions/detect-risk-transactions/index.ts`
 
-#### 1. Create shared pill components
+#### Rewrite the SYSTEM_PROMPT to focus on 3 narrower categories:
 
-- **`LifeEventChip`**: Reuse the exact `PillarRollupChip` visual pattern — gradient background, `✦` prefix, `1.5px solid` border, `rollup-entrance` + `rollup-glow` animations, `cursor-pointer`, scale on active. Color palette: amber tones. Shows `{event_name}` + `{confidence}%` + `{evidence.length} txns` stats.
-  
-- **`RiskFlagChip`**: Same visual pattern but with red/amber tones based on severity. Shows `⚠` prefix instead of `✦`, flag category, and severity level.
+1. **VICE** — Gambling merchants/casinos/sports betting, adult content, payday/predatory loans, pawn shops, crypto mixing services
+2. **SUSPICIOUS_INTERNATIONAL** — Transactions in high-risk jurisdictions (OFAC-listed countries), unusual currency conversion patterns, international wire transfers to unfamiliar destinations, transactions in countries inconsistent with customer profile
+3. **AML** — Structuring below $10K thresholds, rapid round-number deposits/withdrawals, layering patterns
 
-#### 2. Click-to-highlight behavior
+**Remove entirely:** FRAUD (generic duplicate charges, geo anomalies) and HABIT_SHIFT (spending spikes, tier changes) — these are noise, not risk.
 
-Both new pill types will be clickable, calling the existing `onTriggerPillClick` prop (already wired up for transaction highlighting):
+#### Update the response schema:
+- `category: "vice" | "suspicious_international" | "aml"`
+- Keep severity, merchant, amount, date, reason fields
+- Instruct the model: "Only flag transactions with clear evidence of vice activity, money laundering patterns, or suspicious international activity. Do NOT flag normal spending variations, travel, or routine purchases."
+- Add instruction: "Be conservative — if unsure, do not flag. Return empty flags array if nothing concerning is found."
 
-- **Life event pills**: Match `evidence[].merchant` against `transactions` to find indices, same logic already used in `NextProductRationale`.
-- **Risk flag pills**: Match `flag.transactions` or `flag.merchant_patterns` (from the edge function response) against transaction merchants. If no transaction data in the flag, use keyword matching from the flag category.
+#### Update memory file
+Update `mem://technical/edge-functions/risk-detection-logic` to reflect the narrowed scope.
 
-#### 3. Active state tracking
-
-Use `activeTriggerLabel` (already a prop) to track which pill is active, applying the same `scale(1.08)` + `boxShadow` glow effect used by behavioral pills.
-
-#### 4. Replace current rendering (lines 299-361)
-
-Replace the current simple `<span>` pills in both sections with the new chip components, keeping the section headers (`LIFE EVENT DETECTION`, `RISK FACTORS`) and staggered animation delays.
-
-### No new props or page-level changes needed — all required data (`detectedLifeEvents`, `riskFlags`, `transactions`, `onTriggerPillClick`, `activeTriggerLabel`) are already passed in.
+### No UI changes needed — the pill rendering in `ExecDemoIntelPanel.tsx` already reads `flag.category` dynamically and title-cases it.
 
