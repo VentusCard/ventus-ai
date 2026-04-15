@@ -544,6 +544,7 @@ export default function ExecDemoPage() {
     setProcessedIndices([]);
     setRevealedTabs([]);
     setActiveTab(null);
+    setTxPanelExpanded(false);
     setCollectedIndices([]);
     setActivePillFilter(null);
     setActiveRollup(null);
@@ -596,6 +597,7 @@ export default function ExecDemoPage() {
     setProcessedIndices([]);
     setRevealedTabs([]);
     setActiveTab(null);
+    setTxPanelExpanded(false);
     setCollectedIndices([]);
     profileRef.current = p;
 
