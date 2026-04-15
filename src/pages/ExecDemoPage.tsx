@@ -494,6 +494,8 @@ export default function ExecDemoPage() {
       setProductsLoading(false);
       setProductCards(null);
       setProductCardsLoading(false);
+      setProductActions(null);
+      setActionsLoading(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
