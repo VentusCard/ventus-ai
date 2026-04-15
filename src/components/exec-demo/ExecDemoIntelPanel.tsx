@@ -524,6 +524,33 @@ export default function ExecDemoIntelPanel({
         )}
       </div>
 
+      {/* Action buttons — shown after synthesis, before any tab selected */}
+      {showProfile && synthesisTriggered && !activeTab && (
+        <div className="flex items-center justify-center gap-3 py-3 border-t border-slate-200/60 shrink-0">
+          {(["analytics", "product", "relationship"] as TabKey[]).map((key, i) => {
+            const meta = TAB_META[key];
+            const Icon = meta.icon;
+            return (
+              <button
+                key={key}
+                onClick={() => onTabClick(key)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
+                style={{ animation: `offer-card-in 0.45s ease-out ${i * 0.1}s both` }}
+              >
+                <Icon className="w-4 h-4 text-slate-500 group-hover:text-primary transition-colors" />
+                <span className="text-xs font-bold text-slate-700 group-hover:text-primary transition-colors">{meta.label}</span>
+              </button>
+            );
+          })}
+          <style>{`
+            @keyframes offer-card-in {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+        </div>
+      )}
+
       {/* Tab bar — visible when enrichment active AND a tab has been selected */}
       {showProfile && phase !== "idle" && activeTab && (
         <>
