@@ -304,13 +304,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
                   {/* Trigger badge */}
                   <div className="flex items-center gap-1.5 mt-2.5">
-                    <span
-                      className="text-[10px] font-medium px-2 py-0.5 rounded"
-                      style={{ background: `${c.dot}10`, color: c.dot }}
-                    >
-                      <CreditCard className="w-3 h-3 inline mr-0.5" />
-                      {isBehavioral ? "Spending Pattern" : "Life Event Trigger"}
-                    </span>
                   {/* Action pills — dynamic or fallback */}
                   {(() => {
                     const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
