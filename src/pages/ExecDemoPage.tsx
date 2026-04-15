@@ -40,6 +40,7 @@ export default function ExecDemoPage() {
   const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
+  const [txPanelExpanded, setTxPanelExpanded] = useState(false);
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
