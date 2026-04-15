@@ -1,49 +1,40 @@
 
 
-## Add life-event "How we can help" + advisor card to Relationship tab
+## Simplify Relationship tab: advisor card with subtle nudge
 
 ### What
-Replace the current AI Hooks section in `RelationshipPhoneView` with the life-event-driven card from `DemoWealthView` — the two-column layout with "How we can help" suggestions, CTAs, and the James Rivera advisor card. Keep the greeting, holdings grid, and tenure row.
+Strip out the entire life-event card (suggestions, CTAs, event header) and replace it with just the James Rivera advisor card featuring a subtle, warm nudge line like "Major milestone ahead? Let's plan together."
 
 ### Changes
 
-**File: `src/components/exec-demo/ExecDemoPhoneView.tsx`**
-- Pass `detectedLifeEvents` through to `RelationshipPhoneView` as a new prop
-
 **File: `src/components/exec-demo/RelationshipPhoneView.tsx`**
-1. Add `detectedLifeEvents` prop (reuse the `LifeEvent` type)
-2. Copy the `EVENT_META` map and `resolveEventMeta` logic from `DemoWealthView` — maps event names like "Education Funding" to icon, color, suggestions, and CTAs
-3. Replace the "Insights for You" AI hooks section with the life event card:
-   - Event header: icon + event name + description
-   - Two-column grid below:
-     - Left: "How we can help" with 3 bullet suggestions + 2 CTA buttons
-     - Right: Advisor card — JR avatar, "James Rivera", "Senior Relationship Manager", personalized quote, Schedule + Message buttons
-4. Scale down slightly for phone viewport (text sizes ~1-2px smaller than the iPad version to fit without scrolling)
-5. If no detected events, show the first event from `EVENT_META` as a fallback (Education Funding) so the card always renders
-6. Keep the `onGoToAI` prop — wire the "Message" button to it
 
-### Layout (phone-sized)
+1. **Remove** the entire life-event card block (lines 144-210) — the event header, two-column grid with suggestions, CTAs, and the nested advisor section
+2. **Remove** unused imports and data (`EVENT_META`, `EVENT_KEYWORD_MAP`, `resolveEventMeta`, `DEFAULT_META`, event-specific icons like `Sunset`, `GraduationCap`, `Gift`, `Briefcase`, `Baby`, `Heart`, `Sparkles`)
+3. **Replace with** a simple, clean advisor card after the divider:
+   - Rounded card with `bg-slate-50`, `p-3`
+   - Row layout: JR avatar circle (left) + name/title (middle) + buttons (right)
+   - Below the name row: a single subtle italic line — `"Major milestone ahead? Let's plan together, {firstName}."`
+   - Two small buttons: Schedule + Message (same style as current)
+4. Keep `detectedLifeEvents` prop for the `onGoToAI` message context (uses first event name if available)
+
+### Result
 ```text
-┌──────────────────────────┐
-│ Welcome, Sarah           │
-│ ● Preferred Member       │
-├──────────────────────────┤
-│ [Savings] [Credit]       │
-│ [Mortgage][Investments]  │
-│ ★ Member since 2018  📍 │
-├──────────────────────────┤
-│ 🎓 Education Funding     │
-│ "Education is a big..."  │
-│ ┌───────────┬──────────┐ │
-│ │How we can │  JR      │ │
-│ │help       │James R.  │ │
-│ │• Edu svgs │"Hi Sarah"│ │
-│ │• Flex pay │[Sched]   │ │
-│ │• Scholar  │[Message] │ │
-│ │[529][HY]  │          │ │
-│ └───────────┴──────────┘ │
-└──────────────────────────┘
+┌──────────────────────────────┐
+│ Welcome, Sarah               │
+│ ● Preferred Member           │
+├──────────────────────────────┤
+│ [Savings] [Credit]           │
+│ [Mortgage][Investments]      │
+│ ★ Member since 2018     📍  │
+├──────────────────────────────┤
+│ (JR) James Rivera            │
+│      Senior Relationship Mgr │
+│ "Major milestone ahead?      │
+│  Let's plan together, Sarah."│
+│      [Schedule] [Message]    │
+└──────────────────────────────┘
 ```
 
-Single-file logic change + one prop pass-through. No new components or edge functions.
+Compact, subtle, fits without scrolling. One file change.
 
