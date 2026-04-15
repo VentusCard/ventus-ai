@@ -418,7 +418,16 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           </>
         )}
 
-        {/* ── Semantic Search Bar ── */}
+        {/* ── No results state ── */}
+        {isSearchActive && !isSearching && groups.length === 0 && (
+          <div className="text-center py-4">
+            <p className="text-[11px] text-slate-400">No matching deals found</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Semantic Search Bar (pinned bottom) ── */}
+      <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
           <input
@@ -443,14 +452,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
             <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
           </div>
         )}
-
-        {/* ── No results state ── */}
-        {isSearchActive && !isSearching && groups.length === 0 && (
-          <div className="text-center py-4">
-            <p className="text-[11px] text-slate-400">No matching deals found</p>
-          </div>
-        )}
-      </div>
 
       <style>{`
         @keyframes collection-slide-right {
