@@ -3,6 +3,14 @@ import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
 import { useState } from "react";
+import advisor1 from "@/assets/advisors/advisor-1.jpg";
+import advisor2 from "@/assets/advisors/advisor-2.jpg";
+import advisor3 from "@/assets/advisors/advisor-3.jpg";
+import advisor4 from "@/assets/advisors/advisor-4.jpg";
+import advisor5 from "@/assets/advisors/advisor-5.jpg";
+import advisor6 from "@/assets/advisors/advisor-6.jpg";
+import advisor7 from "@/assets/advisors/advisor-7.jpg";
+import advisor8 from "@/assets/advisors/advisor-8.jpg";
 
 interface Props {
   customer: DemoCustomer;
@@ -29,14 +37,14 @@ const HOLDING_META = [
 ];
 
 const ADVISORS = [
-  { name: "James Rivera", title: "Senior Relationship Manager", photo: "https://randomuser.me/api/portraits/men/32.jpg" },
-  { name: "Emily Chen", title: "Wealth Advisor", photo: "https://randomuser.me/api/portraits/women/44.jpg" },
-  { name: "Michael Torres", title: "Financial Advisor", photo: "https://randomuser.me/api/portraits/men/75.jpg" },
-  { name: "Sarah Nguyen", title: "Private Banker", photo: "https://randomuser.me/api/portraits/women/68.jpg" },
-  { name: "David Park", title: "Relationship Manager", photo: "https://randomuser.me/api/portraits/men/52.jpg" },
-  { name: "Rachel Adams", title: "Senior Financial Advisor", photo: "https://randomuser.me/api/portraits/women/26.jpg" },
-  { name: "Thomas Wright", title: "Private Client Advisor", photo: "https://randomuser.me/api/portraits/men/18.jpg" },
-  { name: "Lisa Patel", title: "Wealth Management Associate", photo: "https://randomuser.me/api/portraits/women/55.jpg" },
+  { name: "James Rivera", title: "Senior Relationship Manager", photo: advisor1 },
+  { name: "Emily Chen", title: "Wealth Advisor", photo: advisor2 },
+  { name: "Michael Torres", title: "Financial Advisor", photo: advisor3 },
+  { name: "Sarah Nguyen", title: "Private Banker", photo: advisor4 },
+  { name: "David Park", title: "Relationship Manager", photo: advisor5 },
+  { name: "Rachel Adams", title: "Senior Financial Advisor", photo: advisor6 },
+  { name: "Thomas Wright", title: "Private Client Advisor", photo: advisor7 },
+  { name: "Lisa Patel", title: "Wealth Management Associate", photo: advisor8 },
 ];
 
 function getAdvisor(customerId: string) {
