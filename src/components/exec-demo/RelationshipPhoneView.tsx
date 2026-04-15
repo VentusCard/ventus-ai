@@ -1,4 +1,4 @@
-import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare } from "lucide-react";
+import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare, Star, Gift, Sparkles, MapPin, Clock } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
@@ -28,16 +28,27 @@ const HOLDING_META = [
   { key: "investments" as const, label: "Investments", icon: BarChart3, color: "#3b82f6" },
 ];
 
+const PILLAR_DEALS: Record<string, { merchant: string; offer: string }> = {
+  "Travel & Exploration": { merchant: "Delta SkyMiles", offer: "2x miles on travel" },
+  "Food & Dining": { merchant: "Whole Foods", offer: "5% back on groceries" },
+  "Sports & Active Living": { merchant: "REI Co-op", offer: "10% back on outdoor gear" },
+  "Health & Wellness": { merchant: "Equinox", offer: "$50 off membership" },
+  "Entertainment & Culture": { merchant: "AMC Theatres", offer: "Buy 1 get 1 free" },
+  "Style & Beauty": { merchant: "Nordstrom", offer: "3x points on apparel" },
+  "Technology & Digital Life": { merchant: "Apple", offer: "0% APR 24 months" },
+  "Home & Living": { merchant: "Home Depot", offer: "10% back on home" },
+};
+const DEFAULT_DEAL = { merchant: "Amazon", offer: "3% back on all purchases" };
+
 function computeWellness(holdings: Record<string, string | undefined>) {
   const savings = parseCurrency(holdings.deposit || "$0");
   const credit = parseCurrency(holdings.credit || "$0");
   const items = [
-    { label: "On-time payments", ok: true },
-    { label: "Emergency fund", ok: savings > 5000 },
-    { label: "Debt-to-income ratio", ok: credit < savings * 0.4 },
-    { label: "Savings momentum", ok: true },
+    { label: "Emergency fund", ok: savings > 5000, goodText: "Strong", badText: "Build up" },
+    { label: "Debt ratio", ok: credit < savings * 0.4, goodText: "Healthy", badText: "Improving" },
+    { label: "Savings", ok: true, goodText: "On track", badText: "Needs focus" },
   ];
-  const score = Math.round(50 + items.filter(i => i.ok).length * 12.5);
+  const score = Math.round(50 + (items.filter(i => i.ok).length + 1) * 12.5);
   return { score, items };
 }
 
@@ -48,10 +59,12 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
   const tip = generateFinancialTip([]);
   const [tipDismissed, setTipDismissed] = useState(false);
 
-  // Compute totals
   const holdingValues = HOLDING_META.map(h => ({ ...h, value: parseCurrency(holdings[h.key] || "$0") }));
-  const total = holdingValues.reduce((s, h) => s + h.value, 0);
   const wellness = computeWellness(holdings);
+
+  // Pick a deal based on top pillar from life events or default
+  const topPillar = detectedLifeEvents?.[0]?.event_name;
+  const deal = (topPillar && PILLAR_DEALS[topPillar]) || DEFAULT_DEAL;
 
   return (
     <div className="flex flex-col h-full">
@@ -67,55 +80,85 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
           </div>
         </div>
 
-        {/* Total Relationship + Segmented Bar */}
+        {/* Your Financial Snapshot */}
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-          <div className="flex items-baseline justify-between">
-            <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider">Total Relationship</span>
-            <span className="text-[15px] font-bold text-slate-800">{formatCompact(total)}</span>
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+              <BarChart3 className="w-2.5 h-2.5 text-blue-600" />
+            </div>
+            <span className="text-[10px] font-semibold text-slate-700">Your Financial Snapshot</span>
           </div>
-          {/* Segmented bar */}
-          <div className="flex h-1.5 rounded-full overflow-hidden mt-2 bg-slate-200">
-            {holdingValues.map(h => {
-              const pct = total > 0 ? (h.value / total) * 100 : 25;
-              return <div key={h.key} style={{ width: `${pct}%`, backgroundColor: h.color }} />;
-            })}
-          </div>
-          {/* Legend */}
-          <div className="flex justify-between mt-2">
+          <div className="grid grid-cols-4 gap-1.5">
             {holdingValues.map(h => {
               const HIcon = h.icon;
               return (
-                <div key={h.key} className="flex items-center gap-1">
-                  <HIcon className="w-2.5 h-2.5" style={{ color: h.color }} />
-                  <span className="text-[7px] text-slate-500">{h.label}</span>
+                <div key={h.key} className="flex flex-col items-center gap-1 rounded-lg bg-white border border-slate-100 py-2 px-1">
+                  <HIcon className="w-3.5 h-3.5" style={{ color: h.color }} />
+                  <span className="text-[7px] text-slate-400 font-medium">{h.label}</span>
+                  <span className="text-[10px] font-bold text-slate-800">{formatCompact(h.value)}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Financial Wellness Score */}
-        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-semibold text-slate-700">Financial Wellness</span>
+        {/* 3-Card Row */}
+        <div className="grid grid-cols-3 gap-1.5">
+          {/* Your Relationship */}
+          <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
             <div className="flex items-center gap-1">
-              <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center"
-                style={{ borderColor: wellness.score >= 75 ? "#22c55e" : wellness.score >= 50 ? "#f59e0b" : "#ef4444" }}>
-                <span className="text-[10px] font-bold text-slate-800">{wellness.score}</span>
-              </div>
+              <Star className="w-3 h-3 text-amber-500" fill="#f59e0b" />
+              <span className="text-[8px] font-bold text-slate-700">Your Relationship</span>
+            </div>
+            <p className="text-[8px] text-slate-500 leading-snug">Valued member since 2018</p>
+            <div className="flex items-center gap-1 mt-auto">
+              <MapPin className="w-2.5 h-2.5 text-slate-400" />
+              <span className="text-[7px] text-slate-400">Main St Branch</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-2.5 h-2.5 text-emerald-500" />
+              <span className="text-[7px] text-emerald-600">Open til 6 PM</span>
             </div>
           </div>
-          <div className="space-y-1.5">
-            {wellness.items.map((item, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <span className="text-[9px] text-slate-600">{item.label}</span>
-                {item.ok ? (
-                  <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                ) : (
-                  <AlertTriangle className="w-3 h-3 text-amber-500" />
-                )}
+
+          {/* Deals for You */}
+          <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
+            <div className="flex items-center gap-1">
+              <Gift className="w-3 h-3 text-rose-500" />
+              <span className="text-[8px] font-bold text-slate-700">Deals for You</span>
+            </div>
+            <p className="text-[9px] font-semibold text-slate-800 leading-snug">{deal.merchant}</p>
+            <p className="text-[7px] text-slate-500 leading-snug">{deal.offer}</p>
+            <button
+              onClick={() => onGoToAI(`Tell me about deals available for me`)}
+              className="mt-auto text-[7px] font-semibold text-blue-600 hover:text-blue-700 text-left"
+            >
+              View all →
+            </button>
+          </div>
+
+          {/* Financial Wellness */}
+          <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
+            <div className="flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-indigo-500" />
+              <span className="text-[8px] font-bold text-slate-700">Wellness</span>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-7 h-7 rounded-full border-2 flex items-center justify-center"
+                style={{ borderColor: wellness.score >= 75 ? "#22c55e" : wellness.score >= 50 ? "#f59e0b" : "#ef4444" }}>
+                <span className="text-[9px] font-bold text-slate-800">{wellness.score}</span>
               </div>
-            ))}
+            </div>
+            <div className="space-y-0.5">
+              {wellness.items.map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-[6.5px] text-slate-500 truncate">{item.label}</span>
+                  <span className={`text-[6.5px] font-semibold ${item.ok ? "text-emerald-600" : "text-amber-600"}`}>
+                    {item.ok ? item.goodText : item.badText}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
