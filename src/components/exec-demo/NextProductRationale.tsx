@@ -394,7 +394,17 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   })()}
                   </div>
                 </div>
-              </div>
+              {/* Talking point */}
+              {matchingEvent?.talking_points?.[0] && (
+                <div className="mt-1.5 px-4 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="flex items-start gap-1.5">
+                    <Lightbulb className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      {matchingEvent.talking_points[0]}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
