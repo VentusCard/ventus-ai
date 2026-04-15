@@ -103,7 +103,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
         </div>
 
         {/* 3-Card Row */}
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-2 gap-1.5">
           {/* Your Relationship */}
           <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
             <div className="flex items-center gap-1">
