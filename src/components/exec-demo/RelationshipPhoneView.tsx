@@ -111,14 +111,6 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
               <span className="text-[8px] font-bold text-slate-700">Your Relationship</span>
             </div>
             <p className="text-[8px] text-slate-500 leading-snug">Valued member since 2018</p>
-            <div className="flex items-center gap-1 mt-auto">
-              <MapPin className="w-2.5 h-2.5 text-slate-400" />
-              <span className="text-[7px] text-slate-400">Main St Branch</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-2.5 h-2.5 text-emerald-500" />
-              <span className="text-[7px] text-emerald-600">Open til 6 PM</span>
-            </div>
           </div>
 
 
@@ -160,8 +152,17 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
           </div>
         </div>
 
-        {/* Advisor Card */}
+        {/* Your Local Branch */}
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
+          <div className="flex items-center gap-1.5 mb-2">
+            <MapPin className="w-3.5 h-3.5 text-blue-600" />
+            <span className="text-[10px] font-bold text-slate-700">Your Local Branch</span>
+            <div className="ml-auto flex items-center gap-1">
+              <Clock className="w-2.5 h-2.5 text-emerald-500" />
+              <span className="text-[7px] font-medium text-emerald-600">Open til 6 PM</span>
+            </div>
+          </div>
+          <p className="text-[8px] text-slate-400 mb-2">Main St Branch · Downtown</p>
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
               <span className="text-[10px] font-bold text-blue-700">JR</span>
