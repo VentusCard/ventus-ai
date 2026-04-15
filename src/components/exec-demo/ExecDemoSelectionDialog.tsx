@@ -210,9 +210,21 @@ export default function ExecDemoSelectionDialog({
           <div className="flex-1 min-h-0 flex flex-col">
             {/* Table header info */}
             <div className="px-6 pt-3 pb-2 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="text-[13px] font-bold text-slate-800">{customer.profile.name}</span>
-                <span className="text-[11px] text-slate-400">{rawRows.length} transactions · {customer.txnTotal} · {customer.dateRange}</span>
+              <div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[13px] font-bold text-slate-800">{customer.profile.name}</span>
+                  <span className="text-[11px] text-slate-400">{rawRows.length} transactions · {customer.txnTotal} · {customer.dateRange}</span>
+                </div>
+                {customer.profile.demographics && (
+                  <div className="mt-1 space-y-0.5">
+                    <div className="text-[10px] text-slate-500">
+                      {customer.profile.demographics.age} · {customer.profile.demographics.occupation} · {customer.profile.demographics.familyStatus}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {customer.profile.segment} · {customer.profile.aum} · {customer.profile.demographics.incomeLevel} · {customer.profile.demographics.industry}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
