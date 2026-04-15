@@ -1,25 +1,22 @@
 
 
-## Show Only 3 Action Buttons After Synthesis, Hide Details
+## Show Full Details After Synthesis, Collapse Only on Tab Click
 
-### What the user wants
-After clicking "Behavioral Intelligence: Ready", the intel panel should:
-1. Keep the card full height
-2. Hide all the detailed content (rollup pills, life events, risk factors, evidence)
-3. Show only the 3 action buttons (Next-Offer, Next-Product, Next Conversation) centered at the bottom
-4. When a button is clicked, the screen transitions (phone appears, transactions hide)
+### What changes
 
-### Changes — Single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+Currently, clicking "Behavioral Intelligence: Ready" hides all detail and shows only 3 action buttons. The user wants the opposite: keep the full transaction evidence visible after synthesis, with the 3 action buttons added at the bottom. Only when a button is clicked should the panel shrink and the layout transition happen.
 
-1. **Hide detail sections when no tab is active after synthesis**: Wrap the rollup pills, life events, risk factors sections (lines 285–423) in a condition: only render when `!synthesisTriggered || activeTab !== null`. When `synthesisTriggered && !activeTab`, these sections are hidden.
+### Changes — `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-2. **Show centered action buttons when synthesisTriggered && !activeTab**: Replace the collapsed content area with 3 large vertically-stacked or centered action buttons (Next-Offer, Next-Product, Next Conversation) using the existing `TAB_ORDER` and `TAB_META`. Style them as prominent cards/buttons filling the empty space.
+1. **Remove the action-buttons-only branch** (lines 285–320): Delete the `synthesisTriggered && !activeTab` condition that renders only the 3 centered buttons and hides everything else.
 
-3. **Keep existing tab bar + content behavior**: When a tab IS clicked (`activeTab` is set), the current tab content renders as before (the panel transition to show phone will already work from the previous layout changes).
+2. **Always show the rollup pills + life events + risk factors after synthesis**: The existing `synthesisTriggered && rollupStats.length > 0` branch (lines 321–458) should render when `synthesisTriggered` is true regardless of `activeTab`. This means the condition on line 285 changes from checking `!activeTab` to just falling through to the detail view.
 
-4. **Full-height card**: When `synthesisTriggered && !activeTab`, the persona card stays `flex-1` so it fills the panel height, with the 3 buttons centered inside.
+3. **Add the 3 action buttons below the risk factors section** (after line 457): When `synthesisTriggered && !activeTab`, render the 3 action buttons (Next-Offer, Next-Product, Next Conversation) in a horizontal row below the risk section. Use a compact horizontal layout (not the tall centered layout) so they sit naturally below the intelligence summary.
+
+4. **Keep the card full-height when `synthesisTriggered && !activeTab`**: The persona card wrapper (line 259) already uses `flex-1 min-h-0` when `!synthesisTriggered || pillsExpanded`. Extend this to also apply when `synthesisTriggered && !activeTab`, so the card fills the panel and the evidence is scrollable.
 
 ### Visual result
-- Click "Behavioral Intelligence: Ready" → card fills panel, shows only 3 clean action buttons in the center
-- Click "Next-Offer" → transitions to intel+phone layout with offer content
+- Click "Behavioral Intelligence: Ready" → card fills panel, shows rollup pills, life events, risk factors, evidence list, AND 3 action buttons at the bottom
+- Click "Next-Offer" → card shrinks, left panel hides, phone appears (existing behavior)
 
