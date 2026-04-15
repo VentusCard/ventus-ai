@@ -147,7 +147,12 @@ const ScrollDrivenHero = () => {
   const activePersonaIndex = personaProgress < 0.33 ? 0 : personaProgress < 0.66 ? 1 : 2;
   const activePersona = stage === 3 ? personas[activePersonaIndex] : null;
 
-  // Scroll offset for raw text
+  // Sort enriched data: persona-tagged rows first, then others — show more evidence
+  const enrichedSorted = useMemo(() => {
+    const withPersona = enrichedData.filter(r => r.persona);
+    const without = enrichedData.filter(r => !r.persona);
+    return [...withPersona, ...without].slice(0, 14);
+  }, []);
 
   // Scroll offset for raw text
   const scrollOffset = useMemo(() => scrollProgress * 200, [scrollProgress]);
