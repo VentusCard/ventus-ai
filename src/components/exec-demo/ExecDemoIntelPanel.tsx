@@ -266,7 +266,7 @@ export default function ExecDemoIntelPanel({
         }}
       >
 
-        {/* Evolving persona description (shown while AI synthesis loads) */}
+        {/* Evolving persona description (shown while AI synthesis loads, hidden when tab active) */}
         {!synthesisTriggered && displayedDesc && (
           <div
             key={descKey}
