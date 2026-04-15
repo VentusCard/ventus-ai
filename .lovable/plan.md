@@ -1,72 +1,32 @@
-<final-text>
-Root cause identified: the bug is not in the “Ready” button itself. In `src/pages/ExecDemoPage.tsx`, the animation flow auto-runs `revealStep(0, p, true)` as soon as phase enters `hold`, and that immediately sets `activeTab = "analytics"` before you click anything. Because `activeTab` is already truthy:
-- the intelligence card enters its collapsed/tab-selected state
-- the evidence area starts behaving like a chosen action state
-- the action/tab UI appears too early
-- the intended “full evidence first, move only after click” flow never actually exists
 
-## Fix plan
 
-### 1) Stop auto-selecting any action during the hold state
-In `src/pages/ExecDemoPage.tsx`:
-- change the end of `runAnimationWithProfile()` so entering `hold` does **not** call `revealStep(0, p, true)`
-- keep `activeTab` as `null` until the user explicitly clicks **Next-Offer**, **Next-Product**, or **Next Conversation**
-- if needed, preserve any non-UI progress state separately (`stepIndex`, `revealedTabs`, accent color) without driving the layout
+## Add Collapsed Sliver with Expand Button for Transaction Panel
 
-This is the main fix.
+### What changes
+When `activeTab` is set (panel collapses), instead of shrinking to `width: 0`, keep a narrow 40px sliver with a small expand/chevron button. Clicking it temporarily re-expands the transaction panel.
 
-### 2) Make panel movement depend only on an explicit action click
-Also in `src/pages/ExecDemoPage.tsx`:
-- replace the repeated inline checks with a single boolean like:
-  `const showPhone = activeTab === "analytics" || activeTab === "product" || activeTab === "relationship"`
-- use `showPhone` for:
-  - collapsing the left transaction panel
-  - expanding the right phone panel
-- include `"analytics"` here, because **Next-Offer** currently maps to `analytics`, and that click should trigger the screen move
+### Changes — `src/pages/ExecDemoPage.tsx`
 
-Right now the page logic is inconsistent: the action button uses `analytics`, but the layout-collapse logic ignores it.
+1. **Add state**: `const [txPanelExpanded, setTxPanelExpanded] = useState(false)`
 
-### 3) Keep the intelligence card fully expanded until an action is chosen
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx`:
-- make the expanded/full-height state depend on `!activeTab`
-- keep:
-  - spending-pattern rollups
-  - life event pills
-  - risk factors
-  - full evidence list
-  - bottom action buttons
-  visible when `synthesisTriggered && !activeTab`
-- only apply the reduced height / tab-content state after `activeTab` becomes non-null
+2. **Reset on tab change**: When `activeTab` changes to null, reset `txPanelExpanded = false`
 
-Most of this logic is already close; it should start working correctly once the parent stops pre-setting `activeTab`, but I would harden the conditions so they consistently key off an explicit `actionSelected` state.
+3. **Update left panel width logic** (line 761):
+   - When `!activeTab`: width 400 (full, as now)
+   - When `activeTab && txPanelExpanded`: width 400 (re-expanded)
+   - When `activeTab && !txPanelExpanded`: width 40 (sliver)
 
-### 4) Prevent keyboard navigation from accidentally re-triggering the broken flow
-Still in `src/pages/ExecDemoPage.tsx`:
-- update the ArrowLeft / ArrowRight handler so it does **not** auto-select an action while the user is still in the post-synthesis review state
-- either disable that handler until an action is selected, or refactor it to use a separate non-layout state
+4. **Render sliver content**: When `activeTab && !txPanelExpanded`, show a narrow vertical strip with:
+   - A `PanelLeft` or `ChevronRight` icon button centered vertically
+   - Subtle vertical text "Transactions" rotated 90° (optional, keeps it clean)
+   - On click → `setTxPanelExpanded(true)`
 
-This avoids a hidden edge case where keyboard navigation could collapse the layout even after the main click flow is fixed.
+5. **Add collapse button**: When `activeTab && txPanelExpanded`, add a small collapse button at the top of the transaction panel to set `txPanelExpanded(false)`
 
-## Files to update
-- `src/pages/ExecDemoPage.tsx`
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+6. **Opacity**: Keep opacity at 1 for the sliver state (not 0)
 
-## Expected behavior after fix
-1. Run enrichment
-2. Click **Behavioral Intelligence: Ready**
-3. The intelligence card stays tall and shows the full evidence / transaction-related detail state
-4. The left transaction panel stays visible
-5. The right phone panel stays hidden
-6. Only when clicking **Next-Offer**, **Next-Product**, or **Next Conversation**:
-   - the intelligence card shrinks
-   - the left panel collapses
-   - the right panel appears
+### Visual result
+- Select an action → left panel shrinks to a 40px sliver with a small expand arrow
+- Click the arrow → panel re-expands to show the full transaction list
+- Click collapse → returns to sliver
 
-## Validation I would do after implementation
-- Click **Behavioral Intelligence: Ready** and confirm no action tab is auto-selected
-- Confirm the left transaction list remains fully visible
-- Confirm full evidence remains visible below the header
-- Click **Next-Offer** and verify the screen moves only then
-- Click **Next-Product** and **Next Conversation** and verify they trigger the same movement behavior
-- Confirm no regression on rerun / customer change / custom CSV flows
-</final-text>
