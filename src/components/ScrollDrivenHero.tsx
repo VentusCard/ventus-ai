@@ -161,7 +161,7 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "360vh", background: "#F5F5EF" }}
+      style={{ height: "360vh", background: "#FFFFFF" }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-visible">
@@ -238,7 +238,7 @@ const ScrollDrivenHero = () => {
             </div>
 
             {/* Transaction list with gradient fade */}
-            <div className="relative px-4 py-2 overflow-hidden transition-all duration-500" style={{ height: stage === 2 ? 280 : 200 }}>
+            <div className="relative px-4 py-2 overflow-hidden" style={{ height: 200 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
@@ -269,22 +269,9 @@ const ScrollDrivenHero = () => {
                           paddingLeft: 8,
                         }}
                       >
-                        <div className="flex flex-col min-w-0 mr-3">
-                          {/* Show raw → clean transformation in stage 2 */}
-                          {stage === 2 && (
-                            <span
-                              className="font-mono text-[9px] truncate transition-all duration-500"
-                              style={{
-                                color: "rgba(100,116,139,0.5)",
-                                textDecoration: "line-through",
-                                textDecorationColor: "rgba(239,68,68,0.4)",
-                              }}
-                            >
-                              {row.raw.split("$")[0].trim()}
-                            </span>
-                          )}
+                        <div className="min-w-0 mr-3">
                           <span
-                            className="text-[11px] truncate transition-colors duration-[400ms]"
+                            className="text-[11px] truncate block transition-colors duration-[400ms]"
                             style={{ color: isHighlighted ? "#e2e8f0" : "rgba(203,213,225,0.8)" }}
                           >
                             {row.merchant}
