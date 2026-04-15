@@ -371,20 +371,20 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                           <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
                           {isBehavioral ? (
                             <>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
-                                <Smartphone className="w-2.5 h-2.5" /> Signal Sent to Mobile App
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2.5 py-1">
+                                <Smartphone className="w-3 h-3" /> Signal Sent to Mobile App
                               </span>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
-                                <Mail className="w-2.5 h-2.5" /> Triggered Email Campaign
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2.5 py-1">
+                                <Mail className="w-3 h-3" /> Triggered Email Campaign
                               </span>
                             </>
                           ) : (
                             <>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2 py-0.5">
-                                <UserCheck className="w-2.5 h-2.5" /> Notify Wealth Advisor
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2.5 py-1">
+                                <UserCheck className="w-3 h-3" /> Notify Wealth Advisor
                               </span>
-                              <span className="inline-flex items-center gap-1 text-[9px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2 py-0.5">
-                                <CalendarCheck className="w-2.5 h-2.5" /> Schedule Review Meeting
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2.5 py-1">
+                                <CalendarCheck className="w-3 h-3" /> Schedule Review Meeting
                               </span>
                             </>
                           )}
