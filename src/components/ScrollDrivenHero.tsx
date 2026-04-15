@@ -238,7 +238,7 @@ const ScrollDrivenHero = () => {
             </div>
 
             {/* Transaction list with gradient fade */}
-            <div className="relative px-4 py-2 overflow-hidden" style={{ height: 200 }}>
+            <div className="relative px-4 py-2 overflow-hidden transition-all duration-500" style={{ height: stage === 2 ? 280 : 200 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
