@@ -65,11 +65,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
   const [tipDismissed, setTipDismissed] = useState(false);
 
   const holdingValues = HOLDING_META.map(h => ({ ...h, value: parseCurrency(holdings[h.key] || "$0") }));
-  const wellness = computeWellness(holdings);
-
-  // Pick a deal based on top pillar from life events or default
-  const topPillar = detectedLifeEvents?.[0]?.event_name;
-  const deal = (topPillar && PILLAR_DEALS[topPillar]) || DEFAULT_DEAL;
+  const advisor = getAdvisor(customer.id);
 
   return (
     <div className="flex flex-col h-full">
