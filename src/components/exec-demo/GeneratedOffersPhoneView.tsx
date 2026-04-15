@@ -362,28 +362,20 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
               <p className="text-[9px] text-slate-500">Explore perks for TCBY Members</p>
             </div>
           </div>
-          <div className="space-y-1.5">
-            {/* Art perk */}
+          <div className="grid grid-cols-2 gap-1.5">
             <div className="flex rounded-lg border border-slate-100 bg-white overflow-hidden">
               <div className="w-1 bg-indigo-500 shrink-0" />
-              <div className="px-2.5 py-2 flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[8px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full">Art</span>
-                  <span className="text-[9px] font-medium text-slate-500 truncate">MoMA</span>
-                </div>
-                <p className="text-[10px] font-bold text-slate-800">Private Gallery Viewing</p>
+              <div className="px-2 py-1.5 flex-1 min-w-0">
+                <p className="text-[9px] font-medium text-slate-500 truncate">MoMA</p>
+                <p className="text-[10px] font-bold text-slate-800 leading-tight">Private Gallery Viewing</p>
                 <span className="text-[9px] font-semibold text-emerald-600 mt-0.5 inline-block">Free entry</span>
               </div>
             </div>
-            {/* Sports perk */}
             <div className="flex rounded-lg border border-slate-100 bg-white overflow-hidden">
               <div className="w-1 bg-green-500 shrink-0" />
-              <div className="px-2.5 py-2 flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[8px] font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">Sports</span>
-                  <span className="text-[9px] font-medium text-slate-500 truncate">NY Mets</span>
-                </div>
-                <p className="text-[10px] font-bold text-slate-800">Home Game Access</p>
+              <div className="px-2 py-1.5 flex-1 min-w-0">
+                <p className="text-[9px] font-medium text-slate-500 truncate">NY Mets</p>
+                <p className="text-[10px] font-bold text-slate-800 leading-tight">Home Game Access</p>
                 <span className="text-[9px] font-semibold text-emerald-600 mt-0.5 inline-block">$250 / game</span>
               </div>
             </div>
