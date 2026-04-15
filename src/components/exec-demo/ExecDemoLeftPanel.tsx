@@ -26,6 +26,7 @@ interface Props {
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
+  enriched?: boolean;
 }
 
 const SCROLL_DURATION = 6000;
@@ -48,6 +49,7 @@ const TxRow = ({
   pillarColor?: string;
   categoryLabel?: string;
   signalEntry?: SignalEntry;
+  enriched?: boolean;
 }) => {
   const [hovered, setHovered] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -127,26 +129,29 @@ const TxRow = ({
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="text-slate-400">Pillar:</span>
-            <span className="font-semibold" style={{ color: pillarColor || "#67e8f9" }}>{signalEntry.pillar}</span>
+            <span className={enriched ? "font-semibold" : "text-slate-500"} style={enriched ? { color: pillarColor || "#67e8f9" } : undefined}>{enriched ? signalEntry.pillar : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Category:</span>
-            <span className="text-slate-200">{signalEntry.category || "—"}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.category || "—") : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Sub:</span>
-            <span className="text-slate-200">{signalEntry.label}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? signalEntry.label : "—"}</span>
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="text-slate-400">Tier:</span>
-            <span className="text-slate-200">{signalEntry.tier || "—"}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.tier || "—") : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Frequency:</span>
-            <span className="text-slate-200">{signalEntry.frequency || "—"}</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.frequency || "—") : "—"}</span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Confidence:</span>
-            <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
-              {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
-            </span>
-          </div>
+            {enriched ? (
+              <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
+                {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
+              </span>
+            ) : (
+              <span className="text-slate-500">—</span>
+            )}
         </div>,
         document.body
       )}
