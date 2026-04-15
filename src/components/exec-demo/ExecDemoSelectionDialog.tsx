@@ -208,21 +208,6 @@ export default function ExecDemoSelectionDialog({
         {/* Transaction table — full width */}
         {!showCustomFlow && (
           <div className="flex-1 min-h-0 flex flex-col">
-            {/* Table header info */}
-            <div className="px-6 pt-3 pb-2 shrink-0">
-              <div className="grid grid-cols-4 gap-4">
-                {/* Header row */}
-                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Name</span>
-                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Segment</span>
-                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">AUM</span>
-                <span className="text-slate-400 font-medium uppercase tracking-wider text-[9px]">Transactions</span>
-                {/* Value row */}
-                <span className="font-bold text-slate-900 text-[13px]">{customer.profile.name}</span>
-                <span className="text-slate-700 text-[13px]">{customer.profile.segment}</span>
-                <span className="text-slate-700 text-[13px]">{customer.profile.aum}</span>
-                <span className="text-slate-700 text-[13px]">{rawRows.length} · {customer.txnTotal}</span>
-              </div>
-            </div>
 
             {/* Scrollable table */}
             <ScrollArea className="flex-1 min-h-0 px-6 pb-2">
