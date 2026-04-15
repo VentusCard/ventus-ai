@@ -82,12 +82,6 @@ export default function ProductCardsPhoneView({ cards, customerName }: Props) {
             }}
           >
             <div className="p-3.5">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Icon className="w-3.5 h-3.5" style={{ color: style.accent }} />
-                <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: style.accent }}>
-                  {card.signal_label}
-                </span>
-              </div>
               <p className="text-[13px] font-bold text-slate-800 leading-snug mb-1">{card.product_name}</p>
               <p className="text-[11px] text-slate-500 italic leading-relaxed mb-2">"{card.quote}"</p>
               <div className="space-y-1.5 mb-2">
