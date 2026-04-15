@@ -225,11 +225,14 @@ export default function ExecDemoLeftPanel({
             </div>
             {!isCustomMode && currentCustomer?.profile.demographics && (
               <div className="mt-0.5 space-y-px">
-                <div className="text-[9px] text-slate-400 truncate">
-                  {currentCustomer.profile.demographics.age} · {currentCustomer.profile.demographics.occupation}
+                <div className="text-[9px] text-slate-400">
+                  {currentCustomer.profile.demographics.age} · {currentCustomer.profile.demographics.occupation} · {currentCustomer.profile.demographics.familyStatus}
                 </div>
-                <div className="text-[9px] text-slate-400 truncate">
-                  {currentCustomer.profile.segment} · {currentCustomer.profile.aum} · {currentCustomer.profile.demographics.incomeLevel}
+                <div className="text-[9px] text-slate-400">
+                  {currentCustomer.profile.segment} · {currentCustomer.profile.aum}
+                </div>
+                <div className="text-[9px] text-slate-400">
+                  {currentCustomer.profile.demographics.incomeLevel} · {currentCustomer.profile.demographics.industry}
                 </div>
               </div>
             )}
