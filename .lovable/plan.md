@@ -1,55 +1,29 @@
-
-
-## Separate product actions into two labeled rows
+## Enlarge product cards and add more relevant data
 
 ### What
-Split the AI-generated action pills on each product card into two visually distinct rows:
-1. **Standard Response** — operational actions (email campaign, schedule meeting, push notification, etc.) where `tone === "standard"`
-2. **Concierge Touch** — relationship-building / wow-factor actions where `tone === "wow"`
 
-Each row gets a tiny label prefix (e.g. `Standard Response ·` and `Concierge Touch ·`) in slate-400 text before the pills.
+The two product cards in the Next-Product intelligence panel are currently compact (12px titles, 11px quotes, tiny badges). Scale them up and surface additional context from the matching life event data.
 
-### Change
+### Changes
 
-**File**: `src/components/exec-demo/NextProductRationale.tsx`, lines ~310-365
+**File**: `src/components/exec-demo/NextProductRationale.tsx`
 
-Replace the single `flex-wrap` div of action pills with two grouped rows:
+1. **Increase card sizing**:
+  - Product name: `text-[12px]` → `text-[14px]`
+  - Quote text: `text-[11px]` → `text-[12px]`, increase line height
+  - Card padding: `px-3 py-2.5` → `px-4 py-3.5`
+  - Trigger pill text: `text-[10px]` → `text-[11px]`
+  - Action pill text: `text-[9px]` → `text-[10px]`
+  - Row labels: `text-[8px]` → `text-[9px]`
+  - Trigger badge: `text-[9px]` → `text-[10px]`
+2. **Add contextual data from matching life event** (when available):
+  - **Confidence score**: Show as a small percentage bar or badge next to the trigger label (e.g. "92% confidence")
+  - **Evidence count**: Show number of supporting transactions (e.g. "Based on 4 transactions")
+  - **Talking point**: Display the first talking point from the life event as a short advisor tip beneath the card
+3. **Adjust outer spacing**: Increase gap between cards from `space-y-2.5` to `space-y-4` for breathing room.
 
-```tsx
-{(() => {
-  const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
+### Technical detail
 
-  if (dynamicActions && dynamicActions.length > 0) {
-    const standard = dynamicActions.filter(a => a.tone === "standard");
-    const wow = dynamicActions.filter(a => a.tone === "wow");
+All changes in one file. The matching life event (`matchingEvent`) is already resolved at line 181-184. We just need to pull `matchingEvent.confidence`, `matchingEvent.financial_projection`, `matchingEvent.evidence.length`, and `matchingEvent.talking_points[0]` into the card render block.
 
-    return (
-      <div className="mt-2 space-y-1.5">
-        {standard.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide">Standard Response</span>
-            {standard.map((action, ai) => (
-              /* existing pill rendering, no ring/sparkle */
-            ))}
-          </div>
-        )}
-        {wow.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide">Concierge Touch</span>
-            {wow.map((action, ai) => (
-              /* existing pill rendering with sparkle + ring */
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Loading and static fallbacks remain unchanged
-})()}
-```
-
-Also update the static fallbacks to use the same two-row layout with labels.
-
-Single file, ~30 lines changed.
-
+Estimated ~40 lines changed across the card render section (lines 280-393).
