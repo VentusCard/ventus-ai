@@ -121,21 +121,8 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
             </div>
           </div>
 
-          {/* Deals for You */}
-          <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
-            <div className="flex items-center gap-1">
-              <Gift className="w-3 h-3 text-rose-500" />
-              <span className="text-[8px] font-bold text-slate-700">Deals for You</span>
-            </div>
-            <p className="text-[9px] font-semibold text-slate-800 leading-snug">{deal.merchant}</p>
-            <p className="text-[7px] text-slate-500 leading-snug">{deal.offer}</p>
-            <button
-              onClick={() => onGoToAI(`Tell me about deals available for me`)}
-              className="mt-auto text-[7px] font-semibold text-blue-600 hover:text-blue-700 text-left"
-            >
-              View all →
-            </button>
-          </div>
+
+
 
           {/* Financial Wellness */}
           <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
