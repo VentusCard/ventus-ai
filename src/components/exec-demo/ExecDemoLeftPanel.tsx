@@ -234,7 +234,7 @@ export default function ExecDemoLeftPanel({
             )}
             {!isCustomMode && currentCustomer?.profile.demographics && (
               <div className="mt-0.5 space-y-px">
-                <div className="text-[9px] text-slate-400">
+                  <div className="text-[9px] text-primary-foreground">
                   {currentCustomer.profile.demographics.age} · {currentCustomer.profile.demographics.occupation} · {currentCustomer.profile.demographics.familyStatus}
                 </div>
                 <div className="text-[9px] text-slate-400">
