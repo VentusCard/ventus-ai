@@ -319,7 +319,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                             <span
                               key={ai}
                               className={`inline-flex items-center gap-1 text-[9px] font-medium rounded-full px-2 py-0.5 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
-                              style={isWow ? { ringColor: "currentColor" } : undefined}
+                              style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
                             >
                               {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
                               <IconComp className="w-2.5 h-2.5" />
