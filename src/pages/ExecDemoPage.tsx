@@ -561,10 +561,10 @@ export default function ExecDemoPage() {
     setStepIndex(idx);
   }, []);
 
-  // Arrow key navigation
+  // Arrow key navigation — only works after user has selected an action tab
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (phase !== "hold") return;
+      if (phase !== "hold" || !activeTab) return;
       const p = profileRef.current;
       if (!p) return;
 
@@ -586,7 +586,7 @@ export default function ExecDemoPage() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [phase, revealStep]);
+  }, [phase, activeTab, revealStep]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setPhase("scroll");
@@ -612,7 +612,8 @@ export default function ExecDemoPage() {
 
     schedule(() => {
       setPhase("hold");
-      revealStep(0, p, true);
+      // Don't auto-select any tab — let user click an action button first
+      setCurrentCardColor(p.intelligence.analytics.accent);
     }, elapsed);
   }, [schedule, revealStep]);
 
@@ -757,9 +758,9 @@ export default function ExecDemoPage() {
         <div
           className="border-r border-slate-200 bg-white overflow-hidden transition-all duration-500 ease-in-out"
           style={{
-            width: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 0 : 400,
-            minWidth: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 0 : 400,
-            opacity: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 0 : 1,
+            width: activeTab ? 0 : 400,
+            minWidth: activeTab ? 0 : 400,
+            opacity: activeTab ? 0 : 1,
           }}
         >
           <div className="w-[400px] h-full">
@@ -831,9 +832,9 @@ export default function ExecDemoPage() {
         <div
           className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out"
           style={{
-            width: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 360 : 0,
-            minWidth: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 360 : 0,
-            opacity: (activeTab === "rewards" || activeTab === "product" || activeTab === "relationship") ? 1 : 0,
+            width: activeTab ? 360 : 0,
+            minWidth: activeTab ? 360 : 0,
+            opacity: activeTab ? 1 : 0,
           }}
         >
           <div className="w-[360px] h-full">
