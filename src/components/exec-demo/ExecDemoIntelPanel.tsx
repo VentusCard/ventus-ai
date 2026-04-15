@@ -362,7 +362,8 @@ export default function ExecDemoIntelPanel({
                   ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {riskFlags.flags.map((flag: any, i: number) => {
-                        const flagLabel = flag.category || flag.type || "Risk";
+                        const rawLabel = flag.category || flag.type || "Risk";
+                        const flagLabel = rawLabel.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
                         const isActive = activeTriggerLabel === flagLabel;
                         const isHigh = flag.severity === "high";
                         const dotColor = isHigh ? "#ef4444" : "#f59e0b";
@@ -402,10 +403,21 @@ export default function ExecDemoIntelPanel({
                       })}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-emerald-600 italic flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      {riskFlags?.summary || "No significant risks detected"}
-                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <span
+                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+                        style={{
+                          background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
+                          color: "#065f46",
+                          border: "1.5px solid #10b981",
+                          animation: "rollup-entrance 0.5s ease-out 1.2s both, rollup-glow 1s ease-out 1.7s both",
+                          boxShadow: "0 2px 8px rgba(16,185,129,.2)",
+                        }}
+                      >
+                        <span style={{ color: "#10b981" }}>✓</span>
+                        None Detected
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
