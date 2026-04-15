@@ -1,42 +1,24 @@
 
 
-## Add "Your Financial Snapshot" + 3 Info Cards to Membership Tab
+## Tighten Deal Recommendations: Practical Item Fit
 
-### What
-Redesign the top portion of the Membership tab to match the reference screenshot: a "Your Financial Snapshot" card showing 4 holdings, followed by a row of 3 compact cards (Your Relationship, Deals for You, Financial Wellness).
+### Problem
+Generated deals sometimes include items that don't statistically fit the persona — the issue isn't brand names, it's suggesting products (e.g., electrolyte packets for a traveler) that have no logical connection to the customer's actual spending behavior.
 
-### Layout
-```text
-┌──────────────────────────────────┐
-│ Welcome, Sarah · Preferred Member│
-├──────────────────────────────────┤
-│ ○ Your Financial Snapshot        │
-│ $Savings  $Credit  $Mort  $Inv   │
-│  $85K      $15K     $0    $550K  │
-├──────────┬──────────┬────────────┤
-│ ☆ Your   │ 🎁 Deals │ ✦ Financial│
-│ Relation │ for You  │  Wellness  │
-│ Valued   │ REI Co-op│   (78)     │
-│ member   │ 10% back │ • Emergency│
-│ since    │ on outdoor│  fund:Strong│
-│ 2018     │ gear     │ • Debt: Imp│
-│ 📍 Open  │          │ • Savings  │
-│ til 6 PM │          │   On track │
-├──────────┴──────────┴────────────┤
-│ Advisor card + AI Tip (keep)     │
-└──────────────────────────────────┘
-```
+### Change
+Single file: `supabase/functions/generate-next-offers/index.ts` — update the system prompt with stronger product-fit guardrails.
 
-### Changes
+### Prompt Updates (lines 34-50)
 
-**File: `src/components/exec-demo/RelationshipPhoneView.tsx`**
-- Replace the "Total Relationship + Segmented Bar" card with a **"Your Financial Snapshot"** card: section header with a circle icon, then a 4-column grid showing each holding type (icon, label, dollar amount) using the existing `HOLDING_META` and `parseCurrency` helpers
-- Replace the "Financial Wellness Score" card with a **3-column grid** of compact cards:
-  1. **Your Relationship** — star icon, "Valued member since 2018", branch location + open hours
-  2. **Deals for You** — gift icon, a contextual deal based on customer's top pillar (e.g., "REI Co-op · 10% back on outdoor gear")
-  3. **Financial Wellness** — circular score badge (reuse `computeWellness`), 3 abbreviated status lines with colored text (Strong/Improving/On track)
-- Keep the Advisor Card and pinned AI Financial Tip unchanged
-- Style cards with existing `rounded-xl bg-slate-50 border border-slate-100` pattern, compact text sizing consistent with the phone mockup
+1. **Add a product relevance rule**: "Every deal must pass the 'would this person obviously buy this?' test. The product category must have a direct, common-sense connection to the behavioral cluster's spending patterns — not a loose thematic association."
 
-Single file change.
+2. **Replace the lateral thinking guidance** (line 45) with tighter examples:
+   - Current: "a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients."
+   - New: "Think one step adjacent to what they already buy. A frequent flyer needs noise-cancelling headphones, a carry-on suitcase, packing cubes, a portable charger. A fitness enthusiast needs running shoes, a GPS watch, wireless earbuds, gym bag. A home cook needs a quality knife set, cast iron pan, spice subscription. Do NOT suggest supplements, vitamins, hydration packets, essential oils, or any wellness/health product unless the customer's transactions explicitly show health & wellness spending."
+
+3. **Add explicit rejection list**: "NEVER suggest these unless the cluster is explicitly health/wellness: supplements, vitamins, electrolyte mixes, protein powders, essential oils, skincare serums, wellness subscriptions. These are statistically unlikely purchases for most personas."
+
+4. **Add a statistical fit check instruction**: "Before finalizing each deal, verify: does this product category appear in or logically extend the customer's top merchant categories? If the answer is no, replace it with something they'd actually use."
+
+No frontend changes needed.
 
