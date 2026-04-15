@@ -291,7 +291,7 @@ export default function ExecDemoIntelPanel({
                   </button>
                 </div>
                 <div className="mb-1.5">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Behavioral Intelligence</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Patterns</p>
                   <div className="flex flex-wrap gap-2">
                     {rollupStats.map((r, i) => (
                       <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
