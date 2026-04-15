@@ -293,6 +293,7 @@ export default function ExecDemoIntelPanel({
                 </div>
               </div>
             ) : (
+              <>
               <div className="flex items-start justify-between">
                 <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
                 <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
@@ -322,6 +323,7 @@ export default function ExecDemoIntelPanel({
                   </span>
                 </button>
               )}
+              </>
             )}
 
             {(pillsExpanded || !synthesisTriggered) && (
