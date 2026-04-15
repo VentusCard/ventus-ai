@@ -251,39 +251,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           </div>
         </div>
 
-        {/* ── Semantic Search Bar ── */}
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search deals..."
-            className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
-          />
-          {isSearching && (
-            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
-          )}
-          {!isSearching && searchQuery && (
-            <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
-              <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
-            </button>
-          )}
-        </div>
-        {searchReasoning && (
-          <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
-            <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
-            <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
-          </div>
-        )}
-
-        {/* ── No results state ── */}
-        {isSearchActive && !isSearching && groups.length === 0 && (
-          <div className="text-center py-4">
-            <p className="text-[11px] text-slate-400">No matching deals found</p>
-          </div>
-        )}
-
         {/* ── Top Pick For You ── */}
         {topPick && (
           <div
@@ -449,6 +416,39 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
               </div>
             )}
           </>
+        )}
+
+        {/* ── Semantic Search Bar ── */}
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="Search deals..."
+            className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+          />
+          {isSearching && (
+            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
+          )}
+          {!isSearching && searchQuery && (
+            <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
+              <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+            </button>
+          )}
+        </div>
+        {searchReasoning && (
+          <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
+            <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
+            <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
+          </div>
+        )}
+
+        {/* ── No results state ── */}
+        {isSearchActive && !isSearching && groups.length === 0 && (
+          <div className="text-center py-4">
+            <p className="text-[11px] text-slate-400">No matching deals found</p>
+          </div>
         )}
       </div>
 
