@@ -1,6 +1,11 @@
 import { ShieldCheck, ChevronRight, Sparkles } from "lucide-react";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
+const oneSentence = (text: string) => {
+  const match = text.match(/^[^.!?]+[.!?]/);
+  return match ? match[0] : text;
+};
+
 const FUNDING_LABELS: Record<string, string> = {
   "529": "529 Plan",
   savings: "High-Yield Savings",
@@ -65,7 +70,7 @@ export default function ProductRecommendationPhoneView({ lifeEvents, customerNam
             style={{ background: heroColor.accent }}
           />
           <p className="text-[13px] font-bold leading-snug mb-2" style={{ color: heroColor.text }}>
-            {heroEvent.talking_points?.[0] || heroEvent.event_name}
+            {oneSentence(heroEvent.talking_points?.[0] || heroEvent.event_name)}
           </p>
           <div className="flex flex-wrap gap-1.5 mb-3">
             {heroSources.slice(0, 3).map((src, i) => (
@@ -114,7 +119,7 @@ export default function ProductRecommendationPhoneView({ lifeEvents, customerNam
             </div>
             {event.talking_points?.[1] && (
               <p className="text-[10px] text-slate-500 leading-relaxed mb-1.5">
-                {event.talking_points[1]}
+                {oneSentence(event.talking_points[1])}
               </p>
             )}
             <div className="flex flex-wrap gap-1">
