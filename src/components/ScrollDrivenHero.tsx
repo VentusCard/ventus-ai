@@ -3,56 +3,36 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const rawTransactions = [
-  "SQ *POTTERY BARN KIDS 4829 $234.50",
-  "MARRIOTT HOTELS 4829 $285.00",
+  "PAYPL *POTTERY BARN KD 4829 $234.50",
+  "SQ *MARRIOTT HTL MIA 8821 $285.00",
   "APPLPAY MCDONALD'S F3421 $9.75",
   "CHECKCARD WHOLE FOODS #123 $87.40",
-  "PRINCETON REVIEW $1299.00",
-  "DELTA AIR LINES $428.00",
-  "CARTER'S $124.50",
-  "PAYPAL *LA FITNESS $45.00",
-  "YALE ADMISSIONS OFFICE $32.00",
-  "COLLEGE ESSAY ADVISOR $850.00",
-  "BUY BUY BABY $234.50",
-  "STANFORD GUEST HOUSE $210.00",
-  "COMMON APP FEE $75.00",
-  "SOUTHWEST AIRLINES $312.00",
-  "TARGET $89.00",
-  "CHECKCARD COSTCO #4821 $142.30",
-  "APPLPAY STARBUCKS $6.45",
-  "VENMO PAYMENT $50.00",
-  "AMAZON MARKETPLACE $67.80",
-  "SHELL OIL #3892 $48.20",
-  "NETFLIX.COM $15.99",
+  "PAYPL *PRINCETON REVW $1,299.00",
+  "DELTA AIR 0062139847221 $428.00",
+  "SQ *CARTERS STORE 992 $124.50",
+  "PAYPL *LA FITNESS DUE $45.00",
+  "CHECK #1247 YALE UNIV $32.00",
+  "ZELLE PAYMENT COLLEGE COUNSELOR $850.00",
+  "SQ *BUY BUY BABY 1120 $234.50",
+  "CHECKCARD STANFORD GST HS $210.00",
+  "PAYPL *COMMONAPP FEE $75.00",
+  "WN SOUTHWEST 5261849 $312.00",
+  "TARGET T-2847 $89.00",
+  "CHECKCARD COSTCO WHSE #4821 $142.30",
+  "APPLPAY STARBUCKS #9924 $6.45",
+  "ZELLE TO MARIA G $50.00",
+  "AMZN MKTP US*2K9F81 $67.80",
+  "SHELL OIL 57442389201 $48.20",
+  "NETFLIX.COM 8883297631 $15.99",
   "SPOTIFY USA $9.99",
-  "TRADER JOE'S #219 $93.10",
-  "CVS PHARMACY #4201 $24.50",
-  "UBER *TRIP $18.40",
-  "SQ *POTTERY BARN KIDS 4829 $234.50",
-  "MARRIOTT HOTELS 4829 $285.00",
-  "APPLPAY MCDONALD'S F3421 $9.75",
-  "CHECKCARD WHOLE FOODS #123 $87.40",
-  "PRINCETON REVIEW $1299.00",
-  "DELTA AIR LINES $428.00",
-  "CARTER'S $124.50",
-  "PAYPAL *LA FITNESS $45.00",
-  "YALE ADMISSIONS OFFICE $32.00",
-  "COLLEGE ESSAY ADVISOR $850.00",
-  "BUY BUY BABY $234.50",
-  "STANFORD GUEST HOUSE $210.00",
-  "COMMON APP FEE $75.00",
-  "SOUTHWEST AIRLINES $312.00",
-  "TARGET $89.00",
-  "CHECKCARD COSTCO #4821 $142.30",
-  "APPLPAY STARBUCKS $6.45",
-  "VENMO PAYMENT $50.00",
-  "AMAZON MARKETPLACE $67.80",
-  "SHELL OIL #3892 $48.20",
-  "NETFLIX.COM $15.99",
-  "SPOTIFY USA $9.99",
-  "TRADER JOE'S #219 $93.10",
-  "CVS PHARMACY #4201 $24.50",
-  "UBER *TRIP $18.40",
+  "SQ *TRADER JOES #219 $93.10",
+  "CVS/PHARMACY #4201 $24.50",
+  "UBER *TRIP HLPN2 $18.40",
+  "CHECK #1252 SAT PREP TUTOR $400.00",
+  "PAYPL *GYMBOREE PLAY $89.00",
+  "SQ *HILTON GARDEN INN $195.00",
+  "ZELLE TO NANNY SERVICES $320.00",
+  "CHECKCARD BABIES R US $156.00",
 ];
 
 interface EnrichedRow {
@@ -65,7 +45,7 @@ interface EnrichedRow {
 
 const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
   const r = raw.toUpperCase();
-  if (r.includes("POTTERY BARN KIDS"))
+  if (r.includes("POTTERY BARN"))
     return { raw, merchant: "Pottery Barn Kids", category: "Home & Kids", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("MARRIOTT"))
     return { raw, merchant: "Marriott Hotels", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
@@ -82,14 +62,14 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
   if (r.includes("LA FITNESS"))
     return { raw, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("YALE"))
-    return { raw, merchant: "Yale Admissions Office", category: "Education", categoryColor: "#f59e0b", persona: "college" };
-  if (r.includes("COLLEGE ESSAY"))
-    return { raw, merchant: "College Essay Advisor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { raw, merchant: "Yale University", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+  if (r.includes("COLLEGE COUNSELOR"))
+    return { raw, merchant: "College Counselor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("BUY BUY BABY"))
     return { raw, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
-  if (r.includes("STANFORD GUEST"))
+  if (r.includes("STANFORD"))
     return { raw, merchant: "Stanford Guest House", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
-  if (r.includes("COMMON APP"))
+  if (r.includes("COMMONAPP"))
     return { raw, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("SOUTHWEST"))
     return { raw, merchant: "Southwest Airlines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
@@ -99,9 +79,9 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { raw, merchant: "Costco", category: "Retail", categoryColor: "#ef4444" };
   if (r.includes("STARBUCKS"))
     return { raw, merchant: "Starbucks", category: "Dining", categoryColor: "#f59e0b" };
-  if (r.includes("VENMO"))
-    return { raw, merchant: "Venmo Payment", category: "Transfer", categoryColor: "#6b7280" };
-  if (r.includes("AMAZON"))
+  if (r.includes("ZELLE") && r.includes("MARIA"))
+    return { raw, merchant: "Zelle — Maria G.", category: "Transfer", categoryColor: "#6b7280" };
+  if (r.includes("AMZN"))
     return { raw, merchant: "Amazon", category: "Shopping", categoryColor: "#ef4444" };
   if (r.includes("SHELL"))
     return { raw, merchant: "Shell Oil", category: "Auto", categoryColor: "#6b7280" };
@@ -115,13 +95,23 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { raw, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("UBER"))
     return { raw, merchant: "Uber", category: "Transport", categoryColor: "#6b7280" };
+  if (r.includes("SAT PREP"))
+    return { raw, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+  if (r.includes("GYMBOREE"))
+    return { raw, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+  if (r.includes("HILTON"))
+    return { raw, merchant: "Hilton Garden Inn", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("NANNY"))
+    return { raw, merchant: "Nanny Services", category: "Childcare", categoryColor: "#22c55e", persona: "parent" };
+  if (r.includes("BABIES R US"))
+    return { raw, merchant: "Babies R Us", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   return { raw, merchant: raw.split("$")[0].trim(), category: "Other", categoryColor: "#6b7280" };
 });
 
 const personas = [
-  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", callout: "14 travel transactions · $1,338 total spend" },
-  { id: "parent" as const, label: "New Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", callout: "8 transactions · $889 spend · 95% confidence" },
-  { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", callout: "12 transactions · $2,456 spend · 91% confidence" },
+  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", callout: "5 travel transactions · Hotels, flights, campus visits" },
+  { id: "parent" as const, label: "Young Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", callout: "6 transactions · Childcare, baby gear, kids clothing" },
+  { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", callout: "5 transactions · Test prep, apps, counseling" },
 ];
 
 const ScrollDrivenHero = () => {
