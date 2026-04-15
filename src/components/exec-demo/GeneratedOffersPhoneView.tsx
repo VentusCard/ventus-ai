@@ -301,9 +301,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-bold text-slate-800 truncate">{topPick.deal.merchant}</p>
-                {topPick.deal.message && (
-                  <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{topPick.deal.message}</p>
-                )}
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 {topPick.deal.rewardValue && (
