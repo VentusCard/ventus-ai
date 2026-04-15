@@ -28,7 +28,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
         <div className="flex items-center gap-1.5 mt-0.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           <span className="text-[9px] font-medium text-emerald-700 uppercase tracking-wider">
-            {customer.profile.segment} Member
+            {customer.profile.segment} Member Since 2018
           </span>
         </div>
       </div>
