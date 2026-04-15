@@ -236,8 +236,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   const imgSrc = active ? getCollectionImage(active.rollup, active.pillar) : DEFAULT_IMAGE;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-      <div className="px-3 py-3 space-y-2.5">
+    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
         {/* ── Savings Summary Bar ── */}
         <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #eff6ff, #eef2ff)" }}>
@@ -418,7 +418,16 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           </>
         )}
 
-        {/* ── Semantic Search Bar ── */}
+        {/* ── No results state ── */}
+        {isSearchActive && !isSearching && groups.length === 0 && (
+          <div className="text-center py-4">
+            <p className="text-[11px] text-slate-400">No matching deals found</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Semantic Search Bar (pinned bottom) ── */}
+      <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
           <input
@@ -441,13 +450,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
           <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
             <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
             <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
-          </div>
-        )}
-
-        {/* ── No results state ── */}
-        {isSearchActive && !isSearching && groups.length === 0 && (
-          <div className="text-center py-4">
-            <p className="text-[11px] text-slate-400">No matching deals found</p>
           </div>
         )}
       </div>
