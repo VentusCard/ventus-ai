@@ -282,7 +282,43 @@ export default function ExecDemoIntelPanel({
         {chips.length > 0 && (
           <div>
             {/* Header text - always visible */}
-            {synthesisTriggered && rollupStats.length > 0 ? (
+            {synthesisTriggered && !activeTab ? (
+              /* ─── Action buttons only (post-synthesis, no tab selected) ─── */
+              <div className="flex-1 flex flex-col items-center justify-center py-8 gap-4">
+                <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Choose an action</p>
+                {(["analytics", "product", "relationship"] as TabKey[]).map((key, i) => {
+                  const meta = TAB_META[key];
+                  const Icon = meta.icon;
+                  const descriptions: Record<string, string> = {
+                    analytics: "AI-curated deals based on behavioral spending patterns",
+                    product: "Product recommendations triggered by life events",
+                    relationship: "Talking points and relationship context for advisors",
+                  };
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => onTabClick(key)}
+                      className="w-full max-w-xs flex items-center gap-4 px-5 py-4 rounded-xl border border-slate-200 bg-white hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
+                      style={{ animation: `offer-card-in 0.45s ease-out ${i * 0.1}s both` }}
+                    >
+                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 group-hover:bg-primary/10 transition-colors">
+                        <Icon className="w-5 h-5 text-slate-600 group-hover:text-primary transition-colors" />
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors">{meta.label}</span>
+                        <p className="text-[11px] text-slate-400 leading-snug mt-0.5">{descriptions[key]}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+                <style>{`
+                  @keyframes offer-card-in {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                  }
+                `}</style>
+              </div>
+            ) : synthesisTriggered && rollupStats.length > 0 ? (
               <div className="mb-2.5">
                 <div className="flex items-start justify-between">
                   <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category spending patterns</span></p>
@@ -367,7 +403,6 @@ export default function ExecDemoIntelPanel({
                         const isActive = activeTriggerLabel === flagLabel;
                         const isHigh = flag.severity === "high";
                         const dotColor = isHigh ? "#ef4444" : "#f59e0b";
-                        // Match transactions by merchant patterns or category keywords
                         const flagKeywords = (flag.merchant_patterns || []).map((p: string) => p.toLowerCase());
                         if (flagKeywords.length === 0 && flag.category) {
                           flagKeywords.push(...flag.category.toLowerCase().split(/[\s/&,]+/).filter((w: string) => w.length > 3));
@@ -523,15 +558,14 @@ export default function ExecDemoIntelPanel({
         )}
       </div>
 
-      {/* Tab bar — always visible when enrichment is active */}
-      {showProfile && phase !== "idle" && (
+      {/* Tab bar — visible when enrichment active AND a tab has been selected */}
+      {showProfile && phase !== "idle" && activeTab && (
         <>
           <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1.5 shrink-0">
             {TAB_ORDER.map((key) => {
               const meta = TAB_META[key];
               const Icon = meta.icon;
               const isActive = activeTab === key;
-              const isRevealed = revealedTabs.includes(key);
               return (
                 <button
                   key={key}
@@ -548,7 +582,6 @@ export default function ExecDemoIntelPanel({
               );
             })}
           </div>
-
         </>
       )}
 
