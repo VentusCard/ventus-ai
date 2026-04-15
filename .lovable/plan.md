@@ -1,24 +1,42 @@
 
 
-## Tighten Deal Recommendations: Practical Item Fit
+## Add Life Events & Risk Factors to Executive Demo Intelligence Panel
 
-### Problem
-Generated deals sometimes include items that don't statistically fit the persona — the issue isn't brand names, it's suggesting products (e.g., electrolyte packets for a traveler) that have no logical connection to the customer's actual spending behavior.
+### What Changes
+After clicking "Behavioral Intelligence: Ready" in the `/demo` executive demo, the intelligence panel currently shows only **Behavioral Intelligence** (persona rollup pills). We'll add two new sections below it: **Life Event Detection** and **Risk Factors**, each calling their respective edge functions (`analyze-lifestyle-signals` and `detect-risk-transactions`).
 
-### Change
-Single file: `supabase/functions/generate-next-offers/index.ts` — update the system prompt with stronger product-fit guardrails.
+### Layout After Clicking "Ready"
 
-### Prompt Updates (lines 34-50)
+```text
+┌──────────────────────────────────────────┐
+│ Behavioral Intelligence:                 │
+│ Personas = Multi-category patterns       │
+│ [✦ Wellness Explorer] [✦ Travel Hub]     │
+│                                          │
+│ Life Event Detection:                    │
+│ [College Planning 92%] [Growing Family]  │
+│                                          │
+│ Risk Factors:                            │
+│ [⚠ Subscription Creep] [⚠ Cash Adv.]   │
+│ "No significant risks detected" fallback │
+└──────────────────────────────────────────┘
+```
 
-1. **Add a product relevance rule**: "Every deal must pass the 'would this person obviously buy this?' test. The product category must have a direct, common-sense connection to the behavioral cluster's spending patterns — not a loose thematic association."
+### Files Changed
 
-2. **Replace the lateral thinking guidance** (line 45) with tighter examples:
-   - Current: "a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients."
-   - New: "Think one step adjacent to what they already buy. A frequent flyer needs noise-cancelling headphones, a carry-on suitcase, packing cubes, a portable charger. A fitness enthusiast needs running shoes, a GPS watch, wireless earbuds, gym bag. A home cook needs a quality knife set, cast iron pan, spice subscription. Do NOT suggest supplements, vitamins, hydration packets, essential oils, or any wellness/health product unless the customer's transactions explicitly show health & wellness spending."
+#### 1. `src/pages/ExecDemoPage.tsx`
+- Add `riskFlags` state (`{ flags: any[]; summary: string } | null`) and `riskLoading` boolean
+- Add `fireRiskDetection` callback that calls `detect-risk-transactions` with `classifiedRef.current`, triggered alongside `fireLifeEventDetection()` after persona synthesis completes (line ~275)
+- Pass `riskFlags`, `riskLoading`, `detectedLifeEvents`, and `productsLoading` to `ExecDemoIntelPanel`
 
-3. **Add explicit rejection list**: "NEVER suggest these unless the cluster is explicitly health/wellness: supplements, vitamins, electrolyte mixes, protein powders, essential oils, skincare serums, wellness subscriptions. These are statistically unlikely purchases for most personas."
+#### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- Accept new props: `riskFlags`, `riskLoading`
+- After the existing "Behavioral Intelligence" rollup pills section (around line 294), add two new sections that appear **only when `synthesisTriggered` is true**:
+  - **Life Event Detection** section: Shows `detectedLifeEvents` as amber-toned pills with confidence percentages, or a loading shimmer. Already available via props.
+  - **Risk Factors** section: Shows `riskFlags.flags` as red/amber-toned pills with severity badges, or `riskFlags.summary` as a green "clean" message if no flags. Loading shimmer while `riskLoading`.
+- Each section has a tiny uppercase label (`BEHAVIORAL INTELLIGENCE`, `LIFE EVENT DETECTION`, `RISK FACTORS`) consistent with existing styling
+- Stagger entrance animations: behavioral → life events (200ms delay) → risk factors (400ms delay)
+- All three sections are inside the scrollable persona card area, collapsible with the existing chevron
 
-4. **Add a statistical fit check instruction**: "Before finalizing each deal, verify: does this product category appear in or logically extend the customer's top merchant categories? If the answer is no, replace it with something they'd actually use."
-
-No frontend changes needed.
+### No edge function changes needed — both `analyze-lifestyle-signals` and `detect-risk-transactions` already accept the enriched transaction format used in the exec demo.
 
