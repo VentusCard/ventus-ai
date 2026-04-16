@@ -2,9 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
-import SolutionsIntegration from "@/components/solutions/SolutionsIntegration";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
-
 import salesforceLogo from "@/assets/salesforce-logo.png";
 
 const stats = [
@@ -13,7 +11,12 @@ const stats = [
   { value: "Zero PII", label: "Transaction signals only" },
 ];
 
-const workflowSteps = ["Ventus detects", "Alert generated", "Pushed to CRM", "Advisor takes action"];
+const flowSteps = [
+  { label: "Ventus detects", desc: "Life event identified" },
+  { label: "Alert generated", desc: "Briefing compiled" },
+  { label: "Pushed to CRM", desc: "Salesforce sync" },
+  { label: "Advisor acts", desc: "Warm outreach" },
+];
 
 const NextConversationPage = () => (
   <main className="bg-white min-h-screen">
@@ -112,7 +115,7 @@ const NextConversationPage = () => (
     </section>
 
     {/* Zero PII */}
-    <section className="py-20 px-6">
+    <section className="bg-white py-20 px-6">
       <ScrollReveal>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-start">
           <div>
@@ -148,37 +151,34 @@ const NextConversationPage = () => (
       </ScrollReveal>
     </section>
 
-    {/* Workflow */}
-    <section className="py-20 px-6" style={{ backgroundColor: "#F9FAFB" }}>
-      <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
-          Works inside the tools advisors already use.
-        </h2>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
-          {workflowSteps.map((step, i) => (
-            <div key={step} className="flex items-center gap-3">
-              <div
-                className="rounded-xl px-5 py-4 text-center min-w-[150px]"
-                style={{ backgroundColor: i === 1 ? "#F0F4FF" : "white" }}
-              >
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="text-sm font-semibold text-gray-900">{step}</p>
+    {/* Flow steps */}
+    <section className="bg-white py-20 px-6">
+      <ScrollReveal>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
+            Works inside the tools advisors already use.
+          </h2>
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+            {flowSteps.map((step, i) => (
+              <div key={step.label} className="flex items-center gap-3">
+                <div
+                  className="rounded-xl px-5 py-4 text-center min-w-[150px]"
+                  style={{ backgroundColor: i === 2 ? "#F0F4FF" : "white", border: "1px solid #E5E7EB" }}
+                >
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="text-sm font-semibold text-gray-900">{step.label}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{step.desc}</p>
+                </div>
+                {i < flowSteps.length - 1 && (
+                  <ArrowRight size={18} className="text-blue-500 hidden md:block flex-shrink-0" />
+                )}
               </div>
-              {i < workflowSteps.length - 1 && (
-                <ArrowRight size={18} className="text-blue-500 hidden md:block flex-shrink-0" />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-8">
-          <img src={salesforceLogo} alt="Salesforce" className="h-8 w-auto" />
-          {["Email", "Slack", "Webhooks"].map((label) => (
-            <span key={label} className="text-sm font-semibold text-gray-400 tracking-wide">{label}</span>
-          ))}
-        </div>
-      </div>
+      </ScrollReveal>
     </section>
 
     {/* Stats */}
@@ -193,7 +193,19 @@ const NextConversationPage = () => (
       </div>
     </section>
 
-    <SolutionsIntegration extraLabels={["Email", "Slack", "Webhooks"]} />
+    {/* Works with */}
+    <section className="bg-white py-16 px-6">
+      <div className="max-w-4xl mx-auto text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Works with your stack</p>
+        <p className="text-base text-gray-500 max-w-xl mx-auto mb-10">
+          Intelligence flows into the tools your team already uses — no new software required.
+        </p>
+        <div className="flex items-center justify-center">
+          <img src={salesforceLogo} alt="Salesforce" className="h-10 w-auto" />
+        </div>
+      </div>
+    </section>
+
     <SolutionsCTA />
   </main>
 );
