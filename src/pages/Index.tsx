@@ -27,7 +27,7 @@ const Index = () => {
         <ScrollDrivenHero />
 
         {/* Capabilities — Four Signal Layers */}
-        <section className="py-24 bg-white">
+        <section className="pt-16 pb-12 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
@@ -43,7 +43,7 @@ const Index = () => {
         <IntegrationSection />
 
         {/* FAQ — Two Column */}
-        <section id="faq" className="py-24 bg-white scroll-mt-20">
+        <section id="faq" className="pt-16 pb-16 bg-white scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
               <div className="lg:col-span-2">
