@@ -1,11 +1,22 @@
 
 
-## Remove Reward Value and Quote from Next-Offer Deal Tiles
+## Show 5 Boost Pills Per Cluster (Keep Header Anchors)
 
-### What changes
-Remove the `rewardValue` line (e.g., "$50 Credit") and the `message` quote (e.g., "Upgrade your travels...") from each deal tile in the Next-Offer tab.
+### What stays
+The two header pill rows — suppressedCategories (grey ✓ pills) and boostCategories (green ↑ pills) — remain unchanged.
 
-### Fix — `src/components/exec-demo/NextOfferRationale.tsx`
+### Changes
 
-Delete lines 93-101 in the `RollupCard` component — the `rewardValue` badge and the `message` italic quote. The remaining tile will show: merchant name, signal indicator, signal reason pill, and CTA button.
+**1. `supabase/functions/generate-next-offers/index.ts`**
+- Update prompt rule (line ~49): change "signal: boost or neutral ONLY" → all 5 deals MUST use `signal: "boost"` with a meaningful `signalReason` and `boostCategory`
+- Remove line ~65 "AIM for 2-5 boosted and the rest neutral" — replace with "ALL 5 deals MUST have signal: boost"
+- Remove/simplify the "neutral" signal description
+
+**2. `src/components/exec-demo/NextOfferRationale.tsx`**
+- Line 84: Remove the neutral `Minus` icon conditional — always show `TrendingUp`
+- Lines 86-89: Remove conditional coloring — always use emerald styling
+- Line 91: Always prepend "↑ "
+
+### Result
+Every deal tile across all clusters shows the green boost arrow and emerald reason text. The header still displays suppressed and boosted category anchors as before.
 
