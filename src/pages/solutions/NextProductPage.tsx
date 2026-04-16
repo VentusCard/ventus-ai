@@ -52,11 +52,9 @@ const lifeEvents = [
 ];
 
 const flowSteps = [
-  { label: "Raw transactions", desc: "Messy merchant strings" },
-  { label: "Pattern detection", desc: "Grouped by category" },
-  { label: "Life event confirmed", desc: "Confidence score" },
-  { label: "Product matched", desc: "Recommendation ready" },
-  { label: "Advisor alerted", desc: "Push notification" },
+  { label: "Detect", desc: "Identify spending signals" },
+  { label: "Confirm", desc: "Validate life event" },
+  { label: "Recommend", desc: "Surface the right product" },
 ];
 
 const stats = [

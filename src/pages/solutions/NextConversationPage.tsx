@@ -11,10 +11,9 @@ const stats = [
 ];
 
 const flowSteps = [
-  { label: "Ventus detects", desc: "Life event identified" },
-  { label: "Alert generated", desc: "Briefing compiled" },
-  { label: "Pushed to CRM", desc: "Salesforce sync" },
-  { label: "Advisor acts", desc: "Warm outreach" },
+  { label: "Detect", desc: "Life event identified" },
+  { label: "Compile", desc: "Briefing generated" },
+  { label: "Alert", desc: "Pushed to advisor CRM" },
 ];
 
 const NextConversationPage = () => {
