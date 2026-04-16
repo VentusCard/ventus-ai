@@ -77,10 +77,10 @@ const IntegrationSection = () => {
   const counts = [count0, count1, count2];
 
   return (
-    <section id="integration" className="py-16 md:py-20 scroll-mt-20" style={{ backgroundColor: "#0A1628" }}>
+    <section id="integration" className="bg-white py-16 md:py-20 scroll-mt-20">
       <div className="mx-auto mb-10 max-w-7xl px-6 md:px-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest" style={{ color: "#3B82F6" }}>Integration</p>
-        <h2 className="max-w-2xl text-3xl font-bold text-white md:text-4xl">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
+        <h2 className="max-w-2xl text-3xl font-bold text-gray-900 md:text-4xl">
           A modular intelligence layer that works with your existing stack.
         </h2>
       </div>
@@ -96,18 +96,18 @@ const IntegrationSection = () => {
         >
           {/* Column 1 — Connect */}
           <div className="relative min-w-0 px-5 py-8 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(37,99,235,0.08)" }}>
               01
             </span>
             <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-white">Connect</h3>
-              <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+              <h3 className="mb-2 text-xl font-bold text-gray-900">Connect</h3>
+              <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Banks securely share transaction data via API. No changes to core banking systems required.
               </p>
               <div className="grid grid-cols-2 items-center justify-items-center gap-x-5 gap-y-4">
                 {partners.map(({ name, src, height }) => (
                   <div key={name} className="flex items-center justify-center p-1">
-                    <img src={src} alt={name} className={`${height} w-auto grayscale`} style={{ opacity: 0.55 }} />
+                    <img src={src} alt={name} className={`${height} w-auto`} />
                   </div>
                 ))}
               </div>
@@ -115,23 +115,23 @@ const IntegrationSection = () => {
           </div>
 
           {/* Column 2 — Enrich */}
-          <div className="relative min-w-0 border-t px-5 py-8 lg:border-l lg:border-t-0 lg:px-6" style={{ borderColor: "#1E3A5F" }}>
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <div className="relative min-w-0 border-t border-gray-200 px-5 py-8 lg:border-l lg:border-t-0 lg:px-6">
+            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(37,99,235,0.08)" }}>
               02
             </span>
             <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-white">Enrich</h3>
-              <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+              <h3 className="mb-2 text-xl font-bold text-gray-900">Enrich</h3>
+              <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Ventus analyzes every transaction to detect lifestyle pillars, life events, and purchase signals in real time.
               </p>
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {statsData.map((stat, index) => (
-                  <div key={stat.label}>
-                    <p className="font-bold text-white tabular-nums" style={{ fontSize: "56px", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
+                  <div key={stat.label} className="flex items-baseline gap-3">
+                    <p className="text-3xl font-bold text-gray-900 tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>
                       {sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
                       {stat.suffix}
                     </p>
-                    <p className="mt-1 text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{stat.label}</p>
+                    <p className="text-sm text-gray-500">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -139,20 +139,20 @@ const IntegrationSection = () => {
           </div>
 
           {/* Column 3 — Orchestrate */}
-          <div className="relative min-w-0 border-t px-5 py-8 lg:border-l lg:border-t-0 lg:px-6" style={{ borderColor: "#1E3A5F" }}>
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <div className="relative min-w-0 border-t border-gray-200 px-5 py-8 lg:border-l lg:border-t-0 lg:px-6">
+            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(37,99,235,0.08)" }}>
               03
             </span>
             <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-white">Orchestrate</h3>
-              <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+              <h3 className="mb-2 text-xl font-bold text-gray-900">Orchestrate</h3>
+              <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Enriched intelligence flows into personalized rewards, advisor tools, and customer experiences automatically.
               </p>
               <div className="space-y-4">
                 {["Retention Rate", "Customer LTV", "AUM Growth"].map((label) => (
                   <div key={label} className="flex items-center gap-3">
-                    <TrendingUp size={20} style={{ color: "#3B82F6" }} strokeWidth={2.5} />
-                    <p className="text-sm font-medium text-white">{label}</p>
+                    <TrendingUp size={20} className="text-blue-600" strokeWidth={2.5} />
+                    <p className="text-sm font-medium text-gray-700">{label}</p>
                   </div>
                 ))}
               </div>
