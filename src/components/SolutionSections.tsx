@@ -112,7 +112,7 @@ const SolutionSections = () => {
     },
     {
       id: "next-product",
-      bg: "bg-[#F9FAFB]",
+      bg: "bg-secondary-foreground",
       label: "NEXT PRODUCT",
       labelColor: "text-blue-600",
       headline: "Know what your customer needs before they ask.",
@@ -137,7 +137,7 @@ const SolutionSections = () => {
   return (
     <>
       {sections.map((s) => (
-        <section key={s.id} className={`${s.bg} py-24 md:py-32`}>
+        <section key={s.id} className={`py-24 md:py-32 ${s.bg}`}>
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <div className={`grid md:grid-cols-2 gap-12 lg:gap-20 items-center ${s.reverse ? "md:[direction:rtl]" : ""}`}>
