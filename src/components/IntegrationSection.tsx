@@ -78,7 +78,7 @@ const IntegrationSection = () => {
   const counts = [count0, count1, count2];
 
   return (
-    <section id="integration" className="bg-white pt-12 pb-16 scroll-mt-20">
+    <section id="integration" className="bg-white scroll-mt-20" style={{ paddingTop: 80, paddingBottom: 80 }}>
       <div className="mx-auto mb-10 max-w-7xl px-6 md:px-8">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
         <h2 className="max-w-2xl text-3xl font-bold text-gray-900 md:text-4xl">

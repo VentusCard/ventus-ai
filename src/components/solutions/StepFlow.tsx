@@ -31,20 +31,23 @@ const StepFlow = ({ steps, title }: StepFlowProps) => {
           const isActive = i === activeIndex;
           return (
             <div key={step.label} className="flex items-center gap-4">
-              <div
-                className="flex flex-col items-center justify-center text-center"
-                style={{
-                  width: 180,
-                  height: 120,
-                  borderRadius: 12,
-                  border: `1px solid ${isActive ? "#2563EB" : "#E5E7EB"}`,
-                  backgroundColor: isActive ? "#EFF6FF" : "white",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                  padding: "16px 12px",
-                  transition: "all 0.4s ease",
-                }}
-              >
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
+                <div
+                  className="flex flex-col items-center justify-center text-center"
+                  style={{
+                    width: 200,
+                    height: 120,
+                    borderRadius: 12,
+                    border: `1px solid ${isActive ? "#2563EB" : "#E5E7EB"}`,
+                    backgroundColor: isActive ? "#EFF6FF" : "white",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                    padding: "16px 12px",
+                    transition: "all 0.4s ease",
+                  }}
+                >
+                  <span
+                    className="inline-flex items-center justify-center bg-blue-600 text-white text-xs font-bold mb-2"
+                    style={{ width: 32, height: 32, borderRadius: "50%" }}
+                  >
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <p className="font-semibold text-gray-900" style={{ fontSize: 15 }}>{step.label}</p>
