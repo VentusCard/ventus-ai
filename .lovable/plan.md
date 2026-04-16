@@ -1,28 +1,18 @@
 
 
-## Combine Life Events into Single Offer Generation Call
+## Filter Out Non-Life-Event Signals
 
 ### Problem
-Currently `fireNextOffers` and `fireLifeEventDetection` run in parallel, followed by a separate `fireLifeEventOffers` call. This produces two separate API calls and appends results awkwardly.
+The `analyze-lifestyle-signals` edge function prompt includes "TYPE 2: STANDOUT TRANSACTION SIGNALS" (lines 267-272) which instructs the AI to return notable spending patterns (e.g., "Increased Pet Care Spending"), major purchases, and other non-life-event items prefixed with `[NOTABLE]`, `[URGENT]`, or `[OPPORTUNITY]`. These are not life events and pollute the life event detection results.
 
-### Solution
-Sequence the calls: detect life events first, then pass both pillars AND life events into a single `generate-next-offers` call.
+### Fix — `supabase/functions/analyze-lifestyle-signals/index.ts`
 
-### Changes — `src/pages/ExecDemoPage.tsx`
+1. **Remove lines 267-272** — the entire "TYPE 2: STANDOUT TRANSACTION SIGNALS" section from the system prompt, including the three prefix categories (`[URGENT]`, `[NOTABLE]`, `[OPPORTUNITY]`).
 
-1. **Update `fireNextOffers`** to accept an optional `lifeEvents` parameter and include it in the request body alongside `persona` and `pillars`
+2. **Update the OUTPUT REQUIREMENTS section** (lines 274-280) to explicitly state: "Only return genuine life events (college, home purchase, wedding, baby, retirement, career change, elder care, business formation, wealth transfer). Do NOT return spending pattern observations, notable purchases, or generic spending increases as life events."
 
-2. **Change orchestration** (lines 277-280): Instead of firing `fireNextOffers` and `fireLifeEventDetection` in parallel, fire life event detection first. After events are detected (line 364-371), call `fireNextOffers` with the detected events as a third argument.
-
-3. **Remove `fireLifeEventOffers`** (lines 380-399) entirely — no longer needed since life events go into the main call.
-
-4. **In `fireLifeEventDetection`** (line 368-372): Replace the `fireLifeEventOffers(events)` call with `fireNextOffers(personaSynthesisRef.current!, pillarsRef.current, events)` — passing detected events into the main offer generation.
-
-5. **Stop calling `fireNextOffers` from the synthesis callback** (line 278) — move it to after life event detection completes.
-
-### Edge function
-No changes needed — `generate-next-offers` already accepts both `persona`/`pillars` and `lifeEvents` in one request and generates combined output with life event groups appended after behavioral groups.
+3. **Add a server-side filter** after parsing the AI response (line 353): filter out any `detected_events` whose `event_name` starts with `[NOTABLE]`, `[URGENT]`, or `[OPPORTUNITY]` as a safety net in case the AI still returns them.
 
 ### Result
-One API call produces all deal groups in order: behavioral clusters first, life event clusters second.
+Life event detection returns only genuine life transition signals, not spending pattern observations.
 
