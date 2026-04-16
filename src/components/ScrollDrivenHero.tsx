@@ -118,6 +118,12 @@ const ScrollDrivenHero = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoaded(true), 100);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -166,7 +172,13 @@ const ScrollDrivenHero = () => {
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-visible">
         {/* Centered Headline */}
-        <h1 className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-gray-900 leading-[1.15] text-center mb-6 px-6 max-w-4xl">
+        <h1
+          className="text-3xl md:text-[2.75rem] lg:text-[3.25rem] font-bold tracking-tight text-gray-900 leading-[1.15] text-center mb-6 px-6 max-w-4xl transition-all duration-700 ease-out"
+          style={{
+            opacity: loaded ? 1 : 0,
+            transform: loaded ? "translateY(0)" : "translateY(24px)",
+          }}
+        >
           Turn transaction data into{" "}
           <span className="italic text-blue-600">behavioral intelligence</span>
         </h1>
@@ -175,13 +187,16 @@ const ScrollDrivenHero = () => {
         <div className="relative flex items-start justify-center gap-6">
           {/* The Card */}
           <div
-            className="rounded-2xl overflow-hidden transition-colors duration-[400ms] ease-in-out"
+            className="rounded-2xl overflow-hidden transition-all duration-700 ease-out"
             style={{
               width: 440,
               maxWidth: "calc(100vw - 48px)",
               background: "#0A1628",
-              boxShadow: "0 25px 60px -12px rgba(0,0,0,0.25)",
+              boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
               border: "1px solid rgba(255,255,255,0.06)",
+              opacity: loaded ? 1 : 0,
+              transform: loaded ? "translateY(0) scale(1)" : "translateY(32px) scale(0.97)",
+              transitionDelay: "200ms",
             }}
           >
             {/* Header row */}
@@ -325,7 +340,14 @@ const ScrollDrivenHero = () => {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col items-center pb-20 md:pb-28">
+        <div
+          className="mt-5 flex flex-col items-center pb-20 md:pb-28 transition-all duration-700 ease-out"
+          style={{
+            opacity: loaded ? 1 : 0,
+            transform: loaded ? "translateY(0)" : "translateY(20px)",
+            transitionDelay: "450ms",
+          }}
+        >
           <p className="text-sm md:text-base text-gray-500 max-w-2xl text-center leading-relaxed px-6">
             A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
           </p>
