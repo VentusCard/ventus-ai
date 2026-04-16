@@ -185,6 +185,81 @@ const ScrollDrivenHero = () => {
 
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
+
+          {/* LEFT callout — Frequent Traveler */}
+          <div
+            className="hidden lg:flex absolute items-center"
+            style={{
+              right: "calc(50% + 230px)",
+              top: 80,
+              opacity: loaded && stage >= 2 ? 1 : 0,
+              transform: loaded && stage >= 2 ? "translateX(0)" : "translateX(20px)",
+              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+              transitionDelay: "600ms",
+            }}
+          >
+            <div
+              className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+              style={{
+                background: "rgba(59,130,246,0.06)",
+                border: "1px solid rgba(59,130,246,0.15)",
+                width: 210,
+              }}
+            >
+              <div className="font-semibold mb-1 text-[13px]" style={{ color: "#3b82f6" }}>
+                ✈ Frequent Traveler
+              </div>
+              <div style={{ color: "#6b7280", fontSize: 11 }}>5 travel transactions · Hotels, flights, campus visits</div>
+            </div>
+            {/* Connector line → card */}
+            <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
+              <line x1="0" y1="1" x2="40" y2="1" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4">
+                <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="2s" repeatCount="indefinite" />
+              </line>
+              <circle cx="42" cy="1" r="3" fill="#3b82f6" opacity="0.6">
+                <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+          </div>
+
+          {/* RIGHT callout — College-Bound Child */}
+          <div
+            className="hidden lg:flex absolute items-center"
+            style={{
+              left: "calc(50% + 230px)",
+              top: 140,
+              opacity: loaded && stage >= 2 ? 1 : 0,
+              transform: loaded && stage >= 2 ? "translateX(0)" : "translateX(-20px)",
+              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+              transitionDelay: "800ms",
+            }}
+          >
+            {/* Connector line ← card */}
+            <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
+              <circle cx="6" cy="1" r="3" fill="#f59e0b" opacity="0.6">
+                <animate attributeName="r" values="2;4;2" dur="2.5s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite" />
+              </circle>
+              <line x1="8" y1="1" x2="48" y2="1" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4">
+                <animate attributeName="stroke-dashoffset" from="0" to="14" dur="2s" repeatCount="indefinite" />
+              </line>
+            </svg>
+            <div
+              className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+              style={{
+                background: "rgba(245,158,11,0.06)",
+                border: "1px solid rgba(245,158,11,0.15)",
+                width: 210,
+              }}
+            >
+              <div className="font-semibold mb-1 text-[13px]" style={{ color: "#f59e0b" }}>
+                🎓 College-Bound Child
+              </div>
+              <div style={{ color: "#6b7280", fontSize: 11 }}>5 transactions · Test prep, apps, counseling</div>
+            </div>
+          </div>
+
           {/* The Card */}
           <div
             className="rounded-2xl overflow-hidden transition-all duration-700 ease-out"
@@ -197,6 +272,7 @@ const ScrollDrivenHero = () => {
               opacity: loaded ? 1 : 0,
               transform: loaded ? "translateY(0) scale(1)" : "translateY(32px) scale(0.97)",
               transitionDelay: "200ms",
+              animation: loaded && stage === 1 ? "heroCardFloat 4s ease-in-out infinite" : "none",
             }}
           >
             {/* Header row */}
@@ -312,31 +388,6 @@ const ScrollDrivenHero = () => {
                 style={{ background: "linear-gradient(to top, #0A1628, transparent)" }}
               />
             </div>
-          </div>
-
-          {/* Floating callout — Stage 3 */}
-          <div
-            className="hidden lg:block absolute -right-[280px] top-[140px] w-[240px] transition-all duration-[400ms]"
-            style={{
-              opacity: stage === 3 ? 1 : 0,
-              transform: stage === 3 ? "translateX(0)" : "translateX(-12px)",
-            }}
-          >
-            {activePersona && (
-              <div
-                className="rounded-xl px-4 py-3 text-[12px] leading-relaxed transition-all duration-[400ms]"
-                style={{
-                  background: `${activePersona.color}10`,
-                  borderLeft: `4px solid ${activePersona.color}`,
-                  color: activePersona.color,
-                }}
-              >
-                <div className="font-semibold mb-1 text-[13px]" style={{ color: activePersona.color }}>
-                  {activePersona.label}
-                </div>
-                <div style={{ color: "#6b7280" }}>{activePersona.callout}</div>
-              </div>
-            )}
           </div>
         </div>
 
