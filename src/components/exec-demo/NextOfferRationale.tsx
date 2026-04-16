@@ -156,9 +156,15 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
       </div>
 
       {/* Rollup cards */}
-      {offers.map((group, gi) => (
-        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
-      ))}
+      {[...offers]
+        .sort((a, b) => {
+          const aLife = a.pillar === "Life Event" ? 1 : 0;
+          const bLife = b.pillar === "Life Event" ? 1 : 0;
+          return aLife - bLife;
+        })
+        .map((group, gi) => (
+          <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
+        ))}
 
       <style>{`
         @keyframes offer-card-in {
