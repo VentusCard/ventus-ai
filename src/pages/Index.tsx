@@ -27,7 +27,7 @@ const Index = () => {
         <ScrollDrivenHero />
 
         {/* Capabilities — Four Signal Layers */}
-        <section style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white">
+        <section style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white relative z-10">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
