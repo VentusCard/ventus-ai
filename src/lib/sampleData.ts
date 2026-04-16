@@ -436,11 +436,11 @@ txn_h075,ETSY,Handmade home décor,5969,78.25,2025-10-27,,Cashback Card
 export const SOURCE_COLORS: Record<string, string> = {
   "Cashback Card": "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
   "Travel Card": "bg-blue-500/10 text-blue-700 border-blue-500/20",
-  "Premium Card": "bg-purple-500/10 text-purple-700 border-purple-500/20",
+  "Premium Card": "bg-rose-500/10 text-rose-700 border-rose-500/20",
   "Checking": "bg-slate-500/10 text-slate-700 border-slate-500/20",
   "Checks": "bg-orange-500/10 text-orange-700 border-orange-500/20",
   "Wires": "bg-red-500/10 text-red-700 border-red-500/20",
-  "Zelle": "bg-indigo-500/10 text-indigo-700 border-indigo-500/20",
+  "Zelle": "bg-purple-500/10 text-purple-700 border-purple-500/20",
   "HSA": "bg-amber-500/10 text-amber-700 border-amber-500/20",
 };
 
