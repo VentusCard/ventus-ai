@@ -3,6 +3,7 @@ import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 import CapabilityCards from "@/components/CapabilityCards";
+import SolutionSections from "@/components/SolutionSections";
 
 import {
   Accordion,
@@ -38,6 +39,7 @@ const Index = () => {
           </div>
         </section>
 
+        <SolutionSections />
         <IntegrationSection />
 
         {/* FAQ — Two Column */}
