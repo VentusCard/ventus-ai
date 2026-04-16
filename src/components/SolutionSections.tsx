@@ -137,22 +137,31 @@ const SolutionSections = () => {
   return (
     <>
       {sections.map((s) => (
-        <section key={s.id} className={`py-24 md:py-32 ${s.bg}`}>
+        <section key={s.id} className="py-24 md:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
-              <div className={`grid md:grid-cols-2 gap-12 lg:gap-20 items-center ${s.reverse ? "md:[direction:rtl]" : ""}`}>
-                <div className={s.reverse ? "md:[direction:ltr]" : ""}>
-                  <p className={`text-xs font-semibold tracking-widest uppercase mb-4 ${s.labelColor}`}>{s.label}</p>
-                  <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight mb-5">{s.headline}</h2>
-                  <p className="text-lg text-gray-500 leading-relaxed mb-6 max-w-lg">{s.body}</p>
-                  <Link to={s.link}>
-                    <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                      Learn more
-                    </Button>
-                  </Link>
-                </div>
-                <div className={s.reverse ? "md:[direction:ltr]" : ""}>
-                  {s.card}
+              <div
+                className="rounded-2xl p-12"
+                style={{
+                  backgroundColor: "#F9FAFB",
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+                }}
+              >
+                <div className={`grid md:grid-cols-2 gap-12 lg:gap-20 items-center ${s.reverse ? "md:[direction:rtl]" : ""}`}>
+                  <div className={s.reverse ? "md:[direction:ltr]" : ""}>
+                    <p className={`text-xs font-semibold tracking-widest uppercase mb-4 ${s.labelColor}`}>{s.label}</p>
+                    <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight mb-5">{s.headline}</h2>
+                    <p className="text-lg text-gray-500 leading-relaxed mb-6 max-w-lg">{s.body}</p>
+                    <Link to={s.link}>
+                      <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+                        Learn more
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className={s.reverse ? "md:[direction:ltr]" : ""}>
+                    {s.card}
+                  </div>
                 </div>
               </div>
             </ScrollReveal>
