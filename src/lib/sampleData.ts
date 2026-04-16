@@ -224,7 +224,7 @@ txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium 
 txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
 txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
-txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,Wires
+txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
 txn_008,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
 txn_009,MARIA GARCIA,Dogsitting,,150.00,2024-12-18,94102,Zelle
 txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,Cashback Card
@@ -264,7 +264,7 @@ txn_043,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium
 txn_044,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
 txn_045,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
 txn_046,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks
-txn_047,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wires
+txn_047,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wire
 txn_048,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,94102,Zelle
 txn_049,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA,4511,948.00,2026-07-05,94102,Premium Card
 txn_050,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
@@ -439,7 +439,8 @@ export const SOURCE_COLORS: Record<string, string> = {
   "Premium Card": "bg-rose-500/10 text-rose-700 border-rose-500/20",
   "Checking": "bg-slate-500/10 text-slate-700 border-slate-500/20",
   "Checks": "bg-orange-500/10 text-orange-700 border-orange-500/20",
-  "Wires": "bg-red-500/10 text-red-700 border-red-500/20",
+  "ACH": "bg-teal-500/10 text-teal-700 border-teal-500/20",
+  "Wire": "bg-red-500/10 text-red-700 border-red-500/20",
   "Zelle": "bg-purple-500/10 text-purple-700 border-purple-500/20",
   "HSA": "bg-amber-500/10 text-amber-700 border-amber-500/20",
 };
