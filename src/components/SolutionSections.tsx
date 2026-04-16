@@ -112,7 +112,7 @@ const SolutionSections = () => {
     },
     {
       id: "next-product",
-      bg: "bg-secondary-foreground",
+      bg: "bg-white",
       label: "NEXT PRODUCT",
       labelColor: "text-blue-600",
       headline: "Know what your customer needs before they ask.",
