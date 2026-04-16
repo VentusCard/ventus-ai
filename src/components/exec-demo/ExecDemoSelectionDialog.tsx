@@ -13,7 +13,7 @@ const SOURCE_COLORS: Record<string, string> = {
   "Travel Card": "bg-blue-50 text-blue-700",
   "Premium Card": "bg-rose-50 text-rose-700",
   "Checks": "bg-orange-50 text-orange-700",
-  "ACH": "bg-teal-50 text-teal-700",
+  "ACH": "bg-slate-100 text-slate-600",
   "Wire": "bg-red-50 text-red-700",
   "Zelle": "bg-purple-50 text-purple-700",
   "HSA": "bg-amber-50 text-amber-700",
