@@ -320,7 +320,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => isClickable && onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -334,7 +334,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className="text-[9px] opacity-60 tabular-nums font-normal">
+                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
@@ -371,7 +371,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={flag.category || i}
                           onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
                           style={{
                             background: isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
@@ -385,13 +385,13 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: dotColor }}>⚠</span>
                           {flagLabel}
-                          {flag.severity && <span className="text-[9px] uppercase opacity-60 font-normal">{flag.severity}</span>}
+                          {flag.severity && <span className="text-[10px] uppercase opacity-60 font-normal">{flag.severity}</span>}
                         </span>
                       );
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full"
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -417,16 +417,16 @@ export default function ExecDemoIntelPanel({
 
                   return (
                     <>
-                      <div className="mb-1.5">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Patterns</p>
+                       <div className="mb-1.5">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Patterns</p>
                         <div className="flex flex-wrap gap-2">{rollupPills}</div>
                       </div>
                       <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
                         <div className="flex flex-wrap gap-2">{lifeEventPills}</div>
                       </div>
                       <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
                         <div className="flex flex-wrap gap-2">{riskPills}</div>
                       </div>
                     </>
@@ -483,9 +483,9 @@ export default function ExecDemoIntelPanel({
                         className={`flex py-2 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
                       >
                         {/* Left column — pillar name */}
-                        <div className="w-[105px] shrink-0 flex items-start gap-1 pt-[3px] pr-2">
-                          <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
-                          <span className="text-[11px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
+                        <div className="w-[115px] shrink-0 flex items-start gap-1.5 pt-[3px] pr-2">
+                          <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
+                          <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
                         </div>
                         {/* Right column — categories + subcategory pills */}
                         <div className="flex-1 flex flex-wrap items-center gap-1.5">
@@ -493,7 +493,7 @@ export default function ExecDemoIntelPanel({
                             <React.Fragment key={category}>
                               <span
                                 onClick={() => onPillClick?.(pillar, category, true)}
-                                className={`inline-flex items-center text-[10.5px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
+                                className={`inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
                                   activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
                                     ? "ring-1 ring-offset-1 shadow-sm"
                                     : ""
@@ -512,14 +512,14 @@ export default function ExecDemoIntelPanel({
                                   <span
                                     key={`${chip.pillar}::${chip.category}::${chip.label}`}
                                     onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                    className={`inline-flex items-center gap-0.5 text-[11.5px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
+                                    className={`inline-flex items-center gap-0.5 text-[12.5px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
                                     style={{ color: c.text }}
                                   >
                                     {chip.label}
                                     {chip.count > 1 && (
-                                      <span className="text-[10.5px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
+                                      <span className="text-[11.5px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
                                     )}
-                                    <span className="text-[10.5px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
+                                    <span className="text-[11.5px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
                                     {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
                                   </span>
                                 );
@@ -680,7 +680,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-[11px] font-medium px-3 py-1 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1 text-[12px] font-medium px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
@@ -693,7 +693,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
       {chip.label}
       {chip.count > 1 && (
         <span
-          className="text-[10px] font-bold tabular-nums"
+          className="text-[11px] font-bold tabular-nums"
           style={{
             color: c.dot,
             animation: pulse ? "count-pulse 0.45s ease-out" : "none",
@@ -702,7 +702,7 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
           {chip.count}×
         </span>
       )}
-      <span className="text-[10px] opacity-70 tabular-nums">
+      <span className="text-[11px] opacity-70 tabular-nums">
         {formatSpend(chip.totalSpend)}
       </span>
     </span>
@@ -715,7 +715,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
@@ -729,7 +729,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-[9px] opacity-60 tabular-nums font-normal">
+      <span className="text-[10px] opacity-60 tabular-nums font-normal">
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
