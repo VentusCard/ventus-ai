@@ -122,7 +122,7 @@ const NextProductPage = () => (
     </section>
 
     {/* Detection flow */}
-    <section className="py-20 px-6">
+    <section className="py-20 px-6" style={{ backgroundColor: "#F9FAFB" }}>
       <ScrollReveal>
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
@@ -131,12 +131,18 @@ const NextProductPage = () => (
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
             {flowSteps.map((step, i) => (
               <div key={step.label} className="flex items-center gap-3">
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-center min-w-[120px]">
+                <div
+                  className="rounded-xl px-5 py-4 text-center min-w-[140px]"
+                  style={{ backgroundColor: i === 2 ? "#F0F4FF" : "white" }}
+                >
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <p className="text-sm font-semibold text-gray-900">{step.label}</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">{step.desc}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{step.desc}</p>
                 </div>
                 {i < flowSteps.length - 1 && (
-                  <ArrowRight size={16} className="text-gray-300 hidden md:block flex-shrink-0" />
+                  <ArrowRight size={18} className="text-blue-500 hidden md:block flex-shrink-0" />
                 )}
               </div>
             ))}
