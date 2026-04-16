@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { TrendingUp } from "lucide-react";
 
-import salesforceLogo from "@/assets/salesforce-logo.png";
+
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
@@ -9,7 +9,7 @@ import databricksLogo from "@/assets/databricks-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
 
 const partners = [
-  { name: "Salesforce", src: salesforceLogo, height: "h-8" },
+  
   { name: "FIS", src: fisLogo, height: "h-6" },
   { name: "Fiserv", src: fiservLogo, height: "h-7" },
   { name: "Jack Henry", src: jackHenryLogo, height: "h-6" },
