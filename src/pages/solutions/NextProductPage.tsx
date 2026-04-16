@@ -72,13 +72,13 @@ const NextProductPage = () => {
   return (
     <main className="bg-white min-h-screen">
       {/* Hero */}
-      <section ref={hero.ref} className="pt-40 pb-20 px-6 min-h-screen flex items-center">
+      <section ref={hero.ref} className="pt-28 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
           <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Product</p>
-          <h1 style={{ ...revealStyle(hero.visible, 100), fontSize: 56 }} className="font-bold text-gray-900 leading-tight mb-6">
+          <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
             Know what your customer needs before they ask.
           </h1>
-          <p style={{ ...revealStyle(hero.visible, 200), fontSize: 18 }} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
             Life event detection surfaces the right product at the right moment — automatically. No surveys, no guesswork, just transaction signals.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
