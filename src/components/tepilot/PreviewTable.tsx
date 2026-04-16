@@ -72,7 +72,7 @@ export function PreviewTable({ transactions, comparisonMode }: PreviewTableProps
                 <TableRow>
                   {comparisonMode && <TableHead className="text-slate-700">User</TableHead>}
                   <TableHead className="text-slate-700">Merchant</TableHead>
-                  <TableHead className="text-slate-700">Description</TableHead>
+                  <TableHead className="text-slate-700">MCC Description / Note</TableHead>
                   <TableHead className="text-slate-700">MCC</TableHead>
                   <TableHead className="text-right text-slate-700">Amount</TableHead>
                   <TableHead className="text-slate-700">Date</TableHead>
