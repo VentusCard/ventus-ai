@@ -3,27 +3,29 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 /* ─── Section 1: Next Offer ─── */
-const NextOfferCard = () => (
-  <div className="rounded-2xl p-6 shadow-xl" style={{ background: "#0A1628", minHeight: 380 }}>
-    <p className="text-xs font-mono text-gray-400 mb-4">cust_013 · <span className="text-blue-400">Frequent Traveler</span></p>
-    <div className="space-y-3">
+const NextOfferVisual = () => (
+  <div>
+    <p className="text-xs font-mono text-gray-400 mb-4">cust_013 · <span className="text-blue-600 font-semibold">Frequent Traveler</span></p>
+    <div className="space-y-0">
       {[
-        { name: "Delta SkyMiles Card", desc: "matches your travel spend", tag: "Travel & Exploration", color: "#3B82F6", border: "#3B82F6" },
-        { name: "Whole Foods 5% Back", desc: "3x weekly grocery visits", tag: "Food & Dining", color: "#22C55E", border: "#22C55E" },
-        { name: "REI Co-op Card", desc: "active lifestyle detected", tag: "Sports & Fitness", color: "#F59E0B", border: "#F59E0B" },
-      ].map((o) => (
-        <div key={o.name} className="rounded-lg p-4 flex items-start gap-3" style={{ background: "#111D2E", borderLeft: `3px solid ${o.border}` }}>
-          <div className="flex-1">
-            <p className="text-white text-sm font-semibold">{o.name}</p>
-            <p className="text-gray-400 text-xs mt-0.5">{o.desc}</p>
+        { name: "Delta SkyMiles Card", desc: "matches your travel spend", tag: "Travel & Exploration", color: "#3B82F6" },
+        { name: "Whole Foods 5% Back", desc: "3x weekly grocery visits", tag: "Food & Dining", color: "#22C55E" },
+        { name: "REI Co-op Card", desc: "active lifestyle detected", tag: "Sports & Fitness", color: "#F59E0B" },
+      ].map((o, i, arr) => (
+        <div key={o.name}>
+          <div className="rounded-lg p-4 flex items-start gap-3 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]" style={{ borderLeft: `3px solid ${o.color}` }}>
+            <div className="flex-1">
+              <p className="text-gray-900 text-sm font-semibold">{o.name}</p>
+              <p className="text-gray-500 text-xs mt-0.5">{o.desc}</p>
+            </div>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${o.color}15`, color: o.color }}>{o.tag}</span>
           </div>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${o.color}20`, color: o.color }}>{o.tag}</span>
+          {i < arr.length - 1 && <div className="border-b border-[#E5E7EB] mx-4" />}
         </div>
       ))}
     </div>
   </div>
 );
-
 /* ─── Section 2: Next Product ─── */
 const NextProductCard = () => (
   <div className="rounded-2xl p-6 shadow-xl" style={{ background: "#0A1628", minHeight: 380 }}>
@@ -89,20 +91,20 @@ const SolutionSections = () => {
     {
       id: "next-offer",
       bg: "bg-white",
-      label: "🎯 NEXT OFFER",
+      label: "NEXT OFFER",
       labelColor: "text-blue-600",
       headline: "Serve the right offer before they go looking.",
       body: "Ventus detects purchase intent from spending patterns — surfacing personalized offers at exactly the moment a customer is ready to buy.",
       stat: "3,000+ Dynamic reward labels",
-      card: <NextOfferCard />,
+      card: <NextOfferVisual />,
       reverse: false,
       link: "/smart-rewards",
     },
     {
       id: "next-product",
       bg: "bg-[#F9FAFB]",
-      label: "📦 NEXT PRODUCT",
-      labelColor: "text-green-600",
+      label: "NEXT PRODUCT",
+      labelColor: "text-blue-600",
       headline: "Know what your customer needs before they ask.",
       body: "Life event detection surfaces the right product at the right moment — automatically. No surveys, no guesswork, just transaction signals.",
       stat: "20+ life events detected in real time",
@@ -113,8 +115,8 @@ const SolutionSections = () => {
     {
       id: "next-conversation",
       bg: "bg-white",
-      label: "💬 NEXT CONVERSATION",
-      labelColor: "text-purple-600",
+      label: "NEXT CONVERSATION",
+      labelColor: "text-blue-600",
       headline: "Give every advisor a warm lead every morning.",
       body: "Ventus sends advisors a daily briefing — who to call, why to call them, and what to say. Built entirely from transaction signals.",
       stat: "Detected from transaction data alone · Zero PII",
