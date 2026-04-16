@@ -28,6 +28,9 @@ import InsightPost from "./pages/InsightPost";
 import DemoPage from "./pages/DemoPage";
 import ExecDemoPage from "./pages/ExecDemoPage";
 import Platform from "./pages/Platform";
+import NextOfferPage from "./pages/solutions/NextOfferPage";
+import NextProductPage from "./pages/solutions/NextProductPage";
+import NextConversationPage from "./pages/solutions/NextConversationPage";
 
 const queryClient = new QueryClient();
 
