@@ -1,34 +1,28 @@
 
 
-## Pass Life Events to Deal Generation Edge Function
+## Combine Life Events into Single Offer Generation Call
 
-### What changes
-After life events are detected, pass them to `generate-next-offers` so the AI generates a second set of deals tailored to each detected life event (e.g., "Moving to New Home" → furniture/moving deals).
+### Problem
+Currently `fireNextOffers` and `fireLifeEventDetection` run in parallel, followed by a separate `fireLifeEventOffers` call. This produces two separate API calls and appends results awkwardly.
 
-### Flow change
-Currently `fireNextOffers` and `fireLifeEventDetection` run in parallel. We'll add a second call: once life events resolve, fire a supplemental offers request that appends life-event-based deal groups to the existing `generatedOffers`.
+### Solution
+Sequence the calls: detect life events first, then pass both pillars AND life events into a single `generate-next-offers` call.
 
-### Changes
+### Changes — `src/pages/ExecDemoPage.tsx`
 
-**1. `src/pages/ExecDemoPage.tsx`**
-- Add a new function `fireLifeEventOffers(events: LifeEvent[])` that calls `generate-next-offers` with a `lifeEvents` payload instead of `persona.pillarRollups`
-- Call `fireLifeEventOffers` from `fireLifeEventDetection` after events are detected (line ~367, alongside `fireProductCards`)
-- Append the returned `rollupOffers` to the existing `generatedOffers` state (merge, don't replace)
+1. **Update `fireNextOffers`** to accept an optional `lifeEvents` parameter and include it in the request body alongside `persona` and `pillars`
 
-**2. `supabase/functions/generate-next-offers/index.ts`**
-- Accept an optional `lifeEvents` array in the request body
-- When `lifeEvents` is present, add a second section to the prompt instructing the AI to generate one deal group per life event (5 deals each), using the event name as the rollup label and the evidence merchants as spending context
-- The output shape remains the same (`rollupOffers` array) — life event groups just get appended
+2. **Change orchestration** (lines 277-280): Instead of firing `fireNextOffers` and `fireLifeEventDetection` in parallel, fire life event detection first. After events are detected (line 364-371), call `fireNextOffers` with the detected events as a third argument.
 
-### Prompt addition (edge function)
-When life events are provided, append to the user prompt:
-```
-LIFE EVENT CLUSTERS (generate 5 deals per event):
-1. "Moving to New Home" — evidence: IKEA, Home Depot, U-Haul
-2. "Career Advancement" — evidence: LinkedIn Premium, Brooks Brothers
-```
-The system prompt gets a new rule: "If LIFE EVENT CLUSTERS are provided, generate an additional rollup group for each event with deals that support that life transition."
+3. **Remove `fireLifeEventOffers`** (lines 380-399) entirely — no longer needed since life events go into the main call.
 
-### UI impact
-The `NextOfferRationale` and `GeneratedOffersPhoneView` components already iterate over `RollupOfferGroup[]` — additional groups from life events will render automatically with no component changes needed.
+4. **In `fireLifeEventDetection`** (line 368-372): Replace the `fireLifeEventOffers(events)` call with `fireNextOffers(personaSynthesisRef.current!, pillarsRef.current, events)` — passing detected events into the main offer generation.
+
+5. **Stop calling `fireNextOffers` from the synthesis callback** (line 278) — move it to after life event detection completes.
+
+### Edge function
+No changes needed — `generate-next-offers` already accepts both `persona`/`pillars` and `lifeEvents` in one request and generates combined output with life event groups appended after behavioral groups.
+
+### Result
+One API call produces all deal groups in order: behavioral clusters first, life event clusters second.
 
