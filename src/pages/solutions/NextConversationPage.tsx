@@ -21,7 +21,7 @@ const workflowSteps = ["Ventus detects", "Alert generated", "Pushed to CRM", "Ad
 const NextConversationPage = () => (
   <main className="bg-white min-h-screen">
     {/* Hero */}
-    <section className="pt-40 pb-20 px-6">
+    <section className="pt-40 pb-20 px-6 min-h-screen flex items-center">
       <div className="max-w-3xl mx-auto text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-purple-600 mb-4">Next Conversation</p>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">

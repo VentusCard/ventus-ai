@@ -108,7 +108,7 @@ const SolutionSections = () => {
       body: "Ventus detects purchase intent from spending patterns — surfacing personalized offers at exactly the moment a customer is ready to buy.",
       card: <NextOfferVisual />,
       reverse: false,
-      link: "/smart-rewards",
+      link: "/solutions/next-offer",
     },
     {
       id: "next-product",
@@ -119,7 +119,7 @@ const SolutionSections = () => {
       body: "Life event detection surfaces the right product at the right moment — automatically. No surveys, no guesswork, just transaction signals.",
       card: <NextProductVisual />,
       reverse: true,
-      link: "/engagement",
+      link: "/solutions/next-product",
     },
     {
       id: "next-conversation",
@@ -130,7 +130,7 @@ const SolutionSections = () => {
       body: "Ventus sends advisors a daily briefing — who to call, why to call them, and what to say. Built entirely from transaction signals.",
       card: <NextConversationVisual />,
       reverse: false,
-      link: "/wealth",
+      link: "/solutions/next-conversation",
     },
   ];
 
