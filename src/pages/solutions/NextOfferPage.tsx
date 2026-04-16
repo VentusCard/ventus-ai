@@ -108,7 +108,7 @@ const NextOfferPage = () => (
       </div>
     </section>
 
-    <SolutionsIntegration />
+    <SolutionsIntegration extraLabels={["Rewards Engine API"]} />
     <SolutionsCTA />
   </main>
 );
