@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
-import salesforceLogo from "@/assets/salesforce-logo.png";
+
 
 const lifeEvents = [
   {
