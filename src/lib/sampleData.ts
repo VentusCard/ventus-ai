@@ -221,12 +221,12 @@ export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,d
 txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
 txn_002,SHELL OIL 78945,Gas fill-up,5541,52.30,2024-11-08,94103,Cashback Card
 txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
-txn_004,NORTH FACE OUTLET,Ski jacket and gloves,5655,347.00,2024-11-25,81657,Premium Card
+txn_004,SF TENNIS CLUB,,,350.00,2024-11-25,94102,Checks
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
 txn_006,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-12-05,94102,Cashback Card
-txn_007,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
-txn_008,PALISADES TAHOE LIFT,Weekend lift tickets x2,7941,298.00,2024-12-14,96146,Premium Card
-txn_009,NETFLIX.COM,Monthly streaming,4899,15.99,2024-12-18,,Cashback Card
+txn_007,SARAH MITCHELL RENT,,,2800.00,2024-12-10,94102,Wires
+txn_008,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
+txn_009,MARIA GARCIA DOGSITTER,,,150.00,2024-12-18,94102,Zelle
 txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,Cashback Card
 txn_011,DIGITAL ENT SVCS,Digital entertainment purchase,7995,250.00,2025-01-04,,Premium Card
 txn_012,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-01-11,94102,Cashback Card
