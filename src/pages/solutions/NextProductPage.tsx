@@ -157,7 +157,7 @@ const NextProductPage = () => (
       </div>
     </section>
 
-    <SolutionsIntegration />
+    <SolutionsIntegration extraLabels={["nCino"]} />
     <SolutionsCTA />
   </main>
 );

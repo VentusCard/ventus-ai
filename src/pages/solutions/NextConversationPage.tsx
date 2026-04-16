@@ -6,9 +6,6 @@ import SolutionsIntegration from "@/components/solutions/SolutionsIntegration";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 
 import salesforceLogo from "@/assets/salesforce-logo.png";
-import fisLogo from "@/assets/fis-logo.svg";
-import fiservLogo from "@/assets/fiserv-logo.png";
-import jackHenryLogo from "@/assets/jack-henry-logo.png";
 
 const stats = [
   { value: "Daily", label: "Advisor briefings generated" },
@@ -55,39 +52,56 @@ const NextConversationPage = () => (
                 <p>● Financial projections if relevant</p>
               </div>
             </div>
-            <div className="rounded-xl p-6" style={{ backgroundColor: "#0A1628" }}>
+            {/* Light advisor alert card */}
+            <div
+              className="rounded-xl p-6 bg-white"
+              style={{
+                border: "1px solid #E5E7EB",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+                borderRadius: 12,
+              }}
+            >
               <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-mono text-gray-400">
-                  Advisor Alert · <span className="text-white font-semibold">cust_013</span>
+                <p className="text-xs font-mono" style={{ color: "#111827" }}>
+                  Advisor Alert · <span className="font-semibold">cust_013</span>
                 </p>
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus AI</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+                  </span>
+                </div>
               </div>
-              <span className="text-sm font-semibold px-3 py-1 rounded-full bg-amber-500/15 text-amber-400">
+              <span
+                className="text-sm font-semibold px-3 py-1 rounded-full inline-block"
+                style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}
+              >
                 College-Bound Child — 91% confidence
               </span>
 
-              <div className="border-t border-white/10 mt-5 pt-4">
-                <p className="text-[10px] font-semibold tracking-widest text-gray-500 uppercase mb-3">Talking Points</p>
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#2563EB" }}>Talking Points</p>
                 <div className="space-y-2">
                   {[
                     "Significant college application spending detected Jan–Feb 2026",
                     "Child applying to Harvard, MIT, Yale, Stanford",
                     "Over $3,000 in test prep, essays, and campus visits",
                   ].map((p, i) => (
-                    <p key={i} className="text-sm text-gray-300">● {p}</p>
+                    <p key={i} className="text-sm" style={{ color: "#374151" }}>● {p}</p>
                   ))}
                 </div>
               </div>
 
-              <div className="border-t border-white/10 mt-5 pt-4">
-                <p className="text-[10px] font-semibold tracking-widest text-gray-500 uppercase mb-3">Recommended Action</p>
-                <button className="text-sm font-semibold text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#2563EB" }}>Recommended Action</p>
+                <button
+                  className="text-sm font-semibold text-white px-4 py-2 rounded-lg transition-colors"
+                  style={{ backgroundColor: "#16A34A" }}
+                >
                   Schedule college savings consultation →
                 </button>
-                <p className="text-xs text-gray-500 mt-3">
+                <p className="text-xs mt-3" style={{ color: "#6B7280" }}>
                   Estimated cost: $240,000 over 4 years · Suggested monthly contribution: $2,500
                 </p>
               </div>
@@ -154,12 +168,8 @@ const NextConversationPage = () => (
         </div>
         <div className="flex flex-wrap items-center justify-center gap-8">
           <img src={salesforceLogo} alt="Salesforce" className="h-8 w-auto" />
-          {[
-            { src: fisLogo, h: "h-5" },
-            { src: fiservLogo, h: "h-6" },
-            { src: jackHenryLogo, h: "h-5" },
-          ].map((l, i) => (
-            <img key={i} src={l.src} alt="" className={`${l.h} w-auto grayscale opacity-50`} />
+          {["Email", "Slack", "Webhooks"].map((label) => (
+            <span key={label} className="text-sm font-semibold text-gray-400 tracking-wide">{label}</span>
           ))}
         </div>
       </div>
@@ -177,7 +187,7 @@ const NextConversationPage = () => (
       </div>
     </section>
 
-    <SolutionsIntegration />
+    <SolutionsIntegration extraLabels={["Email", "Slack", "Webhooks"]} />
     <SolutionsCTA />
   </main>
 );
