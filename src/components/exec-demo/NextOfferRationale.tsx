@@ -90,15 +90,6 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
               }`}>
                 {deal.signal === "boost" ? "↑ " : ""}{deal.signalReason}
               </span>
-              <span
-                className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-center w-fit"
-                style={{ background: c.bg, color: c.text }}
-              >
-                {deal.rewardValue}
-              </span>
-              <p className="text-[9px] text-slate-500 leading-snug line-clamp-2 italic">
-                "{deal.message}"
-              </p>
               <button
                 className="mt-auto text-[8px] font-semibold px-2 py-0.5 rounded-full text-center"
                 style={{ background: c.bg, color: c.text }}
