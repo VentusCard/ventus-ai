@@ -219,11 +219,11 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
-txn_002,SHELL OIL 78945,Gas fill-up,5541,52.30,2024-11-08,94103,Cashback Card
+txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
 txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
 txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
-txn_006,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-12-05,94102,Cashback Card
+txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
 txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,Wires
 txn_008,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
 txn_009,MARIA GARCIA,Dogsitting,,150.00,2024-12-18,94102,Zelle
@@ -231,15 +231,15 @@ txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,C
 txn_011,DIGITAL ENT SVCS,Digital entertainment purchase,7995,250.00,2025-01-04,,Premium Card
 txn_012,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-01-11,94102,Cashback Card
 txn_013,PALISADES TAHOE LIFT,New Year ski day,7941,169.00,2025-01-18,96146,Premium Card
-txn_014,PETCO,Pet supplies and treats,5995,43.20,2025-01-25,94103,Cashback Card
+txn_014,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-01-25,94102,Cashback Card
 txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Cashback Card
 txn_016,COLLEGEBOARD SAT,SAT registration fee,,68.00,2025-02-15,,Checks
-txn_017,TRADER JOES,Weekly groceries,5411,89.23,2025-02-22,94102,Cashback Card
+txn_017,PETCO,Pet grooming supplies,5995,38.50,2025-02-22,94103,Cashback Card
 txn_018,SPOTIFY PREMIUM,Music subscription,4899,10.99,2025-03-01,,Cashback Card
 txn_019,KAPLAN TEST PREP,SAT prep course,,1299.00,2025-03-08,94102,Checks
 txn_020,INTL PAYMENT PROC 8742,International digital service,7801,175.00,2025-03-15,,Premium Card
 txn_021,CHEWY.COM,Monthly dog food delivery,5995,71.50,2025-03-22,94102,Cashback Card
-txn_022,SHELL OIL LOCAL,Gas fill-up,5541,48.90,2025-04-05,94102,Cashback Card
+txn_022,PETCO,Flea and tick prevention,5995,45.99,2025-04-05,94103,Cashback Card
 txn_023,SF TENNIS CLUB,Spring membership renewal,,350.00,2025-04-10,94102,Checks
 txn_024,WILSON SPORTING GOODS,Tennis racket purchase,5941,229.00,2025-04-15,94102,Premium Card
 txn_025,CVS PHARMACY,Prescription refill,5912,28.50,2025-04-22,94102,Cashback Card
@@ -247,7 +247,7 @@ txn_026,STANFORD VISITOR PARKING,College campus tour,7523,25.00,2025-05-03,94305
 txn_027,NORDSTROM,Spring clothing,5651,178.90,2025-05-10,94102,Premium Card
 txn_028,VETERINARY CLINIC,Annual wellness exam,,185.00,2025-05-18,94103,Checks
 txn_029,SF TENNIS CLUB,Court rental fee,7941,45.00,2025-06-07,94102,Cashback Card
-txn_030,WHOLE FOODS MARKET,Weekly groceries,5411,143.56,2025-06-14,94102,Cashback Card
+txn_030,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-06-14,94102,Cashback Card
 txn_031,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG,4511,892.00,2025-07-01,94102,Premium Card
 txn_032,GRAND WAILEA RESORT,Maui resort 5 nights,7011,2450.00,2025-07-02,96753,Premium Card
 txn_033,BOSS FROG SNORKEL TOUR,Molokini snorkel excursion,7999,189.00,2025-07-04,96753,Cashback Card
@@ -256,12 +256,12 @@ txn_035,PRIVATE MEDIA GRP LLC,Digital media subscription,5967,49.99,2025-08-02,,
 txn_036,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-08-10,94102,Cashback Card
 txn_037,LULULEMON,Tennis skirt and top,5655,134.00,2025-08-18,94102,Premium Card
 txn_038,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
-txn_039,HOME DEPOT,Lawn and garden supplies,5211,87.45,2025-09-20,94103,Cashback Card
+txn_039,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
 txn_040,ADMISSIONS CONSULTING GRP,College admissions package,,2500.00,2025-10-05,94102,Checks
-txn_041,SHELL OIL LOCAL,Gas fill-up,5541,55.10,2025-10-18,94102,Cashback Card
+txn_041,PETCO,Dog treats and toys,5995,42.00,2025-10-18,94103,Cashback Card
 txn_042,ZILLOW MORTGAGE APP FEE,Mortgage application,,500.00,2026-01-10,94102,Checks
 txn_043,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium Card
-txn_044,PETCO,Dog treats and toys,5995,38.50,2026-02-08,94103,Cashback Card
+txn_044,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
 txn_045,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
 txn_046,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks
 txn_047,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wires
