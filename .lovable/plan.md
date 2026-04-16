@@ -1,27 +1,22 @@
 
 
-## Rank Life Event Deals Second in Next-Offer Tab
+## Ground Deal Recommendations in Actual Spending Data
 
-### What changes
-Ensure life-event-based deal groups always appear after behavioral cluster groups in the Next-Offer tab, regardless of the order returned by the AI.
+### Problem
+The AI generates deals for categories the customer has no spending history in (e.g., "TRX training system" for a traveler with zero fitness spending). This happens because:
+1. The prompt says "Think laterally" — encouraging the AI to invent tangential connections
+2. Temperature is 0.8 — too creative for grounded recommendations
+3. No explicit constraint tying deals back to observed spending
 
-### Fix — `src/components/exec-demo/NextOfferRationale.tsx`
+### Fix — `supabase/functions/generate-next-offers/index.ts`
 
-Sort the `generatedOffers` array before rendering: groups where `pillar === "Life Event"` come after all other groups. The sort is stable so the relative order within each category is preserved.
+1. **Replace "Think laterally" rule** (line 57) with a grounding constraint:
+   - New rule: "All deals MUST relate to categories, merchants, or spending patterns present in the BEHAVIORAL CLUSTERS or SPENDING CONTEXT. Do NOT recommend products from categories where the customer has zero spending history. Boost deals should fill gaps WITHIN existing spending areas (e.g., a traveler missing luggage), not introduce entirely new lifestyle categories."
 
-**Around line 160** (the `.map` that renders `RollupCard`), wrap `generatedOffers` with a sort:
+2. **Lower temperature** from `0.8` to `0.55` (line 109) — still allows variety but reduces hallucination of unrelated categories.
 
-```tsx
-{[...generatedOffers]
-  .sort((a, b) => {
-    const aLife = a.pillar === "Life Event" ? 1 : 0;
-    const bLife = b.pillar === "Life Event" ? 1 : 0;
-    return aLife - bLife;
-  })
-  .map((group, gi) => (
-    <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
-  ))}
-```
+3. **Add negative instruction** to SIGNAL LOGIC section: "NEVER boost a category that has NO related spending in the provided clusters. If the customer has no fitness/sports transactions, do NOT recommend fitness equipment."
 
-One line change. No other files affected.
+### Result
+Deals stay relevant to observed behavior — lateral thinking within spending clusters, not across unrelated ones.
 
