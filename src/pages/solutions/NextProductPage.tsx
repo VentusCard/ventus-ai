@@ -71,7 +71,7 @@ const NextProductPage = () => (
     {/* Hero */}
     <section className="pt-40 pb-20 px-6 min-h-screen flex items-center">
       <div className="max-w-3xl mx-auto text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-green-600 mb-4">Next Product</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Product</p>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
           Know what your customer needs before they ask.
         </h1>
