@@ -186,79 +186,84 @@ const ScrollDrivenHero = () => {
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
 
-          {/* LEFT callout — Frequent Traveler */}
-          <div
-            className="hidden lg:flex absolute items-center"
-            style={{
-              right: "calc(50% + 230px)",
-              top: 80,
-              opacity: loaded && stage >= 2 ? 1 : 0,
-              transform: loaded && stage >= 2 ? "translateX(0)" : "translateX(20px)",
-              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-              transitionDelay: "600ms",
-            }}
-          >
-            <div
-              className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-              style={{
-                background: "rgba(59,130,246,0.06)",
-                border: "1px solid rgba(59,130,246,0.15)",
-                width: 210,
-              }}
-            >
-              <div className="font-semibold mb-1 text-[13px]" style={{ color: "#3b82f6" }}>
-                ✈ Frequent Traveler
-              </div>
-              <div style={{ color: "#6b7280", fontSize: 11 }}>5 travel transactions · Hotels, flights, campus visits</div>
-            </div>
-            {/* Connector line → card */}
-            <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
-              <line x1="0" y1="1" x2="40" y2="1" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4">
-                <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="2s" repeatCount="indefinite" />
-              </line>
-              <circle cx="42" cy="1" r="3" fill="#3b82f6" opacity="0.6">
-                <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
-              </circle>
-            </svg>
-          </div>
+          {/* Floating callouts — only visible when persona is active in stage 3 */}
+          {personas.map((p) => {
+            const isActive = stage === 3 && activePersona?.id === p.id;
+            const pos = p.id === "travel"
+              ? { right: "calc(50% + 228px)", top: 60, side: "left" as const }
+              : p.id === "parent"
+              ? { right: "calc(50% + 228px)", top: 180, side: "left" as const }
+              : { left: "calc(50% + 228px)", top: 100, side: "right" as const };
 
-          {/* RIGHT callout — College-Bound Child */}
-          <div
-            className="hidden lg:flex absolute items-center"
-            style={{
-              left: "calc(50% + 230px)",
-              top: 140,
-              opacity: loaded && stage >= 2 ? 1 : 0,
-              transform: loaded && stage >= 2 ? "translateX(0)" : "translateX(-20px)",
-              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-              transitionDelay: "800ms",
-            }}
-          >
-            {/* Connector line ← card */}
-            <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
-              <circle cx="6" cy="1" r="3" fill="#f59e0b" opacity="0.6">
-                <animate attributeName="r" values="2;4;2" dur="2.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite" />
-              </circle>
-              <line x1="8" y1="1" x2="48" y2="1" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4">
-                <animate attributeName="stroke-dashoffset" from="0" to="14" dur="2s" repeatCount="indefinite" />
-              </line>
-            </svg>
-            <div
-              className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-              style={{
-                background: "rgba(245,158,11,0.06)",
-                border: "1px solid rgba(245,158,11,0.15)",
-                width: 210,
-              }}
-            >
-              <div className="font-semibold mb-1 text-[13px]" style={{ color: "#f59e0b" }}>
-                🎓 College-Bound Child
+            const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
+
+            return (
+              <div
+                key={p.id}
+                className="hidden lg:flex absolute items-center pointer-events-none"
+                style={{
+                  ...pos,
+                  opacity: isActive ? 1 : 0,
+                  transform: isActive
+                    ? "translateX(0) scale(1)"
+                    : pos.side === "left" ? "translateX(16px) scale(0.95)" : "translateX(-16px) scale(0.95)",
+                  transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                  flexDirection: pos.side === "left" ? "row" : "row",
+                }}
+              >
+                {pos.side === "left" && (
+                  <>
+                    <div
+                      className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+                      style={{
+                        background: `${p.color}0a`,
+                        border: `1px solid ${p.color}25`,
+                        width: 210,
+                      }}
+                    >
+                      <div className="font-semibold mb-1 text-[13px]" style={{ color: p.color }}>
+                        {emoji} {p.label}
+                      </div>
+                      <div style={{ color: "#6b7280", fontSize: 11 }}>{p.callout}</div>
+                    </div>
+                    <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
+                      <line x1="0" y1="1" x2="40" y2="1" stroke={p.color} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.5">
+                        <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="1.5s" repeatCount="indefinite" />
+                      </line>
+                      <circle cx="43" cy="1" r="3" fill={p.color} opacity="0.7">
+                        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                      </circle>
+                    </svg>
+                  </>
+                )}
+                {pos.side === "right" && (
+                  <>
+                    <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
+                      <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
+                        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                      </circle>
+                      <line x1="8" y1="1" x2="48" y2="1" stroke={p.color} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.5">
+                        <animate attributeName="stroke-dashoffset" from="0" to="14" dur="1.5s" repeatCount="indefinite" />
+                      </line>
+                    </svg>
+                    <div
+                      className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+                      style={{
+                        background: `${p.color}0a`,
+                        border: `1px solid ${p.color}25`,
+                        width: 210,
+                      }}
+                    >
+                      <div className="font-semibold mb-1 text-[13px]" style={{ color: p.color }}>
+                        {emoji} {p.label}
+                      </div>
+                      <div style={{ color: "#6b7280", fontSize: 11 }}>{p.callout}</div>
+                    </div>
+                  </>
+                )}
               </div>
-              <div style={{ color: "#6b7280", fontSize: 11 }}>5 transactions · Test prep, apps, counseling</div>
-            </div>
-          </div>
+            );
+          })}
 
           {/* The Card */}
           <div
