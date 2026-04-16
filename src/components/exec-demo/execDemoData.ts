@@ -79,7 +79,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
       : `$${rawAmt.toFixed(2)}`;
     const rawDate = cols[dateIdx] || "";
     const dateParts = rawDate.split("-");
-    const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}` : rawDate.slice(5);
+    const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}/${dateParts[0].slice(2)}` : rawDate.slice(5);
     return {
       date: shortDate,
       merchant: cols[merchantIdx] || "Unknown",
