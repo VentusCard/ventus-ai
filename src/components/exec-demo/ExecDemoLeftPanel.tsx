@@ -107,22 +107,10 @@ const TxRow = ({
         </span>
         {signalEntry?.category && pillarColor && !dim && (
           <span
-            className="shrink-0 flex items-center gap-0 rounded overflow-hidden text-[7.5px] font-semibold"
+            className="shrink-0 rounded px-1.5 py-[2px] text-[7.5px] font-semibold text-white/90"
+            style={{ background: `${pillarColor}cc` }}
           >
-            <span
-              className="px-1.5 py-[2px] text-white/90"
-              style={{ background: `${pillarColor}cc` }}
-            >
-              {signalEntry.category}
-            </span>
-            {signalEntry.label && (
-              <span
-                className="px-1.5 py-[2px] text-white font-bold"
-                style={{ background: pillarColor }}
-              >
-                {signalEntry.label}
-              </span>
-            )}
+            {signalEntry.category}
           </span>
         )}
       </div>
