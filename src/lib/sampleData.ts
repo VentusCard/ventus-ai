@@ -439,7 +439,7 @@ export const SOURCE_COLORS: Record<string, string> = {
   "Premium Card": "bg-rose-500/10 text-rose-700 border-rose-500/20",
   "Checking": "bg-slate-500/10 text-slate-700 border-slate-500/20",
   "Checks": "bg-orange-500/10 text-orange-700 border-orange-500/20",
-  "ACH": "bg-teal-500/10 text-teal-700 border-teal-500/20",
+  "ACH": "bg-slate-500/10 text-slate-600 border-slate-500/20",
   "Wire": "bg-red-500/10 text-red-700 border-red-500/20",
   "Zelle": "bg-purple-500/10 text-purple-700 border-purple-500/20",
   "HSA": "bg-amber-500/10 text-amber-700 border-amber-500/20",
