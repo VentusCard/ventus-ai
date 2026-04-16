@@ -140,7 +140,7 @@ const NextProductPage = () => {
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
           {stats.map((s, i) => (
             <div key={s.label} style={revealStyle(statsSection.visible, i * 100)}>
-              <p className="font-bold text-gray-900" style={{ fontSize: 64 }}>{s.value}</p>
+              <p className="font-bold text-gray-900" style={{ fontSize: 52 }}>{s.value}</p>
               <p className="text-gray-500 mt-1" style={{ fontSize: 18 }}>{s.label}</p>
             </div>
           ))}
