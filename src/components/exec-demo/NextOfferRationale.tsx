@@ -83,7 +83,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
                 {deal.signal === "boost" && <TrendingUp className="w-2.5 h-2.5 text-emerald-500 shrink-0" />}
                 {deal.signal === "neutral" && <Minus className="w-2.5 h-2.5 text-slate-300 shrink-0" />}
               </div>
-              <span className={`text-[8px] px-1.5 py-0.5 rounded-full line-clamp-1 ${
+              <span className={`text-[8px] px-1.5 py-1 rounded-full whitespace-normal leading-relaxed ${
                 deal.signal === "boost"
                   ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                   : "bg-slate-50 text-slate-500 border border-slate-100"
