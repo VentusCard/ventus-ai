@@ -1,22 +1,20 @@
 
 
-## Show 5 Boost Pills Per Cluster (Keep Header Anchors)
+## Show Only Category in Transaction Row Pills
 
-### What stays
-The two header pill rows — suppressedCategories (grey ✓ pills) and boostCategories (green ↑ pills) — remain unchanged.
+### Change — `src/components/exec-demo/ExecDemoLeftPanel.tsx`
 
-### Changes
+Remove the subcategory (`signalEntry.label`) portion of the split pill (lines 118-125), keeping only the category badge. Simplify the wrapper span since it no longer needs the split-pill layout.
 
-**1. `supabase/functions/generate-next-offers/index.ts`**
-- Update prompt rule (line ~49): change "signal: boost or neutral ONLY" → all 5 deals MUST use `signal: "boost"` with a meaningful `signalReason` and `boostCategory`
-- Remove line ~65 "AIM for 2-5 boosted and the rest neutral" — replace with "ALL 5 deals MUST have signal: boost"
-- Remove/simplify the "neutral" signal description
-
-**2. `src/components/exec-demo/NextOfferRationale.tsx`**
-- Line 84: Remove the neutral `Minus` icon conditional — always show `TrendingUp`
-- Lines 86-89: Remove conditional coloring — always use emerald styling
-- Line 91: Always prepend "↑ "
-
-### Result
-Every deal tile across all clusters shows the green boost arrow and emerald reason text. The header still displays suppressed and boosted category anchors as before.
+Lines 108-127 become a single category pill:
+```tsx
+{signalEntry?.category && pillarColor && !dim && (
+  <span
+    className="shrink-0 rounded px-1.5 py-[2px] text-[7.5px] font-semibold text-white/90"
+    style={{ background: `${pillarColor}cc` }}
+  >
+    {signalEntry.category}
+  </span>
+)}
+```
 
