@@ -95,12 +95,12 @@ const IntegrationSection = () => {
           }}
         >
           {/* Column 1 — Connect */}
-          <div className="relative min-w-0 px-5 py-8 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(37,99,235,0.08)" }}>
+          <div className="relative min-w-0 px-5 py-16 lg:px-6">
+            <span className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]" style={{ color: "rgba(37,99,235,0.08)" }}>
               01
             </span>
-            <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-gray-900">Connect</h3>
+            <div className="relative z-10 pt-14">
+              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Connect</h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Banks securely share transaction data via API. No changes to core banking systems required.
               </p>
@@ -115,23 +115,23 @@ const IntegrationSection = () => {
           </div>
 
           {/* Column 2 — Enrich */}
-          <div className="relative min-w-0 border-t border-gray-200 px-5 py-8 lg:border-l lg:border-t-0 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(37,99,235,0.08)" }}>
+          <div className="relative min-w-0 border-t border-gray-200 px-5 py-16 lg:border-l lg:border-t-0 lg:px-6">
+            <span className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]" style={{ color: "rgba(37,99,235,0.08)" }}>
               02
             </span>
-            <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-gray-900">Enrich</h3>
+            <div className="relative z-10 pt-14">
+              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Enrich</h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Ventus analyzes every transaction to detect lifestyle pillars, life events, and purchase signals in real time.
               </p>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {statsData.map((stat, index) => (
-                  <div key={stat.label} className="flex items-baseline gap-3">
-                    <p className="text-3xl font-bold text-gray-900 tabular-nums" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  <div key={stat.label}>
+                    <p className="font-bold text-gray-900 tabular-nums" style={{ fontSize: "72px", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
                       {sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
                       {stat.suffix}
                     </p>
-                    <p className="text-sm text-gray-500">{stat.label}</p>
+                    <p className="mt-1 text-sm text-gray-500">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -139,12 +139,12 @@ const IntegrationSection = () => {
           </div>
 
           {/* Column 3 — Orchestrate */}
-          <div className="relative min-w-0 border-t border-gray-200 px-5 py-8 lg:border-l lg:border-t-0 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(37,99,235,0.08)" }}>
+          <div className="relative min-w-0 border-t border-gray-200 px-5 py-16 lg:border-l lg:border-t-0 lg:px-6">
+            <span className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]" style={{ color: "rgba(37,99,235,0.08)" }}>
               03
             </span>
-            <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-gray-900">Orchestrate</h3>
+            <div className="relative z-10 pt-14">
+              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Orchestrate</h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Enriched intelligence flows into personalized rewards, advisor tools, and customer experiences automatically.
               </p>
