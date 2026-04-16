@@ -1,4 +1,4 @@
-import { Sparkles, ArrowRight, CheckCircle2, TrendingUp, Minus } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 
@@ -80,15 +80,10 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-slate-800 truncate">{deal.merchant}</span>
-                {deal.signal === "boost" && <TrendingUp className="w-2.5 h-2.5 text-emerald-500 shrink-0" />}
-                {deal.signal === "neutral" && <Minus className="w-2.5 h-2.5 text-slate-300 shrink-0" />}
+                <TrendingUp className="w-2.5 h-2.5 text-emerald-500 shrink-0" />
               </div>
-              <span className={`text-[8px] whitespace-normal leading-relaxed ${
-                deal.signal === "boost"
-                  ? "text-emerald-700"
-                  : "text-slate-500"
-              }`}>
-                {deal.signal === "boost" ? "↑ " : ""}{deal.signalReason}
+              <span className="text-[8px] whitespace-normal leading-relaxed text-emerald-700">
+                ↑ {deal.signalReason}
               </span>
               <button
                 className="mt-auto text-[8px] font-semibold px-2 py-0.5 rounded-full text-center"

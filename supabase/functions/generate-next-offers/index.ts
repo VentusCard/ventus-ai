@@ -46,7 +46,7 @@ serve(async (req) => {
     const systemPrompt = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
 RULES:
-1. For EACH behavioral cluster provided, generate exactly 5 ACTIVE deals (signal: "boost" or "neutral" ONLY).
+1. For EACH behavioral cluster provided, generate exactly 5 ACTIVE deals. ALL 5 deals MUST have signal: "boost" with a meaningful signalReason and boostCategory.
    Do NOT include suppressed deals in the deals array.
    Instead, list any already-covered spending categories in a separate "suppressedCategories" string array on the rollup object.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
@@ -57,12 +57,8 @@ RULES:
 7. All deals MUST relate to categories, merchants, or spending patterns present in the BEHAVIORAL CLUSTERS or SPENDING CONTEXT. Do NOT recommend products from categories where the customer has zero spending history. Boost deals should fill gaps WITHIN existing spending areas (e.g., a traveler missing luggage), not introduce entirely new lifestyle categories.
 
 SIGNAL LOGIC:
-- "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap. Add "boostCategory" — a short product-type label (e.g., "Headphones", "Luggage").
-- "neutral": Standard relevance, no strong signal either way. signalReason can be brief. Omit boostCategory.
-- "Supressed": The customer has purchased persona defining items such as ski pass for the season, or new eye glasses, and likely will not purchase the samething soon, so they should be surpressed
+- ALL 5 deals MUST have signal: "boost". Every deal should have a clear signalReason explaining the behavioral gap or opportunity, and a boostCategory (short product-type label like "Headphones", "Luggage").
 - NEVER boost a category that has NO related spending in the provided clusters. If the customer has no fitness/sports transactions, do NOT recommend fitness equipment. Every deal must trace back to an observed spending pattern.
-
-AIM for 2-5 boosted and the rest neutral per cluster.
 
 suppressedCategories: For each cluster, identify 0-3 broad spending categories the user already covers (e.g., "Hotels", "Airlines", "Ski Passes", "Coffee", "Streaming") and list them in the suppressedCategories array. These are NOT deals — just metadata about what the customer already has.
 
