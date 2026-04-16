@@ -274,37 +274,44 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
-      // Fire next-offers, life event detection, and risk detection in parallel
-      fireNextOffers(synthesis, pillars);
-      fireLifeEventDetection();
+      // Fire life event detection first (it will trigger offers with events), risk in parallel
+      fireLifeEventDetection(synthesis, pillars);
       fireRiskDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
 
-  /** Generate AI-powered deal recommendations from persona + pillars */
-  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[]) => {
+  /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
+  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[], lifeEvents?: LifeEvent[]) => {
     setOffersLoading(true);
     setGeneratedOffers(null);
     try {
       const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
       const demographics = demoCustomer?.profile?.demographics || {};
-      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
-        body: {
-          persona: {
-            pillarRollups: synthesis.pillarRollups,
-          },
-          pillars: pillars.slice(0, 8).map(p => ({
-            pillar: p.pillar,
-            label: p.label,
-            count: p.count,
-            totalSpend: p.totalSpend,
-            topMerchants: p.topMerchants,
-            subcategories: p.subcategories,
-          })),
-          demographics,
+      const body: any = {
+        persona: {
+          pillarRollups: synthesis.pillarRollups,
         },
+        pillars: pillars.slice(0, 8).map(p => ({
+          pillar: p.pillar,
+          label: p.label,
+          count: p.count,
+          totalSpend: p.totalSpend,
+          topMerchants: p.topMerchants,
+          subcategories: p.subcategories,
+        })),
+        demographics,
+      };
+      if (lifeEvents && lifeEvents.length > 0) {
+        body.lifeEvents = lifeEvents.map(e => ({
+          event_name: e.event_name,
+          confidence: e.confidence,
+          evidence_merchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
+        }));
+      }
+      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
+        body,
       });
       if (error) throw error;
       setGeneratedOffers(data.rollupOffers || []);
@@ -317,8 +324,8 @@ export default function ExecDemoPage() {
     }
   }, [selectedIdx]);
 
-  /** Detect life events using existing analyze-lifestyle-signals edge function */
-  const fireLifeEventDetection = useCallback(async () => {
+  /** Detect life events, then fire offers with both pillars and life events */
+  const fireLifeEventDetection = useCallback(async (synthesis?: PersonaSynthesis, pillars?: any[]) => {
     setProductsLoading(true);
     setDetectedLifeEvents(null);
     try {
@@ -366,9 +373,11 @@ export default function ExecDemoPage() {
       console.log("[PRELOAD] Life events detected:", events.length);
       // Fire product cards generation with life events + persona data
       fireProductCards(events, personaSynthesisRef.current);
-      // Fire supplemental life-event-based offers
-      if (events.length > 0) {
-        fireLifeEventOffers(events);
+      // Fire offers with both pillars and detected life events in a single call
+      const syn = synthesis || personaSynthesisRef.current;
+      const pils = pillars || pillarsRef.current;
+      if (syn && pils) {
+        fireNextOffers(syn, pils, events.length > 0 ? events : undefined);
       }
     } catch (err) {
       console.error("[PRELOAD] Life event detection failed:", err);
@@ -377,26 +386,6 @@ export default function ExecDemoPage() {
     }
   }, [selectedIdx, customCsv]);
 
-  /** Generate life-event-based deal recommendations */
-  const fireLifeEventOffers = useCallback(async (events: LifeEvent[]) => {
-    try {
-      const lifeEventClusters = events.map(e => ({
-        event_name: e.event_name,
-        confidence: e.confidence,
-        evidence_merchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
-      }));
-      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
-        body: { lifeEvents: lifeEventClusters },
-      });
-      if (error) throw error;
-      if (data?.rollupOffers?.length) {
-        setGeneratedOffers(prev => [...(prev || []), ...data.rollupOffers]);
-        console.log("[PRELOAD] Life-event offers appended:", data.rollupOffers.length, "groups");
-      }
-    } catch (err) {
-      console.error("[PRELOAD] Life-event offers failed:", err);
-    }
-  }, []);
 
   /** Detect risk factors using detect-risk-transactions edge function */
   const fireRiskDetection = useCallback(async () => {
