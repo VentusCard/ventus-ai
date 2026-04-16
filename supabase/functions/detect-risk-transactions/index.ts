@@ -40,6 +40,8 @@ IMPORTANT RULES:
 - Do NOT flag normal spending variations, routine travel, everyday purchases, or changes in spending habits.
 - Do NOT flag generic fraud patterns like duplicate charges or geo anomalies from normal travel.
 - Only flag transactions with CLEAR evidence of vice activity, money laundering patterns, or suspicious international activity.
+- USE the provided category and pillar context. A merchant name containing words like "consulting", "services", or "group" is NOT suspicious if the transaction's category clearly maps to a benign domain (e.g., Childcare & Education, Healthcare, Home Improvement). Merchant name keywords alone are never sufficient — the category must also be consistent with risk.
+- A round dollar amount alone is NOT an AML indicator. Structuring requires a PATTERN of multiple transactions deliberately staying below reporting thresholds, not a single payment at a round number.
 
 For each flagged transaction or pattern, provide:
 - transaction_id (or "pattern" if it spans multiple transactions)
