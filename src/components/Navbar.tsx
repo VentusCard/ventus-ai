@@ -1,25 +1,31 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
 
-
-/** Pages where the hero has a dark background and the navbar should start transparent */
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel", "/insights"];
+
+const solutionsItems = [
+  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking" },
+  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment" },
+  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning" },
+];
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
   const isTransparent = isDarkHero && !isMobileMenuOpen;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const closeMobileMenu = () => { setIsMobileMenuOpen(false); setMobileSolutionsOpen(false); };
 
   const scrollToFaq = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,9 +53,37 @@ const Navbar = () => {
           <Link to="/" onClick={closeMobileMenu}>
             <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
           </Link>
+
+          {/* Solutions dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setSolutionsOpen(true)}
+            onMouseLeave={() => setSolutionsOpen(false)}
+          >
+            <button className={`${textColor} text-sm font-medium transition-colors flex items-center gap-1`}>
+              Solutions <ChevronDown size={14} className={`transition-transform ${solutionsOpen ? "rotate-180" : ""}`} />
+            </button>
+            {solutionsOpen && (
+              <div className="absolute top-full left-0 pt-2" onMouseEnter={() => setSolutionsOpen(true)}>
+                <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-2 w-80">
+                  {solutionsItems.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setSolutionsOpen(false)}
+                      className="block px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
           <a href="/#faq" onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors cursor-pointer`}>FAQ</a>
-
         </div>
         <Link to="/contact">
           <Button
@@ -74,8 +108,6 @@ const Navbar = () => {
         </button>
       </div>
 
-
-
       {/* Mobile Menu */}
       <div
         id="mobile-nav-menu"
@@ -84,6 +116,21 @@ const Navbar = () => {
         }`}
       >
         <div style={{ padding: '1.5rem' }}>
+          <button
+            onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
+            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left"
+          >
+            Solutions <ChevronDown size={16} className={`transition-transform ${mobileSolutionsOpen ? "rotate-180" : ""}`} />
+          </button>
+          {mobileSolutionsOpen && (
+            <div className="pl-4 border-b border-gray-100">
+              {solutionsItems.map((item) => (
+                <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="block py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+          )}
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
           <a href="/#faq" onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left cursor-pointer">FAQ</a>
 
