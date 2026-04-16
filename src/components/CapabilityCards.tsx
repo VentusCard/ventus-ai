@@ -1,4 +1,4 @@
-import { Layers, Heart, Activity, TrendingUp } from "lucide-react";
+import { Layers, Heart, Activity, Search } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const CapabilityCards = () => {
@@ -95,42 +95,55 @@ const CapabilityCards = () => {
         </div>
       </ScrollReveal>
 
-      {/* 4 — Next-Best Rewards */}
+      {/* 4 — Purchase Cycle Intel */}
       <ScrollReveal delay={0.3}>
         <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
-            <h3 className="text-sm font-bold text-emerald-600 uppercase tracking-wide">Next-Best Rewards</h3>
+            <Search className="w-5 h-5 text-orange-500" />
+            <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wide">Purchase Cycle Intel</h3>
           </div>
 
-          {/* Behavioral context */}
-          <div className="flex items-center gap-1.5 mb-3">
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#dbeafe", color: "#2563eb" }}>Frequent Traveler</span>
-            <span className="text-[10px]" style={{ color: "#9CA3AF" }}>·</span>
-            <span className="text-[10px]" style={{ color: "#6B7280" }}>Flights, Hotels, Dining detected</span>
-          </div>
-
-          {/* Deals */}
-          <div className="space-y-2">
+          {/* Mini seasonal timeline */}
+          <div className="space-y-3 mb-3">
             {[
-              { merchant: "Bose", product: "QuietComfort Headphones", reward: "20% Back", reason: "Complements travel routine" },
-              { merchant: "Away", product: "Carry-On Suitcase", reward: "15% Off", reason: "No luggage spend detected" },
-              { merchant: "Global Entry", product: "TSA PreCheck", reward: "$25 Credit", reason: "Frequent flyer gap" },
-            ].map((deal) => (
-              <div key={deal.merchant} className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold" style={{ color: "#111827" }}>{deal.merchant}</span>
-                    <span className="text-[10px]" style={{ color: "#6B7280" }}>· {deal.product}</span>
-                  </div>
-                  <span className="text-[9px]" style={{ color: "#10b981" }}>↑ {deal.reason}</span>
+              { label: "Travel & Adventure", months: [false, true, true, false, false, true, true, false, false, false, true, true], next: "May", delta: "+14%" },
+              { label: "Kids & Baby", months: [true, true, false, true, false, false, true, false, true, false, true, false], next: "Jul", delta: "+294%" },
+            ].map((row) => (
+              <div key={row.label}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-semibold" style={{ color: "#111827" }}>{row.label}</span>
+                  <span className="text-[9px] font-semibold" style={{ color: "#f97316" }}>↗ {row.delta}</span>
                 </div>
-                <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(16,185,129,0.1)", color: "#059669" }}>{deal.reward}</span>
+                <div className="flex items-center gap-[3px]">
+                  {row.months.map((active, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 h-[6px] rounded-sm transition-all"
+                      style={{
+                        background: active ? "#f97316" : "#e5e7eb",
+                        opacity: active ? 0.85 : 0.5,
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between mt-0.5">
+                  <span className="text-[8px]" style={{ color: "#9CA3AF" }}>Jan</span>
+                  <span className="text-[8px]" style={{ color: "#9CA3AF" }}>Dec</span>
+                </div>
               </div>
             ))}
           </div>
 
-          <p className="text-xs mt-3" style={{ color: "#6B7280" }}>AI-matched deals that complete your lifestyle — not just your cart.</p>
+          {/* Predicted next purchases */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {["Luggage", "Headphones", "SPF Skincare"].map((item) => (
+              <span key={item} className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(249,115,22,0.1)", color: "#ea580c" }}>
+                <span style={{ fontSize: 8 }}>↑</span> {item}
+              </span>
+            ))}
+          </div>
+
+          <p className="text-xs mt-3" style={{ color: "#6B7280" }}>Predict what customers need next from seasonal spending rhythms.</p>
         </div>
       </ScrollReveal>
     </div>
