@@ -264,14 +264,9 @@ Match detected events to appropriate financial products:
 | Empty nest | Downsizing strategy, accelerated retirement savings, estate updates | 2-5 years |
 | Inheritance/windfall | Tax planning, trust considerations, philanthropy, debt payoff | Immediate |
 
-## TYPE 2: STANDOUT TRANSACTION SIGNALS
-Individual notable transactions as their own events:
-
-🔴 CONCERNING (prefix "[URGENT]"): Gambling, payday loans, crypto losses, unusual withdrawals
-🟡 MAJOR PURCHASES (prefix "[NOTABLE]"): 3x+ above typical, vehicles, luxury items, renovations
-🟢 POSITIVE (prefix "[OPPORTUNITY]"): Large deposits, investment contributions, debt payoffs
-
 ## OUTPUT REQUIREMENTS
+- Only return genuine life events: college, home purchase, wedding, baby, retirement, career change, elder care, business formation, wealth transfer, relocation, divorce, inheritance, empty nest.
+- Do NOT return spending pattern observations, notable purchases, generic spending increases, or individual standout transactions as life events.
 - Event names should be specific: "College Preparation for Child" not "Education"
 - Include ONLY transactions that pass ALL three evidence tests (causality, specificity, reasonable person)
 - For each evidence item, the "relevance" field MUST explain the DIRECT causal connection
@@ -351,7 +346,13 @@ Analyze these patterns and detect any significant life events. Use the provided 
     }
 
     const aiInsights = JSON.parse(toolCall.function.arguments);
-    console.log('Detected events:', aiInsights.detected_events.length);
+    // Filter out non-life-event signals (spending patterns, notable purchases)
+    aiInsights.detected_events = (aiInsights.detected_events || []).filter((e: any) =>
+      !e.event_name.includes('[NOTABLE]') &&
+      !e.event_name.includes('[URGENT]') &&
+      !e.event_name.includes('[OPPORTUNITY]')
+    );
+    console.log('Detected life events after filtering:', aiInsights.detected_events.length);
 
     return new Response(
       JSON.stringify(aiInsights),
