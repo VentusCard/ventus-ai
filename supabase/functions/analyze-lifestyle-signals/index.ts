@@ -346,7 +346,13 @@ Analyze these patterns and detect any significant life events. Use the provided 
     }
 
     const aiInsights = JSON.parse(toolCall.function.arguments);
-    console.log('Detected events:', aiInsights.detected_events.length);
+    // Filter out non-life-event signals (spending patterns, notable purchases)
+    aiInsights.detected_events = (aiInsights.detected_events || []).filter((e: any) =>
+      !e.event_name.includes('[NOTABLE]') &&
+      !e.event_name.includes('[URGENT]') &&
+      !e.event_name.includes('[OPPORTUNITY]')
+    );
+    console.log('Detected life events after filtering:', aiInsights.detected_events.length);
 
     return new Response(
       JSON.stringify(aiInsights),
