@@ -31,13 +31,13 @@ const NextOfferPage = () => {
   return (
     <main className="bg-white min-h-screen">
       {/* Hero */}
-      <section ref={hero.ref} className="pt-40 pb-20 px-6 min-h-screen flex items-center">
+      <section ref={hero.ref} className="pt-28 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
           <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Offer</p>
-          <h1 style={{ ...revealStyle(hero.visible, 100), fontSize: 56 }} className="font-bold text-gray-900 leading-tight mb-6">
+          <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
             Serve the right offer before they go looking.
           </h1>
-          <p style={{ ...revealStyle(hero.visible, 200), fontSize: 18 }} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
             Ventus detects purchase intent from spending patterns and lifestyle signals — surfacing personalized offers at exactly the moment a customer is ready to act.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
@@ -102,11 +102,11 @@ const NextOfferPage = () => {
 
       {/* Stats */}
       <section ref={statsSection.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
           {stats.map((s, i) => (
             <div key={s.label} style={revealStyle(statsSection.visible, i * 100)}>
-              <p className="font-bold text-gray-900" style={{ fontSize: 52 }}>{s.value}</p>
-              <p className="text-gray-500 mt-1" style={{ fontSize: 18 }}>{s.label}</p>
+              <p className="font-bold text-gray-900 text-3xl sm:text-[52px]">{s.value}</p>
+              <p className="text-gray-500 mt-1 text-sm sm:text-lg">{s.label}</p>
             </div>
           ))}
         </div>
