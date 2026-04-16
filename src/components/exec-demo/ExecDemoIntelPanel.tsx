@@ -357,12 +357,17 @@ export default function ExecDemoIntelPanel({
                       const isHigh = flag.severity === "high";
                       const dotColor = isHigh ? "#ef4444" : "#f59e0b";
                       const flagKeywords = (flag.merchant_patterns || []).map((p: string) => p.toLowerCase());
+                      // Use the merchant name from the flag itself as a keyword
+                      if (flag.merchant) {
+                        const merchantWords = flag.merchant.toLowerCase().split(/[\s]+/).filter((w: string) => w.length > 2);
+                        flagKeywords.push(...merchantWords);
+                      }
                       if (flagKeywords.length === 0 && flag.category) {
                         flagKeywords.push(...flag.category.toLowerCase().split(/[\s/&,]+/).filter((w: string) => w.length > 3));
                       }
                       const matchedIndices = transactions
                         ? transactions.map((tx, idx) => {
-                            const m = (tx.merchant || "").toLowerCase();
+                            const m = ((tx as any).merchant_name || (tx as any).merchant || (tx as any).normalized_merchant || "").toLowerCase();
                             return flagKeywords.some((kw: string) => m.includes(kw)) ? idx : -1;
                           }).filter(idx => idx !== -1)
                         : [];
