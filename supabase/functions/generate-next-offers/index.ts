@@ -54,12 +54,13 @@ RULES:
 4. Bad message: "As a Product Director on the move, upgrade your commute"
 5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, a signal ("boost" or "neutral"), signalReason, and optionally boostCategory.
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
-7. Think laterally: a skier needs goggles, après-ski gear, action cameras. A foodie needs cookware, cooking classes, specialty ingredients.
+7. All deals MUST relate to categories, merchants, or spending patterns present in the BEHAVIORAL CLUSTERS or SPENDING CONTEXT. Do NOT recommend products from categories where the customer has zero spending history. Boost deals should fill gaps WITHIN existing spending areas (e.g., a traveler missing luggage), not introduce entirely new lifestyle categories.
 
 SIGNAL LOGIC:
 - "boost": The customer has NOT purchased this type of item but their behavior suggests they need it. signalReason should explain the gap. Add "boostCategory" — a short product-type label (e.g., "Headphones", "Luggage").
 - "neutral": Standard relevance, no strong signal either way. signalReason can be brief. Omit boostCategory.
 - "Supressed": The customer has purchased persona defining items such as ski pass for the season, or new eye glasses, and likely will not purchase the samething soon, so they should be surpressed
+- NEVER boost a category that has NO related spending in the provided clusters. If the customer has no fitness/sports transactions, do NOT recommend fitness equipment. Every deal must trace back to an observed spending pattern.
 
 AIM for 2-5 boosted and the rest neutral per cluster.
 
@@ -106,7 +107,7 @@ OUTPUT: Valid JSON only, no markdown. Exact shape:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.8,
+        temperature: 0.55,
         max_tokens: 4096,
       }),
     });
