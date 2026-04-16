@@ -1,4 +1,4 @@
-import { Layers, Heart, Activity, Search } from "lucide-react";
+import { Layers, Heart, Activity, Gift, TrendingUp } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const CapabilityCards = () => {
