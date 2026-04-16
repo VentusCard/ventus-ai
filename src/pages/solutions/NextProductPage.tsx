@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
-import SolutionsIntegration from "@/components/solutions/SolutionsIntegration";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
+import salesforceLogo from "@/assets/salesforce-logo.png";
 
 const lifeEvents = [
   {
@@ -122,7 +122,7 @@ const NextProductPage = () => (
     </section>
 
     {/* Detection flow */}
-    <section className="py-20 px-6" style={{ backgroundColor: "#F9FAFB" }}>
+    <section className="bg-white py-20 px-6">
       <ScrollReveal>
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
@@ -133,7 +133,7 @@ const NextProductPage = () => (
               <div key={step.label} className="flex items-center gap-3">
                 <div
                   className="rounded-xl px-5 py-4 text-center min-w-[140px]"
-                  style={{ backgroundColor: i === 2 ? "#F0F4FF" : "white" }}
+                  style={{ backgroundColor: i === 2 ? "#F0F4FF" : "white", border: "1px solid #E5E7EB" }}
                 >
                   <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
                     {String(i + 1).padStart(2, "0")}
@@ -163,7 +163,19 @@ const NextProductPage = () => (
       </div>
     </section>
 
-    <SolutionsIntegration extraLabels={["nCino"]} />
+    {/* Works with */}
+    <section className="bg-white py-16 px-6">
+      <div className="max-w-4xl mx-auto text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Works with your stack</p>
+        <p className="text-base text-gray-500 max-w-xl mx-auto mb-10">
+          Intelligence flows into the tools your team already uses — no new software required.
+        </p>
+        <div className="flex items-center justify-center">
+          <img src={salesforceLogo} alt="Salesforce" className="h-10 w-auto" />
+        </div>
+      </div>
+    </section>
+
     <SolutionsCTA />
   </main>
 );

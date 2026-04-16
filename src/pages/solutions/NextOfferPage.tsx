@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
-import SolutionsIntegration from "@/components/solutions/SolutionsIntegration";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
+import salesforceLogo from "@/assets/salesforce-logo.png";
 
 const offers = [
   { name: "Delta SkyMiles Card", desc: "matches your travel spend", tag: "Travel & Exploration", color: "#3B82F6" },
@@ -16,10 +17,10 @@ const stats = [
   { value: "<200ms", label: "Time to surface an offer" },
 ];
 
-const steps = [
-  { num: "01", title: "Detect", desc: "Ventus analyzes transaction history to build lifestyle pillars and identify spending patterns across 12 behavioral categories." },
-  { num: "02", title: "Match", desc: "Each lifestyle signal maps to relevant products, rewards, and offers from your existing catalog — automatically." },
-  { num: "03", title: "Surface", desc: "Matched offers flow into your existing CRM, rewards engine, or customer app through our API — no infrastructure changes required." },
+const flowSteps = [
+  { label: "Detect", desc: "Analyze transaction patterns" },
+  { label: "Match", desc: "Map to relevant offers" },
+  { label: "Surface", desc: "Deliver via API" },
 ];
 
 const NextOfferPage = () => (
@@ -40,26 +41,8 @@ const NextOfferPage = () => (
       </div>
     </section>
 
-    {/* How it works */}
-    <section className="bg-white py-20 px-6">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
-          From transaction to offer in three steps.
-        </h2>
-        <div className="grid md:grid-cols-3 gap-10">
-          {steps.map((s) => (
-            <div key={s.num}>
-              <p className="text-5xl font-bold mb-3" style={{ color: "rgba(37,99,235,0.15)" }}>{s.num}</p>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{s.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
     {/* Visual proof */}
-    <section className="py-20 px-6">
+    <section className="bg-white py-20 px-6">
       <ScrollReveal>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
@@ -96,6 +79,36 @@ const NextOfferPage = () => (
       </ScrollReveal>
     </section>
 
+    {/* Flow steps */}
+    <section className="bg-white py-20 px-6">
+      <ScrollReveal>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
+            From transaction to offer in three steps.
+          </h2>
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4">
+            {flowSteps.map((step, i) => (
+              <div key={step.label} className="flex items-center gap-3">
+                <div
+                  className="rounded-xl px-5 py-4 text-center min-w-[160px]"
+                  style={{ backgroundColor: i === 1 ? "#F0F4FF" : "white", border: "1px solid #E5E7EB" }}
+                >
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="text-sm font-semibold text-gray-900">{step.label}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{step.desc}</p>
+                </div>
+                {i < flowSteps.length - 1 && (
+                  <ArrowRight size={18} className="text-blue-500 hidden md:block flex-shrink-0" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </ScrollReveal>
+    </section>
+
     {/* Stats */}
     <section className="bg-white py-16 px-6">
       <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
@@ -108,7 +121,19 @@ const NextOfferPage = () => (
       </div>
     </section>
 
-    <SolutionsIntegration extraLabels={["Rewards Engine API"]} />
+    {/* Works with */}
+    <section className="bg-white py-16 px-6">
+      <div className="max-w-4xl mx-auto text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Works with your stack</p>
+        <p className="text-base text-gray-500 max-w-xl mx-auto mb-10">
+          Intelligence flows into the tools your team already uses — no new software required.
+        </p>
+        <div className="flex items-center justify-center">
+          <img src={salesforceLogo} alt="Salesforce" className="h-10 w-auto" />
+        </div>
+      </div>
+    </section>
+
     <SolutionsCTA />
   </main>
 );
