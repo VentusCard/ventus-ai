@@ -797,7 +797,7 @@ export default function ExecDemoPage() {
           )}
           {/* Full panel — with optional collapse button when re-expanded */}
           {(!activeTab || txPanelExpanded) && (
-            <div className="w-[400px] h-full relative">
+            <div className={`h-full relative ${activeTab ? 'w-[400px]' : 'w-[520px]'}`}>
               {activeTab && txPanelExpanded && (
               <button
                   onClick={() => setTxPanelExpanded(false)}
