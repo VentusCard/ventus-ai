@@ -95,34 +95,42 @@ const CapabilityCards = () => {
         </div>
       </ScrollReveal>
 
-      {/* 4 — Purchase Cycle Intel */}
+      {/* 4 — Next-Best Rewards */}
       <ScrollReveal delay={0.3}>
         <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
-            <Search className="w-5 h-5 text-orange-500" />
-            <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wide">Purchase Cycle Intel</h3>
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <h3 className="text-sm font-bold text-emerald-600 uppercase tracking-wide">Next-Best Rewards</h3>
           </div>
-          <div className="space-y-3">
+
+          {/* Behavioral context */}
+          <div className="flex items-center gap-1.5 mb-3">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "#dbeafe", color: "#2563eb" }}>Frequent Traveler</span>
+            <span className="text-[10px]" style={{ color: "#9CA3AF" }}>·</span>
+            <span className="text-[10px]" style={{ color: "#6B7280" }}>Flights, Hotels, Dining detected</span>
+          </div>
+
+          {/* Deals */}
+          <div className="space-y-2">
             {[
-              { intent: "Auto Purchase", progress: 78, timeframe: "Next 30 days" },
-              { intent: "Vacation Booking", progress: 62, timeframe: "Next 60 days" },
-              { intent: "Insurance Renewal", progress: 45, timeframe: "Next 90 days" },
-            ].map((item) => (
-              <div key={item.intent}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold" style={{ color: "#111827" }}>{item.intent}</span>
-                  <span className="text-[10px]" style={{ color: "#6B7280" }}>{item.timeframe}</span>
+              { merchant: "Bose", product: "QuietComfort Headphones", reward: "20% Back", reason: "Complements travel routine" },
+              { merchant: "Away", product: "Carry-On Suitcase", reward: "15% Off", reason: "No luggage spend detected" },
+              { merchant: "Global Entry", product: "TSA PreCheck", reward: "$25 Credit", reason: "Frequent flyer gap" },
+            ].map((deal) => (
+              <div key={deal.merchant} className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-semibold" style={{ color: "#111827" }}>{deal.merchant}</span>
+                    <span className="text-[10px]" style={{ color: "#6B7280" }}>· {deal.product}</span>
+                  </div>
+                  <span className="text-[9px]" style={{ color: "#10b981" }}>↑ {deal.reason}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${item.progress}%`, background: "#f97316" }}
-                  />
-                </div>
+                <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(16,185,129,0.1)", color: "#059669" }}>{deal.reward}</span>
               </div>
             ))}
           </div>
-          <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Surface intent signals before they become transactions.</p>
+
+          <p className="text-xs mt-3" style={{ color: "#6B7280" }}>AI-matched deals that complete your lifestyle — not just your cart.</p>
         </div>
       </ScrollReveal>
     </div>
