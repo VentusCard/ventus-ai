@@ -170,7 +170,7 @@ const ScrollDrivenHero = () => {
       style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-20 md:pt-32 overflow-visible">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-16 md:pt-32 overflow-visible">
         {/* Centered Headline */}
         <h1
           className="font-bold tracking-tight text-gray-900 leading-[1.15] text-center mb-4 md:mb-6 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
@@ -305,9 +305,9 @@ const ScrollDrivenHero = () => {
 
             {/* Persona pills — Stage 2+ */}
             <div
-              className="flex flex-wrap gap-2 px-5 pt-3 transition-all duration-[400ms]"
+              className="flex flex-wrap gap-1.5 md:gap-2 px-5 pt-3 transition-all duration-[400ms]"
               style={{
-                maxHeight: stage >= 2 ? 48 : 0,
+                maxHeight: stage >= 2 ? 80 : 0,
                 opacity: stage >= 2 ? 1 : 0,
                 overflow: "hidden",
               }}
@@ -317,7 +317,7 @@ const ScrollDrivenHero = () => {
                 return (
                   <span
                     key={p.id}
-                    className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
+                    className="inline-flex items-center rounded-full px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-semibold transition-all duration-[400ms]"
                     style={{
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,
