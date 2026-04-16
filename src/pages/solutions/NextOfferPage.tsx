@@ -62,23 +62,32 @@ const NextOfferPage = () => {
               <p>● Offer surfaced: Delta SkyMiles Card — matched before customer searched</p>
             </div>
           </div>
-          <div>
-            <p style={revealStyle(proof.visible, 100)} className="text-xs font-mono text-gray-400 mb-4">
-              cust_013 · <span className="text-blue-600 font-semibold">Frequent Traveler</span>
-            </p>
-            <div className="space-y-0">
-              {offers.map((o, i) => (
-                <div key={o.name} style={slideRightStyle(proof.visible, 200 + i * 150)}>
-                  <div className="rounded-lg p-4 flex items-start gap-3 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]" style={{ borderLeft: `3px solid ${o.color}` }}>
-                    <div className="flex-1">
-                      <p className="text-gray-900 text-sm font-semibold">{o.name}</p>
-                      <p className="text-gray-500 text-xs mt-0.5">{o.desc}</p>
+          <div style={revealStyle(proof.visible, 100)}>
+            <div
+              className="rounded-xl p-6"
+              style={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+              }}
+            >
+              <p className="text-xs font-mono text-gray-400 mb-4">
+                cust_013 · <span className="text-blue-600 font-semibold">Frequent Traveler</span>
+              </p>
+              <div className="space-y-0">
+                {offers.map((o, i) => (
+                  <div key={o.name} style={slideRightStyle(proof.visible, 200 + i * 150)}>
+                    <div className="rounded-lg p-4 flex items-start gap-3 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]" style={{ borderLeft: `3px solid ${o.color}` }}>
+                      <div className="flex-1">
+                        <p className="text-gray-900 text-sm font-semibold">{o.name}</p>
+                        <p className="text-gray-500 text-xs mt-0.5">{o.desc}</p>
+                      </div>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${o.color}15`, color: o.color }}>{o.tag}</span>
                     </div>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${o.color}15`, color: o.color }}>{o.tag}</span>
+                    {i < offers.length - 1 && <div className="border-b border-gray-200 mx-4" />}
                   </div>
-                  {i < offers.length - 1 && <div className="border-b border-gray-200 mx-4" />}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -96,7 +105,7 @@ const NextOfferPage = () => {
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
           {stats.map((s, i) => (
             <div key={s.label} style={revealStyle(statsSection.visible, i * 100)}>
-              <p className="font-bold text-gray-900" style={{ fontSize: 64 }}>{s.value}</p>
+              <p className="font-bold text-gray-900" style={{ fontSize: 52 }}>{s.value}</p>
               <p className="text-gray-500 mt-1" style={{ fontSize: 18 }}>{s.label}</p>
             </div>
           ))}

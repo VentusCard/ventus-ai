@@ -137,7 +137,7 @@ const SolutionSections = () => {
   return (
     <>
       {sections.map((s, idx) => (
-        <section key={s.id} className="bg-white" style={{ paddingTop: idx === 0 ? 32 : 16, paddingBottom: 16 }}>
+        <section key={s.id} className="bg-white" style={{ paddingTop: idx === 0 ? 80 : 32, paddingBottom: idx === sections.length - 1 ? 80 : 32 }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <ScrollReveal>
               <div className={`grid md:grid-cols-2 gap-12 lg:gap-20 items-center ${s.reverse ? "md:[direction:rtl]" : ""}`}>
