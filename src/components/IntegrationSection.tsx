@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { TrendingUp } from "lucide-react";
 
-import salesforceLogo from "@/assets/salesforce-logo.png";
+
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
