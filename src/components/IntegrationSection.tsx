@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { TrendingUp } from "lucide-react";
+import salesforceLogo from "@/assets/salesforce-logo.png";
 
 
 import fisLogo from "@/assets/fis-logo.svg";
@@ -148,13 +149,16 @@ const IntegrationSection = () => {
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Enriched intelligence flows into personalized rewards, advisor tools, and customer experiences automatically.
               </p>
-              <div className="space-y-4">
+              <div className="space-y-4 mb-6">
                 {["Retention Rate", "Customer LTV", "AUM Growth"].map((label) => (
                   <div key={label} className="flex items-center gap-3">
                     <TrendingUp size={20} className="text-blue-600" strokeWidth={2.5} />
                     <p className="text-sm font-medium text-gray-700">{label}</p>
                   </div>
                 ))}
+              </div>
+              <div className="pt-4 border-t border-gray-200">
+                <img src={salesforceLogo} alt="Salesforce" className="h-7 w-auto" />
               </div>
             </div>
           </div>
