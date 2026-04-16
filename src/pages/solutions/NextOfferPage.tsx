@@ -121,19 +121,6 @@ const NextOfferPage = () => (
       </div>
     </section>
 
-    {/* Works with */}
-    <section className="bg-white py-16 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Works with your stack</p>
-        <p className="text-base text-gray-500 max-w-xl mx-auto mb-10">
-          Intelligence flows into the tools your team already uses — no new software required.
-        </p>
-        <div className="flex items-center justify-center">
-          <img src={salesforceLogo} alt="Salesforce" className="h-10 w-auto" />
-        </div>
-      </div>
-    </section>
-
     <SolutionsCTA />
   </main>
 );
