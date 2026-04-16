@@ -1,4 +1,4 @@
-import { Sparkles, ArrowRight, CheckCircle2, TrendingUp, Minus } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 
