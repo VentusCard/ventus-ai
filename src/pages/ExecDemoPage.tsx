@@ -375,9 +375,8 @@ export default function ExecDemoPage() {
       fireProductCards(events, personaSynthesisRef.current);
       // Fire offers with both pillars and detected life events in a single call
       const syn = synthesis || personaSynthesisRef.current;
-      const pils = pillars || pillarsRef.current;
-      if (syn && pils) {
-        fireNextOffers(syn, pils, events.length > 0 ? events : undefined);
+      if (syn && pillars) {
+        fireNextOffers(syn, pillars, events.length > 0 ? events : undefined);
       }
     } catch (err) {
       console.error("[PRELOAD] Life event detection failed:", err);
