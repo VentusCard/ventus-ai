@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import ScrollReveal from "@/components/ScrollReveal";
+import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
-
+import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
 const lifeEvents = [
   {
@@ -66,105 +65,93 @@ const stats = [
   { value: "Zero PII", label: "Transaction signals only" },
 ];
 
-const NextProductPage = () => (
-  <main className="bg-white min-h-screen">
-    {/* Hero */}
-    <section className="pt-40 pb-20 px-6 min-h-screen flex items-center">
-      <div className="max-w-3xl mx-auto text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Product</p>
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
-          Know what your customer needs before they ask.
-        </h1>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
-          Life event detection surfaces the right product at the right moment — automatically. No surveys, no guesswork, just transaction signals.
-        </p>
-        <Link to="/contact">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
-        </Link>
-      </div>
-    </section>
+const NextProductPage = () => {
+  const hero = useSectionReveal();
+  const events = useSectionReveal();
+  const flow = useSectionReveal();
+  const statsSection = useSectionReveal();
 
-    {/* Life events */}
-    <section className="bg-white py-20 px-6">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 text-center">
-          Every life event is a product opportunity.
-        </h2>
-        <p className="text-sm text-gray-500 text-center mb-12">20+ life events detected from transaction patterns alone.</p>
-        <div className="grid md:grid-cols-2 gap-6">
-          {lifeEvents.map((evt) => (
-            <div key={evt.name} className="rounded-lg p-5 bg-white" style={{ borderLeft: `3px solid ${evt.color}` }}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: evt.color }} />
-                <p className="font-bold text-gray-900 text-sm">{evt.name}</p>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${evt.color}15`, color: evt.color }}>
-                  {evt.confidence} confidence
-                </span>
-              </div>
-              <div className="space-y-1 mb-4">
-                {evt.evidence.map((e) => (
-                  <p key={e.merchant} className="text-xs font-mono text-gray-500">
-                    {e.merchant} <span className="text-gray-900 font-semibold">{e.amount}</span>
-                  </p>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {evt.products.map((p) => (
-                  <span key={p} className="text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-                    → {p}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+  return (
+    <main className="bg-white min-h-screen">
+      {/* Hero */}
+      <section ref={hero.ref} className="pt-40 pb-20 px-6 min-h-screen flex items-center">
+        <div className="max-w-3xl mx-auto text-center">
+          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Product</p>
+          <h1 style={{ ...revealStyle(hero.visible, 100), fontSize: 56 }} className="font-bold text-gray-900 leading-tight mb-6">
+            Know what your customer needs before they ask.
+          </h1>
+          <p style={{ ...revealStyle(hero.visible, 200), fontSize: 18 }} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Life event detection surfaces the right product at the right moment — automatically. No surveys, no guesswork, just transaction signals.
+          </p>
+          <div style={revealStyle(hero.visible, 300)}>
+            <Link to="/contact">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
+            </Link>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    {/* Detection flow */}
-    <section className="bg-white py-20 px-6">
-      <ScrollReveal>
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 text-center">
-            From raw transaction to product recommendation.
+      {/* Life events */}
+      <section ref={events.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div className="max-w-7xl mx-auto">
+          <h2 style={{ ...revealStyle(events.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
+            Every life event is a product opportunity.
           </h2>
-          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
-            {flowSteps.map((step, i) => (
-              <div key={step.label} className="flex items-center gap-3">
-                <div
-                  className="rounded-xl px-5 py-4 text-center min-w-[140px]"
-                  style={{ backgroundColor: i === 2 ? "#F0F4FF" : "white", border: "1px solid #E5E7EB" }}
-                >
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold mb-2">
-                    {String(i + 1).padStart(2, "0")}
+          <p style={{ ...revealStyle(events.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-12">
+            20+ life events detected from transaction patterns alone.
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {lifeEvents.map((evt, i) => (
+              <div key={evt.name} className="rounded-lg p-5 bg-white" style={{ ...revealStyle(events.visible, 200 + i * 150), borderLeft: `3px solid ${evt.color}` }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: evt.color }} />
+                  <p className="font-bold text-gray-900 text-sm">{evt.name}</p>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${evt.color}15`, color: evt.color }}>
+                    {evt.confidence} confidence
                   </span>
-                  <p className="text-sm font-semibold text-gray-900">{step.label}</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">{step.desc}</p>
                 </div>
-                {i < flowSteps.length - 1 && (
-                  <ArrowRight size={18} className="text-blue-500 hidden md:block flex-shrink-0" />
-                )}
+                <div className="space-y-1 mb-4">
+                  {evt.evidence.map((e) => (
+                    <p key={e.merchant} className="text-xs font-mono text-gray-500">
+                      {e.merchant} <span className="text-gray-900 font-semibold">{e.amount}</span>
+                    </p>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {evt.products.map((p) => (
+                    <span key={p} className="text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                      → {p}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </ScrollReveal>
-    </section>
+      </section>
 
-    {/* Stats */}
-    <section className="bg-white py-16 px-6">
-      <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
-        {stats.map((s) => (
-          <div key={s.label}>
-            <p className="text-3xl md:text-4xl font-bold text-gray-900">{s.value}</p>
-            <p className="text-sm text-gray-500 mt-1">{s.label}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+      {/* Detection flow */}
+      <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
+        <div style={revealStyle(flow.visible, 0)}>
+          <StepFlow steps={flowSteps} title="From raw transaction to product recommendation." />
+        </div>
+      </section>
 
-    <SolutionsCTA />
-  </main>
-);
+      {/* Stats */}
+      <section ref={statsSection.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
+          {stats.map((s, i) => (
+            <div key={s.label} style={revealStyle(statsSection.visible, i * 100)}>
+              <p className="font-bold text-gray-900" style={{ fontSize: 64 }}>{s.value}</p>
+              <p className="text-gray-500 mt-1" style={{ fontSize: 18 }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <SolutionsCTA />
+    </main>
+  );
+};
 
 export default NextProductPage;
