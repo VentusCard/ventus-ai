@@ -69,7 +69,7 @@ const stats = [
 const NextProductPage = () => (
   <main className="bg-white min-h-screen">
     {/* Hero */}
-    <section className="pt-40 pb-20 px-6">
+    <section className="pt-40 pb-20 px-6 min-h-screen flex items-center">
       <div className="max-w-3xl mx-auto text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-green-600 mb-4">Next Product</p>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
@@ -85,7 +85,7 @@ const NextProductPage = () => (
     </section>
 
     {/* Life events */}
-    <section style={{ backgroundColor: "#F9FAFB" }} className="py-20 px-6">
+    <section className="bg-white py-20 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 text-center">
           Every life event is a product opportunity.
@@ -146,7 +146,7 @@ const NextProductPage = () => (
     </section>
 
     {/* Stats */}
-    <section style={{ backgroundColor: "#F9FAFB" }} className="py-16 px-6">
+    <section className="bg-white py-16 px-6">
       <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
         {stats.map((s) => (
           <div key={s.label}>

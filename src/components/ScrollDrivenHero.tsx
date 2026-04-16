@@ -167,7 +167,7 @@ const ScrollDrivenHero = () => {
     <div
       ref={containerRef}
       className="relative"
-      style={{ height: "360vh", background: "#FFFFFF" }}
+      style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-visible">
