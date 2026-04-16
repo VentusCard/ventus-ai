@@ -77,10 +77,10 @@ const IntegrationSection = () => {
   const counts = [count0, count1, count2];
 
   return (
-    <section id="integration" className="bg-background py-16 md:py-20 scroll-mt-20">
+    <section id="integration" className="py-16 md:py-20 scroll-mt-20" style={{ backgroundColor: "#0A1628" }}>
       <div className="mx-auto mb-10 max-w-7xl px-6 md:px-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">Integration</p>
-        <h2 className="max-w-2xl text-3xl font-bold text-foreground md:text-4xl">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest" style={{ color: "#3B82F6" }}>Integration</p>
+        <h2 className="max-w-2xl text-3xl font-bold text-white md:text-4xl">
           A modular intelligence layer that works with your existing stack.
         </h2>
       </div>
@@ -94,62 +94,65 @@ const IntegrationSection = () => {
             transition: "opacity 0.7s ease, transform 0.7s ease",
           }}
         >
+          {/* Column 1 — Connect */}
           <div className="relative min-w-0 px-5 py-8 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none text-primary/10 lg:left-6 lg:text-[80px]">
+            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(255,255,255,0.25)" }}>
               01
             </span>
             <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-foreground">Connect</h3>
-              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mb-2 text-xl font-bold text-white">Connect</h3>
+              <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
                 Banks securely share transaction data via API. No changes to core banking systems required.
               </p>
               <div className="grid grid-cols-2 items-center justify-items-center gap-x-5 gap-y-4">
                 {partners.map(({ name, src, height }) => (
                   <div key={name} className="flex items-center justify-center p-1">
-                    <img src={src} alt={name} className={`${height} w-auto`} />
+                    <img src={src} alt={name} className={`${height} w-auto grayscale`} style={{ opacity: 0.55 }} />
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="relative min-w-0 border-t border-border px-5 py-8 lg:border-l lg:border-t-0 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none text-primary/10 lg:left-6 lg:text-[80px]">
+          {/* Column 2 — Enrich */}
+          <div className="relative min-w-0 border-t px-5 py-8 lg:border-l lg:border-t-0 lg:px-6" style={{ borderColor: "#1E3A5F" }}>
+            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(255,255,255,0.25)" }}>
               02
             </span>
             <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-foreground">Enrich</h3>
-              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mb-2 text-xl font-bold text-white">Enrich</h3>
+              <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
                 Ventus analyzes every transaction to detect lifestyle pillars, life events, and purchase signals in real time.
               </p>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {statsData.map((stat, index) => (
-                  <div key={stat.label} className="flex items-baseline gap-3">
-                    <p className="text-3xl font-bold tabular-nums text-foreground" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  <div key={stat.label}>
+                    <p className="font-bold text-white tabular-nums" style={{ fontSize: "56px", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
                       {sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
                       {stat.suffix}
                     </p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="mt-1 text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{stat.label}</p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="relative min-w-0 border-t border-border px-5 py-8 lg:border-l lg:border-t-0 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none text-primary/10 lg:left-6 lg:text-[80px]">
+          {/* Column 3 — Orchestrate */}
+          <div className="relative min-w-0 border-t px-5 py-8 lg:border-l lg:border-t-0 lg:px-6" style={{ borderColor: "#1E3A5F" }}>
+            <span className="pointer-events-none absolute left-5 top-2 select-none text-[72px] font-bold leading-none lg:left-6 lg:text-[80px]" style={{ color: "rgba(255,255,255,0.25)" }}>
               03
             </span>
             <div className="relative z-10 pt-10">
-              <h3 className="mb-2 text-xl font-bold text-foreground">Orchestrate</h3>
-              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mb-2 text-xl font-bold text-white">Orchestrate</h3>
+              <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
                 Enriched intelligence flows into personalized rewards, advisor tools, and customer experiences automatically.
               </p>
               <div className="space-y-4">
                 {["Retention Rate", "Customer LTV", "AUM Growth"].map((label) => (
                   <div key={label} className="flex items-center gap-3">
-                    <TrendingUp size={20} className="text-primary" strokeWidth={2.5} />
-                    <p className="text-sm font-medium text-foreground">{label}</p>
+                    <TrendingUp size={20} style={{ color: "#3B82F6" }} strokeWidth={2.5} />
+                    <p className="text-sm font-medium text-white">{label}</p>
                   </div>
                 ))}
               </div>
