@@ -138,6 +138,12 @@ const SolutionSections = () => {
     <section className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <ScrollReveal>
+          <div className="mb-12 max-w-2xl">
+            <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
+            <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
+              Power every customer touchpoint.
+            </h2>
+          </div>
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
             {sections.map((s) => (
               <div
