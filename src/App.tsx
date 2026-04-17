@@ -39,40 +39,50 @@ const AppLayout = () => {
   const isTepilot = location.pathname.startsWith("/tepilot");
   const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
 
+  const showChrome = !isTepilot && !isDemo;
+
+  const routes = (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/platform" element={<Platform />} />
+      <Route path="/smartrewards" element={<SmartRewards />} />
+      <Route path="/engagement" element={<Engagement />} />
+      <Route path="/wealth" element={<Wealth />} />
+      <Route path="/travel" element={<TravelExperience />} />
+      <Route path="/analytics" element={<BankWideAnalytics />} />
+      <Route path="/insights" element={<Insights />} />
+      <Route path="/insights/:slug" element={<InsightPost />} />
+      <Route path="/contact" element={<ContactUs />} />
+      <Route path="/tepilot" element={<TePilot />} />
+      <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
+      <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
+      <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
+      <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
+      <Route path="/demo" element={<ExecDemoPage />} />
+      <Route path="/deckmo" element={<DemoPage />} />
+      <Route path="/solutions/next-offer" element={<NextOfferPage />} />
+      <Route path="/solutions/next-product" element={<NextProductPage />} />
+      <Route path="/solutions/next-conversation" element={<NextConversationPage />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+
+  if (!showChrome) {
+    return <div className="min-h-screen bg-white flex flex-col">{routes}</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {!isTepilot && !isDemo && <Navbar />}
-      <div className="flex-1">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/platform" element={<Platform />} />
-          
-          
-          
-          <Route path="/smartrewards" element={<SmartRewards />} />
-          <Route path="/engagement" element={<Engagement />} />
-          <Route path="/wealth" element={<Wealth />} />
-          <Route path="/travel" element={<TravelExperience />} />
-          <Route path="/analytics" element={<BankWideAnalytics />} />
-          
-          <Route path="/insights" element={<Insights />} />
-          <Route path="/insights/:slug" element={<InsightPost />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/tepilot" element={<TePilot />} />
-          <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
-          <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
-          <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
-          <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
-          <Route path="/demo" element={<ExecDemoPage />} />
-          <Route path="/deckmo" element={<DemoPage />} />
-          <Route path="/solutions/next-offer" element={<NextOfferPage />} />
-          <Route path="/solutions/next-product" element={<NextProductPage />} />
-          <Route path="/solutions/next-conversation" element={<NextConversationPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+    <div className="min-h-screen bg-[#0A1628]">
+      <Navbar />
+      {/* Page content sits above the footer with a solid white bg, revealing the footer as you scroll */}
+      <div className="relative z-10 bg-white">
+        {routes}
       </div>
-      {!isTepilot && !isDemo && <Footer />}
+      {/* Sticky footer reveals from below as the page scrolls past */}
+      <div className="sticky bottom-0 z-0">
+        <Footer />
+      </div>
     </div>
   );
 };
