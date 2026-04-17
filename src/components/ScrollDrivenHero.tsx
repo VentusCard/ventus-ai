@@ -405,7 +405,7 @@ const ScrollDrivenHero = () => {
           }}
         >
           <p className="text-sm md:text-base text-gray-500 max-w-2xl text-center leading-relaxed px-6">
-            A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
+            Automatically detect who your customers are, how they behave, and what’s changing in their lives—directly from transaction data.
           </p>
 
           {/* Schedule a Demo button */}
