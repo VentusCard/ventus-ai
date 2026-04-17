@@ -1,4 +1,4 @@
-import { Layers, Heart, Activity, Search } from "lucide-react";
+import { Layers, Heart, Plane, Search } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const CapabilityCards = () => {
@@ -64,18 +64,18 @@ const CapabilityCards = () => {
         </div>
       </ScrollReveal>
 
-      {/* 3 — Well-being Signals */}
+      {/* 3 — Travel Detection */}
       <ScrollReveal delay={0.2}>
         <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-5 h-5 text-purple-600" />
-            <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Well-being Signals</h3>
+            <Plane className="w-5 h-5 text-purple-600" />
+            <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
           </div>
           <div className="space-y-3">
             {[
-              { label: "Financial Stability", status: "green", value: "Strong" },
-              { label: "Spending Momentum", status: "yellow", value: "Moderate" },
-              { label: "Stress Indicator", status: "green", value: "Low" },
+              { label: "Trip Identified", status: "green", value: "Miami, FL" },
+              { label: "Travel Window", status: "yellow", value: "Mar 12–18" },
+              { label: "Spend Category", status: "green", value: "Leisure" },
             ].map((sig) => (
               <div key={sig.label} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ const CapabilityCards = () => {
               </div>
             ))}
           </div>
-          <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Financial wellness indicators surfaced from transaction behavior.</p>
+          <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Trips inferred from transaction location and timing patterns.</p>
         </div>
       </ScrollReveal>
 
