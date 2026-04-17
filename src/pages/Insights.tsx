@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
-import insightsCover from "@/assets/insights-cover.png";
+
 import { Search } from "lucide-react";
 
 const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
@@ -39,10 +39,10 @@ const Insights = () => {
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Insights</p>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-[1.05]">
-            Notes From the Team
+            The Intelligence Brief
           </h1>
           <p className="mt-6 text-base md:text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto">
-            Perspectives on behavioral intelligence, transaction enrichment, and the future of data-driven banking.
+            Perspectives on behavioral intelligence, transaction data, and the future of personalized banking.
           </p>
         </div>
       </section>
@@ -102,30 +102,21 @@ const Insights = () => {
                   <li key={post.slug}>
                     <Link
                       to={`/insights/${post.slug}`}
-                      className="group grid grid-cols-1 md:grid-cols-[1fr_220px] gap-6 py-8 items-start"
+                      className="group block py-8"
                     >
-                      <div>
-                        <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
-                          {post.category}
-                        </p>
-                        <h2 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
-                          {post.title}
-                        </h2>
-                        <p className="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                        <div className="mt-5 flex items-center gap-3 text-xs text-gray-400">
-                          <span>{post.date}</span>
-                          <span>·</span>
-                          <span>{post.readTime}</span>
-                        </div>
-                      </div>
-                      <div className="hidden md:block aspect-[4/3] rounded-xl overflow-hidden border border-gray-200">
-                        <img
-                          src={insightsCover}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
+                      <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-3">
+                        {post.category}
+                      </p>
+                      <h2 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
+                        {post.title}
+                      </h2>
+                      <p className="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                      <div className="mt-5 flex items-center gap-3 text-xs text-gray-400">
+                        <span>{post.date}</span>
+                        <span>·</span>
+                        <span>{post.readTime}</span>
                       </div>
                     </Link>
                   </li>
