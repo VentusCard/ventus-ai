@@ -405,7 +405,7 @@ const ScrollDrivenHero = () => {
           }}
         >
           <p className="text-sm md:text-base text-gray-500 max-w-2xl text-center leading-relaxed px-6">
-            Automatically detect who your customers are, how they behave, and what’s changing in their lives—directly from transaction data.
+            Understand customers through dynamic personas, behavioral signals, and real-time life events.
           </p>
 
           {/* Schedule a Demo button */}
