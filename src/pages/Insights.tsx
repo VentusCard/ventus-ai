@@ -2,15 +2,9 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
 import insightsCover from "@/assets/insights-cover.png";
-import { Badge } from "@/components/ui/badge";
-import { Search, Newspaper } from "lucide-react";
+import { Search } from "lucide-react";
 
-const categoryColor: Record<string, string> = {
-  Product: "bg-blue-50 text-blue-700 border-blue-200",
-  Industry: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Engineering: "bg-violet-50 text-violet-700 border-violet-200",
-  Research: "bg-amber-50 text-amber-700 border-amber-200",
-};
+const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
 
 const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
 type Category = typeof ALL_CATEGORIES[number];
@@ -126,12 +120,6 @@ const Insights = () => {
                           <span>{post.date}</span>
                           <span>·</span>
                           <span>{post.readTime}</span>
-                          <Badge
-                            variant="outline"
-                            className={`ml-2 text-[10px] font-semibold ${categoryColor[post.category] ?? ""}`}
-                          >
-                            {post.category}
-                          </Badge>
                         </div>
                       </div>
                       <div className="hidden md:block aspect-[4/3] rounded-xl overflow-hidden border border-gray-200">
