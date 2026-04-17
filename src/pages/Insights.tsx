@@ -35,7 +35,7 @@ const Insights = () => {
   return (
     <main className="bg-white min-h-screen">
       {/* Hero — white, centered */}
-      <section className="pt-32 pb-12 px-6">
+      <section className="pt-48 pb-12 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Insights</p>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-[1.05]">
