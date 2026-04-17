@@ -57,7 +57,7 @@ const Insights = () => {
 
       {/* Two-column layout */}
       <section className="pb-28 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-16">
           {/* Sidebar */}
           <aside className="space-y-10">
             <div>
