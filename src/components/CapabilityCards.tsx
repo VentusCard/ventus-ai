@@ -3,7 +3,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 const CapabilityCards = () => {
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid md:grid-cols-2 gap-6 auto-rows-fr">
       {/* 1 — Lifestyle Pillars */}
       <ScrollReveal className="h-full">
         <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
