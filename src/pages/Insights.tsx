@@ -5,8 +5,6 @@ import insightsCover from "@/assets/insights-cover.png";
 import { Search } from "lucide-react";
 
 const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
-
-const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
 type Category = typeof ALL_CATEGORIES[number];
 
 const Insights = () => {
