@@ -2,15 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
 import insightsCover from "@/assets/insights-cover.png";
-import { Badge } from "@/components/ui/badge";
-import { Search, Newspaper } from "lucide-react";
-
-const categoryColor: Record<string, string> = {
-  Product: "bg-blue-50 text-blue-700 border-blue-200",
-  Industry: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Engineering: "bg-violet-50 text-violet-700 border-violet-200",
-  Research: "bg-amber-50 text-amber-700 border-amber-200",
-};
+import { Search } from "lucide-react";
 
 const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
 type Category = typeof ALL_CATEGORIES[number];
@@ -45,10 +37,7 @@ const Insights = () => {
       {/* Hero — white, centered */}
       <section className="pt-32 pb-12 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 mb-6">
-            <Newspaper className="w-3.5 h-3.5 text-blue-600" />
-            <span className="text-xs font-semibold text-blue-700">Insights</span>
-          </div>
+          <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Insights</p>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-[1.05]">
             Notes From the Team
           </h1>
@@ -129,12 +118,6 @@ const Insights = () => {
                           <span>{post.date}</span>
                           <span>·</span>
                           <span>{post.readTime}</span>
-                          <Badge
-                            variant="outline"
-                            className={`ml-2 text-[10px] font-semibold ${categoryColor[post.category] ?? ""}`}
-                          >
-                            {post.category}
-                          </Badge>
                         </div>
                       </div>
                       <div className="hidden md:block aspect-[4/3] rounded-xl overflow-hidden border border-gray-200">
