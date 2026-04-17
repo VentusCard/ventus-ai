@@ -8,9 +8,9 @@ import AnnouncementBar from "./AnnouncementBar";
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
 const solutionsItems = [
-  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking" },
-  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment" },
-  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning" },
+  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Tag },
+  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
+  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning", Icon: MessageCircle },
 ];
 
 const Navbar = () => {
