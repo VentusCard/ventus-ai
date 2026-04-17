@@ -19,13 +19,6 @@ const Insights = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
 
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: insightsPosts.length };
-    insightsPosts.forEach((p) => {
-      counts[p.category] = (counts[p.category] || 0) + 1;
-    });
-    return counts;
-  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -79,19 +72,17 @@ const Insights = () => {
               <ul className="space-y-1">
                 {ALL_CATEGORIES.map((cat) => {
                   const isActive = activeCategory === cat;
-                  const count = categoryCounts[cat] || 0;
                   return (
                     <li key={cat}>
                       <button
                         onClick={() => setActiveCategory(cat)}
-                        className={`w-full flex items-center justify-between text-left text-sm pl-3 pr-2 py-2 rounded-md transition border-l-2 ${
+                        className={`w-full text-left text-sm px-3 py-2 rounded-md transition ${
                           isActive
-                            ? "border-blue-600 text-gray-900 font-semibold bg-blue-50/40"
-                            : "border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                            ? "text-gray-900 font-semibold bg-blue-50/40"
+                            : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                         }`}
                       >
-                        <span>{cat}</span>
-                        <span className={`text-xs ${isActive ? "text-blue-600" : "text-gray-400"}`}>{count}</span>
+                        {cat}
                       </button>
                     </li>
                   );
