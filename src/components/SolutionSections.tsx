@@ -13,12 +13,12 @@ const NextOfferVisual = () => (
         { name: "REI Co-op Card", desc: "active lifestyle detected", tag: "Sports & Fitness", color: "#F59E0B" },
       ].map((o, i, arr) => (
         <div key={o.name}>
-          <div className="rounded-lg p-4 flex items-start gap-3 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]" style={{ borderLeft: `3px solid ${o.color}` }}>
-            <div className="flex-1">
-              <p className="text-gray-900 text-sm font-semibold">{o.name}</p>
-              <p className="text-gray-500 text-xs mt-0.5">{o.desc}</p>
+          <div className="rounded-lg p-4 flex items-center gap-3 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]" style={{ borderLeft: `3px solid ${o.color}` }}>
+            <div className="flex-1 min-w-0">
+              <p className="text-gray-900 font-semibold truncate" style={{ fontSize: "13px" }}>{o.name}</p>
+              <p className="text-gray-500 text-xs mt-0.5 truncate">{o.desc}</p>
             </div>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${o.color}15`, color: o.color }}>{o.tag}</span>
+            <span className="font-semibold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0" style={{ fontSize: "11px", background: `${o.color}15`, color: o.color }}>{o.tag}</span>
           </div>
           {i < arr.length - 1 && <div className="border-b border-[#E5E7EB] mx-4" />}
         </div>
@@ -146,13 +146,17 @@ const SolutionSections = () => {
                 style={{
                   border: "1px solid #E5E7EB",
                   boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                  minHeight: "640px",
+                  justifyContent: "space-between",
                 }}
               >
-                <p className={`text-[11px] font-semibold tracking-widest uppercase mb-3 ${s.labelColor}`}>{s.label}</p>
-                <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-3">{s.headline}</h2>
-                <p className="text-sm text-gray-500 leading-relaxed mb-6">{s.body}</p>
-                <div className="rounded-xl p-5 mb-6 bg-gray-50 border border-gray-100 flex-1">
-                  {s.card}
+                <div className="flex flex-col">
+                  <p className={`text-[11px] font-semibold tracking-widest uppercase mb-3 ${s.labelColor}`}>{s.label}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-3">{s.headline}</h2>
+                  <p className="text-sm text-gray-500 leading-relaxed mb-6">{s.body}</p>
+                  <div className="rounded-xl p-5 mb-6 bg-gray-50 border border-gray-100">
+                    {s.card}
+                  </div>
                 </div>
                 <Link to={s.link} className="mt-auto">
                   <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
