@@ -118,7 +118,7 @@ const SolutionSections = () => {
       label: "NEXT CONVERSATION",
       labelColor: "text-blue-600",
       headline: "Give every advisor a warm lead every morning.",
-      body: "Ventus detects life events in your customers' transaction data and alerts advisors instantly — who to call, why it matters, and exactly what to say. Built entirely from transaction signals.",
+      body: "Ventus detects life events in your customers' transaction data and alerts advisors instantly — who to call, why it matters, and exactly what to say.",
       card: <NextConversationVisual />,
       reverse: false,
       link: "/solutions/next-conversation",
