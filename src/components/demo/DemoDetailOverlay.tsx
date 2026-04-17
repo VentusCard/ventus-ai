@@ -27,6 +27,7 @@ interface Props {
   localExperiences?: LocalExperiencesData;
   personalizedDeals?: PersonalizedDealData | null;
   detectedEvents?: DetectedLifeEventResult[];
+  riskFlags?: { flags: any[]; summary: string } | null;
   apiPayloads?: ApiPayloads;
   tip?: FinancialTip | null;
   onClose: () => void;
@@ -168,7 +169,7 @@ function FeatureCardSidebar({ activeTab }: { activeTab: ConsumerTab }) {
   );
 }
 
-export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, apiPayloads, tip, onClose, enabledModules }: Props) {
+export default function DemoDetailOverlay({ node, customer, enriched, localExperiences, personalizedDeals, detectedEvents, riskFlags, apiPayloads, tip, onClose, enabledModules }: Props) {
   const { title, color } = NODE_TITLES[node];
   const isBankWide = BANK_WIDE_NODES.has(node);
   const isConsumer = CONSUMER_NODES.has(node);
@@ -199,6 +200,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
             enriched={enriched}
             detectedEvents={detectedEvents}
             personalizedDeals={personalizedDeals}
+            riskFlags={riskFlags}
           />
         );
     }
@@ -223,7 +225,10 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
             {/* Status bar */}
             <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
               <span>9:41 AM</span>
-              <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
+              <div className="flex flex-col items-center">
+                <span className="font-semibold text-slate-600 text-[11px]">TCBY Bank</span>
+                {(activeTab === 'ai') && <span className="text-[8px] text-slate-400">Using Bank of America product information as reference.</span>}
+              </div>
               <div className="flex items-center gap-1.5">
                 <Wifi className="w-3 h-3" />
                 <Battery className="w-3.5 h-3.5" />

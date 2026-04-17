@@ -20,6 +20,9 @@ interface Props {
   enriched?: EnrichedTransaction[];
   detectedEvents?: DetectedLifeEventResult[];
   personalizedDeals?: PersonalizedDealData | null;
+  riskFlags?: { flags: any[]; summary: string } | null;
+  initialMessage?: string | null;
+  onInitialMessageConsumed?: () => void;
 }
 
 const QUICK_ACTIONS = [
@@ -28,7 +31,7 @@ const QUICK_ACTIONS = [
   "Product recommendations",
   "Life event insights",
   "Where does most of my money go?",
-  "My top merchants",
+  "Risk factors & alerts",
 ];
 
 function buildContext(
@@ -136,11 +139,12 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, riskFlags, initialMessage, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const initialMessageSentRef = useRef(false);
 
   const context = useMemo(
     () => buildContext(customer, enriched, detectedEvents, personalizedDeals),
@@ -153,6 +157,56 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (initialMessage && !initialMessageSentRef.current) {
+      initialMessageSentRef.current = true;
+      sendMessage(initialMessage);
+      onInitialMessageConsumed?.();
+    }
+  }, [initialMessage]);
+
+  const formatRiskFlags = (data: { flags: any[]; summary: string }): string => {
+    if (!data.flags || data.flags.length === 0) {
+      return `✅ **No significant risk factors detected.**\n\n${data.summary}`;
+    }
+
+    const categoryLabels: Record<string, { icon: string; label: string }> = {
+      fraud: { icon: "🚨", label: "Fraud Signals" },
+      aml: { icon: "🔍", label: "AML Patterns" },
+      vice: { icon: "⚠️", label: "Vice Indicators" },
+      habit_shift: { icon: "📊", label: "Spending Habit Shifts" },
+    };
+
+    const severityBadge: Record<string, string> = {
+      high: "🔴 HIGH",
+      medium: "🟠 MEDIUM",
+      low: "🟡 LOW",
+    };
+
+    // Group flags by category
+    const grouped: Record<string, any[]> = {};
+    for (const flag of data.flags) {
+      const cat = flag.category || "other";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(flag);
+    }
+
+    let md = `## 🛡️ Risk Analysis Report\n\n`;
+    md += `${data.summary}\n\n---\n\n`;
+
+    for (const [cat, flags] of Object.entries(grouped)) {
+      const info = categoryLabels[cat] || { icon: "❓", label: cat };
+      md += `### ${info.icon} ${info.label}\n\n`;
+      for (const f of flags) {
+        const badge = severityBadge[f.severity] || f.severity;
+        md += `- **${f.merchant}** — $${Math.abs(f.amount).toLocaleString()} (${f.date}) [${badge}]\n  ${f.reason}\n`;
+      }
+      md += `\n`;
+    }
+
+    return md;
+  };
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
@@ -160,21 +214,48 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setInputValue("");
     setIsLoading(true);
 
+    const isRiskAction = text.toLowerCase().includes("risk factors");
+
     try {
-      const { data, error } = await supabase.functions.invoke("consumer-chat", {
-        body: {
-          message: text,
-          conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
-          context,
-        },
-      });
+      if (isRiskAction) {
+        // Use pre-computed risk flags if available, otherwise call edge function
+        let riskData = riskFlags;
+        if (!riskData && enriched && enriched.length > 0) {
+          const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
+            body: { transactions: enriched },
+          });
+          if (error) throw error;
+          riskData = data;
+        }
 
-      if (error) throw error;
+        if (riskData) {
+          const formatted = formatRiskFlags(riskData);
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: formatted },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: "Risk analysis is still processing. Please try again in a moment." },
+          ]);
+        }
+      } else {
+        const { data, error } = await supabase.functions.invoke("consumer-chat", {
+          body: {
+            message: text,
+            conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
+            context,
+          },
+        });
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
-      ]);
+        if (error) throw error;
+
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
+        ]);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -190,7 +271,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-white">
       {/* Chat area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 px-4 py-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 px-4 py-3 scrollbar-light">
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 shadow-lg">
@@ -231,14 +312,14 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                 )}
                 <div
                   className={cn(
-                    "rounded-2xl px-3 py-2 text-sm max-w-[80%]",
+                    "rounded-2xl px-3 py-2 text-[13px] max-w-[80%] overflow-hidden break-words",
                     msg.role === "user"
                       ? "bg-blue-600 text-white rounded-br-sm"
                       : "bg-slate-100 text-slate-800 rounded-bl-sm"
                   )}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm prose-slate max-w-none [&_p]:mb-1 [&_ul]:mt-1 [&_li]:text-sm [&_a]:text-blue-600">
+                    <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   ) : (
@@ -272,7 +353,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
       {/* Quick actions after conversation started */}
       {!showWelcome && !isLoading && (
-        <div className="px-3 pb-1 flex gap-1 overflow-x-auto no-scrollbar shrink-0">
+        <div className="px-3 pb-1 flex gap-1 overflow-hidden flex-wrap shrink-0">
           {QUICK_ACTIONS.slice(0, 3).map((action) => (
             <button
               key={action}

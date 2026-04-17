@@ -17,7 +17,7 @@ import RecommendationsPage from "./pages/RecommendationsPage";
 import AdvisorConsolePage from "./pages/AdvisorConsolePage";
 import FinancialPlanningPage from "./pages/FinancialPlanningPage";
 import RewardsPipelinePage from "./pages/RewardsPipelinePage";
-import Enrichment from "./pages/Enrichment";
+
 import SmartRewards from "./pages/SmartRewards";
 import Engagement from "./pages/Engagement";
 import Wealth from "./pages/Wealth";
@@ -28,6 +28,9 @@ import InsightPost from "./pages/InsightPost";
 import DemoPage from "./pages/DemoPage";
 import ExecDemoPage from "./pages/ExecDemoPage";
 import Platform from "./pages/Platform";
+import NextOfferPage from "./pages/solutions/NextOfferPage";
+import NextProductPage from "./pages/solutions/NextProductPage";
+import NextConversationPage from "./pages/solutions/NextConversationPage";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +48,7 @@ const AppLayout = () => {
           <Route path="/platform" element={<Platform />} />
           
           
-          <Route path="/enrichment" element={<Enrichment />} />
+          
           <Route path="/smartrewards" element={<SmartRewards />} />
           <Route path="/engagement" element={<Engagement />} />
           <Route path="/wealth" element={<Wealth />} />
@@ -62,6 +65,9 @@ const AppLayout = () => {
           <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
           <Route path="/demo" element={<ExecDemoPage />} />
           <Route path="/deckmo" element={<DemoPage />} />
+          <Route path="/solutions/next-offer" element={<NextOfferPage />} />
+          <Route path="/solutions/next-product" element={<NextProductPage />} />
+          <Route path="/solutions/next-conversation" element={<NextConversationPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

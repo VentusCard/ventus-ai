@@ -1,10 +1,9 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
-import insightsCover from "@/assets/insights-cover.png";
-import ScrollReveal from "@/components/ScrollReveal";
-import { Badge } from "@/components/ui/badge";
+
 import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const categoryColor: Record<string, string> = {
   Product: "bg-blue-50 text-blue-700 border-blue-200",
@@ -13,90 +12,123 @@ const categoryColor: Record<string, string> = {
   Research: "bg-amber-50 text-amber-700 border-amber-200",
 };
 
+const ALL_CATEGORIES = ["All", "Product", "Industry", "Engineering", "Research"] as const;
+type Category = typeof ALL_CATEGORIES[number];
+
 const Insights = () => {
   const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return insightsPosts;
-    const q = query.toLowerCase();
-    return insightsPosts.filter(
-      (p) =>
+    const q = query.trim().toLowerCase();
+    return insightsPosts.filter((p) => {
+      const matchesCategory = activeCategory === "All" || p.category === activeCategory;
+      const matchesQuery =
+        !q ||
         p.title.toLowerCase().includes(q) ||
         p.excerpt.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
-    );
-  }, [query]);
+        p.category.toLowerCase().includes(q);
+      return matchesCategory && matchesQuery;
+    });
+  }, [query, activeCategory]);
 
   return (
-  <main className="bg-white min-h-screen">
-    {/* Hero Banner */}
-    <section className="bg-[#0A0F1E] pt-40 pb-24 px-8 md:px-12">
-      <div className="max-w-7xl mx-auto pl-2 md:pl-6">
-        <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-          Insights
-        </h1>
-        <p className="mt-4 text-base md:text-lg text-blue-200/70 max-w-3xl leading-relaxed">
-          Perspectives on behavioral intelligence, transaction enrichment, and the future of data-driven banking.
-        </p>
-      </div>
-    </section>
-
-    {/* Search Bar */}
-    <div className="px-6 -mt-7 relative z-10">
-      <div className="max-w-2xl mx-auto">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search articles..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-12 pr-5 py-4 rounded-xl border border-gray-200 bg-white shadow-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:border-gray-300 transition"
-          />
+    <main className="bg-white min-h-screen">
+      {/* Hero — white, centered */}
+      <section className="pt-48 pb-12 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Insights</p>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-[1.05]">
+            The Intelligence Brief
+          </h1>
+          <p className="mt-6 text-base md:text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto">
+            Perspectives on behavioral intelligence, transaction data, and the future of personalized banking.
+          </p>
         </div>
-      </div>
-    </div>
+      </section>
 
-    {/* Grid */}
-    <section className="pt-14 pb-28 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filtered.map((post, i) => (
-          <ScrollReveal key={post.slug} delay={i * 0.08}>
-            <Link
-              to={`/insights/${post.slug}`}
-              className="group flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full"
-            >
-              <div className="h-44 overflow-hidden">
-                <img src={insightsCover} alt="Ventus AI Insights" className="w-full h-full object-cover" />
+      {/* Two-column layout */}
+      <section className="pb-28 px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-16">
+          {/* Sidebar */}
+          <aside className="space-y-10">
+            <div>
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Search</p>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search posts"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400 transition"
+                />
               </div>
+            </div>
 
-              <div className="flex flex-col flex-1 p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Badge
-                    variant="outline"
-                    className={`text-[11px] font-semibold ${categoryColor[post.category] ?? ""}`}
-                  >
-                    {post.category}
-                  </Badge>
-                  <span className="text-xs text-gray-400">{post.readTime}</span>
-                </div>
+            <div>
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Categories</p>
+              <ul className="space-y-1">
+                {ALL_CATEGORIES.map((cat) => {
+                  const isActive = activeCategory === cat;
+                  return (
+                    <li key={cat}>
+                      <button
+                        onClick={() => setActiveCategory(cat)}
+                        className={`w-full text-left text-sm px-3 py-2 rounded-md transition ${
+                          isActive
+                            ? "text-gray-900 font-semibold bg-blue-50/40"
+                            : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </aside>
 
-                <h2 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
-                  {post.title}
-                </h2>
-
-                <p className="mt-2 text-sm text-gray-500 leading-relaxed flex-1">
-                  {post.excerpt}
-                </p>
-
-                <p className="mt-4 text-xs text-gray-400">{post.date}</p>
-              </div>
-            </Link>
-          </ScrollReveal>
-        ))}
-      </div>
-    </section>
-  </main>
+          {/* Posts list */}
+          <div className="max-w-[860px]">
+            {filtered.length === 0 ? (
+              <p className="text-sm text-gray-500">No posts match your filters.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200">
+                {filtered.map((post) => (
+                  <li key={post.slug}>
+                    <Link
+                      to={`/insights/${post.slug}`}
+                      className="group block py-8"
+                    >
+                      <Badge
+                        variant="outline"
+                        className={`text-[11px] font-semibold mb-3 ${categoryColor[post.category] ?? ""}`}
+                      >
+                        {post.category}
+                      </Badge>
+                      <h2 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
+                        {post.title}
+                      </h2>
+                      <p className="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2">
+                        {post.excerpt}
+                      </p>
+                      <div className="mt-5 flex items-center gap-3 text-xs text-gray-400">
+                        <span>{post.date}</span>
+                        <span>·</span>
+                        <span>{post.readTime}</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </section>
+    </main>
   );
 };
 

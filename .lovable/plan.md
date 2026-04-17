@@ -1,35 +1,25 @@
 
 
-## Replace Current-Month Blue Highlight with a Vertical "Now" Line
+# Fix False Positive in Risk Detection Prompt
 
-### Problem
-The current-month cells are highlighted with a blue outline and the month label is blue. The user wants a single vertical line crossing the entire heatmap at the current month instead.
+## Problem
+"ADMISSIONS CONSULTING GRP" ($2,500, category: Childcare & Education) is being flagged — likely because "consulting" + round number triggers the model. Rather than adding a hard exclusion list, we should improve the prompt logic to make the model use the **category and pillar context** it already receives.
 
-### Changes
+## Change
 
-**File: `src/components/exec-demo/PurchaseCycleTimeline.tsx`**
+### `supabase/functions/detect-risk-transactions/index.ts` — System prompt update
 
-1. **Month legend bar (~line 318-331):** Remove the blue color/bold styling on the current month label — all months same style.
+Add a rule to the IMPORTANT RULES section instructing the model to **use the enriched category/pillar data** when evaluating transactions, and to weight merchant name keywords only when the category context supports suspicion:
 
-2. **Heatmap bars (~line 370-373):** Remove the `outline: isCurrentMonth ? '1.5px solid #3b82f6' : undefined` and the `isCurrentMonth` special background opacity. Treat current month bars the same as any other.
-
-3. **Add a vertical "now" line overlay:** Wrap the rows section (lines 334-416) and the month legend (lines 318-331) in a `relative` container. Add an absolutely-positioned vertical line element whose `left` is calculated as `(CURRENT_MONTH + 0.5) / 12 * 100%`, offset by the same `74px` left padding used for labels. The line will be a thin (1-2px) dashed or solid blue line (`#3b82f6`) spanning the full height of the heatmap area, with a small "Now" label or dot at the top.
-
-### Implementation detail
+**Add after the existing "Only flag transactions with CLEAR evidence..." rule:**
 
 ```
-<!-- Pseudo-structure -->
-<div className="relative">
-  {/* Month legend */}
-  {/* Rows */}
-  
-  {/* Vertical "now" line */}
-  <div className="absolute top-0 bottom-0 w-px bg-blue-500 pointer-events-none"
-       style={{ left: `calc(74px + ${(CURRENT_MONTH + 0.5) / 12 * 100}% * (1 - 74px/totalWidth))` }} />
-</div>
+- USE the provided category and pillar context. A merchant name containing words like "consulting", "services", or "group" is NOT suspicious if the transaction's category clearly maps to a benign domain (e.g., Childcare & Education, Healthcare, Home Improvement). Merchant name keywords alone are never sufficient — the category must also be consistent with risk.
+- A round dollar amount alone is NOT an AML indicator. Structuring requires a PATTERN of multiple transactions deliberately staying below reporting thresholds, not a single payment at a round number.
 ```
 
-The left offset needs to account for the 66px label column + 8px gap (74px total) and the 72px right status column — the flex-1 bar area sits between those. We'll use a wrapper around just the bar area with `relative` positioning, and place the line inside that wrapper calculated as a simple percentage: `(CURRENT_MONTH + 0.5) / 12 * 100%`.
+This teaches the model to cross-reference the enriched category data it already receives rather than relying on surface-level keyword matching, without hard-coding any exclusions.
 
-One file, ~15 lines changed.
+### Single file change
+- `supabase/functions/detect-risk-transactions/index.ts`
 

@@ -44,6 +44,7 @@ export default function DemoPage() {
     detectedEvents,
     apiPayloads,
     tip,
+    riskFlags,
     startEnrichment,
   } = useDemoEnrichment();
 
@@ -122,6 +123,7 @@ export default function DemoPage() {
             personalizedDeals={personalizedDeals}
             detectedEvents={detectedEvents}
             apiPayloads={apiPayloads}
+            riskFlags={riskFlags}
             tip={tip}
             onClose={() => setActiveNode(null)}
             enabledModules={enabledModules}

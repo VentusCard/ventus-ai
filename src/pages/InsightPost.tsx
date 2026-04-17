@@ -19,20 +19,20 @@ const InsightPost = () => {
   if (!post) return <Navigate to="/insights" replace />;
 
   return (
-    <main className="bg-white min-h-screen tepilot-theme">
-      <article className="pt-32 pb-24 px-6">
+    <main className="bg-white min-h-screen">
+      <article className="pt-40 pb-32 px-6">
         <div className="max-w-3xl mx-auto">
           {/* Back link */}
           <Link
             to="/insights"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-10"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-12"
           >
             <ArrowLeft className="h-4 w-4" />
             All Insights
           </Link>
 
           {/* Meta */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-6">
             <Badge
               variant="outline"
               className={`text-[11px] font-semibold ${categoryColor[post.category] ?? ""}`}
@@ -44,20 +44,20 @@ const InsightPost = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight leading-tight">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-[1.15]">
             {post.title}
           </h1>
 
-          <p className="mt-4 text-lg text-gray-500 leading-relaxed">
+          <p className="mt-6 text-lg md:text-xl text-gray-500 leading-relaxed">
             {post.excerpt}
           </p>
 
-          <div className="rounded-2xl overflow-hidden my-10">
+          <div className="rounded-2xl overflow-hidden my-14">
             <img src={insightsCover} alt="Ventus AI Insights" className="w-full h-56 object-cover" />
           </div>
 
           {/* Body */}
-          <div className="prose prose-lg max-w-none text-gray-700 prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-blue-600 prose-headings:text-gray-900 prose-headings:mt-12 prose-headings:mb-5 prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:mb-6 prose-strong:text-gray-900 prose-li:text-gray-700 prose-li:leading-[1.7] prose-ul:my-6 prose-ol:my-6 prose-hr:my-10 prose-blockquote:border-blue-500 prose-blockquote:text-gray-600 prose-em:text-gray-700 [&_li]:!text-gray-700 [&_li_strong]:!text-gray-900">
+          <div className="insight-prose prose prose-lg max-w-none text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-em:text-gray-700 prose-blockquote:border-blue-500 prose-blockquote:text-gray-600 [&_h1]:!text-gray-900 [&_h2]:!text-gray-900 [&_h3]:!text-gray-900 [&_h4]:!text-gray-900 [&_h2]:!text-3xl [&_h2]:!font-bold [&_h2]:!mt-16 [&_h2]:!mb-6 [&_h2]:!leading-tight [&_h3]:!text-2xl [&_h3]:!font-bold [&_h3]:!mt-12 [&_h3]:!mb-5 [&_h3]:!leading-snug [&_p]:!text-gray-700 [&_p]:!leading-[1.85] [&_p]:!my-6 [&_li]:!text-gray-700 [&_li]:!leading-[1.8] [&_li]:!my-2 [&_ul]:!my-8 [&_ol]:!my-8 [&_hr]:!my-14 [&_blockquote]:!my-8">
             <ReactMarkdown>{post.body}</ReactMarkdown>
           </div>
         </div>

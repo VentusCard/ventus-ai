@@ -1,3 +1,5 @@
+import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Play, User, Pencil } from "lucide-react";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getIntelligenceForCustomer } from "./execDemoData";
@@ -24,6 +26,7 @@ interface Props {
   activePillLabel?: string | null;
   activePillColor?: string;
   onClearFilter?: () => void;
+  enriched?: boolean;
 }
 
 const SCROLL_DURATION = 6000;
@@ -36,59 +39,127 @@ const TxRow = ({
   highlight,
   highlightColor,
   pillarColor,
-  categoryLabel,
+  
+  signalEntry,
+  enriched,
 }: {
   tx: Transaction;
   dim: boolean;
   highlight?: boolean;
   highlightColor?: string;
   pillarColor?: string;
-  categoryLabel?: string;
-}) => (
-  <div
-    className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
-    style={{
-      color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
-      background: highlight ? `${highlightColor}18` : "transparent",
-      borderLeft: highlight
-        ? `3px solid ${highlightColor}`
-        : pillarColor
-          ? `3px solid ${pillarColor}80`
-          : "3px solid transparent",
-    }}
-  >
-    {pillarColor && !dim && (
-      <span
-        className="w-2 h-2 rounded-full shrink-0"
-        style={{ background: pillarColor }}
-      />
-    )}
-    <span
-      className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
-      style={{
-        color: dim ? "#94a3b8" : "#334155",
-        opacity: dim ? 0.5 : 1,
-      }}
+  
+  signalEntry?: SignalEntry;
+  enriched?: boolean;
+}) => {
+  const [hovered, setHovered] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (!signalEntry || dim) return;
+    const rect = rowRef.current?.getBoundingClientRect();
+    if (rect) {
+      setCoords({ x: rect.left + 16, y: rect.top });
+      setHovered(true);
+    }
+  };
+
+  return (
+    <div
+      ref={rowRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setHovered(false)}
     >
-      {tx.date}
-    </span>
-    <span className="truncate font-medium">{tx.merchant}</span>
-    <span
-      className="shrink-0 tabular-nums font-semibold"
-      style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
-    >
-      {tx.amount}
-    </span>
-    {categoryLabel && pillarColor && !dim && (
-      <span
-        className="text-[8px] font-bold shrink-0 truncate max-w-[100px] rounded px-1.5 py-[1px] text-white"
-        style={{ background: pillarColor }}
+      <div
+        className="font-mono text-[11px] leading-snug px-2 py-[5px] rounded flex items-center gap-2 truncate transition-all duration-300"
+        style={{
+          color: highlight ? "#1e293b" : dim ? "#94a3b8" : "#0f172a",
+          background: highlight ? `${highlightColor}18` : "transparent",
+          borderLeft: highlight
+            ? `3px solid ${highlightColor}`
+            : pillarColor
+              ? `3px solid ${pillarColor}80`
+              : "3px solid transparent",
+        }}
       >
-        {categoryLabel}
-      </span>
-    )}
-  </div>
-);
+        {pillarColor && !dim && (
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ background: pillarColor }}
+          />
+        )}
+        <span
+          className="text-[9px] font-medium px-1 py-0 rounded shrink-0 tabular-nums"
+          style={{
+            color: dim ? "#94a3b8" : "#334155",
+            opacity: dim ? 0.5 : 1,
+          }}
+        >
+          {tx.date}
+        </span>
+        <span className="truncate font-medium">{tx.merchant}</span>
+        <span
+          className="shrink-0 tabular-nums font-semibold"
+          style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
+        >
+          {tx.amount}
+        </span>
+        {signalEntry?.category && pillarColor && !dim && (
+          <span
+            className="shrink-0 rounded px-1.5 py-[2px] text-[7.5px] font-semibold text-white/90"
+            style={{ background: `${pillarColor}cc` }}
+          >
+            {signalEntry.category}
+          </span>
+        )}
+      </div>
+      {hovered && signalEntry && createPortal(
+        <div
+          className="fixed pointer-events-none bg-slate-800 text-white rounded-md px-3 py-2 shadow-2xl space-y-1"
+          style={{ left: coords.x, top: coords.y - 100, zIndex: 9999 }}
+        >
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400 font-medium">MCC:</span>
+            <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
+            <span className="mx-0.5 text-slate-600">·</span>
+            <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
+          </div>
+          <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
+            Ventus Semantic Enrichment:
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400">Pillar:</span>
+            <span className={enriched ? "font-semibold" : "text-slate-500"} style={enriched ? { color: pillarColor || "#67e8f9" } : undefined}>{enriched ? signalEntry.pillar : "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Category:</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.category || "—") : "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Sub:</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? signalEntry.label : "—"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400">Tier:</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.tier || "—") : "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Frequency:</span>
+            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.frequency || "—") : "—"}</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">Confidence:</span>
+            {enriched ? (
+              <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
+                {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
+              </span>
+            ) : (
+              <span className="text-slate-500">—</span>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
 
 const DEFAULT_PERSONA = "A 35-year-old tech professional in San Francisco who loves hiking, craft coffee, and is saving for a first home.";
 
@@ -112,6 +183,7 @@ export default function ExecDemoLeftPanel({
   activePillLabel,
   activePillColor = "#10b981",
   onClearFilter,
+  enriched,
 }: Props) {
   const execProfile = isCustomMode ? null : getIntelligenceForCustomer(selectedIdx);
   const transactions = isCustomMode ? (customTransactions || []) : (execProfile?.transactions || []);
@@ -153,29 +225,32 @@ export default function ExecDemoLeftPanel({
           <div className="min-w-0 flex-1">
             <div className="text-[12px] font-semibold text-slate-800 truncate">
               {isCustomMode ? (customName || "Custom") : currentCustomer?.profile.name}
+              {!isCustomMode && currentCustomer && (
+                <span className="text-[9px] font-normal text-slate-400 ml-1.5">{currentCustomer.txnCount} txns</span>
+              )}
             </div>
-            <div className="text-[9px] text-slate-400 truncate">
-              {isCustomMode
-                ? "Custom · Pasted Data"
-                : `${currentCustomer?.lifestyleType} · ${currentCustomer?.txnCount} txns`}
-            </div>
-            {phase !== "idle" && personaTitle && (
-              <div className="text-[9px] italic text-blue-500 truncate mt-0.5">{personaIcon} {personaTitle}</div>
+            {isCustomMode && (
+              <div className="text-[9px] text-slate-400 truncate">Custom · Pasted Data</div>
+            )}
+            {!isCustomMode && currentCustomer && (
+              <div className="text-[9px] text-slate-500 truncate mt-0.5">
+                {currentCustomer.zip} · {currentCustomer.profile.demographics?.incomeLevel} · {currentCustomer.profile.demographics?.familyStatus}
+              </div>
             )}
           </div>
         </div>
       </div>
 
       {/* Transaction Feed */}
-      <div className="flex-1 overflow-hidden relative px-4 pb-2">
+      <div className="flex-1 overflow-hidden relative px-4 pb-2 min-h-0">
         <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-2">
           Transaction Feed
         </div>
 
         {phase === "idle" && transactions.length > 0 && (
-            <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
+            <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto scrollbar-light space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`idle-${i}`} tx={tx} dim={false} />
+                <TxRow key={`idle-${i}`} tx={tx} dim={false} enriched={enriched} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
               ))}
             </div>
         )}
@@ -219,10 +294,10 @@ export default function ExecDemoLeftPanel({
         )}
 
         {showCollected && (
-          <div className="space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
+          <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto scrollbar-light space-y-0.5" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
             {/* Pill filter header */}
             {filteredIndices && activePillLabel && (
-              <div className="flex items-center justify-between mb-1.5 px-1">
+              <div className="flex items-center justify-between mb-1.5 px-1 sticky top-0 bg-white/90 backdrop-blur-sm z-10 py-1">
                 <span className="text-[9px] font-semibold text-emerald-600">
                   Showing {filteredIndices.length} txns for "{activePillLabel}"
                 </span>
@@ -241,7 +316,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} categoryLabel={signalMap?.[i]?.label} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} enriched={enriched} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} signalEntry={signalMap?.[i]} />
                     </div>
                   );
                 })}
@@ -249,14 +324,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim enriched={enriched} pillarColor={pc} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             ) : (
               <>
                 {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`all-${i}`} tx={tx} dim={false} pillarColor={pc} categoryLabel={signalMap?.[i]?.label} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} enriched={enriched} pillarColor={pc} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             )}
@@ -277,7 +352,7 @@ export default function ExecDemoLeftPanel({
             }`}
           >
             <Play className="w-4 h-4" />
-            {isRunning ? "Analyzing..." : "Behavioral Enrichment"}
+            {isRunning ? "Analyzing..." : "Semantic Enrichment"}
           </button>
         </div>
       )}

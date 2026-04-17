@@ -6,6 +6,25 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/** Compute a human-readable cadence hint from an array of date strings */
+function cadenceHint(dates: string[]): string {
+  if (!dates || dates.length < 2) return "";
+  const sorted = dates.map(d => new Date(d).getTime()).filter(t => !isNaN(t)).sort((a, b) => a - b);
+  if (sorted.length < 2) return "";
+  const spanMs = sorted[sorted.length - 1] - sorted[0];
+  const spanWeeks = spanMs / (7 * 24 * 60 * 60 * 1000);
+  const spanYears = spanMs / (365.25 * 24 * 60 * 60 * 1000);
+  const count = sorted.length;
+
+  if (spanWeeks < 1) return `${count}x in one week`;
+  if (spanYears >= 1) {
+    const perYear = count / spanYears;
+    return `~${perYear.toFixed(0)}x/yr over ${Math.round(spanYears)}yr`;
+  }
+  const perWeek = count / spanWeeks;
+  return `~${perWeek.toFixed(1)}x/wk over ${Math.round(spanWeeks)}wk`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -21,27 +40,22 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    // Extract distinct pillar names from input for strict enum enforcement
     const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
 
     const pillarSummary = pillars
-      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; topMerchants?: string[]; spendingTier?: string; subcategories?: string[] }, i: number) => {
+      .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; topMerchants?: string[]; spendingTier?: string; subcategories?: string[]; dates?: string[] }, i: number) => {
         const merchants = p.topMerchants?.length ? ` merchants: ${p.topMerchants.slice(0, 5).join(", ")}` : "";
         const tier = p.spendingTier ? ` [${p.spendingTier}]` : "";
         const subs = p.subcategories?.length ? ` subs: ${p.subcategories.slice(0, 5).join(", ")}` : "";
-        return `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${tier}${merchants}${subs}${p.frequency ? `, ${p.frequency}` : ""}`;
+        const cadence = cadenceHint(p.dates || []);
+        const cadenceStr = cadence ? ` (${cadence})` : "";
+        return `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${tier}${merchants}${subs}${cadenceStr}`;
       })
       .join("\n");
 
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
-Given aggregated spending signals, produce:
-
-1. **headline**: A punchy 3-5 word persona archetype that captures this specific person. Not corporate jargon — something you'd actually say: "Weekend Golfer & Foodie", "Fitness-Obsessed Road Tripper", "Budget-Conscious Young Family".
-
-2. **insights**: Exactly 3 short sentences (10-20 words each). Each should surface a non-obvious pattern — cross-sell opportunities, life-stage signals, or behavioral quirks. Use specific dollar amounts, frequencies, and merchant names from the data. Think like a human analyst briefing a colleague.
-
-3. **pillar_rollups**: Optionally group categories into vivid behavioral labels. Think of each rollup as answering: "What habit does this person have?"
+Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
 **How to think about rollups:**
 
@@ -51,9 +65,11 @@ Given aggregated spending signals, produce:
 
 - Ask yourself: "Would a friend describe this person this way?" If someone stays at a Hilton in Dallas and also does Orange Theory, a friend would say "she's really into fitness and she traveled to Dallas" — two separate things, not "strategic domestic traveler."
 
-- Be honest about tier. Look at the actual merchants. Chipotle + Olive Garden + Trader Joe's is a "Casual Dining Regular" or "Budget-Friendly Foodie", not a "Premium Gastronome." Describe spending the way the person would describe it themselves.
+- Be honest about tier. Look at actual spending levels — frequent fast-casual dining is a "Casual Dining Regular" or "Budget-Friendly Foodie", not a "Premium Gastronome." Describe spending the way the person would describe it themselves.
 
-- Be specific using merchant names and subcategories. Netflix + Hulu + Spotify = "Streaming Junkie", not "Digital Subscriber." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
+- Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = "Style-Conscious Shopper", not "Nordstrom & Sephora Loyalist." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
+
+- When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
@@ -76,19 +92,10 @@ Given aggregated spending signals, produce:
             type: "function",
             function: {
               name: "return_persona",
-              description: "Return the synthesized persona headline, insights, and per-pillar rollup labels",
+              description: "Return the per-pillar rollup labels",
               parameters: {
                 type: "object",
                 properties: {
-                  headline: {
-                    type: "string",
-                    description: "3-5 word persona archetype headline",
-                  },
-                  insights: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "Exactly 3 insight sentences",
-                  },
                   pillar_rollups: {
                     type: "array",
                     items: {
@@ -110,10 +117,10 @@ Given aggregated spending signals, produce:
                       required: ["pillar", "label", "categories", "category_indices"],
                       additionalProperties: false,
                     },
-                    description: "Optional per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
                   },
                 },
-                required: ["headline", "insights", "pillar_rollups"],
+                required: ["pillar_rollups"],
                 additionalProperties: false,
               },
             },
@@ -155,8 +162,6 @@ Given aggregated spending signals, produce:
       : toolCall.function.arguments;
 
     return new Response(JSON.stringify({
-      headline: raw.headline || "Dynamic Persona",
-      insights: (raw.insights || []).slice(0, 3),
       pillar_rollups: (raw.pillar_rollups || []).map((r: any) => ({
         pillar: r.pillar,
         label: r.label,

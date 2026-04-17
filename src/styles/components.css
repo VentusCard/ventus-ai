@@ -3,6 +3,15 @@
    Premium dark aesthetic with blue accents
    ============================================ */
 
+/* Hide scrollbar utility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Metallic surface utility - Pure Black Theme */
 .metallic-surface {
   background: linear-gradient(
@@ -389,6 +398,26 @@
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* Light-themed scrollbars for phone mockup — applies to ALL descendants */
+.phone-mockup-frame *::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.phone-mockup-frame *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.phone-mockup-frame *::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 4px;
+}
+.phone-mockup-frame *::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+.phone-mockup-frame * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
 }
 
 /* Light-themed thin scrollbar for exec demo */

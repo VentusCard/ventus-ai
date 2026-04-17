@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import EnrichmentMockup from "@/components/hero/EnrichmentMockup";
 import AnimatedHeroTitle from "@/components/hero/AnimatedHeroTitle";
-const scrollToPlatform = () => {
-  const el = document.getElementById("platform");
-  if (el) el.scrollIntoView({ behavior: "smooth" });
-};
 
 const Hero = () => {
   const [showContent, setShowContent] = useState(false);
@@ -18,7 +13,6 @@ const Hero = () => {
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left column — headline & CTAs */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
             <AnimatedHeroTitle onComplete={() => setShowContent(true)} />
 
@@ -26,33 +20,30 @@ const Hero = () => {
               className={`text-base md:text-lg text-gray-500 max-w-2xl leading-relaxed transition-all duration-700 ${
               showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`
               }>
-              Lifestyle, Purchase cycle, Life Events, Well-being and more, all in a modular, autonomous AI layer that does it all
+              A modular AI layer that turns transaction data into lifestyle profiles, life event detection, and purchase intelligence — automatically.
             </p>
 
-            <div
-              className={`flex items-center gap-3 mt-4 transition-all duration-700 delay-200 ${
-              showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`
-              }>
-              
-              <Link to="/contact">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Schedule Demo
-                </Button>
-              </Link>
-              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" onClick={scrollToPlatform}>
-                Learn More
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="lg"
+              className={`border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-700 ${
+                showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+              }`}
+              onClick={() => {
+                document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              Learn More
+            </Button>
           </div>
 
-          {/* Right column — floating mockup (hidden on mobile) */}
           <div className="hidden lg:flex justify-center">
             <EnrichmentMockup />
           </div>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
 export default Hero;

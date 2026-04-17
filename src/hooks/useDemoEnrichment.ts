@@ -83,6 +83,7 @@ interface DemoEnrichmentResult {
   detectedEvents: DetectedLifeEventResult[];
   apiPayloads: ApiPayloads;
   tip: FinancialTip | null;
+  riskFlags: { flags: any[]; summary: string } | null;
   startEnrichment: (customer: DemoCustomer) => void;
 }
 
@@ -118,6 +119,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
   const [personalizedDeals, setPersonalizedDeals] = useState<PersonalizedDealData | null>(null);
   const [detectedEvents, setDetectedEvents] = useState<DetectedLifeEventResult[]>([]);
   const [tip, setTip] = useState<FinancialTip | null>(null);
+  const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const [apiPayloads, setApiPayloads] = useState<ApiPayloads>({
     classification: null,
     dealPersonalization: null,
@@ -249,6 +251,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     setPersonalizedDeals(null);
     setDetectedEvents([]);
     setTip(null);
+    setRiskFlags(null);
     setApiPayloads({
       classification: null,
       dealPersonalization: null,
@@ -395,9 +398,26 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
           }
         };
 
-        // Run lifestyle + tips in parallel
+        // Fire risk detection
+        const fireRiskDetection = async () => {
+          try {
+            const res = await fetch(`${supabaseUrl}/functions/v1/detect-risk-transactions`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({ transactions: classified }),
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            setRiskFlags(data);
+          } catch (e) {
+            console.warn(`[Phase2] Risk detection failed:`, e);
+          }
+        };
+
+        // Run lifestyle + tips + risk in parallel
         const lifestylePromise = fireLifestyle();
         const tipsPromise = fireCoachingTips();
+        const riskPromise = fireRiskDetection();
 
         lifestylePromise
           .then(() => {
@@ -407,7 +427,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
             setNodeReady({ wealth: "ready", lifeEvents: "ready", lifeEventIntel: "ready", wmCopilot: "ready" });
           });
 
-        Promise.all([lifestylePromise, tipsPromise])
+        Promise.all([lifestylePromise, tipsPromise, riskPromise])
           .then(() => {
             setNodeReady({ engagement: "ready" });
           })
@@ -480,6 +500,7 @@ export function useDemoEnrichment(): DemoEnrichmentResult {
     detectedEvents,
     apiPayloads,
     tip,
+    riskFlags,
     startEnrichment,
   };
 }

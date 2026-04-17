@@ -5,6 +5,19 @@ import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/d
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ventusLogo from "@/assets/ventus-logo-blue.png";
+
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-rose-50 text-rose-700",
+  "Checks": "bg-orange-50 text-orange-700",
+  "ACH": "bg-slate-100 text-slate-600",
+  "Wire": "bg-red-50 text-red-700",
+  "Zelle": "bg-purple-50 text-purple-700",
+  "HSA": "bg-amber-50 text-amber-700",
+};
 
 interface RawRow {
   transaction_id: string;
@@ -98,12 +111,16 @@ export default function ExecDemoSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[85vw] w-[85vw] h-[85vh] max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl border-slate-200 bg-white flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 shrink-0">
-          <h2 className="text-[15px] font-bold text-slate-800 tracking-tight">
-            Ventus AI · Select a Customer Profile
-          </h2>
+        <div className="px-6 py-3 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2">
+            <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
+            <span className="text-[13px] text-slate-400">·</span>
+            <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
+              Select a Customer Profile
+            </h2>
+          </div>
           <p className="text-[11px] text-slate-400 mt-0.5">
-            Choose a sample customer to explore behavioral enrichment
+            Choose a sample customer to explore semantic enrichment
           </p>
         </div>
 
@@ -195,13 +212,6 @@ export default function ExecDemoSelectionDialog({
         {/* Transaction table — full width */}
         {!showCustomFlow && (
           <div className="flex-1 min-h-0 flex flex-col">
-            {/* Table header info */}
-            <div className="px-6 pt-3 pb-2 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="text-[13px] font-bold text-slate-800">{customer.profile.name}</span>
-                <span className="text-[11px] text-slate-400">{rawRows.length} transactions · {customer.txnTotal} · {customer.dateRange}</span>
-              </div>
-            </div>
 
             {/* Scrollable table */}
             <ScrollArea className="flex-1 min-h-0 px-6 pb-2">
@@ -212,7 +222,7 @@ export default function ExecDemoSelectionDialog({
                     <th className="pb-2 pr-3 pt-1">Date</th>
                     <th className="pb-2 pr-3 pt-1">Merchant Name</th>
                     <th className="pb-2 pr-3 pt-1">MCC</th>
-                    <th className="pb-2 pr-3 pt-1">MCC Description</th>
+                    <th className="pb-2 pr-3 pt-1">MCC Description / Note</th>
                     <th className="pb-2 pr-3 pt-1 text-right">Amount</th>
                     <th className="pb-2 pr-3 pt-1">Zip</th>
                     <th className="pb-2 pt-1">Source</th>
@@ -231,7 +241,11 @@ export default function ExecDemoSelectionDialog({
                         <td className="py-1.5 pr-3 text-slate-500 max-w-[220px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
                         <td className="py-1.5 pr-3 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">{fmtAmt}</td>
                         <td className="py-1.5 pr-3 text-slate-400 text-[10px]">{row.zip_code || "—"}</td>
-                        <td className="py-1.5 text-slate-400 text-[10px]">{row.source || "—"}</td>
+                        <td className="py-1.5">
+                          <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                            {row.source || "—"}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })}
@@ -254,7 +268,7 @@ export default function ExecDemoSelectionDialog({
             className="w-full flex items-center justify-center gap-2 rounded-full py-3 text-[13px] font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
           >
             <Play className="w-4 h-4" />
-            Run Behavioral Enrichment
+            Ventus AI Semantic Enrichment
           </button>
         </div>
       </DialogContent>

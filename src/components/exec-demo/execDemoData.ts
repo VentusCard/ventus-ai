@@ -5,6 +5,7 @@ import {
   SAMPLE_CSV_TRAVEL_FAMILY_12,
   SAMPLE_CSV_NYC_SPORTS_HOME_12,
   SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12,
+  MCC_DESCRIPTIONS,
 } from "@/lib/sampleData";
 
 export const SOURCE_COLORS = ["#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#fb7185"];
@@ -13,6 +14,7 @@ export interface Transaction {
   date: string;
   merchant: string;
   amount: string;
+  source?: string;
 }
 
 export interface IntelCard {
@@ -36,6 +38,11 @@ export interface SignalEntry {
   label: string;
   amount: number;
   frequency?: string;
+  mcc?: string;
+  mccDescription?: string;
+  category?: string;
+  tier?: string;
+  confidence?: number;
 }
 
 export interface ExecPersona {
@@ -62,6 +69,7 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
   const merchantIdx = header.indexOf("merchant_name");
   const amountIdx = header.indexOf("amount");
   const dateIdx = header.indexOf("date");
+  const sourceIdx = header.indexOf("source");
 
   return lines.slice(1).filter((l) => l.trim()).map((line) => {
     const cols = line.split(",").map((c) => c.trim());
@@ -71,11 +79,12 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
       : `$${rawAmt.toFixed(2)}`;
     const rawDate = cols[dateIdx] || "";
     const dateParts = rawDate.split("-");
-    const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}` : rawDate.slice(5);
+    const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}/${dateParts[0].slice(2)}` : rawDate.slice(5);
     return {
       date: shortDate,
       merchant: cols[merchantIdx] || "Unknown",
       amount: fmt,
+      source: sourceIdx >= 0 ? (cols[sourceIdx] || undefined) : undefined,
     };
   });
 }
@@ -83,61 +92,61 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
 
 // ---------- MCC → Signal mapping ----------
 
-const MCC_SIGNAL_MAP: Record<string, Omit<SignalEntry, 'amount'>> = {
-  "4511": { pillar: "Travel & Transport", label: "Airlines" },
-  "3058": { pillar: "Travel & Transport", label: "Airlines" },
-  "7011": { pillar: "Travel & Transport", label: "Hotels" },
-  "4121": { pillar: "Travel & Transport", label: "Rideshare" },
-  "5541": { pillar: "Travel & Transport", label: "Gas" },
-  "4111": { pillar: "Travel & Transport", label: "Transit" },
-  "7512": { pillar: "Travel & Transport", label: "Car Rental" },
-  "4789": { pillar: "Travel & Transport", label: "Transit" },
-  "7523": { pillar: "Travel & Transport", label: "Parking" },
-  "5411": { pillar: "Food & Dining", label: "Grocery" },
-  "5300": { pillar: "Food & Dining", label: "Wholesale" },
-  "5812": { pillar: "Food & Dining", label: "Dining" },
-  "5814": { pillar: "Food & Dining", label: "Fast Casual" },
-  "5499": { pillar: "Food & Dining", label: "Supplements" },
-  "7997": { pillar: "Wellness & Fitness", label: "Gym" },
-  "7298": { pillar: "Wellness & Fitness", label: "Spa" },
-  "8043": { pillar: "Healthcare", label: "Optician" },
-  "8049": { pillar: "Wellness & Fitness", label: "Chiropractic" },
-  "5651": { pillar: "Shopping", label: "Apparel" },
-  "5655": { pillar: "Shopping", label: "Athletic Wear" },
-  "5661": { pillar: "Shopping", label: "Shoes" },
-  "5977": { pillar: "Shopping", label: "Beauty" },
-  "5969": { pillar: "Shopping", label: "Marketplace" },
-  "5942": { pillar: "Shopping", label: "Books" },
-  "5734": { pillar: "Technology", label: "Software" },
-  "5722": { pillar: "Home & Living", label: "Appliances" },
-  "5995": { pillar: "Pets & Care", label: "Pet Care" },
-  "0742": { pillar: "Pets & Care", label: "Veterinary" },
-  "4899": { pillar: "Entertainment", label: "Streaming" },
-  "7922": { pillar: "Entertainment", label: "Events" },
-  "7832": { pillar: "Entertainment", label: "Movies" },
-  "7996": { pillar: "Entertainment", label: "Attractions" },
-  "7998": { pillar: "Entertainment", label: "Attractions" },
-  "7999": { pillar: "Entertainment", label: "Activities" },
-  "5211": { pillar: "Home & Living", label: "Home Improvement" },
-  "5712": { pillar: "Home & Living", label: "Furniture" },
-  "5714": { pillar: "Home & Living", label: "Home Décor" },
-  "5251": { pillar: "Home & Living", label: "Hardware" },
-  "7217": { pillar: "Home & Living", label: "Cleaning" },
-  "1711": { pillar: "Home & Living", label: "Services" },
-  "8299": { pillar: "Education & Family", label: "Education" },
-  "7941": { pillar: "Education & Family", label: "Kids Sports" },
-  "5945": { pillar: "Education & Family", label: "Toys" },
-  "5912": { pillar: "Healthcare", label: "Pharmacy" },
-  "8011": { pillar: "Healthcare", label: "Medical" },
-  "5641": { pillar: "Education & Family", label: "Baby" },
-  "5941": { pillar: "Sports & Active", label: "Sporting Goods" },
-  "5999": { pillar: "Shopping", label: "General" },
-  "4900": { pillar: "Home & Living", label: "Utilities" },
-  "6163": { pillar: "Financial Planning", label: "Mortgage" },
-  "6411": { pillar: "Financial Planning", label: "Title & Escrow" },
-  "6531": { pillar: "Financial Planning", label: "Real Estate" },
-  "7389": { pillar: "Home & Living", label: "Inspection" },
-  "8111": { pillar: "Financial Planning", label: "Estate" },
+const MCC_SIGNAL_MAP: Record<string, Omit<SignalEntry, 'amount' | 'mcc' | 'mccDescription'>> = {
+  "4511": { pillar: "Travel & Transport", label: "Airlines", category: "Air Travel", tier: "Premium", frequency: "Occasional" },
+  "3058": { pillar: "Travel & Transport", label: "Airlines", category: "Air Travel", tier: "Premium", frequency: "Occasional" },
+  "7011": { pillar: "Travel & Transport", label: "Hotels", category: "Lodging", tier: "Premium", frequency: "Occasional" },
+  "4121": { pillar: "Travel & Transport", label: "Rideshare", category: "Ground Transport", tier: "Standard", frequency: "Weekly" },
+  "5541": { pillar: "Travel & Transport", label: "Gas", category: "Fuel", tier: "Budget", frequency: "Weekly" },
+  "4111": { pillar: "Travel & Transport", label: "Transit", category: "Ground Transport", tier: "Budget", frequency: "Weekly" },
+  "7512": { pillar: "Travel & Transport", label: "Car Rental", category: "Ground Transport", tier: "Standard", frequency: "Occasional" },
+  "4789": { pillar: "Travel & Transport", label: "Transit", category: "Ground Transport", tier: "Budget", frequency: "Monthly" },
+  "7523": { pillar: "Travel & Transport", label: "Parking", category: "Ground Transport", tier: "Budget", frequency: "Weekly" },
+  "5411": { pillar: "Food & Dining", label: "Grocery", category: "Grocery", tier: "Standard", frequency: "Weekly" },
+  "5300": { pillar: "Food & Dining", label: "Wholesale", category: "Grocery", tier: "Budget", frequency: "Monthly" },
+  "5812": { pillar: "Food & Dining", label: "Dining", category: "Restaurants", tier: "Standard", frequency: "Weekly" },
+  "5814": { pillar: "Food & Dining", label: "Fast Casual", category: "Restaurants", tier: "Budget", frequency: "Weekly" },
+  "5499": { pillar: "Food & Dining", label: "Supplements", category: "Health Food", tier: "Premium", frequency: "Monthly" },
+  "7997": { pillar: "Wellness & Fitness", label: "Gym", category: "Fitness", tier: "Premium", frequency: "Monthly" },
+  "7298": { pillar: "Wellness & Fitness", label: "Spa", category: "Personal Care", tier: "Premium", frequency: "Occasional" },
+  "8043": { pillar: "Healthcare", label: "Optician", category: "Vision", tier: "Standard", frequency: "Annually" },
+  "8049": { pillar: "Wellness & Fitness", label: "Chiropractic", category: "Therapy", tier: "Standard", frequency: "Monthly" },
+  "5651": { pillar: "Shopping", label: "Apparel", category: "Fashion", tier: "Standard", frequency: "Monthly" },
+  "5655": { pillar: "Shopping", label: "Athletic Wear", category: "Fashion", tier: "Premium", frequency: "Occasional" },
+  "5661": { pillar: "Shopping", label: "Shoes", category: "Fashion", tier: "Standard", frequency: "Occasional" },
+  "5977": { pillar: "Shopping", label: "Beauty", category: "Personal Care", tier: "Standard", frequency: "Monthly" },
+  "5969": { pillar: "Shopping", label: "Marketplace", category: "E-Commerce", tier: "Standard", frequency: "Weekly" },
+  "5942": { pillar: "Shopping", label: "Books", category: "Media", tier: "Budget", frequency: "Monthly" },
+  "5734": { pillar: "Technology", label: "Software", category: "Digital Services", tier: "Standard", frequency: "Monthly" },
+  "5722": { pillar: "Home & Living", label: "Appliances", category: "Home Goods", tier: "Premium", frequency: "One-Time" },
+  "5995": { pillar: "Pets & Care", label: "Pet Care", category: "Pet Supplies", tier: "Standard", frequency: "Monthly" },
+  "0742": { pillar: "Pets & Care", label: "Veterinary", category: "Pet Health", tier: "Premium", frequency: "Occasionally" },
+  "4899": { pillar: "Entertainment", label: "Streaming", category: "Digital Media", tier: "Budget", frequency: "Monthly" },
+  "7922": { pillar: "Entertainment", label: "Events", category: "Live Events", tier: "Premium", frequency: "Occasional" },
+  "7832": { pillar: "Entertainment", label: "Movies", category: "Cinema", tier: "Budget", frequency: "Monthly" },
+  "7996": { pillar: "Entertainment", label: "Attractions", category: "Recreation", tier: "Standard", frequency: "Occasional" },
+  "7998": { pillar: "Entertainment", label: "Attractions", category: "Recreation", tier: "Standard", frequency: "Occasional" },
+  "7999": { pillar: "Entertainment", label: "Activities", category: "Recreation", tier: "Standard", frequency: "Occasional" },
+  "5211": { pillar: "Home & Living", label: "Home Improvement", category: "Home Maintenance", tier: "Standard", frequency: "Occasional" },
+  "5712": { pillar: "Home & Living", label: "Furniture", category: "Home Goods", tier: "Premium", frequency: "One-Time" },
+  "5714": { pillar: "Home & Living", label: "Home Décor", category: "Home Goods", tier: "Standard", frequency: "Occasional" },
+  "5251": { pillar: "Home & Living", label: "Hardware", category: "Home Maintenance", tier: "Budget", frequency: "Occasional" },
+  "7217": { pillar: "Home & Living", label: "Cleaning", category: "Home Services", tier: "Standard", frequency: "Monthly" },
+  "1711": { pillar: "Home & Living", label: "Services", category: "Home Services", tier: "Standard", frequency: "Occasional" },
+  "8299": { pillar: "Education & Family", label: "Education", category: "Learning", tier: "Premium", frequency: "Monthly" },
+  "7941": { pillar: "Education & Family", label: "Kids Sports", category: "Youth Activities", tier: "Standard", frequency: "Monthly" },
+  "5945": { pillar: "Education & Family", label: "Toys", category: "Kids", tier: "Budget", frequency: "Occasional" },
+  "5912": { pillar: "Healthcare", label: "Pharmacy", category: "Rx & OTC", tier: "Standard", frequency: "Monthly" },
+  "8011": { pillar: "Healthcare", label: "Medical", category: "Clinical", tier: "Premium", frequency: "Occasional" },
+  "5641": { pillar: "Education & Family", label: "Baby", category: "Kids", tier: "Standard", frequency: "Monthly" },
+  "5941": { pillar: "Sports & Active", label: "Sporting Goods", category: "Equipment", tier: "Standard", frequency: "Occasional" },
+  "5999": { pillar: "Shopping", label: "General", category: "General Retail", tier: "Standard", frequency: "Occasional" },
+  "4900": { pillar: "Home & Living", label: "Utilities", category: "Bills", tier: "Standard", frequency: "Monthly" },
+  "6163": { pillar: "Financial Planning", label: "Mortgage", category: "Lending", tier: "Premium", frequency: "Monthly" },
+  "6411": { pillar: "Financial Planning", label: "Title & Escrow", category: "Real Estate", tier: "Premium", frequency: "One-Time" },
+  "6531": { pillar: "Financial Planning", label: "Real Estate", category: "Real Estate", tier: "Premium", frequency: "One-Time" },
+  "7389": { pillar: "Home & Living", label: "Inspection", category: "Home Services", tier: "Standard", frequency: "One-Time" },
+  "8111": { pillar: "Financial Planning", label: "Estate", category: "Legal", tier: "Premium", frequency: "Occasional" },
 };
 
 function buildSignalMap(csv: string): Record<number, SignalEntry> {
@@ -154,11 +163,12 @@ function buildSignalMap(csv: string): Record<number, SignalEntry> {
     const cols = line.split(",").map((c) => c.trim());
     const mcc = cols[mccIdx] || "";
     const rawAmt = parseFloat(cols[amountIdx] || "0");
+    const mccDesc = MCC_DESCRIPTIONS[mcc] || "Unknown";
     const signal = MCC_SIGNAL_MAP[mcc];
     if (signal) {
-      map[i] = { ...signal, amount: rawAmt };
+      map[i] = { ...signal, amount: rawAmt, mcc, mccDescription: mccDesc };
     } else {
-      map[i] = { pillar: "Miscellaneous", label: "Other", amount: rawAmt };
+      map[i] = { pillar: "Miscellaneous", label: "Other", amount: rawAmt, mcc: mcc || "N/A", mccDescription: mccDesc };
     }
   });
 
@@ -409,24 +419,47 @@ export interface EnrichedTransaction {
   transaction_id: string;
   merchant_name: string;
   amount: number;
+  date?: string;
   pillar: string;
   category: string;
   subcategories: string[];
   spending_tier: string;
   purchase_frequency?: string;
+  confidence?: number;
 }
 
-/** Build signal map from AI-classified enriched transactions */
-export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[]): Record<number, SignalEntry> {
+/** Build signal map from AI-classified enriched transactions, preserving MCC data from raw CSV */
+export function buildSignalMapFromClassified(enrichedTxs: EnrichedTransaction[], csv?: string): Record<number, SignalEntry> {
+  // Parse MCC codes + descriptions from raw CSV so tooltip row 1 stays accurate
+  const mccFromCsv: Record<number, { mcc: string; mccDescription: string }> = {};
+  if (csv) {
+    const lines = csv.trim().split("\n");
+    if (lines.length >= 2) {
+      const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      const mccIdx = header.indexOf("mcc");
+      lines.slice(1).filter((l) => l.trim()).forEach((line, i) => {
+        const cols = line.split(",").map((c) => c.trim());
+        const mcc = cols[mccIdx] || "";
+        mccFromCsv[i] = { mcc, mccDescription: MCC_DESCRIPTIONS[mcc] || "Unknown" };
+      });
+    }
+  }
+
   const map: Record<number, SignalEntry> = {};
   enrichedTxs.forEach((tx) => {
     const idx = parseInt(tx.transaction_id.replace("tx-", ""), 10);
     if (isNaN(idx)) return;
+    const csvMcc = mccFromCsv[idx];
     map[idx] = {
       pillar: tx.pillar || "Miscellaneous",
-      label: tx.category || "General",
+      label: tx.subcategories?.[0] || tx.category || "General",
+      category: tx.category || "General",
       amount: tx.amount || 0,
       frequency: tx.purchase_frequency,
+      tier: tx.spending_tier,
+      confidence: tx.confidence,
+      mcc: csvMcc?.mcc || "",
+      mccDescription: csvMcc?.mccDescription || "Unknown",
     };
   });
   return map;

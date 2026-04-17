@@ -14,7 +14,7 @@ export const SAMPLE_CUSTOMER_1: ClientProfileData = {
   demographics: {
     age: "45",
     occupation: "Product Director",
-    familyStatus: "Married, 1 dependent",
+    familyStatus: "Married, 1 teen dependent",
     incomeLevel: "$200K-$250K",
     industry: "Technology",
   },
@@ -218,82 +218,58 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 };
 
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
-txn_001,STARBUCKS COFFEE #1234,Coffee and pastry purchase,5814,12.45,2024-11-01,94102,Cashback Card
-txn_002,WHOLE FOODS MARKET,Weekly grocery shopping,5411,156.78,2024-11-06,94102,Cashback Card
-txn_003,EQUINOX FITNESS,Monthly gym membership fee,7997,200.00,2024-11-12,94102,Premium Card
-txn_004,SHELL OIL 78945,Gasoline fill-up,5541,45.20,2024-11-17,94103,Cashback Card
-txn_005,PAYPAL*TICKETMASTR Sabrina Carpenter,Concert tickets via Ticketmaster,7922,287.50,2024-11-23,,Cashback Card
-txn_006,AplPAY UBER EATS,Food delivery order,5814,45.30,2024-12-06,,Cashback Card
-txn_007,AMAZON.COM AMZN Books,Online purchase,5942,34.99,2024-12-12,,Cashback Card
-txn_008,PAYPAL*ETSY HomeVibes Shop,Home decor purchase,5969,78.25,2024-12-17,,Cashback Card
-txn_009,DELTA AIR LINES 0062 JFK,Flight booking,4511,450.00,2024-12-23,94102,Travel Card
-txn_010,MARRIOTT HOTELS NYC MIDTOWN,Hotel accommodation,7011,600.00,2024-12-28,10036,Travel Card
-txn_011,CVS PHARMACY,Prescription medication,5912,28.50,2025-01-08,94102,HSA
-txn_012,LULULEMON,Athletic wear purchase,5655,89.00,2025-01-15,94102,Premium Card
-txn_013,CHEWY.COM,Dog food and supplies,5995,67.89,2025-01-22,94102,Cashback Card
-txn_014,NETFLIX.COM,Monthly streaming subscription,4899,15.99,2025-01-28,,Cashback Card
-txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Travel Card
-txn_016,CHIPOTLE MEXICAN GRILL,Lunch burrito bowl,5814,11.75,2025-02-12,94102,Cashback Card
-txn_017,TARGET STORES,Home goods and groceries,5411,127.34,2025-02-17,94103,Cashback Card
-txn_018,AplPAY APPLE.COM/BILL,App Store purchase,5734,4.99,2025-02-22,,Cashback Card
-txn_019,LA FITNESS,Gym membership renewal,7997,29.99,2025-02-26,94102,Cashback Card
-txn_020,SEPHORA,Cosmetics and skincare,5977,156.50,2025-03-08,94102,Premium Card
-txn_021,PETSMART,Pet supplies,5995,43.20,2025-03-15,94103,Cashback Card
-txn_073,COLLEGEBOARD SAT,SAT registration fee,8299,68.00,2025-03-15,,Cashback Card
-txn_022,SPOTIFY,Premium music subscription,4899,10.99,2025-03-22,,Cashback Card
-txn_023,PAYPAL*STUBHUB Hamilton NYC,Event tickets via StubHub,7922,195.00,2025-03-28,,Cashback Card
-txn_024,SOUTHWEST AIRLINES WN3847,Flight booking,4511,289.00,2025-04-07,,Travel Card
-txn_025,WALGREENS,Pharmacy and sundries,5912,34.67,2025-04-12,94102,HSA
-txn_026,PANERA BREAD,Lunch and coffee,5814,18.45,2025-04-17,94102,Cashback Card
-txn_027,HOME DEPOT,Home improvement supplies,5211,234.56,2025-04-22,94103,Checking
-txn_028,TRADER JOES,Grocery shopping,5411,89.23,2025-04-27,94102,Cashback Card
-txn_029,NORDSTROM,Clothing purchase,5651,178.90,2025-05-07,94102,Premium Card
-txn_074,KAPLAN TEST PREP,SAT prep course,8299,1299.00,2025-05-10,94102,Checking
-txn_030,PETCO,Dog treats and toys,5995,28.40,2025-05-12,94103,Cashback Card
-txn_031,AMC THEATRES,Movie tickets and snacks,7832,42.00,2025-05-18,94102,Cashback Card
-txn_032,DOORDASH,Food delivery,5814,35.60,2025-05-23,94102,Cashback Card
-txn_033,SHELL OIL,Gas station,5541,52.30,2025-05-28,94103,Cashback Card
-txn_034,COSTCO WHOLESALE,Bulk shopping,5411,198.76,2025-06-08,94102,Cashback Card
-txn_035,BLUE APRON,Meal kit delivery,5814,71.94,2025-06-15,,Cashback Card
-txn_036,EQUINOX SPA,Spa treatment,7298,150.00,2025-06-21,94102,Premium Card
-txn_037,BARNES & NOBLE,Books purchase,5942,45.80,2025-06-27,94102,Cashback Card
-txn_038,VETERINARY CLINIC,Dog annual checkup,0742,185.00,2025-07-07,94103,Checking
-txn_039,HULU,Streaming subscription,4899,14.99,2025-07-12,,Cashback Card
-txn_040,LYFT RIDE,Ride to airport,4121,35.80,2025-07-18,94102,Travel Card
-txn_041,OLIVE GARDEN,Dinner for two,5812,67.50,2025-07-23,94103,Cashback Card
-txn_042,IKEA,Furniture purchase,5712,345.00,2025-07-28,94102,Checking
-txn_043,ULTA BEAUTY,Beauty products,5977,92.30,2025-08-08,94102,Premium Card
-txn_044,PETFOOD EXPRESS,Premium dog food,5995,54.99,2025-08-15,94103,Cashback Card
-txn_045,HBO MAX,Streaming subscription,4899,15.99,2025-08-22,,Cashback Card
-txn_046,STARBUCKS COFFEE,Morning coffee,5814,6.75,2025-08-28,94102,Cashback Card
-txn_047,RITE AID PHARMACY,Over-the-counter meds,5912,18.90,2025-09-07,94103,HSA
-txn_048,NIKE STORE,Running shoes,5661,129.99,2025-09-12,94102,Cashback Card
-txn_049,HILTON HOTELS,Business travel accommodation,7011,425.00,2025-09-17,94102,Travel Card
-txn_050,WHOLE FOODS,Organic groceries,5411,143.56,2025-09-22,94102,Cashback Card
-txn_056,DELTA AIR LINES 0184 LGA,Flight booking,4511,520.00,2025-09-24,,Travel Card
-txn_057,MARRIOTT TIMES SQ NYC,Hotel accommodation,7011,950.00,2025-09-24,10036,Travel Card
-txn_058,SHELL OIL QUEENS NY,Gas rental car Queens,5541,58.30,2025-09-24,11101,Travel Card
-txn_059,UBER NYC,Ride from airport to hotel,4121,45.80,2025-09-24,10036,Travel Card
-txn_060,STARBUCKS MANHATTAN,Coffee in Times Square,5814,8.95,2025-09-25,10036,Travel Card
-txn_061,JOES PIZZA NYC,Lunch Manhattan,5814,22.50,2025-09-25,10001,Travel Card
-txn_062,BROADWAY THEATRE Hamilton,Show admission,7922,350.00,2025-09-25,10036,Travel Card
-txn_063,UBER NYC,Ride to Broadway,4121,18.40,2025-09-25,10036,Travel Card
-txn_064,SHELL OIL BROOKLYN,Gas fill-up Brooklyn,5541,62.15,2025-09-26,11211,Travel Card
-txn_065,WHOLE FOODS MANHATTAN,Groceries for hotel,5411,45.70,2025-09-26,10001,Travel Card
-txn_066,MET MUSEUM NYC,Museum admission,8999,30.00,2025-09-26,10028,Travel Card
-txn_067,LYFT NYC,Ride to museum,4121,22.30,2025-09-26,10028,Travel Card
-txn_051,PLANET FITNESS,Monthly membership,7997,22.99,2025-09-27,94102,Cashback Card
-txn_068,CENTRAL PARK CAFE,Lunch in park,5814,28.60,2025-09-27,10024,Travel Card
-txn_069,UBER NYC,Ride to airport,4121,52.90,2025-09-28,11101,Travel Card
-txn_070,DELTA AIR LINES 0062 SFO,Return flight,4511,480.00,2025-09-28,,Travel Card
-txn_071,SHELL OIL LOCAL,Gas station home,5541,49.10,2025-09-29,94102,Cashback Card
-txn_072,STARBUCKS COFFEE,Morning coffee home,5814,6.75,2025-09-30,94102,Cashback Card
-txn_052,WARBY PARKER,Prescription glasses,8043,195.00,2025-10-08,94102,HSA
-txn_075,STANFORD VISITOR PARKING,Campus tour parking,7523,25.00,2025-10-14,94305,Cashback Card
-txn_053,GRUBHUB,Dinner delivery,5814,42.30,2025-10-15,,Cashback Card
-txn_054,LOWES,Garden supplies,5211,87.45,2025-10-21,94103,Checking
-txn_055,SHELL OIL LOCAL,Gas station home,5541,48.20,2025-10-27,94102,Cashback Card
+txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
+txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
+txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
+txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
+txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
+txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
+txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
+txn_008,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
+txn_009,MARIA GARCIA,Dogsitting,,150.00,2024-12-18,94102,Zelle
+txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,Cashback Card
+txn_011,DIGITAL ENT SVCS,Digital entertainment purchase,7995,250.00,2025-01-04,,Premium Card
+txn_012,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-01-11,94102,Cashback Card
+txn_013,PALISADES TAHOE LIFT,New Year ski day,7941,169.00,2025-01-18,96146,Premium Card
+txn_014,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-01-25,94102,Cashback Card
+txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Cashback Card
+txn_016,COLLEGEBOARD SAT,SAT registration fee,,68.00,2025-02-15,,Checks
+txn_017,PETCO,Pet grooming supplies,5995,38.50,2025-02-22,94103,Cashback Card
+txn_018,SPOTIFY PREMIUM,Music subscription,4899,10.99,2025-03-01,,Cashback Card
+txn_019,KAPLAN TEST PREP,SAT prep course,,1299.00,2025-03-08,94102,Checks
+txn_020,INTL PAYMENT PROC 8742,International digital service,7801,175.00,2025-03-15,,Premium Card
+txn_021,CHEWY.COM,Monthly dog food delivery,5995,71.50,2025-03-22,94102,Cashback Card
+txn_022,PETCO,Flea and tick prevention,5995,45.99,2025-04-05,94103,Cashback Card
+txn_023,SF TENNIS CLUB,Spring membership renewal,,350.00,2025-04-10,94102,Checks
+txn_024,WILSON SPORTING GOODS,Tennis racket purchase,5941,229.00,2025-04-15,94102,Premium Card
+txn_025,CVS PHARMACY,Prescription refill,5912,28.50,2025-04-22,94102,Cashback Card
+txn_026,STANFORD VISITOR PARKING,College campus tour,7523,25.00,2025-05-03,94305,Cashback Card
+txn_027,NORDSTROM,Spring clothing,5651,178.90,2025-05-10,94102,Premium Card
+txn_028,VETERINARY CLINIC,Annual wellness exam,,185.00,2025-05-18,94103,Checks
+txn_029,SF TENNIS CLUB,Court rental fee,7941,45.00,2025-06-07,94102,Cashback Card
+txn_030,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-06-14,94102,Cashback Card
+txn_031,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG,4511,892.00,2025-07-01,94102,Premium Card
+txn_032,GRAND WAILEA RESORT,Maui resort 5 nights,7011,2450.00,2025-07-02,96753,Premium Card
+txn_033,BOSS FROG SNORKEL TOUR,Molokini snorkel excursion,7999,189.00,2025-07-04,96753,Cashback Card
+txn_034,MAMA'S FISH HOUSE MAUI,Beachside dinner,5812,215.00,2025-07-05,96779,Premium Card
+txn_035,PRIVATE MEDIA GRP LLC,Digital media subscription,5967,49.99,2025-08-02,,Cashback Card
+txn_036,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-08-10,94102,Cashback Card
+txn_037,LULULEMON,Tennis skirt and top,5655,134.00,2025-08-18,94102,Premium Card
+txn_038,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
+txn_039,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
+txn_040,ADMISSIONS CONSULTING GRP,College admissions package,,2500.00,2025-10-05,94102,Checks
+txn_041,PETCO,Dog treats and toys,5995,42.00,2025-10-18,94103,Cashback Card
+txn_042,ZILLOW MORTGAGE APP FEE,Mortgage application,,500.00,2026-01-10,94102,Checks
+txn_043,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium Card
+txn_044,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
+txn_045,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
+txn_046,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks
+txn_047,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wire
+txn_048,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,94102,Zelle
+txn_049,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA,4511,948.00,2026-07-05,94102,Premium Card
+txn_050,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 `;
+
 
 export const SAMPLE_CSV_SPORTS_WELLNESS = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_s001,LULULEMON ATHLETICA,Yoga pants and sports bra,5655,189.00,2024-11-01,,Premium Card
@@ -460,8 +436,12 @@ txn_h075,ETSY,Handmade home décor,5969,78.25,2025-10-27,,Cashback Card
 export const SOURCE_COLORS: Record<string, string> = {
   "Cashback Card": "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
   "Travel Card": "bg-blue-500/10 text-blue-700 border-blue-500/20",
-  "Premium Card": "bg-purple-500/10 text-purple-700 border-purple-500/20",
+  "Premium Card": "bg-rose-500/10 text-rose-700 border-rose-500/20",
   "Checking": "bg-slate-500/10 text-slate-700 border-slate-500/20",
+  "Checks": "bg-orange-500/10 text-orange-700 border-orange-500/20",
+  "ACH": "bg-slate-500/10 text-slate-600 border-slate-500/20",
+  "Wire": "bg-red-500/10 text-red-700 border-red-500/20",
+  "Zelle": "bg-purple-500/10 text-purple-700 border-purple-500/20",
   "HSA": "bg-amber-500/10 text-amber-700 border-amber-500/20",
 };
 
