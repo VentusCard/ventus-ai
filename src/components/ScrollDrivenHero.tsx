@@ -397,7 +397,7 @@ const ScrollDrivenHero = () => {
         </div>
 
         <div
-          className="mt-8 md:mt-12 flex flex-col items-center pb-12 md:pb-28 transition-all duration-700 ease-out"
+          className="mt-5 md:mt-6 flex flex-col items-center pb-6 transition-all duration-700 ease-out"
           style={{
             opacity: loaded ? 1 : 0,
             transform: loaded ? "translateY(0)" : "translateY(20px)",
