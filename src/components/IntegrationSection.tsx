@@ -166,7 +166,7 @@ const IntegrationSection = () => {
                 <img
                   src={salesforceLogo}
                   alt="Salesforce"
-                  className="h-5 w-auto grayscale opacity-70"
+                  className="h-9 w-auto grayscale opacity-70"
                 />
               </div>
             </div>
