@@ -170,10 +170,10 @@ const ScrollDrivenHero = () => {
       style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-36 md:pt-48 pb-16 md:pb-24 overflow-visible">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-32 overflow-visible">
         {/* Centered Headline */}
         <h1
-          className="font-bold tracking-tight text-gray-900 leading-[1.1] text-center mb-4 md:mb-6 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
+          className="font-bold tracking-tight text-gray-900 leading-[1.1] text-center mb-10 md:mb-14 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
           style={{
             opacity: loaded ? 1 : 0,
             transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -397,7 +397,7 @@ const ScrollDrivenHero = () => {
         </div>
 
         <div
-          className="mt-3 md:mt-5 flex flex-col items-center pb-12 md:pb-28 transition-all duration-700 ease-out"
+          className="mt-8 md:mt-12 flex flex-col items-center pb-12 md:pb-28 transition-all duration-700 ease-out"
           style={{
             opacity: loaded ? 1 : 0,
             transform: loaded ? "translateY(0)" : "translateY(20px)",
