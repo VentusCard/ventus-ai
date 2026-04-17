@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Tag, Package, MessageCircle } from "lucide-react";
+import { Menu, X, ChevronDown, Gift, Package, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
@@ -8,7 +8,7 @@ import AnnouncementBar from "./AnnouncementBar";
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
 const solutionsItems = [
-  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Tag },
+  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
   { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
   { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning", Icon: MessageCircle },
 ];
