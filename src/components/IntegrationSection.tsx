@@ -161,8 +161,13 @@ const IntegrationSection = () => {
                   </div>
                 ))}
               </div>
-              <div className="pt-4 border-t border-gray-200">
-                <img src={salesforceLogo} alt="Salesforce" className="h-7 w-auto" />
+              <div className="mt-6 pt-4 border-t border-gray-200 flex items-center gap-2">
+                <span className="text-xs text-gray-500">Syncs with</span>
+                <img
+                  src={salesforceLogo}
+                  alt="Salesforce"
+                  className="h-5 w-auto grayscale opacity-70"
+                />
               </div>
             </div>
           </div>
