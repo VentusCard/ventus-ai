@@ -57,7 +57,7 @@ const InsightPost = () => {
           </div>
 
           {/* Body */}
-          <div className="insight-prose prose prose-lg max-w-none text-gray-700 prose-headings:font-bold prose-headings:tracking-tight prose-a:text-blue-600 prose-headings:text-gray-900 prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6 prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-5 prose-p:text-gray-700 prose-p:leading-[1.85] prose-p:my-6 prose-strong:text-gray-900 prose-li:text-gray-700 prose-li:leading-[1.8] prose-li:my-2 prose-ul:my-8 prose-ol:my-8 prose-hr:my-14 prose-blockquote:border-blue-500 prose-blockquote:text-gray-600 prose-blockquote:my-8 prose-em:text-gray-700 [&_p+p]:mt-6 [&_li]:!text-gray-700 [&_li_strong]:!text-gray-900">
+          <div className="insight-prose prose prose-lg max-w-none text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-em:text-gray-700 prose-blockquote:border-blue-500 prose-blockquote:text-gray-600 [&_h1]:!text-gray-900 [&_h2]:!text-gray-900 [&_h3]:!text-gray-900 [&_h4]:!text-gray-900 [&_h2]:!text-3xl [&_h2]:!font-bold [&_h2]:!mt-16 [&_h2]:!mb-6 [&_h2]:!leading-tight [&_h3]:!text-2xl [&_h3]:!font-bold [&_h3]:!mt-12 [&_h3]:!mb-5 [&_h3]:!leading-snug [&_p]:!text-gray-700 [&_p]:!leading-[1.85] [&_p]:!my-6 [&_li]:!text-gray-700 [&_li]:!leading-[1.8] [&_li]:!my-2 [&_ul]:!my-8 [&_ol]:!my-8 [&_hr]:!my-14 [&_blockquote]:!my-8">
             <ReactMarkdown>{post.body}</ReactMarkdown>
           </div>
         </div>
