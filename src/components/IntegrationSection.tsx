@@ -123,7 +123,7 @@ const IntegrationSection = () => {
             <div className="relative z-10 pt-14">
               <h3 className="mb-2 text-[30px] font-bold text-gray-900">Enrich</h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
-                Ventus enriches every transaction and returns customer-level behavioral intelligence via API — lifestyle profiles, life events, purchase signals, and travel patterns, all queryable at the individual customer level in real time.
+                Ventus enriches every transaction and returns behavioral intelligence via API — lifestyle profiles, life events, purchase signals, and travel patterns, all queryable in real time.
               </p>
               <div className="space-y-6">
                 {statsData.map((stat, index) => (
