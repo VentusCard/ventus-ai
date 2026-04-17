@@ -173,7 +173,7 @@ const ScrollDrivenHero = () => {
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-20 md:pt-24 overflow-visible">
         {/* Centered Headline */}
         <h1
-          className="font-bold tracking-tight text-gray-900 leading-[1.1] text-center mb-10 md:mb-14 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
+          className="font-bold tracking-tight text-gray-900 leading-[1.1] text-center mb-6 md:mb-10 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
           style={{
             opacity: loaded ? 1 : 0,
             transform: loaded ? "translateY(0)" : "translateY(24px)",
