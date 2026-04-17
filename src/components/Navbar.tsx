@@ -130,7 +130,8 @@ const Navbar = () => {
           {mobileSolutionsOpen && (
             <div className="pl-4 border-b border-gray-100">
               {solutionsItems.map((item) => (
-                <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="block py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                  <item.Icon size={14} className="text-blue-600" />
                   {item.title}
                 </Link>
               ))}
