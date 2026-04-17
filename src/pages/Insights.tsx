@@ -101,7 +101,7 @@ const Insights = () => {
           </aside>
 
           {/* Posts list */}
-          <div>
+          <div className="max-w-[700px]">
             {filtered.length === 0 ? (
               <p className="text-sm text-gray-500">No posts match your filters.</p>
             ) : (
