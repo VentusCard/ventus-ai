@@ -33,7 +33,7 @@ const NextConversationPage = () => {
             Give every advisor a warm lead every morning.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus sends advisors a daily briefing — who to call, why to call them, and what to say. Built entirely from transaction signals, zero manual research required.
+            Ventus detects life events in your customers' transaction data and alerts advisors instantly — who to call, why it matters, and exactly what to say. Built entirely from transaction signals.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
