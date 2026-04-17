@@ -101,7 +101,7 @@ const IntegrationSection = () => {
               01
             </span>
             <div className="relative z-10 pt-14">
-              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Connect</h3>
+              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Ingest</h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
                 Banks securely share transaction data via API. No changes to core banking systems required.
               </p>
