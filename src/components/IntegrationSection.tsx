@@ -147,7 +147,7 @@ const IntegrationSection = () => {
             <div className="relative z-10 pt-14">
               <h3 className="mb-2 text-[30px] font-bold text-gray-900">Orchestrate</h3>
               <p className="mb-6 text-sm leading-relaxed text-gray-500">
-                Enriched intelligence flows into personalized rewards, advisor tools, and customer experiences automatically.
+                Enriched intelligence flows into your existing CRM, rewards engine, and advisor tools — ready to act on.
               </p>
               <div className="space-y-4 mb-6">
                 {["Retention Rate", "Customer LTV", "AUM Growth"].map((label) => (
