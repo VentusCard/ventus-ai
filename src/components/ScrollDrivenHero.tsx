@@ -404,7 +404,7 @@ const ScrollDrivenHero = () => {
             transitionDelay: "450ms",
           }}
         >
-          <p className="text-sm md:text-base text-gray-500 max-w-2xl text-center leading-relaxed px-6">
+          <p className="text-sm md:text-base text-gray-500 max-w-xl text-center leading-relaxed px-6">
             Understand customers through dynamic personas, behavioral signals, and real-time life events.
           </p>
 
