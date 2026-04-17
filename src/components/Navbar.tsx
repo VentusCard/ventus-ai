@@ -71,10 +71,15 @@ const Navbar = () => {
                       key={item.to}
                       to={item.to}
                       onClick={() => setSolutionsOpen(false)}
-                      className="block px-4 py-3 hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
                     >
-                      <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
+                        <item.Icon size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                      </div>
                     </Link>
                   ))}
                 </div>
