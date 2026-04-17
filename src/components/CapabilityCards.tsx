@@ -3,10 +3,10 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 const CapabilityCards = () => {
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid md:grid-cols-2 gap-6 auto-rows-fr">
       {/* 1 — Lifestyle Pillars */}
-      <ScrollReveal>
-        <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
+      <ScrollReveal className="h-full">
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Layers className="w-5 h-5 text-blue-600" />
             <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wide">Lifestyle Pillars</h3>
@@ -37,8 +37,8 @@ const CapabilityCards = () => {
       </ScrollReveal>
 
       {/* 2 — Life Event Detection */}
-      <ScrollReveal delay={0.1}>
-        <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
+      <ScrollReveal delay={0.1} className="h-full">
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Heart className="w-5 h-5 text-green-600" />
             <h3 className="text-sm font-bold text-green-600 uppercase tracking-wide">Life Event Detection</h3>
@@ -65,8 +65,8 @@ const CapabilityCards = () => {
       </ScrollReveal>
 
       {/* 3 — Travel Detection */}
-      <ScrollReveal delay={0.2}>
-        <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
+      <ScrollReveal delay={0.2} className="h-full">
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Plane className="w-5 h-5 text-purple-600" />
             <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
@@ -96,8 +96,8 @@ const CapabilityCards = () => {
       </ScrollReveal>
 
       {/* 4 — Purchase Cycle Intel */}
-      <ScrollReveal delay={0.3}>
-        <div className="rounded-xl p-6 min-h-[220px]" style={{ background: "#F3F4F6" }}>
+      <ScrollReveal delay={0.3} className="h-full">
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Search className="w-5 h-5 text-orange-500" />
             <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wide">Purchase Cycle Intel</h3>
