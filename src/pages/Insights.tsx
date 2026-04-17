@@ -19,13 +19,6 @@ const Insights = () => {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
 
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: insightsPosts.length };
-    insightsPosts.forEach((p) => {
-      counts[p.category] = (counts[p.category] || 0) + 1;
-    });
-    return counts;
-  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
