@@ -108,7 +108,11 @@ const IntegrationSection = () => {
               <div className="grid grid-cols-2 items-center justify-items-center gap-x-5 gap-y-4">
                 {partners.map(({ name, src, height }) => (
                   <div key={name} className="flex items-center justify-center p-1">
-                    <img src={src} alt={name} className={`${height} w-auto`} />
+                    <img
+                      src={src}
+                      alt={name}
+                      className={`${height} w-auto grayscale opacity-60`}
+                    />
                   </div>
                 ))}
               </div>
