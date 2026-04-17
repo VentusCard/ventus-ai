@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Tag, Package, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
@@ -8,9 +8,9 @@ import AnnouncementBar from "./AnnouncementBar";
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
 const solutionsItems = [
-  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking" },
-  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment" },
-  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning" },
+  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Tag },
+  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
+  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning", Icon: MessageCircle },
 ];
 
 const Navbar = () => {
@@ -71,10 +71,15 @@ const Navbar = () => {
                       key={item.to}
                       to={item.to}
                       onClick={() => setSolutionsOpen(false)}
-                      className="block px-4 py-3 hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
                     >
-                      <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
+                        <item.Icon size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -125,7 +130,8 @@ const Navbar = () => {
           {mobileSolutionsOpen && (
             <div className="pl-4 border-b border-gray-100">
               {solutionsItems.map((item) => (
-                <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="block py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                  <item.Icon size={14} className="text-blue-600" />
                   {item.title}
                 </Link>
               ))}
