@@ -4,6 +4,7 @@ import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 import CapabilityCards from "@/components/CapabilityCards";
 import SolutionSections from "@/components/SolutionSections";
+import SecuritySection from "@/components/SecuritySection";
 
 import {
   Accordion,
@@ -41,6 +42,7 @@ const Index = () => {
 
         <SolutionSections />
         <IntegrationSection />
+        <SecuritySection />
 
         {/* FAQ — Two Column */}
         <section id="faq" style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white scroll-mt-20">
