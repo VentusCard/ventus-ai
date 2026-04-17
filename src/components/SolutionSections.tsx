@@ -135,40 +135,36 @@ const SolutionSections = () => {
   ];
 
   return (
-    <>
-      {sections.map((s, idx) => (
-        <section key={s.id} className="bg-white" style={{ paddingTop: idx === 0 ? 80 : 32, paddingBottom: idx === sections.length - 1 ? 80 : 32 }}>
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <ScrollReveal>
-              <div className={`grid md:grid-cols-2 gap-12 lg:gap-20 items-center ${s.reverse ? "md:[direction:rtl]" : ""}`}>
-                <div className={s.reverse ? "md:[direction:ltr]" : ""}>
-                  <p className={`text-xs font-semibold tracking-widest uppercase mb-4 ${s.labelColor}`}>{s.label}</p>
-                  <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight mb-5">{s.headline}</h2>
-                  <p className="text-lg text-gray-500 leading-relaxed mb-6 max-w-lg">{s.body}</p>
-                  <Link to={s.link}>
-                    <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                      Learn more
-                    </Button>
-                  </Link>
+    <section className="bg-white py-20">
+      <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <ScrollReveal>
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+            {sections.map((s) => (
+              <div
+                key={s.id}
+                className="rounded-2xl p-7 flex flex-col bg-white"
+                style={{
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                }}
+              >
+                <p className={`text-[11px] font-semibold tracking-widest uppercase mb-3 ${s.labelColor}`}>{s.label}</p>
+                <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-3">{s.headline}</h2>
+                <p className="text-sm text-gray-500 leading-relaxed mb-6">{s.body}</p>
+                <div className="rounded-xl p-5 mb-6 bg-gray-50 border border-gray-100 flex-1">
+                  {s.card}
                 </div>
-                <div className={s.reverse ? "md:[direction:ltr]" : ""}>
-                  <div
-                    className="rounded-xl p-6"
-                    style={{
-                      backgroundColor: "#FFFFFF",
-                      border: "1px solid #E5E7EB",
-                      boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    {s.card}
-                  </div>
-                </div>
+                <Link to={s.link} className="mt-auto">
+                  <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+                    Learn more
+                  </Button>
+                </Link>
               </div>
-            </ScrollReveal>
+            ))}
           </div>
-        </section>
-      ))}
-    </>
+        </ScrollReveal>
+      </div>
+    </section>
   );
 };
 
