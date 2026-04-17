@@ -19,7 +19,7 @@ const flowSteps = [
 const NextConversationPage = () => {
   const hero = useSectionReveal();
   const alert = useSectionReveal();
-  const pii = useSectionReveal();
+  
   const flow = useSectionReveal();
   const statsSection = useSectionReveal();
 
@@ -114,41 +114,6 @@ const NextConversationPage = () => {
                 <p className="text-xs mt-3" style={{ color: "#6B7280" }}>
                   Estimated cost: $240,000 over 4 years · Suggested monthly contribution: $2,500
                 </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Zero PII */}
-      <section ref={pii.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-start">
-          <div style={revealStyle(pii.visible, 0)}>
-            <p className="text-7xl md:text-8xl font-bold text-gray-900 leading-none">0</p>
-            <p className="text-gray-500 mt-2 mb-6" style={{ fontSize: 18 }}>pieces of personally identifiable information stored</p>
-            <p className="text-gray-500 leading-relaxed" style={{ fontSize: 18 }}>
-              We never see names, addresses, social security numbers, or account numbers. Every insight Ventus surfaces comes from transaction signals alone — what customers spend, where they spend it, and when.
-            </p>
-          </div>
-          <div style={revealStyle(pii.visible, 200)} className="grid grid-cols-2 gap-8">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-green-600 mb-3">We see</p>
-              <div className="space-y-2 text-gray-700" style={{ fontSize: 18 }}>
-                <p>Merchant name</p>
-                <p>Amount</p>
-                <p>Date</p>
-                <p>MCC code</p>
-                <p>ZIP code</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-500 mb-3">We never see</p>
-              <div className="space-y-2 text-gray-700" style={{ fontSize: 18 }}>
-                <p>Customer name</p>
-                <p>Address</p>
-                <p>SSN</p>
-                <p>Account number</p>
-                <p>Date of birth</p>
               </div>
             </div>
           </div>
