@@ -180,14 +180,59 @@ Why it's wrong: three different activities, mixed tiers, single transactions. Le
       ? JSON.parse(toolCall.function.arguments)
       : toolCall.function.arguments;
 
-    return new Response(JSON.stringify({
-      pillar_rollups: (raw.pillar_rollups || []).map((r: any) => ({
-        pillar: r.pillar,
-        label: r.label,
-        categories: r.categories || [],
-        category_indices: r.category_indices || [],
-      })),
-    }), {
+    const rawRollups = (raw.pillar_rollups || []) as Array<{
+      pillar: string;
+      label: string;
+      categories?: string[];
+      category_indices?: number[];
+    }>;
+
+    // Server-side validator: enforce tier homogeneity + repetition threshold
+    const validatedRollups = rawRollups
+      .map((r) => {
+        const indices = (r.category_indices || []).filter(
+          (i) => Number.isInteger(i) && i >= 0 && i < pillars.length
+        );
+
+        if (indices.length < 2) {
+          console.log(`[validator] dropped "${r.label}" — fewer than 2 categories`);
+          return null;
+        }
+
+        const indexInfo = indices.map((i) => ({
+          i,
+          count: pillars[i]?.count ?? 0,
+          tier: pillars[i]?.spendingTier ?? "N/A",
+        }));
+
+        const totalTxns = indexInfo.reduce((s, x) => s + x.count, 0);
+        const allCategoriesRepeat = indexInfo.every((x) => x.count >= 2);
+        const meetsThreshold = allCategoriesRepeat || totalTxns >= 4;
+
+        if (!meetsThreshold) {
+          console.log(
+            `[validator] dropped "${r.label}" — insufficient repetition (total=${totalTxns}, perCat=${indexInfo.map((x) => x.count).join(",")})`
+          );
+          return null;
+        }
+
+        // Tier homogeneity — ignore "N/A", require remaining tiers to match
+        const knownTiers = [...new Set(indexInfo.map((x) => x.tier).filter((t) => t && t !== "N/A"))];
+        if (knownTiers.length > 1) {
+          console.log(`[validator] dropped "${r.label}" — mixed tiers: ${knownTiers.join(", ")}`);
+          return null;
+        }
+
+        return {
+          pillar: r.pillar,
+          label: r.label,
+          categories: r.categories || [],
+          category_indices: indices,
+        };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    return new Response(JSON.stringify({ pillar_rollups: validatedRollups }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
