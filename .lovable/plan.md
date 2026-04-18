@@ -1,42 +1,51 @@
 
 
-## Question
-Should risk detection use **raw CSV data** (pre-enrichment) instead of **enriched data** (post-classification)?
+## Goal
+Add two enhancements to the expanded pill grid in the Intelligence Panel (`ExecDemoIntelPanel.tsx`):
+1. A column header row above the pillar grid.
+2. A per-pillar total spend amount displayed in the left column.
 
-## Short answer
-Yes — and it's actually a better fit for risk detection. The risk signals (MCC 7995, MCC 5967, "INTL PAYMENT PROC", structuring patterns) all live in the **raw fields**, not in the enriched output. Enrichment adds noise (pillar/category/tier) that the risk model doesn't need and can be misled by.
+## Where
+Inside the expanded grid block (lines ~477–540 in `src/components/exec-demo/ExecDemoIntelPanel.tsx`), which renders one row per pillar with category/subcategory pills.
 
-## Why raw is better here
+## Changes
 
-The three Sarah flags we want all come from raw fields:
-- `DIGITAL ENT SVCS` + MCC `7995` → vice (raw merchant + raw MCC)
-- `PRIVATE MEDIA GRP LLC` + MCC `5967` → vice (raw merchant + raw MCC)
-- `INTL PAYMENT PROC 8742` + missing/non-US zip → suspicious_international (raw merchant + raw zip)
+### 1. Add a header row above the pillar grid
+Render a sticky-style header inside the scrollable container with three columns matching the existing grid:
+- **Pillar** (left, 115px column)
+- **Categories & Subcategories** (right column)
+- **Total** (right-aligned amount)
 
-None of these need `pillar`, `category`, `subcategories`, `spending_tier`, or `purchase_frequency`. Sending the enriched payload actually risks the LLM rationalizing "this is in Entertainment pillar, looks fine" and skipping the flag.
+Header style: small uppercase tracking-wider slate-500 text, light bottom border.
 
-## Plan
+### 2. Compute pillar totals
+For each pillar in `chipsByPillarCategory`, sum `totalSpend` across all chips:
+```ts
+const pillarTotal = Array.from(categoriesMap.values())
+  .flat()
+  .reduce((sum, chip) => sum + chip.totalSpend, 0);
+```
 
-### 1. `src/pages/ExecDemoPage.tsx`
-- When calling `detect-risk-transactions`, send the **raw CSV rows** (parsed from `customer.csv`) instead of `classifiedRef.current`.
-- Reuse the existing CSV parser pattern from `ExecDemoSelectionDialog.tsx` (`parseCsvRows`).
-- Payload per transaction: `transaction_id, merchant_name, description, mcc, amount, date, zip_code, home_zip, source`.
+### 3. Update each pillar row layout
+Adjust the row to a 3-zone flex:
+- Left (115px): pillar dot + name (existing)
+- Middle (flex-1): category + subcategory pills (existing)
+- Right (auto, ~70px): pillar total amount, right-aligned, semibold, color-matched (`c.text`), formatted via existing `formatSpend()` helper.
 
-### 2. `supabase/functions/detect-risk-transactions/index.ts`
-- Simplify `txSummary` to only the raw fields (drop `pillar`, `category`, `subcategory`, `frequency`, `tier`, `normalized_merchant`).
-- Tighten the system prompt: remove the "use category/pillar context" guidance since those fields are no longer sent.
-- Add a deterministic pre-pass that auto-flags MCC `7995`, MCC `5967`, and merchants matching `/INTL|INTERNATIONAL|FOREIGN|OVERSEAS|OFFSHORE/i` (with non-US/missing zip) — merge with LLM output, dedupe by `transaction_id + category`.
-
-### 3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- Fix risk pill keys: use `${flag.transaction_id}-${flag.category}-${i}` so multiple "vice" flags don't collapse into one pill.
-- Match clicked pill to transactions by `flag.transaction_id` instead of merchant name fuzzy match.
-
-## Out of scope
-- No schema changes, no new edge functions, no UI redesign.
-- Enrichment pipeline untouched — risk detection just runs on a parallel raw payload.
+```text
+┌─────────────┬────────────────────────────────────────────┬────────┐
+│ PILLAR      │ CATEGORY & SUBCATEGORIES                   │ TOTAL  │
+├─────────────┼────────────────────────────────────────────┼────────┤
+│ ● Pets      │ [Pet Services] Dogsitting $150  Vet $80    │  $230  │
+│ ● Travel    │ [Lodging] Marriott $420  [Air] Delta $612  │ $1.0k  │
+└─────────────┴────────────────────────────────────────────┴────────┘
+```
 
 ## Files
-- `src/pages/ExecDemoPage.tsx`
-- `supabase/functions/detect-risk-transactions/index.ts`
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — only file touched.
+
+## Out of scope
+- No changes to pill behavior, click handlers, colors, or animations.
+- No changes to the rollup/synthesis section above the grid.
+- No changes to the Behavioral Intelligence header text.
 

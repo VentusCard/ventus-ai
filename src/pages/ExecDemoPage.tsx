@@ -386,51 +386,18 @@ export default function ExecDemoPage() {
   }, [selectedIdx, customCsv]);
 
 
-  /** Detect risk factors using detect-risk-transactions edge function.
-   *  Sends RAW CSV rows (pre-enrichment) so the model sees the raw signals
-   *  (MCC, raw merchant strings, zip codes) without enrichment noise. */
+  /** Detect risk factors using detect-risk-transactions edge function */
   const fireRiskDetection = useCallback(async () => {
     setRiskLoading(true);
     setRiskFlags(null);
     try {
-      const csv = customCsv || getCsvForCustomer(selectedIdx);
-      if (!csv) {
+      const enrichedTxs = classifiedRef.current || [];
+      if (enrichedTxs.length === 0) {
         setRiskLoading(false);
         return;
       }
-      const lines = csv.trim().split("\n");
-      if (lines.length < 2) {
-        setRiskLoading(false);
-        return;
-      }
-      const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-      const idx = (col: string) => header.indexOf(col);
-      const rawTxs = lines.slice(1).filter((l) => l.trim()).map((line) => {
-        const cols = line.split(",").map((c) => c.trim());
-        const get = (col: string) => {
-          const i = idx(col);
-          return i >= 0 ? cols[i] || "" : "";
-        };
-        return {
-          transaction_id: get("transaction_id"),
-          merchant_name: get("merchant_name"),
-          description: get("description"),
-          mcc: get("mcc"),
-          amount: parseFloat(get("amount")) || 0,
-          date: get("date"),
-          zip_code: get("zip_code"),
-          home_zip: get("home_zip"),
-          source: get("source"),
-        };
-      });
-
-      if (rawTxs.length === 0) {
-        setRiskLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
-        body: { transactions: rawTxs.slice(0, 100) },
+        body: { transactions: enrichedTxs.slice(0, 100) },
       });
       if (error) throw error;
       setRiskFlags(data);
@@ -440,7 +407,7 @@ export default function ExecDemoPage() {
     } finally {
       setRiskLoading(false);
     }
-  }, [selectedIdx, customCsv]);
+  }, []);
 
   /** Generate consumer product cards from life events + persona rollups */
   const fireProductCards = useCallback(async (events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
