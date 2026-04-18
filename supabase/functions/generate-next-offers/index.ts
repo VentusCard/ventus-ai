@@ -126,7 +126,7 @@ serve(async (req) => {
     let rollupUserPrompt = "";
     if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with recent spending/merchants):\n${rollupList}\n\n`;
     if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT:\n${pillarContext}\n\n`;
-    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. Return valid JSON only.`;
+    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. The "rollup" field in each output object MUST be the exact label string in quotes from the cluster list (verbatim). Return valid JSON only.`;
 
     const lifeEventUserPrompt = lifeEventList
       ? `LIFE EVENT CLUSTERS (generate 5 deals per event):\n${lifeEventList}\n\nReturn valid JSON only.`
