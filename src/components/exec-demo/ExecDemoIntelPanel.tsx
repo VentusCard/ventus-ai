@@ -522,29 +522,6 @@ export default function ExecDemoIntelPanel({
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                 </button>
               </div>
-              {/* Synthesize button — appears when AI data ready, pills done animating, and not yet triggered */}
-              {hasSynthesis && !synthesisTriggered && phase === "hold" && (
-                <button
-                  onClick={() => setSynthesisTriggered(true)}
-                  className="flex items-center gap-2 mx-auto mt-2 mb-3 px-5 py-2.5 rounded-lg text-[12px] font-bold tracking-wide uppercase transition-all duration-300 hover:scale-[1.03]"
-                  style={{
-                    background: "rgba(15,23,42,.92)",
-                    color: "#67e8f9",
-                    border: "1px solid rgba(6,182,212,.45)",
-                    boxShadow: "0 0 20px rgba(6,182,212,.2), inset 0 1px 0 rgba(6,182,212,.1)",
-                    animation: "intel-ready-pulse 2.5s ease-in-out infinite",
-                    letterSpacing: "0.08em",
-                  }}
-                >
-                  <Cpu className="w-4.5 h-4.5" style={{ color: "#22d3ee" }} />
-                  <span style={{ color: "#e0f2fe" }} className="text-[12px]">Behavioral Intelligence:</span>
-                  <span style={{ color: "#22d3ee", marginLeft: "-2px" }} className="text-[12px]">Ready</span>
-                  <span className="relative flex h-2 w-2 ml-1">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "#22d3ee" }} />
-                    <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#06b6d4" }} />
-                  </span>
-                </button>
-              )}
               </>
             )}
 
@@ -719,6 +696,30 @@ export default function ExecDemoIntelPanel({
       {phase === "idle" && (
         <div className="flex-1 flex items-center justify-center">
           <span className="text-[12px] text-slate-300">Select a customer & run analysis</span>
+        </div>
+      )}
+
+      {/* Synthesize button — anchored at the bottom of the card */}
+      {hasSynthesis && !synthesisTriggered && phase === "hold" && (
+        <div className="mt-auto pt-3">
+          <button
+            onClick={() => setSynthesisTriggered(true)}
+            className="w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide uppercase text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+            style={{
+              background: "linear-gradient(135deg, hsl(217 91% 55%) 0%, hsl(217 91% 60%) 50%, hsl(199 89% 48%) 100%)",
+              boxShadow: "0 4px 20px hsl(217 91% 60% / 0.45), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+              animation: "intel-ready-pulse 2.5s ease-in-out infinite",
+              letterSpacing: "0.08em",
+            }}
+          >
+            <Cpu className="w-4 h-4 text-white" />
+            <span>Behavioral Intelligence:</span>
+            <span className="text-cyan-200">Ready</span>
+            <span className="relative flex h-2 w-2 ml-1">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70 bg-cyan-300" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-200" />
+            </span>
+          </button>
         </div>
       )}
 
