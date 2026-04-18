@@ -1,40 +1,69 @@
 
+Problem diagnosis
 
-## Problem
-P2P transactions like Zelle/Venmo show a person's name as the merchant (e.g. "MARIA GARCIA"). The actual classification signal lives in the **description** field ("Dogsitting"). Right now `classify-transactions` strips the description before sending to the LLM, so it gets classified as Misc instead of Pets.
+The reason this still shows as:
+`MARIA GARCIA $150.00 Unclear Merchants`
+is not just the edge-function prompt.
 
-## Fix
-Pass the `description` field through to the LLM and add explicit prompt guidance for P2P payments.
+The real break is in the /demo frontend pipeline:
+- `supabase/functions/classify-transactions/index.ts` is already prepared to use `description` and `source`
+- but `src/components/exec-demo/execDemoData.ts` → `csvToClassifyPayload()` still strips both fields and only sends:
+  `transaction_id, merchant_name, amount, date`
+- so the classifier never receives `"Dogsitting"` or `"Zelle"` from the executive demo flow
 
-### 1. `supabase/functions/classify-transactions/index.ts`
-**Include description in the payload sent to the model** (line ~541):
-```ts
-const transactionSummary = transactions.map((t) => ({
-  id: t.transaction_id,
-  merchant: t.merchant_name,
-  description: t.description || undefined,  // NEW
-  amount: t.amount,
-  date: t.date,
-  ...(t.zip_code && { zip: t.zip_code }),
-}));
-```
+That means the previous fixes changed the backend prompt, but the /demo route is still feeding incomplete data.
 
-**Add P2P guidance to `CLASSIFICATION_PROMPT`** (in the MERCHANT PARSING section):
-```
-P2P PAYMENTS (Zelle, Venmo, Cash App, PayPal):
-• When merchant looks like a person's name AND source is Zelle/Venmo/Cash App,
-  the description field IS the classification signal — use it as the primary clue.
-• Examples:
-  - "MARIA GARCIA" + description "Dogsitting" → Pets / Pet Services / ["Dogsitting"]
-  - "JOHN SMITH" + description "Rent" → Home & Living / Rent & Mortgage / ["Rent"]
-  - "SARAH LEE" + description "Yoga class" → Sports & Active Living / Gym & Fitness / ["Classes"]
-  - "MIKE CHEN" + description "Birthday gift" → Family & Community / Gifts & Donations / ["Gift"]
-• If description is empty for a P2P transfer, fall back to Family & Community / General with low confidence.
-```
+Implementation plan
 
-### 2. (No schema change needed)
-`Transaction` type already has `description?: string`, and sample data already populates it.
+1. Fix the /demo payload builder
+- Update `src/components/exec-demo/execDemoData.ts`
+- Expand `csvToClassifyPayload()` so it parses and sends:
+  - `description`
+  - `source`
+  - `zip_code`
+  - optionally `mcc` too for future rules/debugging
+- This ensures the executive demo actually passes the same signals that exist in the CSV
 
-### Outcome
-"MARIA GARCIA — Dogsitting — $150 — Zelle" will classify as **Pets / Pet Services / ["Dogsitting"]** with high confidence, flowing correctly through to the persona, deals, and analytics pipelines.
+2. Add a deterministic non-card classification path
+- Update `supabase/functions/classify-transactions/index.ts`
+- Do not rely only on prompt wording
+- Add a server-side preprocessing rule:
+  - if `source` is not a card transaction (`ACH`, `Zelle`, `Venmo`, `Wire`, `Check`, `Bill Pay`, `Transfer`, etc.)
+  - and `description` is meaningful
+  - classify primarily from `description`, with merchant treated as secondary context
+- This should work for all non-card rails, not just Zelle
 
+3. Add strong description-first examples/rules
+- Keep the prompt improvements, but broaden them into a universal non-card rule
+- Include examples like:
+  - `Dogsitting` → Pets / Pet Services
+  - `Rent payment` → Home & Living / Rent & Mortgage
+  - `Comcast Internet` → Technology & Digital Life / Internet & Phone
+  - `Landscaping` → Home & Living / Home Improvement
+  - `Tuition` → Family & Community / Childcare & Education
+
+4. Add a safe fallback for person-name merchants
+- Add logic so if:
+  - merchant looks like a personal name or generic transfer processor
+  - and description exists
+  - description wins automatically
+- If description is empty or vague, then fall back to low-confidence miscellaneous/general
+
+5. Verify the /demo signal-map update path
+- Confirm the AI-classified results replace the MCC fallback map after preload completes
+- This matters because the left panel initially uses local fallback data, then swaps to AI classifications via `buildSignalMapFromClassified()`
+- I’ll verify that the updated classification result actually propagates into the visible label shown in the transaction list
+
+Files to update
+- `src/components/exec-demo/execDemoData.ts`
+- `supabase/functions/classify-transactions/index.ts`
+
+Expected outcome
+After this, the demo should classify:
+- `MARIA GARCIA` + `Dogsitting` + `Zelle` → `Pets / Pet Services`
+and the same description-first behavior should apply to any non-card transaction source like ACH, wire, check, bill pay, and transfer.
+
+Technical details
+- Root cause found: `/demo` payload builder is dropping `description` and `source` before the request is sent
+- Better solution than another prompt tweak: combine payload fix + deterministic server rule
+- No database/schema changes needed
