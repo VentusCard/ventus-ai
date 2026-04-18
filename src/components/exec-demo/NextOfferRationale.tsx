@@ -28,6 +28,7 @@ interface Props {
   personaSynthesis: PersonaSynthesis | null;
   loading: boolean;
   activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
@@ -130,7 +131,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -149,29 +150,28 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
     );
   }
 
-  // Filter to only the active persona's offer group with fuzzy matching
-  // (LLM may paraphrase the rollup label slightly)
+  const scopedOffers = !activeRollupPillar
+    ? offers
+    : offers.filter(group =>
+        activeRollupPillar === "Life Event"
+          ? group.pillar === "Life Event"
+          : group.pillar !== "Life Event"
+      );
+
+  // Filter to only the active persona's offer group with conservative fuzzy matching
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const target = activeRollupLabel ? norm(activeRollupLabel) : null;
 
   const filtered = !target
-    ? offers
+    ? scopedOffers
     : (() => {
         // 1. exact (case-insensitive) match
-        let hits = offers.filter(g => norm(g.rollup) === target);
+        let hits = scopedOffers.filter(g => norm(g.rollup) === target);
         if (hits.length > 0) return hits;
         // 2. substring match either direction
-        hits = offers.filter(g => {
+        hits = scopedOffers.filter(g => {
           const r = norm(g.rollup);
           return r.includes(target) || target.includes(r);
-        });
-        if (hits.length > 0) return hits;
-        // 3. token overlap (≥1 meaningful word in common)
-        const targetTokens = new Set(target.split(" ").filter(t => t.length > 3));
-        if (targetTokens.size === 0) return [];
-        hits = offers.filter(g => {
-          const rTokens = norm(g.rollup).split(" ").filter(t => t.length > 3);
-          return rTokens.some(t => targetTokens.has(t));
         });
         return hits;
       })();
