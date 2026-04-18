@@ -79,9 +79,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
       {/* Deal tiles — 2 per row, full info */}
       {group.deals.length > 0 && (
         <div className="grid grid-cols-5 gap-2 px-4 pb-4">
-          {group.deals.map(deal => {
-            const insight = deriveDeliveryInsight(group.rollup, group.pillar);
-            return (
+          {group.deals.map(deal => (
               <div
                 key={deal.id}
                 className="min-w-0 min-h-[180px] flex flex-col gap-2 rounded-lg border border-slate-200 bg-white p-3"
@@ -113,17 +111,6 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
                 <span className="text-[10.5px] leading-snug text-emerald-700">
                   ↑ {deal.signalReason}
                 </span>
-
-                {/* Delivery timing insight */}
-                {insight && (
-                  <div className="flex items-start gap-1.5 rounded-md bg-amber-50/60 border border-amber-100 px-2 py-1.5">
-                    <Zap className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
-                    <div className="text-[10px] leading-snug text-amber-700">
-                      <div className="font-semibold">{insight.text}</div>
-                      {insight.next && <div className="opacity-80">next {insight.next}</div>}
-                    </div>
-                  </div>
-                )}
 
                 {/* CTA */}
                 <button
