@@ -149,41 +149,59 @@ function buildCadence(
     }
   }
 
-  // ---- Seasonality ----
+  // ---- Seasonality (count-weighted, more reliable than spend) ----
   const monthCounts = new Array(12).fill(0);
   const monthSpend = new Array(12).fill(0);
   let totalSpend = 0;
-  for (let i = 0; i < txs.length; i++) {
-    const d = parseDate(txs[i].date);
+  // Compute totalSpend from ALL txs (independent of date parsing)
+  for (const t of txs) totalSpend += parseAmount(t.amount);
+  // Fill monthly buckets only when date parses
+  for (const t of txs) {
+    const d = parseDate(t.date);
     if (!d) continue;
     const m = d.getMonth();
     monthCounts[m] += 1;
-    const amt = parseAmount(txs[i].amount);
-    monthSpend[m] += amt;
-    totalSpend += amt;
+    monthSpend[m] += parseAmount(t.amount);
   }
 
   let seasonality: string | null = null;
-  if (totalSpend > 0) {
-    // Single-month concentration ≥ 50%
-    const peakMonth = monthSpend.indexOf(Math.max(...monthSpend));
-    const peakPct = monthSpend[peakMonth] / totalSpend;
+  const totalDated = monthCounts.reduce((a, b) => a + b, 0);
+  if (totalDated > 0) {
+    const peakMonth = monthCounts.indexOf(Math.max(...monthCounts));
+    const peakPct = monthCounts[peakMonth] / totalDated;
     if (peakPct >= 0.5 && monthCounts[peakMonth] >= 1) {
-      seasonality = `concentrated in ${MONTHS[peakMonth]}`;
+      // Annual single-month → "annually in Jul"
+      if (cadenceCategory === "annual" || totalDated <= 4) {
+        seasonality = `annually in ${MONTHS[peakMonth]}`;
+      } else {
+        seasonality = `concentrated in ${MONTHS[peakMonth]}`;
+      }
     } else {
-      // 3-month bucket ≥ 40%
       let bestSum = 0, bestStart = 0;
       for (let s = 0; s < 12; s++) {
-        const sum3 = monthSpend[s] + monthSpend[(s + 1) % 12] + monthSpend[(s + 2) % 12];
+        const sum3 = monthCounts[s] + monthCounts[(s + 1) % 12] + monthCounts[(s + 2) % 12];
         if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
       }
-      const bucketPct = bestSum / totalSpend;
-      if (bucketPct >= 0.4) {
+      const bucketPct = bestSum / totalDated;
+      if (bucketPct >= 0.45) {
         seasonality = `${MONTHS[bestStart]}–${MONTHS[(bestStart + 2) % 12]} heavy`;
       } else {
         seasonality = "year-round";
       }
     }
+  }
+
+  // ---- Velocity (recent 3 months vs prior 3 months) ----
+  const now = new Date();
+  const ms30 = 30 * 24 * 60 * 60 * 1000;
+  let recentSpend = 0, priorSpend = 0;
+  for (let i = 0; i < txs.length; i++) {
+    const d = parseDate(txs[i].date);
+    if (!d) continue;
+    const ageDays = (now.getTime() - d.getTime()) / ms30;
+    const amt = parseAmount(txs[i].amount);
+    if (ageDays < 3) recentSpend += amt;
+    else if (ageDays < 6) priorSpend += amt;
   }
 
   // ---- Velocity (recent 3 months vs prior 3 months) ----
