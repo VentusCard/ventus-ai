@@ -29,17 +29,29 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 function parseDate(dateStr: string): Date | null {
   if (!dateStr) return null;
-  if (dateStr.includes("-")) {
-    const d = new Date(dateStr);
+  const s = String(dateStr).trim();
+  if (!s) return null;
+  // ISO: yyyy-mm-dd
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
   }
-  // mm/dd/yyyy
-  const parts = dateStr.split("/");
+  // mm/dd/yy or mm/dd/yyyy (also m/d/yy)
+  const parts = s.split("/");
   if (parts.length === 3) {
-    const d = new Date(`${parts[2]}-${parts[0].padStart(2, "0")}-${parts[1].padStart(2, "0")}`);
+    let [mm, dd, yy] = parts;
+    let year = yy;
+    if (yy.length === 2) {
+      const n = parseInt(yy, 10);
+      // Window: 00-69 → 2000s, 70-99 → 1900s
+      year = (n <= 69 ? 2000 + n : 1900 + n).toString();
+    }
+    const d = new Date(`${year}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`);
     return isNaN(d.getTime()) ? null : d;
   }
-  return null;
+  // Last resort
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 function parseAmount(amount: any): number {
