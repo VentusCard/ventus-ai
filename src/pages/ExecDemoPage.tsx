@@ -290,8 +290,9 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
-      // Fire life event detection first (it will trigger offers with events), risk in parallel
-      fireLifeEventDetection(synthesis, pillars);
+      // Fire life event detection (will reuse the events already detected pre-synthesis,
+      // so it just hydrates UI state and triggers downstream cards/offers), risk in parallel.
+      fireLifeEventDetection(synthesis, pillars, detectedEvents);
       fireRiskDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
