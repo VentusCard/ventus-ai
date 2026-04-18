@@ -279,13 +279,17 @@ function buildCadence(
     : subjectBase;
 
   let summaryLine = rollup.label;
-  if (topMerchant && cadenceCategory) {
-    if (cadenceCategory === "annual" && seasonality && seasonality.startsWith("concentrated in ")) {
-      const month = seasonality.replace("concentrated in ", "");
-      summaryLine = `Annual ${subject} every ${month}, mostly at ${topMerchant.name}`;
-    } else {
-      summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
-    }
+  const annualMonth =
+    seasonality && seasonality.startsWith("annually in ") ? seasonality.replace("annually in ", "") :
+    seasonality && seasonality.startsWith("concentrated in ") ? seasonality.replace("concentrated in ", "") :
+    null;
+
+  if (cadenceCategory === "annual" && annualMonth) {
+    summaryLine = topMerchant
+      ? `Annual ${subject} every ${annualMonth}, mostly at ${topMerchant.name}`
+      : `Annual ${subject} every ${annualMonth}`;
+  } else if (topMerchant && cadenceCategory) {
+    summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
   } else if (cadenceCategory) {
     summaryLine = `${cadenceWord} ${subject} pattern`;
   } else if (topMerchant) {
