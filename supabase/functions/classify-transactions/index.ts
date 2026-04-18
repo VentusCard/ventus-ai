@@ -70,6 +70,88 @@ async function runWithConcurrency<T, R>(
   return results;
 }
 
+// ============================================================
+// Non-card / description-first classification helpers
+// ============================================================
+
+const NON_CARD_SOURCES = new Set([
+  "ach", "zelle", "venmo", "cash app", "cashapp", "paypal",
+  "wire", "check", "checks", "bill pay", "billpay",
+  "transfer", "direct deposit", "directdeposit",
+]);
+
+function isNonCardSource(source?: string): boolean {
+  if (!source) return false;
+  const s = source.toLowerCase().trim();
+  if (s.includes("card")) return false; // "Credit Card", "Debit Card", "Cashback Card", "Travel Card", "Premium Card"
+  return NON_CARD_SOURCES.has(s) || /zelle|venmo|cash\s?app|paypal|ach|wire|check|bill\s?pay|transfer/.test(s);
+}
+
+/**
+ * Map a free-text payment description to a (pillar, category, subcategory).
+ * Used as a deterministic override when AI returns Misc/General for non-card txns.
+ */
+function classifyByDescription(description: string): { pillar: string; category: string; subcategory: string } | null {
+  const d = description.toLowerCase();
+  const rules: Array<[RegExp, string, string, string]> = [
+    // Pets
+    [/dog\s?sit|dog\s?walk|pet\s?sit|cat\s?sit|pet\s?care|grooming/, "Pets", "Pet Services", "Pet Care"],
+    [/vet\b|veterinar/, "Pets", "Veterinary", "Vet"],
+    [/pet\s?food|dog\s?food|cat\s?food/, "Pets", "Pet Supplies", "Pet Food"],
+    // Home & Living
+    [/\brent\b|mortgage|landlord|lease payment/, "Home & Living", "Rent & Mortgage", "Rent"],
+    [/hoa|condo fee/, "Home & Living", "Rent & Mortgage", "HOA"],
+    [/electric|pg&e|pge|con\s?ed|utility|utilities/, "Home & Living", "Utilities", "Electric"],
+    [/gas bill|natural gas/, "Home & Living", "Utilities", "Gas"],
+    [/water bill|sewer/, "Home & Living", "Utilities", "Water"],
+    [/landscap|garden|lawn|yard work/, "Home & Living", "Home Improvement", "Landscaping"],
+    [/clean(ing|er)|housekeep|maid/, "Home & Living", "Home Services", "Cleaning"],
+    [/handyman|plumb|electric(ian)?|hvac|repair/, "Home & Living", "Home Improvement", "Repairs"],
+    [/furnitur|home decor|ikea/, "Home & Living", "Furniture & Decor", "Furniture"],
+    // Tech / Digital
+    [/internet|comcast|xfinity|verizon fios|fiber|wifi/, "Technology & Digital Life", "Internet & Phone", "Internet"],
+    [/phone bill|cell|wireless|t-?mobile|at&t/, "Technology & Digital Life", "Internet & Phone", "Phone"],
+    [/streaming|netflix|hulu|spotify|disney/, "Technology & Digital Life", "Subscriptions", "Streaming"],
+    // Family & Community
+    [/tuition|school fee|college|university/, "Family & Community", "Childcare & Education", "Tuition"],
+    [/babysit|nanny|daycare|childcare|preschool/, "Family & Community", "Childcare & Education", "Childcare"],
+    [/tutor|lessons?\b/, "Family & Community", "Childcare & Education", "Tutoring"],
+    [/gift|birthday|wedding|baby shower/, "Family & Community", "Gifts & Donations", "Gift"],
+    [/donation|charity|tithe|church/, "Family & Community", "Gifts & Donations", "Donation"],
+    // Sports / Active
+    [/yoga|pilates|barre|spin class|crossfit|gym/, "Sports & Active Living", "Gym & Fitness", "Classes"],
+    [/personal train|coach/, "Sports & Active Living", "Gym & Fitness", "Training"],
+    [/golf|tennis|ski lesson|surf lesson/, "Sports & Active Living", "Recreation", "Lessons"],
+    // Health & Wellness
+    [/therap(y|ist)|counsel|psycholog/, "Health & Wellness", "Mental Health", "Therapy"],
+    [/massage|spa|facial/, "Health & Wellness", "Personal Care", "Spa"],
+    [/dental|dentist|orthodont/, "Health & Wellness", "Dental", "Dental"],
+    [/doctor|medical|copay|prescription|pharmacy/, "Health & Wellness", "Medical", "Medical"],
+    // Food & Dining
+    [/groceries|grocery|costco|safeway|whole foods/, "Food & Dining", "Groceries", "Groceries"],
+    [/dinner|lunch|brunch|restaurant|takeout/, "Food & Dining", "Restaurants", "Meal"],
+    [/coffee|espresso/, "Food & Dining", "Coffee & Cafes", "Coffee"],
+    // Transportation
+    [/uber|lyft|taxi|rideshare/, "Transportation", "Rideshare", "Rideshare"],
+    [/parking|garage/, "Transportation", "Parking & Tolls", "Parking"],
+    [/car payment|auto loan/, "Transportation", "Auto Loan", "Car Payment"],
+    [/auto insur|car insur/, "Financial Services", "Insurance", "Auto Insurance"],
+    // Travel
+    [/hotel|airbnb|vrbo|lodging/, "Travel & Experiences", "Lodging", "Hotel"],
+    [/flight|airline|airfare/, "Travel & Experiences", "Flights", "Flight"],
+    // Financial
+    [/loan payment|student loan/, "Financial Services", "Loans", "Loan Payment"],
+    [/insurance/, "Financial Services", "Insurance", "Insurance"],
+    [/savings|investment|brokerage|401k|ira/, "Financial Services", "Investments", "Investment"],
+    // Beauty / Personal Care
+    [/haircut|salon|barber|nail/, "Health & Wellness", "Personal Care", "Salon"],
+  ];
+  for (const [re, pillar, category, subcategory] of rules) {
+    if (re.test(d)) return { pillar, category, subcategory };
+  }
+  return null;
+}
+
 // Classification Prompt with Examples
 const CLASSIFICATION_PROMPT = `Classify transactions into lifestyle pillars, categories, and subcategory labels based on merchant names.
 
