@@ -29,17 +29,29 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 function parseDate(dateStr: string): Date | null {
   if (!dateStr) return null;
-  if (dateStr.includes("-")) {
-    const d = new Date(dateStr);
+  const s = String(dateStr).trim();
+  if (!s) return null;
+  // ISO: yyyy-mm-dd
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
   }
-  // mm/dd/yyyy
-  const parts = dateStr.split("/");
+  // mm/dd/yy or mm/dd/yyyy (also m/d/yy)
+  const parts = s.split("/");
   if (parts.length === 3) {
-    const d = new Date(`${parts[2]}-${parts[0].padStart(2, "0")}-${parts[1].padStart(2, "0")}`);
+    let [mm, dd, yy] = parts;
+    let year = yy;
+    if (yy.length === 2) {
+      const n = parseInt(yy, 10);
+      // Window: 00-69 → 2000s, 70-99 → 1900s
+      year = (n <= 69 ? 2000 + n : 1900 + n).toString();
+    }
+    const d = new Date(`${year}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`);
     return isNaN(d.getTime()) ? null : d;
   }
-  return null;
+  // Last resort
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 function parseAmount(amount: any): number {
@@ -130,43 +142,48 @@ function buildCadence(
       cadence = `every ~${Math.round(avg)} days (${perYear}× / year)`;
     } else if (avg <= 270) {
       cadenceCategory = "annual";
-      cadence = `every ~${Math.round(avg / 30)} months (${perYear}× / year)`;
+      cadence = `every ~${Math.round(avg / 30)} months`;
     } else {
       cadenceCategory = "annual";
       cadence = `roughly once a year`;
     }
   }
 
-  // ---- Seasonality ----
+  // ---- Seasonality (count-weighted, more reliable than spend) ----
   const monthCounts = new Array(12).fill(0);
   const monthSpend = new Array(12).fill(0);
   let totalSpend = 0;
-  for (let i = 0; i < txs.length; i++) {
-    const d = parseDate(txs[i].date);
+  // Compute totalSpend from ALL txs (independent of date parsing)
+  for (const t of txs) totalSpend += parseAmount(t.amount);
+  // Fill monthly buckets only when date parses
+  for (const t of txs) {
+    const d = parseDate(t.date);
     if (!d) continue;
     const m = d.getMonth();
     monthCounts[m] += 1;
-    const amt = parseAmount(txs[i].amount);
-    monthSpend[m] += amt;
-    totalSpend += amt;
+    monthSpend[m] += parseAmount(t.amount);
   }
 
   let seasonality: string | null = null;
-  if (totalSpend > 0) {
-    // Single-month concentration ≥ 50%
-    const peakMonth = monthSpend.indexOf(Math.max(...monthSpend));
-    const peakPct = monthSpend[peakMonth] / totalSpend;
+  const totalDated = monthCounts.reduce((a, b) => a + b, 0);
+  if (totalDated > 0) {
+    const peakMonth = monthCounts.indexOf(Math.max(...monthCounts));
+    const peakPct = monthCounts[peakMonth] / totalDated;
     if (peakPct >= 0.5 && monthCounts[peakMonth] >= 1) {
-      seasonality = `concentrated in ${MONTHS[peakMonth]}`;
+      // Annual single-month → "annually in Jul"
+      if (cadenceCategory === "annual" || totalDated <= 4) {
+        seasonality = `annually in ${MONTHS[peakMonth]}`;
+      } else {
+        seasonality = `concentrated in ${MONTHS[peakMonth]}`;
+      }
     } else {
-      // 3-month bucket ≥ 40%
       let bestSum = 0, bestStart = 0;
       for (let s = 0; s < 12; s++) {
-        const sum3 = monthSpend[s] + monthSpend[(s + 1) % 12] + monthSpend[(s + 2) % 12];
+        const sum3 = monthCounts[s] + monthCounts[(s + 1) % 12] + monthCounts[(s + 2) % 12];
         if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
       }
-      const bucketPct = bestSum / totalSpend;
-      if (bucketPct >= 0.4) {
+      const bucketPct = bestSum / totalDated;
+      if (bucketPct >= 0.45) {
         seasonality = `${MONTHS[bestStart]}–${MONTHS[(bestStart + 2) % 12]} heavy`;
       } else {
         seasonality = "year-round";
@@ -262,13 +279,17 @@ function buildCadence(
     : subjectBase;
 
   let summaryLine = rollup.label;
-  if (topMerchant && cadenceCategory) {
-    if (cadenceCategory === "annual" && seasonality && seasonality.startsWith("concentrated in ")) {
-      const month = seasonality.replace("concentrated in ", "");
-      summaryLine = `Annual ${subject} every ${month}, mostly at ${topMerchant.name}`;
-    } else {
-      summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
-    }
+  const annualMonth =
+    seasonality && seasonality.startsWith("annually in ") ? seasonality.replace("annually in ", "") :
+    seasonality && seasonality.startsWith("concentrated in ") ? seasonality.replace("concentrated in ", "") :
+    null;
+
+  if (cadenceCategory === "annual" && annualMonth) {
+    summaryLine = topMerchant
+      ? `Annual ${subject} every ${annualMonth}, mostly at ${topMerchant.name}`
+      : `Annual ${subject} every ${annualMonth}`;
+  } else if (topMerchant && cadenceCategory) {
+    summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
   } else if (cadenceCategory) {
     summaryLine = `${cadenceWord} ${subject} pattern`;
   } else if (topMerchant) {
