@@ -60,9 +60,10 @@ serve(async (req) => {
     const lifeEventSuppressionBlock = detectedEventNames.length > 0
       ? `
 
-**CRITICAL — LIFE EVENT SUPPRESSION:**
+**CRITICAL — LIFE EVENTS ALWAYS WIN:**
 The following life events have already been detected for this customer and will be shown separately: ${detectedEventNames.map(n => `"${n}"`).join(", ")}.
-Do NOT generate a pillar_rollup whose label overlaps thematically with any of these events. The life event already covers that theme — generating a behavioral rollup on the same theme creates redundant, duplicate-feeling pills in the UI.
+
+Life events carry richer context (funding sources, timing, product fit) and are surfaced in their own dedicated UI section. When a behavioral pattern thematically overlaps with a detected life event, **DROP the behavioral rollup entirely** — do NOT try to "complement" the life event with a parallel rollup on the same theme. Redundant pills make the UI feel duplicated and dilute both signals.
 
 Examples of forbidden overlaps:
 - If "New Home Transition" or any home-purchase event is detected → do NOT produce "Aspiring Homeowner", "Home Buyer", "Nesting Phase", "New Homeowner", or any home-purchase / moving / nesting themed rollup.
@@ -71,7 +72,7 @@ Examples of forbidden overlaps:
 - If "Retirement Planning" is detected → do NOT produce retirement-themed rollups.
 - If "Wedding" is detected → do NOT produce engagement / wedding-themed rollups.
 
-When in doubt, skip the rollup. A clean separation between behavioral habits (rollups) and life events (separately surfaced) is more important than coverage.
+When in doubt, skip the rollup. Life events take priority — every time.
 `
       : "";
 
@@ -94,6 +95,14 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 - When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
+
+- **THEMATIC UNIQUENESS — ONE ROLLUP PER THEME:** Each rollup must cover a *distinct* behavioral theme. NEVER emit two rollups that describe the same underlying life pattern under different names. Forbidden duplicate pairs include (but are not limited to):
+  - "Aspiring Homeowner" + "New Home Transition" / "Home Buyer" / "Nesting Phase"
+  - "College Bound" + "Education Investor" / "Tuition Planner"
+  - "New Parent" + "Baby Prep" / "Growing Family"
+  - "Frequent Traveler" + "Vacation Planner" / "Jetsetter"
+  - "Retirement Saver" + "Pre-Retiree"
+  Pick the SINGLE best label and combine all related categories under it. If you find yourself writing two rollups about the same life pattern, merge them into one.
 
 - Include the exact category names combined and the [N] row indices from the input.${lifeEventSuppressionBlock}`;
 
@@ -139,7 +148,7 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
                       required: ["pillar", "label", "categories", "category_indices"],
                       additionalProperties: false,
                     },
-                    description: "Per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event, OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
                   },
                 },
                 required: ["pillar_rollups"],
