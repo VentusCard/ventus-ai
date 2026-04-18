@@ -172,8 +172,47 @@ serve(async (req) => {
       const data = await lifeEventRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
-      if (parsed?.rollupOffers) rollupOffers.push(...parsed.rollupOffers);
-      else console.error("Failed to parse life-event AI response:", raw.slice(0, 500));
+
+      // Accept multiple shapes from the LLM:
+      // 1. { rollupOffers: [{rollup, pillar, deals}] }  ← canonical
+      // 2. [{ pillar, event_name, deals: [{message, call_to_action}] }]  ← observed drift
+      // 3. { lifeEvents: [...] } or similar
+      let lifeEventGroups: any[] = [];
+      if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) {
+        lifeEventGroups = parsed.rollupOffers;
+      } else if (Array.isArray(parsed)) {
+        lifeEventGroups = parsed;
+      } else if (parsed?.lifeEvents && Array.isArray(parsed.lifeEvents)) {
+        lifeEventGroups = parsed.lifeEvents;
+      }
+
+      if (lifeEventGroups.length > 0) {
+        // Normalize each group to canonical RollupOfferGroup shape
+        for (const g of lifeEventGroups) {
+          const rollupLabel = g.rollup || g.event_name || g.eventName || g.label;
+          if (!rollupLabel) continue;
+          const normalizedDeals = (g.deals || []).map((d: any, idx: number) => ({
+            id: d.id || `le_${idx}`,
+            merchant: d.merchant || d.brand || "Recommended Partner",
+            product: d.product || d.product_name || "",
+            rewardValue: d.rewardValue || d.reward || "",
+            message: d.message || "",
+            cta: d.cta || d.call_to_action || d.callToAction || "Learn more",
+            signal: d.signal || "boost",
+            signalReason: d.signalReason || d.reason || "Aligned with this life event",
+            boostCategory: d.boostCategory || d.boost_category,
+          }));
+          rollupOffers.push({
+            rollup: rollupLabel,
+            pillar: g.pillar || "Life Event",
+            collectionMessage: g.collectionMessage || g.collection_message,
+            suppressedCategories: g.suppressedCategories || g.suppressed_categories || [],
+            deals: normalizedDeals,
+          });
+        }
+      } else {
+        console.error("Failed to parse life-event AI response:", raw.slice(0, 500));
+      }
     }
 
     return new Response(JSON.stringify({ rollupOffers }), {
