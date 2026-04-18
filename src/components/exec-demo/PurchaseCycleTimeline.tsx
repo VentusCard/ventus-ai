@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Calendar, MapPin, TrendingUp, TrendingDown, Repeat } from "lucide-react";
+import { Calendar, MapPin, TrendingUp, TrendingDown, Repeat, Tag, DollarSign, Clock } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis, PillarRollup } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
