@@ -121,8 +121,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
-            );
-          })}
+            ))}
         </div>
       )}
     </div>
