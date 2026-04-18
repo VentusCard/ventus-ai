@@ -953,6 +953,7 @@ export default function ExecDemoPage() {
               generatedOffers={generatedOffers}
               detectedLifeEvents={detectedLifeEvents}
               productCards={productCards}
+              activeOfferLabel={activeTriggerPill?.label || activeRollup?.label || null}
             />
           </div>
         </div>
