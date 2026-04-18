@@ -123,6 +123,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
             {cat}
           </span>
         ))}
+        </div>
       </div>
 
       {/* Deal tiles — 2 per row, full info */}
