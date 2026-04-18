@@ -605,7 +605,28 @@ Deno.serve(async (req) => {
           const enrichedTransactions = transactions.map((original) => {
             const classification = allClassifications.find((c: any) => c.transaction_id === original.transaction_id);
 
+            // DETERMINISTIC OVERRIDE: For non-card transactions with a meaningful description,
+            // prefer description-driven classification when AI returned nothing or Miscellaneous.
+            const isNonCard = isNonCardSource((original as any).source);
+            const desc = ((original as any).description || "").trim();
+            const descOverride = isNonCard && desc ? classifyByDescription(desc) : null;
+
             if (!classification) {
+              if (descOverride) {
+                return {
+                  ...original,
+                  normalized_merchant: original.merchant_name,
+                  pillar: descOverride.pillar,
+                  category: descOverride.category,
+                  subcategories: [descOverride.subcategory],
+                  subcategory: descOverride.subcategory,
+                  confidence: 0.85,
+                  spending_tier: "N/A",
+                  purchase_frequency: "Occasional",
+                  explanation: `Description-driven fallback for non-card (${(original as any).source || "transfer"}) transaction.`,
+                  enriched_at: new Date().toISOString(),
+                };
+              }
               return {
                 ...original,
                 normalized_merchant: original.merchant_name,
@@ -625,17 +646,34 @@ Deno.serve(async (req) => {
               ? classification.subcategories
               : [classification.subcategory || "General"];
 
+            let pillar = classification.pillar;
+            let category = classification.category || "General";
+            let finalSubs = subs;
+            let confidence = classification.confidence || 0.8;
+            let explanation = classification.explanation || "";
+
+            const looksMisc = /miscellaneous|unclassified/i.test(pillar || "") ||
+              /unclear|unknown|^general$/i.test(category || "");
+            if (descOverride && looksMisc) {
+              pillar = descOverride.pillar;
+              category = descOverride.category;
+              finalSubs = [descOverride.subcategory];
+              confidence = 0.85;
+              explanation = `Description-driven override for non-card (${(original as any).source || "transfer"}) transaction.`;
+              console.log(`[OVERRIDE] ${original.merchant_name} + "${desc}" (${(original as any).source}) → ${pillar}/${category}`);
+            }
+
             return {
               ...original,
               normalized_merchant: classification.normalized_merchant || original.merchant_name,
-              pillar: classification.pillar,
-              category: classification.category || "General",
-              subcategories: subs,
-              subcategory: subs[0],
-              confidence: classification.confidence || 0.8,
+              pillar,
+              category,
+              subcategories: finalSubs,
+              subcategory: finalSubs[0],
+              confidence,
               spending_tier: classification.spending_tier || "N/A",
               purchase_frequency: classification.purchase_frequency || "One-Time",
-              explanation: classification.explanation || "",
+              explanation,
               enriched_at: new Date().toISOString(),
             };
           });
