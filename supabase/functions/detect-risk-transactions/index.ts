@@ -309,7 +309,7 @@ serve(async (req) => {
       console.error("Failed to parse AI response:", rawContent);
     }
 
-    const merged = dedupeFlags([...detFlags, ...modelFlags]);
+    const merged = dedupeFlags(detFlags, modelFlags);
     const summary = merged.length === 0
       ? "No significant risk factors detected in the analyzed transactions."
       : (modelSummary || `${merged.length} risk factor${merged.length === 1 ? "" : "s"} detected across the customer's transaction history.`);
