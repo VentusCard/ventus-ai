@@ -27,48 +27,144 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   };
 }
 
-const SYSTEM_PROMPT = `You are a banking risk analysis engine. Analyze the provided transaction data and detect risk factors across THREE categories only:
+// Real-estate / closing-cost keywords — never flag standalone as AML
+const REAL_ESTATE_KEYWORDS = [
+  "DOWN PAYMENT", "DOWNPAYMENT", "TITLE CO", "TITLE COMPANY", "ESCROW",
+  "MORTGAGE", "INSPECTION", "HOME PURCHASE", "REAL ESTATE", "REALTY",
+  "CLOSING COST", "EARNEST MONEY", "HOA", "PROPERTY TAX",
+];
 
-1. **VICE** — Gambling merchants, casinos, sports betting, adult content/media merchants, payday/predatory loan services, cash advance services, pawn shops, cryptocurrency mixing services.
-   - **MCC is authoritative.** ALWAYS flag transactions with these MCCs regardless of merchant name:
-     • 7995 = Betting, Casino Gambling, Lottery, Sports Forecasting → vice (gambling)
-     • 5967 = Direct Marketing — Inbound Teleservices / Adult Content → vice (adult content)
-     • 7273 = Dating Services → vice (adult content) when amount is recurring/elevated
-     • 6051 (cash-like) combined with crypto exchange names → vice (crypto)
-   - Also flag when the merchant name clearly indicates one of these categories (e.g., "CASINO", "BET", "POKER", "ADULT", "PAYDAY LOAN", "PAWN").
+const INTL_KEYWORDS = ["INTL", "INTERNATIONAL", "FOREIGN", "OVERSEAS", "OFFSHORE"];
 
-2. **SUSPICIOUS_INTERNATIONAL** — International payment processors, cross-border wires, or transactions in high-risk jurisdictions (OFAC-sanctioned countries), unusual currency conversion patterns, international transfers to unfamiliar destinations.
-   - ALWAYS flag merchants whose name contains "INTL", "INTERNATIONAL", "FOREIGN", "OVERSEAS", "OFFSHORE", or numeric processor IDs (e.g., "INTL PAYMENT PROC 8742") combined with a missing or non-US zip code → suspicious_international (severity: medium).
-   - Flag wires/ACH to countries inconsistent with the customer's home zip and normal travel patterns.
+function isRealEstate(merchant: string, description: string): boolean {
+  const text = `${merchant} ${description}`.toUpperCase();
+  return REAL_ESTATE_KEYWORDS.some((kw) => text.includes(kw));
+}
 
-3. **AML** — Structuring patterns (multiple transactions just below $10,000 reporting thresholds), rapid round-number deposits/withdrawals, layering patterns across accounts.
+function looksInternational(merchant: string): boolean {
+  const m = (merchant || "").toUpperCase();
+  return INTL_KEYWORDS.some((kw) => m.includes(kw));
+}
 
-IMPORTANT RULES:
-- MCC codes 7995 and 5967 are DEFINITIVE vice indicators — flag them every time, even if the merchant name is generic (e.g., "DIGITAL ENT SVCS", "PRIVATE MEDIA GRP").
-- For non-MCC categories, be conservative: if unsure, do NOT flag.
-- Do NOT flag normal spending variations, routine travel, everyday purchases, or changes in spending habits.
-- Do NOT flag generic fraud patterns like duplicate charges or geo anomalies from normal travel.
-- Do NOT flag a large legitimate purchase (e.g., a single home down-payment wire clearly labeled as such) as AML — structuring requires a PATTERN of multiple transactions deliberately staying below reporting thresholds.
-- USE the provided category and pillar context. A merchant name containing words like "consulting", "services", or "group" is NOT suspicious if the transaction's category clearly maps to a benign domain (e.g., Childcare & Education, Healthcare, Home Improvement) AND the MCC is not one of the definitive vice MCCs above.
+function nonUsZip(zip: string, homeZip: string): boolean {
+  // US zip is 5 digits (or 5+4). Empty or non-numeric counts as non-US/missing.
+  if (!zip) return true;
+  const trimmed = zip.trim();
+  if (!/^\d{5}(-\d{4})?$/.test(trimmed)) return true;
+  // If we have a home zip and it matches, it's domestic
+  if (homeZip && trimmed.startsWith(homeZip.trim().substring(0, 3))) return false;
+  return false;
+}
 
-For each flagged transaction or pattern, provide:
-- transaction_id (or "pattern" if it spans multiple transactions)
-- category: "vice" | "suspicious_international" | "aml"
+interface RiskFlag {
+  transaction_id: string;
+  category_group: "vice" | "suspicious_international" | "aml";
+  category_label: string;
+  severity: "low" | "medium" | "high";
+  merchant: string;
+  amount: number;
+  date: string;
+  reason: string;
+}
+
+function deterministicFlags(transactions: any[]): RiskFlag[] {
+  const flags: RiskFlag[] = [];
+  for (const t of transactions) {
+    const merchant = t.merchant_name || t.normalized_merchant || "";
+    const desc = t.description || "";
+    const mcc = String(t.mcc || "").trim();
+
+    // Skip real-estate transactions entirely
+    if (isRealEstate(merchant, desc)) continue;
+
+    // MCC 7995 → Gambling
+    if (mcc === "7995") {
+      flags.push({
+        transaction_id: t.transaction_id,
+        category_group: "vice",
+        category_label: "Gambling",
+        severity: "high",
+        merchant,
+        amount: t.amount,
+        date: t.date,
+        reason: `MCC 7995 (Betting / Casino / Lottery) — definitive gambling indicator.`,
+      });
+      continue;
+    }
+
+    // MCC 5967 → Adult Content
+    if (mcc === "5967") {
+      flags.push({
+        transaction_id: t.transaction_id,
+        category_group: "vice",
+        category_label: "Adult Content",
+        severity: "medium",
+        merchant,
+        amount: t.amount,
+        date: t.date,
+        reason: `MCC 5967 (Direct Marketing / Adult Content) — definitive adult content indicator.`,
+      });
+      continue;
+    }
+
+    // International keywords + missing/non-US zip
+    if (looksInternational(merchant) && nonUsZip(t.zip_code || "", t.home_zip || "")) {
+      flags.push({
+        transaction_id: t.transaction_id,
+        category_group: "suspicious_international",
+        category_label: "Suspicious International",
+        severity: "medium",
+        merchant,
+        amount: t.amount,
+        date: t.date,
+        reason: `Merchant name suggests international processor with missing or non-US zip code.`,
+      });
+    }
+  }
+  return flags;
+}
+
+function dedupeFlags(flags: RiskFlag[]): RiskFlag[] {
+  const seen = new Set<string>();
+  const out: RiskFlag[] = [];
+  for (const f of flags) {
+    const key = `${f.transaction_id}::${f.category_label}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(f);
+  }
+  return out;
+}
+
+const SYSTEM_PROMPT = `You are a banking risk analysis engine. You receive RAW transaction data (merchant_name, description, mcc, amount, date, zip_code, home_zip, source). You analyze it for risk in THREE groups only:
+
+1. **vice** — Gambling, casinos, sports betting, adult content, payday/predatory loans, pawn shops, crypto mixing services.
+2. **suspicious_international** — Cross-border wires/processors, OFAC-sanctioned jurisdictions, international transfers inconsistent with the customer's home zip.
+3. **aml** — STRUCTURING (multiple deposits/withdrawals just below $10,000 thresholds), rapid round-number layering, repeated cash-equivalent activity. Must be a PATTERN of multiple transactions. A single large legitimate purchase is NEVER aml.
+
+For each flag, return:
+- transaction_id (use "pattern" only for multi-transaction AML patterns)
+- category_group: "vice" | "suspicious_international" | "aml"
+- category_label: a SPECIFIC human label such as "Gambling", "Adult Content", "Sports Betting", "Payday Loan", "Crypto Mixing", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering"
 - severity: "low" | "medium" | "high"
-- merchant: the merchant name
-- amount: the dollar amount
-- date: the transaction date
-- reason: a clear one-sentence explanation
+- merchant
+- amount
+- date
+- reason (one short sentence)
 
-Also provide a brief overall summary (2-3 sentences) of the risk profile.
+CRITICAL EXCLUSIONS — NEVER flag:
+- Real estate / home purchases (DOWN PAYMENT, ESCROW, MORTGAGE, TITLE CO, INSPECTION, HOME PURCHASE, CLOSING COST, EARNEST MONEY, HOA, PROPERTY TAX)
+- Normal travel, routine spending, large legitimate single purchases
+- Generic fraud patterns (duplicates, geo anomalies)
+- Tier/spending shifts
 
-You MUST respond with valid JSON only, no markdown fences. Use this exact structure:
+Be conservative. If unsure, do not flag. If no risks, return {"flags":[],"summary":"No significant risk factors detected."}.
+
+Respond with valid JSON only, no markdown fences:
 {
   "flags": [...],
   "summary": "..."
-}
-
-If no risks are detected, return {"flags":[],"summary":"No significant risk factors detected in the analyzed transactions."}`;
+}`;
 
 serve(async (req) => {
   const origin = req.headers.get("origin");
@@ -92,25 +188,27 @@ serve(async (req) => {
       );
     }
 
-    // Build a compact representation of transactions for the prompt
+    // Step 1: Deterministic pre-pass for high-confidence MCC/keyword matches
+    const detFlags = deterministicFlags(transactions);
+    console.log(`[RISK] Deterministic flags: ${detFlags.length}`);
+
+    // Step 2: Send raw evidence to LLM for AML/pattern reasoning
     const txSummary = transactions.map((t: any) => ({
       id: t.transaction_id,
-      merchant: t.normalized_merchant || t.merchant_name,
+      merchant: t.merchant_name,
       description: t.description,
       mcc: t.mcc,
       amount: t.amount,
       date: t.date,
-      pillar: t.pillar,
-      category: t.category,
-      subcategory: t.subcategories?.[0] || t.subcategory,
-      frequency: t.purchase_frequency,
-      tier: t.spending_tier,
       source: t.source,
       zip: t.zip_code,
       home_zip: t.home_zip,
     }));
 
-    const userPrompt = `Analyze these ${txSummary.length} transactions for risk factors:\n\n${JSON.stringify(txSummary, null, 1)}`;
+    const userPrompt = `Analyze these ${txSummary.length} RAW transactions for risk. Focus on AML structuring patterns and suspicious international activity. Vice categories with MCC 7995 or 5967 are already handled deterministically — you may still flag other vice indicators (e.g., merchant names like "CASINO", "BET", "POKER", "PAYDAY LOAN", "PAWN") if MCC is missing.\n\n${JSON.stringify(txSummary, null, 1)}`;
+
+    let modelFlags: RiskFlag[] = [];
+    let modelSummary = "";
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -146,24 +244,53 @@ serve(async (req) => {
       }
       const errText = await response.text();
       console.error("AI gateway error:", response.status, errText);
-      throw new Error(`AI gateway returned ${response.status}`);
+      // Still return deterministic flags if LLM fails
+      return new Response(
+        JSON.stringify({ flags: detFlags, summary: "Deterministic risk flags only (model unavailable)." }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
     const rawContent = data.choices?.[0]?.message?.content ?? "{}";
 
-    // Parse the JSON response, stripping markdown fences if present
-    let parsed;
     try {
       const cleaned = rawContent.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      parsed = JSON.parse(cleaned);
+      const parsed = JSON.parse(cleaned);
+      const rawModelFlags = Array.isArray(parsed.flags) ? parsed.flags : [];
+      // Filter out anything the model returned for real-estate transactions
+      modelFlags = rawModelFlags
+        .map((f: any) => {
+          // Find the matching tx to validate against real-estate exclusion
+          const tx = transactions.find((t: any) => t.transaction_id === f.transaction_id);
+          if (tx && isRealEstate(tx.merchant_name || "", tx.description || "")) return null;
+          // Normalize: ensure category_group + category_label exist
+          const group = f.category_group || f.category || "aml";
+          const label = f.category_label || (typeof f.category === "string" ? f.category : "Risk");
+          return {
+            transaction_id: f.transaction_id || "pattern",
+            category_group: group,
+            category_label: label,
+            severity: f.severity || "medium",
+            merchant: f.merchant || "",
+            amount: f.amount || 0,
+            date: f.date || "",
+            reason: f.reason || "",
+          } as RiskFlag;
+        })
+        .filter((f: RiskFlag | null): f is RiskFlag => f !== null);
+      modelSummary = parsed.summary || "";
     } catch {
       console.error("Failed to parse AI response:", rawContent);
-      parsed = { flags: [], summary: "Unable to analyze transactions at this time." };
     }
 
+    const merged = dedupeFlags([...detFlags, ...modelFlags]);
+    const summary = merged.length === 0
+      ? "No significant risk factors detected in the analyzed transactions."
+      : (modelSummary || `${merged.length} risk factor${merged.length === 1 ? "" : "s"} detected across the customer's transaction history.`);
+
     return new Response(
-      JSON.stringify(parsed),
+      JSON.stringify({ flags: merged, summary }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
