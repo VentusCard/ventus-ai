@@ -1,41 +1,101 @@
 
 
-## Issue
-Risk pills are showing duplicates: two "Gambling" pills (high + medium) appear because the deterministic pre-pass and the LLM both flag the same MCC 7995 transaction, and dedupe by `transaction_id + category_label` isn't catching it (likely the LLM returned it without `transaction_id`, or with a slightly different label like "Gambling" vs "gambling").
+## Goal
+Persona pills above the Next Conversation tab drive the panel. Clicking a pill shows what the signal can orchestrate, split by client tier:
+- **Regular clients** → Automated engagement flows (email/SMS) + AI Chatbot with full context
+- **Wealth clients** → All of the above + Wealth Advisor notification with personalized prep brief
 
-## Root cause
-In `supabase/functions/detect-risk-transactions/index.ts`:
-1. Deterministic pre-pass flags MCC 7995 → `Gambling` (high)
-2. LLM also flags the same merchant → `Gambling` (medium), possibly with `transaction_id: "pattern"` or missing/mismatched ID
-3. Dedupe key `${transaction_id}::${category_label}` lets both through
+## Plan
 
-## Fix
+### 1. Make persona pills clickable (only on Next Conversation tab)
+In `ExecDemoIntelPanel.tsx`:
+- When tab is `next-conversation`, persona rollup pills become selectable
+- Single-select; default = highest priority pill (life event > risk > lifestyle > segment)
+- Add "All signals" reset pill at the start
+- Selected pill = filled style; others = outlined
+- Pass `selectedSignal` to `NextConversationRationale`
 
-### Single change: stronger dedupe in `detect-risk-transactions/index.ts`
+### 2. Redesign panel as a single orchestration view
+Replace the static two-column boilerplate in `NextConversationRationale.tsx` with one dynamic panel keyed off the selected signal.
 
-**Step 1 — tell the LLM not to re-flag deterministic cases**
-Update the user prompt to pass the list of `transaction_id`s already flagged deterministically and explicitly instruct: "Do NOT re-flag these IDs — they are already handled."
+Layout:
 
-**Step 2 — tighten dedupe logic**
-Change `dedupeFlags` to dedupe by:
-- `transaction_id + category_group` (not `category_label`), so case/wording variations of the same group on the same tx collapse
-- Plus a secondary pass: for any flag where `transaction_id` matches a deterministic flag, drop the model version entirely (deterministic wins)
-- Normalize `category_label` to title case before comparing
+```text
+┌──────────────────────────────────────────────────────────┐
+│ Signal: Home Buyer · detected from escrow + title fees   │
+├──────────────────────────────────────────────────────────┤
+│ REGULAR CLIENT ORCHESTRATION                             │
+│ ┌─ Automated Flow ─────────────────────────────────────┐ │
+│ │ 📧 Email: "Your home journey starts here"            │ │
+│ │ Trigger: Escrow detected → 24h delay                 │ │
+│ │ Sequence: pre-approval → insurance bundle → HELOC    │ │
+│ └──────────────────────────────────────────────────────┘ │
+│ ┌─ AI Chatbot Context ─────────────────────────────────┐ │
+│ │ 💬 Knows: closing date, down payment size, location  │ │
+│ │ Can answer: "When's my first mortgage payment?"      │ │
+│ │              "What insurance do I need?"             │ │
+│ └──────────────────────────────────────────────────────┘ │
+├──────────────────────────────────────────────────────────┤
+│ WEALTH CLIENT — ADDITIONAL ORCHESTRATION                 │
+│ ┌─ Advisor Notification ───────────────────────────────┐ │
+│ │ 🔔 Sent to: Sarah's advisor (Jane Chen)              │ │
+│ │ Personalized prep brief includes:                    │ │
+│ │   • Estate plan update for new property              │ │
+│ │   • Jumbo mortgage vs portfolio loan analysis        │ │
+│ │   • Liquidity timing for down payment                │ │
+│ │ Suggested outreach: Within 48 hours                  │ │
+│ └──────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+```
 
-**Step 3 — frontend safety net in `ExecDemoIntelPanel.tsx`**
-Add a final client-side dedupe before rendering pills using `${transaction_id}::${category_group}` as the key, so even if the backend slips a duplicate through, the UI shows only one pill per (transaction, group) pair.
+The wealth section is always shown but visually subordinate (subtle border, "+" indicator) to communicate "regular gets these two, wealth gets all three."
 
-## Files
-- `supabase/functions/detect-risk-transactions/index.ts` — prompt + dedupe logic
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — client-side dedupe safety net
+### 3. Signal → orchestration mapping
+Build a mapping in `NextConversationRationale.tsx` from signal type/label → orchestration content. Each entry contains:
+
+```ts
+{
+  signalLabel: string,
+  signalSource: string,           // "detected from escrow + title fees"
+  automatedFlow: {
+    channel: "Email" | "SMS" | "Push",
+    subject: string,
+    triggerLogic: string,
+    sequence: string[],           // 3 step nudges
+  },
+  chatbotContext: {
+    knows: string[],              // 2-3 bullet items the bot has context on
+    canAnswer: string[],          // 2-3 sample questions
+  },
+  advisorBrief: {
+    recipient: string,            // "Sarah's advisor (Jane Chen)"
+    briefBullets: string[],       // 3 personalized prep items
+    suggestedOutreach: string,    // "Within 48 hours"
+  },
+}
+```
+
+Mappings cover:
+- **Life events**: Home Buyer, New Parent, Retirement Approaching, Wealth Transfer, Travel Planner
+- **Lifestyle**: Frequent Traveler, Luxury Shopper, Health Conscious
+- **Risk**: Gambling, Suspicious International (advisor brief = compliance escalation)
+- **Segment fallback**: generic relationship-deepening playbook
+
+### 4. "All signals" view
+When "All signals" is selected, show a compact stacked summary: each pill as a one-line row with its top recommended channel, expandable on hover. Skips the detailed orchestration cards.
+
+## Files to update
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — clickable pills + selection state on Next Conversation tab
+- `src/components/exec-demo/NextConversationRationale.tsx` — full redesign with mapping + 3-block orchestration layout
 
 ## Out of scope
-- No changes to pill styling, matching, or the rest of the risk flow
-- No schema or payload changes
+- No backend / edge function changes
+- No changes to other tabs or to pill data sources
+- No real email/SMS sending — this is presentation only
 
-## Expected result for Sarah
-Exactly 3 pills:
-- `Gambling` (high)
-- `Adult Content` (medium)
-- `Suspicious International` (medium)
+## Expected result for Sarah (Home Buyer + Preferred + Gambling)
+- Default opens with "Home Buyer" selected
+- Shows Email flow + Chatbot context (regular block) + Advisor prep brief (wealth block)
+- Click "Gambling" → flow becomes a discreet wellness check-in, advisor block becomes compliance escalation
+- Click "All signals" → compact roll-up of all three pills
 
