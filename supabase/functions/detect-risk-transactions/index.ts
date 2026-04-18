@@ -67,8 +67,24 @@ interface RiskFlag {
   reason: string;
 }
 
+function gamblingSeverity(count: number, totalAmount: number): "low" | "medium" | "high" {
+  // Severity scales with frequency AND volume. A single small transaction is low.
+  if (count >= 4 || totalAmount >= 2000) return "high";
+  if (count >= 2 || totalAmount >= 500) return "medium";
+  return "low";
+}
+
 function deterministicFlags(transactions: any[]): RiskFlag[] {
   const flags: RiskFlag[] = [];
+
+  // Pre-compute gambling aggregates so single-transaction cases don't get "high"
+  const gamblingTxs = transactions.filter(
+    (t) => String(t.mcc || "").trim() === "7995" && !isRealEstate(t.merchant_name || "", t.description || "")
+  );
+  const gamblingCount = gamblingTxs.length;
+  const gamblingTotal = gamblingTxs.reduce((s, t) => s + (Number(t.amount) || 0), 0);
+  const gSeverity = gamblingSeverity(gamblingCount, gamblingTotal);
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
@@ -77,17 +93,20 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     // Skip real-estate transactions entirely
     if (isRealEstate(merchant, desc)) continue;
 
-    // MCC 7995 → Gambling
+    // MCC 7995 → Gambling (severity scales with count + volume)
     if (mcc === "7995") {
+      const reason = gamblingCount === 1
+        ? `MCC 7995 (Betting / Casino / Lottery) — single isolated gambling transaction of $${Number(t.amount).toFixed(2)}.`
+        : `MCC 7995 (Betting / Casino / Lottery) — ${gamblingCount} gambling transactions totaling $${gamblingTotal.toFixed(2)}.`;
       flags.push({
         transaction_id: t.transaction_id,
         category_group: "vice",
         category_label: "Gambling",
-        severity: "high",
+        severity: gSeverity,
         merchant,
         amount: t.amount,
         date: t.date,
-        reason: `MCC 7995 (Betting / Casino / Lottery) — definitive gambling indicator.`,
+        reason,
       });
       continue;
     }
