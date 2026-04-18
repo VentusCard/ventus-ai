@@ -1,75 +1,52 @@
 
+
 ## Goal
-Make the Shopping Pattern card reliably show real purchase timing signals on Next-Offer: cadence, seasonality/timeline, and richer subcategory language such as “monthly vet visits” or “Hawaiian vacations annually in July.”
+Reorganize the Shopping Pattern card body into two horizontal sections side-by-side. Header (pillar label + summary line) stays full-width on top.
 
-## What I found
-The card UI is already built, but the data feeding it is fragile:
+## Layout
 
-1. `parseCsvToTransactions()` converts dates to `MM/DD/YY`
-2. `PurchaseCycleTimeline.tsx > parseDate()` assumes `MM/DD/YYYY`
-3. That causes many Sarah dates to parse incorrectly, so:
-   - cadence never computes
-   - seasonality/timeline never computes
-   - active span can disappear
-   - `totalSpend` may stay `0` because it is currently summed only inside the “valid date” loop
+```text
+┌─────────────────────────────────────────────────────────┐
+│ ✦ DINING · SHOPPING PATTERN                             │
+│ "Weekly Italian dining at Carbone"                      │
+├──────────────────────────┬──────────────────────────────┤
+│ LEFT: Spot & Info        │ RIGHT: Timing                │
+│                          │                              │
+│ 📍 Top spot  Carbone     │ ↻ Cadence    every ~7 days   │
+│ 🏷 Top types Italian 52% │ 📅 Active    Mar 24 → today  │
+│ 💵 Lifetime  $4,820      │ 📆 Season    Jul–Sep heavy   │
+│              avg $42     │ 📈 Trend     +18% vs prior   │
+│                          │                              │
+│                          │ [▁▂▃▅▇▆▇█▇▆▅] last 12 mo     │
+└──────────────────────────┴──────────────────────────────┘
+```
 
-There is also a second quality issue:
-4. subcategory insight is derived from `signalMap`, which is okay as a fallback, but not explicit enough for richer phrases unless the classified subcategory is available cleanly
+## Changes — single file: `src/components/exec-demo/PurchaseCycleTimeline.tsx`
 
-## Implementation plan
+### `CadenceCard` component restructure
 
-### 1. Fix the date pipeline so cadence can actually render
-Update `src/components/exec-demo/PurchaseCycleTimeline.tsx`:
-- make `parseDate()` support both `MM/DD/YY` and `MM/DD/YYYY`
-- keep ISO support intact
-- stop tying spend calculation to successful date parsing
+1. Keep header block (pillar tag + italic summary line) full-width on top
+2. Replace single `space-y-1.5` column with a `grid grid-cols-2 gap-4` (with thin vertical divider via `divide-x divide-slate-100`)
+3. **Left column — "Spot & Info"**:
+   - Top spot (MapPin)
+   - Top types / subcategories (Tag)
+   - Lifetime spend + avg ticket (DollarSign)
+4. **Right column — "Timing"**:
+   - Cadence (Repeat)
+   - Active span (Clock)
+   - Seasonality (Calendar) — only when not "year-round"
+   - Trend / velocity (TrendingUp/Down)
+   - Sparkline at the bottom of the right column with "last 12 mo" caption
 
-Result:
-- Sarah’s travel / pet / dining rollups can compute recurring intervals
-- annual month concentration like July can show up again
-- sparkline and active-span become reliable
+### Styling notes
+- Each column gets `pl-3` / `pr-3` padding for breathing room around the divider
+- Remove the existing top border on the sparkline (it now sits inside the right column)
+- Keep `text-[11.5px]` density and icon sizing identical for visual continuity
+- Hide a row entirely when its data is missing (existing behavior)
+- If right column ends up with no data (rare), fall back to single-column layout to avoid an awkward empty half — guard with a simple `hasTimingData` check
 
-### 2. Make cadence + seasonality output more human
-Still in `PurchaseCycleTimeline.tsx`:
-- preserve the existing cadence logic, but ensure it produces plain-English phrases like:
-  - `every ~28 days`
-  - `roughly once a year`
-- convert strong month concentration into more natural copy:
-  - `annually in Jul`
-  - `Jul–Sep heavy`
+## Out of scope
+- No data/logic changes — purely a layout reorg
+- No edge function or pill changes
+- Life-event fallback card stays as-is
 
-### 3. Ensure the summary line prefers meaningful purchase language
-Refine the summary generation so it uses the strongest available signal:
-- top subcategory when it is dominant
-- otherwise rollup label
-- combine with cadence/seasonality when available
-
-Examples:
-- `Monthly veterinary visits at Banfield`
-- `Annual Hawaiian travel every Jul, mostly at Hawaiian Airlines`
-- `Weekly Italian dining at Carbone`
-
-### 4. Improve subcategory sourcing
-In `PurchaseCycleTimeline.tsx`, update the subcategory mix logic to prefer:
-- classified subcategory / signal label when present
-- then category
-- ignore generic placeholders
-
-If needed after reading the live data shape during implementation, I’ll thread a cleaner enriched-subcategory field down from `ExecDemoPage.tsx`, but I expect the existing classified `signalMap` to be enough once timing works.
-
-### 5. End-to-end verify on `/demo` with Sarah
-After implementation, test Sarah specifically on Next-Offer and confirm at least one selected persona shows:
-- a visible cadence row
-- a visible seasonality/timeline insight when applicable
-- a populated sparkline
-- richer summary language than the current generic card
-
-## Files likely to change
-- `src/components/exec-demo/PurchaseCycleTimeline.tsx`
-- possibly `src/components/exec-demo/execDemoData.ts` only if a cleaner date or subcategory field needs to be passed through
-
-## Expected outcome
-On Sarah, the Shopping Pattern card should stop looking generic and start reading like actual purchase behavior, for example:
-- Pet Care: monthly vet-related behavior
-- Travel: Hawaii-heavy annual travel concentrated in July
-- Dining: recurring cuisine-specific dining pattern when the data supports it
