@@ -510,6 +510,7 @@ export default function PurchaseCycleTimeline({
 
   // What label to filter offers by — life event takes precedence if active
   const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
+  const activeOfferPillar = activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null;
 
   return (
     <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
@@ -541,6 +542,7 @@ export default function PurchaseCycleTimeline({
           personaSynthesis={personaSynthesis || null}
           loading={!!offersLoading}
           activeRollupLabel={activeOfferLabel}
+          activeRollupPillar={activeOfferPillar}
         />
       </div>
 
