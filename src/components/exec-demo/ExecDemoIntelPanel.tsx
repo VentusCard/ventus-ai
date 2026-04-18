@@ -478,10 +478,25 @@ export default function ExecDemoIntelPanel({
               <div
                 className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
+                {/* Header row */}
+                <div className="flex items-center py-1.5 border-b border-slate-200 sticky top-0 bg-white/95 backdrop-blur-sm z-10">
+                  <div className="w-[115px] shrink-0 pr-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Pillar
+                  </div>
+                  <div className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Categories &amp; Subcategories
+                  </div>
+                  <div className="w-[70px] shrink-0 pl-2 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Total
+                  </div>
+                </div>
                 {(() => {
                   const entries = Array.from(chipsByPillarCategory.entries());
                   return entries.map(([pillar, categoriesMap], pillarIdx) => {
                     const c = getColor(pillar);
+                    const pillarTotal = Array.from(categoriesMap.values())
+                      .flat()
+                      .reduce((sum, chip) => sum + chip.totalSpend, 0);
                     return (
                       <div
                         key={pillar}
@@ -492,7 +507,7 @@ export default function ExecDemoIntelPanel({
                           <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
                           <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
                         </div>
-                        {/* Right column — categories + subcategory pills */}
+                        {/* Middle column — categories + subcategory pills */}
                         <div className="flex-1 flex flex-wrap items-center gap-1.5">
                           {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
                             <React.Fragment key={category}>
@@ -531,6 +546,10 @@ export default function ExecDemoIntelPanel({
                               })}
                             </React.Fragment>
                           ))}
+                        </div>
+                        {/* Right column — pillar total */}
+                        <div className="w-[70px] shrink-0 pl-2 pt-[3px] text-right text-[12px] font-semibold tabular-nums" style={{ color: c.text }}>
+                          {formatSpend(pillarTotal)}
                         </div>
                       </div>
                     );
