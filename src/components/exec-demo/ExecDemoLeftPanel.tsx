@@ -42,6 +42,7 @@ const TxRow = ({
   
   signalEntry,
   enriched,
+  txIndex,
 }: {
   tx: Transaction;
   dim: boolean;
@@ -51,6 +52,7 @@ const TxRow = ({
   
   signalEntry?: SignalEntry;
   enriched?: boolean;
+  txIndex?: number;
 }) => {
   const [hovered, setHovered] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
