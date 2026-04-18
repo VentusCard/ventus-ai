@@ -99,7 +99,11 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
       }}
     >
       {/* Card header */}
-      <div className="flex items-center gap-1.5 flex-wrap px-4 pt-3 pb-2">
+      <div className="px-4 pt-3 pb-2">
+        <div className="font-bold text-base text-slate-900 mb-2">
+          Behavioral Based Deal Collection
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
         <span
           className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
           style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
