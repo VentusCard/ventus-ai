@@ -584,7 +584,7 @@ export default function ExecDemoIntelPanel({
 
       {/* Action buttons — shown after synthesis, before any tab selected */}
       {showProfile && synthesisTriggered && !activeTab && (
-        <div className="grid grid-cols-3 gap-3 w-full px-1 py-3 border-t border-slate-200/60 shrink-0">
+        <div className="flex items-center justify-center gap-3 py-3 border-t border-slate-200/60 shrink-0">
           {(["analytics", "product", "relationship"] as TabKey[]).map((key, i) => {
             const meta = TAB_META[key];
             const Icon = meta.icon;
@@ -592,11 +592,11 @@ export default function ExecDemoIntelPanel({
               <button
                 key={key}
                 onClick={() => onTabClick(key)}
-                className="w-full flex flex-col items-center justify-center gap-1.5 px-4 py-3.5 rounded-lg border border-slate-300 bg-gradient-to-b from-white to-slate-50 hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all duration-300 group"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
                 style={{ animation: `offer-card-in 0.45s ease-out ${i * 0.1}s both` }}
               >
-                <Icon className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" />
-                <span className="text-sm font-bold text-slate-700 group-hover:text-primary transition-colors">{meta.label}</span>
+                <Icon className="w-4 h-4 text-slate-500 group-hover:text-primary transition-colors" />
+                <span className="text-xs font-bold text-slate-700 group-hover:text-primary transition-colors">{meta.label}</span>
               </button>
             );
           })}
