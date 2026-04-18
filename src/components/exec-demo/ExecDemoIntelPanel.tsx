@@ -479,14 +479,14 @@ export default function ExecDemoIntelPanel({
                 className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
                 {/* Header row */}
-                <div className="flex items-center py-1.5 border-b border-slate-200 sticky top-0 bg-white/95 backdrop-blur-sm z-10">
-                  <div className="w-[115px] shrink-0 pr-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <div className="flex items-center py-2 px-2 border-b border-slate-300 sticky top-0 bg-slate-100 z-10 rounded-t-md">
+                  <div className="w-[115px] shrink-0 pr-2 text-[12px] font-bold uppercase tracking-wider text-slate-900">
                     Pillar
                   </div>
-                  <div className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  <div className="flex-1 text-[12px] font-bold uppercase tracking-wider text-slate-900">
                     Categories &amp; Subcategories
                   </div>
-                  <div className="w-[70px] shrink-0 pl-2 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  <div className="w-[70px] shrink-0 pl-2 text-right text-[12px] font-bold uppercase tracking-wider text-slate-900">
                     Total
                   </div>
                 </div>
