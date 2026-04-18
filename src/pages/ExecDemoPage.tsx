@@ -68,6 +68,7 @@ export default function ExecDemoPage() {
   const [riskLoading, setRiskLoading] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
+  const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
   const offersInFlightRef = useRef<boolean>(false);
 
