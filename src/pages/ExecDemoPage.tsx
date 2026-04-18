@@ -321,13 +321,27 @@ export default function ExecDemoPage() {
         topMerchants: [],
         totalCount: r.totalCount ?? 0,
       }));
-      const lifeEventRollups = (lifeEvents || []).map(e => ({
-        label: e.event_name,
-        pillar: "Life Event",
-        categories: [],
-        topMerchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
-        totalCount: (e.evidence || []).length || 1,
-      }));
+      const enrichedTxs = classifiedRef.current || [];
+      const lifeEventRollups = (lifeEvents || []).map(e => {
+        const evidenceMerchants = (e.evidence || []).map(ev => ev.merchant).filter(Boolean);
+        const lcMerchants = evidenceMerchants.map(m => m.toLowerCase());
+        const categories = [...new Set(
+          enrichedTxs
+            .filter(tx => {
+              const m = (tx.merchant_name || "").toLowerCase();
+              return lcMerchants.some(em => m.includes(em) || em.includes(m));
+            })
+            .map(tx => tx.category)
+            .filter(Boolean) as string[]
+        )].slice(0, 5);
+        return {
+          label: e.event_name,
+          pillar: "Life Event",
+          categories,
+          topMerchants: evidenceMerchants,
+          totalCount: evidenceMerchants.length || 1,
+        };
+      });
       const unifiedRollups = [...behavioralRollups, ...lifeEventRollups];
 
       const { data, error } = await supabase.functions.invoke("generate-next-offers", {

@@ -150,11 +150,13 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
     );
   }
 
-  // Filter to only the active rollup's offer group with conservative fuzzy matching.
-  // Pillar-bucket pre-filter removed: edge function now returns labels verbatim for
-  // both behavioral rollups AND life events, so label match alone is sufficient.
+  // Filter to only the active rollup's offer group.
+  // For Life Events: exact normalized match ONLY (no substring fallback — short labels
+  // like "Home Purchase" can spuriously substring-match unrelated behavioral rollups).
+  // For behavioral rollups: exact match, then conservative substring fallback.
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const target = activeRollupLabel ? norm(activeRollupLabel) : null;
+  const isLifeEvent = activeRollupPillar === "Life Event";
 
   const filtered = !target
     ? offers
@@ -162,7 +164,9 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
         // 1. exact (case-insensitive) match
         let hits = offers.filter(g => norm(g.rollup) === target);
         if (hits.length > 0) return hits;
-        // 2. substring match either direction
+        // 2. life events: stop here — never fuzzy-match into a behavioral group
+        if (isLifeEvent) return [];
+        // 3. behavioral: substring match either direction
         hits = offers.filter(g => {
           const r = norm(g.rollup);
           return r.includes(target) || target.includes(r);

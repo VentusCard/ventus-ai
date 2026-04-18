@@ -101,7 +101,9 @@ serve(async (req) => {
     const userPrompt = `ROLLUPS (generate exactly 5 boost deals for EACH):
 ${rollupList}
 
-In the output, the "rollup" field MUST be the exact label string in quotes from each rollup, and the "pillar" field MUST be the exact pillar string in quotes (verbatim, no changes). Return valid JSON only.`;
+In the output, the "rollup" field MUST be the exact label string in quotes from each rollup, and the "pillar" field MUST be the exact pillar string in quotes (verbatim, no changes).
+If the input pillar is "Life Event", the rollup label is a SHORT EVENT NAME (e.g., "Home Purchase", "New Baby", "Retirement Planning") — output it character-for-character; do NOT paraphrase, expand, or rename it.
+Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

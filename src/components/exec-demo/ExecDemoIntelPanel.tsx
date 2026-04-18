@@ -364,14 +364,14 @@ export default function ExecDemoIntelPanel({
                             return evidenceMerchants.some(em => m.includes(em) || em.includes(m)) ? idx : -1;
                           }).filter(idx => idx !== -1)
                         : [];
-                      const isClickable = matchedIndices.length > 0;
+                      const hasMatches = matchedIndices.length > 0;
                       const confidence = evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
                       const evCount = evt.evidence?.length ?? 0;
                       return (
                         <span
                           key={evt.event_name}
-                          onClick={() => isClickable && onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          onClick={() => onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 ${hasMatches ? "" : "opacity-70"}`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
