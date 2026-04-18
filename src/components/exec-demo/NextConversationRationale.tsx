@@ -321,10 +321,9 @@ export default function NextConversationRationale({
             const pb = findPlaybook(s.label);
             const meta = KIND_META[s.kind];
             return (
-              <button
+              <div
                 key={`${s.kind}-${s.label}`}
-                onClick={() => onSelectSignal?.(s)}
-                className="w-full text-left rounded-lg px-2.5 py-2 hover:bg-slate-50 transition-colors flex items-center gap-2 border border-slate-200"
+                className="w-full text-left rounded-lg px-2.5 py-2 flex items-center gap-2 border border-slate-200"
               >
                 <span
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
@@ -338,7 +337,7 @@ export default function NextConversationRationale({
                   {isWealthClient && <> · <Bell className="w-2.5 h-2.5 inline" /> Advisor</>}
                 </span>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
-              </button>
+              </div>
             );
           })}
         </div>
