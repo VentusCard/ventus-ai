@@ -804,7 +804,7 @@ export default function ExecDemoPage() {
         <div className="flex items-center gap-3">
           <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
           <span className="text-[11px] text-slate-400 hidden sm:inline">
-            Executive Demo · Personalization Engine
+            Semantic Enrichment - Behavioral Intelligence - Personalization Orchestration
           </span>
         </div>
         <div className="flex items-center gap-3">
