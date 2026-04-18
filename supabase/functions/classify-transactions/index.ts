@@ -194,6 +194,15 @@ MERCHANT PARSING:
 • Remove payment prefixes: Apple Pay, PayPal, Venmo, SQ, Cash App, Zelle
 • Extract true merchant (e.g., "SQ *Chipotle" → "Chipotle")
 
+P2P PAYMENTS (Zelle, Venmo, Cash App, PayPal):
+• When merchant looks like a person's name AND source is Zelle/Venmo/Cash App, the description field IS the classification signal — use it as the primary clue.
+• Examples:
+  - "MARIA GARCIA" + description "Dogsitting" → Pets / Pet Services / ["Dogsitting"]
+  - "JOHN SMITH" + description "Rent" → Home & Living / Rent & Mortgage / ["Rent"]
+  - "SARAH LEE" + description "Yoga class" → Sports & Active Living / Gym & Fitness / ["Classes"]
+  - "MIKE CHEN" + description "Birthday gift" → Family & Community / Gifts & Donations / ["Gift"]
+• If description is empty for a P2P transfer, fall back to Family & Community / General with low confidence.
+
 CATEGORY RULES:
 • The category is the PRIMARY behavioral identifier — for Sports it's the sport, for Food it's the venue type, for Travel it's the transport/stay type
 • Only use "General" when the merchant doesn't fit any specific category
@@ -541,6 +550,7 @@ Deno.serve(async (req) => {
     const transactionSummary = transactions.map((t) => ({
       id: t.transaction_id,
       merchant: t.merchant_name,
+      ...(t.description && { description: t.description }),
       amount: t.amount,
       date: t.date,
       ...(t.zip_code && { zip: t.zip_code }),
