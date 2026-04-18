@@ -692,7 +692,6 @@ export default function ExecDemoIntelPanel({
                 availableSignals={availableSignals}
                 isWealthClient={isWealthClient}
                 customerFirstName={customerFirstName}
-                onSelectSignal={setSelectedSignal}
               />
             ) : (
               <div className="flex items-center justify-center h-full">

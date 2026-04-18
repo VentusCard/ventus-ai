@@ -1,4 +1,4 @@
-import { Mail, MessageSquare, Bell, Sparkles, Layers, ChevronRight } from "lucide-react";
+import { Mail, MessageSquare, Bell, Sparkles, ChevronRight } from "lucide-react";
 
 export type SignalKind = "lifeEvent" | "lifestyle" | "risk" | "segment" | "all";
 
@@ -295,7 +295,6 @@ interface Props {
   availableSignals?: SelectedSignal[];
   isWealthClient?: boolean;
   customerFirstName?: string;
-  onSelectSignal?: (signal: SelectedSignal) => void;
 }
 
 export default function NextConversationRationale({
@@ -303,7 +302,6 @@ export default function NextConversationRationale({
   availableSignals = [],
   isWealthClient = true,
   customerFirstName = "the client",
-  onSelectSignal,
 }: Props) {
   const effectiveSignal: SelectedSignal =
     selectedSignal ?? availableSignals[0] ?? { kind: "all", label: "All Signals" };
@@ -312,11 +310,6 @@ export default function NextConversationRationale({
   if (effectiveSignal.kind === "all") {
     return (
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
-        <SelectorBar
-          available={availableSignals}
-          selected={effectiveSignal}
-          onSelect={onSelectSignal}
-        />
         <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
           Orchestration roll-up · all signals
         </div>
@@ -328,10 +321,9 @@ export default function NextConversationRationale({
             const pb = findPlaybook(s.label);
             const meta = KIND_META[s.kind];
             return (
-              <button
+              <div
                 key={`${s.kind}-${s.label}`}
-                onClick={() => onSelectSignal?.(s)}
-                className="w-full text-left rounded-lg px-2.5 py-2 hover:bg-slate-50 transition-colors flex items-center gap-2 border border-slate-200"
+                className="w-full text-left rounded-lg px-2.5 py-2 flex items-center gap-2 border border-slate-200"
               >
                 <span
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
@@ -345,7 +337,7 @@ export default function NextConversationRationale({
                   {isWealthClient && <> · <Bell className="w-2.5 h-2.5 inline" /> Advisor</>}
                 </span>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
-              </button>
+              </div>
             );
           })}
         </div>
@@ -358,12 +350,6 @@ export default function NextConversationRationale({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5">
-      <SelectorBar
-        available={availableSignals}
-        selected={effectiveSignal}
-        onSelect={onSelectSignal}
-      />
-
       {/* Signal context header */}
       <div
         className="rounded-lg px-3 py-2 flex items-center gap-2"
@@ -380,15 +366,17 @@ export default function NextConversationRationale({
         </div>
       </div>
 
-      {/* REGULAR CLIENT ORCHESTRATION */}
-      <div>
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-            Regular Client Orchestration
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
+      {/* Vertical split: Regular (left) | Wealth (right) */}
+      <div className="grid grid-cols-2 gap-0">
+        {/* REGULAR CLIENT — LEFT */}
+        <div className="pr-3 space-y-2">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+            <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+              Regular Client
+            </span>
+          </div>
+
           {/* Automated flow */}
           <div
             className="rounded-lg px-2.5 py-2"
@@ -456,94 +444,55 @@ export default function NextConversationRationale({
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* WEALTH CLIENT ORCHESTRATION */}
-      <div>
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-          <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
-            Wealth Client — Additional Orchestration
-          </span>
-          <span className="text-[9px] text-slate-400 italic">(includes everything above +)</span>
-        </div>
-        <div
-          className={`rounded-lg px-2.5 py-2 ${!isWealthClient ? "opacity-60" : ""}`}
-          style={{
-            background: "rgba(139,92,246,.05)",
-            border: "1px dashed rgba(139,92,246,.32)",
-          }}
-        >
-          <div className="flex items-center gap-1.5 mb-1">
-            <Bell className="w-3 h-3" style={{ color: "#8b5cf6" }} />
-            <span className="text-[10px] font-semibold text-purple-900">
-              Advisor notification + personalized prep brief
+        {/* WEALTH CLIENT — RIGHT (vertical divider) */}
+        <div className="pl-3 border-l border-slate-200 space-y-2">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+            <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+              Wealth Client <span className="text-purple-400">(+)</span>
             </span>
           </div>
-          <div className="text-[10px] text-slate-600 mb-1.5">
-            <span className="font-semibold">Sent to:</span> {playbook.advisorBrief.recipient}
-          </div>
-          <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
-            Personalized prep brief includes
-          </div>
-          <ul className="space-y-0.5 mb-1.5">
-            {playbook.advisorBrief.briefBullets.map((b) => (
-              <li key={b} className="text-[10px] text-slate-600 leading-tight flex items-start gap-1">
-                <span className="mt-[3px] w-1 h-1 rounded-full shrink-0 bg-purple-400" />
-                {b}
-              </li>
-            ))}
-          </ul>
-          <div className="text-[10px] text-slate-600">
-            <span className="font-semibold">Suggested outreach:</span>{" "}
-            <span className="text-purple-700 font-semibold">{playbook.advisorBrief.suggestedOutreach}</span>
-          </div>
-          {!isWealthClient && (
-            <div className="mt-1.5 text-[9px] text-slate-400 italic">
-              Not active — {customerFirstName} is a regular client
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function SelectorBar({
-  available,
-  selected,
-  onSelect,
-}: {
-  available: SelectedSignal[];
-  selected: SelectedSignal;
-  onSelect?: (s: SelectedSignal) => void;
-}) {
-  const allOption: SelectedSignal = { kind: "all", label: "All Signals" };
-  const items = [allOption, ...available];
-  return (
-    <div className="flex flex-wrap gap-1 mb-2">
-      {items.map((s) => {
-        const isSelected =
-          selected.kind === s.kind && selected.label === s.label;
-        const meta = KIND_META[s.kind];
-        return (
-          <button
-            key={`${s.kind}-${s.label}`}
-            onClick={() => onSelect?.(s)}
-            className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full transition-all duration-150 ${
-              isSelected ? "shadow-sm" : "hover:brightness-95"
-            }`}
+          <div
+            className={`rounded-lg px-2.5 py-2 ${!isWealthClient ? "opacity-60" : ""}`}
             style={{
-              background: isSelected ? meta.color : meta.bg,
-              color: isSelected ? "#ffffff" : meta.color,
-              border: `1px solid ${isSelected ? meta.color : meta.border}`,
+              background: "rgba(139,92,246,.05)",
+              border: "1px dashed rgba(139,92,246,.32)",
             }}
           >
-            {s.kind === "all" && <Layers className="w-2.5 h-2.5" />}
-            {s.label}
-          </button>
-        );
-      })}
+            <div className="flex items-center gap-1.5 mb-1">
+              <Bell className="w-3 h-3" style={{ color: "#8b5cf6" }} />
+              <span className="text-[10px] font-semibold text-purple-900">
+                Advisor notification + prep brief
+              </span>
+            </div>
+            <div className="text-[10px] text-slate-600 mb-1.5">
+              <span className="font-semibold">Sent to:</span> {playbook.advisorBrief.recipient}
+            </div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
+              Personalized prep brief includes
+            </div>
+            <ul className="space-y-0.5 mb-1.5">
+              {playbook.advisorBrief.briefBullets.map((b) => (
+                <li key={b} className="text-[10px] text-slate-600 leading-tight flex items-start gap-1">
+                  <span className="mt-[3px] w-1 h-1 rounded-full shrink-0 bg-purple-400" />
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <div className="text-[10px] text-slate-600">
+              <span className="font-semibold">Suggested outreach:</span>{" "}
+              <span className="text-purple-700 font-semibold">{playbook.advisorBrief.suggestedOutreach}</span>
+            </div>
+            {!isWealthClient && (
+              <div className="mt-1.5 text-[9px] text-slate-400 italic">
+                Not active — {customerFirstName} is a regular client
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
