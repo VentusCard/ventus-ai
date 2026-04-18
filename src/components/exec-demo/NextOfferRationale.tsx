@@ -121,10 +121,32 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
     );
   }
 
-  // Filter to only the active persona's offer group
-  const filtered = activeRollupLabel
-    ? offers.filter(g => g.rollup === activeRollupLabel)
-    : offers;
+  // Filter to only the active persona's offer group with fuzzy matching
+  // (LLM may paraphrase the rollup label slightly)
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const target = activeRollupLabel ? norm(activeRollupLabel) : null;
+
+  const filtered = !target
+    ? offers
+    : (() => {
+        // 1. exact (case-insensitive) match
+        let hits = offers.filter(g => norm(g.rollup) === target);
+        if (hits.length > 0) return hits;
+        // 2. substring match either direction
+        hits = offers.filter(g => {
+          const r = norm(g.rollup);
+          return r.includes(target) || target.includes(r);
+        });
+        if (hits.length > 0) return hits;
+        // 3. token overlap (≥1 meaningful word in common)
+        const targetTokens = new Set(target.split(" ").filter(t => t.length > 3));
+        if (targetTokens.size === 0) return [];
+        hits = offers.filter(g => {
+          const rTokens = norm(g.rollup).split(" ").filter(t => t.length > 3);
+          return rTokens.some(t => targetTokens.has(t));
+        });
+        return hits;
+      })();
 
   if (filtered.length === 0) {
     return (
