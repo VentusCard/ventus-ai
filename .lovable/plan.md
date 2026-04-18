@@ -1,41 +1,28 @@
 
 
-## Issue
-Risk pills are showing duplicates: two "Gambling" pills (high + medium) appear because the deterministic pre-pass and the LLM both flag the same MCC 7995 transaction, and dedupe by `transaction_id + category_label` isn't catching it (likely the LLM returned it without `transaction_id`, or with a slightly different label like "Gambling" vs "gambling").
+## Goal
+Make the 3 action buttons (Next-Offer, Next-Product, Next Conversation) below the intel panel stretch full width and look more visually prominent.
 
-## Root cause
-In `supabase/functions/detect-risk-transactions/index.ts`:
-1. Deterministic pre-pass flags MCC 7995 → `Gambling` (high)
-2. LLM also flags the same merchant → `Gambling` (medium), possibly with `transaction_id: "pattern"` or missing/mismatched ID
-3. Dedupe key `${transaction_id}::${category_label}` lets both through
+## Change
+Single edit in `src/components/exec-demo/ExecDemoIntelPanel.tsx`, lines 587-602 (the post-synthesis action buttons block).
 
-## Fix
+### Layout
+- Change container from `flex items-center justify-center gap-3` to a 3-column grid (`grid grid-cols-3 gap-3 w-full`) so each button takes equal full width.
+- Add horizontal padding to the container to match the rest of the panel (`px-1`).
 
-### Single change: stronger dedupe in `detect-risk-transactions/index.ts`
-
-**Step 1 — tell the LLM not to re-flag deterministic cases**
-Update the user prompt to pass the list of `transaction_id`s already flagged deterministically and explicitly instruct: "Do NOT re-flag these IDs — they are already handled."
-
-**Step 2 — tighten dedupe logic**
-Change `dedupeFlags` to dedupe by:
-- `transaction_id + category_group` (not `category_label`), so case/wording variations of the same group on the same tx collapse
-- Plus a secondary pass: for any flag where `transaction_id` matches a deterministic flag, drop the model version entirely (deterministic wins)
-- Normalize `category_label` to title case before comparing
-
-**Step 3 — frontend safety net in `ExecDemoIntelPanel.tsx`**
-Add a final client-side dedupe before rendering pills using `${transaction_id}::${category_group}` as the key, so even if the backend slips a duplicate through, the UI shows only one pill per (transaction, group) pair.
-
-## Files
-- `supabase/functions/detect-risk-transactions/index.ts` — prompt + dedupe logic
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — client-side dedupe safety net
+### Button styling — more prominent
+- Stretch each button full width of its grid cell (`w-full`).
+- Increase vertical padding (`py-3.5` instead of `py-2.5`) for taller, weightier buttons.
+- Stack icon above label, centered (`flex-col`), so labels read clearly at full width.
+- Bigger icon (`w-5 h-5`) and slightly larger label (`text-sm` instead of `text-xs`).
+- Stronger default border + subtle gradient background (`bg-gradient-to-b from-white to-slate-50`).
+- Stronger hover: lift effect (`hover:-translate-y-0.5`), border becomes primary, soft primary shadow.
+- Keep existing staggered entrance animation.
 
 ## Out of scope
-- No changes to pill styling, matching, or the rest of the risk flow
-- No schema or payload changes
+- The secondary tab bar (lines 615-635) used after a tab is selected — not touched.
+- No copy changes; labels remain "Next-Offer", "Next-Product", "Next Conversation".
 
-## Expected result for Sarah
-Exactly 3 pills:
-- `Gambling` (high)
-- `Adult Content` (medium)
-- `Suspicious International` (medium)
+## Expected result
+Three full-width, taller, icon-on-top buttons spanning the panel, with a clear hover lift and primary accent — visually reading as the primary call-to-action row after synthesis.
 
