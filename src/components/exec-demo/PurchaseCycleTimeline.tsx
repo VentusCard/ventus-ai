@@ -371,95 +371,118 @@ function CadenceCard({ data }: { data: CadenceData }) {
         "{data.summaryLine}"
       </p>
 
-      <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
-        {data.cadence && (
-          <div className="flex items-start gap-1.5">
-            <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
-            <span>
-              <span className="font-semibold text-slate-700">Cadence:</span> {data.cadence}
-            </span>
-          </div>
-        )}
-        {data.activeSpan && (
-          <div className="flex items-start gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
-            <span>
-              <span className="font-semibold text-slate-700">Active:</span> {data.activeSpan}
-            </span>
-          </div>
-        )}
-        {data.seasonality && data.seasonality !== "year-round" && (
-          <div className="flex items-start gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
-            <span>
-              <span className="font-semibold text-slate-700">Seasonality:</span> {data.seasonality}
-            </span>
-          </div>
-        )}
-        {data.topMerchant && (
-          <div className="flex items-start gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
-            <span>
-              <span className="font-semibold text-slate-700">Top spot:</span>{" "}
-              {data.topMerchant.name}{" "}
-              <span className="text-slate-400">
-                ({data.topMerchant.count} of {data.totalCount})
-              </span>
-            </span>
-          </div>
-        )}
-        {data.topSubcategories.length > 0 && (
-          <div className="flex items-start gap-1.5">
-            <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
-            <span>
-              <span className="font-semibold text-slate-700">Top types:</span>{" "}
-              {data.topSubcategories.map((s, i) => (
-                <span key={s.name}>
-                  {i > 0 && <span className="text-slate-300"> · </span>}
-                  <span className="text-slate-700">{s.name}</span>{" "}
-                  <span className="text-slate-400">{s.pct}%</span>
-                </span>
-              ))}
-            </span>
-          </div>
-        )}
-        {data.totalSpend > 0 && (
-          <div className="flex items-start gap-1.5">
-            <DollarSign className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
-            <span>
-              <span className="font-semibold text-slate-700">Lifetime:</span>{" "}
-              {fmtCurrency(data.totalSpend)}
-              {data.avgTicket > 0 && (
-                <span className="text-slate-400"> · avg {fmtCurrency(data.avgTicket)}/visit</span>
-              )}
-            </span>
-          </div>
-        )}
-        {data.velocity !== 0 && (
-          <div className="flex items-start gap-1.5">
-            {data.velocity > 0 ? (
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-[1px]" />
-            ) : (
-              <TrendingDown className="w-3.5 h-3.5 text-red-400 shrink-0 mt-[1px]" />
-            )}
-            <span>
-              <span className="font-semibold text-slate-700">Trend:</span>{" "}
-              <span className={data.velocity > 0 ? "text-emerald-600 font-semibold" : "text-red-500 font-semibold"}>
-                {data.velocity > 0 ? "+" : ""}{data.velocity}%
-              </span>{" "}
-              vs prior quarter
-            </span>
-          </div>
-        )}
-      </div>
+      {(() => {
+        const hasTiming =
+          !!data.cadence ||
+          !!data.activeSpan ||
+          (!!data.seasonality && data.seasonality !== "year-round") ||
+          data.velocity !== 0 ||
+          data.monthlyTrend.some(v => v > 0);
 
-      {/* Sparkline */}
-      {data.monthlyTrend.some(v => v > 0) && (
-        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-2">
-          <Sparkline values={data.monthlyTrend} color={c.dot} />
-          <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
-        </div>
-      )}
+        const LeftCol = (
+          <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
+            {data.topMerchant && (
+              <div className="flex items-start gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Top spot:</span>{" "}
+                  {data.topMerchant.name}{" "}
+                  <span className="text-slate-400">
+                    ({data.topMerchant.count} of {data.totalCount})
+                  </span>
+                </span>
+              </div>
+            )}
+            {data.topSubcategories.length > 0 && (
+              <div className="flex items-start gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Top types:</span>{" "}
+                  {data.topSubcategories.map((s, i) => (
+                    <span key={s.name}>
+                      {i > 0 && <span className="text-slate-300"> · </span>}
+                      <span className="text-slate-700">{s.name}</span>{" "}
+                      <span className="text-slate-400">{s.pct}%</span>
+                    </span>
+                  ))}
+                </span>
+              </div>
+            )}
+            {data.totalSpend > 0 && (
+              <div className="flex items-start gap-1.5">
+                <DollarSign className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Lifetime:</span>{" "}
+                  {fmtCurrency(data.totalSpend)}
+                  {data.avgTicket > 0 && (
+                    <span className="text-slate-400"> · avg {fmtCurrency(data.avgTicket)}/visit</span>
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+        );
+
+        const RightCol = (
+          <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
+            {data.cadence && (
+              <div className="flex items-start gap-1.5">
+                <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Cadence:</span> {data.cadence}
+                </span>
+              </div>
+            )}
+            {data.activeSpan && (
+              <div className="flex items-start gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Active:</span> {data.activeSpan}
+                </span>
+              </div>
+            )}
+            {data.seasonality && data.seasonality !== "year-round" && (
+              <div className="flex items-start gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Seasonality:</span> {data.seasonality}
+                </span>
+              </div>
+            )}
+            {data.velocity !== 0 && (
+              <div className="flex items-start gap-1.5">
+                {data.velocity > 0 ? (
+                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-[1px]" />
+                ) : (
+                  <TrendingDown className="w-3.5 h-3.5 text-red-400 shrink-0 mt-[1px]" />
+                )}
+                <span>
+                  <span className="font-semibold text-slate-700">Trend:</span>{" "}
+                  <span className={data.velocity > 0 ? "text-emerald-600 font-semibold" : "text-red-500 font-semibold"}>
+                    {data.velocity > 0 ? "+" : ""}{data.velocity}%
+                  </span>{" "}
+                  vs prior quarter
+                </span>
+              </div>
+            )}
+            {data.monthlyTrend.some(v => v > 0) && (
+              <div className="pt-1 flex items-center gap-2">
+                <Sparkline values={data.monthlyTrend} color={c.dot} />
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
+              </div>
+            )}
+          </div>
+        );
+
+        if (!hasTiming) return LeftCol;
+
+        return (
+          <div className="grid grid-cols-2 divide-x divide-slate-100">
+            <div className="pr-3">{LeftCol}</div>
+            <div className="pl-3">{RightCol}</div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
