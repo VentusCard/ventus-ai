@@ -121,9 +121,16 @@ const TxRow = ({
           className="fixed pointer-events-none bg-slate-800 text-white rounded-md px-3 py-2 shadow-2xl space-y-1 max-w-[440px]"
           style={{ left: coords.x, top: coords.y - 140, zIndex: 9999 }}
         >
-          {/* Raw transaction info */}
-          <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">
-            Raw Transaction{typeof txIndex === "number" ? ` · #${txIndex + 1}` : ""}
+          {/* Transaction header */}
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="text-slate-300 font-semibold">
+              Transaction{typeof txIndex === "number" ? ` #${txIndex + 1}` : ""}
+            </span>
+            {tx.source && (
+              <span className={`inline-block px-1.5 py-px rounded text-[9px] font-semibold ${SOURCE_COLORS[tx.source] || "bg-slate-100 text-slate-600"}`}>
+                {tx.source}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
             <span className="text-slate-400">Date:</span>
@@ -131,13 +138,6 @@ const TxRow = ({
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">Amount:</span>
             <span className="text-slate-100 font-semibold tabular-nums">{tx.amount}</span>
-            {tx.source && (
-              <>
-                <span className="text-slate-600">·</span>
-                <span className="text-slate-400">Source:</span>
-                <span className="text-slate-100 font-mono">{tx.source}</span>
-              </>
-            )}
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="text-slate-400">Merchant:</span>
