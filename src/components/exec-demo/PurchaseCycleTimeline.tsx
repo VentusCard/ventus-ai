@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Calendar, MapPin, TrendingUp, TrendingDown, Repeat } from "lucide-react";
+import { Calendar, MapPin, TrendingUp, TrendingDown, Repeat, Tag, DollarSign, Clock } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis, PillarRollup } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
@@ -46,22 +46,44 @@ function parseAmount(amount: any): number {
   return parseFloat(String(amount).replace(/[$,]/g, "")) || 0;
 }
 
+interface SubcategoryStat {
+  name: string;
+  count: number;
+  spend: number;
+  pct: number; // share of count, 0–100
+}
+
 interface CadenceData {
   label: string;
   pillar: string;
   totalCount: number;
   totalSpend: number;
+  avgTicket: number;
   topMerchant: { name: string; count: number } | null;
-  cadence: string | null;            // e.g. "every ~28 days (12 visits/yr)"
+  topSubcategories: SubcategoryStat[];
+  firstSeen: Date | null;
+  lastSeen: Date | null;
+  activeSpan: string | null;          // e.g. "Mar 2024 → today (14 mo)"
+  cadence: string | null;             // e.g. "every ~28 days (12 visits/yr)"
   cadenceCategory: "weekly" | "monthly" | "quarterly" | "annual" | "irregular" | null;
-  seasonality: string | null;        // e.g. "annually in July" or "summer-heavy (Jun–Aug)"
-  velocity: number;                  // % change recent vs prior quarter
-  summaryLine: string;               // plain-English headline
+  seasonality: string | null;         // e.g. "annually in July" or "summer-heavy (Jun–Aug)"
+  velocity: number;                   // % change recent vs prior quarter
+  monthlyTrend: number[];             // length 12, normalized 0–1
+  summaryLine: string;                // plain-English headline
+}
+
+const GENERIC_SUBCATS = new Set([
+  "other", "miscellaneous", "misc", "unclassified", "general", "general retail", "uncategorized",
+]);
+
+function titleCase(s: string): string {
+  return s.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
 }
 
 function buildCadence(
   rollup: PillarRollup,
-  transactions: Transaction[]
+  transactions: Transaction[],
+  signalMap: Record<number, SignalEntry>
 ): CadenceData | null {
   const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
   const txs = indices
@@ -166,23 +188,89 @@ function buildCadence(
   }
   const velocity = priorSpend > 0 ? Math.round(((recentSpend - priorSpend) / priorSpend) * 100) : 0;
 
+  // ---- Subcategory mix (from signalMap) ----
+  const subMap = new Map<string, { count: number; spend: number; display: string }>();
+  for (const idx of indices) {
+    const sig = signalMap[idx];
+    const tx = transactions[idx];
+    if (!tx) continue;
+    const raw = (sig?.label || sig?.category || "").trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (GENERIC_SUBCATS.has(key)) continue;
+    const display = titleCase(raw);
+    const cur = subMap.get(key) || { count: 0, spend: 0, display };
+    cur.count += 1;
+    cur.spend += parseAmount(tx.amount);
+    subMap.set(key, cur);
+  }
+  const subTotal = Array.from(subMap.values()).reduce((a, s) => a + s.count, 0) || txs.length;
+  const topSubcategories: SubcategoryStat[] = Array.from(subMap.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map(s => ({
+      name: s.display,
+      count: s.count,
+      spend: s.spend,
+      pct: Math.round((s.count / subTotal) * 100),
+    }));
+
+  // ---- Active span ----
+  const firstSeen = dates[0] ?? null;
+  const lastSeen = dates[dates.length - 1] ?? null;
+  let activeSpan: string | null = null;
+  if (firstSeen && lastSeen) {
+    const spanDays = (lastSeen.getTime() - firstSeen.getTime()) / (1000 * 60 * 60 * 24);
+    if (spanDays >= 60) {
+      const fmt = (d: Date) => `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      const months = Math.max(1, Math.round(spanDays / 30));
+      const isRecent = (now.getTime() - lastSeen.getTime()) / (1000 * 60 * 60 * 24) < 45;
+      const endLabel = isRecent ? "today" : fmt(lastSeen);
+      activeSpan = `${fmt(firstSeen)} → ${endLabel} (${months} mo)`;
+    }
+  }
+
+  // ---- 12-month trend (counts per month, ending at lastSeen or now) ----
+  const trendCounts = new Array(12).fill(0);
+  const anchor = lastSeen || now;
+  const anchorMonthIdx = anchor.getFullYear() * 12 + anchor.getMonth();
+  for (const d of dates) {
+    const mi = d.getFullYear() * 12 + d.getMonth();
+    const offset = anchorMonthIdx - mi;
+    if (offset >= 0 && offset < 12) {
+      trendCounts[11 - offset] += 1;
+    }
+  }
+  const maxTrend = Math.max(...trendCounts, 1);
+  const monthlyTrend = trendCounts.map(c => c / maxTrend);
+
+  const avgTicket = txs.length > 0 ? totalSpend / txs.length : 0;
+
   // ---- Summary line ----
-  let summaryLine = rollup.label;
   const cadenceWord =
     cadenceCategory === "weekly" ? "Weekly" :
     cadenceCategory === "monthly" ? "Monthly" :
     cadenceCategory === "quarterly" ? "Quarterly" :
     cadenceCategory === "annual" ? "Annual" : "Recurring";
 
+  const dominantSub = topSubcategories[0] && topSubcategories[0].pct >= 40
+    ? topSubcategories[0].name.toLowerCase()
+    : null;
+  const subjectBase = rollup.label.toLowerCase();
+  const subject = dominantSub && !subjectBase.includes(dominantSub)
+    ? `${dominantSub} ${subjectBase}`
+    : subjectBase;
+
+  let summaryLine = rollup.label;
   if (topMerchant && cadenceCategory) {
     if (cadenceCategory === "annual" && seasonality && seasonality.startsWith("concentrated in ")) {
       const month = seasonality.replace("concentrated in ", "");
-      summaryLine = `Annual ${rollup.label.toLowerCase()} every ${month}, mostly at ${topMerchant.name}`;
+      summaryLine = `Annual ${subject} every ${month}, mostly at ${topMerchant.name}`;
     } else {
-      summaryLine = `${cadenceWord} ${rollup.label.toLowerCase()} at ${topMerchant.name}`;
+      summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
     }
   } else if (cadenceCategory) {
-    summaryLine = `${cadenceWord} ${rollup.label.toLowerCase()} pattern`;
+    summaryLine = `${cadenceWord} ${subject} pattern`;
   } else if (topMerchant) {
     summaryLine = `${rollup.label} — primarily at ${topMerchant.name}`;
   }
@@ -192,13 +280,47 @@ function buildCadence(
     pillar: rollup.pillar,
     totalCount: txs.length,
     totalSpend,
+    avgTicket,
     topMerchant,
+    topSubcategories,
+    firstSeen,
+    lastSeen,
+    activeSpan,
     cadence,
     cadenceCategory,
     seasonality,
     velocity,
+    monthlyTrend,
     summaryLine,
   };
+}
+
+function fmtCurrency(n: number): string {
+  if (n >= 1000) return `$${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
+  return `$${Math.round(n).toLocaleString()}`;
+}
+
+function Sparkline({ values, color }: { values: number[]; color: string }) {
+  const W = 140, H = 24, pad = 1;
+  if (values.length === 0) return null;
+  const step = (W - pad * 2) / (values.length - 1 || 1);
+  const points = values.map((v, i) => {
+    const x = pad + i * step;
+    const y = H - pad - v * (H - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const path = `M ${points.join(" L ")}`;
+  const areaPath = `${path} L ${(W - pad).toFixed(1)},${(H - pad).toFixed(1)} L ${pad},${(H - pad).toFixed(1)} Z`;
+  const last = values[values.length - 1];
+  const lastX = pad + (values.length - 1) * step;
+  const lastY = H - pad - last * (H - pad * 2);
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
+      <path d={areaPath} fill={color} fillOpacity={0.12} />
+      <path d={path} stroke={color} strokeOpacity={0.7} strokeWidth={1.25} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={lastX} cy={lastY} r={2} fill={color} />
+    </svg>
+  );
 }
 
 function CadenceCard({ data }: { data: CadenceData }) {
@@ -237,7 +359,15 @@ function CadenceCard({ data }: { data: CadenceData }) {
             </span>
           </div>
         )}
-        {data.seasonality && (
+        {data.activeSpan && (
+          <div className="flex items-start gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+            <span>
+              <span className="font-semibold text-slate-700">Active:</span> {data.activeSpan}
+            </span>
+          </div>
+        )}
+        {data.seasonality && data.seasonality !== "year-round" && (
           <div className="flex items-start gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
             <span>
@@ -249,11 +379,38 @@ function CadenceCard({ data }: { data: CadenceData }) {
           <div className="flex items-start gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
             <span>
-              <span className="font-semibold text-slate-700">Top merchant:</span>{" "}
+              <span className="font-semibold text-slate-700">Top spot:</span>{" "}
               {data.topMerchant.name}{" "}
               <span className="text-slate-400">
-                ({data.topMerchant.count} of {data.totalCount} txns)
+                ({data.topMerchant.count} of {data.totalCount})
               </span>
+            </span>
+          </div>
+        )}
+        {data.topSubcategories.length > 0 && (
+          <div className="flex items-start gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+            <span>
+              <span className="font-semibold text-slate-700">Top types:</span>{" "}
+              {data.topSubcategories.map((s, i) => (
+                <span key={s.name}>
+                  {i > 0 && <span className="text-slate-300"> · </span>}
+                  <span className="text-slate-700">{s.name}</span>{" "}
+                  <span className="text-slate-400">{s.pct}%</span>
+                </span>
+              ))}
+            </span>
+          </div>
+        )}
+        {data.totalSpend > 0 && (
+          <div className="flex items-start gap-1.5">
+            <DollarSign className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+            <span>
+              <span className="font-semibold text-slate-700">Lifetime:</span>{" "}
+              {fmtCurrency(data.totalSpend)}
+              {data.avgTicket > 0 && (
+                <span className="text-slate-400"> · avg {fmtCurrency(data.avgTicket)}/visit</span>
+              )}
             </span>
           </div>
         )}
@@ -265,7 +422,7 @@ function CadenceCard({ data }: { data: CadenceData }) {
               <TrendingDown className="w-3.5 h-3.5 text-red-400 shrink-0 mt-[1px]" />
             )}
             <span>
-              <span className="font-semibold text-slate-700">Recent trend:</span>{" "}
+              <span className="font-semibold text-slate-700">Trend:</span>{" "}
               <span className={data.velocity > 0 ? "text-emerald-600 font-semibold" : "text-red-500 font-semibold"}>
                 {data.velocity > 0 ? "+" : ""}{data.velocity}%
               </span>{" "}
@@ -274,6 +431,14 @@ function CadenceCard({ data }: { data: CadenceData }) {
           </div>
         )}
       </div>
+
+      {/* Sparkline */}
+      {data.monthlyTrend.some(v => v > 0) && (
+        <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-2">
+          <Sparkline values={data.monthlyTrend} color={c.dot} />
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -299,8 +464,8 @@ export default function PurchaseCycleTimeline({
 
   const cadenceData = useMemo(() => {
     if (!selectedRollup) return null;
-    return buildCadence(selectedRollup, transactions);
-  }, [selectedRollup, transactions]);
+    return buildCadence(selectedRollup, transactions, signalMap);
+  }, [selectedRollup, transactions, signalMap]);
 
   // What label to filter offers by — life event takes precedence if active
   const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
