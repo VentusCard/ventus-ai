@@ -386,18 +386,37 @@ export default function ExecDemoPage() {
   }, [selectedIdx, customCsv]);
 
 
-  /** Detect risk factors using detect-risk-transactions edge function */
+  /** Detect risk factors using detect-risk-transactions edge function (RAW csv evidence) */
   const fireRiskDetection = useCallback(async () => {
     setRiskLoading(true);
     setRiskFlags(null);
     try {
-      const enrichedTxs = classifiedRef.current || [];
-      if (enrichedTxs.length === 0) {
+      const csv = customCsv || getCsvForCustomer(selectedIdx);
+      if (!csv) {
+        setRiskLoading(false);
+        return;
+      }
+      // Build raw payload from CSV — bypass enrichment so risk engine sees MCC, description, source, zips
+      const rawTxs = csvToClassifyPayload(csv);
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const homeZip = (demoCustomer?.profile?.demographics as any)?.zip || (demoCustomer?.profile?.demographics as any)?.zip_code || "";
+      const payload = rawTxs.slice(0, 100).map((t) => ({
+        transaction_id: t.transaction_id,
+        merchant_name: t.merchant_name,
+        description: t.description || "",
+        mcc: t.mcc || "",
+        amount: t.amount,
+        date: t.date,
+        zip_code: t.zip_code || "",
+        home_zip: homeZip,
+        source: t.source || "",
+      }));
+      if (payload.length === 0) {
         setRiskLoading(false);
         return;
       }
       const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
-        body: { transactions: enrichedTxs.slice(0, 100) },
+        body: { transactions: payload },
       });
       if (error) throw error;
       setRiskFlags(data);
@@ -407,7 +426,7 @@ export default function ExecDemoPage() {
     } finally {
       setRiskLoading(false);
     }
-  }, []);
+  }, [selectedIdx, customCsv]);
 
   /** Generate consumer product cards from life events + persona rollups */
   const fireProductCards = useCallback(async (events: LifeEvent[], synthesis: PersonaSynthesis | null) => {

@@ -351,30 +351,38 @@ export default function ExecDemoIntelPanel({
                     </>
                   ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
                     riskFlags.flags.map((flag: any, i: number) => {
-                      const rawLabel = flag.category || flag.type || "Risk";
-                      const flagLabel = rawLabel.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+                      // Prefer specific category_label; fall back to category_group, then legacy category
+                      const rawLabel = flag.category_label || flag.category_group || flag.category || flag.type || "Risk";
+                      const flagLabel = String(rawLabel).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
                       const isActive = activeTriggerLabel === flagLabel;
                       const isHigh = flag.severity === "high";
                       const dotColor = isHigh ? "#ef4444" : "#f59e0b";
-                      const flagKeywords = (flag.merchant_patterns || []).map((p: string) => p.toLowerCase());
-                      // Use the merchant name from the flag itself as a keyword
-                      if (flag.merchant) {
-                        const merchantWords = flag.merchant.toLowerCase().split(/[\s]+/).filter((w: string) => w.length > 2);
-                        flagKeywords.push(...merchantWords);
+
+                      // Match by transaction_id first (raw csv uses tx-N format → idx = N)
+                      let matchedIndices: number[] = [];
+                      const txId: string = flag.transaction_id || "";
+                      if (txId && txId !== "pattern" && transactions) {
+                        const m = txId.match(/^tx-(\d+)$/);
+                        if (m) {
+                          const idx = parseInt(m[1], 10);
+                          if (idx >= 0 && idx < transactions.length) matchedIndices = [idx];
+                        }
                       }
-                      if (flagKeywords.length === 0 && flag.category) {
-                        flagKeywords.push(...flag.category.toLowerCase().split(/[\s/&,]+/).filter((w: string) => w.length > 3));
+                      // Fallback: exact merchant name match (no fuzzy word splitting)
+                      if (matchedIndices.length === 0 && flag.merchant && transactions) {
+                        const target = String(flag.merchant).toLowerCase().trim();
+                        matchedIndices = transactions
+                          .map((tx, idx) => {
+                            const m = ((tx as any).merchant_name || (tx as any).merchant || "").toLowerCase().trim();
+                            return m && m === target ? idx : -1;
+                          })
+                          .filter((idx) => idx !== -1);
                       }
-                      const matchedIndices = transactions
-                        ? transactions.map((tx, idx) => {
-                            const m = ((tx as any).merchant_name || (tx as any).merchant || (tx as any).normalized_merchant || "").toLowerCase();
-                            return flagKeywords.some((kw: string) => m.includes(kw)) ? idx : -1;
-                          }).filter(idx => idx !== -1)
-                        : [];
                       const isClickable = matchedIndices.length > 0;
+                      const pillKey = `${flag.transaction_id || "pattern"}::${flagLabel}::${i}`;
                       return (
                         <span
-                          key={flag.category || i}
+                          key={pillKey}
                           onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
                           style={{
