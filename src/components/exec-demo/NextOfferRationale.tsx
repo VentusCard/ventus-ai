@@ -254,17 +254,10 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
   return (
     <div className="px-3 py-3 space-y-2.5">
 
-      {/* Slim header for the selected persona */}
+      {/* Slim header */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-[11px] font-semibold text-slate-600">
-          Targeted offers for <span className="font-bold text-slate-800">{activeRollupLabel || "all personas"}</span>
-        </span>
-        <ArrowRight className="w-3 h-3 text-slate-300" />
-        <span className="text-[11px] font-bold text-emerald-600">
-          {totalDeals} deals
-        </span>
-        <span className="text-[9px] text-slate-400">
-          ({totalBoosted} boosted · {totalSuppressed} suppressed)
+          Behavioral Based Deal Collection
         </span>
       </div>
 
