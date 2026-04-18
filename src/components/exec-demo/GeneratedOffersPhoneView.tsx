@@ -155,14 +155,31 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, ac
     setCurrent(idx);
   }, [current]);
 
+  // Normalized exact-match index for the currently active rollup pill (life event or behavioral)
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const pinnedIdx = useMemo(() => {
+    if (!activeOfferLabel) return -1;
+    const target = norm(activeOfferLabel);
+    return allGroups.findIndex(g => norm(g.rollup) === target);
+  }, [activeOfferLabel, allGroups]);
+
+  // When a pill is clicked and matches a group, jump to it
   useEffect(() => {
-    if (allGroups.length <= 1 || expandedGroup || isSearchActive) return;
+    if (pinnedIdx >= 0 && pinnedIdx !== current) {
+      setDirection(pinnedIdx > current ? "right" : "left");
+      setCurrent(pinnedIdx);
+    }
+  }, [pinnedIdx]);
+
+  useEffect(() => {
+    // Pause auto-cycle when a pill is pinned
+    if (allGroups.length <= 1 || expandedGroup || isSearchActive || pinnedIdx >= 0) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [allGroups.length, expandedGroup, isSearchActive]);
+  }, [allGroups.length, expandedGroup, isSearchActive, pinnedIdx]);
 
   if (offerGroups.length === 0) return null;
 
