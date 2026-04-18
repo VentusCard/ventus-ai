@@ -225,7 +225,12 @@ serve(async (req) => {
       home_zip: t.home_zip,
     }));
 
-    const userPrompt = `Analyze these ${txSummary.length} RAW transactions for risk. Focus on AML structuring patterns and suspicious international activity. Vice categories with MCC 7995 or 5967 are already handled deterministically — you may still flag other vice indicators (e.g., merchant names like "CASINO", "BET", "POKER", "PAYDAY LOAN", "PAWN") if MCC is missing.\n\n${JSON.stringify(txSummary, null, 1)}`;
+    const alreadyFlaggedIds = detFlags.map((f) => f.transaction_id);
+    const exclusionNote = alreadyFlaggedIds.length > 0
+      ? `\n\nIMPORTANT: The following transaction_ids have ALREADY been definitively flagged by deterministic rules. DO NOT re-flag them or include them in your output: ${JSON.stringify(alreadyFlaggedIds)}`
+      : "";
+
+    const userPrompt = `Analyze these ${txSummary.length} RAW transactions for risk. Focus on AML structuring patterns and suspicious international activity. Vice categories with MCC 7995 or 5967 are already handled deterministically — you may still flag other vice indicators (e.g., merchant names like "CASINO", "BET", "POKER", "PAYDAY LOAN", "PAWN") if MCC is missing.${exclusionNote}\n\n${JSON.stringify(txSummary, null, 1)}`;
 
     let modelFlags: RiskFlag[] = [];
     let modelSummary = "";
