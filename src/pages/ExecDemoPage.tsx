@@ -347,53 +347,64 @@ export default function ExecDemoPage() {
     }
   }, [selectedIdx]);
 
-  /** Detect life events, then fire offers with both pillars and life events */
-  const fireLifeEventDetection = useCallback(async (synthesis?: PersonaSynthesis, pillars?: any[]) => {
+  /** Pure life-event detection — invokes the edge function and returns events.
+   *  Used both pre-synthesis (to feed dedup hint into synthesize-persona) and
+   *  reused by fireLifeEventDetection to avoid double API calls. */
+  const detectLifeEventsOnly = useCallback(async (): Promise<LifeEvent[]> => {
+    const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+    const demographics = demoCustomer?.profile?.demographics as Record<string, string> || {};
+    const enrichedTxs = classifiedRef.current || [];
+    if (enrichedTxs.length === 0) return [];
+
+    const client = {
+      name: demoCustomer?.profile?.name || "Customer",
+      age: demographics.age || "Unknown",
+      occupation: demographics.occupation || "Unknown",
+      family_status: demographics.familyStatus || "Unknown",
+    };
+
+    const csvRows = (customCsv || getCsvForCustomer(selectedIdx)).split("\n").slice(1).filter(Boolean);
+    const transactions = enrichedTxs.slice(0, 100).map((tx, i) => {
+      const csvRow = csvRows[i]?.split(",") || [];
+      return {
+        merchant_name: tx.merchant_name,
+        amount: tx.amount,
+        date: csvRow[0] || "2025-01-01",
+        pillar: tx.pillar,
+        category: tx.category,
+        subcategory: tx.subcategories?.[0] || "",
+      };
+    });
+
+    const topCategories = [...new Set(enrichedTxs.map(tx => tx.category))].slice(0, 5);
+    const totalSpend = enrichedTxs.reduce((s, tx) => s + tx.amount, 0);
+
+    const { data, error } = await supabase.functions.invoke("analyze-lifestyle-signals", {
+      body: {
+        client,
+        transactions,
+        spending_summary: { total_spend: totalSpend, top_categories: topCategories },
+      },
+    });
+    if (error) throw error;
+    return (data.detected_events || []) as LifeEvent[];
+  }, [selectedIdx, customCsv]);
+
+  detectLifeEventsOnlyRef.current = detectLifeEventsOnly;
+
+  /** Hydrate UI state with detected life events and trigger downstream product cards + offers.
+   *  If `preDetectedEvents` is supplied, skip the API call and reuse them. */
+  const fireLifeEventDetection = useCallback(async (
+    synthesis?: PersonaSynthesis,
+    pillars?: any[],
+    preDetectedEvents?: LifeEvent[],
+  ) => {
     setProductsLoading(true);
     setDetectedLifeEvents(null);
     try {
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics = demoCustomer?.profile?.demographics as Record<string, string> || {};
-      const enrichedTxs = classifiedRef.current || [];
-
-      const client = {
-        name: demoCustomer?.profile?.name || "Customer",
-        age: demographics.age || "Unknown",
-        occupation: demographics.occupation || "Unknown",
-        family_status: demographics.familyStatus || "Unknown",
-      };
-
-      // Build transactions from CSV rows (enriched txs lack dates, so use raw profile)
-      const csvRows = (customCsv || getCsvForCustomer(selectedIdx)).split("\n").slice(1).filter(Boolean);
-      const transactions = enrichedTxs.slice(0, 100).map((tx, i) => {
-        const csvRow = csvRows[i]?.split(",") || [];
-        return {
-          merchant_name: tx.merchant_name,
-          amount: tx.amount,
-          date: csvRow[0] || "2025-01-01",
-          pillar: tx.pillar,
-          category: tx.category,
-          subcategory: tx.subcategories?.[0] || "",
-        };
-      });
-
-      const topCategories = [...new Set(enrichedTxs.map(tx => tx.category))].slice(0, 5);
-      const totalSpend = enrichedTxs.reduce((s, tx) => s + tx.amount, 0);
-
-      const { data, error } = await supabase.functions.invoke("analyze-lifestyle-signals", {
-        body: {
-          client,
-          transactions,
-          spending_summary: {
-            total_spend: totalSpend,
-            top_categories: topCategories,
-          },
-        },
-      });
-      if (error) throw error;
-      const events: LifeEvent[] = data.detected_events || [];
+      const events: LifeEvent[] = preDetectedEvents ?? await detectLifeEventsOnly();
       setDetectedLifeEvents(events.slice(0, 3));
-      console.log("[PRELOAD] Life events detected:", events.length);
+      console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
       // Fire product cards generation with life events + persona data
       fireProductCards(events, personaSynthesisRef.current);
       // Fire offers with both pillars and detected life events in a single call
@@ -406,7 +417,7 @@ export default function ExecDemoPage() {
     } finally {
       setProductsLoading(false);
     }
-  }, [selectedIdx, customCsv]);
+  }, [detectLifeEventsOnly]);
 
 
   /** Detect risk factors using detect-risk-transactions edge function (RAW csv evidence) */
