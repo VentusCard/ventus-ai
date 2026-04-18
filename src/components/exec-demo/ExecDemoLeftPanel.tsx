@@ -6,6 +6,18 @@ import { getIntelligenceForCustomer } from "./execDemoData";
 import type { Transaction, SignalEntry } from "./execDemoData";
 import { getColor } from "./ExecDemoIntelPanel";
 
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-rose-50 text-rose-700",
+  "Checks": "bg-orange-50 text-orange-700",
+  "ACH": "bg-slate-100 text-slate-600",
+  "Wire": "bg-red-50 text-red-700",
+  "Zelle": "bg-purple-50 text-purple-700",
+  "HSA": "bg-amber-50 text-amber-700",
+};
+
 interface Props {
   selectedIdx: number;
   onSelectCustomer: (idx: number) => void;
