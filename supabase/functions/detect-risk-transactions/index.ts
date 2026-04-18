@@ -96,6 +96,8 @@ serve(async (req) => {
     const txSummary = transactions.map((t: any) => ({
       id: t.transaction_id,
       merchant: t.normalized_merchant || t.merchant_name,
+      description: t.description,
+      mcc: t.mcc,
       amount: t.amount,
       date: t.date,
       pillar: t.pillar,
@@ -103,6 +105,7 @@ serve(async (req) => {
       subcategory: t.subcategories?.[0] || t.subcategory,
       frequency: t.purchase_frequency,
       tier: t.spending_tier,
+      source: t.source,
       zip: t.zip_code,
       home_zip: t.home_zip,
     }));
