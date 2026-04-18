@@ -4,7 +4,7 @@ import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./ex
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
 import NextProductRationale from "./NextProductRationale";
-import NextConversationRationale from "./NextConversationRationale";
+import NextConversationRationale, { type SelectedSignal } from "./NextConversationRationale";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
