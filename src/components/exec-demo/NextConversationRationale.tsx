@@ -295,7 +295,6 @@ interface Props {
   availableSignals?: SelectedSignal[];
   isWealthClient?: boolean;
   customerFirstName?: string;
-  onSelectSignal?: (signal: SelectedSignal) => void;
 }
 
 export default function NextConversationRationale({
@@ -303,7 +302,6 @@ export default function NextConversationRationale({
   availableSignals = [],
   isWealthClient = true,
   customerFirstName = "the client",
-  onSelectSignal,
 }: Props) {
   const effectiveSignal: SelectedSignal =
     selectedSignal ?? availableSignals[0] ?? { kind: "all", label: "All Signals" };
@@ -312,11 +310,6 @@ export default function NextConversationRationale({
   if (effectiveSignal.kind === "all") {
     return (
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
-        <SelectorBar
-          available={availableSignals}
-          selected={effectiveSignal}
-          onSelect={onSelectSignal}
-        />
         <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
           Orchestration roll-up · all signals
         </div>
