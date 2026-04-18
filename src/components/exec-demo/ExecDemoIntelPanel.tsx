@@ -442,13 +442,14 @@ export default function ExecDemoIntelPanel({
                           })
                           .filter((idx) => idx !== -1);
                       }
-                      const isClickable = matchedIndices.length > 0;
+                      const isClickable = matchedIndices.length > 0 && !isOfferTab;
                       const pillKey = `${flag.transaction_id || "pattern"}::${flagLabel}::${i}`;
                       return (
                         <span
                           key={pillKey}
                           onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          title={isOfferTab ? "Not applicable for offer targeting" : undefined}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed" : ""} transition-all duration-200`}
                           style={{
                             background: isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
@@ -458,6 +459,7 @@ export default function ExecDemoIntelPanel({
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
                             boxShadow: isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
                             transform: isActive ? "scale(1.08)" : "scale(1)",
+                            opacity: isOfferTab ? 0.4 : 1,
                           }}
                         >
                           <span style={{ color: dotColor }}>⚠</span>
