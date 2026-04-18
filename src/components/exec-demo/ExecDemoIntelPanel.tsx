@@ -293,6 +293,15 @@ export default function ExecDemoIntelPanel({
     }
   }, [activeTab, availableSignals, selectedSignal]);
 
+  // Auto-select first lifestyle rollup pill when entering Next-Offer (analytics) tab
+  useEffect(() => {
+    if (activeTab === "analytics" && !activeRollup && rollupStats.length > 0) {
+      onRollupClick?.(rollupStats[0]);
+    }
+  }, [activeTab, activeRollup, rollupStats, onRollupClick]);
+
+  const isOfferTab = activeTab === "analytics";
+
 
   return (
     <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
