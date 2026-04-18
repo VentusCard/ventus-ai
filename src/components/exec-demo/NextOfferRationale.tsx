@@ -1,56 +1,6 @@
-import { Sparkles, ArrowRight, CheckCircle2, TrendingUp, Zap } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, TrendingUp } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
-
-/* ─── Delivery insight derivation ───
- * Heuristic mapping from rollup/pillar label to a "when to deliver" recommendation.
- * Lightweight: uses keyword cues from rollup label since per-deal txn cadence
- * is not passed into this component. Falls back gracefully when no signal.
- */
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-function fmtFutureDate(daysFromNow: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromNow);
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
-}
-function nextOccurrenceOfMonth(monthIdx: number): string {
-  const now = new Date();
-  const year = monthIdx > now.getMonth() ? now.getFullYear() : now.getFullYear() + 1;
-  const d = new Date(year, monthIdx, 15);
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
-}
-function deriveDeliveryInsight(rollup: string, pillar: string): { text: string; next?: string } | null {
-  const hay = `${rollup} ${pillar}`.toLowerCase();
-  // Annual / seasonal cues
-  const seasonHints: Array<[RegExp, number]> = [
-    [/summer|beach|hawaii|vacation|travel/, 5],   // Jun
-    [/holiday|christmas|december|gift/, 11],      // Dec
-    [/spring|easter/, 2],                          // Mar
-    [/fall|autumn|thanksgiving/, 9],               // Oct
-    [/back to school|tuition/, 7],                 // Aug
-  ];
-  for (const [re, monthIdx] of seasonHints) {
-    if (re.test(hay)) {
-      return {
-        text: `Deliver 3–4 weeks before ${MONTHS[monthIdx]}`,
-        next: `~${nextOccurrenceOfMonth(monthIdx)}`,
-      };
-    }
-  }
-  // Monthly cadence cues
-  if (/subscription|streaming|gym|membership|utilities|mortgage|rent|insurance/.test(hay)) {
-    return { text: "Deliver 2–3 days before next visit", next: `~${fmtFutureDate(28)}` };
-  }
-  // Weekly cadence cues
-  if (/dining|coffee|grocery|lunch|restaurant|takeout|cafe|pet/.test(hay)) {
-    return { text: "Deliver morning of typical visit day", next: `~${fmtFutureDate(7)}` };
-  }
-  // Sporadic / one-off
-  if (/home|furniture|electronics|appliance|auto|repair/.test(hay)) {
-    return { text: "Real-time trigger on next category transaction" };
-  }
-  return null;
-}
 
 export interface GeneratedOffer {
   id: string;
