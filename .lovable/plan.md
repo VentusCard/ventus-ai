@@ -1,25 +1,40 @@
 
 
-# Fix False Positive in Risk Detection Prompt
-
 ## Problem
-"ADMISSIONS CONSULTING GRP" ($2,500, category: Childcare & Education) is being flagged — likely because "consulting" + round number triggers the model. Rather than adding a hard exclusion list, we should improve the prompt logic to make the model use the **category and pillar context** it already receives.
+P2P transactions like Zelle/Venmo show a person's name as the merchant (e.g. "MARIA GARCIA"). The actual classification signal lives in the **description** field ("Dogsitting"). Right now `classify-transactions` strips the description before sending to the LLM, so it gets classified as Misc instead of Pets.
 
-## Change
+## Fix
+Pass the `description` field through to the LLM and add explicit prompt guidance for P2P payments.
 
-### `supabase/functions/detect-risk-transactions/index.ts` — System prompt update
-
-Add a rule to the IMPORTANT RULES section instructing the model to **use the enriched category/pillar data** when evaluating transactions, and to weight merchant name keywords only when the category context supports suspicion:
-
-**Add after the existing "Only flag transactions with CLEAR evidence..." rule:**
-
+### 1. `supabase/functions/classify-transactions/index.ts`
+**Include description in the payload sent to the model** (line ~541):
+```ts
+const transactionSummary = transactions.map((t) => ({
+  id: t.transaction_id,
+  merchant: t.merchant_name,
+  description: t.description || undefined,  // NEW
+  amount: t.amount,
+  date: t.date,
+  ...(t.zip_code && { zip: t.zip_code }),
+}));
 ```
-- USE the provided category and pillar context. A merchant name containing words like "consulting", "services", or "group" is NOT suspicious if the transaction's category clearly maps to a benign domain (e.g., Childcare & Education, Healthcare, Home Improvement). Merchant name keywords alone are never sufficient — the category must also be consistent with risk.
-- A round dollar amount alone is NOT an AML indicator. Structuring requires a PATTERN of multiple transactions deliberately staying below reporting thresholds, not a single payment at a round number.
+
+**Add P2P guidance to `CLASSIFICATION_PROMPT`** (in the MERCHANT PARSING section):
+```
+P2P PAYMENTS (Zelle, Venmo, Cash App, PayPal):
+• When merchant looks like a person's name AND source is Zelle/Venmo/Cash App,
+  the description field IS the classification signal — use it as the primary clue.
+• Examples:
+  - "MARIA GARCIA" + description "Dogsitting" → Pets / Pet Services / ["Dogsitting"]
+  - "JOHN SMITH" + description "Rent" → Home & Living / Rent & Mortgage / ["Rent"]
+  - "SARAH LEE" + description "Yoga class" → Sports & Active Living / Gym & Fitness / ["Classes"]
+  - "MIKE CHEN" + description "Birthday gift" → Family & Community / Gifts & Donations / ["Gift"]
+• If description is empty for a P2P transfer, fall back to Family & Community / General with low confidence.
 ```
 
-This teaches the model to cross-reference the enriched category data it already receives rather than relying on surface-level keyword matching, without hard-coding any exclusions.
+### 2. (No schema change needed)
+`Transaction` type already has `description?: string`, and sample data already populates it.
 
-### Single file change
-- `supabase/functions/detect-risk-transactions/index.ts`
+### Outcome
+"MARIA GARCIA — Dogsitting — $150 — Zelle" will classify as **Pets / Pet Services / ["Dogsitting"]** with high confidence, flowing correctly through to the persona, deals, and analytics pipelines.
 
