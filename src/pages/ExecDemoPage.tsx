@@ -184,9 +184,23 @@ export default function ExecDemoPage() {
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
+    // Detect life events FIRST so we can pass them to synthesize-persona for theme dedup.
+    // This prevents behavioral rollups (e.g. "Aspiring Homeowner") from overlapping with
+    // detected life events (e.g. "New Home Transition") at the source.
+    let detectedEvents: LifeEvent[] = [];
+    try {
+      detectedEvents = await detectLifeEventsOnlyRef.current();
+      console.log("[PRELOAD] Life events detected ahead of persona synthesis:", detectedEvents.length);
+    } catch (e) {
+      console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
-        body: { pillars },
+        body: {
+          pillars,
+          lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
+        },
       });
       if (error) throw error;
       const synthesis: PersonaSynthesis = {
