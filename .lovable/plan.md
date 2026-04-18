@@ -1,55 +1,41 @@
 
 
 ## Issue
-Current multi-category rollups (e.g., "Premium Organic & Fine Dining" mixing Whole Foods grocery + $7 Starbucks + $215 Mama's Fish House) feel forced and dishonest. The user still wants multi-category rollups — but only when they actually make intuitive sense.
+Risk pills are showing duplicates: two "Gambling" pills (high + medium) appear because the deterministic pre-pass and the LLM both flag the same MCC 7995 transaction, and dedupe by `transaction_id + category_label` isn't catching it (likely the LLM returned it without `transaction_id`, or with a slightly different label like "Gambling" vs "gambling").
 
-## What "intuitive" means here
-A rollup should feel like something a friend would naturally say in one breath:
-- ✅ "Weekend golfer" (golf course + pro shop + golf apparel)
-- ✅ "Fitness regular" (gym + yoga studio + athletic wear)
-- ✅ "Coffee shop regular" (Starbucks + local cafés + breakfast spots)
-- ❌ "Premium Organic & Fine Dining" (grocery + coffee + fine dining — three different activities)
-- ❌ "Strategic Domestic Traveler" (hotel + gym in destination city)
+## Root cause
+In `supabase/functions/detect-risk-transactions/index.ts`:
+1. Deterministic pre-pass flags MCC 7995 → `Gambling` (high)
+2. LLM also flags the same merchant → `Gambling` (medium), possibly with `transaction_id: "pattern"` or missing/mismatched ID
+3. Dedupe key `${transaction_id}::${category_label}` lets both through
 
-The test: **one activity, one tier, repeated behavior.**
+## Fix
 
-## Fix — `supabase/functions/synthesize-persona/index.ts`
+### Single change: stronger dedupe in `detect-risk-transactions/index.ts`
 
-Tighten the prompt with three hard rules, plus a server-side validator:
+**Step 1 — tell the LLM not to re-flag deterministic cases**
+Update the user prompt to pass the list of `transaction_id`s already flagged deterministically and explicitly instruct: "Do NOT re-flag these IDs — they are already handled."
 
-**Rule 1 — One activity per rollup.**
-Categories must share a *single behavioral activity*, not just a pillar. Grocery, dining out, and coffee are three activities even though all are Food & Dining. Add explicit examples in the prompt:
-- Group: gym + yoga + athletic apparel (one activity: fitness)
-- Don't group: grocery + dining out (two activities: cooking-at-home vs eating-out)
-- Don't group: coffee runs + fine dining (two activities: caffeine habit vs special occasions)
+**Step 2 — tighten dedupe logic**
+Change `dedupeFlags` to dedupe by:
+- `transaction_id + category_group` (not `category_label`), so case/wording variations of the same group on the same tx collapse
+- Plus a secondary pass: for any flag where `transaction_id` matches a deterministic flag, drop the model version entirely (deterministic wins)
+- Normalize `category_label` to title case before comparing
 
-**Rule 2 — Tier homogeneity.**
-All categories in a rollup must share the same spending tier. Never mix Premium with Standard/Budget. The prompt already passes `[tier]` per category — make this a hard constraint.
+**Step 3 — frontend safety net in `ExecDemoIntelPanel.tsx`**
+Add a final client-side dedupe before rendering pills using `${transaction_id}::${category_group}` as the key, so even if the backend slips a duplicate through, the UI shows only one pill per (transaction, group) pair.
 
-**Rule 3 — Repetition threshold.**
-A rollup needs evidence of a *habit*, not isolated purchases:
-- At least 2 categories
-- Each included category needs ≥2 transactions
-- OR the combined rollup has ≥4 transactions across categories
-Single-transaction categories stay as standalone chips.
-
-**Server-side validator (after LLM returns):**
-- For each proposed rollup, check tier homogeneity using the input data
-- Check transaction-count thresholds
-- Drop any rollup that fails; its categories fall back to individual chips
-- Log dropped rollups for visibility
-
-**Prompt additions:**
-- A short "good vs bad" examples block showing 2 valid rollups and 2 invalid ones (using the Starbucks/Whole Foods/Mama's Fish House case as a "bad" example)
-- Explicit instruction: "If in doubt, leave categories ungrouped. Individual chips are better than a forced rollup."
+## Files
+- `supabase/functions/detect-risk-transactions/index.ts` — prompt + dedupe logic
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — client-side dedupe safety net
 
 ## Out of scope
-- No UI/rendering changes
-- No changes to risk pills, life events, product cards, or chip layout
-- No client-side filtering — all logic stays in the edge function
+- No changes to pill styling, matching, or the rest of the risk flow
+- No schema or payload changes
 
 ## Expected result for Sarah
-- Whole Foods, Starbucks, and Mama's Fish House appear as **3 separate chips** (different activities, mixed tiers, single transactions each)
-- Multi-category rollups still appear when she has genuine repeat patterns — e.g., if she has 3 gym visits + 2 yoga classes + athletic apparel, those collapse into "Fitness Regular"
-- Travel-related repeat behavior (e.g., 4 coffee shops + 3 casual lunches in one trip window) can still roll up as "Coffee & Casual Bites" since they share activity + tier
+Exactly 3 pills:
+- `Gambling` (high)
+- `Adult Content` (medium)
+- `Suspicious International` (medium)
 
