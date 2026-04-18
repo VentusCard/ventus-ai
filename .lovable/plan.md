@@ -1,97 +1,41 @@
 
-## Goal
-Make the Risk Factors pills on `/demo`:
-- use exact labels like `Gambling`, `Adult Content`, `Suspicious International`
-- stop overlapping onto unrelated transactions
-- stop flagging Sarah’s home down payment as risky
 
-## What’s causing it
-Two issues are still in the flow:
-1. `ExecDemoPage.tsx` is sending `classifiedRef.current` into `detect-risk-transactions`, so risk is still based on enriched transactions instead of the raw CSV evidence.
-2. `ExecDemoIntelPanel.tsx` renders pills from broad `category` values (`vice`, `aml`, etc.) and matches rows by merchant-word fuzzing, which causes overlap and vague labels.
+## Issue
+Risk pills are showing duplicates: two "Gambling" pills (high + medium) appear because the deterministic pre-pass and the LLM both flag the same MCC 7995 transaction, and dedupe by `transaction_id + category_label` isn't catching it (likely the LLM returned it without `transaction_id`, or with a slightly different label like "Gambling" vs "gambling").
 
-## Plan
+## Root cause
+In `supabase/functions/detect-risk-transactions/index.ts`:
+1. Deterministic pre-pass flags MCC 7995 → `Gambling` (high)
+2. LLM also flags the same merchant → `Gambling` (medium), possibly with `transaction_id: "pattern"` or missing/mismatched ID
+3. Dedupe key `${transaction_id}::${category_label}` lets both through
 
-### 1. Send raw transactions to risk detection
-Update `src/pages/ExecDemoPage.tsx` so `fireRiskDetection()` builds the payload from the selected CSV, not from enriched transactions.
+## Fix
 
-Payload should include only raw evidence fields:
-- `transaction_id`
-- `merchant_name`
-- `description`
-- `mcc`
-- `amount`
-- `date`
-- `zip_code`
-- `home_zip`
-- `source`
+### Single change: stronger dedupe in `detect-risk-transactions/index.ts`
 
-This gives the risk engine the exact data it needs for gambling/adult/international detection.
+**Step 1 — tell the LLM not to re-flag deterministic cases**
+Update the user prompt to pass the list of `transaction_id`s already flagged deterministically and explicitly instruct: "Do NOT re-flag these IDs — they are already handled."
 
-### 2. Make risk output specific, not generic
-Update `supabase/functions/detect-risk-transactions/index.ts` so each flag returns:
-- `transaction_id`
-- `category_group`: `vice | suspicious_international | aml`
-- `category_label`: human-readable specific label like:
-  - `Gambling`
-  - `Adult Content`
-  - `Suspicious International`
-  - `Structuring`
-- `severity`
-- `merchant`
-- `amount`
-- `date`
-- `reason`
+**Step 2 — tighten dedupe logic**
+Change `dedupeFlags` to dedupe by:
+- `transaction_id + category_group` (not `category_label`), so case/wording variations of the same group on the same tx collapse
+- Plus a secondary pass: for any flag where `transaction_id` matches a deterministic flag, drop the model version entirely (deterministic wins)
+- Normalize `category_label` to title case before comparing
 
-The UI should use `category_label` for the pill text, not the generic group.
+**Step 3 — frontend safety net in `ExecDemoIntelPanel.tsx`**
+Add a final client-side dedupe before rendering pills using `${transaction_id}::${category_group}` as the key, so even if the backend slips a duplicate through, the UI shows only one pill per (transaction, group) pair.
 
-### 3. Add deterministic rules for the obvious cases
-Before the model call, add hard rules:
-- MCC `7995` → `Vice / Gambling`
-- MCC `5967` → `Vice / Adult Content`
-- merchant names containing `INTL`, `INTERNATIONAL`, `FOREIGN`, `OVERSEAS`, `OFFSHORE` with missing/non-US zip → `Suspicious International`
+## Files
+- `supabase/functions/detect-risk-transactions/index.ts` — prompt + dedupe logic
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — client-side dedupe safety net
 
-These should be guaranteed flags, independent of model variability.
-
-### 4. Explicitly suppress false positives for real-estate transactions
-Add exclusions so these are not flagged as AML or suspicious by themselves:
-- `DOWN PAYMENT`
-- `TITLE`
-- `ESCROW`
-- `MORTGAGE`
-- `INSPECTION`
-- `HOME PURCHASE`
-- `REAL ESTATE`
-
-Also require AML to be a real pattern, not a single large legitimate transaction.
-
-### 5. Fix pill rendering and overlap logic
-Update `src/components/exec-demo/ExecDemoIntelPanel.tsx` so:
-- pill keys are unique per flag, e.g. `transaction_id + category_label`
-- matching uses `transaction_id` first, not merchant keyword matching
-- broad pill text like `Vice` is replaced with exact text like `Gambling` or `Adult Content`
-- pattern-level AML flags only highlight explicit transaction IDs; if none exist, they should not pretend to map to multiple rows
-
-This removes the current overlapping/highlight bleed.
+## Out of scope
+- No changes to pill styling, matching, or the rest of the risk flow
+- No schema or payload changes
 
 ## Expected result for Sarah
-The risk section should show separate pills such as:
-- `Gambling`
-- `Adult Content`
-- `Suspicious International`
+Exactly 3 pills:
+- `Gambling` (high)
+- `Adult Content` (medium)
+- `Suspicious International` (medium)
 
-And it should not show the home down payment as a risk flag.
-
-## Files to update
-- `src/pages/ExecDemoPage.tsx`
-- `supabase/functions/detect-risk-transactions/index.ts`
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-
-## Technical details
-```text
-Current:
-enriched txs -> risk function -> broad category pills -> fuzzy merchant matching
-
-Planned:
-raw csv txs -> deterministic + model risk detection -> specific labels -> transaction_id-based pill matching
-```
