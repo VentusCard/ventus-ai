@@ -46,22 +46,44 @@ function parseAmount(amount: any): number {
   return parseFloat(String(amount).replace(/[$,]/g, "")) || 0;
 }
 
+interface SubcategoryStat {
+  name: string;
+  count: number;
+  spend: number;
+  pct: number; // share of count, 0–100
+}
+
 interface CadenceData {
   label: string;
   pillar: string;
   totalCount: number;
   totalSpend: number;
+  avgTicket: number;
   topMerchant: { name: string; count: number } | null;
-  cadence: string | null;            // e.g. "every ~28 days (12 visits/yr)"
+  topSubcategories: SubcategoryStat[];
+  firstSeen: Date | null;
+  lastSeen: Date | null;
+  activeSpan: string | null;          // e.g. "Mar 2024 → today (14 mo)"
+  cadence: string | null;             // e.g. "every ~28 days (12 visits/yr)"
   cadenceCategory: "weekly" | "monthly" | "quarterly" | "annual" | "irregular" | null;
-  seasonality: string | null;        // e.g. "annually in July" or "summer-heavy (Jun–Aug)"
-  velocity: number;                  // % change recent vs prior quarter
-  summaryLine: string;               // plain-English headline
+  seasonality: string | null;         // e.g. "annually in July" or "summer-heavy (Jun–Aug)"
+  velocity: number;                   // % change recent vs prior quarter
+  monthlyTrend: number[];             // length 12, normalized 0–1
+  summaryLine: string;                // plain-English headline
+}
+
+const GENERIC_SUBCATS = new Set([
+  "other", "miscellaneous", "misc", "unclassified", "general", "general retail", "uncategorized",
+]);
+
+function titleCase(s: string): string {
+  return s.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
 }
 
 function buildCadence(
   rollup: PillarRollup,
-  transactions: Transaction[]
+  transactions: Transaction[],
+  signalMap: Record<number, SignalEntry>
 ): CadenceData | null {
   const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
   const txs = indices
