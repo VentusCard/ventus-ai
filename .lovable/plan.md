@@ -1,69 +1,51 @@
 
-Problem diagnosis
 
-The reason this still shows as:
-`MARIA GARCIA $150.00 Unclear Merchants`
-is not just the edge-function prompt.
+## Goal
+Add two enhancements to the expanded pill grid in the Intelligence Panel (`ExecDemoIntelPanel.tsx`):
+1. A column header row above the pillar grid.
+2. A per-pillar total spend amount displayed in the left column.
 
-The real break is in the /demo frontend pipeline:
-- `supabase/functions/classify-transactions/index.ts` is already prepared to use `description` and `source`
-- but `src/components/exec-demo/execDemoData.ts` → `csvToClassifyPayload()` still strips both fields and only sends:
-  `transaction_id, merchant_name, amount, date`
-- so the classifier never receives `"Dogsitting"` or `"Zelle"` from the executive demo flow
+## Where
+Inside the expanded grid block (lines ~477–540 in `src/components/exec-demo/ExecDemoIntelPanel.tsx`), which renders one row per pillar with category/subcategory pills.
 
-That means the previous fixes changed the backend prompt, but the /demo route is still feeding incomplete data.
+## Changes
 
-Implementation plan
+### 1. Add a header row above the pillar grid
+Render a sticky-style header inside the scrollable container with three columns matching the existing grid:
+- **Pillar** (left, 115px column)
+- **Categories & Subcategories** (right column)
+- **Total** (right-aligned amount)
 
-1. Fix the /demo payload builder
-- Update `src/components/exec-demo/execDemoData.ts`
-- Expand `csvToClassifyPayload()` so it parses and sends:
-  - `description`
-  - `source`
-  - `zip_code`
-  - optionally `mcc` too for future rules/debugging
-- This ensures the executive demo actually passes the same signals that exist in the CSV
+Header style: small uppercase tracking-wider slate-500 text, light bottom border.
 
-2. Add a deterministic non-card classification path
-- Update `supabase/functions/classify-transactions/index.ts`
-- Do not rely only on prompt wording
-- Add a server-side preprocessing rule:
-  - if `source` is not a card transaction (`ACH`, `Zelle`, `Venmo`, `Wire`, `Check`, `Bill Pay`, `Transfer`, etc.)
-  - and `description` is meaningful
-  - classify primarily from `description`, with merchant treated as secondary context
-- This should work for all non-card rails, not just Zelle
+### 2. Compute pillar totals
+For each pillar in `chipsByPillarCategory`, sum `totalSpend` across all chips:
+```ts
+const pillarTotal = Array.from(categoriesMap.values())
+  .flat()
+  .reduce((sum, chip) => sum + chip.totalSpend, 0);
+```
 
-3. Add strong description-first examples/rules
-- Keep the prompt improvements, but broaden them into a universal non-card rule
-- Include examples like:
-  - `Dogsitting` → Pets / Pet Services
-  - `Rent payment` → Home & Living / Rent & Mortgage
-  - `Comcast Internet` → Technology & Digital Life / Internet & Phone
-  - `Landscaping` → Home & Living / Home Improvement
-  - `Tuition` → Family & Community / Childcare & Education
+### 3. Update each pillar row layout
+Adjust the row to a 3-zone flex:
+- Left (115px): pillar dot + name (existing)
+- Middle (flex-1): category + subcategory pills (existing)
+- Right (auto, ~70px): pillar total amount, right-aligned, semibold, color-matched (`c.text`), formatted via existing `formatSpend()` helper.
 
-4. Add a safe fallback for person-name merchants
-- Add logic so if:
-  - merchant looks like a personal name or generic transfer processor
-  - and description exists
-  - description wins automatically
-- If description is empty or vague, then fall back to low-confidence miscellaneous/general
+```text
+┌─────────────┬────────────────────────────────────────────┬────────┐
+│ PILLAR      │ CATEGORY & SUBCATEGORIES                   │ TOTAL  │
+├─────────────┼────────────────────────────────────────────┼────────┤
+│ ● Pets      │ [Pet Services] Dogsitting $150  Vet $80    │  $230  │
+│ ● Travel    │ [Lodging] Marriott $420  [Air] Delta $612  │ $1.0k  │
+└─────────────┴────────────────────────────────────────────┴────────┘
+```
 
-5. Verify the /demo signal-map update path
-- Confirm the AI-classified results replace the MCC fallback map after preload completes
-- This matters because the left panel initially uses local fallback data, then swaps to AI classifications via `buildSignalMapFromClassified()`
-- I’ll verify that the updated classification result actually propagates into the visible label shown in the transaction list
+## Files
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — only file touched.
 
-Files to update
-- `src/components/exec-demo/execDemoData.ts`
-- `supabase/functions/classify-transactions/index.ts`
+## Out of scope
+- No changes to pill behavior, click handlers, colors, or animations.
+- No changes to the rollup/synthesis section above the grid.
+- No changes to the Behavioral Intelligence header text.
 
-Expected outcome
-After this, the demo should classify:
-- `MARIA GARCIA` + `Dogsitting` + `Zelle` → `Pets / Pet Services`
-and the same description-first behavior should apply to any non-card transaction source like ACH, wire, check, bill pay, and transfer.
-
-Technical details
-- Root cause found: `/demo` payload builder is dropping `description` and `source` before the request is sent
-- Better solution than another prompt tweak: combine payload fix + deterministic server rule
-- No database/schema changes needed
