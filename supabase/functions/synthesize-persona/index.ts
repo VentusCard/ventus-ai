@@ -29,13 +29,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars } = await req.json();
+    const { pillars, lifeEvents } = await req.json();
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const detectedEventNames: string[] = Array.isArray(lifeEvents)
+      ? lifeEvents.map((e: { event_name?: string }) => e?.event_name).filter((n): n is string => !!n)
+      : [];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -52,6 +56,24 @@ serve(async (req) => {
         return `[${i}] ${p.pillar} > ${p.label}: ${p.count} txns, $${p.totalSpend.toFixed(0)}${tier}${merchants}${subs}${cadenceStr}`;
       })
       .join("\n");
+
+    const lifeEventSuppressionBlock = detectedEventNames.length > 0
+      ? `
+
+**CRITICAL — LIFE EVENT SUPPRESSION:**
+The following life events have already been detected for this customer and will be shown separately: ${detectedEventNames.map(n => `"${n}"`).join(", ")}.
+Do NOT generate a pillar_rollup whose label overlaps thematically with any of these events. The life event already covers that theme — generating a behavioral rollup on the same theme creates redundant, duplicate-feeling pills in the UI.
+
+Examples of forbidden overlaps:
+- If "New Home Transition" or any home-purchase event is detected → do NOT produce "Aspiring Homeowner", "Home Buyer", "Nesting Phase", "New Homeowner", or any home-purchase / moving / nesting themed rollup.
+- If "College Preparation for Dependent" or any education event is detected → do NOT produce "College Bound", "Education Investor", or similar education-themed rollup.
+- If "New Baby" or family-expansion event is detected → do NOT produce "New Parent", "Baby Prep", or similar.
+- If "Retirement Planning" is detected → do NOT produce retirement-themed rollups.
+- If "Wedding" is detected → do NOT produce engagement / wedding-themed rollups.
+
+When in doubt, skip the rollup. A clean separation between behavioral habits (rollups) and life events (separately surfaced) is more important than coverage.
+`
+      : "";
 
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
@@ -73,7 +95,7 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
-- Include the exact category names combined and the [N] row indices from the input.`;
+- Include the exact category names combined and the [N] row indices from the input.${lifeEventSuppressionBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

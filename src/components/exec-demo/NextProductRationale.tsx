@@ -264,11 +264,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                     </span>
                   )}
                 </div>
-                {matchingEvent && (
-                  <span className="text-[10px] font-medium text-slate-400">
-                    {matchingEvent.confidence}% confidence · {matchingEvent.evidence.length} txn{matchingEvent.evidence.length !== 1 ? "s" : ""}
-                  </span>
-                )}
               </div>
 
               {/* Product card */}
