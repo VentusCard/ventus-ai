@@ -1,70 +1,68 @@
 
 
 ## Goal
-Make the **Next-Offer** tab persona-pill-led, just like Next-Conversation. Default to the first (highest-value) lifestyle rollup pill. Disable risk pills on this tab. Replace the seasonal timeline graph with a shopping cadence/pattern card. Show only one persona's deal set at a time, controlled by the selected pill.
+Enrich the Shopping Pattern card on the Next-Offer tab with more concrete purchase insight: subcategory mix (e.g. "Italian, Sushi"), spend share, lifetime totals, and a compact 12-month timeline sparkline — while keeping the plain-English summary line at the top.
 
-## Changes
+## Current state
+`PurchaseCycleTimeline.tsx > buildCadence()` already derives:
+- top merchant, cadence (weekly/monthly/annual), seasonality, velocity, summary line
 
-### 1. `ExecDemoIntelPanel.tsx` — extend pill selection to Next-Offer
-- Today `selectedSignal` activates only on `relationship` tab. Extend it so it ALSO activates on `analytics` (Next-Offer) tab.
-- Default selection logic per tab:
-  - **Next-Offer**: first lifestyle rollup pill (rollupStats[0]) — never a risk or life-event pill
-  - **Next-Conversation**: unchanged (first signal in priority order)
-- Risk pills on Next-Offer tab: render with `opacity-40`, `cursor-not-allowed`, no click handler, tooltip "Not applicable for offer targeting"
-- Lifestyle rollup pills + life-event pills: clickable, drive `selectedSignal`
-- When `activeTab === "analytics"`, pass `selectedSignal` down to `PurchaseCycleTimeline`
+Missing:
+- subcategory breakdown (the rollup contains `categoryIndices` mapping into transactions which carry `category`/`subcategory`)
+- compact monthly trend visual
+- spend totals (we compute `totalSpend` but never display it)
 
-### 2. `PurchaseCycleTimeline.tsx` — replace timeline with cadence card; filter offers
-Rename internal usage but keep the file (it's the Next-Offer container). Two changes:
+## Changes — single file: `src/components/exec-demo/PurchaseCycleTimeline.tsx`
 
-**A. Replace the seasonal bar-chart block with a "Shopping Cadence" card**
+### 1. Extend `buildCadence` to also return:
+- `topSubcategories: { name: string; count: number; spend: number; pct: number }[]` — top 3 by count, derived from `t.subcategory` (fallback `t.category`)
+- `monthlyTrend: number[]` — length 12, normalized 0–1, last 12 months ending at most-recent tx
+- `lifetimeSpend: number` (already computed) and `avgTicket: number = totalSpend / totalCount`
+- `firstSeen: Date | null`, `lastSeen: Date | null` for "Active since Mar 2024"
 
-For the selected persona/rollup, derive 1–3 pattern bullets from its transactions:
-- **Cadence**: detect interval between transactions in the rollup (e.g. "~30 days between visits → monthly")
-- **Seasonality**: detect month concentration (e.g. "annually in July" if ≥50% spend in one month; "summer-heavy" if 3-month bucket ≥40%)
-- **Top merchant**: most-frequent merchant in the rollup
-- **Plain-English summary line** at top: e.g. "Monthly vet visits at Banfield" or "Annual Hawaiian getaway every July"
+### 2. Refine summary line to include subcategory when meaningful
+If top subcategory ≥ 40% of count and isn't generic, prepend it:
+- "Monthly Italian dining at Carbone" instead of "Monthly Dining at Carbone"
+- "Annual Hawaiian getaway every July, mostly flights & hotels"
 
-Card layout:
+### 3. Update `CadenceCard` layout (still compact, single card)
+
 ```text
-┌────────────────────────────────────────────────────┐
-│ ✦ Pet Care · Shopping Pattern                      │
-│ ─────────────────────────────────────────────────  │
-│ "Monthly vet checkups, mostly at Banfield"         │
-│                                                    │
-│ 🗓  Cadence: every ~28 days (12 visits/yr)          │
-│ 📍  Top merchant: Banfield Pet Hospital (8 of 12)  │
-│ 📈  Recent: +18% vs prior quarter                  │
-└────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│ ✦ DINING · SHOPPING PATTERN                  │
+│ "Weekly Italian dining at Carbone"           │
+│                                              │
+│ ↻ Cadence    every ~7 days · 48 visits/yr    │
+│ 📅 Active     Mar 2024 → today (14 mo)        │
+│ 📍 Top spot   Carbone (12 of 48)              │
+│ 🍝 Top types  Italian 52% · Sushi 18% · Bar 12%│
+│ 💵 Lifetime  $4,820 · avg $42/visit           │
+│ 📈 Trend     +18% vs prior quarter            │
+│                                              │
+│ [▁▂▃▅▇▆▅▇█▇▆▅] last 12 months                 │
+└──────────────────────────────────────────────┘
 ```
 
-Light theme, color-coded top border by pillar (reuses `getColor`).
+Implementation notes:
+- Subcategory chips: inline text row with `·` separators, color-muted percentages
+- Sparkline: pure inline SVG, ~140×24px, uses pillar accent color at 60% opacity, no library
+- "Active since" only shown if span ≥ 60 days
+- Hide rows that don't apply (e.g. no subcategory data → skip that line)
+- All copy stays "vaguely specific" — no exact transaction counts in summary line, but data rows can show counts (this is the banker view, not customer)
 
-**B. Filter offers to selected persona only**
-- `NextOfferRationale` currently renders ALL `generatedOffers` groups. Add an `activeRollupLabel` prop and filter `offers` to only the group whose `rollup === activeRollupLabel`.
-- If life event is selected, show the matching life-event offer group.
-- If no match, show empty-state: "No offers generated for this segment yet."
-
-### 3. `NextOfferRationale.tsx` — single-persona view
-- Add prop `activeRollupLabel: string | null`
-- Filter `offers` by `group.rollup === activeRollupLabel` before render
-- Drop the multi-cluster header line ("3 behavioral clusters → 12 deals") since only one cluster is shown; replace with a slim header echoing the active rollup name
-
-## Files to update
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — extend pill selection state to analytics tab; disable risk pills on Next-Offer; pass `selectedSignal` into timeline
-- `src/components/exec-demo/PurchaseCycleTimeline.tsx` — replace bar-chart with cadence card; pass `activeRollupLabel` down
-- `src/components/exec-demo/NextOfferRationale.tsx` — filter offers by `activeRollupLabel`; simplify header
+### 4. Subcategory naming
+- Use `t.subcategory` if present, else `t.category`, else skip
+- Title-case, dedupe on lowercase
+- Ignore generic placeholders like "Other", "Miscellaneous", "Unclassified"
 
 ## Out of scope
-- No edge function / data changes
-- No changes to Next-Product or Next-Conversation tabs (other than shared pill state behaving correctly per tab)
-- No changes to pill animations or styling beyond risk-pill disabled state on this tab
+- No edge function changes
+- No changes to `NextOfferRationale` (deal filtering already works)
+- No changes to pill behavior
+- No new dependencies (sparkline is inline SVG)
 
 ## Expected result for Sarah
-- Open Next-Offer → first lifestyle rollup pill (e.g. "Pet Care") is auto-selected and highlighted
-- Risk pills (Gambling) appear dimmed and non-clickable
-- Cadence card reads: "Monthly vet visits at Banfield · every ~28 days · 12 visits/yr"
-- Offers section shows only Pet Care deals
-- Click "Frequent Traveler" pill → cadence card switches to "Annual Hawaiian getaway every July", offers swap to travel deals
-- Click life-event pill (e.g. Home Buyer) → cadence card shows the life-event evidence summary, offers swap to home-buyer deal group
+- Pet Care pill → "Monthly vet visits at Banfield · Veterinary 88% · Lifetime $1,240 · sparkline shows steady monthly bumps"
+- Frequent Traveler pill → "Annual Hawaiian getaway every July · Flights 54% · Hotels 31% · Lifetime $8,400 · sparkline spikes in Jul"
+- Dining pill → "Weekly Italian dining at Carbone · Italian 52% · Sushi 18% · Lifetime $4,820 · trend +18%"
 
