@@ -1,4 +1,4 @@
-import { Mail, MessageSquare, Bell, Sparkles, Layers, ChevronRight } from "lucide-react";
+import { Mail, MessageSquare, Bell, Sparkles, ChevronRight } from "lucide-react";
 
 export type SignalKind = "lifeEvent" | "lifestyle" | "risk" | "segment" | "all";
 
