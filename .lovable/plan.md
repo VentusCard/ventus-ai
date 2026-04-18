@@ -1,29 +1,52 @@
 
 
-## Goal
-Tighten `synthesize-persona` so the LLM emits **one rollup per behavioral theme**, and when in doubt always **defers to life events** (drops the behavioral rollup rather than the life event).
+## Problem
+Currently `generate-next-offers` has TWO separate code paths:
+- **Behavioral rollups** (from `persona.pillarRollups`) — uses `SYSTEM_PROMPT`
+- **Life events** (from `lifeEvents`) — uses a different `LIFE_EVENT_SYSTEM_PROMPT` and a separate normalization branch
 
-## Single change: `supabase/functions/synthesize-persona/index.ts`
+This duality is fragile: life event groups come back with different field shapes, the `pillar` value is hardcoded to `"Life Event"`, and the downstream filter in `NextOfferRationale.tsx` has to special-case `pillar === "Life Event"` — which is exactly what's been breaking the Life Event pill filter.
 
-Add two rules to the system prompt (alongside the existing life-event suppression block):
+The user wants a single, uniform input: **just rollup pills, treated identically regardless of origin**.
 
-1. **Thematic uniqueness** — Each rollup must cover a *distinct* behavioral theme. Never emit two rollups describing the same underlying life pattern under different names. Examples of forbidden pairs:
-   - "Aspiring Homeowner" + "New Home Transition"
-   - "College Bound" + "Education Investor"
-   - "New Parent" + "Baby Prep"
-   - "Frequent Traveler" + "Vacation Planner"
-   
-   Pick the single best label and combine the categories under it.
+## Plan
 
-2. **Life events always win** (explicit reinforcement) — When a behavioral pattern thematically overlaps with a detected life event, **drop the behavioral rollup entirely**. Life events carry richer context (funding, timing, products) and are surfaced separately. Never try to "complement" a life event with a parallel behavioral rollup on the same theme.
+### 1. `supabase/functions/generate-next-offers/index.ts` — simplify to one path
 
-Also tighten the `pillar_rollups` tool schema description: add "Each rollup must describe a distinct behavioral theme. If a theme is already covered by a detected life event, omit the behavioral rollup entirely — life events take priority."
+- Remove `LIFE_EVENT_SYSTEM_PROMPT`, the `lifeEvents` body field, the second gateway call, and the life-event normalization branch.
+- Edge function accepts ONE input: an array of rollup pills, each with shape `{ label, pillar, categories?, topMerchants?, totalCount? }`.
+- One system prompt, one gateway call, one normalization. Output `rollupOffers` exactly mirrors input — same `label` → `rollup`, same `pillar` → `pillar`.
+- Drop the rule that says `pillar="Life Event"` for life-event rollups. Whatever `pillar` the caller sends is what gets returned.
+
+### 2. `src/pages/ExecDemoPage.tsx` — merge before invoking
+
+In `fireNextOffers`, build a single `rollups` array by concatenating:
+- `synthesis.pillarRollups` (already shaped correctly)
+- Detected life events mapped to the same shape:
+  ```ts
+  lifeEvents.map(e => ({
+    label: e.event_name,
+    pillar: "Life Event",
+    categories: [],
+    topMerchants: e.evidence_merchants || [],
+    totalCount: e.evidence?.length || 1,
+  }))
+  ```
+Send `{ rollups, demographics }` to the edge function. Drop the separate `lifeEvents` body field and the `pillars` context (all needed merchant/category info is already on each rollup).
+
+### 3. `src/components/exec-demo/NextOfferRationale.tsx` — drop the pillar bucket pre-filter
+
+Remove the `scopedOffers` block that splits on `pillar === "Life Event"`. Rely solely on the existing fuzzy `rollup`-label match. Since edge function now returns labels verbatim (life-event labels included), `activeRollupLabel` from any pill — behavioral or life event — will match its corresponding offer group.
+
+Keep the `activeRollupPillar` prop for now but stop using it for filtering (or remove from the prop list — internal-only).
 
 ## Expected result
-- "Aspiring Homeowner" + "New Home Transition" collapses to just the life event (or just one rollup if no life event exists).
-- Same for education, parenting, travel, retirement themes.
-- Spending Patterns section shows only distinct, non-overlapping behavioral habits.
+- Click a Spending Habit pill → shows that rollup's deals (works today, still works).
+- Click a Life Event pill → shows that life event's deals (currently broken, now fixed).
+- Edge function is ~40% smaller, one prompt, one parser, no shape-drift normalization.
 
 ## Out of scope
-- UI changes, downstream edge functions, life-event detection logic.
+- Persona synthesis prompt changes
+- Pill UI / animations
+- Life-event detection logic
 
