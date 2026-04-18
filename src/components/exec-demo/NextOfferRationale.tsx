@@ -99,7 +99,11 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
       }}
     >
       {/* Card header */}
-      <div className="flex items-center gap-1.5 flex-wrap px-4 pt-3 pb-2">
+      <div className="px-4 pt-3 pb-2">
+        <div className="font-bold text-base text-slate-900 mb-2">
+          Behavioral Based Deal Collection
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
         <span
           className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
           style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
@@ -119,6 +123,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
             {cat}
           </span>
         ))}
+        </div>
       </div>
 
       {/* Deal tiles — 2 per row, full info */}
@@ -254,12 +259,6 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
   return (
     <div className="px-3 py-3 space-y-2.5">
 
-      {/* Slim header */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="font-bold text-base text-primary-foreground">
-          Behavioral Based Deal Collection
-        </span>
-      </div>
 
       {/* Rollup cards (just one when filtered) */}
       {filtered.map((group, gi) => (
