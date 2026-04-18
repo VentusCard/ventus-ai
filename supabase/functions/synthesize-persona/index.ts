@@ -57,23 +57,42 @@ serve(async (req) => {
 
 Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
-**How to think about rollups:**
+**The test for every rollup: one activity, one tier, repeated behavior.** If a rollup fails any of these three, don't make it.
 
-- A rollup describes a *recurring lifestyle habit* — something you'd mention about this person at a dinner party. "She's a total fitness nut" (gym + yoga + supplements + athletic apparel). "He eats out constantly at casual spots" (fast food + casual dining + delivery).
+**Rule 1 — One activity per rollup.**
+Categories in a rollup must share a *single behavioral activity*, not just a pillar.
+- ✅ Gym + yoga + athletic apparel → one activity (fitness)
+- ✅ Golf course + pro shop + golf apparel → one activity (golf)
+- ✅ Coffee shops + bakeries + breakfast spots → one activity (morning coffee/breakfast habit)
+- ❌ Grocery + dining out → two activities (cooking at home vs eating out)
+- ❌ Coffee runs + fine dining → two activities (caffeine habit vs special occasions)
+- ❌ Hotel + destination gym → two activities (travel vs fitness)
 
-- Only group categories within the SAME pillar. The "pillar" field MUST be one of these exact strings: ${distinctPillars.map(p => `"${p}"`).join(", ")}.
+**Rule 2 — Tier homogeneity.**
+Every category in a rollup MUST share the same spending tier (shown as [Budget]/[Standard]/[Premium] in the input). NEVER mix Premium with Standard or Budget. A $7 coffee and a $215 fine-dining meal cannot live in the same rollup.
 
-- Ask yourself: "Would a friend describe this person this way?" If someone stays at a Hilton in Dallas and also does Orange Theory, a friend would say "she's really into fitness and she traveled to Dallas" — two separate things, not "strategic domestic traveler."
+**Rule 3 — Repetition threshold (evidence of a habit).**
+A rollup needs evidence of a recurring *habit*, not isolated purchases. To group categories:
+- At least 2 categories AND
+- Each included category has ≥2 transactions, OR the combined rollup has ≥4 transactions across categories
+Single-transaction categories must be left ungrouped — they don't prove a habit.
 
-- Be honest about tier. Look at actual spending levels — frequent fast-casual dining is a "Casual Dining Regular" or "Budget-Friendly Foodie", not a "Premium Gastronome." Describe spending the way the person would describe it themselves.
+**Bad example (do NOT do this):**
+Grocery [Premium] 1 txn $162 (Whole Foods) + Coffee & Cafes [Budget] 1 txn $7 (Starbucks) + Dining Out [Premium] 1 txn $215 (Mama's Fish House) → ❌ "Premium Organic & Fine Dining"
+Why it's wrong: three different activities, mixed tiers, single transactions. Leave them as 3 separate chips.
 
-- Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = "Style-Conscious Shopper", not "Nordstrom & Sephora Loyalist." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
+**Good examples:**
+- Gym [Standard] 6 txns + Yoga Studio [Standard] 4 txns + Athletic Apparel [Standard] 2 txns → ✅ "Fitness Regular"
+- Coffee Shops [Standard] 8 txns + Bakeries [Standard] 3 txns → ✅ "Daily Coffee & Breakfast Habit"
 
-- When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
+**Other constraints:**
+- The "pillar" field MUST be one of these exact strings: ${distinctPillars.map(p => `"${p}"`).join(", ")}. Only group categories within the SAME pillar.
+- Be honest about tier. Frequent fast-casual dining is a "Casual Dining Regular," not a "Premium Gastronome."
+- Never mention brand or merchant names in rollup labels. Describe the behavior, not the stores.
+- When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs". Don't use raw stats.
+- Include the exact category names combined and the [N] row indices from the input.
 
-- Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
-
-- Include the exact category names combined and the [N] row indices from the input.`;
+**If in doubt, leave categories ungrouped. Individual chips are better than a forced rollup.** Return an empty pillar_rollups array if nothing genuinely qualifies.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
