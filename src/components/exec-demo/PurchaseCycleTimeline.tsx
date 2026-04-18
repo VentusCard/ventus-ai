@@ -188,23 +188,89 @@ function buildCadence(
   }
   const velocity = priorSpend > 0 ? Math.round(((recentSpend - priorSpend) / priorSpend) * 100) : 0;
 
+  // ---- Subcategory mix (from signalMap) ----
+  const subMap = new Map<string, { count: number; spend: number; display: string }>();
+  for (const idx of indices) {
+    const sig = signalMap[idx];
+    const tx = transactions[idx];
+    if (!tx) continue;
+    const raw = (sig?.label || sig?.category || "").trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (GENERIC_SUBCATS.has(key)) continue;
+    const display = titleCase(raw);
+    const cur = subMap.get(key) || { count: 0, spend: 0, display };
+    cur.count += 1;
+    cur.spend += parseAmount(tx.amount);
+    subMap.set(key, cur);
+  }
+  const subTotal = Array.from(subMap.values()).reduce((a, s) => a + s.count, 0) || txs.length;
+  const topSubcategories: SubcategoryStat[] = Array.from(subMap.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map(s => ({
+      name: s.display,
+      count: s.count,
+      spend: s.spend,
+      pct: Math.round((s.count / subTotal) * 100),
+    }));
+
+  // ---- Active span ----
+  const firstSeen = dates[0] ?? null;
+  const lastSeen = dates[dates.length - 1] ?? null;
+  let activeSpan: string | null = null;
+  if (firstSeen && lastSeen) {
+    const spanDays = (lastSeen.getTime() - firstSeen.getTime()) / (1000 * 60 * 60 * 24);
+    if (spanDays >= 60) {
+      const fmt = (d: Date) => `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      const months = Math.max(1, Math.round(spanDays / 30));
+      const isRecent = (now.getTime() - lastSeen.getTime()) / (1000 * 60 * 60 * 24) < 45;
+      const endLabel = isRecent ? "today" : fmt(lastSeen);
+      activeSpan = `${fmt(firstSeen)} → ${endLabel} (${months} mo)`;
+    }
+  }
+
+  // ---- 12-month trend (counts per month, ending at lastSeen or now) ----
+  const trendCounts = new Array(12).fill(0);
+  const anchor = lastSeen || now;
+  const anchorMonthIdx = anchor.getFullYear() * 12 + anchor.getMonth();
+  for (const d of dates) {
+    const mi = d.getFullYear() * 12 + d.getMonth();
+    const offset = anchorMonthIdx - mi;
+    if (offset >= 0 && offset < 12) {
+      trendCounts[11 - offset] += 1;
+    }
+  }
+  const maxTrend = Math.max(...trendCounts, 1);
+  const monthlyTrend = trendCounts.map(c => c / maxTrend);
+
+  const avgTicket = txs.length > 0 ? totalSpend / txs.length : 0;
+
   // ---- Summary line ----
-  let summaryLine = rollup.label;
   const cadenceWord =
     cadenceCategory === "weekly" ? "Weekly" :
     cadenceCategory === "monthly" ? "Monthly" :
     cadenceCategory === "quarterly" ? "Quarterly" :
     cadenceCategory === "annual" ? "Annual" : "Recurring";
 
+  const dominantSub = topSubcategories[0] && topSubcategories[0].pct >= 40
+    ? topSubcategories[0].name.toLowerCase()
+    : null;
+  const subjectBase = rollup.label.toLowerCase();
+  const subject = dominantSub && !subjectBase.includes(dominantSub)
+    ? `${dominantSub} ${subjectBase}`
+    : subjectBase;
+
+  let summaryLine = rollup.label;
   if (topMerchant && cadenceCategory) {
     if (cadenceCategory === "annual" && seasonality && seasonality.startsWith("concentrated in ")) {
       const month = seasonality.replace("concentrated in ", "");
-      summaryLine = `Annual ${rollup.label.toLowerCase()} every ${month}, mostly at ${topMerchant.name}`;
+      summaryLine = `Annual ${subject} every ${month}, mostly at ${topMerchant.name}`;
     } else {
-      summaryLine = `${cadenceWord} ${rollup.label.toLowerCase()} at ${topMerchant.name}`;
+      summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
     }
   } else if (cadenceCategory) {
-    summaryLine = `${cadenceWord} ${rollup.label.toLowerCase()} pattern`;
+    summaryLine = `${cadenceWord} ${subject} pattern`;
   } else if (topMerchant) {
     summaryLine = `${rollup.label} — primarily at ${topMerchant.name}`;
   }
@@ -214,11 +280,17 @@ function buildCadence(
     pillar: rollup.pillar,
     totalCount: txs.length,
     totalSpend,
+    avgTicket,
     topMerchant,
+    topSubcategories,
+    firstSeen,
+    lastSeen,
+    activeSpan,
     cadence,
     cadenceCategory,
     seasonality,
     velocity,
+    monthlyTrend,
     summaryLine,
   };
 }
