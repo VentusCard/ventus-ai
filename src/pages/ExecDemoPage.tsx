@@ -69,6 +69,7 @@ export default function ExecDemoPage() {
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
+  const offersInFlightRef = useRef<boolean>(false);
 
   const clearTimeouts = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -284,6 +285,12 @@ export default function ExecDemoPage() {
 
   /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
   const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[], lifeEvents?: LifeEvent[]) => {
+    // De-dupe: skip if a generation is already in flight (e.g., StrictMode double-invoke)
+    if (offersInFlightRef.current) {
+      console.log("[PRELOAD] Next-offers skipped — already in flight");
+      return;
+    }
+    offersInFlightRef.current = true;
     setOffersLoading(true);
     setGeneratedOffers(null);
     try {
@@ -318,9 +325,9 @@ export default function ExecDemoPage() {
       console.log("[PRELOAD] Next-offers ready:", data.rollupOffers?.length, "groups");
     } catch (err) {
       console.error("[PRELOAD] Next-offers failed:", err);
-      setOffersLoading(false);
     } finally {
       setOffersLoading(false);
+      offersInFlightRef.current = false;
     }
   }, [selectedIdx]);
 
