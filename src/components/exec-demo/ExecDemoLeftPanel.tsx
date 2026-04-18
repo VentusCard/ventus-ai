@@ -59,7 +59,7 @@ const TxRow = ({
   const rowRef = useRef<HTMLDivElement>(null);
 
   const handleMouseEnter = () => {
-    if (!signalEntry || dim) return;
+    if (dim) return;
     const rect = rowRef.current?.getBoundingClientRect();
     if (rect) {
       setCoords({ x: rect.left + 16, y: rect.top });
