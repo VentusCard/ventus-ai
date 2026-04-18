@@ -541,6 +541,7 @@ Deno.serve(async (req) => {
     const transactionSummary = transactions.map((t) => ({
       id: t.transaction_id,
       merchant: t.merchant_name,
+      ...(t.description && { description: t.description }),
       amount: t.amount,
       date: t.date,
       ...(t.zip_code && { zip: t.zip_code }),
