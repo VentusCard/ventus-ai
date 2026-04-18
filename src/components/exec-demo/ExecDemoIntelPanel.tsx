@@ -372,7 +372,11 @@ export default function ExecDemoIntelPanel({
                        return (
                          <span
                            key={evt.event_name}
-                           onClick={() => isClickable && onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
+                           onClick={() => {
+                             if (!isClickable) return;
+                             onTabClick("analytics");
+                             onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b");
+                           }}
                            className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
                           style={{
                             background: isActive
