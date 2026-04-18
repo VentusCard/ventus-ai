@@ -96,6 +96,14 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
+- **THEMATIC UNIQUENESS — ONE ROLLUP PER THEME:** Each rollup must cover a *distinct* behavioral theme. NEVER emit two rollups that describe the same underlying life pattern under different names. Forbidden duplicate pairs include (but are not limited to):
+  - "Aspiring Homeowner" + "New Home Transition" / "Home Buyer" / "Nesting Phase"
+  - "College Bound" + "Education Investor" / "Tuition Planner"
+  - "New Parent" + "Baby Prep" / "Growing Family"
+  - "Frequent Traveler" + "Vacation Planner" / "Jetsetter"
+  - "Retirement Saver" + "Pre-Retiree"
+  Pick the SINGLE best label and combine all related categories under it. If you find yourself writing two rollups about the same life pattern, merge them into one.
+
 - Include the exact category names combined and the [N] row indices from the input.${lifeEventSuppressionBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
