@@ -361,7 +361,7 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim enriched={enriched} pillarColor={pc} signalEntry={signalMap?.[i]} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim enriched={enriched} txIndex={i} pillarColor={pc} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             ) : (
