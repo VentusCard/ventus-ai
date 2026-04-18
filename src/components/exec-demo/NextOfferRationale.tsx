@@ -259,12 +259,6 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
   return (
     <div className="px-3 py-3 space-y-2.5">
 
-      {/* Slim header */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="font-bold text-base text-primary-foreground">
-          Behavioral Based Deal Collection
-        </span>
-      </div>
 
       {/* Rollup cards (just one when filtered) */}
       {filtered.map((group, gi) => (
