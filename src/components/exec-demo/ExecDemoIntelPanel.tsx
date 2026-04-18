@@ -293,6 +293,15 @@ export default function ExecDemoIntelPanel({
     }
   }, [activeTab, availableSignals, selectedSignal]);
 
+  // Auto-select first lifestyle rollup pill when entering Next-Offer (analytics) tab
+  useEffect(() => {
+    if (activeTab === "analytics" && !activeRollup && rollupStats.length > 0) {
+      onRollupClick?.(rollupStats[0]);
+    }
+  }, [activeTab, activeRollup, rollupStats, onRollupClick]);
+
+  const isOfferTab = activeTab === "analytics";
+
 
   return (
     <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
@@ -433,13 +442,14 @@ export default function ExecDemoIntelPanel({
                           })
                           .filter((idx) => idx !== -1);
                       }
-                      const isClickable = matchedIndices.length > 0;
+                      const isClickable = matchedIndices.length > 0 && !isOfferTab;
                       const pillKey = `${flag.transaction_id || "pattern"}::${flagLabel}::${i}`;
                       return (
                         <span
                           key={pillKey}
                           onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          title={isOfferTab ? "Not applicable for offer targeting" : undefined}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed" : ""} transition-all duration-200`}
                           style={{
                             background: isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
@@ -449,6 +459,7 @@ export default function ExecDemoIntelPanel({
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
                             boxShadow: isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
                             transform: isActive ? "scale(1.08)" : "scale(1)",
+                            opacity: isOfferTab ? 0.4 : 1,
                           }}
                         >
                           <span style={{ color: dotColor }}>⚠</span>
@@ -683,7 +694,7 @@ export default function ExecDemoIntelPanel({
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
             {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} />
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} />
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} />
             ) : activeTab === "relationship" ? (

@@ -27,6 +27,7 @@ interface Props {
   offers: RollupOfferGroup[] | null;
   personaSynthesis: PersonaSynthesis | null;
   loading: boolean;
+  activeRollupLabel?: string | null;
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
@@ -101,7 +102,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -120,17 +121,34 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
     );
   }
 
-  const totalDeals = offers.reduce((sum, g) => sum + g.deals.length, 0);
-  const totalBoosted = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "boost").length, 0);
-  const totalSuppressed = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "suppress").length, 0);
+  // Filter to only the active persona's offer group
+  const filtered = activeRollupLabel
+    ? offers.filter(g => g.rollup === activeRollupLabel)
+    : offers;
+
+  if (filtered.length === 0) {
+    return (
+      <div className="px-3 py-6 text-center">
+        <span className="text-[11px] text-slate-400 italic">
+          {activeRollupLabel
+            ? `No offers generated for "${activeRollupLabel}" yet.`
+            : "Select a persona pill above to see targeted offers."}
+        </span>
+      </div>
+    );
+  }
+
+  const totalDeals = filtered.reduce((sum, g) => sum + g.deals.length, 0);
+  const totalBoosted = filtered.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "boost").length, 0);
+  const totalSuppressed = filtered.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "suppress").length, 0);
 
   return (
     <div className="px-3 py-3 space-y-2.5">
 
-      {/* Strategy header */}
+      {/* Slim header for the selected persona */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[11px] font-semibold text-slate-500">
-          {offers.length} behavioral clusters
+        <span className="text-[11px] font-semibold text-slate-600">
+          Targeted offers for <span className="font-bold text-slate-800">{activeRollupLabel || "all personas"}</span>
         </span>
         <ArrowRight className="w-3 h-3 text-slate-300" />
         <span className="text-[11px] font-bold text-emerald-600">
@@ -141,16 +159,10 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
         </span>
       </div>
 
-      {/* Rollup cards */}
-      {[...offers]
-        .sort((a, b) => {
-          const aLife = a.pillar === "Life Event" ? 1 : 0;
-          const bLife = b.pillar === "Life Event" ? 1 : 0;
-          return aLife - bLife;
-        })
-        .map((group, gi) => (
-          <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
-        ))}
+      {/* Rollup cards (just one when filtered) */}
+      {filtered.map((group, gi) => (
+        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
+      ))}
 
       <style>{`
         @keyframes offer-card-in {

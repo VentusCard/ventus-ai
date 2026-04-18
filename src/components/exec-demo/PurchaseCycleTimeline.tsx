@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown, Calendar, Flame, BarChart3 } from "lucide-react";
+import { Calendar, MapPin, TrendingUp, TrendingDown, Repeat } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
-import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
+import type { PersonaSynthesis, PillarRollup } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
 import NextOfferRationale from "./NextOfferRationale";
 import type { RollupOfferGroup } from "./NextOfferRationale";
@@ -21,312 +21,324 @@ interface Props {
   personaSynthesis?: PersonaSynthesis | null;
   generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
+  activeRollup?: PillarRollup | null;
+  activeTriggerLabel?: string | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const CURRENT_MONTH = new Date().getMonth();
 
-function parseMonth(dateStr: string): number | null {
+function parseDate(dateStr: string): Date | null {
   if (!dateStr) return null;
   if (dateStr.includes("-")) {
-    const m = parseInt(dateStr.split("-")[1], 10);
-    return isNaN(m) ? null : m - 1;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
   }
-  const m = parseInt(dateStr.split("/")[0], 10);
-  return isNaN(m) ? null : m - 1;
+  // mm/dd/yyyy
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const d = new Date(`${parts[2]}-${parts[0].padStart(2, "0")}-${parts[1].padStart(2, "0")}`);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
 }
 
-function formatSpend(amount: number): string {
-  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
-  return `$${Math.round(amount)}`;
+function parseAmount(amount: any): number {
+  return parseFloat(String(amount).replace(/[$,]/g, "")) || 0;
 }
 
-interface SeasonalRow {
+interface CadenceData {
   label: string;
   pillar: string;
-  monthlySpend: number[];
-  peak: number;
-  monthsUntilPeak: number;
+  totalCount: number;
   totalSpend: number;
-  count: number;
-  velocity: number;
-  concentration: { months: string; pct: number } | null;
+  topMerchant: { name: string; count: number } | null;
+  cadence: string | null;            // e.g. "every ~28 days (12 visits/yr)"
+  cadenceCategory: "weekly" | "monthly" | "quarterly" | "annual" | "irregular" | null;
+  seasonality: string | null;        // e.g. "annually in July" or "summer-heavy (Jun–Aug)"
+  velocity: number;                  // % change recent vs prior quarter
+  summaryLine: string;               // plain-English headline
 }
 
+function buildCadence(
+  rollup: PillarRollup,
+  transactions: Transaction[]
+): CadenceData | null {
+  const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
+  const txs = indices
+    .map(i => transactions[i])
+    .filter((t): t is Transaction => !!t);
 
+  if (txs.length === 0) return null;
 
-
-export default function PurchaseCycleTimeline({ chips, transactions, signalMap, personaSynthesis, generatedOffers, offersLoading }: Props) {
-  const rows: SeasonalRow[] = useMemo(() => {
-    const rollups = personaSynthesis?.pillarRollups;
-
-    // If we have persona rollups, group by rollup label
-    if (rollups && rollups.length > 0) {
-      return rollups
-        .map(rollup => {
-          const months = new Array(12).fill(0);
-          let total = 0;
-          let count = 0;
-
-          // Use txIndices if available, otherwise categoryIndices mapped through signalMap
-          const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
-          indices.forEach(idx => {
-            const tx = transactions[idx];
-            if (!tx) return;
-            const month = parseMonth(tx.date);
-            if (month === null) return;
-            const amount = parseFloat(String(tx.amount).replace(/[$,]/g, "")) || 0;
-            months[month] += amount;
-            total += amount;
-            count += 1;
-          });
-
-          if (count < 2) return null;
-
-          const peak = months.indexOf(Math.max(...months));
-          const monthsUntil = peak >= CURRENT_MONTH ? peak - CURRENT_MONTH : 12 - CURRENT_MONTH + peak;
-
-          const recentMonths = [0, 1, 2].map(i => months[(CURRENT_MONTH - i + 12) % 12]);
-          const priorMonths = [3, 4, 5].map(i => months[(CURRENT_MONTH - i + 12) % 12]);
-          const recentAvg = recentMonths.reduce((a, b) => a + b, 0) / 3;
-          const priorAvg = priorMonths.reduce((a, b) => a + b, 0) / 3;
-          const velocity = priorAvg > 0 ? Math.round(((recentAvg - priorAvg) / priorAvg) * 100) : 0;
-
-          let bestSum = 0, bestStart = 0;
-          for (let s = 0; s < 12; s++) {
-            const sum3 = months[s] + months[(s + 1) % 12] + months[(s + 2) % 12];
-            if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
-          }
-          const pct = total > 0 ? Math.round((bestSum / total) * 100) : 0;
-          const concentration = pct >= 40 ? {
-            months: `${MONTHS[bestStart]}-${MONTHS[(bestStart + 2) % 12]}`,
-            pct,
-          } : null;
-
-          return {
-            label: rollup.label,
-            pillar: rollup.pillar,
-            monthlySpend: months,
-            peak,
-            monthsUntilPeak: monthsUntil === 0 ? 0 : monthsUntil,
-            totalSpend: total,
-            count,
-            velocity,
-            concentration,
-          };
-        })
-        .filter((r): r is SeasonalRow => r !== null)
-        .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak)
-        .slice(0, 7);
-    }
-
-    // Fallback: group by signal pillar::label (original behavior)
-    const categoryMonthly = new Map<string, { pillar: string; months: number[]; total: number; count: number }>();
-
-    transactions.forEach((tx, idx) => {
-      const signal = signalMap[idx];
-      if (!signal) return;
-      const month = parseMonth(tx.date);
-      if (month === null) return;
-      const amount = parseFloat(String(tx.amount).replace(/[$,]/g, "")) || 0;
-      const key = `${signal.pillar}::${signal.label}`;
-
-      let entry = categoryMonthly.get(key);
-      if (!entry) {
-        entry = { pillar: signal.pillar, months: new Array(12).fill(0), total: 0, count: 0 };
-        categoryMonthly.set(key, entry);
-      }
-      entry.months[month] += amount;
-      entry.total += amount;
-      entry.count += 1;
-    });
-
-    return Array.from(categoryMonthly.entries())
-      .filter(([, v]) => v.count >= 2)
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 7)
-      .map(([key, data]) => {
-        const label = key.split("::")[1];
-        const peak = data.months.indexOf(Math.max(...data.months));
-        const monthsUntil = peak >= CURRENT_MONTH ? peak - CURRENT_MONTH : 12 - CURRENT_MONTH + peak;
-
-        const recentMonths = [0, 1, 2].map(i => data.months[(CURRENT_MONTH - i + 12) % 12]);
-        const priorMonths = [3, 4, 5].map(i => data.months[(CURRENT_MONTH - i + 12) % 12]);
-        const recentAvg = recentMonths.reduce((a, b) => a + b, 0) / 3;
-        const priorAvg = priorMonths.reduce((a, b) => a + b, 0) / 3;
-        const velocity = priorAvg > 0 ? Math.round(((recentAvg - priorAvg) / priorAvg) * 100) : 0;
-
-        let bestSum = 0, bestStart = 0;
-        for (let s = 0; s < 12; s++) {
-          const sum3 = data.months[s] + data.months[(s + 1) % 12] + data.months[(s + 2) % 12];
-          if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
-        }
-        const pct = data.total > 0 ? Math.round((bestSum / data.total) * 100) : 0;
-        const concentration = pct >= 40 ? {
-          months: `${MONTHS[bestStart]}-${MONTHS[(bestStart + 2) % 12]}`,
-          pct,
-        } : null;
-
-        return {
-          label,
-          pillar: data.pillar,
-          monthlySpend: data.months,
-          peak,
-          monthsUntilPeak: monthsUntil === 0 ? 0 : monthsUntil,
-          totalSpend: data.total,
-          count: data.count,
-          velocity,
-          concentration,
-        };
-      })
-      .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak);
-  }, [transactions, signalMap, personaSynthesis]);
-
-
-
-
-  if (rows.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-[11px] text-slate-300">Analyzing seasonal patterns...</span>
-      </div>
-    );
+  // ---- Top merchant ----
+  const merchantCounts = new Map<string, number>();
+  for (const t of txs) {
+    const m = ((t as any).merchant_name || (t as any).merchant || "").trim();
+    if (!m) continue;
+    merchantCounts.set(m, (merchantCounts.get(m) || 0) + 1);
+  }
+  let topMerchant: { name: string; count: number } | null = null;
+  for (const [name, count] of merchantCounts) {
+    if (!topMerchant || count > topMerchant.count) topMerchant = { name, count };
   }
 
-  const globalMax = Math.max(...rows.flatMap(r => r.monthlySpend), 1);
+  // ---- Date analysis ----
+  const dates = txs
+    .map(t => parseDate(t.date))
+    .filter((d): d is Date => !!d)
+    .sort((a, b) => a.getTime() - b.getTime());
 
+  let cadence: string | null = null;
+  let cadenceCategory: CadenceData["cadenceCategory"] = null;
+  if (dates.length >= 2) {
+    const intervals: number[] = [];
+    for (let i = 1; i < dates.length; i++) {
+      intervals.push((dates[i].getTime() - dates[i - 1].getTime()) / (1000 * 60 * 60 * 24));
+    }
+    const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const perYear = Math.max(1, Math.round(365 / avg));
+    if (avg <= 10) {
+      cadenceCategory = "weekly";
+      cadence = `every ~${Math.round(avg)} days (${perYear}+ visits/yr)`;
+    } else if (avg <= 45) {
+      cadenceCategory = "monthly";
+      cadence = `every ~${Math.round(avg)} days (${perYear} visits/yr)`;
+    } else if (avg <= 120) {
+      cadenceCategory = "quarterly";
+      cadence = `every ~${Math.round(avg)} days (${perYear}× / year)`;
+    } else if (avg <= 270) {
+      cadenceCategory = "annual";
+      cadence = `every ~${Math.round(avg / 30)} months (${perYear}× / year)`;
+    } else {
+      cadenceCategory = "annual";
+      cadence = `roughly once a year`;
+    }
+  }
 
+  // ---- Seasonality ----
+  const monthCounts = new Array(12).fill(0);
+  const monthSpend = new Array(12).fill(0);
+  let totalSpend = 0;
+  for (let i = 0; i < txs.length; i++) {
+    const d = parseDate(txs[i].date);
+    if (!d) continue;
+    const m = d.getMonth();
+    monthCounts[m] += 1;
+    const amt = parseAmount(txs[i].amount);
+    monthSpend[m] += amt;
+    totalSpend += amt;
+  }
 
+  let seasonality: string | null = null;
+  if (totalSpend > 0) {
+    // Single-month concentration ≥ 50%
+    const peakMonth = monthSpend.indexOf(Math.max(...monthSpend));
+    const peakPct = monthSpend[peakMonth] / totalSpend;
+    if (peakPct >= 0.5 && monthCounts[peakMonth] >= 1) {
+      seasonality = `concentrated in ${MONTHS[peakMonth]}`;
+    } else {
+      // 3-month bucket ≥ 40%
+      let bestSum = 0, bestStart = 0;
+      for (let s = 0; s < 12; s++) {
+        const sum3 = monthSpend[s] + monthSpend[(s + 1) % 12] + monthSpend[(s + 2) % 12];
+        if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
+      }
+      const bucketPct = bestSum / totalSpend;
+      if (bucketPct >= 0.4) {
+        seasonality = `${MONTHS[bestStart]}–${MONTHS[(bestStart + 2) % 12]} heavy`;
+      } else {
+        seasonality = "year-round";
+      }
+    }
+  }
 
+  // ---- Velocity (recent 3 months vs prior 3 months) ----
+  const now = new Date();
+  const ms30 = 30 * 24 * 60 * 60 * 1000;
+  let recentSpend = 0, priorSpend = 0;
+  for (let i = 0; i < txs.length; i++) {
+    const d = parseDate(txs[i].date);
+    if (!d) continue;
+    const ageDays = (now.getTime() - d.getTime()) / ms30;
+    const amt = parseAmount(txs[i].amount);
+    if (ageDays < 3) recentSpend += amt;
+    else if (ageDays < 6) priorSpend += amt;
+  }
+  const velocity = priorSpend > 0 ? Math.round(((recentSpend - priorSpend) / priorSpend) * 100) : 0;
+
+  // ---- Summary line ----
+  let summaryLine = rollup.label;
+  const cadenceWord =
+    cadenceCategory === "weekly" ? "Weekly" :
+    cadenceCategory === "monthly" ? "Monthly" :
+    cadenceCategory === "quarterly" ? "Quarterly" :
+    cadenceCategory === "annual" ? "Annual" : "Recurring";
+
+  if (topMerchant && cadenceCategory) {
+    if (cadenceCategory === "annual" && seasonality && seasonality.startsWith("concentrated in ")) {
+      const month = seasonality.replace("concentrated in ", "");
+      summaryLine = `Annual ${rollup.label.toLowerCase()} every ${month}, mostly at ${topMerchant.name}`;
+    } else {
+      summaryLine = `${cadenceWord} ${rollup.label.toLowerCase()} at ${topMerchant.name}`;
+    }
+  } else if (cadenceCategory) {
+    summaryLine = `${cadenceWord} ${rollup.label.toLowerCase()} pattern`;
+  } else if (topMerchant) {
+    summaryLine = `${rollup.label} — primarily at ${topMerchant.name}`;
+  }
+
+  return {
+    label: rollup.label,
+    pillar: rollup.pillar,
+    totalCount: txs.length,
+    totalSpend,
+    topMerchant,
+    cadence,
+    cadenceCategory,
+    seasonality,
+    velocity,
+    summaryLine,
+  };
+}
+
+function CadenceCard({ data }: { data: CadenceData }) {
+  const c = getColor(data.pillar);
   return (
-    <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
-      <div className="flex items-center gap-1.5 mb-2.5">
-        <Calendar className="w-3.5 h-3.5 text-blue-400" />
-        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-          Seasonal Spend Intelligence
+    <div
+      className="rounded-xl border border-slate-100 bg-white px-4 py-3"
+      style={{
+        borderTopWidth: 3,
+        borderTopColor: c.dot,
+        animation: "exec-card-reveal 0.4s ease-out",
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-1.5 mb-1">
+        <span style={{ color: c.dot }}>✦</span>
+        <span
+          className="text-[11px] font-bold uppercase tracking-wider"
+          style={{ color: c.text }}
+        >
+          {data.label} · Shopping Pattern
         </span>
       </div>
 
-      {/* Month legend bar + Rows with vertical "now" line */}
-      <div className="relative">
-        <div className="flex gap-px mb-2 px-[74px]">
-          {MONTHS.map((m) => (
-            <span
-              key={m}
-              className="flex-1 text-center text-[7px] font-medium"
-              style={{ color: "#94a3b8" }}
-            >
-              {m}
+      {/* Plain-English summary */}
+      <p className="text-[13px] font-semibold text-slate-800 italic mb-2.5 leading-snug">
+        "{data.summaryLine}"
+      </p>
+
+      <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
+        {data.cadence && (
+          <div className="flex items-start gap-1.5">
+            <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+            <span>
+              <span className="font-semibold text-slate-700">Cadence:</span> {data.cadence}
             </span>
-          ))}
-        </div>
-
-        {/* Rows */}
-        <div className="space-y-1">
-          {rows.map((row, ri) => {
-            const c = getColor(row.pillar);
-            const isAtPeak = row.monthsUntilPeak === 0;
-            const isNearPeak = row.monthsUntilPeak <= 2;
-            const rowMax = Math.max(...row.monthlySpend, 1);
-
-            return (
-              <div
-                key={`${row.pillar}::${row.label}`}
-                className="flex items-center gap-2"
-                style={{ animation: `exec-card-reveal 0.35s ease-out ${ri * 0.06}s both` }}
-              >
-                <div className="w-[130px] shrink-0 text-right pr-1">
-                  <span className="text-[10px] font-semibold block leading-tight" style={{ color: c.text }}>
-                    {row.label}
-                  </span>
-                </div>
-
-                <div className="flex gap-px flex-1 h-[18px] items-end">
-                  {row.monthlySpend.map((val, mi) => {
-                    const norm = rowMax > 0 ? val / rowMax : 0;
-                    const isPeak = mi === row.peak && val > 0;
-                    const isEmpty = val === 0;
-                    return (
-                      <div
-                        key={mi}
-                        className="flex-1 rounded-sm relative"
-                        style={{
-                          height: isEmpty ? "3px" : `${Math.max(20, norm * 100)}%`,
-                          background: isEmpty
-                            ? "#e2e8f0"
-                            : isPeak
-                            ? c.dot
-                            : `${c.dot}${Math.round(norm * 40 + 10).toString(16).padStart(2, "0")}`,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-
-                <div className="w-[72px] shrink-0 flex items-center gap-1">
-                  {isAtPeak ? (
-                    <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{
-                        background: `${c.dot}20`,
-                        color: c.dot,
-                        animation: "purchase-pulse 2s ease-in-out infinite",
-                      }}
-                    >
-                      <Flame className="w-2.5 h-2.5" /> PEAK
-                    </span>
-                  ) : isNearPeak ? (
-                    <span className="text-[9px] font-semibold text-amber-600">
-                      ↑ {row.monthsUntilPeak}mo
-                    </span>
-                  ) : (
-                    <span className="text-[9px] text-slate-400">
-                      {row.monthsUntilPeak}mo
-                    </span>
-                  )}
-
-                  {row.velocity !== 0 && (
-                    row.velocity >= 0 ? (
-                      <span className="inline-flex items-center text-[8px] font-bold text-emerald-600">
-                        <TrendingUp className="w-2.5 h-2.5" />+{row.velocity}%
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center text-[8px] font-bold text-red-400">
-                        <TrendingDown className="w-2.5 h-2.5" />{row.velocity}%
-                      </span>
-                    )
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Vertical "Now" line */}
-        <div
-          className="absolute top-0 bottom-0 pointer-events-none flex flex-col items-center"
-          style={{
-            left: `calc(74px + (100% - 74px - 80px) * ${(CURRENT_MONTH + 0.5) / 12})`,
-            width: "1px",
-          }}
-        >
-          <span className="text-[6px] font-bold text-blue-500 -translate-x-1/2 whitespace-nowrap mb-0.5">Now</span>
-          <div className="flex-1 w-px" style={{ background: "rgba(59,130,246,0.5)", backgroundImage: "repeating-linear-gradient(to bottom, #3b82f6 0px, #3b82f6 3px, transparent 3px, transparent 6px)" }} />
-        </div>
+          </div>
+        )}
+        {data.seasonality && (
+          <div className="flex items-start gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+            <span>
+              <span className="font-semibold text-slate-700">Seasonality:</span> {data.seasonality}
+            </span>
+          </div>
+        )}
+        {data.topMerchant && (
+          <div className="flex items-start gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+            <span>
+              <span className="font-semibold text-slate-700">Top merchant:</span>{" "}
+              {data.topMerchant.name}{" "}
+              <span className="text-slate-400">
+                ({data.topMerchant.count} of {data.totalCount} txns)
+              </span>
+            </span>
+          </div>
+        )}
+        {data.velocity !== 0 && (
+          <div className="flex items-start gap-1.5">
+            {data.velocity > 0 ? (
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-[1px]" />
+            ) : (
+              <TrendingDown className="w-3.5 h-3.5 text-red-400 shrink-0 mt-[1px]" />
+            )}
+            <span>
+              <span className="font-semibold text-slate-700">Recent trend:</span>{" "}
+              <span className={data.velocity > 0 ? "text-emerald-600 font-semibold" : "text-red-500 font-semibold"}>
+                {data.velocity > 0 ? "+" : ""}{data.velocity}%
+              </span>{" "}
+              vs prior quarter
+            </span>
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
 
+export default function PurchaseCycleTimeline({
+  chips,
+  transactions,
+  signalMap,
+  personaSynthesis,
+  generatedOffers,
+  offersLoading,
+  activeRollup,
+  activeTriggerLabel,
+}: Props) {
+  const rollups = personaSynthesis?.pillarRollups || [];
 
+  // Pick the active rollup — defaults handled by parent, but defensive fallback here too
+  const selectedRollup: PillarRollup | null = useMemo(() => {
+    if (activeRollup) return activeRollup;
+    if (rollups.length > 0) return rollups[0];
+    return null;
+  }, [activeRollup, rollups]);
 
+  const cadenceData = useMemo(() => {
+    if (!selectedRollup) return null;
+    return buildCadence(selectedRollup, transactions);
+  }, [selectedRollup, transactions]);
 
-      {/* ═══ NEXT-OFFER RECOMMENDATIONS ═══ */}
-      <div className="mt-4">
-        <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
+  // What label to filter offers by — life event takes precedence if active
+  const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
+
+  return (
+    <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
+      {/* ═══ SHOPPING CADENCE CARD ═══ */}
+      {cadenceData ? (
+        <CadenceCard data={cadenceData} />
+      ) : activeTriggerLabel ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-amber-500">✦</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+              {activeTriggerLabel} · Life Event Trigger
+            </span>
+          </div>
+          <p className="text-[12px] text-slate-600 leading-snug">
+            Targeted offers below are matched to this life event.
+          </p>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-32">
+          <span className="text-[11px] text-slate-300">Select a persona pill above to see shopping patterns</span>
+        </div>
+      )}
+
+      {/* ═══ NEXT-OFFER RECOMMENDATIONS (filtered to active persona) ═══ */}
+      <div className="mt-3">
+        <NextOfferRationale
+          offers={generatedOffers || null}
+          personaSynthesis={personaSynthesis || null}
+          loading={!!offersLoading}
+          activeRollupLabel={activeOfferLabel}
+        />
       </div>
 
       <style>{`
-        @keyframes purchase-pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); box-shadow: 0 0 8px currentColor; }
-        }
         @keyframes exec-card-reveal {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }
