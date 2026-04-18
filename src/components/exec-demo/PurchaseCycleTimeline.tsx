@@ -366,10 +366,7 @@ function CadenceCard({ data }: { data: CadenceData }) {
         </span>
       </div>
 
-      {/* Plain-English summary */}
-      <p className="text-[13px] font-semibold text-slate-800 italic mb-2.5 leading-snug">
-        "{data.summaryLine}"
-      </p>
+      <div className="mb-2" />
 
       {(() => {
         const hasTiming =
