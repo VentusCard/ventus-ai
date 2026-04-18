@@ -1,52 +1,72 @@
 
 
-## Problem
-Currently `generate-next-offers` has TWO separate code paths:
-- **Behavioral rollups** (from `persona.pillarRollups`) — uses `SYSTEM_PROMPT`
-- **Life events** (from `lifeEvents`) — uses a different `LIFE_EVENT_SYSTEM_PROMPT` and a separate normalization branch
+## Diagnosis
 
-This duality is fragile: life event groups come back with different field shapes, the `pillar` value is hardcoded to `"Life Event"`, and the downstream filter in `NextOfferRationale.tsx` has to special-case `pillar === "Life Event"` — which is exactly what's been breaking the Life Event pill filter.
+The data flow `activeTriggerPill.label → activeTriggerLabel → activeOfferLabel → NextOfferRationale` IS wired correctly. So when you click "Home Purchase", `activeRollupLabel` arriving at `NextOfferRationale` IS `"Home Purchase"`.
 
-The user wants a single, uniform input: **just rollup pills, treated identically regardless of origin**.
+The offer match logic (lines 159–171 of `NextOfferRationale.tsx`):
+1. Exact normalized match against `offers[].rollup`
+2. Falls back to bidirectional substring match (`r.includes(target) || target.includes(r)`)
+3. Only if both fail → empty state
 
-## Plan
+For "Home Purchase" to show "Upscale Hawaii Traveler" deals, the substring fallback must be matching incorrectly — but neither string contains the other. So the most likely real cause:
 
-### 1. `supabase/functions/generate-next-offers/index.ts` — simplify to one path
+**The AI never generated a "Home Purchase" rollup in the response**, AND **the previous render of `selectedRollup`-driven offers (defaulting to first rollup, "Upscale Hawaii Traveler") is what you're seeing**. When `activeTriggerPill` is set, line 512 should switch `activeOfferLabel` to "Home Purchase" — but if `setActiveTriggerPill` isn't firing for some reason (e.g., the click handler short-circuits when `matchedIndices.length === 0`), `activeTriggerLabel` stays undefined and `selectedRollup?.label` ("Upscale Hawaii Traveler") wins.
 
-- Remove `LIFE_EVENT_SYSTEM_PROMPT`, the `lifeEvents` body field, the second gateway call, and the life-event normalization branch.
-- Edge function accepts ONE input: an array of rollup pills, each with shape `{ label, pillar, categories?, topMerchants?, totalCount? }`.
-- One system prompt, one gateway call, one normalization. Output `rollupOffers` exactly mirrors input — same `label` → `rollup`, same `pillar` → `pillar`.
-- Drop the rule that says `pillar="Life Event"` for life-event rollups. Whatever `pillar` the caller sends is what gets returned.
+Look at `ExecDemoIntelPanel.tsx` line 367 + 373:
+```ts
+const isClickable = matchedIndices.length > 0;
+onClick={() => isClickable && onTriggerPillClick?.(...)}
+```
+If `evidenceMerchants` for "Home Purchase" don't fuzzy-match any transaction merchant, `matchedIndices = []`, `isClickable = false`, **the click does nothing**, and the previously-selected behavioral rollup's deals stay visible.
 
-### 2. `src/pages/ExecDemoPage.tsx` — merge before invoking
+## Fix
 
-In `fireNextOffers`, build a single `rollups` array by concatenating:
-- `synthesis.pillarRollups` (already shaped correctly)
-- Detected life events mapped to the same shape:
-  ```ts
-  lifeEvents.map(e => ({
+### 1. `ExecDemoIntelPanel.tsx` — always allow life-event pill clicks
+Remove the `matchedIndices.length > 0` gate. Even if no transactions match, clicking the pill should still set `activeTriggerPill` (with empty `indices`) so the offer panel switches and either shows that life event's deals or the "No offers generated for X yet" empty state. Visual indication of unclickability stays via opacity.
+
+### 2. `ExecDemoPage.tsx` — clear `activeRollup` when life-event pill clicked
+Already done in `handleTriggerPillClick`. ✓
+
+### 3. `NextOfferRationale.tsx` — tighten the substring fallback
+The bidirectional substring match is dangerous for short labels (e.g., a behavioral rollup named "Home" would match life-event "Home Purchase"). Replace with:
+- Exact normalized match only
+- If 0 hits AND the active label looks like a life event (pillar === "Life Event"), show clear "No offers generated for [label] yet" rather than fall through to substring matching.
+
+Re-introduce `activeRollupPillar` for this guard (it's still being passed in from `PurchaseCycleTimeline`).
+
+### 4. `ExecDemoPage.tsx` `fireNextOffers` — feed life events richer context
+Life-event rollups currently send empty `categories: []`. Augment with the life event's matched-transaction pillar/category data so the AI has enough signal to actually generate a coherent group with the verbatim label:
+```ts
+const lifeEventRollups = (lifeEvents || []).map(e => {
+  const evidenceMerchants = (e.evidence || []).map(ev => ev.merchant).filter(Boolean);
+  // Pull pillars/categories from matched enriched txs
+  const categories = [...new Set(
+    enrichedTxs
+      .filter(tx => evidenceMerchants.some(m => tx.merchant_name?.toLowerCase().includes(m.toLowerCase())))
+      .map(tx => tx.category)
+      .filter(Boolean)
+  )].slice(0, 5);
+  return {
     label: e.event_name,
     pillar: "Life Event",
-    categories: [],
-    topMerchants: e.evidence_merchants || [],
-    totalCount: e.evidence?.length || 1,
-  }))
-  ```
-Send `{ rollups, demographics }` to the edge function. Drop the separate `lifeEvents` body field and the `pillars` context (all needed merchant/category info is already on each rollup).
+    categories,
+    topMerchants: evidenceMerchants,
+    totalCount: evidenceMerchants.length || 1,
+  };
+});
+```
 
-### 3. `src/components/exec-demo/NextOfferRationale.tsx` — drop the pillar bucket pre-filter
-
-Remove the `scopedOffers` block that splits on `pillar === "Life Event"`. Rely solely on the existing fuzzy `rollup`-label match. Since edge function now returns labels verbatim (life-event labels included), `activeRollupLabel` from any pill — behavioral or life event — will match its corresponding offer group.
-
-Keep the `activeRollupPillar` prop for now but stop using it for filtering (or remove from the prop list — internal-only).
+### 5. Edge function reminder line in user prompt
+In `generate-next-offers/index.ts`, strengthen the existing verbatim instruction by adding to the user prompt: `If the input pillar is "Life Event", the rollup label is a SHORT EVENT NAME (e.g., "Home Purchase", "New Baby") — output it character-for-character; do NOT paraphrase or expand it.`
 
 ## Expected result
-- Click a Spending Habit pill → shows that rollup's deals (works today, still works).
-- Click a Life Event pill → shows that life event's deals (currently broken, now fixed).
-- Edge function is ~40% smaller, one prompt, one parser, no shape-drift normalization.
+- Click any life-event pill → either its dedicated deals appear, or a clean empty state. No more cross-contamination from the previously-selected behavioral rollup.
+- Life-event pills no longer silently "do nothing" when merchant fuzzy match fails.
 
 ## Out of scope
-- Persona synthesis prompt changes
-- Pill UI / animations
-- Life-event detection logic
+- Persona synthesis prompt
+- Pill UI/animations
+- Life-event detection logic itself
+- ID-based matching (rejected previously)
 
