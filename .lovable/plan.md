@@ -1,52 +1,64 @@
 
 
 ## Goal
-Reorganize the Shopping Pattern card body into two horizontal sections side-by-side. Header (pillar label + summary line) stays full-width on top.
+Redesign deal tiles in `NextOfferRationale.tsx` to use available space — bigger text/icons, surface hidden fields (`rewardValue`, `message`), add per-deal **delivery timing insight**, and **keep all existing reasoning text** (signal reason, suppression notes, boost chips, rollup explanation).
 
-## Layout
+## Keep (no removals)
+- Rollup header pill + count
+- Suppressed/boost chips with reasons
+- Per-deal `signalReason` ("matches dining cadence", etc.)
+- Any explanatory copy already shown above/below tiles
 
+## Changes — `src/components/exec-demo/NextOfferRationale.tsx`
+
+### 1. Tile grid
+- `grid-cols-5` → `grid-cols-2 gap-2.5`
+- Tile padding `p-2` → `p-3`, `flex flex-col` with `min-h-[180px]` so CTA pins to bottom
+
+### 2. Per-tile layout (top → bottom, all rows kept)
 ```text
-┌─────────────────────────────────────────────────────────┐
-│ ✦ DINING · SHOPPING PATTERN                             │
-│ "Weekly Italian dining at Carbone"                      │
-├──────────────────────────┬──────────────────────────────┤
-│ LEFT: Spot & Info        │ RIGHT: Timing                │
-│                          │                              │
-│ 📍 Top spot  Carbone     │ ↻ Cadence    every ~7 days   │
-│ 🏷 Top types Italian 52% │ 📅 Active    Mar 24 → today  │
-│ 💵 Lifetime  $4,820      │ 📆 Season    Jul–Sep heavy   │
-│              avg $42     │ 📈 Trend     +18% vs prior   │
-│                          │                              │
-│                          │ [▁▂▃▅▇▆▇█▇▆▅] last 12 mo     │
-└──────────────────────────┴──────────────────────────────┘
+┌────────────────────────────────────┐
+│ Carbone                  ↑ trend   │  text-[13px] font-bold + w-3.5 icon
+│ [ 5% back ]                        │  NEW reward pill — text-[11px]
+│                                    │
+│ "Your weekly Italian ritual,       │  NEW message — text-[11px] italic
+│  rewarded with every visit."       │  slate-600, line-clamp-2
+│                                    │
+│ ↑ matches dining cadence           │  KEPT signalReason — text-[10.5px]
+│                                    │  emerald-700, w-3 icon (bumped)
+│                                    │
+│ ⚡ Deliver morning of visit day     │  NEW delivery insight —
+│    next ~Apr 22                    │  text-[10px] amber-700, bg-amber-50/60
+│                                    │
+│ [ Activate Offer            → ]    │  CTA full-width text-[11px] py-1.5
+└────────────────────────────────────┘
 ```
 
-## Changes — single file: `src/components/exec-demo/PurchaseCycleTimeline.tsx`
+### 3. Delivery insight derivation
+Lightweight inline helper using the deal's matched pillar cadence (already available via the same data feeding `PurchaseCycleTimeline`, or recomputed from deal's transaction set):
+- Annual/seasonal → "Deliver 3–4 weeks before \<peak month\> · next ~MMM D"
+- Monthly (~28–35d) → "Deliver 2–3 days before next visit · next ~MMM D"
+- Weekly (~5–10d) → "Deliver morning of typical visit day · next ~MMM D"
+- Sporadic → "Real-time trigger on next category transaction"
+- No data → hide block only
 
-### `CadenceCard` component restructure
+### 4. Header bumps (all existing reasoning text preserved, just larger)
+- Rollup pill: `text-[10px]` → `text-[11px]`, padding `px-2.5 py-1`
+- Suppressed/boost chips: `text-[9px]` → `text-[10px]`, icons `w-2.5` → `w-3`
+- Card padding: `px-3 pt-2.5 pb-3` → `px-4 pt-3 pb-4`
 
-1. Keep header block (pillar tag + italic summary line) full-width on top
-2. Replace single `space-y-1.5` column with a `grid grid-cols-2 gap-4` (with thin vertical divider via `divide-x divide-slate-100`)
-3. **Left column — "Spot & Info"**:
-   - Top spot (MapPin)
-   - Top types / subcategories (Tag)
-   - Lifetime spend + avg ticket (DollarSign)
-4. **Right column — "Timing"**:
-   - Cadence (Repeat)
-   - Active span (Clock)
-   - Seasonality (Calendar) — only when not "year-round"
-   - Trend / velocity (TrendingUp/Down)
-   - Sparkline at the bottom of the right column with "last 12 mo" caption
-
-### Styling notes
-- Each column gets `pl-3` / `pr-3` padding for breathing room around the divider
-- Remove the existing top border on the sparkline (it now sits inside the right column)
-- Keep `text-[11.5px]` density and icon sizing identical for visual continuity
-- Hide a row entirely when its data is missing (existing behavior)
-- If right column ends up with no data (rare), fall back to single-column layout to avoid an awkward empty half — guard with a simple `hasTimingData` check
+### 5. Graceful degrade
+- Missing `message` → hide that line only
+- Missing `rewardValue` → hide pill only
+- Missing delivery insight → hide that block only
+- All other rows always render
 
 ## Out of scope
-- No data/logic changes — purely a layout reorg
-- No edge function or pill changes
-- Life-event fallback card stays as-is
+- No edge-function changes
+- No filtering / rollup logic changes
+- Shopping Pattern card unchanged
+- Loading skeleton unchanged
+
+## Expected result
+Tiles fill panel width with 2 per row at readable sizes. Every existing reasoning line stays. New rows add reward value, personalized message, and a per-deal "when to deliver" recommendation.
 
