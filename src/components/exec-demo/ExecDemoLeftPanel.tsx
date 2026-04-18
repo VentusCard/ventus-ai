@@ -353,7 +353,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} enriched={enriched} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} signalEntry={signalMap?.[i]} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} enriched={enriched} txIndex={i} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} signalEntry={signalMap?.[i]} />
                     </div>
                   );
                 })}
