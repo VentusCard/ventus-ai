@@ -124,14 +124,34 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
   return flags;
 }
 
-function dedupeFlags(flags: RiskFlag[]): RiskFlag[] {
+function normalizeLabel(label: string): string {
+  return String(label || "")
+    .replace(/_/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
+  // Deterministic flags win. Drop any model flag that overlaps a deterministic
+  // flag on (transaction_id) OR (transaction_id + category_group).
+  const detTxIds = new Set(detFlags.map((f) => f.transaction_id));
+  const detGroupKeys = new Set(detFlags.map((f) => `${f.transaction_id}::${f.category_group}`));
+
+  const filteredModel = modelFlags.filter((f) => {
+    if (f.transaction_id && f.transaction_id !== "pattern" && detTxIds.has(f.transaction_id)) return false;
+    if (detGroupKeys.has(`${f.transaction_id}::${f.category_group}`)) return false;
+    return true;
+  });
+
+  // Then dedupe within the merged set by (transaction_id + category_group)
   const seen = new Set<string>();
   const out: RiskFlag[] = [];
-  for (const f of flags) {
-    const key = `${f.transaction_id}::${f.category_label}`;
+  for (const f of [...detFlags, ...filteredModel]) {
+    const key = `${f.transaction_id}::${f.category_group}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(f);
+    out.push({ ...f, category_label: normalizeLabel(f.category_label) });
   }
   return out;
 }
