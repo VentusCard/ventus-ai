@@ -60,9 +60,10 @@ serve(async (req) => {
     const lifeEventSuppressionBlock = detectedEventNames.length > 0
       ? `
 
-**CRITICAL — LIFE EVENT SUPPRESSION:**
+**CRITICAL — LIFE EVENTS ALWAYS WIN:**
 The following life events have already been detected for this customer and will be shown separately: ${detectedEventNames.map(n => `"${n}"`).join(", ")}.
-Do NOT generate a pillar_rollup whose label overlaps thematically with any of these events. The life event already covers that theme — generating a behavioral rollup on the same theme creates redundant, duplicate-feeling pills in the UI.
+
+Life events carry richer context (funding sources, timing, product fit) and are surfaced in their own dedicated UI section. When a behavioral pattern thematically overlaps with a detected life event, **DROP the behavioral rollup entirely** — do NOT try to "complement" the life event with a parallel rollup on the same theme. Redundant pills make the UI feel duplicated and dilute both signals.
 
 Examples of forbidden overlaps:
 - If "New Home Transition" or any home-purchase event is detected → do NOT produce "Aspiring Homeowner", "Home Buyer", "Nesting Phase", "New Homeowner", or any home-purchase / moving / nesting themed rollup.
@@ -71,7 +72,7 @@ Examples of forbidden overlaps:
 - If "Retirement Planning" is detected → do NOT produce retirement-themed rollups.
 - If "Wedding" is detected → do NOT produce engagement / wedding-themed rollups.
 
-When in doubt, skip the rollup. A clean separation between behavioral habits (rollups) and life events (separately surfaced) is more important than coverage.
+When in doubt, skip the rollup. Life events take priority — every time.
 `
       : "";
 
