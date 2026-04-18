@@ -194,14 +194,19 @@ MERCHANT PARSING:
 • Remove payment prefixes: Apple Pay, PayPal, Venmo, SQ, Cash App, Zelle
 • Extract true merchant (e.g., "SQ *Chipotle" → "Chipotle")
 
-P2P PAYMENTS (Zelle, Venmo, Cash App, PayPal):
-• When merchant looks like a person's name AND source is Zelle/Venmo/Cash App, the description field IS the classification signal — use it as the primary clue.
+NON-CARD TRANSACTIONS (Zelle, Venmo, Cash App, PayPal, ACH, Wire, Check, Bill Pay, Transfer):
+• CRITICAL RULE: Whenever the transaction's "source" field is NOT a card (i.e. anything other than "Credit Card" / "Debit Card" — including Zelle, Venmo, Cash App, PayPal, ACH, Wire, Check, Bill Pay, Direct Deposit, Transfer), the "description" field is the PRIMARY classification signal. The merchant name (often a person's name, a bank, or a generic processor) should be IGNORED in favor of the description.
+• Apply this rule even if the merchant name looks recognizable — non-card payments route through intermediaries, so the description is what reveals the actual purpose.
 • Examples:
-  - "MARIA GARCIA" + description "Dogsitting" → Pets / Pet Services / ["Dogsitting"]
-  - "JOHN SMITH" + description "Rent" → Home & Living / Rent & Mortgage / ["Rent"]
-  - "SARAH LEE" + description "Yoga class" → Sports & Active Living / Gym & Fitness / ["Classes"]
-  - "MIKE CHEN" + description "Birthday gift" → Family & Community / Gifts & Donations / ["Gift"]
-• If description is empty for a P2P transfer, fall back to Family & Community / General with low confidence.
+  - merchant "MARIA GARCIA" + description "Dogsitting" + source "Zelle" → Pets / Pet Services / ["Dogsitting"] (0.9)
+  - merchant "JOHN SMITH" + description "Rent payment" + source "Zelle" → Home & Living / Rent & Mortgage / ["Rent"] (0.9)
+  - merchant "SARAH LEE" + description "Yoga class" + source "Venmo" → Sports & Active Living / Gym & Fitness / ["Classes"] (0.9)
+  - merchant "MIKE CHEN" + description "Birthday gift" + source "Cash App" → Family & Community / Gifts & Donations / ["Gift"] (0.9)
+  - merchant "ACH DEBIT" + description "Comcast Internet" + source "ACH" → Technology & Digital Life / Internet & Phone / ["Internet"] (0.9)
+  - merchant "BILL PAY" + description "PG&E electric" + source "Bill Pay" → Home & Living / Utilities / ["Electric"] (0.9)
+  - merchant "WIRE TRANSFER" + description "Tuition Stanford" + source "Wire" → Family & Community / Childcare & Education / ["Tuition"] (0.9)
+  - merchant "CHECK 1234" + description "Landscaping" + source "Check" → Home & Living / Home Improvement / ["Landscaping"] (0.9)
+• If the description is empty or uninformative for a non-card transfer, fall back to Miscellaneous / General with low confidence (0.3).
 
 CATEGORY RULES:
 • The category is the PRIMARY behavioral identifier — for Sports it's the sport, for Food it's the venue type, for Travel it's the transport/stay type
@@ -551,6 +556,7 @@ Deno.serve(async (req) => {
       id: t.transaction_id,
       merchant: t.merchant_name,
       ...(t.description && { description: t.description }),
+      ...(t.source && { source: t.source }),
       amount: t.amount,
       date: t.date,
       ...(t.zip_code && { zip: t.zip_code }),
