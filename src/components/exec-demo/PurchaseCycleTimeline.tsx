@@ -393,8 +393,8 @@ export default function PurchaseCycleTimeline({
 
   const cadenceData = useMemo(() => {
     if (!selectedRollup) return null;
-    return buildCadence(selectedRollup, transactions);
-  }, [selectedRollup, transactions]);
+    return buildCadence(selectedRollup, transactions, signalMap);
+  }, [selectedRollup, transactions, signalMap]);
 
   // What label to filter offers by — life event takes precedence if active
   const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
