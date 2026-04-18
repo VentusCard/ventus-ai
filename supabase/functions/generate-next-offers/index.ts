@@ -14,6 +14,7 @@ RULES:
 1. For EACH behavioral cluster provided, generate exactly 5 ACTIVE deals. ALL 5 deals MUST have signal: "boost" with a meaningful signalReason and boostCategory.
    Do NOT include suppressed deals in the deals array.
    Instead, list any already-covered spending categories in a separate "suppressedCategories" string array on the rollup object.
+   CRITICAL: The "rollup" field in your output MUST be the EXACT cluster label string from the input (verbatim, including capitalization and punctuation). Do NOT paraphrase, shorten, rename, or invent new labels.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
 3. Good message:"Capture precious family moment on the mountain with GoPro"or"Upgrade your travels with sleek, durable luggage from Away"
 4. Bad message: "As a Product Director on the move, upgrade your commute"
@@ -34,7 +35,7 @@ COLLECTION MESSAGE:
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
-const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events. Same rules as above: exactly 5 boost deals per event, 8-12 word messages, no demographic references, lifestyle-driven CTAs. Each life event becomes one rollup with pillar="Life Event" and the event name as the rollup label. Output valid JSON only with the same shape.`;
+const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events. Same rules as above: exactly 5 boost deals per event, 8-12 word messages, no demographic references, lifestyle-driven CTAs. Each life event becomes one rollup with pillar="Life Event" and the rollup field MUST be the EXACT event_name string from the input (verbatim — do not paraphrase or rename). Output valid JSON only with the same shape.`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -125,7 +126,7 @@ serve(async (req) => {
     let rollupUserPrompt = "";
     if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with recent spending/merchants):\n${rollupList}\n\n`;
     if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT:\n${pillarContext}\n\n`;
-    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. Return valid JSON only.`;
+    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. The "rollup" field in each output object MUST be the exact label string in quotes from the cluster list (verbatim). Return valid JSON only.`;
 
     const lifeEventUserPrompt = lifeEventList
       ? `LIFE EVENT CLUSTERS (generate 5 deals per event):\n${lifeEventList}\n\nReturn valid JSON only.`
