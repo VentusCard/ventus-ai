@@ -395,21 +395,43 @@ export function buildLocalProfile(csv: string, customerIdx: number, customName?:
 }
 
 /** Convert CSV to the payload format expected by classify-transactions */
-export function csvToClassifyPayload(csv: string): { transaction_id: string; merchant_name: string; amount: number; date: string }[] {
+export function csvToClassifyPayload(csv: string): {
+  transaction_id: string;
+  merchant_name: string;
+  amount: number;
+  date: string;
+  description?: string;
+  source?: string;
+  zip_code?: string;
+  mcc?: string;
+}[] {
   const lines = csv.trim().split("\n");
   if (lines.length < 2) return [];
   const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
   const merchantIdx = header.indexOf("merchant_name");
   const amountIdx = header.indexOf("amount");
   const dateIdx = header.indexOf("date");
+  const descIdx = header.indexOf("description");
+  const sourceIdx = header.indexOf("source");
+  const zipIdx = header.indexOf("zip_code");
+  const homeZipIdx = header.indexOf("home_zip");
+  const mccIdx = header.indexOf("mcc");
 
   return lines.slice(1).filter((l) => l.trim()).map((line, i) => {
     const cols = line.split(",").map((c) => c.trim());
+    const desc = descIdx >= 0 ? cols[descIdx] : "";
+    const source = sourceIdx >= 0 ? cols[sourceIdx] : "";
+    const zip = zipIdx >= 0 ? cols[zipIdx] : (homeZipIdx >= 0 ? cols[homeZipIdx] : "");
+    const mcc = mccIdx >= 0 ? cols[mccIdx] : "";
     return {
       transaction_id: `tx-${i}`,
       merchant_name: cols[merchantIdx] || "Unknown",
       amount: Math.abs(parseFloat(cols[amountIdx] || "0")),
       date: cols[dateIdx] || "",
+      ...(desc && { description: desc }),
+      ...(source && { source }),
+      ...(zip && { zip_code: zip }),
+      ...(mcc && { mcc }),
     };
   });
 }
