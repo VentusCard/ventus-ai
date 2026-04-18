@@ -148,7 +148,7 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
                       required: ["pillar", "label", "categories", "category_indices"],
                       additionalProperties: false,
                     },
-                    description: "Per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event, OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
                   },
                 },
                 required: ["pillar_rollups"],
