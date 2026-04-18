@@ -203,19 +203,6 @@ function buildCadence(
     if (ageDays < 3) recentSpend += amt;
     else if (ageDays < 6) priorSpend += amt;
   }
-
-  // ---- Velocity (recent 3 months vs prior 3 months) ----
-  const now = new Date();
-  const ms30 = 30 * 24 * 60 * 60 * 1000;
-  let recentSpend = 0, priorSpend = 0;
-  for (let i = 0; i < txs.length; i++) {
-    const d = parseDate(txs[i].date);
-    if (!d) continue;
-    const ageDays = (now.getTime() - d.getTime()) / ms30;
-    const amt = parseAmount(txs[i].amount);
-    if (ageDays < 3) recentSpend += amt;
-    else if (ageDays < 6) priorSpend += amt;
-  }
   const velocity = priorSpend > 0 ? Math.round(((recentSpend - priorSpend) / priorSpend) * 100) : 0;
 
   // ---- Subcategory mix (from signalMap) ----
