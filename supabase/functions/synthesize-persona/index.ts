@@ -29,13 +29,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars } = await req.json();
+    const { pillars, lifeEvents } = await req.json();
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const detectedEventNames: string[] = Array.isArray(lifeEvents)
+      ? lifeEvents.map((e: { event_name?: string }) => e?.event_name).filter((n): n is string => !!n)
+      : [];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
