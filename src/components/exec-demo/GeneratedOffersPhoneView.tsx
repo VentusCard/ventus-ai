@@ -91,9 +91,10 @@ function getCollectionImage(rollup: string, pillar?: string): string {
 interface Props {
   offerGroups: RollupOfferGroup[];
   customerName: string;
+  activeOfferLabel?: string | null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName }: Props) {
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, activeOfferLabel }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
