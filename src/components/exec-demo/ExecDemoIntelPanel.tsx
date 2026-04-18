@@ -484,7 +484,7 @@ export default function ExecDemoIntelPanel({
                     Pillar
                   </div>
                   <div className="flex-1 text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    Categories &amp; Subcategories
+                    (Category) Subcategory, Amount
                   </div>
                   <div className="w-[70px] shrink-0 pl-2 text-right text-[12px] font-bold uppercase tracking-wider text-slate-900">
                     Total
