@@ -124,14 +124,34 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
   return flags;
 }
 
-function dedupeFlags(flags: RiskFlag[]): RiskFlag[] {
+function normalizeLabel(label: string): string {
+  return String(label || "")
+    .replace(/_/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
+  // Deterministic flags win. Drop any model flag that overlaps a deterministic
+  // flag on (transaction_id) OR (transaction_id + category_group).
+  const detTxIds = new Set(detFlags.map((f) => f.transaction_id));
+  const detGroupKeys = new Set(detFlags.map((f) => `${f.transaction_id}::${f.category_group}`));
+
+  const filteredModel = modelFlags.filter((f) => {
+    if (f.transaction_id && f.transaction_id !== "pattern" && detTxIds.has(f.transaction_id)) return false;
+    if (detGroupKeys.has(`${f.transaction_id}::${f.category_group}`)) return false;
+    return true;
+  });
+
+  // Then dedupe within the merged set by (transaction_id + category_group)
   const seen = new Set<string>();
   const out: RiskFlag[] = [];
-  for (const f of flags) {
-    const key = `${f.transaction_id}::${f.category_label}`;
+  for (const f of [...detFlags, ...filteredModel]) {
+    const key = `${f.transaction_id}::${f.category_group}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(f);
+    out.push({ ...f, category_label: normalizeLabel(f.category_label) });
   }
   return out;
 }
@@ -205,7 +225,12 @@ serve(async (req) => {
       home_zip: t.home_zip,
     }));
 
-    const userPrompt = `Analyze these ${txSummary.length} RAW transactions for risk. Focus on AML structuring patterns and suspicious international activity. Vice categories with MCC 7995 or 5967 are already handled deterministically — you may still flag other vice indicators (e.g., merchant names like "CASINO", "BET", "POKER", "PAYDAY LOAN", "PAWN") if MCC is missing.\n\n${JSON.stringify(txSummary, null, 1)}`;
+    const alreadyFlaggedIds = detFlags.map((f) => f.transaction_id);
+    const exclusionNote = alreadyFlaggedIds.length > 0
+      ? `\n\nIMPORTANT: The following transaction_ids have ALREADY been definitively flagged by deterministic rules. DO NOT re-flag them or include them in your output: ${JSON.stringify(alreadyFlaggedIds)}`
+      : "";
+
+    const userPrompt = `Analyze these ${txSummary.length} RAW transactions for risk. Focus on AML structuring patterns and suspicious international activity. Vice categories with MCC 7995 or 5967 are already handled deterministically — you may still flag other vice indicators (e.g., merchant names like "CASINO", "BET", "POKER", "PAYDAY LOAN", "PAWN") if MCC is missing.${exclusionNote}\n\n${JSON.stringify(txSummary, null, 1)}`;
 
     let modelFlags: RiskFlag[] = [];
     let modelSummary = "";
@@ -284,7 +309,7 @@ serve(async (req) => {
       console.error("Failed to parse AI response:", rawContent);
     }
 
-    const merged = dedupeFlags([...detFlags, ...modelFlags]);
+    const merged = dedupeFlags(detFlags, modelFlags);
     const summary = merged.length === 0
       ? "No significant risk factors detected in the analyzed transactions."
       : (modelSummary || `${merged.length} risk factor${merged.length === 1 ? "" : "s"} detected across the customer's transaction history.`);

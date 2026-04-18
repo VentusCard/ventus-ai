@@ -350,7 +350,20 @@ export default function ExecDemoIntelPanel({
                       <span className="h-6 w-24 rounded-full bg-red-100 animate-pulse" />
                     </>
                   ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
-                    riskFlags.flags.map((flag: any, i: number) => {
+                    (() => {
+                      // Client-side dedupe safety net: collapse by transaction_id + category_group
+                      // (deterministic flags win — they appear first from the backend)
+                      const seen = new Set<string>();
+                      const uniqueFlags = riskFlags.flags.filter((f: any) => {
+                        const group = String(f.category_group || f.category || "risk").toLowerCase();
+                        const txId = f.transaction_id || "pattern";
+                        const key = `${txId}::${group}`;
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                      });
+                      return uniqueFlags;
+                    })().map((flag: any, i: number) => {
                       // Prefer specific category_label; fall back to category_group, then legacy category
                       const rawLabel = flag.category_label || flag.category_group || flag.category || flag.type || "Risk";
                       const flagLabel = String(rawLabel).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
