@@ -42,6 +42,7 @@ const TxRow = ({
   
   signalEntry,
   enriched,
+  txIndex,
 }: {
   tx: Transaction;
   dim: boolean;
@@ -51,13 +52,14 @@ const TxRow = ({
   
   signalEntry?: SignalEntry;
   enriched?: boolean;
+  txIndex?: number;
 }) => {
   const [hovered, setHovered] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
   const rowRef = useRef<HTMLDivElement>(null);
 
   const handleMouseEnter = () => {
-    if (!signalEntry || dim) return;
+    if (dim) return;
     const rect = rowRef.current?.getBoundingClientRect();
     if (rect) {
       setCoords({ x: rect.left + 16, y: rect.top });
@@ -114,46 +116,81 @@ const TxRow = ({
           </span>
         )}
       </div>
-      {hovered && signalEntry && createPortal(
+      {hovered && createPortal(
         <div
-          className="fixed pointer-events-none bg-slate-800 text-white rounded-md px-3 py-2 shadow-2xl space-y-1"
-          style={{ left: coords.x, top: coords.y - 100, zIndex: 9999 }}
+          className="fixed pointer-events-none bg-slate-800 text-white rounded-md px-3 py-2 shadow-2xl space-y-1 max-w-[440px]"
+          style={{ left: coords.x, top: coords.y - 140, zIndex: 9999 }}
         >
-          <div className="flex items-center gap-1.5 text-[11px]">
-            <span className="text-slate-400 font-medium">MCC:</span>
-            <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
-            <span className="mx-0.5 text-slate-600">·</span>
-            <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
+          {/* Raw transaction info */}
+          <div className="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">
+            Raw Transaction{typeof txIndex === "number" ? ` · #${txIndex + 1}` : ""}
           </div>
-          <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
-            Ventus Semantic Enrichment:
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px]">
-            <span className="text-slate-400">Pillar:</span>
-            <span className={enriched ? "font-semibold" : "text-slate-500"} style={enriched ? { color: pillarColor || "#67e8f9" } : undefined}>{enriched ? signalEntry.pillar : "—"}</span>
+          <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
+            <span className="text-slate-400">Date:</span>
+            <span className="text-slate-100 font-medium">{tx.date}</span>
             <span className="text-slate-600">·</span>
-            <span className="text-slate-400">Category:</span>
-            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.category || "—") : "—"}</span>
-            <span className="text-slate-600">·</span>
-            <span className="text-slate-400">Sub:</span>
-            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? signalEntry.label : "—"}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px]">
-            <span className="text-slate-400">Tier:</span>
-            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.tier || "—") : "—"}</span>
-            <span className="text-slate-600">·</span>
-            <span className="text-slate-400">Frequency:</span>
-            <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.frequency || "—") : "—"}</span>
-            <span className="text-slate-600">·</span>
-            <span className="text-slate-400">Confidence:</span>
-            {enriched ? (
-              <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
-                {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
-              </span>
-            ) : (
-              <span className="text-slate-500">—</span>
+            <span className="text-slate-400">Amount:</span>
+            <span className="text-slate-100 font-semibold tabular-nums">{tx.amount}</span>
+            {tx.source && (
+              <>
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-400">Source:</span>
+                <span className="text-slate-100 font-mono">{tx.source}</span>
+              </>
             )}
           </div>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span className="text-slate-400">Merchant:</span>
+            <span className="text-slate-100 font-medium truncate">{tx.merchant}</span>
+          </div>
+          {signalEntry && (
+            <>
+              <div className="flex items-center gap-1.5 text-[11px] border-t border-slate-700 pt-1">
+                <span className="text-slate-400 font-medium">MCC:</span>
+                <span className="text-cyan-300 font-semibold">{signalEntry.mcc || "—"}</span>
+                <span className="mx-0.5 text-slate-600">·</span>
+                <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
+              </div>
+              <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
+                Ventus Semantic Enrichment:
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
+                <span className="text-slate-400">Pillar:</span>
+                <span className={enriched ? "font-semibold" : "text-slate-500"} style={enriched ? { color: pillarColor || "#67e8f9" } : undefined}>{enriched ? signalEntry.pillar : "—"}</span>
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-400">Category:</span>
+                <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.category || "—") : "—"}</span>
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-400">Sub:</span>
+                <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? signalEntry.label : "—"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
+                <span className="text-slate-400">Tier:</span>
+                <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.tier || "—") : "—"}</span>
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-400">Frequency:</span>
+                <span className={enriched ? "text-slate-200" : "text-slate-500"}>{enriched ? (signalEntry.frequency || "—") : "—"}</span>
+                <span className="text-slate-600">·</span>
+                <span className="text-slate-400">Amount (parsed):</span>
+                <span className={enriched ? "text-slate-200 tabular-nums" : "text-slate-500"}>{enriched ? `$${signalEntry.amount.toFixed(2)}` : "—"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px]">
+                <span className="text-slate-400">Confidence:</span>
+                {enriched ? (
+                  <span className={`font-semibold ${(signalEntry.confidence ?? 0) >= 0.8 ? "text-emerald-400" : (signalEntry.confidence ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
+                    {(signalEntry.confidence ?? 0) >= 0.8 ? "High" : (signalEntry.confidence ?? 0) >= 0.5 ? "Medium" : "Low"} ({signalEntry.confidence ?? "—"})
+                  </span>
+                ) : (
+                  <span className="text-slate-500">—</span>
+                )}
+              </div>
+            </>
+          )}
+          {!signalEntry && (
+            <div className="text-[10px] text-slate-500 italic border-t border-slate-700 pt-1">
+              Run analysis to see semantic enrichment
+            </div>
+          )}
         </div>,
         document.body
       )}
@@ -250,7 +287,7 @@ export default function ExecDemoLeftPanel({
         {phase === "idle" && transactions.length > 0 && (
             <div className="absolute inset-x-4 top-6 bottom-0 overflow-y-auto scrollbar-light space-y-0.5 opacity-60" style={{ animation: "exec-fade-in 0.3s ease-out" }}>
               {cappedTxns.map((tx, i) => (
-                <TxRow key={`idle-${i}`} tx={tx} dim={false} enriched={enriched} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
+                <TxRow key={`idle-${i}`} tx={tx} dim={false} enriched={enriched} txIndex={i} signalEntry={signalMap?.[i]} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} />
               ))}
             </div>
         )}
@@ -316,7 +353,7 @@ export default function ExecDemoLeftPanel({
                   if (!isMatch) return null;
                   return (
                     <div key={`filt-${i}`} style={{ animation: "exec-collect-pulse 0.4s ease-out" }}>
-                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} enriched={enriched} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} signalEntry={signalMap?.[i]} />
+                      <TxRow tx={tx} dim={false} highlight highlightColor={activePillColor} enriched={enriched} txIndex={i} pillarColor={signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined} signalEntry={signalMap?.[i]} />
                     </div>
                   );
                 })}
@@ -324,14 +361,14 @@ export default function ExecDemoLeftPanel({
                 {transactions.map((tx, i) => {
                   if (filteredIndices.includes(i)) return null;
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`dim-${i}`} tx={tx} dim enriched={enriched} pillarColor={pc} signalEntry={signalMap?.[i]} />;
+                  return <TxRow key={`dim-${i}`} tx={tx} dim enriched={enriched} txIndex={i} pillarColor={pc} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             ) : (
               <>
                 {transactions.map((tx, i) => {
                   const pc = signalMap?.[i] ? getColor(signalMap[i].pillar).dot : undefined;
-                  return <TxRow key={`all-${i}`} tx={tx} dim={false} enriched={enriched} pillarColor={pc} signalEntry={signalMap?.[i]} />;
+                  return <TxRow key={`all-${i}`} tx={tx} dim={false} enriched={enriched} txIndex={i} pillarColor={pc} signalEntry={signalMap?.[i]} />;
                 })}
               </>
             )}
