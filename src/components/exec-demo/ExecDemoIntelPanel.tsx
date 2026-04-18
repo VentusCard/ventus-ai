@@ -699,6 +699,30 @@ export default function ExecDemoIntelPanel({
         </div>
       )}
 
+      {/* Synthesize button — anchored at the bottom of the card */}
+      {hasSynthesis && !synthesisTriggered && phase === "hold" && (
+        <div className="mt-auto pt-3">
+          <button
+            onClick={() => setSynthesisTriggered(true)}
+            className="w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide uppercase text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+            style={{
+              background: "linear-gradient(135deg, hsl(217 91% 55%) 0%, hsl(217 91% 60%) 50%, hsl(199 89% 48%) 100%)",
+              boxShadow: "0 4px 20px hsl(217 91% 60% / 0.45), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+              animation: "intel-ready-pulse 2.5s ease-in-out infinite",
+              letterSpacing: "0.08em",
+            }}
+          >
+            <Cpu className="w-4 h-4 text-white" />
+            <span>Behavioral Intelligence:</span>
+            <span className="text-cyan-200">Ready</span>
+            <span className="relative flex h-2 w-2 ml-1">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70 bg-cyan-300" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-200" />
+            </span>
+          </button>
+        </div>
+      )}
+
       <style>{`
         @keyframes exec-shimmer {
           0% { background-position: 200% 0; }
