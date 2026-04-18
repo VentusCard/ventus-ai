@@ -551,6 +551,7 @@ Deno.serve(async (req) => {
       id: t.transaction_id,
       merchant: t.merchant_name,
       ...(t.description && { description: t.description }),
+      ...(t.source && { source: t.source }),
       amount: t.amount,
       date: t.date,
       ...(t.zip_code && { zip: t.zip_code }),
