@@ -256,7 +256,7 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
 
       {/* Slim header */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[11px] font-semibold text-slate-600">
+        <span className="font-bold text-base text-primary-foreground">
           Behavioral Based Deal Collection
         </span>
       </div>
