@@ -123,7 +123,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
       {/* Deal tiles — 2 per row, full info */}
       {group.deals.length > 0 && (
-        <div className="grid grid-cols-2 gap-2.5 px-4 pb-4">
+        <div className="grid grid-cols-5 gap-2 px-4 pb-4">
           {group.deals.map(deal => {
             const insight = deriveDeliveryInsight(group.rollup, group.pillar);
             return (
