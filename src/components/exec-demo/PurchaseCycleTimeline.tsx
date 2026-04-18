@@ -142,7 +142,7 @@ function buildCadence(
       cadence = `every ~${Math.round(avg)} days (${perYear}× / year)`;
     } else if (avg <= 270) {
       cadenceCategory = "annual";
-      cadence = `every ~${Math.round(avg / 30)} months (${perYear}× / year)`;
+      cadence = `every ~${Math.round(avg / 30)} months`;
     } else {
       cadenceCategory = "annual";
       cadence = `roughly once a year`;
