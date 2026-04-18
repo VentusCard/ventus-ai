@@ -35,7 +35,7 @@ COLLECTION MESSAGE:
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
-const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events. Same rules as above: exactly 5 boost deals per event, 8-12 word messages, no demographic references, lifestyle-driven CTAs. Each life event becomes one rollup with pillar="Life Event" and the event name as the rollup label. Output valid JSON only with the same shape.`;
+const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events. Same rules as above: exactly 5 boost deals per event, 8-12 word messages, no demographic references, lifestyle-driven CTAs. Each life event becomes one rollup with pillar="Life Event" and the rollup field MUST be the EXACT event_name string from the input (verbatim — do not paraphrase or rename). Output valid JSON only with the same shape.`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
