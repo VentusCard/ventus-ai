@@ -4,7 +4,7 @@ import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./ex
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
 import NextProductRationale from "./NextProductRationale";
-import NextConversationRationale from "./NextConversationRationale";
+import NextConversationRationale, { type SelectedSignal } from "./NextConversationRationale";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
@@ -251,6 +251,48 @@ export default function ExecDemoIntelPanel({
   }, [phase]);
 
   const hasSynthesis = personaSynthesis && personaSynthesis.pillarRollups && personaSynthesis.pillarRollups.length > 0;
+
+  // ---- Next Conversation: build available signals + selection state ----
+  const customerSegment = (persona as any)?.profile?.segment || (persona as any)?.segment || "Preferred";
+  const isWealthClient = customerSegment === "Private" || customerSegment === "Premium" || customerSegment === "Premier";
+  const customerFirstName = (((persona as any)?.profile?.name || (persona as any)?.name || "the client") as string).split(" ")[0];
+
+  const availableSignals = useMemo<SelectedSignal[]>(() => {
+    const out: SelectedSignal[] = [];
+    (detectedLifeEvents || []).forEach((evt) => {
+      out.push({ kind: "lifeEvent", label: evt.event_name });
+    });
+    if (riskFlags && riskFlags.flags) {
+      const seen = new Set<string>();
+      riskFlags.flags.forEach((f: any) => {
+        const group = String(f.category_group || f.category || "risk").toLowerCase();
+        const txId = f.transaction_id || "pattern";
+        const key = `${txId}::${group}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        const rawLabel = f.category_label || f.category_group || f.category || f.type || "Risk";
+        const label = String(rawLabel).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+        out.push({ kind: "risk", label });
+      });
+    }
+    rollupStats.forEach((r) => {
+      out.push({ kind: "lifestyle", label: r.label });
+    });
+    out.push({ kind: "segment", label: `${customerSegment} Client` });
+    return out;
+  }, [detectedLifeEvents, riskFlags, rollupStats, customerSegment]);
+
+  const [selectedSignal, setSelectedSignal] = useState<SelectedSignal | null>(null);
+
+  useEffect(() => {
+    if (activeTab === "relationship" && !selectedSignal && availableSignals.length > 0) {
+      setSelectedSignal(availableSignals[0]);
+    }
+    if (activeTab !== "relationship") {
+      setSelectedSignal(null);
+    }
+  }, [activeTab, availableSignals, selectedSignal]);
+
 
   return (
     <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
@@ -645,7 +687,13 @@ export default function ExecDemoIntelPanel({
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} />
             ) : activeTab === "relationship" ? (
-              <NextConversationRationale />
+              <NextConversationRationale
+                selectedSignal={selectedSignal}
+                availableSignals={availableSignals}
+                isWealthClient={isWealthClient}
+                customerFirstName={customerFirstName}
+                onSelectSignal={setSelectedSignal}
+              />
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
