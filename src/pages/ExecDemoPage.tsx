@@ -312,29 +312,26 @@ export default function ExecDemoPage() {
     try {
       const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
       const demographics = demoCustomer?.profile?.demographics || {};
-      const body: any = {
-        persona: {
-          pillarRollups: synthesis.pillarRollups,
-        },
-        pillars: pillars.slice(0, 8).map(p => ({
-          pillar: p.pillar,
-          label: p.label,
-          count: p.count,
-          totalSpend: p.totalSpend,
-          topMerchants: p.topMerchants,
-          subcategories: p.subcategories,
-        })),
-        demographics,
-      };
-      if (lifeEvents && lifeEvents.length > 0) {
-        body.lifeEvents = lifeEvents.map(e => ({
-          event_name: e.event_name,
-          confidence: e.confidence,
-          evidence_merchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
-        }));
-      }
+
+      // Unified rollups: behavioral pillar rollups + life events, same shape
+      const behavioralRollups = (synthesis.pillarRollups || []).map(r => ({
+        label: r.label,
+        pillar: r.pillar,
+        categories: r.categories || [],
+        topMerchants: [],
+        totalCount: r.totalCount ?? 0,
+      }));
+      const lifeEventRollups = (lifeEvents || []).map(e => ({
+        label: e.event_name,
+        pillar: "Life Event",
+        categories: [],
+        topMerchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
+        totalCount: (e.evidence || []).length || 1,
+      }));
+      const unifiedRollups = [...behavioralRollups, ...lifeEventRollups];
+
       const { data, error } = await supabase.functions.invoke("generate-next-offers", {
-        body,
+        body: { rollups: unifiedRollups, demographics },
       });
       if (error) throw error;
       setGeneratedOffers(data.rollupOffers || []);

@@ -150,26 +150,20 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
     );
   }
 
-  const scopedOffers = !activeRollupPillar
-    ? offers
-    : offers.filter(group =>
-        activeRollupPillar === "Life Event"
-          ? group.pillar === "Life Event"
-          : group.pillar !== "Life Event"
-      );
-
-  // Filter to only the active persona's offer group with conservative fuzzy matching
+  // Filter to only the active rollup's offer group with conservative fuzzy matching.
+  // Pillar-bucket pre-filter removed: edge function now returns labels verbatim for
+  // both behavioral rollups AND life events, so label match alone is sufficient.
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const target = activeRollupLabel ? norm(activeRollupLabel) : null;
 
   const filtered = !target
-    ? scopedOffers
+    ? offers
     : (() => {
         // 1. exact (case-insensitive) match
-        let hits = scopedOffers.filter(g => norm(g.rollup) === target);
+        let hits = offers.filter(g => norm(g.rollup) === target);
         if (hits.length > 0) return hits;
         // 2. substring match either direction
-        hits = scopedOffers.filter(g => {
+        hits = offers.filter(g => {
           const r = norm(g.rollup);
           return r.includes(target) || target.includes(r);
         });
