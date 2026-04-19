@@ -81,8 +81,19 @@ REQUIRED FIELDS — STRICT:
    - Example: for "Home Purchase" with a Zillow + Redfin pattern, suppress "Home Search Tools".
    - These render as gray "✓ already covered" chips. Empty array [] is allowed only if no evidence supports suppression.
 
-COLLECTION MESSAGE:
-- "collectionMessage" is a short 8-15 word lifestyle tagline introducing the collection. Aspirational, no demographics.
+COLLECTION MESSAGE — STRICT RULES:
+- "collectionMessage" frames the deals as small enhancements to the user's life during this event — not as the bank handling the event for them.
+- HARD LIMITS: ≤ 10 words AND ≤ 60 characters. No exceptions.
+- FRAME AS ENHANCEMENT: use words like better, smoother, smarter, easier, picks, gear, little things, small touches, small upgrades, helpful picks.
+- ANCHOR TO THE EVENT: echo the literal subject (College Prep → this chapter / the journey; Home Purchase → your new place / move-in; New Baby → those first months).
+- WARM, SECOND-PERSON: use "your". Personal, not transactional.
+- BANNED VOCABULARY (never emit): "unforgettable", "memories", "essentials", "premium", "indulge", "curated", "exclusive", "we've got you", "got covered", "we handle", "we take care", "craft", "elevate".
+- No demographics.
+
+FEW-SHOT EXAMPLES (match this tone exactly):
+- "College Preparation for Dependent" → "Helpful picks for this next chapter."
+- "Home Purchase" → "Small touches to make your new place yours."
+- "New Baby" → "Little things that make those first months smoother."
 
 Output valid JSON only, no markdown:
 {"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
