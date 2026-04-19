@@ -149,7 +149,7 @@ function RollupCard({ group, index, colorOverride, kindOverride }: { group: Roll
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar, colorOverride, kindOverride }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
