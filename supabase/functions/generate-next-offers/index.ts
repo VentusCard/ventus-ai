@@ -15,7 +15,6 @@ RULES:
    Do NOT include suppressed deals in the deals array.
    Instead, list any already-covered spending categories in a separate "suppressedCategories" string array on the rollup object.
    CRITICAL: The "rollup" field in your output MUST be the EXACT label string from the input (verbatim, including capitalization and punctuation). Do NOT paraphrase, shorten, rename, or invent new labels.
-   CRITICAL: The "pillar" field in your output MUST be the EXACT pillar string from the input rollup (verbatim). Do NOT change it.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
 3. Good message:"Capture precious family moment on the mountain with GoPro"or"Upgrade your travels with sleek, durable luggage from Away"
 4. Bad message: "As a Product Director on the move, upgrade your commute"
@@ -34,7 +33,7 @@ COLLECTION MESSAGE:
 - Do NOT reference demographics. Keep it aspirational and lifestyle-focused.
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Exact Input Label","pillar":"Exact Input Pillar","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Exact Input Label","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -77,7 +76,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const validRollups = (rollups || []).filter((r: any) => r && r.label && r.pillar);
+    // Persona-driven contract: each rollup needs only a label.
+    // Categories and merchants are optional context anchors.
+    const validRollups = (rollups || []).filter((r: any) => r && typeof r.label === "string" && r.label.trim());
 
     if (validRollups.length === 0) {
       return new Response(JSON.stringify({ rollupOffers: [] }), {
@@ -89,9 +90,7 @@ serve(async (req) => {
       .map((r: any, i: number) => {
         const cats = (r.categories || []).join(", ");
         const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
-        const parts = [
-          `${i + 1}. label: "${r.label}" | pillar: "${r.pillar}"`,
-        ];
+        const parts = [`${i + 1}. label: "${r.label}"`];
         if (cats) parts.push(`categories: ${cats}`);
         if (merchants) parts.push(`recent merchants: ${merchants}`);
         return parts.join(" — ");
@@ -101,8 +100,7 @@ serve(async (req) => {
     const userPrompt = `ROLLUPS (generate exactly 5 boost deals for EACH):
 ${rollupList}
 
-In the output, the "rollup" field MUST be the exact label string in quotes from each rollup, and the "pillar" field MUST be the exact pillar string in quotes (verbatim, no changes).
-If the input pillar is "Life Event", the rollup label is a SHORT EVENT NAME (e.g., "Home Purchase", "New Baby", "Retirement Planning") — output it character-for-character; do NOT paraphrase, expand, or rename it.
+In the output, the "rollup" field MUST be the exact label string in quotes from each rollup (verbatim, no changes — character for character, do NOT paraphrase, shorten, expand, or rename).
 Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -139,13 +137,54 @@ Return valid JSON only.`;
     const raw = data.choices?.[0]?.message?.content || "";
     const parsed = parseJsonLoose(raw);
 
-    const rollupOffers = parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)
-      ? parsed.rollupOffers
-      : [];
+    const aiGroups: any[] = Array.isArray(parsed?.rollupOffers) ? parsed.rollupOffers : [];
 
-    if (rollupOffers.length === 0) {
+    // Server-side label enforcement: rebind every output group to a verbatim
+    // input label by best match (exact normalized first, then positional).
+    const norm = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const inputLabels = validRollups.map((r: any) => r.label as string);
+    const inputNormToLabel = new Map<string, string>();
+    inputLabels.forEach(l => inputNormToLabel.set(norm(l), l));
+
+    const usedInputs = new Set<number>();
+    const rollupOffers = aiGroups.map((g: any, i: number) => {
+      // 1. exact normalized match
+      const targetNorm = norm(g.rollup);
+      const exactLabel = inputNormToLabel.get(targetNorm);
+      let resolvedLabel = exactLabel;
+      let resolvedIdx = exactLabel ? inputLabels.indexOf(exactLabel) : -1;
+      // 2. positional fallback
+      if (!resolvedLabel && i < inputLabels.length) {
+        resolvedLabel = inputLabels[i];
+        resolvedIdx = i;
+      }
+      if (!resolvedLabel) return null;
+      usedInputs.add(resolvedIdx);
+      return {
+        rollup: resolvedLabel,
+        collectionMessage: g.collectionMessage || "",
+        suppressedCategories: Array.isArray(g.suppressedCategories) ? g.suppressedCategories : [],
+        deals: Array.isArray(g.deals) ? g.deals : [],
+      };
+    }).filter(Boolean);
+
+    // Backfill any input rollup the AI skipped with an empty placeholder so the
+    // UI never shows the generic "no offers yet" state for an input that was sent.
+    inputLabels.forEach((label, idx) => {
+      if (!usedInputs.has(idx)) {
+        rollupOffers.push({
+          rollup: label,
+          collectionMessage: `Curating personalized offers for ${label}…`,
+          suppressedCategories: [],
+          deals: [],
+        });
+      }
+    });
+
+    if (aiGroups.length === 0) {
       console.error("Failed to parse AI response:", raw.slice(0, 500));
     }
+    console.log("[OFFERS] Server-rewrote", rollupOffers.length, "groups; input:", inputLabels);
 
     return new Response(JSON.stringify({ rollupOffers }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
