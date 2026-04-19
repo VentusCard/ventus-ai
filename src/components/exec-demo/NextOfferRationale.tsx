@@ -17,7 +17,8 @@ export interface GeneratedOffer {
 
 export interface RollupOfferGroup {
   rollup: string;
-  pillar: string;
+  /** Optional — kept for backwards compat. New persona-driven flow omits pillar. */
+  pillar?: string;
   deals: GeneratedOffer[];
   collectionMessage?: string;
   suppressedCategories?: string[];
@@ -33,7 +34,7 @@ interface Props {
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
 function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
-  const c = getColor(group.pillar);
+  const c = getColor(group.pillar || "Shopping");
 
   const suppressedCats = group.suppressedCategories || [];
   const boostCats = [...new Set(
