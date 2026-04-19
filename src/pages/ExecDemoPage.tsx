@@ -777,7 +777,7 @@ export default function ExecDemoPage() {
   // Derive filtered transaction indices from the active pill/rollup filter
   const filteredIndices = useMemo(() => {
     if (activeTriggerPill) {
-      return activeTriggerPill.indices;
+      return activeTriggerPill.indices.length > 0 ? activeTriggerPill.indices : null;
     }
     const sm = execProfile.persona.signalMap;
     if (activeRollup) {
