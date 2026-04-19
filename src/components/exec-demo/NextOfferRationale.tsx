@@ -29,6 +29,18 @@ interface Props {
   loading: boolean;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  colorOverride?: string;
+  kindOverride?: "lifeEvent" | "risk";
+}
+
+/* ─── Color helper for trigger overrides ─── */
+function buildOverrideColor(hex: string) {
+  return {
+    bg: `${hex}15`,
+    text: hex,
+    dot: hex,
+    border: `${hex}55`,
+  };
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
