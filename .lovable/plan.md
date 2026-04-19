@@ -2,43 +2,45 @@
 
 ## Goal
 
-When a persona pill (e.g. "Annual Hawaiian Vacations") is clicked in the Next-Offer tab, the phone view should auto-navigate into that specific Curated Collection's deal-detail view (the same view triggered by tapping the carousel card).
+Reframe Curated Collection descriptions so they feel like **enhancements to the user's existing lifestyle** — not transactional ("we've got it covered") and not generic marketing. The user should read it and feel: "yes, these things make my [Hawaii trips / coffee runs / ski seasons] better."
 
-## Current state
+## Tone shift
 
-- `ExecDemoPage` owns `activeRollup` (label + pillar) when the user clicks a persona pill.
-- It is passed into `ExecDemoIntelPanel` but **not** to `ExecDemoPhoneView`.
-- `GeneratedOffersPhoneView` already has an internal `expandedGroup` state + a "Deal Detail View" render path (lines 169-230 of the file). Currently it only opens when the user clicks the Top Pick or a carousel card.
+- ❌ "Aloha — we've got your island trip covered." (sounds transactional, like booking a hotel)
+- ❌ "Craft unforgettable memories with premium essentials." (corporate filler)
+- ✅ "Little things that make every island trip better."
+- ✅ "Gear that keeps your courts and slopes seasons sharp."
+- ✅ "Small upgrades for your morning coffee ritual."
+- ✅ "Helpful picks for this next chapter."
 
-## Plan
+## Change
 
-### 1. `src/pages/ExecDemoPage.tsx` (~line 938)
-Pass `activeRollupLabel={activeRollup?.label || null}` and `activeRollupPillar={activeRollup?.pillar || null}` into `<ExecDemoPhoneView>`.
+**`supabase/functions/generate-next-offers/index.ts`** — update the `collectionMessage` instruction in BOTH system prompts (`SYSTEM_PROMPT` and `LIFE_EVENT_SYSTEM_PROMPT`):
 
-### 2. `src/components/exec-demo/ExecDemoPhoneView.tsx`
-- Add to `Props`: `activeRollupLabel?: string | null; activeRollupPillar?: string | null;`
-- Forward both into `<GeneratedOffersPhoneView>`.
+1. **Length**: ≤ 10 words, ≤ 60 characters.
+2. **Frame as enhancement, not coverage**: Use words like *better, sharper, easier, smoother, smarter, ritual, upgrade, elevate-the-everyday, picks, gear, little things, small touches*. Avoid "we've got you", "got covered", "handle", "take care of" — these sound like the bank is doing the trip/activity FOR them.
+3. **Anchor to the pill label**: must echo the literal subject of the rollup (Hawaii → island/Hawaii; Coffee Runs → mornings/coffee/ritual; Ski → slopes/snow; College Prep → this chapter/the journey).
+4. **Warm, second-person**: use *your* — keep it personal without being transactional.
+5. **Banned vocabulary** (corporate filler + transactional tone): "unforgettable", "memories", "essentials", "premium", "indulge", "curated", "exclusive", "next escape", "we've got you", "got covered", "we handle", "we take care".
+6. **Few-shot examples** in both prompts:
+   - "Annual Hawaiian Vacations" → "Little things that make every island trip better."
+   - "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp."
+   - "Weekly Workday Coffee Runs" → "Small upgrades for your morning ritual."
+   - "College Preparation for Dependent" → "Helpful picks for this next chapter."
 
-### 3. `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
-- Add to `Props`: `activeRollupLabel?: string | null; activeRollupPillar?: string | null;`
-- Add a `useEffect` that watches `activeRollupLabel`. When it changes (and is non-null), find the matching group in `offerGroups` using the same fuzzy matching strategy as `NextOfferRationale` (exact → substring → token-overlap), then call `setExpandedGroup(matchedGroup)`.
-- When `activeRollupLabel` becomes null (user deselects), call `setExpandedGroup(null)` to return to the carousel.
-- Extract the fuzzy-match helpers into a small local function within the file (mirrors the NextOfferRationale logic).
-
-### Verification
-
-1. `/demo` → Next-Offer tab → click persona pill "Annual Hawaiian Vacations" → phone slides into the Hawaii collection detail view showing all related deals.
-2. Click a different persona pill → phone navigates into that collection.
-3. Click "Back" inside the phone OR clear the persona selection → returns to the rotating carousel.
-4. Life-event / risk pill clicks (which also set a rollup label) likewise drive the phone to the matching collection.
+No UI changes — `collectionMessage` already renders verbatim.
 
 ## Files touched
 
-- `src/pages/ExecDemoPage.tsx`
-- `src/components/exec-demo/ExecDemoPhoneView.tsx`
-- `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
+- `supabase/functions/generate-next-offers/index.ts` (system prompts only)
+
+## Verification
+
+1. `/demo` → Next-Offer tab → click each persona pill → description reads like a friendly enhancement to the user's lifestyle, not like the bank booking something for them.
+2. ≤ 10 words, anchors on the pill subject, contains *your*.
+3. No instances of "we've got", "covered", "unforgettable", "essentials", "premium".
 
 ## Out of scope
 
-Carousel internals, search behavior, other tabs, intel-panel rendering.
+Deal copy, layout, other tabs.
 
