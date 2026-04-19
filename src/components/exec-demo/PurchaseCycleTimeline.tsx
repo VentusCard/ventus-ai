@@ -503,6 +503,7 @@ export default function PurchaseCycleTimeline({
   offersLoading,
   activeRollup,
   activeTriggerLabel,
+  activeTrigger,
 }: Props) {
   const rollups = personaSynthesis?.pillarRollups || [];
 
@@ -513,30 +514,63 @@ export default function PurchaseCycleTimeline({
     return null;
   }, [activeRollup, rollups]);
 
+  // Build cadence: trigger wins if it has indices; otherwise fall back to rollup
   const cadenceData = useMemo(() => {
-    if (!selectedRollup) return null;
+    if (activeTrigger && activeTrigger.indices.length > 0) {
+      const syntheticRollup: PillarRollup = {
+        label: activeTrigger.label,
+        pillar: activeTrigger.kind === "lifeEvent" ? "Life Event" : "Risk",
+        txIndices: activeTrigger.indices,
+      } as PillarRollup;
+      return buildCadence(syntheticRollup, transactions, signalMap);
+    }
+    if (!selectedRollup || activeTrigger) return null;
     return buildCadence(selectedRollup, transactions, signalMap);
-  }, [selectedRollup, transactions, signalMap]);
+  }, [activeTrigger, selectedRollup, transactions, signalMap]);
 
-  // What label to filter offers by — life event takes precedence if active
-  const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
-  const activeOfferPillar = activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null;
+  // What label to filter offers by — trigger takes precedence if active
+  const activeOfferLabel = activeTrigger?.label || activeTriggerLabel || selectedRollup?.label || null;
+  const activeOfferPillar = activeTrigger
+    ? (activeTrigger.kind === "lifeEvent" ? "Life Event" : "Risk")
+    : (activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null);
+
+  // Color override + header label for trigger-driven cadence
+  const cardColorOverride = activeTrigger ? activeTrigger.color : undefined;
+  const cardHeaderSuffix = activeTrigger
+    ? (activeTrigger.kind === "lifeEvent" ? "Life Event Pattern" : "Risk Pattern")
+    : undefined;
+
+  // Empty-state callout when trigger is active but no transactions matched
+  const triggerCalloutColor = activeTrigger?.color || "#f59e0b";
+  const triggerCalloutKind = activeTrigger?.kind || "lifeEvent";
+  const triggerCalloutLabel = activeTrigger?.label || activeTriggerLabel;
 
   return (
     <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
       {/* ═══ SHOPPING CADENCE CARD ═══ */}
       {cadenceData ? (
-        <CadenceCard data={cadenceData} />
-      ) : activeTriggerLabel ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3">
+        <CadenceCard data={cadenceData} colorOverride={cardColorOverride} headerSuffix={cardHeaderSuffix} />
+      ) : triggerCalloutLabel ? (
+        <div
+          className="rounded-xl border px-4 py-3"
+          style={{
+            borderColor: `${triggerCalloutColor}66`,
+            background: `${triggerCalloutColor}14`,
+          }}
+        >
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-amber-500">✦</span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
-              {activeTriggerLabel} · Life Event Trigger
+            <span style={{ color: triggerCalloutColor }}>✦</span>
+            <span
+              className="text-[11px] font-bold uppercase tracking-wider"
+              style={{ color: triggerCalloutColor }}
+            >
+              {triggerCalloutLabel} · {triggerCalloutKind === "lifeEvent" ? "Life Event Trigger" : "Risk Trigger"}
             </span>
           </div>
           <p className="text-[12px] text-slate-600 leading-snug">
-            Targeted offers below are matched to this life event.
+            {triggerCalloutKind === "lifeEvent"
+              ? "Targeted offers below are matched to this life event."
+              : "Flagged transaction has no recurring pattern. See offers below."}
           </p>
         </div>
       ) : (
