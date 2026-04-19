@@ -92,7 +92,13 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = "Style-Conscious Shopper", not "Nordstrom & Sephora Loyalist." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
 
-- When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
+- When a category shows a clear repeat cadence (shown in parentheses), explicitly encode cadence in the label — "Annual Hawaiian Vacations" (not "Hawaii Vacationer"), "Tennis & Ski Seasonal Sports" (not "Alpine & Court Enthusiast"), "Weekly Workday Coffee Runs". Don't use raw stats like "3.2x/wk".
+
+- **Pattern-forward naming (REQUIRED when cadence is clear):** Labels must explicitly state the behavioral pattern. Use one of these formats:
+  - "[Frequency] [Activity]" → "Annual Hawaiian Vacations", "Weekly Workday Coffee Runs", "Monthly Fine Dining Nights"
+  - "[Activity] [Pattern]" → "Tennis & Ski Seasonal Sports", "Casual Dining Regular", "Grocery Run Weekly"
+  - "[Season] [Activity]" → "Winter Ski Trips", "Summer Coastal Travel"
+- **FORBIDDEN abstract descriptors:** Never use "Enthusiast", "Fan", "Lover", "Buff", "Aspirant", "Devotee", "Vacationer", "Junkie", "Aficionado", "Connoisseur". Use concrete activity + cadence terms instead. "Premium Hawaii Vacationer" → "Premium Annual Hawaiian Vacations". "Active Alpine & Court Enthusiast" → "Tennis & Ski Seasonal Sports".
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
