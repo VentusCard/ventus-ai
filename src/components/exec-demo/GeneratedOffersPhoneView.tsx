@@ -98,6 +98,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
+  const [focusMode, setFocusMode] = useState(true);
 
   const firstName = customerName.split(" ")[0];
 
