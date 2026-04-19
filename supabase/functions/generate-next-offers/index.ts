@@ -96,6 +96,7 @@ function tokenOverlap(a: string, b: string): number {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  console.log(`[NEXT-OFFERS] ▶ invoked: method=${req.method}`);
 
   try {
     const rawBody = await req.text();
