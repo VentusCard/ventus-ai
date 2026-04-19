@@ -1,3 +1,5 @@
+import { useEffect, useState, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PillarRollup } from "./ExecDemoIntelPanel";
@@ -84,8 +86,6 @@ const PRODUCT_CATALOG = [
 
 function RecommendedProductsPills({ productCards }: { productCards: ProductCard[] }) {
   const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
-
-  // Sort so matched (blue) pills come first, then take first 5
   const sorted = [...PRODUCT_CATALOG].sort((a, b) => {
     const aMatch = recommendedNames.some(r => r.includes(a.toLowerCase()) || a.toLowerCase().includes(r));
     const bMatch = recommendedNames.some(r => r.includes(b.toLowerCase()) || b.toLowerCase().includes(r));
@@ -120,6 +120,397 @@ function RecommendedProductsPills({ productCards }: { productCards: ProductCard[
   );
 }
 
+/* ─── Resolved card data (pill + matched evidence) ─── */
+interface ResolvedCard {
+  card: ProductCard;
+  origIdx: number;
+  isBehavioral: boolean;
+  resolvedLabel: string;
+  resolvedCount: number;
+  resolvedSpend: number;
+  color: { bg: string; text: string; dot: string; border: string };
+  matchedIndices: number[];
+  matchedKind?: "lifeEvent" | "risk";
+  isClickable: boolean;
+}
+
+function resolveCard(
+  card: ProductCard,
+  origIdx: number,
+  lifeEvents: LifeEvent[] | null,
+  pillarRollups: PillarRollup[] | undefined,
+  transactions: Transaction[] | undefined,
+): ResolvedCard {
+  const isBehavioral = card.type === "behavioral";
+
+  const matchingEvent = lifeEvents?.find(e =>
+    e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
+    card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
+  );
+
+  const matchedRollup = (() => {
+    if (!isBehavioral || !pillarRollups || pillarRollups.length === 0) return null;
+    const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2);
+    const cardTokens = new Set([
+      ...tokenize(card.signal_label),
+      ...tokenize(card.theme || ""),
+    ]);
+    let best: PillarRollup | null = null;
+    let bestScore = 0;
+    pillarRollups.forEach(r => {
+      const rTokens = [
+        ...tokenize(r.label),
+        ...tokenize(r.pillar),
+        ...(r.categories || []).flatMap(tokenize),
+      ];
+      const score = rTokens.filter(t => cardTokens.has(t)).length;
+      if (score > bestScore) { bestScore = score; best = r; }
+    });
+    return bestScore > 0 ? best : pillarRollups[0];
+  })();
+
+  const color = isBehavioral && matchedRollup
+    ? (() => {
+        const rc = getColor(matchedRollup.pillar);
+        return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
+      })()
+    : isBehavioral
+      ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
+      : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
+
+  const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
+
+  const resolvedLabel = matchedRollup?.label
+    || (matchingEvent?.event_name)
+    || card.signal_label;
+  const resolvedCount = matchedRollup?.totalCount
+    ?? (matchingEvent?.evidence?.length)
+    ?? 0;
+  const resolvedSpend = matchedRollup?.totalSpend ?? (matchingEvent
+    ? matchingEvent.evidence.reduce((s, ev) => s + Math.abs(parseFloat(String(ev.amount || "0").replace(/[$,]/g, "")) || 0), 0)
+    : 0);
+
+  const signalKeywords = resolvedLabel.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
+
+  let matchedIndices: number[] = [];
+  let matchedKind: "lifeEvent" | "risk" | undefined;
+
+  if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
+    matchedIndices = matchedRollup.txIndices;
+  } else if (transactions) {
+    if (hasEvidence && matchingEvent) {
+      const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
+      matchedIndices = transactions
+        .map((tx, idx) => {
+          const merchant = (tx.merchant || "").toLowerCase();
+          const isMatch = evidenceMerchants.some(em =>
+            merchant.includes(em) || em.includes(merchant)
+          );
+          return isMatch ? idx : -1;
+        })
+        .filter(idx => idx !== -1);
+      matchedKind = "lifeEvent";
+    } else {
+      matchedIndices = transactions
+        .map((tx, idx) => {
+          const hay = (tx.merchant || "").toLowerCase();
+          const isMatch = signalKeywords.some(kw => hay.includes(kw));
+          return isMatch ? idx : -1;
+        })
+        .filter(idx => idx !== -1);
+    }
+  }
+
+  const isClickable = matchedIndices.length > 0;
+
+  return {
+    card,
+    origIdx,
+    isBehavioral,
+    resolvedLabel,
+    resolvedCount,
+    resolvedSpend,
+    color,
+    matchedIndices,
+    matchedKind,
+    isClickable,
+  };
+}
+
+/* ─── Action pills (extracted) ─── */
+function ActionPillsRow({
+  origIdx,
+  isBehavioral,
+  productActions,
+  actionsLoading,
+}: {
+  origIdx: number;
+  isBehavioral: boolean;
+  productActions?: CardActions[] | null;
+  actionsLoading?: boolean;
+}) {
+  const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
+
+  const renderPill = (action: CardAction, ai: number) => {
+    const IconComp = ICON_MAP[action.icon] || Bell;
+    const colors = COLOR_MAP[action.color] || COLOR_MAP.blue;
+    const isWow = action.tone === "wow";
+    return (
+      <span
+        key={ai}
+        className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2.5 py-1 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
+        style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
+      >
+        {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
+        <IconComp className="w-2.5 h-2.5" />
+        {action.label}
+      </span>
+    );
+  };
+
+  if (dynamicActions && dynamicActions.length > 0) {
+    const standard = dynamicActions.filter(a => a.tone === "standard");
+    const wow = dynamicActions.filter(a => a.tone === "wow");
+    return (
+      <div className="mt-2 space-y-1.5">
+        {standard.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
+            {standard.map((action, ai) => renderPill(action, ai))}
+          </div>
+        )}
+        {wow.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Concierge Touch</span>
+            {wow.map((action, ai) => renderPill(action, ai))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (actionsLoading) {
+    return (
+      <div className="flex items-center gap-1.5 mt-2">
+        <span className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-300 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5 animate-pulse">
+          <Sparkles className="w-2.5 h-2.5" /> Generating actions...
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 space-y-1.5">
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
+        {isBehavioral ? (
+          <>
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2.5 py-1">
+              <Smartphone className="w-3 h-3" /> Signal Sent to Mobile App
+            </span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2.5 py-1">
+              <Mail className="w-3 h-3" /> Triggered Email Campaign
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2.5 py-1">
+              <UserCheck className="w-3 h-3" /> Notify Wealth Advisor
+            </span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2.5 py-1">
+              <CalendarCheck className="w-3 h-3" /> Schedule Review Meeting
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Single product card body ─── */
+function ProductCardBody({
+  resolved,
+  productActions,
+  actionsLoading,
+  index,
+}: {
+  resolved: ResolvedCard;
+  productActions?: CardActions[] | null;
+  actionsLoading?: boolean;
+  index: number;
+}) {
+  const { card, color: c, origIdx, isBehavioral } = resolved;
+  return (
+    <div
+      className="rounded-xl border overflow-hidden bg-white"
+      style={{
+        borderColor: c.border,
+        borderLeftWidth: 3,
+        borderLeftColor: c.dot,
+        animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
+      }}
+    >
+      <div className="px-4 py-3.5">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
+        </div>
+        <p className="text-[12px] text-slate-600 leading-relaxed italic">
+          "{card.quote}"
+        </p>
+        <div className="flex items-center gap-1.5 mt-2.5">
+          <ActionPillsRow
+            origIdx={origIdx}
+            isBehavioral={isBehavioral}
+            productActions={productActions}
+            actionsLoading={actionsLoading}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Group slideshow ─── */
+function GroupSlideshow({
+  title,
+  resolvedCards,
+  activeTriggerLabel,
+  onTriggerPillClick,
+  productActions,
+  actionsLoading,
+}: {
+  title: string;
+  resolvedCards: ResolvedCard[];
+  activeTriggerLabel?: string | null;
+  onTriggerPillClick?: Props["onTriggerPillClick"];
+  productActions?: CardActions[] | null;
+  actionsLoading?: boolean;
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  // Auto-advance
+  useEffect(() => {
+    if (!emblaApi || isPaused || resolvedCards.length <= 1) return;
+    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
+    return () => clearInterval(interval);
+  }, [emblaApi, isPaused, resolvedCards.length]);
+
+  if (resolvedCards.length === 0) return null;
+
+  const handlePillClick = (idx: number) => {
+    const r = resolvedCards[idx];
+    if (r.isClickable && onTriggerPillClick) {
+      onTriggerPillClick(r.resolvedLabel, r.matchedIndices, r.color.dot, r.matchedKind);
+    }
+    if (emblaApi && idx !== selectedIndex) {
+      emblaApi.scrollTo(idx);
+    }
+  };
+
+  const isSingle = resolvedCards.length === 1;
+
+  return (
+    <div className="space-y-2">
+      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{title}</div>
+
+      {/* Pill row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {resolvedCards.map((r, idx) => {
+          const isActive = activeTriggerLabel === r.resolvedLabel || (!activeTriggerLabel && idx === selectedIndex);
+          const isCurrent = idx === selectedIndex;
+          return (
+            <div
+              key={idx}
+              className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${r.isClickable ? "cursor-pointer" : ""}`}
+              style={{
+                background: `linear-gradient(135deg, ${r.color.dot}10, ${r.color.dot}20)`,
+                color: r.color.text,
+                border: isCurrent ? `2px solid ${r.color.dot}` : `1.5px solid ${r.color.dot}80`,
+                boxShadow: isCurrent ? `0 0 14px ${r.color.dot}30` : `0 2px 8px ${r.color.dot}15`,
+                transform: isCurrent ? "scale(1.06)" : "scale(1)",
+                opacity: isCurrent ? 1 : 0.75,
+                transition: "all 0.2s ease",
+              }}
+              onClick={() => handlePillClick(idx)}
+            >
+              <span style={{ color: r.color.dot }}>✦</span>
+              {r.resolvedLabel}
+              {r.resolvedCount > 0 && (
+                <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
+                  {r.resolvedCount} txns · {formatSpend(r.resolvedSpend)}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Carousel or single card */}
+      {isSingle ? (
+        <ProductCardBody
+          resolved={resolvedCards[0]}
+          productActions={productActions}
+          actionsLoading={actionsLoading}
+          index={0}
+        />
+      ) : (
+        <div
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {resolvedCards.map((r, idx) => (
+                <div key={idx} className="flex-[0_0_100%] min-w-0 pr-1">
+                  <ProductCardBody
+                    resolved={r}
+                    productActions={productActions}
+                    actionsLoading={actionsLoading}
+                    index={idx}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dots */}
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            {resolvedCards.map((r, idx) => (
+              <button
+                key={idx}
+                onClick={() => emblaApi?.scrollTo(idx)}
+                className="rounded-full transition-all"
+                style={{
+                  width: idx === selectedIndex ? 16 : 6,
+                  height: 6,
+                  background: idx === selectedIndex ? r.color.dot : "#cbd5e1",
+                }}
+                aria-label={`Show card ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups }: Props) {
 
   if (loading || !lifeEvents) {
@@ -144,10 +535,16 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
     e => (e.financial_projection?.recommended_funding_sources?.length ?? 0) > 0
   );
 
-  // Show product cards rationale if available
   if (productCards && productCards.length > 0) {
+    // Resolve all cards, then split into two groups
+    const resolvedAll = productCards.map((card, origIdx) =>
+      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
+    );
+    const lifeEventResolved = resolvedAll.filter(r => !r.isBehavioral);
+    const behavioralResolved = resolvedAll.filter(r => r.isBehavioral);
+
     return (
-      <div className="px-3 py-3 space-y-4 overflow-y-auto">
+      <div className="px-3 py-3 space-y-5 overflow-y-auto">
         {/* Current holdings pills */}
         {transactions && transactions.length > 0 && (
           <CurrentHoldingsPills transactions={transactions} />
@@ -156,253 +553,25 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
+        {/* Life Events slideshow */}
+        <GroupSlideshow
+          title="Life Events"
+          resolvedCards={lifeEventResolved}
+          activeTriggerLabel={activeTriggerLabel}
+          onTriggerPillClick={onTriggerPillClick}
+          productActions={productActions}
+          actionsLoading={actionsLoading}
+        />
 
-        {/* Card rationale */}
-        {[...productCards].map((card, origIdx) => ({ card, origIdx }))
-          .sort((a, b) => {
-            if (a.card.type === "behavioral" && b.card.type !== "behavioral") return 1;
-            if (a.card.type !== "behavioral" && b.card.type === "behavioral") return -1;
-            return 0;
-          })
-          .map(({ card, origIdx }, i) => {
-          const isBehavioral = card.type === "behavioral";
-
-          // Find matching life event (used for non-behavioral cards & evidence)
-          const matchingEvent = lifeEvents?.find(e =>
-            e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
-            card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
-          );
-
-          // Find matching pillar rollup for behavioral cards (fuzzy token overlap)
-          const matchedRollup = (() => {
-            if (!isBehavioral || !pillarRollups || pillarRollups.length === 0) return null;
-            const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2);
-            const cardTokens = new Set([
-              ...tokenize(card.signal_label),
-              ...tokenize(card.theme || ""),
-            ]);
-            let best: PillarRollup | null = null;
-            let bestScore = 0;
-            pillarRollups.forEach(r => {
-              const rTokens = [
-                ...tokenize(r.label),
-                ...tokenize(r.pillar),
-                ...(r.categories || []).flatMap(tokenize),
-              ];
-              const score = rTokens.filter(t => cardTokens.has(t)).length;
-              if (score > bestScore) { bestScore = score; best = r; }
-            });
-            return bestScore > 0 ? best : pillarRollups[0];
-          })();
-
-          // Color resolution: behavioral uses rollup pillar color; life event uses themed
-          const c = isBehavioral && matchedRollup
-            ? (() => {
-                const rc = getColor(matchedRollup.pillar);
-                return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
-              })()
-            : isBehavioral
-              ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
-              : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
-
-          const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
-
-          // Resolved label & stats: prefer rollup → life event → original signal_label
-          const resolvedLabel = matchedRollup?.label
-            || (matchingEvent?.event_name)
-            || card.signal_label;
-          const resolvedCount = matchedRollup?.totalCount
-            ?? (matchingEvent?.evidence?.length)
-            ?? 0;
-          const resolvedSpend = matchedRollup?.totalSpend ?? (matchingEvent
-            ? matchingEvent.evidence.reduce((s, ev) => s + Math.abs(parseFloat(String(ev.amount || "0").replace(/[$,]/g, "")) || 0), 0)
-            : 0);
-
-          const isActive = activeTriggerLabel === resolvedLabel;
-
-          // Build keyword list from the resolved label for fallback matching
-          const signalKeywords = resolvedLabel.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
-
-          const handlePillClick = () => {
-            if (!transactions || !onTriggerPillClick) return;
-
-            // Prefer rollup's pre-computed indices
-            if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
-              onTriggerPillClick(resolvedLabel, matchedRollup.txIndices, c.dot);
-              return;
-            }
-
-            let matchedIndices: number[] = [];
-
-            if (hasEvidence && matchingEvent) {
-              const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
-              matchedIndices = transactions
-                .map((tx, idx) => {
-                  const merchant = (tx.merchant || "").toLowerCase();
-                  const isMatch = evidenceMerchants.some(em =>
-                    merchant.includes(em) || em.includes(merchant)
-                  );
-                  return isMatch ? idx : -1;
-                })
-                .filter(idx => idx !== -1);
-            } else {
-              matchedIndices = transactions
-                .map((tx, idx) => {
-                  const hay = (tx.merchant || "").toLowerCase();
-                  const isMatch = signalKeywords.some(kw => hay.includes(kw));
-                  return isMatch ? idx : -1;
-                })
-                .filter(idx => idx !== -1);
-            }
-
-            if (matchedIndices.length > 0) {
-              onTriggerPillClick(resolvedLabel, matchedIndices, c.dot, matchingEvent ? "lifeEvent" : undefined);
-            }
-          };
-
-          const txnCount = resolvedCount;
-          const txnSpend = resolvedSpend;
-          const isClickable = !!matchedRollup || hasEvidence || (transactions && signalKeywords.length > 0);
-
-          return (
-            <div key={i} className="space-y-0">
-              {/* Persona pill */}
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <div
-                  className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""}`}
-                  style={{
-                    background: `linear-gradient(135deg, ${c.dot}10, ${c.dot}20)`,
-                    color: c.text,
-                    border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
-                    boxShadow: isActive ? `0 0 14px ${c.dot}30` : `0 2px 8px ${c.dot}15`,
-                    transform: isActive ? "scale(1.08)" : "scale(1)",
-                    transition: "all 0.2s ease",
-                  }}
-                  onClick={handlePillClick}
-                >
-                  <span style={{ color: c.dot }}>✦</span>
-                  {resolvedLabel}
-                  {txnCount > 0 && (
-                    <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
-                      {txnCount} txns · {formatSpend(txnSpend)}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-
-              {/* Product card */}
-              <div
-                className="rounded-xl border overflow-hidden"
-                style={{
-                  borderColor: c.border,
-                  borderLeftWidth: 3,
-                  borderLeftColor: c.dot,
-                  animation: `exec-product-reveal 0.4s ease-out ${i * 0.15}s both`,
-                }}
-              >
-                <div className="px-4 py-3.5">
-                  {/* Product name */}
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
-                    </div>
-
-                  {/* Quote preview */}
-                  <p className="text-[12px] text-slate-600 leading-relaxed italic">
-                    "{card.quote}"
-                  </p>
-
-                  {/* Trigger badge */}
-                  <div className="flex items-center gap-1.5 mt-2.5">
-                  {/* Action pills — dynamic or fallback */}
-                  {(() => {
-                    const dynamicActions = productActions?.find(ca => ca.card_index === origIdx)?.actions;
-
-                    const renderPill = (action: CardAction, ai: number) => {
-                      const IconComp = ICON_MAP[action.icon] || Bell;
-                      const colors = COLOR_MAP[action.color] || COLOR_MAP.blue;
-                      const isWow = action.tone === "wow";
-                      return (
-                        <span
-                          key={ai}
-                          className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2.5 py-1 border ${colors.text} ${colors.bg} ${colors.border} ${isWow ? "ring-1 ring-offset-1" : ""}`}
-                          style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
-                        >
-                          {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
-                          <IconComp className="w-2.5 h-2.5" />
-                          {action.label}
-                        </span>
-                      );
-                    };
-
-                    if (dynamicActions && dynamicActions.length > 0) {
-                      const standard = dynamicActions.filter(a => a.tone === "standard");
-                      const wow = dynamicActions.filter(a => a.tone === "wow");
-
-                      return (
-                        <div className="mt-2 space-y-1.5">
-                          {standard.length > 0 && (
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                               <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
-                              {standard.map((action, ai) => renderPill(action, ai))}
-                            </div>
-                          )}
-                          {wow.length > 0 && (
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Concierge Touch</span>
-                              {wow.map((action, ai) => renderPill(action, ai))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    if (actionsLoading) {
-                      return (
-                        <div className="flex items-center gap-1.5 mt-2">
-                          <span className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-300 bg-slate-50 border border-slate-100 rounded-full px-2 py-0.5 animate-pulse">
-                            <Sparkles className="w-2.5 h-2.5" /> Generating actions...
-                          </span>
-                        </div>
-                      );
-                    }
-
-                    // Static fallback with two-row layout
-                    return (
-                      <div className="mt-2 space-y-1.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wide shrink-0">Standard Response</span>
-                          {isBehavioral ? (
-                            <>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2.5 py-1">
-                                <Smartphone className="w-3 h-3" /> Signal Sent to Mobile App
-                              </span>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2.5 py-1">
-                                <Mail className="w-3 h-3" /> Triggered Email Campaign
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-violet-600 bg-violet-50 border border-violet-100 rounded-full px-2.5 py-1">
-                                <UserCheck className="w-3 h-3" /> Notify Wealth Advisor
-                              </span>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-teal-600 bg-teal-50 border border-teal-100 rounded-full px-2.5 py-1">
-                                <CalendarCheck className="w-3 h-3" /> Schedule Review Meeting
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Supporting evidence from life events */}
+        {/* Shopping Habits slideshow */}
+        <GroupSlideshow
+          title="Shopping Habits"
+          resolvedCards={behavioralResolved}
+          activeTriggerLabel={activeTriggerLabel}
+          onTriggerPillClick={onTriggerPillClick}
+          productActions={productActions}
+          actionsLoading={actionsLoading}
+        />
 
         <style>{`
           @keyframes exec-product-reveal {
