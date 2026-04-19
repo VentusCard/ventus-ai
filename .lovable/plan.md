@@ -2,54 +2,39 @@
 
 ## Goal
 
-Make the **Life Event** Behavioral Deal Collection card (e.g. "College Preparation for Dependent") visually and informationally match the **Persona** version (e.g. "Frequent Hawaii Traveler"):
+Update persona synthesis to generate more explicit, pattern-based labels that describe the actual behavioral cadence (e.g., "Annual", "Seasonal", "Weekly") rather than abstract lifestyle descriptors.
 
-1. Show **boost-category chips** in the header row (e.g. "Tuition", "Test Prep", "Dorm Essentials") — same green-trend chips that appear next to the Hawaii Traveler pill.
-2. Show **suppressed-category chips** (already-purchased / already-covered) — same gray "✓" chips.
-3. Replace the generic deal-tile rationale (`↑ Merchant evidence for Home Purchase`) with a **specific behavioral rationale** per deal (matching the per-deal `signalReason` quality of the persona side: e.g. `↑ Recurring Khan Academy spend → SAT prep gap`).
+## Changes required
 
-## Root cause
+**`supabase/functions/synthesize-persona/index.ts`** — Update the system prompt:
 
-In `supabase/functions/generate-next-offers/index.ts`:
+1. **Add explicit pattern instruction**: Require labels to incorporate the temporal/cadence pattern directly into the rollup name (e.g., "Annual Hawaiian Vacations", "Seasonal Tennis & Ski", "Weekly Dining Out").
 
-- The **rollup (persona)** prompt explicitly requires `boostCategory` per deal AND a top-level `suppressedCategories` array AND a "meaningful signalReason". That's why Hawaii Traveler renders rich chips + specific reasons.
-- The **life-event** prompt (`LIFE_EVENT_SYSTEM_PROMPT`):
-  - Lists `boostCategory` as "optional" → LLM omits it → no green chips.
-  - Does not mention `suppressedCategories` at all → LLM omits it → no gray "already covered" chips.
-  - Has no specificity requirement for `signalReason` → LLM returns generic strings like "Merchant evidence for Home Purchase" → falls through to the fallback in code.
-- The normalization step on line 215-234 already reads `boostCategory` and `suppressedCategories`, so just fixing the prompt is enough — no client changes needed for chips.
-- The UI in `NextOfferRationale.tsx` already renders both chip types from `group.suppressedCategories` and from `deals[].boostCategory` — confirmed at lines 51-54 and 83-94. So once the LLM emits them, they'll appear.
+2. **Replace abstract phrasing**: Guide the model away from vague lifestyle terms like "Enthusiast", "Lover", "Fan", "Devotee" and toward concrete activity descriptors.
 
-## Plan
+3. **Enforce cadence inclusion**: When dates show clear patterns (annual, seasonal, weekly), the label must include that pattern explicitly rather than burying it in implied language.
 
-### 1. `supabase/functions/generate-next-offers/index.ts` — strengthen `LIFE_EVENT_SYSTEM_PROMPT`
+### Prompt additions
 
-Update the life-event system prompt to mirror the rollup prompt's requirements:
+After line 93 ("Never mention brand or merchant names..."), add:
 
-- **Require `boostCategory`** on every deal (short product-type label tied to the life event, e.g. "Tuition Savings", "Dorm Essentials", "Test Prep", "Mortgage Tools", "Moving Services").
-- **Require `suppressedCategories`** at the rollup level (0-3 items the customer already covers based on evidence merchants — e.g. for College Prep with Khan Academy already in evidence, suppress "Online Tutoring").
-- **Require specific `signalReason`** per deal — must reference an evidence merchant or behavioral signal (e.g. `"Khan Academy subscription → upgrade to live SAT prep"`, `"3 mortgage rate searches → ready for closing-cost coverage"`). Forbid generic phrasing like "Merchant evidence for X" or "Aligned with this life event".
-- Update the example JSON shape in the prompt to include `boostCategory` and `suppressedCategories`.
+```text
+- **Pattern-forward naming**: Labels must explicitly state the behavioral pattern when cadence is clear. Use formats like:
+  - "[Frequency] [Activity]" → "Annual Hawaiian Vacations", "Weekly Workday Coffee Runs"
+  - "[Activity] [Pattern]" → "Tennis & Ski Seasonal Sports", "Casual Dining Regular"
+  - "[Season] [Activity]" → "Winter Ski Trips", "Summer Coastal Travel"
+- Avoid abstract lifestyle descriptors like "Enthusiast", "Fan", "Lover", "Buff", "Aspirant" — use concrete activity terms instead.
+```
 
-### 2. (Optional safety) `NextOfferRationale.tsx`
+Update the existing cadence guidance (line 95) from:
+> "bake it into the label naturally — 'workday coffee runs', 'weekly grocery runs', 'annual hawaii trips'"
 
-No changes required — chip-rendering logic already reads `group.suppressedCategories` and `deal.boostCategory`. Once the LLM emits them, they appear automatically.
+To:
+> "explicitly encode cadence in the label — 'Annual Hawaiian Vacations' (not 'Hawaii Vacationer'), 'Tennis & Ski Seasonal Sports' (not 'Alpine & Court Enthusiast'), 'Weekly Workday Coffee Runs'."
 
-### 3. Out of scope
+### Verification
 
-- Persona / rollup prompt (already correct).
-- Color override system (already done in prior plan).
-- Card layout / chip styling.
-
-## Verification
-
-1. Run analysis on `/demo`, click "College Preparation for Dependent".
-   - Header chips include green-trend chips like "Tuition", "Test Prep" + at least one gray "✓ Already covered" chip if evidence supports it.
-   - Each deal tile shows a specific `↑ {reason}` line (no more generic "Merchant evidence for Home Purchase").
-2. Click "Home Purchase" → same chip treatment with home-buying boostCategories ("Mortgage Tools", "Moving", "Insurance").
-3. Click persona pill (Hawaii Traveler) → behavior unchanged.
-
-## Files touched
-
-- `supabase/functions/generate-next-offers/index.ts` — only the `LIFE_EVENT_SYSTEM_PROMPT` constant (lines 38-54).
+1. Re-run analysis on a customer with Hawaii travel → label should read "Annual Hawaiian Vacations" or similar pattern-based name.
+2. Customer with mixed sports (ski + tennis) → label should read "Tennis & Ski Seasonal Sports" or similar.
+3. Verify "Enthusiast", "Vacationer", "Lover" no longer appear in generated rollups.
 
