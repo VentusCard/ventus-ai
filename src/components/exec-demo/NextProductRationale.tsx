@@ -1,5 +1,6 @@
 import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
+import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import type { Transaction } from "./execDemoData";
