@@ -166,22 +166,71 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           })
           .map(({ card, origIdx }, i) => {
           const isBehavioral = card.type === "behavioral";
-          const c = isBehavioral
-            ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
-            : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
+          // Find matching life event (used for non-behavioral cards & evidence)
           const matchingEvent = lifeEvents?.find(e =>
             e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
             card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
           );
-          const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
-          const isActive = activeTriggerLabel === card.signal_label;
 
-          // Build keyword list from the signal label for fallback matching
-          const signalKeywords = card.signal_label.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
+          // Find matching pillar rollup for behavioral cards (fuzzy token overlap)
+          const matchedRollup = (() => {
+            if (!isBehavioral || !pillarRollups || pillarRollups.length === 0) return null;
+            const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2);
+            const cardTokens = new Set([
+              ...tokenize(card.signal_label),
+              ...tokenize(card.theme || ""),
+            ]);
+            let best: PillarRollup | null = null;
+            let bestScore = 0;
+            pillarRollups.forEach(r => {
+              const rTokens = [
+                ...tokenize(r.label),
+                ...tokenize(r.pillar),
+                ...(r.categories || []).flatMap(tokenize),
+              ];
+              const score = rTokens.filter(t => cardTokens.has(t)).length;
+              if (score > bestScore) { bestScore = score; best = r; }
+            });
+            return bestScore > 0 ? best : pillarRollups[0];
+          })();
+
+          // Color resolution: behavioral uses rollup pillar color; life event uses themed
+          const c = isBehavioral && matchedRollup
+            ? (() => {
+                const rc = getColor(matchedRollup.pillar);
+                return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
+              })()
+            : isBehavioral
+              ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
+              : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
+
+          const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
+
+          // Resolved label & stats: prefer rollup → life event → original signal_label
+          const resolvedLabel = matchedRollup?.label
+            || (matchingEvent?.event_name)
+            || card.signal_label;
+          const resolvedCount = matchedRollup?.totalCount
+            ?? (matchingEvent?.evidence?.length)
+            ?? 0;
+          const resolvedSpend = matchedRollup?.totalSpend ?? (matchingEvent
+            ? matchingEvent.evidence.reduce((s, ev) => s + Math.abs(parseFloat(String(ev.amount || "0").replace(/[$,]/g, "")) || 0), 0)
+            : 0);
+
+          const isActive = activeTriggerLabel === resolvedLabel;
+
+          // Build keyword list from the resolved label for fallback matching
+          const signalKeywords = resolvedLabel.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
 
           const handlePillClick = () => {
             if (!transactions || !onTriggerPillClick) return;
+
+            // Prefer rollup's pre-computed indices
+            if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
+              onTriggerPillClick(resolvedLabel, matchedRollup.txIndices, c.dot);
+              return;
+            }
 
             let matchedIndices: number[] = [];
 
@@ -207,37 +256,13 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
             }
 
             if (matchedIndices.length > 0) {
-              onTriggerPillClick(card.signal_label, matchedIndices, c.dot);
+              onTriggerPillClick(resolvedLabel, matchedIndices, c.dot, matchingEvent ? "lifeEvent" : undefined);
             }
           };
 
-          // Pre-compute matched indices for pill stats
-          let pillMatchedIndices: number[] = [];
-          if (transactions) {
-            if (hasEvidence && matchingEvent) {
-              const evidenceMerchants = matchingEvent.evidence.map(ev => ev.merchant.toLowerCase());
-              pillMatchedIndices = transactions
-                .map((tx, idx) => {
-                  const merchant = (tx.merchant || "").toLowerCase();
-                  return evidenceMerchants.some(em => merchant.includes(em) || em.includes(merchant)) ? idx : -1;
-                })
-                .filter(idx => idx !== -1);
-            } else {
-              pillMatchedIndices = transactions
-                .map((tx, idx) => {
-                  const hay = (tx.merchant || "").toLowerCase();
-                  return signalKeywords.some(kw => hay.includes(kw)) ? idx : -1;
-                })
-                .filter(idx => idx !== -1);
-            }
-          }
-          const txnCount = pillMatchedIndices.length;
-          const txnSpend = transactions ? pillMatchedIndices.reduce((sum, idx) => {
-            const raw = String(transactions[idx]?.amount || "").replace(/[$,]/g, "");
-            return sum + Math.abs(parseFloat(raw) || 0);
-          }, 0) : 0;
-
-          const isClickable = hasEvidence || (transactions && signalKeywords.length > 0);
+          const txnCount = resolvedCount;
+          const txnSpend = resolvedSpend;
+          const isClickable = !!matchedRollup || hasEvidence || (transactions && signalKeywords.length > 0);
 
           return (
             <div key={i} className="space-y-0">
