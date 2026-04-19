@@ -474,7 +474,7 @@ function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData;
             )}
             {data.monthlyTrend.some(v => v > 0) && (
               <div className="pt-1 flex items-center gap-2">
-                <Sparkline values={data.monthlyTrend} color={c.dot} />
+                <Sparkline values={data.monthlyTrend} color={accent} />
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
               </div>
             )}
