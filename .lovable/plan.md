@@ -2,36 +2,34 @@
 
 ## Goal
 
-Make the collection cover images (Unsplash photos shown on the collection hero in the phone mockup) fetch fresh on every render instead of being served from browser cache.
+In the Next-Product rationale cards, replace the LLM-generated `signal_label` (e.g. "Tropical Getaways") with the **exact persona pill** from the top Behavioral Intelligence panel — e.g. `✦ Annual Premium Hawaii Vacations  7 txns · $7.9k` (and for life-event cards, `✦ College Preparation for Dependent  4 txns · $3.9k`). Format must match the top pills 1:1 (✦ prefix, label, txns · spend stat).
 
-## Approach
+## Root cause
 
-Append a unique query param (`&t=${timestamp}`) to each Unsplash URL in `getCollectionImage()` so the browser treats every render as a brand new image request and bypasses HTTP cache.
+`NextProductRationale.tsx` renders `card.signal_label` directly. That string is whatever the `generate-product-cards` LLM invented and isn't tied to the synthesized rollup persona names shown above. We already have the source-of-truth data (`personaSynthesis.pillarRollups` with `label`, `totalCount`, `totalSpend`, plus `detectedLifeEvents` with `evidence`), but it's never passed down.
 
-## Change — `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
+## Changes
 
-Update `getCollectionImage()` (line 83) to append a cache-buster:
+### 1. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- Pass `pillarRollups={rollupStats}` to `<NextProductRationale ... />` (line 695).
 
-```ts
-function getCollectionImage(rollup: string, pillar?: string): string {
-  const theme = (rollup + " " + (pillar || "")).toLowerCase();
-  const buster = `&t=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  for (const entry of COLLECTION_IMAGES) {
-    if (entry.keywords.some(k => theme.includes(k))) return entry.url + buster;
-  }
-  return DEFAULT_IMAGE + buster;
-}
-```
-
-Note: Unsplash ignores unknown query params but still returns a fresh response, and the browser keys cache by full URL, so this guarantees no cache reuse.
-
-Both call sites (collection detail hero at line 209 and main carousel at line 276) use this function and will get fresh URLs every render.
-
-## Verification
-
-1. `/demo` → Next-Offer tab → click a persona pill → open DevTools Network tab → confirm Unsplash image request fires fresh (no `(disk cache)` / `(memory cache)`) and URL contains a `&t=…` suffix that changes on each navigation.
+### 2. `src/components/exec-demo/NextProductRationale.tsx`
+- Add `pillarRollups?: PillarRollup[]` to `Props`.
+- For each product card, resolve the matching pill:
+  - **behavioral** card → find best-match rollup by fuzzy comparing `card.signal_label` / `card.theme` against `rollup.label`, `rollup.pillar`, and `rollup.categories` (case-insensitive token overlap). Fall back to first rollup if multiple cards share the persona.
+  - **life event** card → find matching `lifeEvent` by `event_name` (logic already exists).
+- Render the resolved pill exactly like `PillarRollupChip` / life-event pill in `ExecDemoIntelPanel`: `✦` glyph + label + `{totalCount} txns · {formatSpend(totalSpend)}` (use `formatSpend` already in file). Drop the existing `card.signal_label` text and the locally-computed txn count/spend.
+- Keep colors per existing logic (`getColor(rollup.pillar)` for behavioral, life-event colors as today). Preserve click behavior — pass the resolved label (rollup.label or event_name) into `onTriggerPillClick` so highlighting in the transactions panel still works.
+- If no rollup match is found (rare fallback), fall back to current `card.signal_label` rendering so we never show an empty pill.
 
 ## Out of scope
 
-Caching for any other images, deal logos, or static assets.
+- The top behavioral pills, life-event pills, transactions panel, and Next-Offer tab — all unchanged.
+- The LLM prompt for `generate-product-cards` — `signal_label` still generated, just no longer displayed.
+
+## Verification
+
+1. `/demo` → Next-Product tab → each rationale card header shows the **exact same pill** as one in the top Behavioral Intelligence row (e.g. `✦ Annual Premium Hawaii Vacations  7 txns · $7.9k`), including the ✦ glyph and txn/spend stats.
+2. Clicking the rationale pill still highlights matching transactions in the left panel.
+3. Life-event cards (e.g. College Preparation) keep their amber styling and event-name label.
 
