@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, CreditCard, Wifi, Battery, Layers } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import type { DemoCustomer } from "@/lib/demoData";
 
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
@@ -40,6 +41,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
+  const [focusMode, setFocusMode] = useState(true);
 
   // Sync with external activeTab changes
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={focusMode} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
@@ -76,7 +78,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   };
 
   return (
-    <div className="flex items-center justify-center h-full py-4">
+    <div className="relative flex items-center justify-center h-full py-4">
       {/* iPhone frame */}
       <div
         className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
@@ -147,6 +149,15 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-24 h-1 rounded-full bg-slate-200" />
         </div>
       </div>
+
+      {/* Focus mode toggle — only on Rewards tab when offers are loaded */}
+      {consumerTab === "rewards" && generatedOffers && generatedOffers.length > 0 && showContent && (
+        <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-3 py-1.5">
+          <Layers className="w-3 h-3 text-slate-500" />
+          <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider">Focus</span>
+          <Switch checked={focusMode} onCheckedChange={setFocusMode} className="scale-75 origin-center" />
+        </div>
+      )}
     </div>
   );
 }
