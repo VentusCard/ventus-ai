@@ -29,11 +29,24 @@ interface Props {
   loading: boolean;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  colorOverride?: string;
+  kindOverride?: "lifeEvent" | "risk";
+}
+
+/* ─── Color helper for trigger overrides ─── */
+function buildOverrideColor(hex: string) {
+  return {
+    bg: `${hex}15`,
+    text: hex,
+    dot: hex,
+    border: `${hex}55`,
+  };
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
-function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
-  const c = getColor(group.pillar);
+function RollupCard({ group, index, colorOverride, kindOverride }: { group: RollupOfferGroup; index: number; colorOverride?: string; kindOverride?: "lifeEvent" | "risk" }) {
+  const c = colorOverride ? buildOverrideColor(colorOverride) : getColor(group.pillar);
+  const typeLabel = kindOverride === "lifeEvent" ? "Life Event" : kindOverride === "risk" ? "Risk Signal" : null;
 
   const suppressedCats = group.suppressedCategories || [];
   const boostCats = [...new Set(
@@ -55,6 +68,11 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
           Behavioral Based Deal Collection
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
+        {typeLabel && (
+          <span className="text-[11px] font-bold shrink-0" style={{ color: c.dot }}>
+            {typeLabel}:
+          </span>
+        )}
         <span
           className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
           style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
@@ -131,7 +149,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar, colorOverride, kindOverride }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -214,7 +232,7 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
 
       {/* Rollup cards (just one when filtered) */}
       {filtered.map((group, gi) => (
-        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
+        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} colorOverride={colorOverride} kindOverride={kindOverride} />
       ))}
 
       <style>{`
