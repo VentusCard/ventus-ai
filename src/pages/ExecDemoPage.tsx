@@ -407,6 +407,8 @@ export default function ExecDemoPage() {
   detectLifeEventsOnlyRef.current = detectLifeEventsOnly;
 
   /** Hydrate UI state with detected life events and trigger downstream product cards + offers.
+   *  Life events feed product cards and the consumer phone view, but NOT the
+   *  Behavioral Based Deal Collection — that flow is persona-rollup-only.
    *  If `preDetectedEvents` is supplied, skip the API call and reuse them. */
   const fireLifeEventDetection = useCallback(async (
     synthesis?: PersonaSynthesis,
@@ -421,10 +423,11 @@ export default function ExecDemoPage() {
       console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
       // Fire product cards generation with life events + persona data
       fireProductCards(events, personaSynthesisRef.current);
-      // Fire offers with both pillars and detected life events in a single call
+      // Fire offers from persona rollups only — life events are intentionally
+      // NOT passed in. The Behavioral Based Deal Collection is persona-driven.
       const syn = synthesis || personaSynthesisRef.current;
       if (syn && pillars) {
-        fireNextOffers(syn, pillars, events.length > 0 ? events : undefined);
+        fireNextOffers(syn, pillars);
       }
     } catch (err) {
       console.error("[PRELOAD] Life event detection failed:", err);
@@ -956,7 +959,7 @@ export default function ExecDemoPage() {
               generatedOffers={generatedOffers}
               detectedLifeEvents={detectedLifeEvents}
               productCards={productCards}
-              activeOfferLabel={activeTriggerPill?.label || activeRollup?.label || null}
+              activeOfferLabel={activeRollup?.label || null}
             />
           </div>
         </div>
