@@ -35,9 +35,11 @@ interface Props {
   generatedOffers?: RollupOfferGroup[] | null;
   detectedLifeEvents?: LifeEvent[] | null;
   productCards?: ProductCard[] | null;
+  activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
