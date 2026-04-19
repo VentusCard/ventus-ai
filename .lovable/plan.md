@@ -2,31 +2,35 @@
 
 ## Goal
 
-Generate up to 4 product cards (interleaved: life_event_1, behavioral_1, life_event_2, behavioral_2) and render them as a single auto-rotating slideshow in the phone mockup. Next-Offer tab stays unchanged.
+Within the Next-Product **rationale panel** (not the phone mockup), consolidate the up-to-4 stacked product card rows into **two slideshows**:
+- **Life Events slideshow** — both pills shown side-by-side above; one product card visible at a time, auto-rotating.
+- **Shopping Habits (Behavioral) slideshow** — both pills shown side-by-side above; one product card visible at a time, auto-rotating.
 
 ## Changes
 
-### 1. `supabase/functions/generate-product-cards/index.ts`
-- Update prompt + tool schema: `cards` array `minItems: 1, maxItems: 4`.
-- Instruct LLM to emit cards in strict order: `[life_event_1, behavioral_1, life_event_2, behavioral_2]`, skipping slots when source is missing.
-- Behavioral `signal_label` = rollup `label` verbatim; life-event `signal_label` = `event_name` verbatim (so existing pill matching in `NextProductRationale` works unchanged).
+### `src/components/exec-demo/NextProductRationale.tsx`
+- Split `productCards` into two groups: `lifeEventCards` (type !== "behavioral") and `behavioralCards` (type === "behavioral"), preserving server interleaved order.
+- For each group, pre-compute the resolved pill data (label, count, spend, color, click handler) per card — extract the existing per-card resolution logic (lines 168–260) into a helper so it can be reused for both pill-row rendering and slide rendering.
+- Render two new `GroupSlideshow` sections (Life Events first, Shopping Habits second). Each section contains:
+  - **Pill row** — render *both* resolved pills side-by-side at the top (always visible, both clickable to highlight transactions). Active slide's pill gets the existing scale/glow active treatment; the other pill stays inactive but clickable.
+  - **Carousel** — single product card visible, using `embla-carousel-react` (already in project). Auto-advance every 5s, pause briefly on hover. Add small dot indicators below the card; clicking a dot or a pill jumps to that slide.
+  - When clicking a pill, also advance the carousel to that card (so pill + visible slide stay in sync).
+- Single-card group: render the one pill + static card (no carousel chrome / dots).
+- Empty group: skip the section entirely.
+- Keep the existing top-of-panel `CurrentHoldingsPills` and `RecommendedProductsPills` unchanged.
+- Preserve all existing per-card visuals: product name, quote, action pills (Standard Response / Concierge Touch rows, dynamic + fallback), `exec-product-reveal` animation, color resolution, `onTriggerPillClick` behavior.
 
-### 2. `src/components/exec-demo/ProductCardsPhoneView.tsx`
-- Replace stacked `.map` with a single embla carousel (one slide visible at a time).
-- Auto-advance every 5s; dot indicators below; manual dot click jumps slide.
-- Remove local `.sort()` — trust server-returned order.
-- Keep all existing per-card visuals (icon, name, quote, benefits, est. value, CTA) and the `phone-card-reveal` animation per slide.
-
-### 3. `src/components/exec-demo/NextProductRationale.tsx`
-- No structural change. Already iterates `productCards` and resolves each to its source-of-truth pill — will naturally render up to 4 rationale rows.
-
-### 4. Next-Offer tab
-- Untouched. Existing two-pill-per-section format preserved.
+### Out of scope
+- `ProductCardsPhoneView.tsx` — already a slideshow, untouched.
+- Edge function `generate-product-cards` — order/structure unchanged.
+- Next-Offer tab — untouched.
+- Top behavioral/life-event pills in the main intel panel — untouched.
 
 ## Verification
 
-1. `/demo` → customer with ≥2 life events + ≥2 rollups → Next-Product shows 4 rationale rows in interleaved order.
-2. Phone mockup auto-rotates through 4 slides (~5s) with dots; clicking a dot jumps.
-3. Customer with only 1 life event → 3 slides total, no blanks.
-4. Next-Offer tab unchanged.
+1. `/demo` → Next-Product tab with ≥2 life events + ≥2 behavioral cards → see two stacked sections: "Life Events" slideshow (2 pills + 1 visible card rotating) and "Shopping Habits" slideshow (2 pills + 1 visible card rotating).
+2. Each slideshow auto-advances every 5s; clicking a pill or dot jumps to that card and updates the active pill styling.
+3. Clicking either pill still highlights the matching transactions in the left panel.
+4. Customer with only 1 life event → Life Events section shows a single static pill + card (no carousel dots).
+5. Phone mockup and Next-Offer tab are unchanged.
 
