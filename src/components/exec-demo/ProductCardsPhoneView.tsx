@@ -1,8 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronRight, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
-import { getColor, type PillarRollup } from "./ExecDemoIntelPanel";
-import type { LifeEvent } from "@/types/lifestyle-signals";
 
 export interface ProductCard {
   type: "behavioral" | "life_event";
@@ -57,91 +55,17 @@ const THEME_VALUE: Record<string, string> = {
   lifestyle: "$150–$300/yr in loyalty rewards",
 };
 
-function formatSpend(amount: number): string {
-  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
-  return `$${Math.round(amount)}`;
-}
-
 interface Props {
   cards: ProductCard[];
   customerName: string;
-  pillarRollups?: PillarRollup[];
-  detectedLifeEvents?: LifeEvent[] | null;
 }
 
-interface ResolvedPill {
-  label: string;
-  count: number;
-  spend: number;
-  // For behavioral
-  pillarColor?: { bg: string; text: string; dot: string };
-  // For life event — amber
-  isLifeEvent?: boolean;
-}
-
-function resolveLifeEventPill(card: ProductCard, lifeEvents: LifeEvent[] | null | undefined): ResolvedPill {
-  const matching = lifeEvents?.find(
-    e =>
-      e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
-      card.signal_label.toLowerCase().includes(e.event_name.toLowerCase())
-  );
-  const label = matching?.event_name || card.signal_label;
-  const count = matching?.evidence?.length ?? 0;
-  const spend = matching
-    ? matching.evidence.reduce(
-        (s, ev) => s + Math.abs(parseFloat(String(ev.amount || "0").replace(/[$,]/g, "")) || 0),
-        0
-      )
-    : 0;
-  return { label, count, spend, isLifeEvent: true };
-}
-
-function resolveBehavioralPill(card: ProductCard, rollups: PillarRollup[] | undefined): ResolvedPill {
-  const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2);
-  const cardTokens = new Set([...tokenize(card.signal_label), ...tokenize(card.theme || "")]);
-  let best: PillarRollup | null = null;
-  let bestScore = 0;
-  (rollups || []).forEach(r => {
-    const rTokens = [
-      ...tokenize(r.label),
-      ...tokenize(r.pillar),
-      ...(r.categories || []).flatMap(tokenize),
-    ];
-    const score = rTokens.filter(t => cardTokens.has(t)).length;
-    if (score > bestScore) {
-      bestScore = score;
-      best = r;
-    }
-  });
-  const matched: PillarRollup | null = bestScore > 0 ? best : (rollups && rollups[0]) || null;
-  if (matched) {
-    const pc = getColor(matched.pillar);
-    return {
-      label: matched.label,
-      count: matched.totalCount ?? 0,
-      spend: matched.totalSpend ?? 0,
-      pillarColor: { bg: pc.bg, text: pc.text, dot: pc.dot },
-    };
-  }
-  return {
-    label: card.signal_label,
-    count: 0,
-    spend: 0,
-    pillarColor: { bg: "rgba(59,130,246,0.12)", text: "#0c4a6e", dot: "#3b82f6" },
-  };
-}
-
-interface SectionProps {
-  title: string;
-  cards: ProductCard[];
-  pills: ResolvedPill[];
-}
-
-function CardSlideshow({ title, cards, pills }: SectionProps) {
+export default function ProductCardsPhoneView({ cards }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Track active slide
   useEffect(() => {
     if (!emblaApi) return;
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
@@ -152,82 +76,24 @@ function CardSlideshow({ title, cards, pills }: SectionProps) {
     };
   }, [emblaApi]);
 
+  // Auto-advance every 5s, pause briefly on user interaction
   useEffect(() => {
     if (!emblaApi || isPaused || cards.length <= 1) return;
     const interval = setInterval(() => emblaApi.scrollNext(), 5000);
     return () => clearInterval(interval);
   }, [emblaApi, isPaused, cards.length]);
 
-  const handlePillClick = (i: number) => {
+  const handleDotClick = (i: number) => {
     if (!emblaApi) return;
     emblaApi.scrollTo(i);
     setIsPaused(true);
     setTimeout(() => setIsPaused(false), 8000);
   };
 
-  if (cards.length === 0) return null;
+  if (!cards.length) return null;
 
   return (
-    <div className="space-y-2">
-      {/* Section label */}
-      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-1">{title}</p>
-
-      {/* Pill row */}
-      <div className="flex flex-wrap items-center gap-1.5 px-1">
-        {pills.map((pill, i) => {
-          const isActive = i === selectedIndex;
-          if (pill.isLifeEvent) {
-            // Amber styling
-            return (
-              <button
-                key={i}
-                onClick={() => handlePillClick(i)}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold rounded-full px-2 py-0.5 transition-all"
-                style={{
-                  background: isActive ? "rgba(245,158,11,0.18)" : "rgba(245,158,11,0.08)",
-                  color: "#92400e",
-                  border: isActive ? "1.5px solid #f59e0b" : "1px solid rgba(245,158,11,0.35)",
-                  transform: isActive ? "scale(1.04)" : "scale(1)",
-                }}
-              >
-                {pill.label}
-                {pill.count > 0 && (
-                  <span className="text-[9px] font-medium opacity-70 tabular-nums">
-                    {pill.count} · {formatSpend(pill.spend)}
-                  </span>
-                )}
-              </button>
-            );
-          }
-          // Behavioral — ✦ + theme color
-          const c = pill.pillarColor!;
-          return (
-            <button
-              key={i}
-              onClick={() => handlePillClick(i)}
-              className="inline-flex items-center gap-1 text-[10px] font-semibold rounded-full px-2 py-0.5 transition-all"
-              style={{
-                background: isActive
-                  ? `linear-gradient(135deg, ${c.bg.replace(".12", ".25")}, ${c.bg.replace(".12", ".15")})`
-                  : `linear-gradient(135deg, ${c.bg.replace(".12", ".15")}, ${c.bg.replace(".12", ".06")})`,
-                color: c.text,
-                border: isActive ? `1.5px solid ${c.dot}` : `1px solid ${c.dot}80`,
-                transform: isActive ? "scale(1.04)" : "scale(1)",
-              }}
-            >
-              <span style={{ color: c.dot }}>✦</span>
-              {pill.label}
-              {pill.count > 0 && (
-                <span className="text-[9px] font-medium opacity-70 tabular-nums">
-                  {pill.count} · {formatSpend(pill.spend)}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Carousel */}
+    <div className="px-3 py-3">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {cards.map((card, i) => {
@@ -270,11 +136,11 @@ function CardSlideshow({ title, cards, pills }: SectionProps) {
 
       {/* Dot indicators */}
       {cards.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 pt-1">
+        <div className="flex items-center justify-center gap-1.5 mt-3">
           {cards.map((_, i) => (
             <button
               key={i}
-              onClick={() => handlePillClick(i)}
+              onClick={() => handleDotClick(i)}
               aria-label={`Go to slide ${i + 1}`}
               className="transition-all"
               style={{
@@ -287,29 +153,6 @@ function CardSlideshow({ title, cards, pills }: SectionProps) {
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-export default function ProductCardsPhoneView({ cards, pillarRollups, detectedLifeEvents }: Props) {
-  const lifeEventCards = useMemo(() => cards.filter(c => c.type === "life_event").slice(0, 2), [cards]);
-  const behavioralCards = useMemo(() => cards.filter(c => c.type === "behavioral").slice(0, 2), [cards]);
-
-  const lifeEventPills = useMemo(
-    () => lifeEventCards.map(c => resolveLifeEventPill(c, detectedLifeEvents)),
-    [lifeEventCards, detectedLifeEvents]
-  );
-  const behavioralPills = useMemo(
-    () => behavioralCards.map(c => resolveBehavioralPill(c, pillarRollups)),
-    [behavioralCards, pillarRollups]
-  );
-
-  if (!cards.length) return null;
-
-  return (
-    <div className="px-3 py-3 space-y-4">
-      <CardSlideshow title="Life Events" cards={lifeEventCards} pills={lifeEventPills} />
-      <CardSlideshow title="Shopping Habits" cards={behavioralCards} pills={behavioralPills} />
 
       {/* Disclaimer */}
       <p className="text-[9px] text-slate-300 text-center px-4 mt-2">

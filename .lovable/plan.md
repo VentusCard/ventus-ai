@@ -2,39 +2,31 @@
 
 ## Goal
 
-In the Next-Product tab, consolidate the 4 product cards in the phone mockup into **2 slideshow cards** grouped by source type:
-- **Slideshow 1: Life Events** — slides through the up-to-2 life-event product cards, with 2 pills above showing the source life events.
-- **Slideshow 2: Shopping Habits** — slides through the up-to-2 behavioral product cards, with 2 pills above showing the source personas.
-
-Each slideshow has its own dot indicators and auto-rotates independently. Pills above each slideshow mirror the exact source-of-truth labels (life event names / persona ✦ pills) and the active pill highlights in sync with the active slide.
+Generate up to 4 product cards (interleaved: life_event_1, behavioral_1, life_event_2, behavioral_2) and render them as a single auto-rotating slideshow in the phone mockup. Next-Offer tab stays unchanged.
 
 ## Changes
 
-### 1. `src/components/exec-demo/ProductCardsPhoneView.tsx`
-- Split incoming `cards` into two arrays by `card.type`: `lifeEventCards` and `behavioralCards`.
-- Render two stacked sections (in order: Life Events first, then Shopping Habits — matching the interleaved generation priority):
-  - Section header label ("Life Events" / "Shopping Habits") — small uppercase slate label.
-  - **Pill row** above each carousel: 2 pills max, one per source card. Active pill = active slide; clicking a pill jumps the carousel to that slide.
-    - Life-event pills: amber styling matching `LifeEventChip` in `ExecDemoIntelPanel`.
-    - Behavioral pills: ✦ glyph + theme color matching `PillarRollupChip`.
-  - Embla carousel below pills with the existing card visual; auto-advance every 5s; dot indicators below the card.
-- Hide a section entirely if it has 0 cards.
-- Keep the existing `THEME_STYLES` / `THEME_BENEFITS` / `THEME_VALUE` maps, `phone-card-reveal` animation, and disclaimer footer.
-- Two independent embla instances (one per section), each with their own `selectedIndex` state and auto-advance interval.
+### 1. `supabase/functions/generate-product-cards/index.ts`
+- Update prompt + tool schema: `cards` array `minItems: 1, maxItems: 4`.
+- Instruct LLM to emit cards in strict order: `[life_event_1, behavioral_1, life_event_2, behavioral_2]`, skipping slots when source is missing.
+- Behavioral `signal_label` = rollup `label` verbatim; life-event `signal_label` = `event_name` verbatim (so existing pill matching in `NextProductRationale` works unchanged).
 
-### 2. `src/components/exec-demo/ExecDemoPhoneView.tsx`
-- No structural change — still passes `productCards` through. May pass `pillarRollups` and `detectedLifeEvents` down so pill labels/colors can be resolved exactly (same matching logic already used in `NextProductRationale`).
+### 2. `src/components/exec-demo/ProductCardsPhoneView.tsx`
+- Replace stacked `.map` with a single embla carousel (one slide visible at a time).
+- Auto-advance every 5s; dot indicators below; manual dot click jumps slide.
+- Remove local `.sort()` — trust server-returned order.
+- Keep all existing per-card visuals (icon, name, quote, benefits, est. value, CTA) and the `phone-card-reveal` animation per slide.
 
-### 3. Out of scope
-- Edge function (`generate-product-cards`) — unchanged. Still emits up to 4 cards in interleaved order; the client now groups them.
-- `NextProductRationale` panel — unchanged.
-- Next-Offer tab — unchanged.
+### 3. `src/components/exec-demo/NextProductRationale.tsx`
+- No structural change. Already iterates `productCards` and resolves each to its source-of-truth pill — will naturally render up to 4 rationale rows.
+
+### 4. Next-Offer tab
+- Untouched. Existing two-pill-per-section format preserved.
 
 ## Verification
 
-1. `/demo` → customer with 2 life events + 2 behavioral rollups → phone shows 2 stacked slideshows: top one cycles 2 life-event product cards with 2 amber pills above; bottom cycles 2 behavioral cards with 2 ✦ pills above.
-2. Clicking a pill jumps its carousel to that slide; active pill stays in sync with auto-advance.
-3. Customer with only 1 life event → top section shows 1 pill + 1 static card (no rotation); bottom section unaffected.
-4. Customer with 0 life events → only the Shopping Habits section renders.
-5. Pill labels/colors exactly match the corresponding pills in `ExecDemoIntelPanel` (amber life-event chips, ✦ persona chips).
+1. `/demo` → customer with ≥2 life events + ≥2 rollups → Next-Product shows 4 rationale rows in interleaved order.
+2. Phone mockup auto-rotates through 4 slides (~5s) with dots; clicking a dot jumps.
+3. Customer with only 1 life event → 3 slides total, no blanks.
+4. Next-Offer tab unchanged.
 
