@@ -78,7 +78,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   };
 
   return (
-    <div className="flex items-center justify-center h-full py-4">
+    <div className="relative flex items-center justify-center h-full py-4">
       {/* iPhone frame */}
       <div
         className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
