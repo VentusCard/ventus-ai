@@ -1,44 +1,117 @@
 
+## Goal
 
-## Root cause (re-diagnosed)
+Make life-event pills in Next-Offer actually control the center “Behavioral Based Deal Collection” card, so clicking “College Preparation for Dependent” or “Home Purchase” shows those generated deal groups and keeps them selected.
 
-I traced the click path:
+## Fundamental root cause
 
-1. User clicks the amber life-event pill `College Preparation for Dependent` in `ExecDemoIntelPanel` (line 358–393).
-2. The handler is gated: `onClick={() => isClickable && onTriggerPillClick?.(...)}` where `isClickable = matchedIndices.length > 0` (line 367).
-3. `matchedIndices` is computed by fuzzy-matching `evt.evidence[].merchant` against `transactions[].merchant`. **If no merchant string matches, `matchedIndices = []` and the click is silently swallowed.**
-4. Because the click never fires, `activeTriggerPill` stays `null` → `PurchaseCycleTimeline` falls back to `selectedRollup = rollups[0]` ("Premium Hawaii Jetsetter") → `NextOfferRationale` filters by that label.
+This is not mainly an LLM problem anymore.
 
-That's why the phone mockup (which renders **all** `generatedOffers`) shows the College Prep deals correctly, but the center "Behavioral Based Deal Collection" card stays stuck on the persona's top behavioral rollup.
+The deeper issue is a **state overwrite loop** in the UI:
 
-The earlier fix made the *backend* mapping bulletproof and the *NextOfferRationale* matcher fuzzy — but neither helps when the **click itself never registers**, which is the actual failure mode here.
+- In `ExecDemoPage.tsx`, clicking a life-event pill sets `activeTriggerPill` and clears `activeRollup`.
+- In `ExecDemoIntelPanel.tsx`, there is an auto-select effect:
 
-## Fix — make life-event pills always clickable
+```ts
+if (activeTab === "analytics" && !activeRollup && rollupStats.length > 0) {
+  onRollupClick?.(rollupStats[0]);
+}
+```
 
-**File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`** (life-event pill block, ~lines 357–393)
+- That means the moment a life-event click clears `activeRollup`, the effect immediately re-selects the first behavioral rollup.
+- `handleRollupClick` then clears `activeTriggerPill`.
+- So the center panel snaps back to the default behavioral rollup (`Premium Hawaii Jetsetter`), even though the phone mockup still shows the generated life-event groups.
 
-1. **Remove the `isClickable` gate** for life-event pills. The pill should always be clickable so it can update the active offer filter — even when no `transactions[]` row matches the evidence merchant fuzzily.
-2. When `matchedIndices` is empty, still call `onTriggerPillClick(evt.event_name, [], "#f59e0b")`. The downstream offer filter only needs the *label*; the indices are used to highlight transactions in the left panel and an empty list is acceptable (no rows highlighted, but the offer card updates correctly).
-3. Keep `cursor-pointer` always-on for life-event pills.
+## Why the previous fixes didn’t stick
 
-**File: `src/pages/ExecDemoPage.tsx`** (`filteredIndices` memo, ~line 778–797)
+They addressed real issues, but not the main one:
 
-- When `activeTriggerPill.indices` is empty, return `null` (no filter) instead of `[]` (which would highlight zero rows and look broken). This way the left panel just shows everything when the click can't resolve specific txns.
+- backend label mapping improved
+- fuzzy matching in `NextOfferRationale` improved
+- life-event pills became clickable even with empty txn matches
 
-## Why this is the right fix
+But after the click succeeded, a separate effect immediately **overrode the selection**. That is why this kept feeling “fundamental” and why the phone mockup looked correct while the center card did not.
 
-- The "Behavioral Based Deal Collection" card is driven solely by `activeRollupLabel` / `activeRollupPillar`, not by transaction indices. Decoupling the click-to-offer-filter from the click-to-transaction-highlight is the correct separation of concerns.
-- The phone mockup already proves the deals are generated and present in `generatedOffers`. The only missing wire is the click event reaching `setActiveTriggerPill`.
-- No edge function or prompt changes needed.
+## Recommended implementation plan
 
-## Files touched
+1. **Create a single source of truth for Next-Offer selection**
+   - In `src/pages/ExecDemoPage.tsx`, replace the competing `activeRollup` + `activeTriggerPill` behavior for offer filtering with one unified selection object.
+   - Example shape:
+     - `kind: "rollup" | "lifeEvent"`
+     - `label`
+     - `pillar`
+     - `txIndices`
+     - `color`
+     - optional `rollup`
 
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — drop `isClickable` gate on life-event pills; always invoke `onTriggerPillClick` with whatever indices exist (possibly empty).
-- `src/pages/ExecDemoPage.tsx` — `filteredIndices` returns `null` when `activeTriggerPill.indices` is empty so the left panel doesn't dim everything.
+2. **Stop auto-select from overwriting life-event selections**
+   - In `src/components/exec-demo/ExecDemoIntelPanel.tsx`, remove the current “whenever `!activeRollup` then select first rollup” behavior.
+   - Replace it with a **one-time default selection** only when:
+     - analytics tab is first opened
+     - no explicit selection exists yet
+   - Do not auto-default if a life-event selection is already active.
+   - Reset that one-time default when the customer changes or analysis reruns.
+
+3. **Pass unified selection into the center card flow**
+   - In `src/components/exec-demo/PurchaseCycleTimeline.tsx`, stop deriving the active offer target from two competing inputs.
+   - Use the unified selection directly:
+     - rollup selection → use rollup label/pillar
+     - life-event selection → use clicked event label with pillar `"Life Event"`
+
+4. **Keep transaction highlighting decoupled**
+   - Preserve the earlier behavior where life-event pills can still work with empty `txIndices`.
+   - If no matching transactions exist, the left panel should stay unfiltered while the center offer card still updates.
+
+5. **Clean up console noise in the same file**
+   - Fix the invalid `React.Fragment` prop warning in `ExecDemoIntelPanel.tsx`.
+   - It is likely unrelated to the offer bug, but removing it will make further debugging clearer.
+
+## Files to update
+
+- `src/pages/ExecDemoPage.tsx`
+  - unify Next-Offer selection state
+  - update click handlers
+  - keep left-panel filtering derived from the unified selection
+
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+  - replace the current auto-select effect
+  - prevent life-event selection from being overwritten
+  - fix the `React.Fragment` invalid-prop warning
+
+- `src/components/exec-demo/PurchaseCycleTimeline.tsx`
+  - consume the unified selection directly instead of fallback competition
+
+- `src/components/exec-demo/NextOfferRationale.tsx`
+  - likely only minor prop plumbing / simplification, not a logic rewrite
+
+## Verification after implementation
+
+1. Run analysis on `/demo`
+2. Click `College Preparation for Dependent`
+   - center card switches to college-related deals
+   - it stays selected
+3. Click `Home Purchase`
+   - center card switches to home-purchase deals
+   - it stays selected
+4. Confirm the phone mockup can still rotate through all groups independently
+5. Change customer / rerun analysis and confirm the initial default rollup still appears only once on first entry
+
+## Technical detail
+
+```text
+Current failure chain:
+
+life-event click
+  -> setActiveTriggerPill(...)
+  -> setActiveRollup(null)
+  -> analytics auto-select effect sees !activeRollup
+  -> onRollupClick(first behavioral rollup)
+  -> handleRollupClick clears activeTriggerPill
+  -> center panel falls back to Premium Hawaii Jetsetter
+```
 
 ## Out of scope
 
-- Risk pill clickability (uses similar gating but works because `transaction_id` mapping is reliable).
-- Offer matching / generation logic (already correct).
-- Cadence card behavior (unchanged — it'll show the amber "Life Event Trigger" callout when no cadence available).
-
+- changing life-event detection
+- changing deal generation prompts
+- redesigning the offer card UI
