@@ -224,8 +224,10 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </div>
 
         <div className="px-3 pt-2.5 pb-1">
-          <p className="text-[13px] font-bold text-slate-800">{expandedGroup.rollup}</p>
-          <p className="text-[10px] text-slate-500">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
+          {expandedGroup.collectionMessage && (
+            <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
+          )}
+          <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
@@ -235,9 +237,9 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               className="rounded-xl border border-slate-100 bg-white p-3 flex items-start justify-between gap-2"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchant}</p>
-                {deal.product && <p className="text-[11px] text-slate-500 truncate">{deal.product}</p>}
-                {deal.message && <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{deal.message}</p>}
+                <p className="text-[12px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
+                {deal.product && <p className="text-[11px] text-slate-500 leading-snug">{deal.product}</p>}
+                {deal.message && <p className="text-[10.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
               </div>
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 {deal.rewardValue && (
