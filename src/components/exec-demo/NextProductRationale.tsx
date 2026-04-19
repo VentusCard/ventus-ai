@@ -342,17 +342,19 @@ function ProductCardBody({
   const { card, color: c, origIdx, isBehavioral } = resolved;
   return (
     <div
-      className="rounded-xl border overflow-hidden bg-white"
+      className="rounded-xl border overflow-hidden"
       style={{
-        borderColor: c.border,
+        borderColor: `${c.dot}40`,
         borderLeftWidth: 3,
         borderLeftColor: c.dot,
+        background: `linear-gradient(135deg, ${c.dot}06, ${c.dot}02 40%, #ffffff)`,
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
       <div className="px-4 py-3.5">
         <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
+          <span className="text-[14px] font-bold" style={{ color: c.text }}>{card.product_name}</span>
         </div>
         <p className="text-[12px] text-slate-600 leading-relaxed italic">
           "{card.quote}"
@@ -389,6 +391,7 @@ function GroupSlideshow({
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [advanceCount, setAdvanceCount] = useState(0);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -404,12 +407,17 @@ function GroupSlideshow({
     };
   }, [emblaApi, onSelect]);
 
-  // Auto-advance
+  // Auto-advance — stop after 2 full rotations (each card seen twice)
+  const maxAdvances = resolvedCards.length * 2;
   useEffect(() => {
     if (!emblaApi || isPaused || resolvedCards.length <= 1) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
+    if (advanceCount >= maxAdvances) return;
+    const interval = setInterval(() => {
+      emblaApi.scrollNext();
+      setAdvanceCount((c) => c + 1);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [emblaApi, isPaused, resolvedCards.length]);
+  }, [emblaApi, isPaused, resolvedCards.length, advanceCount, maxAdvances]);
 
   if (resolvedCards.length === 0) return null;
 
