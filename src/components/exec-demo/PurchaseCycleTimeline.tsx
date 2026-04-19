@@ -14,6 +14,13 @@ interface ChipData {
   frequency?: string;
 }
 
+interface ActiveTrigger {
+  label: string;
+  indices: number[];
+  color: string;
+  kind: "lifeEvent" | "risk";
+}
+
 interface Props {
   chips: ChipData[];
   transactions: Transaction[];
@@ -23,6 +30,7 @@ interface Props {
   offersLoading?: boolean;
   activeRollup?: PillarRollup | null;
   activeTriggerLabel?: string | null;
+  activeTrigger?: ActiveTrigger | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -344,25 +352,27 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   );
 }
 
-function CadenceCard({ data }: { data: CadenceData }) {
+function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData; colorOverride?: string; headerSuffix?: string }) {
   const c = getColor(data.pillar);
+  const accent = colorOverride || c.dot;
+  const headerColor = colorOverride || c.text;
   return (
     <div
       className="rounded-xl border border-slate-100 bg-white px-4 py-3"
       style={{
         borderTopWidth: 3,
-        borderTopColor: c.dot,
+        borderTopColor: accent,
         animation: "exec-card-reveal 0.4s ease-out",
       }}
     >
       {/* Header */}
       <div className="flex items-center gap-1.5 mb-1">
-        <span style={{ color: c.dot }}>✦</span>
+        <span style={{ color: accent }}>✦</span>
         <span
           className="text-[11px] font-bold uppercase tracking-wider"
-          style={{ color: c.text }}
+          style={{ color: headerColor }}
         >
-          {data.label} · Shopping Pattern
+          {data.label} · {headerSuffix || "Shopping Pattern"}
         </span>
       </div>
 
@@ -464,7 +474,7 @@ function CadenceCard({ data }: { data: CadenceData }) {
             )}
             {data.monthlyTrend.some(v => v > 0) && (
               <div className="pt-1 flex items-center gap-2">
-                <Sparkline values={data.monthlyTrend} color={c.dot} />
+                <Sparkline values={data.monthlyTrend} color={accent} />
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
               </div>
             )}
@@ -493,6 +503,7 @@ export default function PurchaseCycleTimeline({
   offersLoading,
   activeRollup,
   activeTriggerLabel,
+  activeTrigger,
 }: Props) {
   const rollups = personaSynthesis?.pillarRollups || [];
 
@@ -503,30 +514,63 @@ export default function PurchaseCycleTimeline({
     return null;
   }, [activeRollup, rollups]);
 
+  // Build cadence: trigger wins if it has indices; otherwise fall back to rollup
   const cadenceData = useMemo(() => {
-    if (!selectedRollup) return null;
+    if (activeTrigger && activeTrigger.indices.length > 0) {
+      const syntheticRollup: PillarRollup = {
+        label: activeTrigger.label,
+        pillar: activeTrigger.kind === "lifeEvent" ? "Life Event" : "Risk",
+        txIndices: activeTrigger.indices,
+      } as PillarRollup;
+      return buildCadence(syntheticRollup, transactions, signalMap);
+    }
+    if (!selectedRollup || activeTrigger) return null;
     return buildCadence(selectedRollup, transactions, signalMap);
-  }, [selectedRollup, transactions, signalMap]);
+  }, [activeTrigger, selectedRollup, transactions, signalMap]);
 
-  // What label to filter offers by — life event takes precedence if active
-  const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
-  const activeOfferPillar = activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null;
+  // What label to filter offers by — trigger takes precedence if active
+  const activeOfferLabel = activeTrigger?.label || activeTriggerLabel || selectedRollup?.label || null;
+  const activeOfferPillar = activeTrigger
+    ? (activeTrigger.kind === "lifeEvent" ? "Life Event" : "Risk")
+    : (activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null);
+
+  // Color override + header label for trigger-driven cadence
+  const cardColorOverride = activeTrigger ? activeTrigger.color : undefined;
+  const cardHeaderSuffix = activeTrigger
+    ? (activeTrigger.kind === "lifeEvent" ? "Life Event Pattern" : "Risk Pattern")
+    : undefined;
+
+  // Empty-state callout when trigger is active but no transactions matched
+  const triggerCalloutColor = activeTrigger?.color || "#f59e0b";
+  const triggerCalloutKind = activeTrigger?.kind || "lifeEvent";
+  const triggerCalloutLabel = activeTrigger?.label || activeTriggerLabel;
 
   return (
     <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
       {/* ═══ SHOPPING CADENCE CARD ═══ */}
       {cadenceData ? (
-        <CadenceCard data={cadenceData} />
-      ) : activeTriggerLabel ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3">
+        <CadenceCard data={cadenceData} colorOverride={cardColorOverride} headerSuffix={cardHeaderSuffix} />
+      ) : triggerCalloutLabel ? (
+        <div
+          className="rounded-xl border px-4 py-3"
+          style={{
+            borderColor: `${triggerCalloutColor}66`,
+            background: `${triggerCalloutColor}14`,
+          }}
+        >
           <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-amber-500">✦</span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
-              {activeTriggerLabel} · Life Event Trigger
+            <span style={{ color: triggerCalloutColor }}>✦</span>
+            <span
+              className="text-[11px] font-bold uppercase tracking-wider"
+              style={{ color: triggerCalloutColor }}
+            >
+              {triggerCalloutLabel} · {triggerCalloutKind === "lifeEvent" ? "Life Event Trigger" : "Risk Trigger"}
             </span>
           </div>
           <p className="text-[12px] text-slate-600 leading-snug">
-            Targeted offers below are matched to this life event.
+            {triggerCalloutKind === "lifeEvent"
+              ? "Targeted offers below are matched to this life event."
+              : "Flagged transaction has no recurring pattern. See offers below."}
           </p>
         </div>
       ) : (

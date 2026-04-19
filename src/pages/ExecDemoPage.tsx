@@ -61,7 +61,7 @@ export default function ExecDemoPage() {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
-  const [activeTriggerPill, setActiveTriggerPill] = useState<{ label: string; indices: number[]; color: string } | null>(null);
+  const [activeTriggerPill, setActiveTriggerPill] = useState<{ label: string; indices: number[]; color: string; kind: "lifeEvent" | "risk" } | null>(null);
   const [productActions, setProductActions] = useState<CardActions[] | null>(null);
   const [actionsLoading, setActionsLoading] = useState(false);
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
@@ -747,11 +747,11 @@ export default function ExecDemoPage() {
     );
   }, []);
 
-  const handleTriggerPillClick = useCallback((label: string, txIndices: number[], color: string) => {
+  const handleTriggerPillClick = useCallback((label: string, txIndices: number[], color: string, kind: "lifeEvent" | "risk" = "lifeEvent") => {
     setActivePillFilter(null);
     setActiveRollup(null);
     setActiveTriggerPill((prev) =>
-      prev && prev.label === label ? null : { label, indices: txIndices, color }
+      prev && prev.label === label ? null : { label, indices: txIndices, color, kind }
     );
   }, []);
 
@@ -919,6 +919,7 @@ export default function ExecDemoPage() {
             riskLoading={riskLoading}
             onTriggerPillClick={handleTriggerPillClick}
             activeTriggerLabel={activeTriggerPill?.label}
+            activeTrigger={activeTriggerPill}
             productActions={productActions}
             actionsLoading={actionsLoading}
           />
