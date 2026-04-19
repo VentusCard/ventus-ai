@@ -297,6 +297,10 @@ export default function ExecDemoIntelPanel({
   // (do NOT re-run when activeRollup is cleared by a life-event/risk pill click —
   //  that would overwrite the user's selection in an infinite loop).
   const autoSelectedTabRef = useRef<TabKey | null>(null);
+  // Reset auto-default memo whenever the persona itself changes (new customer / re-run)
+  useEffect(() => {
+    autoSelectedTabRef.current = null;
+  }, [personaSynthesis]);
   useEffect(() => {
     // Reset memo when leaving the tab so re-entering can default again
     if (activeTab !== "analytics") {
@@ -312,7 +316,7 @@ export default function ExecDemoIntelPanel({
       autoSelectedTabRef.current = "analytics";
       onRollupClick?.(rollupStats[0]);
     }
-  }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick]);
+  }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick, personaSynthesis]);
 
   const isOfferTab = activeTab === "analytics";
 
