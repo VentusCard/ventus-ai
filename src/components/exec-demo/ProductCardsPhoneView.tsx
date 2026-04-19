@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { ChevronRight, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
@@ -58,51 +60,102 @@ interface Props {
   customerName: string;
 }
 
-export default function ProductCardsPhoneView({ cards, customerName }: Props) {
-  const firstName = customerName.split(" ")[0];
-  const sortedCards = [...cards].sort((a, b) => a.type === 'life_event' ? -1 : b.type === 'life_event' ? 1 : 0);
+export default function ProductCardsPhoneView({ cards }: Props) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Track active slide
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
+
+  // Auto-advance every 5s, pause briefly on user interaction
+  useEffect(() => {
+    if (!emblaApi || isPaused || cards.length <= 1) return;
+    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
+    return () => clearInterval(interval);
+  }, [emblaApi, isPaused, cards.length]);
+
+  const handleDotClick = (i: number) => {
+    if (!emblaApi) return;
+    emblaApi.scrollTo(i);
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 8000);
+  };
+
+  if (!cards.length) return null;
 
   return (
-    <div className="px-3 py-3 space-y-3">
+    <div className="px-3 py-3">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {cards.map((card, i) => {
+            const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+            const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
+            const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
+            const isActive = i === selectedIndex;
 
-      {/* Cards */}
-      {sortedCards.map((card, i) => {
-        const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-        const Icon = style.icon;
-        const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
-        const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
-
-        return (
-          <div
-            key={i}
-            className="bg-white rounded-2xl shadow-sm overflow-hidden"
-            style={{
-              borderLeft: `3px solid ${style.accent}`,
-              animation: `phone-card-reveal 0.4s ease-out ${i * 0.18}s both`,
-            }}
-          >
-            <div className="p-3.5">
-              <p className="text-[13px] font-bold text-slate-800 leading-snug mb-1">{card.product_name}</p>
-              <p className="text-[11px] text-slate-500 italic leading-relaxed mb-2">"{card.quote}"</p>
-              <div className="space-y-1.5 mb-2">
-                {benefits.map((b, bi) => (
-                  <div key={bi} className="flex items-start gap-2">
-                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                    <span className="text-[11px] text-slate-600 leading-snug">{b}</span>
+            return (
+              <div key={i} className="flex-[0_0_100%] min-w-0 pr-1">
+                <div
+                  className="bg-white rounded-2xl shadow-sm overflow-hidden"
+                  style={{
+                    borderLeft: `3px solid ${style.accent}`,
+                    animation: isActive ? `phone-card-reveal 0.4s ease-out both` : undefined,
+                  }}
+                >
+                  <div className="p-3.5">
+                    <p className="text-[13px] font-bold text-slate-800 leading-snug mb-1">{card.product_name}</p>
+                    <p className="text-[11px] text-slate-500 italic leading-relaxed mb-2">"{card.quote}"</p>
+                    <div className="space-y-1.5 mb-2">
+                      {benefits.map((b, bi) => (
+                        <div key={bi} className="flex items-start gap-2">
+                          <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                          <span className="text-[11px] text-slate-600 leading-snug">{b}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[11px] font-bold mb-2.5" style={{ color: style.accent }}>Est. value: {value}</p>
+                    <button className="w-full py-2 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1" style={{ background: style.accent }}>
+                      Learn More <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                ))}
+                </div>
               </div>
-              <p className="text-[11px] font-bold mb-2.5" style={{ color: style.accent }}>Est. value: {value}</p>
-              <button className="w-full py-2 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1" style={{ background: style.accent }}>
-                Learn More <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Dot indicators */}
+      {cards.length > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-3">
+          {cards.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handleDotClick(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className="transition-all"
+              style={{
+                width: i === selectedIndex ? 18 : 6,
+                height: 6,
+                borderRadius: 3,
+                background: i === selectedIndex ? "#475569" : "#cbd5e1",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Disclaimer */}
-      <p className="text-[9px] text-slate-300 text-center px-4">
+      <p className="text-[9px] text-slate-300 text-center px-4 mt-2">
         Recommendations based on your financial profile
       </p>
 

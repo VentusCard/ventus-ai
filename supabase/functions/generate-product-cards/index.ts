@@ -110,7 +110,7 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-Return exactly 2 cards using the generate_product_cards function.`;
+Return up to 4 cards in the strict interleaved order using the generate_product_cards function.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -129,21 +129,21 @@ Return exactly 2 cards using the generate_product_cards function.`;
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return exactly 2 consumer product recommendation cards",
+              description: "Return up to 4 consumer product recommendation cards in strict interleaved order: life_event_1, behavioral_1, life_event_2, behavioral_2",
               parameters: {
                 type: "object",
                 properties: {
                   cards: {
                     type: "array",
-                    minItems: 2,
-                    maxItems: 2,
+                    minItems: 1,
+                    maxItems: 4,
                     items: {
                       type: "object",
                       properties: {
                         type: {
                           type: "string",
                           enum: ["behavioral", "life_event"],
-                          description: "Card type — first should be behavioral, second life_event",
+                          description: "Card type",
                         },
                         product_name: {
                           type: "string",
