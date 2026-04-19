@@ -91,10 +91,9 @@ function getCollectionImage(rollup: string, pillar?: string): string {
 interface Props {
   offerGroups: RollupOfferGroup[];
   customerName: string;
-  activeOfferLabel?: string | null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName, activeOfferLabel }: Props) {
+export default function GeneratedOffersPhoneView({ offerGroups, customerName }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
@@ -155,31 +154,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, ac
     setCurrent(idx);
   }, [current]);
 
-  // Normalized exact-match index for the currently active rollup pill (life event or behavioral)
-  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-  const pinnedIdx = useMemo(() => {
-    if (!activeOfferLabel) return -1;
-    const target = norm(activeOfferLabel);
-    return allGroups.findIndex(g => norm(g.rollup) === target);
-  }, [activeOfferLabel, allGroups]);
-
-  // When a pill is clicked and matches a group, jump to it
   useEffect(() => {
-    if (pinnedIdx >= 0 && pinnedIdx !== current) {
-      setDirection(pinnedIdx > current ? "right" : "left");
-      setCurrent(pinnedIdx);
-    }
-  }, [pinnedIdx]);
-
-  useEffect(() => {
-    // Pause auto-cycle when a pill is pinned
-    if (allGroups.length <= 1 || expandedGroup || isSearchActive || pinnedIdx >= 0) return;
+    if (allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [allGroups.length, expandedGroup, isSearchActive, pinnedIdx]);
+  }, [allGroups.length, expandedGroup, isSearchActive]);
 
   if (offerGroups.length === 0) return null;
 

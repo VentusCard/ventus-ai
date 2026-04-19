@@ -17,8 +17,7 @@ export interface GeneratedOffer {
 
 export interface RollupOfferGroup {
   rollup: string;
-  /** Optional — kept for backwards compat. New persona-driven flow omits pillar. */
-  pillar?: string;
+  pillar: string;
   deals: GeneratedOffer[];
   collectionMessage?: string;
   suppressedCategories?: string[];
@@ -29,11 +28,12 @@ interface Props {
   personaSynthesis: PersonaSynthesis | null;
   loading: boolean;
   activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
 function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
-  const c = getColor(group.pillar || "Shopping");
+  const c = getColor(group.pillar);
 
   const suppressedCats = group.suppressedCategories || [];
   const boostCats = [...new Set(
@@ -131,7 +131,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -150,15 +150,31 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
     );
   }
 
-  // Persona-only: filter offers by exact normalized rollup label match. No fuzzy
-  // substring fallback, no life-event branches. The selected persona rollup IS
-  // the one that was sent to generate-next-offers, so an exact match is guaranteed.
+  const scopedOffers = !activeRollupPillar
+    ? offers
+    : offers.filter(group =>
+        activeRollupPillar === "Life Event"
+          ? group.pillar === "Life Event"
+          : group.pillar !== "Life Event"
+      );
+
+  // Filter to only the active persona's offer group with conservative fuzzy matching
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const target = activeRollupLabel ? norm(activeRollupLabel) : null;
 
   const filtered = !target
-    ? offers
-    : offers.filter(g => norm(g.rollup) === target);
+    ? scopedOffers
+    : (() => {
+        // 1. exact (case-insensitive) match
+        let hits = scopedOffers.filter(g => norm(g.rollup) === target);
+        if (hits.length > 0) return hits;
+        // 2. substring match either direction
+        hits = scopedOffers.filter(g => {
+          const r = norm(g.rollup);
+          return r.includes(target) || target.includes(r);
+        });
+        return hits;
+      })();
 
   if (filtered.length === 0) {
     return (
@@ -182,7 +198,7 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
 
       {/* Rollup cards (just one when filtered) */}
       {filtered.map((group, gi) => (
-        <RollupCard key={`${group.rollup}::${gi}`} group={group} index={gi} />
+        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
       ))}
 
       <style>{`
