@@ -587,6 +587,8 @@ export default function PurchaseCycleTimeline({
           loading={!!offersLoading}
           activeRollupLabel={activeOfferLabel}
           activeRollupPillar={activeOfferPillar}
+          colorOverride={cardColorOverride}
+          kindOverride={activeTrigger?.kind}
         />
       </div>
 
