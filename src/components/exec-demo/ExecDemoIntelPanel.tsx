@@ -370,17 +370,13 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={evt.event_name}
-                          onClick={() => onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 ${hasMatches ? "" : "opacity-70"}`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full transition-all duration-200 ${hasMatches ? "" : "opacity-70"}`}
                           style={{
-                            background: isActive
-                              ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
-                              : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
+                            background: "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
                             color: "#92400e",
-                            border: isActive ? "2px solid #f59e0b" : "1.5px solid #f59e0b",
+                            border: "1.5px solid #f59e0b",
                             animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
-                            boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
-                            transform: isActive ? "scale(1.08)" : "scale(1)",
+                            boxShadow: "0 2px 8px rgba(245,158,11,.2)",
                           }}
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
