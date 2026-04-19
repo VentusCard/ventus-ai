@@ -153,7 +153,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
       </div>
 
       {/* Focus mode toggle — only on Rewards tab when offers are loaded */}
-      {consumerTab === "rewards" && generatedOffers && generatedOffers.length > 0 && showContent && (
+      {consumerTab === "rewards" && generatedOffers && generatedOffers.length > 0 && showContent && !activeRollupLabel && (
         <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-3 py-1.5">
           <Layers className="w-3 h-3 text-slate-500" />
           <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider">Focus</span>
