@@ -15,7 +15,23 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate exactly TWO product recommendation cards that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate UP TO FOUR product recommendation cards that appear as notifications in a mobile banking app.
+
+CARD ORDER (STRICT INTERLEAVING):
+Emit cards in exactly this order, skipping a slot only if the source doesn't exist:
+  1. Life Event card based on life_events[0] (first detected life event)
+  2. Behavioral card based on persona_rollups[0] (first behavioral habit)
+  3. Life Event card based on life_events[1] (second detected life event, if present)
+  4. Behavioral card based on persona_rollups[1] (second behavioral habit, if present)
+
+If only 1 life event exists → emit 3 cards (life_event_1, behavioral_1, behavioral_2).
+If only 1 rollup exists → emit 3 cards (life_event_1, behavioral_1, life_event_2).
+Always emit at least 1 card if any source exists.
+
+CRITICAL — signal_label must match source verbatim:
+- Behavioral card: signal_label = persona_rollups[i].label EXACTLY (character-for-character, including capitalization)
+- Life event card: signal_label = life_events[i].event_name EXACTLY
+This enables downstream pill matching. Do NOT paraphrase, shorten, or rewrite the label.
 
 Use real Bank of America products as reference for recommendations. Examples:
 - Travel: Bank of America® Travel Rewards credit card, Bank of America® Premium Rewards® credit card
@@ -94,7 +110,7 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-Return exactly 2 cards using the generate_product_cards function.`;
+Return up to 4 cards in the strict interleaved order using the generate_product_cards function.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -113,21 +129,21 @@ Return exactly 2 cards using the generate_product_cards function.`;
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return exactly 2 consumer product recommendation cards",
+              description: "Return up to 4 consumer product recommendation cards in strict interleaved order: life_event_1, behavioral_1, life_event_2, behavioral_2",
               parameters: {
                 type: "object",
                 properties: {
                   cards: {
                     type: "array",
-                    minItems: 2,
-                    maxItems: 2,
+                    minItems: 1,
+                    maxItems: 4,
                     items: {
                       type: "object",
                       properties: {
                         type: {
                           type: "string",
                           enum: ["behavioral", "life_event"],
-                          description: "Card type — first should be behavioral, second life_event",
+                          description: "Card type",
                         },
                         product_name: {
                           type: "string",
