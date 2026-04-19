@@ -2,41 +2,36 @@
 
 ## Goal
 
-Inside the phone-mockup collection detail view: (1) hide the persona pill label (e.g. "Annual Premium Hawaii Vacations"), (2) keep the friendly tagline, (3) stop truncating deal text so each deal renders fully.
+Make the collection cover images (Unsplash photos shown on the collection hero in the phone mockup) fetch fresh on every render instead of being served from browser cache.
 
-## Changes — `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
+## Approach
 
-### 1. Header (lines 226–229)
-Replace the pill label with the `collectionMessage` tagline. Keep the offer count line.
+Append a unique query param (`&t=${timestamp}`) to each Unsplash URL in `getCollectionImage()` so the browser treats every render as a brand new image request and bypasses HTTP cache.
 
-```tsx
-<div className="px-3 pt-2.5 pb-1">
-  {expandedGroup.collectionMessage && (
-    <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
-  )}
-  <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
-</div>
+## Change — `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
+
+Update `getCollectionImage()` (line 83) to append a cache-buster:
+
+```ts
+function getCollectionImage(rollup: string, pillar?: string): string {
+  const theme = (rollup + " " + (pillar || "")).toLowerCase();
+  const buster = `&t=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  for (const entry of COLLECTION_IMAGES) {
+    if (entry.keywords.some(k => theme.includes(k))) return entry.url + buster;
+  }
+  return DEFAULT_IMAGE + buster;
+}
 ```
 
-If `collectionMessage` is missing, just show the count line — never the raw rollup label.
+Note: Unsplash ignores unknown query params but still returns a fresh response, and the browser keys cache by full URL, so this guarantees no cache reuse.
 
-### 2. Deal cards (lines 232–256)
-Remove text-clipping so each deal shows its full merchant + product + message:
-
-- Drop `truncate` from the merchant `<p>` (line 238) and product `<p>` (line 239) → allow wrapping with `leading-snug`.
-- Drop `line-clamp-1` from the message `<p>` (line 240) → allow full wrap; bump it slightly for readability (`text-[10.5px] text-slate-500 mt-1 leading-snug`).
-- Change the right column (`shrink-0`) to keep the reward pill + Activate button vertically stacked but ensure the left column gets full wrap room: keep `flex items-start justify-between gap-2`, no other layout change.
-
-No other UI changes (back button, hero image, carousel, search all untouched).
+Both call sites (collection detail hero at line 209 and main carousel at line 276) use this function and will get fresh URLs every render.
 
 ## Verification
 
-1. `/demo` → Next-Offer tab → click a persona pill (e.g. "Annual Premium Hawaii Vacations").
-2. Confirm the detail view header shows the friendly tagline ("Little things that make every island trip better.") and **not** the raw pill label.
-3. Confirm each deal card shows full merchant name, product, and message text — no `…` cutoffs.
-4. Long messages wrap to multiple lines cleanly.
+1. `/demo` → Next-Offer tab → click a persona pill → open DevTools Network tab → confirm Unsplash image request fires fresh (no `(disk cache)` / `(memory cache)`) and URL contains a `&t=…` suffix that changes on each navigation.
 
 ## Out of scope
 
-Carousel cards, top pick card, expiring soon, search, other tabs.
+Caching for any other images, deal logos, or static assets.
 
