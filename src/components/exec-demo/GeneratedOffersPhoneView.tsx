@@ -433,15 +433,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
       {/* ── Semantic Search Bar (pinned bottom) ── */}
       <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
-        <div className="flex items-center justify-end gap-1.5">
-          <Layers className="w-2.5 h-2.5 text-slate-400" />
-          <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">Focus</span>
-          <Switch
-            checked={focusMode}
-            onCheckedChange={setFocusMode}
-            className="scale-[0.55] origin-right -my-1"
-          />
-        </div>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
           <input
