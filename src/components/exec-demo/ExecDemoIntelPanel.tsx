@@ -45,8 +45,9 @@ interface Props {
   detectedLifeEvents?: LifeEvent[] | null;
   productsLoading?: boolean;
   productCards?: ProductCard[] | null;
-  onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
+  onTriggerPillClick?: (label: string, txIndices: number[], color: string, kind?: "lifeEvent" | "risk") => void;
   activeTriggerLabel?: string | null;
+  activeTrigger?: { label: string; indices: number[]; color: string; kind: "lifeEvent" | "risk" } | null;
   productActions?: import("./NextProductRationale").CardActions[] | null;
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
@@ -160,6 +161,7 @@ export default function ExecDemoIntelPanel({
   productCards,
   onTriggerPillClick,
   activeTriggerLabel,
+  activeTrigger,
   productActions,
   actionsLoading,
   riskFlags,
@@ -387,7 +389,7 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={evt.event_name}
-                          onClick={() => onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
+                          onClick={() => onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b", "lifeEvent")}
                           className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
@@ -464,7 +466,7 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={pillKey}
-                          onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
+                          onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor, "risk")}
                           title={isOfferTab ? "Not applicable for offer targeting" : undefined}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed" : ""} transition-all duration-200`}
                           style={{
@@ -688,7 +690,7 @@ export default function ExecDemoIntelPanel({
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
             {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} />
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} activeTrigger={activeTrigger} />
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} />
             ) : activeTab === "relationship" ? (
