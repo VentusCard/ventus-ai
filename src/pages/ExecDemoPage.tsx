@@ -299,8 +299,11 @@ export default function ExecDemoPage() {
     }
   }, []);
 
-  /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
-  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[], lifeEvents?: LifeEvent[]) => {
+  /** Generate AI-powered deal recommendations from deduped persona rollups only.
+   *  Each rollup carries its own resolved transactions (txIndices), so we derive
+   *  the supporting merchants and categories directly from the enriched transaction
+   *  set — no pillar field, no separate life-event path. */
+  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, _pillars: any[], _lifeEvents?: LifeEvent[]) => {
     // De-dupe: skip if a generation is already in flight (e.g., StrictMode double-invoke)
     if (offersInFlightRef.current) {
       console.log("[PRELOAD] Next-offers skipped — already in flight");
@@ -312,40 +315,40 @@ export default function ExecDemoPage() {
     try {
       const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
       const demographics = demoCustomer?.profile?.demographics || {};
-
-      // Unified rollups: behavioral pillar rollups + life events, same shape
-      const behavioralRollups = (synthesis.pillarRollups || []).map(r => ({
-        label: r.label,
-        pillar: r.pillar,
-        categories: r.categories || [],
-        topMerchants: [],
-        totalCount: r.totalCount ?? 0,
-      }));
       const enrichedTxs = classifiedRef.current || [];
-      const lifeEventRollups = (lifeEvents || []).map(e => {
-        const evidenceMerchants = (e.evidence || []).map(ev => ev.merchant).filter(Boolean);
-        const lcMerchants = evidenceMerchants.map(m => m.toLowerCase());
-        const categories = [...new Set(
-          enrichedTxs
-            .filter(tx => {
-              const m = (tx.merchant_name || "").toLowerCase();
-              return lcMerchants.some(em => m.includes(em) || em.includes(m));
-            })
-            .map(tx => tx.category)
-            .filter(Boolean) as string[]
-        )].slice(0, 5);
-        return {
-          label: e.event_name,
-          pillar: "Life Event",
-          categories,
-          topMerchants: evidenceMerchants,
-          totalCount: evidenceMerchants.length || 1,
-        };
-      });
-      const unifiedRollups = [...behavioralRollups, ...lifeEventRollups];
+
+      // Build rollups straight from the deduped persona output. For each rollup,
+      // resolve its txIndices against the enriched transaction set to derive the
+      // merchants and categories the LLM should anchor its deal ideas to.
+      const rollups = (synthesis.pillarRollups || [])
+        .map(r => {
+          const txs = (r.txIndices || [])
+            .map(i => enrichedTxs[i])
+            .filter(Boolean);
+          const merchants = [...new Set(
+            txs.map(t => t.merchant_name).filter(Boolean) as string[]
+          )].slice(0, 8);
+          const categories = [...new Set([
+            ...(r.categories || []),
+            ...txs.map(t => t.category).filter(Boolean) as string[],
+          ])].slice(0, 8);
+          return {
+            label: r.label,
+            categories,
+            topMerchants: merchants,
+            totalCount: txs.length,
+          };
+        })
+        .filter(r => r.totalCount > 0);
+
+      if (rollups.length === 0) {
+        console.log("[PRELOAD] Next-offers skipped — no persona rollups with transactions");
+        setGeneratedOffers([]);
+        return;
+      }
 
       const { data, error } = await supabase.functions.invoke("generate-next-offers", {
-        body: { rollups: unifiedRollups, demographics },
+        body: { rollups, demographics },
       });
       if (error) throw error;
       setGeneratedOffers(data.rollupOffers || []);
