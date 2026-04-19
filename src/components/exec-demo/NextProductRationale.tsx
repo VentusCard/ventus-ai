@@ -42,10 +42,11 @@ interface Props {
   loading: boolean;
   productCards?: ProductCard[] | null;
   transactions?: Transaction[];
-  onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
+  onTriggerPillClick?: (label: string, txIndices: number[], color: string, kind?: "lifeEvent" | "risk") => void;
   activeTriggerLabel?: string | null;
   productActions?: CardActions[] | null;
   actionsLoading?: boolean;
+  pillarRollups?: PillarRollup[];
 }
 
 /* ─── Current holdings pill row ─── */
