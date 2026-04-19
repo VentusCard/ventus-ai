@@ -2,45 +2,41 @@
 
 ## Goal
 
-Reframe Curated Collection descriptions so they feel like **enhancements to the user's existing lifestyle** — not transactional ("we've got it covered") and not generic marketing. The user should read it and feel: "yes, these things make my [Hawaii trips / coffee runs / ski seasons] better."
+Inside the phone-mockup collection detail view: (1) hide the persona pill label (e.g. "Annual Premium Hawaii Vacations"), (2) keep the friendly tagline, (3) stop truncating deal text so each deal renders fully.
 
-## Tone shift
+## Changes — `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
 
-- ❌ "Aloha — we've got your island trip covered." (sounds transactional, like booking a hotel)
-- ❌ "Craft unforgettable memories with premium essentials." (corporate filler)
-- ✅ "Little things that make every island trip better."
-- ✅ "Gear that keeps your courts and slopes seasons sharp."
-- ✅ "Small upgrades for your morning coffee ritual."
-- ✅ "Helpful picks for this next chapter."
+### 1. Header (lines 226–229)
+Replace the pill label with the `collectionMessage` tagline. Keep the offer count line.
 
-## Change
+```tsx
+<div className="px-3 pt-2.5 pb-1">
+  {expandedGroup.collectionMessage && (
+    <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
+  )}
+  <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
+</div>
+```
 
-**`supabase/functions/generate-next-offers/index.ts`** — update the `collectionMessage` instruction in BOTH system prompts (`SYSTEM_PROMPT` and `LIFE_EVENT_SYSTEM_PROMPT`):
+If `collectionMessage` is missing, just show the count line — never the raw rollup label.
 
-1. **Length**: ≤ 10 words, ≤ 60 characters.
-2. **Frame as enhancement, not coverage**: Use words like *better, sharper, easier, smoother, smarter, ritual, upgrade, elevate-the-everyday, picks, gear, little things, small touches*. Avoid "we've got you", "got covered", "handle", "take care of" — these sound like the bank is doing the trip/activity FOR them.
-3. **Anchor to the pill label**: must echo the literal subject of the rollup (Hawaii → island/Hawaii; Coffee Runs → mornings/coffee/ritual; Ski → slopes/snow; College Prep → this chapter/the journey).
-4. **Warm, second-person**: use *your* — keep it personal without being transactional.
-5. **Banned vocabulary** (corporate filler + transactional tone): "unforgettable", "memories", "essentials", "premium", "indulge", "curated", "exclusive", "next escape", "we've got you", "got covered", "we handle", "we take care".
-6. **Few-shot examples** in both prompts:
-   - "Annual Hawaiian Vacations" → "Little things that make every island trip better."
-   - "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp."
-   - "Weekly Workday Coffee Runs" → "Small upgrades for your morning ritual."
-   - "College Preparation for Dependent" → "Helpful picks for this next chapter."
+### 2. Deal cards (lines 232–256)
+Remove text-clipping so each deal shows its full merchant + product + message:
 
-No UI changes — `collectionMessage` already renders verbatim.
+- Drop `truncate` from the merchant `<p>` (line 238) and product `<p>` (line 239) → allow wrapping with `leading-snug`.
+- Drop `line-clamp-1` from the message `<p>` (line 240) → allow full wrap; bump it slightly for readability (`text-[10.5px] text-slate-500 mt-1 leading-snug`).
+- Change the right column (`shrink-0`) to keep the reward pill + Activate button vertically stacked but ensure the left column gets full wrap room: keep `flex items-start justify-between gap-2`, no other layout change.
 
-## Files touched
-
-- `supabase/functions/generate-next-offers/index.ts` (system prompts only)
+No other UI changes (back button, hero image, carousel, search all untouched).
 
 ## Verification
 
-1. `/demo` → Next-Offer tab → click each persona pill → description reads like a friendly enhancement to the user's lifestyle, not like the bank booking something for them.
-2. ≤ 10 words, anchors on the pill subject, contains *your*.
-3. No instances of "we've got", "covered", "unforgettable", "essentials", "premium".
+1. `/demo` → Next-Offer tab → click a persona pill (e.g. "Annual Premium Hawaii Vacations").
+2. Confirm the detail view header shows the friendly tagline ("Little things that make every island trip better.") and **not** the raw pill label.
+3. Confirm each deal card shows full merchant name, product, and message text — no `…` cutoffs.
+4. Long messages wrap to multiple lines cleanly.
 
 ## Out of scope
 
-Deal copy, layout, other tabs.
+Carousel cards, top pick card, expiring soon, search, other tabs.
 
