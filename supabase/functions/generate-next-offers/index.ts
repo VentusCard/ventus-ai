@@ -14,14 +14,14 @@ RULES:
 1. For EACH rollup provided, generate exactly 5 ACTIVE deals. ALL 5 deals MUST have signal: "boost" with a meaningful signalReason and boostCategory.
    Do NOT include suppressed deals in the deals array.
    Instead, list any already-covered spending categories in a separate "suppressedCategories" string array on the rollup object.
-   CRITICAL: Each output group MUST include a "rollupIndex" field — the 1-based number of the rollup from the input list (e.g., 1, 2, 3). Do NOT invent labels. Do NOT skip rollups. You MUST return exactly one group per input rollup, in the same order.
+   CRITICAL: The "rollup" field in your output MUST be the EXACT label string from the input (verbatim, including capitalization and punctuation). Do NOT paraphrase, shorten, rename, or invent new labels.
+   CRITICAL: The "pillar" field in your output MUST be the EXACT pillar string from the input rollup (verbatim). Do NOT change it.
 2. Messages MUST be 8-12 words max. Short, evocative, lifestyle-aligned. NO demographic references (no occupation, family size, age, income).
 3. Good message:"Capture precious family moment on the mountain with GoPro"or"Upgrade your travels with sleek, durable luggage from Away"
 4. Bad message: "As a Product Director on the move, upgrade your commute"
 5. Each deal needs: merchant name, specific product, reward value, short message, a 2-4 word lifestyle CTA, signal: "boost", signalReason, and boostCategory.
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
 7. All deals MUST relate to categories, merchants, or spending patterns present in the rollup's context. Do NOT recommend products from categories where the customer has zero relevant signal. Boost deals should fill gaps WITHIN the rollup's theme.
-8. For "Life Event" pillar rollups (e.g., "Home Purchase", "New Baby", "Retirement Planning"), generate deals appropriate to that life moment — products, services, or experiences that fit someone going through that event.
 
 SIGNAL LOGIC:
 - ALL 5 deals MUST have signal: "boost". Every deal needs a clear signalReason explaining the behavioral gap or opportunity, and a boostCategory (short product-type label like "Headphones", "Luggage").
@@ -34,7 +34,7 @@ COLLECTION MESSAGE:
 - Do NOT reference demographics. Keep it aspirational and lifestyle-focused.
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollupIndex":1,"collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Exact Input Label","pillar":"Exact Input Pillar","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -98,10 +98,12 @@ serve(async (req) => {
       })
       .join("\n");
 
-    const userPrompt = `ROLLUPS (generate exactly 5 boost deals for EACH; output one group per rollup, in order):
+    const userPrompt = `ROLLUPS (generate exactly 5 boost deals for EACH):
 ${rollupList}
 
-For each output group, include "rollupIndex" matching the number above (1, 2, 3, …). You MUST return exactly ${validRollups.length} groups — one per input rollup. Do NOT skip any rollup, especially "Life Event" pillar rollups. Return valid JSON only.`;
+In the output, the "rollup" field MUST be the exact label string in quotes from each rollup, and the "pillar" field MUST be the exact pillar string in quotes (verbatim, no changes).
+If the input pillar is "Life Event", the rollup label is a SHORT EVENT NAME (e.g., "Home Purchase", "New Baby", "Retirement Planning") — output it character-for-character; do NOT paraphrase, expand, or rename it.
+Return valid JSON only.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -137,52 +139,11 @@ For each output group, include "rollupIndex" matching the number above (1, 2, 3,
     const raw = data.choices?.[0]?.message?.content || "";
     const parsed = parseJsonLoose(raw);
 
-    const rawGroups: any[] = Array.isArray(parsed?.rollupOffers) ? parsed.rollupOffers : [];
+    const rollupOffers = parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)
+      ? parsed.rollupOffers
+      : [];
 
-    // Step 1: index-based mapping (preferred)
-    const byIndex = new Map<number, any>();
-    rawGroups.forEach((g) => {
-      const idx = Number(g?.rollupIndex);
-      if (Number.isInteger(idx) && idx >= 1 && idx <= validRollups.length && !byIndex.has(idx)) {
-        byIndex.set(idx, g);
-      }
-    });
-
-    // Step 2: positional fallback for groups missing rollupIndex
-    // (only when AI returned >=1 group with no usable index AND counts roughly align)
-    const indexedAny = byIndex.size > 0;
-    let usePositionalFallback = !indexedAny && rawGroups.length === validRollups.length;
-
-    // Step 3: build final array — one entry per input rollup, server-enforced labels
-    const rollupOffers = validRollups.map((src: any, i: number) => {
-      let g: any = byIndex.get(i + 1);
-      if (!g && usePositionalFallback) g = rawGroups[i];
-
-      if (g) {
-        return {
-          rollup: src.label,           // verbatim from input
-          pillar: src.pillar,          // verbatim from input
-          collectionMessage: typeof g.collectionMessage === "string" ? g.collectionMessage : "",
-          suppressedCategories: Array.isArray(g.suppressedCategories) ? g.suppressedCategories : [],
-          deals: Array.isArray(g.deals) ? g.deals : [],
-        };
-      }
-
-      // Placeholder so the UI always shows the correct themed card
-      return {
-        rollup: src.label,
-        pillar: src.pillar,
-        collectionMessage: `Curating personalized offers for ${src.label}…`,
-        suppressedCategories: [],
-        deals: [],
-      };
-    });
-
-    console.log(
-      `[OFFERS] Rewrote ${rollupOffers.length} groups; inputs: [${validRollups.map((r: any) => r.label).join(", ")}]; AI returned ${rawGroups.length} groups (indexed: ${byIndex.size}, positional fallback: ${usePositionalFallback})`
-    );
-
-    if (rawGroups.length === 0) {
+    if (rollupOffers.length === 0) {
       console.error("Failed to parse AI response:", raw.slice(0, 500));
     }
 

@@ -1,79 +1,72 @@
 
 
-## Answer: what gets sent to `generate-next-offers`
+## Diagnosis
 
-Tracing `ExecDemoPage.tsx` → `fireNextOffers`:
+The data flow `activeTriggerPill.label → activeTriggerLabel → activeOfferLabel → NextOfferRationale` IS wired correctly. So when you click "Home Purchase", `activeRollupLabel` arriving at `NextOfferRationale` IS `"Home Purchase"`.
 
+The offer match logic (lines 159–171 of `NextOfferRationale.tsx`):
+1. Exact normalized match against `offers[].rollup`
+2. Falls back to bidirectional substring match (`r.includes(target) || target.includes(r)`)
+3. Only if both fail → empty state
+
+For "Home Purchase" to show "Upscale Hawaii Traveler" deals, the substring fallback must be matching incorrectly — but neither string contains the other. So the most likely real cause:
+
+**The AI never generated a "Home Purchase" rollup in the response**, AND **the previous render of `selectedRollup`-driven offers (defaulting to first rollup, "Upscale Hawaii Traveler") is what you're seeing**. When `activeTriggerPill` is set, line 512 should switch `activeOfferLabel` to "Home Purchase" — but if `setActiveTriggerPill` isn't firing for some reason (e.g., the click handler short-circuits when `matchedIndices.length === 0`), `activeTriggerLabel` stays undefined and `selectedRollup?.label` ("Upscale Hawaii Traveler") wins.
+
+Look at `ExecDemoIntelPanel.tsx` line 367 + 373:
 ```ts
-POST /functions/v1/generate-next-offers
-{
-  "rollups": [
-    // Behavioral rollups (from persona.pillarRollups)
-    {
-      "label": "Upscale Hawaii Traveler",
-      "pillar": "Travel",
-      "categories": ["Hotels","Airlines","Dining"],
-      "topMerchants": ["FOUR SEASONS MAUI","HAWAIIAN AIR",...],
-      "totalCount": 12
-    },
-    // …more behavioral rollups…
+const isClickable = matchedIndices.length > 0;
+onClick={() => isClickable && onTriggerPillClick?.(...)}
+```
+If `evidenceMerchants` for "Home Purchase" don't fuzzy-match any transaction merchant, `matchedIndices = []`, `isClickable = false`, **the click does nothing**, and the previously-selected behavioral rollup's deals stay visible.
 
-    // Life-event rollups (from lifeEvents array)
-    {
-      "label": "Home Purchase",         // ← e.event_name verbatim
-      "pillar": "Life Event",
-      "categories": [/* derived from enrichedTxs ∩ evidence merchants */],
-      "topMerchants": [/* e.evidence[].merchant */],
-      "totalCount": <evidence count>
-    }
-  ]
-}
+## Fix
+
+### 1. `ExecDemoIntelPanel.tsx` — always allow life-event pill clicks
+Remove the `matchedIndices.length > 0` gate. Even if no transactions match, clicking the pill should still set `activeTriggerPill` (with empty `indices`) so the offer panel switches and either shows that life event's deals or the "No offers generated for X yet" empty state. Visual indication of unclickability stays via opacity.
+
+### 2. `ExecDemoPage.tsx` — clear `activeRollup` when life-event pill clicked
+Already done in `handleTriggerPillClick`. ✓
+
+### 3. `NextOfferRationale.tsx` — tighten the substring fallback
+The bidirectional substring match is dangerous for short labels (e.g., a behavioral rollup named "Home" would match life-event "Home Purchase"). Replace with:
+- Exact normalized match only
+- If 0 hits AND the active label looks like a life event (pillar === "Life Event"), show clear "No offers generated for [label] yet" rather than fall through to substring matching.
+
+Re-introduce `activeRollupPillar` for this guard (it's still being passed in from `PurchaseCycleTimeline`).
+
+### 4. `ExecDemoPage.tsx` `fireNextOffers` — feed life events richer context
+Life-event rollups currently send empty `categories: []`. Augment with the life event's matched-transaction pillar/category data so the AI has enough signal to actually generate a coherent group with the verbatim label:
+```ts
+const lifeEventRollups = (lifeEvents || []).map(e => {
+  const evidenceMerchants = (e.evidence || []).map(ev => ev.merchant).filter(Boolean);
+  // Pull pillars/categories from matched enriched txs
+  const categories = [...new Set(
+    enrichedTxs
+      .filter(tx => evidenceMerchants.some(m => tx.merchant_name?.toLowerCase().includes(m.toLowerCase())))
+      .map(tx => tx.category)
+      .filter(Boolean)
+  )].slice(0, 5);
+  return {
+    label: e.event_name,
+    pillar: "Life Event",
+    categories,
+    topMerchants: evidenceMerchants,
+    totalCount: evidenceMerchants.length || 1,
+  };
+});
 ```
 
-The edge function then formats this into a numbered prompt:
+### 5. Edge function reminder line in user prompt
+In `generate-next-offers/index.ts`, strengthen the existing verbatim instruction by adding to the user prompt: `If the input pillar is "Life Event", the rollup label is a SHORT EVENT NAME (e.g., "Home Purchase", "New Baby") — output it character-for-character; do NOT paraphrase or expand it.`
 
-```
-1. label: "Upscale Hawaii Traveler" | pillar: "Travel" — categories: Hotels, Airlines — recent merchants: …
-2. label: "Home Purchase" | pillar: "Life Event" — categories: … — recent merchants: …
-```
-
-It tells Gemini to echo the exact `label` and `pillar` strings back, then returns:
-
-```json
-{ "rollupOffers": [
-    { "rollup": "Upscale Hawaii Traveler", "pillar": "Travel", "deals": [...] },
-    { "rollup": "Home Purchase", "pillar": "Life Event", "deals": [...] }
-] }
-```
-
-## Why "Home Purchase" still fails
-
-The matching IS exact — but Gemini occasionally:
-1. **Drops the life-event group entirely** (returns only the behavioral rollups), or
-2. **Renames it** (e.g. "Home Purchase" → "New Home Essentials"), or
-3. **Returns it but with a slightly different casing/punctuation** the normalizer doesn't catch.
-
-When any of those happen, `NextOfferRationale` finds 0 hits → empty state. We've layered prompt instructions 3 times; the LLM still drifts.
-
-## What I want approval to do
-
-Stop trusting the LLM with labels. Two-line server fix in `supabase/functions/generate-next-offers/index.ts`:
-
-1. **Switch contract to index-based**: ask AI to return `rollupIndex` (1, 2, 3…) per group instead of a label string. Numbers are dramatically more reliable for LLMs than long strings.
-2. **Server re-attaches verbatim labels**: after parse, `rollup` and `pillar` are overwritten from `validRollups[index-1]`. AI cannot drift.
-3. **Backstops**:
-   - If `rollupIndex` is missing but the AI returned exactly N groups in order → use positional mapping.
-   - If a rollup has no group in the response → emit an empty placeholder `{ rollup: src.label, pillar: src.pillar, deals: [], collectionMessage: "Curating offers for ${src.label}…" }` so the panel always shows the correct themed card.
-4. **Add one log line**: `[OFFERS] Rewrote N groups; inputs: [...]` so we can verify in edge function logs.
-
-No client-side changes. No prompt restructuring beyond the `rollupIndex` contract change.
-
-## Result
-- Click "Home Purchase" → server guarantees a group with `rollup: "Home Purchase"` exists → exact match → deals (or themed empty card) render.
-- Behavioral pills continue to work identically.
+## Expected result
+- Click any life-event pill → either its dedicated deals appear, or a clean empty state. No more cross-contamination from the previously-selected behavioral rollup.
+- Life-event pills no longer silently "do nothing" when merchant fuzzy match fails.
 
 ## Out of scope
-- Phone mockup view (already pinned correctly)
-- Persona / life-event detection
-- Pill UI
+- Persona synthesis prompt
+- Pill UI/animations
+- Life-event detection logic itself
+- ID-based matching (rejected previously)
 
