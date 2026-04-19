@@ -943,6 +943,8 @@ export default function ExecDemoPage() {
               generatedOffers={generatedOffers}
               detectedLifeEvents={detectedLifeEvents}
               productCards={productCards}
+              activeRollupLabel={activeRollup?.label || null}
+              activeRollupPillar={activeRollup?.pillar || null}
             />
           </div>
         </div>
