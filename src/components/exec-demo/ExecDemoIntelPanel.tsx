@@ -293,12 +293,30 @@ export default function ExecDemoIntelPanel({
     }
   }, [activeTab, availableSignals, selectedSignal]);
 
-  // Auto-select first lifestyle rollup pill when entering Next-Offer (analytics) tab
+  // Auto-select first lifestyle rollup pill ONCE when entering Next-Offer tab
+  // (do NOT re-run when activeRollup is cleared by a life-event/risk pill click —
+  //  that would overwrite the user's selection in an infinite loop).
+  const autoSelectedTabRef = useRef<TabKey | null>(null);
+  // Reset auto-default memo whenever the persona itself changes (new customer / re-run)
   useEffect(() => {
-    if (activeTab === "analytics" && !activeRollup && rollupStats.length > 0) {
+    autoSelectedTabRef.current = null;
+  }, [personaSynthesis]);
+  useEffect(() => {
+    // Reset memo when leaving the tab so re-entering can default again
+    if (activeTab !== "analytics") {
+      autoSelectedTabRef.current = null;
+      return;
+    }
+    if (activeTab === "analytics"
+      && autoSelectedTabRef.current !== "analytics"
+      && !activeRollup
+      && !activeTriggerLabel
+      && rollupStats.length > 0
+    ) {
+      autoSelectedTabRef.current = "analytics";
       onRollupClick?.(rollupStats[0]);
     }
-  }, [activeTab, activeRollup, rollupStats, onRollupClick]);
+  }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick, personaSynthesis]);
 
   const isOfferTab = activeTab === "analytics";
 
