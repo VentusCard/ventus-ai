@@ -241,6 +241,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
+        {!focusMode && (
+        <>
         {/* ── Savings Summary Bar ── */}
         <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #eff6ff, #eef2ff)" }}>
           <div className="flex items-center gap-1.5">
@@ -347,6 +349,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
               })}
             </div>
           </div>
+        )}
+        </>
         )}
 
         {/* ── Collection Carousel ── */}
