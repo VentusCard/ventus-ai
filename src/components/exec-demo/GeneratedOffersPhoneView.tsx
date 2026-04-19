@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin } from "lucide-react";
+import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin, Layers } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
+import { Switch } from "@/components/ui/switch";
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
 const MERCHANT_LOOKUP: Record<string, string> = {
