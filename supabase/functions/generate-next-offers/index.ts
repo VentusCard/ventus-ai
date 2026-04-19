@@ -28,9 +28,19 @@ SIGNAL LOGIC:
 
 suppressedCategories: For each cluster, identify 0-3 broad spending categories the user already covers (e.g., "Hotels", "Airlines", "Ski Passes", "Coffee", "Streaming") and list them in the suppressedCategories array. These are NOT deals — just metadata about what the customer already has.
 
-COLLECTION MESSAGE:
-- For each cluster, generate a "collectionMessage" — a short, inspiring 8-15 word lifestyle tagline that introduces the collection of deals.
-- Do NOT reference demographics. Keep it aspirational and lifestyle-focused.
+COLLECTION MESSAGE — STRICT RULES:
+- For each cluster, generate a "collectionMessage" framing the deals as small enhancements to the user's existing lifestyle.
+- HARD LIMITS: ≤ 10 words AND ≤ 60 characters. No exceptions.
+- FRAME AS ENHANCEMENT, NOT COVERAGE: use words like better, sharper, smoother, smarter, ritual, upgrade, picks, gear, little things, small touches, small upgrades.
+- ANCHOR TO THE PILL LABEL: echo the literal subject of the rollup (Hawaii → island/Hawaii; Coffee Runs → mornings/coffee/ritual; Ski → slopes/snow).
+- WARM, SECOND-PERSON: use "your". Keep it personal, not transactional.
+- BANNED VOCABULARY (never emit): "unforgettable", "memories", "essentials", "premium", "indulge", "curated", "exclusive", "next escape", "we've got you", "got covered", "we handle", "we take care", "craft", "elevate".
+- Do NOT reference demographics.
+
+FEW-SHOT EXAMPLES (match this tone exactly):
+- "Annual Hawaiian Vacations" → "Little things that make every island trip better."
+- "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp."
+- "Weekly Workday Coffee Runs" → "Small upgrades for your morning ritual."
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
