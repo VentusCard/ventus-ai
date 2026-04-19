@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, CreditCard, Wifi, Battery, Layers } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import type { DemoCustomer } from "@/lib/demoData";
 
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
