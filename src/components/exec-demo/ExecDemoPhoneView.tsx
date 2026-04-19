@@ -65,7 +65,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         );
       case "product":
         if (productCards && productCards.length > 0) {
-          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} />;
+          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} pillarRollups={pillarRollups} detectedLifeEvents={detectedLifeEvents} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
