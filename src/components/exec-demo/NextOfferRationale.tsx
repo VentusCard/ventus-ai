@@ -68,6 +68,11 @@ function RollupCard({ group, index, colorOverride, kindOverride }: { group: Roll
           Behavioral Based Deal Collection
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
+        {typeLabel && (
+          <span className="text-[11px] font-bold shrink-0" style={{ color: c.dot }}>
+            {typeLabel}:
+          </span>
+        )}
         <span
           className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
           style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
