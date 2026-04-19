@@ -352,25 +352,27 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   );
 }
 
-function CadenceCard({ data }: { data: CadenceData }) {
+function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData; colorOverride?: string; headerSuffix?: string }) {
   const c = getColor(data.pillar);
+  const accent = colorOverride || c.dot;
+  const headerColor = colorOverride || c.text;
   return (
     <div
       className="rounded-xl border border-slate-100 bg-white px-4 py-3"
       style={{
         borderTopWidth: 3,
-        borderTopColor: c.dot,
+        borderTopColor: accent,
         animation: "exec-card-reveal 0.4s ease-out",
       }}
     >
       {/* Header */}
       <div className="flex items-center gap-1.5 mb-1">
-        <span style={{ color: c.dot }}>✦</span>
+        <span style={{ color: accent }}>✦</span>
         <span
           className="text-[11px] font-bold uppercase tracking-wider"
-          style={{ color: c.text }}
+          style={{ color: headerColor }}
         >
-          {data.label} · Shopping Pattern
+          {data.label} · {headerSuffix || "Shopping Pattern"}
         </span>
       </div>
 
