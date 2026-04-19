@@ -82,10 +82,11 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926
 
 function getCollectionImage(rollup: string, pillar?: string): string {
   const theme = (rollup + " " + (pillar || "")).toLowerCase();
+  const buster = `&t=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   for (const entry of COLLECTION_IMAGES) {
-    if (entry.keywords.some(k => theme.includes(k))) return entry.url;
+    if (entry.keywords.some(k => theme.includes(k))) return entry.url + buster;
   }
-  return DEFAULT_IMAGE;
+  return DEFAULT_IMAGE + buster;
 }
 
 interface Props {
