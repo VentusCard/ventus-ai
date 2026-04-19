@@ -280,9 +280,10 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   }}
                   onClick={handlePillClick}
                 >
-                  {card.signal_label}
+                  <span style={{ color: c.dot }}>✦</span>
+                  {resolvedLabel}
                   {txnCount > 0 && (
-                    <span className="text-[9px] font-medium opacity-70 ml-1">
+                    <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
                       {txnCount} txns · {formatSpend(txnSpend)}
                     </span>
                   )}
