@@ -2,62 +2,42 @@
 
 ## Goal
 
-When a life-event pill (e.g. "College Preparation for Dependent") or risk pill is clicked, the **Shopping Pattern card** above the Behavioral Deal Collection should switch to reflect that selection — same visual treatment, same fields (top spot, top types, lifetime spend, cadence, etc.) — so the whole intelligence column stays internally consistent.
+When a life-event (amber) or risk (red) pill is the active selection, the **Behavioral Based Deal Collection** card below the Shopping Pattern card should adopt the same color coding (amber/red) instead of the default behavioral/persona color — keeping the whole intelligence column visually consistent.
 
 ## What's wrong today
 
-`PurchaseCycleTimeline` only knows how to build a cadence card from a `PillarRollup`. When `activeTriggerLabel` is set:
-
-- `selectedRollup` falls back to `rollups[0]` (e.g. "Premium Hawaii Jetsetter")
-- `cadenceData` is built from that fallback rollup
-- The card silently displays Hawaii data even though the active selection is "College Preparation"
-- Only the offer card below updates — the Shopping Pattern card and (visually) the pill treatment don't feel connected
-
-The amber "Life Event Trigger" callout was a placeholder and only shows when `cadenceData` is null. In practice cadence is non-null because the fallback rollup always has data, so the placeholder never appears either.
+`NextOfferRationale` (the deal collection card) colors itself based on `activeOfferPillar`, which gets passed the rollup pillar (e.g. "Premium Hawaii Jetsetter" → blue). When a life event is selected, `PurchaseCycleTimeline` overrides cadence display but the deal card below still receives a pillar-derived color from `getColor()`, so the deal collection stays in the persona's color (e.g. blue) instead of switching to amber/red.
 
 ## Fix
 
-Make `PurchaseCycleTimeline` accept the active life-event / risk pill payload and build a cadence card from it — same component, same fields.
+Pass the active trigger's `kind` + `color` through to `NextOfferRationale` so its header chip, left border, and accent treatments switch to amber (life event) or red (risk) when a trigger pill is active.
 
 ### Plan
 
-1. **`src/pages/ExecDemoPage.tsx`** — pass the active trigger pill's matched indices + color + kind into `ExecDemoIntelPanel` so they can be forwarded to `PurchaseCycleTimeline`. We already have `activeTriggerPill` (label, indices, color); also pass which pill family it came from (life-event vs risk) for the header label and amber/red styling.
+1. **`src/components/exec-demo/PurchaseCycleTimeline.tsx`**
+   - When `activeTrigger` is set, forward `activeTrigger.color` and `activeTrigger.kind` (mapped to a pillar override) into `<NextOfferRationale>` instead of the default rollup-derived pillar color.
 
-2. **`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-   - When firing `onTriggerPillClick`, also include a `kind: "lifeEvent" | "risk"` so the Shopping Pattern card knows whether to render "Life Event Pattern" (amber) or "Risk Pattern" (red).
-   - Forward the active trigger payload (label, kind, indices, color) into `<PurchaseCycleTimeline>`.
+2. **`src/components/exec-demo/NextOfferRationale.tsx`**
+   - Accept an optional `colorOverride?: string` and `kindOverride?: "lifeEvent" | "risk"` prop.
+   - When present, use `colorOverride` for: header pill background, left border accent, sparkle/star icon color, and any pillar-color references in the deal group header.
+   - Update the type label from "Persona:" to "Life Event:" (amber) or "Risk Signal:" (red) to match the Shopping Pattern card.
+   - Fallback to existing `getColor(pillar)` behavior when no override.
 
-3. **`src/components/exec-demo/PurchaseCycleTimeline.tsx`** (the real work)
-   - Extend props with `activeTrigger?: { label, kind, indices, color } | null`.
-   - Build a synthetic `PillarRollup`-shaped object from the trigger when present:
-     - `pillar` = `"Life Event"` or `"Risk"`
-     - `label` = trigger label
-     - `txIndices` = trigger indices
-   - Decide which selection wins:
-     - If `activeTrigger` exists → use it for `cadenceData` and for `activeOfferLabel`/`activeOfferPillar`
-     - Else fall back to `selectedRollup` (current behavior)
-   - In `CadenceCard`, color the top border / sparkle icon / header label using the trigger color (amber/red) so the visual matches the source pill, instead of always using `getColor(pillar).dot`.
-   - Keep the empty-state handling: if a life event has zero matched indices, fall back to the existing amber "Life Event Trigger" callout (with proper red variant for risk).
-
-4. **No backend / prompt changes.** No changes to NextOfferRationale logic.
+3. **No backend changes.** Pure UI color plumbing.
 
 ## Files touched
 
-- `src/pages/ExecDemoPage.tsx` — extend `activeTriggerPill` state with `kind`, pass through.
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — pass `kind` into `onTriggerPillClick`, forward `activeTrigger` to `PurchaseCycleTimeline`.
-- `src/components/exec-demo/PurchaseCycleTimeline.tsx` — accept `activeTrigger`, build cadence from it, use trigger color for header styling, fall back to placeholder only when no indices.
+- `src/components/exec-demo/PurchaseCycleTimeline.tsx` — forward trigger color/kind to NextOfferRationale.
+- `src/components/exec-demo/NextOfferRationale.tsx` — accept color/kind overrides; apply to header, border, accents, and type label.
 
 ## Verification
 
-1. Click "College Preparation for Dependent" → Shopping Pattern card switches to college transactions (top merchant, types, lifetime, cadence) with amber styling. Behavioral Deal Collection updates to college deals.
-2. Click "Home Purchase" → same treatment, updated data.
-3. Click a persona pill (e.g. Hawaii Jetsetter) → Shopping Pattern returns to that rollup's cadence with the persona's pillar color.
-4. Click a risk pill → Shopping Pattern card shows that flagged transaction(s) with red styling.
-5. Phone mockup continues to rotate through all groups independently (unchanged).
+1. Click "College Preparation for Dependent" → Shopping Pattern AND Behavioral Deal Collection both show amber styling with "Life Event:" label.
+2. Click a risk pill → both cards show red styling with "Risk Signal:" label.
+3. Click a persona rollup → both cards revert to the persona's pillar color and "Persona:" label.
 
 ## Out of scope
 
-- Changing pill-rendering styles in the header.
-- Changing the offer card layout.
-- Auto-switching tabs or any new animations.
+- Phone mockup colors (rotates independently).
+- Deal card internal layout/typography.
 
