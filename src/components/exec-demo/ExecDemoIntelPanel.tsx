@@ -293,12 +293,26 @@ export default function ExecDemoIntelPanel({
     }
   }, [activeTab, availableSignals, selectedSignal]);
 
-  // Auto-select first lifestyle rollup pill when entering Next-Offer (analytics) tab
+  // Auto-select first lifestyle rollup pill ONCE when entering Next-Offer tab
+  // (do NOT re-run when activeRollup is cleared by a life-event/risk pill click —
+  //  that would overwrite the user's selection in an infinite loop).
+  const autoSelectedTabRef = useRef<TabKey | null>(null);
   useEffect(() => {
-    if (activeTab === "analytics" && !activeRollup && rollupStats.length > 0) {
+    // Reset memo when leaving the tab so re-entering can default again
+    if (activeTab !== "analytics") {
+      autoSelectedTabRef.current = null;
+      return;
+    }
+    if (activeTab === "analytics"
+      && autoSelectedTabRef.current !== "analytics"
+      && !activeRollup
+      && !activeTriggerLabel
+      && rollupStats.length > 0
+    ) {
+      autoSelectedTabRef.current = "analytics";
       onRollupClick?.(rollupStats[0]);
     }
-  }, [activeTab, activeRollup, rollupStats, onRollupClick]);
+  }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick]);
 
   const isOfferTab = activeTab === "analytics";
 
