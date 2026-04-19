@@ -239,11 +239,8 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
           return (
             <div key={i} className="space-y-0">
-              {/* Type label + Trigger pill */}
+              {/* Persona pill */}
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="text-[11px] font-bold shrink-0" style={{ color: c.dot }}>
-                  {isBehavioral ? "Behavioral:" : "Life Event:"}
-                </span>
                 <div
                   className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : ""}`}
                   style={{
@@ -256,7 +253,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   }}
                   onClick={handlePillClick}
                 >
-                  <span style={{ color: c.dot }}>✦</span>
                   {card.signal_label}
                   {txnCount > 0 && (
                     <span className="text-[9px] font-medium opacity-70 ml-1">
@@ -265,6 +261,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
                   )}
                 </div>
               </div>
+
 
               {/* Product card */}
               <div
