@@ -29,7 +29,6 @@ interface Props {
   personaSynthesis: PersonaSynthesis | null;
   loading: boolean;
   activeRollupLabel?: string | null;
-  activeRollupPillar?: string | null;
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
@@ -132,7 +131,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -151,29 +150,15 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
     );
   }
 
-  // Filter to only the active rollup's offer group.
-  // For Life Events: exact normalized match ONLY (no substring fallback — short labels
-  // like "Home Purchase" can spuriously substring-match unrelated behavioral rollups).
-  // For behavioral rollups: exact match, then conservative substring fallback.
+  // Persona-only: filter offers by exact normalized rollup label match. No fuzzy
+  // substring fallback, no life-event branches. The selected persona rollup IS
+  // the one that was sent to generate-next-offers, so an exact match is guaranteed.
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const target = activeRollupLabel ? norm(activeRollupLabel) : null;
-  const isLifeEvent = activeRollupPillar === "Life Event";
 
   const filtered = !target
     ? offers
-    : (() => {
-        // 1. exact (case-insensitive) match
-        let hits = offers.filter(g => norm(g.rollup) === target);
-        if (hits.length > 0) return hits;
-        // 2. life events: stop here — never fuzzy-match into a behavioral group
-        if (isLifeEvent) return [];
-        // 3. behavioral: substring match either direction
-        hits = offers.filter(g => {
-          const r = norm(g.rollup);
-          return r.includes(target) || target.includes(r);
-        });
-        return hits;
-      })();
+    : offers.filter(g => norm(g.rollup) === target);
 
   if (filtered.length === 0) {
     return (

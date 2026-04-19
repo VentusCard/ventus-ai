@@ -22,7 +22,6 @@ interface Props {
   generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
   activeRollup?: PillarRollup | null;
-  activeTriggerLabel?: string | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -492,11 +491,11 @@ export default function PurchaseCycleTimeline({
   generatedOffers,
   offersLoading,
   activeRollup,
-  activeTriggerLabel,
 }: Props) {
   const rollups = personaSynthesis?.pillarRollups || [];
 
-  // Pick the active rollup — defaults handled by parent, but defensive fallback here too
+  // Persona-only: the selected rollup IS the source of truth.
+  // Defaults are set by parent; defensive fallback to the first rollup if needed.
   const selectedRollup: PillarRollup | null = useMemo(() => {
     if (activeRollup) return activeRollup;
     if (rollups.length > 0) return rollups[0];
@@ -508,27 +507,13 @@ export default function PurchaseCycleTimeline({
     return buildCadence(selectedRollup, transactions, signalMap);
   }, [selectedRollup, transactions, signalMap]);
 
-  // What label to filter offers by — life event takes precedence if active
-  const activeOfferLabel = activeTriggerLabel || selectedRollup?.label || null;
-  const activeOfferPillar = activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null;
+  const activeOfferLabel = selectedRollup?.label || null;
 
   return (
     <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
       {/* ═══ SHOPPING CADENCE CARD ═══ */}
       {cadenceData ? (
         <CadenceCard data={cadenceData} />
-      ) : activeTriggerLabel ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-amber-500">✦</span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
-              {activeTriggerLabel} · Life Event Trigger
-            </span>
-          </div>
-          <p className="text-[12px] text-slate-600 leading-snug">
-            Targeted offers below are matched to this life event.
-          </p>
-        </div>
       ) : (
         <div className="flex items-center justify-center h-32">
           <span className="text-[11px] text-slate-300">Select a persona pill above to see shopping patterns</span>
@@ -542,7 +527,6 @@ export default function PurchaseCycleTimeline({
           personaSynthesis={personaSynthesis || null}
           loading={!!offersLoading}
           activeRollupLabel={activeOfferLabel}
-          activeRollupPillar={activeOfferPillar}
         />
       </div>
 
