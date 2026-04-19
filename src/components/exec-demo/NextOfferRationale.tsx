@@ -160,7 +160,10 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
 
   // Filter to only the active persona's offer group with conservative fuzzy matching
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const STOPWORDS = new Set(["the","a","an","of","for","to","and","in","on","at","with","new","my","your"]);
+  const tokenize = (s: string) => norm(s).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.has(t));
   const target = activeRollupLabel ? norm(activeRollupLabel) : null;
+  const targetTokens = activeRollupLabel ? new Set(tokenize(activeRollupLabel)) : new Set<string>();
 
   const filtered = !target
     ? scopedOffers
@@ -173,15 +176,28 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
           const r = norm(g.rollup);
           return r.includes(target) || target.includes(r);
         });
+        if (hits.length > 0) return hits;
+        // 3. token-overlap (≥1 shared significant word like "home", "college", "retirement")
+        hits = scopedOffers.filter(g => tokenize(g.rollup).some(t => targetTokens.has(t)));
         return hits;
       })();
 
   if (filtered.length === 0) {
+    if (activeRollupLabel) {
+      // Diagnostic: surface the label drift so we can spot it
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[NextOfferRationale] No offer group matched "${activeRollupLabel}" (pillar=${activeRollupPillar}). Available:`,
+        scopedOffers.map(g => `${g.pillar}::${g.rollup}`)
+      );
+    }
     return (
       <div className="px-3 py-6 text-center">
         <span className="text-[11px] text-slate-400 italic">
           {activeRollupLabel
-            ? `No offers generated for "${activeRollupLabel}" yet.`
+            ? activeRollupPillar === "Life Event"
+              ? `Generating offers for "${activeRollupLabel}"…`
+              : `No offers generated for "${activeRollupLabel}" yet.`
             : "Select a persona pill above to see targeted offers."}
         </span>
       </div>
