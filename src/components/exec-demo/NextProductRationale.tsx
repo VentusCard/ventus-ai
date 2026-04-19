@@ -342,17 +342,19 @@ function ProductCardBody({
   const { card, color: c, origIdx, isBehavioral } = resolved;
   return (
     <div
-      className="rounded-xl border overflow-hidden bg-white"
+      className="rounded-xl border overflow-hidden"
       style={{
-        borderColor: c.border,
+        borderColor: `${c.dot}40`,
         borderLeftWidth: 3,
         borderLeftColor: c.dot,
+        background: `linear-gradient(135deg, ${c.dot}06, ${c.dot}02 40%, #ffffff)`,
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
       <div className="px-4 py-3.5">
         <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.dot }} />
+          <span className="text-[14px] font-bold" style={{ color: c.text }}>{card.product_name}</span>
         </div>
         <p className="text-[12px] text-slate-600 leading-relaxed italic">
           "{card.quote}"
