@@ -253,7 +253,7 @@ serve(async (req) => {
         }
 
         if (match) {
-          // Force-overwrite to canonical labels so frontend filter always matches
+          console.log(`[NEXT-OFFERS] life event "${evt.event_name}" (${evt.id}) → matched (deals: ${match.deals.length}, raw label: "${match.rollupRaw}")`);
           rollupOffers.push({
             rollup: evt.event_name,
             pillar: "Life Event",
@@ -262,8 +262,7 @@ serve(async (req) => {
             deals: match.deals,
           });
         } else {
-          // Synthesize placeholder so card renders
-          console.warn(`No LLM offers returned for life event "${evt.event_name}" (${evt.id}) — emitting placeholder`);
+          console.warn(`[NEXT-OFFERS] life event "${evt.event_name}" (${evt.id}) → NO MATCH, emitting placeholder. Available raw labels:`, normalizedGroups.map(g => g.rollupRaw));
           rollupOffers.push({
             rollup: evt.event_name,
             pillar: "Life Event",
@@ -275,6 +274,7 @@ serve(async (req) => {
       }
     }
 
+    console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups (${rollupOffers.filter(g => g.pillar === "Life Event").length} life events, ${rollupOffers.filter(g => g.pillar !== "Life Event").length} behavioral)`);
     return new Response(JSON.stringify({ rollupOffers }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
