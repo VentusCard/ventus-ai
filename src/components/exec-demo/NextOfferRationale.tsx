@@ -44,8 +44,9 @@ function buildOverrideColor(hex: string) {
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
-function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
-  const c = getColor(group.pillar);
+function RollupCard({ group, index, colorOverride, kindOverride }: { group: RollupOfferGroup; index: number; colorOverride?: string; kindOverride?: "lifeEvent" | "risk" }) {
+  const c = colorOverride ? buildOverrideColor(colorOverride) : getColor(group.pillar);
+  const typeLabel = kindOverride === "lifeEvent" ? "Life Event" : kindOverride === "risk" ? "Risk Signal" : null;
 
   const suppressedCats = group.suppressedCategories || [];
   const boostCats = [...new Set(
