@@ -9,6 +9,7 @@ import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView
 import RelationshipPhoneView from "./RelationshipPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { PillarRollup } from "./ExecDemoIntelPanel";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type ConsumerTab = "rewards" | "product" | "relationship" | "ai";
