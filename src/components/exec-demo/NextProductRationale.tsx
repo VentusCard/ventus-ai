@@ -391,6 +391,7 @@ function GroupSlideshow({
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [advanceCount, setAdvanceCount] = useState(0);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -406,12 +407,17 @@ function GroupSlideshow({
     };
   }, [emblaApi, onSelect]);
 
-  // Auto-advance
+  // Auto-advance — stop after 2 full rotations (each card seen twice)
+  const maxAdvances = resolvedCards.length * 2;
   useEffect(() => {
     if (!emblaApi || isPaused || resolvedCards.length <= 1) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
+    if (advanceCount >= maxAdvances) return;
+    const interval = setInterval(() => {
+      emblaApi.scrollNext();
+      setAdvanceCount((c) => c + 1);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [emblaApi, isPaused, resolvedCards.length]);
+  }, [emblaApi, isPaused, resolvedCards.length, advanceCount, maxAdvances]);
 
   if (resolvedCards.length === 0) return null;
 
