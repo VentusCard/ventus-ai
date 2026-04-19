@@ -14,6 +14,13 @@ interface ChipData {
   frequency?: string;
 }
 
+interface ActiveTrigger {
+  label: string;
+  indices: number[];
+  color: string;
+  kind: "lifeEvent" | "risk";
+}
+
 interface Props {
   chips: ChipData[];
   transactions: Transaction[];
@@ -23,6 +30,7 @@ interface Props {
   offersLoading?: boolean;
   activeRollup?: PillarRollup | null;
   activeTriggerLabel?: string | null;
+  activeTrigger?: ActiveTrigger | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
