@@ -92,14 +92,51 @@ interface Props {
   offerGroups: RollupOfferGroup[];
   customerName: string;
   focusMode?: boolean;
+  activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true }: Props) {
+// ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
+const STOPWORDS = new Set(["the","a","an","of","for","to","and","in","on","at","with","new","my","your"]);
+const normLabel = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const tokenizeLabel = (s: string) => normLabel(s).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.has(t));
+
+function findGroupForLabel(label: string, pillar: string | null | undefined, groups: RollupOfferGroup[]): RollupOfferGroup | null {
+  const scoped = !pillar
+    ? groups
+    : groups.filter(g => pillar === "Life Event" ? g.pillar === "Life Event" : g.pillar !== "Life Event");
+  const target = normLabel(label);
+  const targetTokens = new Set(tokenizeLabel(label));
+  // 1. exact
+  let hit = scoped.find(g => normLabel(g.rollup) === target);
+  if (hit) return hit;
+  // 2. substring
+  hit = scoped.find(g => {
+    const r = normLabel(g.rollup);
+    return r.includes(target) || target.includes(r);
+  });
+  if (hit) return hit;
+  // 3. token overlap
+  hit = scoped.find(g => tokenizeLabel(g.rollup).some(t => targetTokens.has(t)));
+  return hit || null;
+}
+
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
 
   const firstName = customerName.split(" ")[0];
+
+  // Sync expandedGroup with active persona pill selection
+  useEffect(() => {
+    if (!activeRollupLabel) {
+      setExpandedGroup(null);
+      return;
+    }
+    const matched = findGroupForLabel(activeRollupLabel, activeRollupPillar, offerGroups);
+    setExpandedGroup(matched);
+  }, [activeRollupLabel, activeRollupPillar, offerGroups]);
 
   // Semantic search
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
