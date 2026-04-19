@@ -197,7 +197,7 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading, 
 
       {/* Rollup cards (just one when filtered) */}
       {filtered.map((group, gi) => (
-        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
+        <RollupCard key={`${group.rollup}::${gi}`} group={group} index={gi} />
       ))}
 
       <style>{`
