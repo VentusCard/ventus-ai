@@ -2,39 +2,37 @@
 
 ## Goal
 
-Update persona synthesis to generate more explicit, pattern-based labels that describe the actual behavioral cadence (e.g., "Annual", "Seasonal", "Weekly") rather than abstract lifestyle descriptors.
+Add a **Focus mode toggle** to the bottom-right of the Next-Offer phone view. Default ON → only the Curated Collection carousel shows. Toggle OFF → all other elements (Welcome bar, Location Experience, Top Pick, Expiring Soon) reappear.
 
-## Changes required
+## Plan
 
-**`supabase/functions/synthesize-persona/index.ts`** — Update the system prompt:
+### `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
 
-1. **Add explicit pattern instruction**: Require labels to incorporate the temporal/cadence pattern directly into the rollup name (e.g., "Annual Hawaiian Vacations", "Seasonal Tennis & Ski", "Weekly Dining Out").
+1. Add state: `const [focusMode, setFocusMode] = useState(true);`
+2. Wrap these blocks in `{!focusMode && (...)}`:
+   - Savings Summary Bar (Welcome + savings)
+   - Location Experience (MoMA / Mets)
+   - Top Pick For You
+   - Expiring Soon
+3. Always render the Curated Collection carousel (header + cards + nav dots).
+4. Add a small toggle row pinned just above the search bar at the bottom of the phone, right-aligned:
+   ```
+   [                    Layers · Focus  [Switch] ]
+   [ 🔍 Search deals...                          ]
+   ```
+   Use `@/components/ui/switch` + `Layers` icon from lucide. Tiny text (`text-[9px]`), right-aligned.
 
-2. **Replace abstract phrasing**: Guide the model away from vague lifestyle terms like "Enthusiast", "Lover", "Fan", "Devotee" and toward concrete activity descriptors.
+## Files touched
 
-3. **Enforce cadence inclusion**: When dates show clear patterns (annual, seasonal, weekly), the label must include that pattern explicitly rather than burying it in implied language.
+- `src/components/exec-demo/GeneratedOffersPhoneView.tsx`
 
-### Prompt additions
+## Verification
 
-After line 93 ("Never mention brand or merchant names..."), add:
+1. `/demo` → Next-Offer tab → only Curated Collection carousel visible.
+2. Toggle off → Welcome, Location, Top Pick, Expiring Soon reappear above.
+3. Toggle on → only carousel + search remain.
 
-```text
-- **Pattern-forward naming**: Labels must explicitly state the behavioral pattern when cadence is clear. Use formats like:
-  - "[Frequency] [Activity]" → "Annual Hawaiian Vacations", "Weekly Workday Coffee Runs"
-  - "[Activity] [Pattern]" → "Tennis & Ski Seasonal Sports", "Casual Dining Regular"
-  - "[Season] [Activity]" → "Winter Ski Trips", "Summer Coastal Travel"
-- Avoid abstract lifestyle descriptors like "Enthusiast", "Fan", "Lover", "Buff", "Aspirant" — use concrete activity terms instead.
-```
+## Out of scope
 
-Update the existing cadence guidance (line 95) from:
-> "bake it into the label naturally — 'workday coffee runs', 'weekly grocery runs', 'annual hawaii trips'"
-
-To:
-> "explicitly encode cadence in the label — 'Annual Hawaiian Vacations' (not 'Hawaii Vacationer'), 'Tennis & Ski Seasonal Sports' (not 'Alpine & Court Enthusiast'), 'Weekly Workday Coffee Runs'."
-
-### Verification
-
-1. Re-run analysis on a customer with Hawaii travel → label should read "Annual Hawaiian Vacations" or similar pattern-based name.
-2. Customer with mixed sports (ski + tennis) → label should read "Tennis & Ski Seasonal Sports" or similar.
-3. Verify "Enthusiast", "Vacationer", "Lover" no longer appear in generated rollups.
+Carousel internals, search behavior, other tabs.
 
