@@ -47,11 +47,35 @@ CRITICAL MAPPING RULE:
 DEAL RULES:
 - Exactly 5 deals per event, all with signal: "boost".
 - 8-12 word messages, no demographic references.
-- Lifestyle-driven 2-4 word CTAs.
-- Each deal: merchant, product, rewardValue, message, cta, signal, signalReason, optional boostCategory.
+- Lifestyle-driven 2-4 word CTAs (e.g. "Ace the Test", "Move Smarter", "Furnish the Dorm").
+- Each deal MUST include: merchant, product, rewardValue, message, cta, signal: "boost", signalReason, AND boostCategory.
 
-Output valid JSON only:
-{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","deals":[{"id":"le1_d1","merchant":"Brand","product":"...","rewardValue":"...","message":"...","cta":"...","signal":"boost","signalReason":"...","boostCategory":"..."},...]},...]}`;
+REQUIRED FIELDS — STRICT:
+
+1. boostCategory (REQUIRED on every deal):
+   - A short 1-3 word product-type label tied to the life event.
+   - Examples for College Prep: "Tuition Savings", "Test Prep", "Dorm Essentials", "Laptops", "Textbooks", "Meal Plans".
+   - Examples for Home Purchase: "Mortgage Tools", "Moving Services", "Home Insurance", "Furniture", "Appliances", "Closing Costs".
+   - Examples for New Baby: "Diapers", "Stroller", "Nursery", "Baby Food", "Childcare", "Pediatric Care".
+   - These render as green trend chips in the UI — they MUST be present on every single deal.
+
+2. signalReason (REQUIRED — must be SPECIFIC, never generic):
+   - MUST reference an actual evidence merchant from the input OR a concrete behavioral signal tied to the life event.
+   - GOOD: "Khan Academy subscription → upgrade to live SAT prep", "3 visits to Zillow → ready for closing-cost coverage", "Recurring Pottery Barn Kids spend → nursery completion".
+   - BAD (FORBIDDEN — never emit these): "Merchant evidence for Home Purchase", "Aligned with this life event", "Relevant to your situation", "Matches your profile".
+   - If the life event has evidence_merchants, you MUST cite at least one of them by name across the 5 deals.
+
+3. suppressedCategories (REQUIRED at the rollup level — array of 0-3 strings):
+   - List broad categories the customer already covers based on the evidence_merchants for this event.
+   - Example: for "College Preparation for Dependent" with Khan Academy in evidence, suppress "Online Tutoring".
+   - Example: for "Home Purchase" with a Zillow + Redfin pattern, suppress "Home Search Tools".
+   - These render as gray "✓ already covered" chips. Empty array [] is allowed only if no evidence supports suppression.
+
+COLLECTION MESSAGE:
+- "collectionMessage" is a short 8-15 word lifestyle tagline introducing the collection. Aspirational, no demographics.
+
+Output valid JSON only, no markdown:
+{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
