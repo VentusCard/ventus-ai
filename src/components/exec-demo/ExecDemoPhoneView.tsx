@@ -9,6 +9,7 @@ import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView
 import RelationshipPhoneView from "./RelationshipPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { PillarRollup } from "./ExecDemoIntelPanel";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type ConsumerTab = "rewards" | "product" | "relationship" | "ai";
@@ -37,9 +38,10 @@ interface Props {
   productCards?: ProductCard[] | null;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  pillarRollups?: PillarRollup[];
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, pillarRollups }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         );
       case "product":
         if (productCards && productCards.length > 0) {
-          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} />;
+          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} pillarRollups={pillarRollups} detectedLifeEvents={detectedLifeEvents} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
