@@ -41,6 +41,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
+  const [focusMode, setFocusMode] = useState(true);
 
   // Sync with external activeTab changes
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={focusMode} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
