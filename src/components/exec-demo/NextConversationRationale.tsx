@@ -638,7 +638,7 @@ export default function NextConversationRationale({
               boxShadow: "0 2px 8px rgba(139,92,246,.35)",
             }}
           >
-            Open WM Copilot for {customerFirstName}
+            Open WM CoPilot
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
