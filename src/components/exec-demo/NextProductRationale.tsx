@@ -741,12 +741,12 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
     const renderColumn = (resolved: ResolvedCard, idx: number) => {
       const isActive = activeTriggerLabel === resolved.resolvedLabel;
       return (
-        <div className="flex-1 min-w-0 space-y-2.5">
+        <div className="flex-1 min-w-0 flex flex-col gap-2.5">
           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
             {resolved.isBehavioral ? "Shopping Habit" : "Life Event"}
           </div>
           <div
-            className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
+            className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
             style={{
               background: `linear-gradient(135deg, ${resolved.color.dot}10, ${resolved.color.dot}20)`,
               color: resolved.color.text,
@@ -768,10 +768,12 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
               </span>
             )}
           </div>
-          <ProductCardBody
-            resolved={resolved}
-            index={idx}
-          />
+          <div className="flex-1 flex">
+            <ProductCardBody
+              resolved={resolved}
+              index={idx}
+            />
+          </div>
         </div>
       );
     };
