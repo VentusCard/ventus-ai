@@ -632,7 +632,7 @@ export default function NextConversationRationale({
           {/* Open WM Copilot button */}
           <button
             onClick={onOpenWMCopilot}
-            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            className="w-full mt-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
               boxShadow: "0 2px 8px rgba(139,92,246,.35)",
