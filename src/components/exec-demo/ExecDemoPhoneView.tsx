@@ -39,7 +39,7 @@ interface Props {
   enrichedTxs?: EnrichedTransaction[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
   aiTabTrigger?: number;
-  pendingAIPrompt?: { text: string; nonce: number } | null;
+  pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk" } | null;
 }
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt }: Props) {
@@ -110,6 +110,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             riskFlags={riskFlags ?? undefined}
             initialMessage={pendingAIMessage}
             messageNonce={pendingAIPrompt?.nonce}
+            initialMessageKind={pendingAIPrompt?.kind}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );

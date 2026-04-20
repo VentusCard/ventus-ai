@@ -15,6 +15,8 @@ import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  actions?: string[];
+  kind?: "lifestyle" | "lifeEvent" | "risk" | "general";
 }
 
 interface Props {
@@ -27,6 +29,7 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   initialMessage?: string | null;
   messageNonce?: number;
+  initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
   onInitialMessageConsumed?: () => void;
 }
 
@@ -174,7 +177,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -201,7 +204,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
-      sendMessage(initialMessage);
+      sendMessage(initialMessage, initialMessageKind);
       onInitialMessageConsumed?.();
     }
   }, [initialMessage, messageNonce]);
@@ -248,7 +251,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     return md;
   };
 
-  const sendMessage = async (text: string) => {
+  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general") => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
@@ -256,6 +259,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setIsLoading(true);
 
     const isRiskAction = text.toLowerCase().includes("risk factors");
+    const effectiveKind = kind ?? "general";
 
     try {
       if (isRiskAction) {
@@ -273,7 +277,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
           const formatted = formatRiskFlags(riskData);
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", content: formatted },
+            { role: "assistant", content: formatted, kind: "risk" },
           ]);
         } else {
           setMessages((prev) => [
@@ -287,14 +291,24 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             message: text,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
             context,
+            kind: effectiveKind,
           },
         });
 
         if (error) throw error;
 
+        const actions: string[] | undefined = Array.isArray(data?.actions) && data.actions.length > 0
+          ? data.actions.slice(0, 2)
+          : undefined;
+
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
+          {
+            role: "assistant",
+            content: data?.message || "I'm here to help! Could you rephrase that?",
+            actions,
+            kind: effectiveKind,
+          },
         ]);
       }
     } catch {
@@ -351,20 +365,36 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     <Bot className="h-3 w-3 text-blue-600" />
                   </div>
                 )}
-                <div
-                  className={cn(
-                    "rounded-2xl px-3 py-2 text-[13px] max-w-[80%] overflow-hidden break-words",
-                    msg.role === "user"
-                      ? "bg-blue-600 text-white rounded-br-sm"
-                      : "bg-slate-100 text-slate-800 rounded-bl-sm"
-                  )}
-                >
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <div className={cn("flex flex-col gap-1.5 max-w-[80%]", msg.role === "user" ? "items-end" : "items-start")}>
+                  <div
+                    className={cn(
+                      "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
+                      msg.role === "user"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-slate-100 text-slate-800 rounded-bl-sm"
+                    )}
+                  >
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.actions.map((action, ai) => (
+                        <button
+                          key={`${i}-${ai}`}
+                          type="button"
+                          onClick={() => { /* visual only — not wired */ }}
+                          className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                        >
+                          {action}
+                        </button>
+                      ))}
                     </div>
-                  ) : (
-                    msg.content
                   )}
                 </div>
                 {msg.role === "user" && (

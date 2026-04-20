@@ -54,7 +54,7 @@ interface Props {
   riskLoading?: boolean;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
-  onAIPromptDispatch?: (prompt: string) => void;
+  onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk") => void;
   assistantOpen?: boolean;
 }
 
@@ -392,7 +392,8 @@ export default function ExecDemoIntelPanel({
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
                       if (assistantOpen) {
                         onAIPromptDispatch?.(
-                          `How much do I typically spend on ${r.label.toLowerCase()}?`
+                          `How much do I typically spend on ${r.label.toLowerCase()}?`,
+                          "lifestyle"
                         );
                       }
                     }
@@ -403,7 +404,8 @@ export default function ExecDemoIntelPanel({
                       setSelectedSignal({ kind: "lifeEvent", label });
                       if (assistantOpen) {
                         onAIPromptDispatch?.(
-                          `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`
+                          `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
+                          "lifeEvent"
                         );
                       }
                     }
@@ -415,7 +417,8 @@ export default function ExecDemoIntelPanel({
                       const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
                       if (assistantOpen) {
                         onAIPromptDispatch?.(
-                          `What is this transaction ${subject}? What is it typically associated with statistically?`
+                          `What is this transaction ${subject}? What is it typically associated with statistically?`,
+                          "risk"
                         );
                       }
                     }
