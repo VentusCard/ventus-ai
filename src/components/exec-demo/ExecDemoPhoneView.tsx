@@ -41,9 +41,10 @@ interface Props {
   enrichedTxs?: EnrichedTransaction[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
   aiTabTrigger?: number;
+  pendingAIPrompt?: { text: string; nonce: number } | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -54,12 +55,20 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     setConsumerTab(mappedTab);
   }, [mappedTab]);
 
-  // External trigger to force AI tab (e.g. from "Open AI Banking Assistant" button)
+  // External trigger to force AI tab (e.g. from "Open AI Banking Assistant" button or pill clicks)
   useEffect(() => {
     if (aiTabTrigger && aiTabTrigger > 0) {
       setConsumerTab("ai");
     }
   }, [aiTabTrigger]);
+
+  // When a pill dispatches a new prompt, queue it for the chat view and switch to AI tab
+  useEffect(() => {
+    if (pendingAIPrompt && pendingAIPrompt.text) {
+      setPendingAIMessage(pendingAIPrompt.text);
+      setConsumerTab("ai");
+    }
+  }, [pendingAIPrompt]);
 
   const renderContent = () => {
     switch (consumerTab) {
@@ -109,6 +118,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             personalizedDeals={personalizedDeals as any}
             riskFlags={riskFlags ?? undefined}
             initialMessage={pendingAIMessage}
+            messageNonce={pendingAIPrompt?.nonce}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
