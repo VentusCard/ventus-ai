@@ -1,5 +1,5 @@
-import { Fragment } from "react";
-import { ChevronRight, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
+import { useState, useEffect, useRef, TouchEvent } from "react";
+import { ChevronRight, ChevronLeft, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
   type: "behavioral" | "life_event";
@@ -61,79 +61,147 @@ const THEME_VALUE: Record<string, string> = {
 
 interface Props {
   cards: ProductCard[];
-  customerName: string;
+  customerName?: string;
+  compact?: boolean;
 }
 
-export default function ProductCardsPhoneView({ cards }: Props) {
+export default function ProductCardsPhoneView({ cards, compact = false }: Props) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  const total = cards.length;
+
+  // Auto-advance
+  useEffect(() => {
+    if (paused || total <= 1) return;
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % total);
+    }, 6000);
+    return () => clearInterval(id);
+  }, [paused, total]);
+
+  // Reset index if card list shrinks
+  useEffect(() => {
+    if (index >= total) setIndex(0);
+  }, [total, index]);
+
   if (!cards.length) return null;
 
-  // Show exactly two cards side by side
-  const displayCards = cards.slice(0, 2);
+  const goTo = (i: number) => {
+    setPaused(true);
+    setIndex(((i % total) + total) % total);
+  };
+  const next = () => goTo(index + 1);
+  const prev = () => goTo(index - 1);
+
+  const onTouchStart = (e: TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) next();
+      else prev();
+    }
+    touchStartX.current = null;
+  };
 
   return (
-    <div className="px-2 py-3">
-      <div className="flex items-stretch">
-        {displayCards.map((card, i) => {
-          const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-          const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
-          const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
-          const isFirst = i === 0;
+    <div className={compact ? "px-2 py-1" : "px-2 py-3"}>
+      <div className="relative">
+        {/* Slider viewport */}
+        <div
+          className="overflow-hidden"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <div
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${index * 100}%)` }}
+          >
+            {cards.map((card, i) => {
+              const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
+              const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
 
-          return (
-            <Fragment key={i}>
-              {!isFirst && (
-                <div
-                  className="w-px bg-slate-200 mx-1 self-stretch"
-                  aria-hidden
-                />
-              )}
-              <div className="flex-1 min-w-0">
-                <div
-                  className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
-                  style={{
-                    borderTop: `3px solid ${style.accent}`,
-                    animation: `phone-card-reveal 0.4s ease-out ${i * 0.1}s both`,
-                  }}
-                >
-                  <div className="p-2.5 flex flex-col flex-1">
-                    <p className="text-[11px] font-bold text-slate-800 leading-tight mb-1 line-clamp-2">{card.product_name}</p>
-                    <p className="text-[9px] text-slate-500 italic leading-snug mb-1.5 line-clamp-3">"{card.quote}"</p>
-                    <div className="space-y-1 mb-2 flex-1">
-                      {benefits.map((b, bi) => (
-                        <div key={bi} className="flex items-start gap-1">
-                          <Check className="w-2.5 h-2.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                          <span className="text-[9px] text-slate-600 leading-snug">{b}</span>
-                        </div>
-                      ))}
+              return (
+                <div key={i} className="w-full shrink-0 px-1">
+                  <div
+                    className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
+                    style={{ borderTop: `3px solid ${style.accent}` }}
+                  >
+                    <div className={`${compact ? "p-2.5" : "p-3"} flex flex-col flex-1`}>
+                      <p className="text-[12px] font-bold text-slate-800 leading-tight mb-1 line-clamp-2">{card.product_name}</p>
+                      <p className="text-[10px] text-slate-500 italic leading-snug mb-2 line-clamp-3">"{card.quote}"</p>
+                      <div className="space-y-1 mb-2 flex-1">
+                        {benefits.map((b, bi) => (
+                          <div key={bi} className="flex items-start gap-1.5">
+                            <Check className="w-3 h-3 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                            <span className="text-[10px] text-slate-600 leading-snug">{b}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[10px] font-bold mb-1.5 leading-tight" style={{ color: style.accent }}>
+                        Est. {value}
+                      </p>
+                      <button
+                        className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5"
+                        style={{ background: style.accent }}
+                      >
+                        Learn More <ChevronRight className="w-3 h-3" />
+                      </button>
                     </div>
-                    <p className="text-[9px] font-bold mb-1.5 leading-tight" style={{ color: style.accent }}>
-                      Est. {value}
-                    </p>
-                    <button
-                      className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5"
-                      style={{ background: style.accent }}
-                    >
-                      Learn More <ChevronRight className="w-3 h-3" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            </Fragment>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Chevrons */}
+        {total > 1 && (
+          <>
+            <button
+              onClick={prev}
+              aria-label="Previous"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-white"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
+            </button>
+            <button
+              onClick={next}
+              aria-label="Next"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-white"
+            >
+              <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Disclaimer */}
-      <p className="text-[9px] text-slate-300 text-center px-4 mt-2">
-        Recommendations based on your financial profile
-      </p>
+      {/* Dots */}
+      {total > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-2">
+          {cards.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Go to card ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all ${i === index ? "w-4 bg-slate-700" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`}
+            />
+          ))}
+        </div>
+      )}
 
-      <style>{`
-        @keyframes phone-card-reveal {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {!compact && (
+        <p className="text-[9px] text-slate-300 text-center px-4 mt-2">
+          Recommendations based on your financial profile
+        </p>
+      )}
     </div>
   );
 }

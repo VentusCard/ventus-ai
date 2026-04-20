@@ -91,7 +91,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
         );
       case "relationship":
-        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "ai": {
         const personalizedDeals = generatedOffers && generatedOffers.length > 0
           ? {
