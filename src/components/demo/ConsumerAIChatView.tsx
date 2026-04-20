@@ -22,6 +22,7 @@ interface Props {
   personalizedDeals?: PersonalizedDealData | null;
   riskFlags?: { flags: any[]; summary: string } | null;
   initialMessage?: string | null;
+  messageNonce?: number;
   onInitialMessageConsumed?: () => void;
 }
 
@@ -139,7 +140,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, riskFlags, initialMessage, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, riskFlags, initialMessage, messageNonce, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -158,12 +159,18 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   }, [messages]);
 
   useEffect(() => {
+    // Reset the "already sent" guard whenever the nonce changes so repeat
+    // clicks of the same pill re-fire the message.
+    initialMessageSentRef.current = false;
+  }, [messageNonce]);
+
+  useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
       sendMessage(initialMessage);
       onInitialMessageConsumed?.();
     }
-  }, [initialMessage]);
+  }, [initialMessage, messageNonce]);
 
   const formatRiskFlags = (data: { flags: any[]; summary: string }): string => {
     if (!data.flags || data.flags.length === 0) {
