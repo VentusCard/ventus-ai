@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import useEmblaCarousel from "embla-carousel-react";
+import { Fragment } from "react";
 import { ChevronRight, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
@@ -26,33 +25,33 @@ const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof 
 };
 
 const THEME_BENEFITS: Record<string, string[]> = {
-  travel: ["3X points on travel & dining", "No foreign transaction fees", "$100 annual travel credit"],
-  dining: ["4X points at restaurants", "Complimentary DashPass", "$50 dining credit annually"],
-  fitness: ["Gym membership credits", "Wellness reward multipliers", "Wearable purchase cashback"],
-  shopping: ["5% cashback on select retail", "Extended warranty protection", "Price-match guarantee"],
-  entertainment: ["3X on streaming & events", "Early-access concert tickets", "Annual entertainment credit"],
-  home: ["Competitive HELOC rates", "No closing costs", "Rate lock guarantee"],
-  education: ["Tax-advantaged growth", "Flexible investment options", "Low account minimums"],
-  retirement: ["Tax-efficient withdrawals", "Personalized glide path", "Fee-free advisory sessions"],
-  family: ["Family spending insights", "Child account linking", "College savings match"],
-  business: ["2% cashback on operations", "Expense management tools", "Higher credit limits"],
-  wellness: ["HSA contribution matching", "Preventive care rewards", "Mental health benefits"],
-  lifestyle: ["Preferred rates across products", "Priority customer service", "Annual loyalty bonus"],
+  travel: ["3X points on travel", "No FX fees", "$100 travel credit"],
+  dining: ["4X at restaurants", "DashPass included", "$50 dining credit"],
+  fitness: ["Gym credits", "Wellness multipliers", "Wearable cashback"],
+  shopping: ["5% select retail", "Extended warranty", "Price-match"],
+  entertainment: ["3X streaming & events", "Early ticket access", "Annual credit"],
+  home: ["Competitive HELOC", "No closing costs", "Rate lock"],
+  education: ["Tax-advantaged growth", "Flexible options", "Low minimums"],
+  retirement: ["Tax-efficient withdrawals", "Custom glide path", "Fee-free advice"],
+  family: ["Family insights", "Child accounts", "529 match"],
+  business: ["2% cashback", "Expense tools", "Higher limits"],
+  wellness: ["HSA matching", "Preventive rewards", "Mental health"],
+  lifestyle: ["Preferred rates", "Priority service", "Loyalty bonus"],
 };
 
 const THEME_VALUE: Record<string, string> = {
-  travel: "$450–$680/yr in travel rewards",
-  dining: "$220–$340/yr in dining cashback",
-  fitness: "$180–$260/yr in wellness credits",
-  shopping: "$300–$520/yr in retail cashback",
-  entertainment: "$200–$380/yr in entertainment value",
-  home: "Save $3,200+ in closing costs",
-  education: "Tax-free growth up to $10K/yr",
-  retirement: "Save $1,800+/yr in advisory fees",
-  family: "$280–$450/yr in family benefits",
-  business: "$600–$1,200/yr in cashback",
-  wellness: "$240–$400/yr in health savings",
-  lifestyle: "$150–$300/yr in loyalty rewards",
+  travel: "$450–$680/yr",
+  dining: "$220–$340/yr",
+  fitness: "$180–$260/yr",
+  shopping: "$300–$520/yr",
+  entertainment: "$200–$380/yr",
+  home: "Save $3,200+",
+  education: "$10K/yr tax-free",
+  retirement: "Save $1,800+/yr",
+  family: "$280–$450/yr",
+  business: "$600–$1,200/yr",
+  wellness: "$240–$400/yr",
+  lifestyle: "$150–$300/yr",
 };
 
 interface Props {
@@ -61,98 +60,63 @@ interface Props {
 }
 
 export default function ProductCardsPhoneView({ cards }: Props) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  // Track active slide
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
-    emblaApi.on("select", onSelect);
-    onSelect();
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi]);
-
-  // Auto-advance every 5s, pause briefly on user interaction
-  useEffect(() => {
-    if (!emblaApi || isPaused || cards.length <= 1) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
-    return () => clearInterval(interval);
-  }, [emblaApi, isPaused, cards.length]);
-
-  const handleDotClick = (i: number) => {
-    if (!emblaApi) return;
-    emblaApi.scrollTo(i);
-    setIsPaused(true);
-    setTimeout(() => setIsPaused(false), 8000);
-  };
-
   if (!cards.length) return null;
 
-  return (
-    <div className="px-3 py-3">
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {cards.map((card, i) => {
-            const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-            const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
-            const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
-            const isActive = i === selectedIndex;
+  // Show exactly two cards side by side
+  const displayCards = cards.slice(0, 2);
 
-            return (
-              <div key={i} className="flex-[0_0_100%] min-w-0 pr-1">
+  return (
+    <div className="px-2 py-3">
+      <div className="flex items-stretch">
+        {displayCards.map((card, i) => {
+          const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+          const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
+          const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
+          const isFirst = i === 0;
+
+          return (
+            <Fragment key={i}>
+              {!isFirst && (
                 <div
-                  className="bg-white rounded-2xl shadow-sm overflow-hidden"
+                  className="w-px bg-slate-200 mx-1 self-stretch"
+                  aria-hidden
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div
+                  className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
                   style={{
-                    borderLeft: `3px solid ${style.accent}`,
-                    animation: isActive ? `phone-card-reveal 0.4s ease-out both` : undefined,
+                    borderTop: `3px solid ${style.accent}`,
+                    animation: `phone-card-reveal 0.4s ease-out ${i * 0.1}s both`,
                   }}
                 >
-                  <div className="p-3.5">
-                    <p className="text-[13px] font-bold text-slate-800 leading-snug mb-1">{card.product_name}</p>
-                    <p className="text-[11px] text-slate-500 italic leading-relaxed mb-2">"{card.quote}"</p>
-                    <div className="space-y-1.5 mb-2">
+                  <div className="p-2.5 flex flex-col flex-1">
+                    <p className="text-[11px] font-bold text-slate-800 leading-tight mb-1 line-clamp-2">{card.product_name}</p>
+                    <p className="text-[9px] text-slate-500 italic leading-snug mb-1.5 line-clamp-3">"{card.quote}"</p>
+                    <div className="space-y-1 mb-2 flex-1">
                       {benefits.map((b, bi) => (
-                        <div key={bi} className="flex items-start gap-2">
-                          <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                          <span className="text-[11px] text-slate-600 leading-snug">{b}</span>
+                        <div key={bi} className="flex items-start gap-1">
+                          <Check className="w-2.5 h-2.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                          <span className="text-[9px] text-slate-600 leading-snug">{b}</span>
                         </div>
                       ))}
                     </div>
-                    <p className="text-[11px] font-bold mb-2.5" style={{ color: style.accent }}>Est. value: {value}</p>
-                    <button className="w-full py-2 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1" style={{ background: style.accent }}>
-                      Learn More <ChevronRight className="w-3.5 h-3.5" />
+                    <p className="text-[9px] font-bold mb-1.5 leading-tight" style={{ color: style.accent }}>
+                      Est. {value}
+                    </p>
+                    <button
+                      className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5"
+                      style={{ background: style.accent }}
+                    >
+                      Learn More <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </Fragment>
+          );
+        })}
       </div>
-
-      {/* Dot indicators */}
-      {cards.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-3">
-          {cards.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handleDotClick(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className="transition-all"
-              style={{
-                width: i === selectedIndex ? 18 : 6,
-                height: 6,
-                borderRadius: 3,
-                background: i === selectedIndex ? "#475569" : "#cbd5e1",
-              }}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Disclaimer */}
       <p className="text-[9px] text-slate-300 text-center px-4 mt-2">
