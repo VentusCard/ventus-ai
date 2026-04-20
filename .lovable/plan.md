@@ -1,43 +1,48 @@
 
 
 ## Goal
-On the Next-Conversation tab, make each column fill the available height with the "Open" CTA button anchored to the bottom, and bump up text sizes so the content uses the space.
+Two changes on the Next-Conversation tab:
+1. Behavioral signal pills should ONLY update the in-tab content (the two columns) — not open the phone mockup.
+2. Phone mockup opens ONLY when "Open AI Banking Assistant" is clicked.
+3. Once the phone is open, clicking a behavioral signal pill fires a chat prompt into the assistant (not just updates content).
 
-## Changes — `src/components/exec-demo/NextConversationRationale.tsx`
+## Investigation needed
+I need to confirm the exact wiring before finalizing — specifically:
+- Where pill clicks are handled (likely `ExecDemoLeftPanel.tsx`)
+- Where phone mockup visibility state lives (likely `ExecDemoIntelPanel.tsx` or `ExecDemoPage.tsx`)
+- How the assistant phone view receives messages (likely the `initialMessage`/`messageNonce` pattern seen in `ConsumerAIChatView.tsx`)
 
-### 1. Column containers (lines 427, 515)
-Add `h-full` and `flex-1` so each column stretches; wrap content above the button in a `flex-1` content area to push the button down.
+## Plan
 
-Structure per column:
-```
-<div className="... flex flex-col h-full">
-  <div className="flex-1 space-y-3 overflow-hidden"> ...content cards... </div>
-  <button className="w-full ..." />  ← anchored at bottom (no mt-auto needed)
-</div>
-```
+### State model (in the parent container, likely `ExecDemoIntelPanel.tsx`)
+- `activeSignal` — set by pill clicks, drives column content
+- `assistantOpen` — boolean, only flipped true by "Open AI Banking Assistant" button
+- `assistantPrompt` + `promptNonce` — pushed into the phone chat when a pill is clicked AND assistant is already open
 
-### 2. Larger typography
-Bump up the cramped text:
-- Section labels (`text-[10px]` → `text-xs`)
-- Card headers (`text-[10px]` → `text-sm`, semibold)
-- Subjects/triggers (`text-[10px]/[9px]` → `text-sm/text-xs`)
-- Bullet items (`text-[10px]` → `text-sm`, slightly more line-height)
-- "Knows / Can answer / Personalized prep brief includes" mini-labels (`text-[9px]` → `text-[11px]`)
-- Bullet dots: `w-1 h-1` → `w-1.5 h-1.5`
-- Card padding: `px-2.5 py-2` → `px-3 py-2.5`
-- Card spacing: `space-y-2` → `space-y-2.5`
+### Behavior matrix
+| Action | Assistant closed | Assistant open |
+|---|---|---|
+| Click signal pill | Update `activeSignal` only | Update `activeSignal` + push prompt to chat (bump nonce) |
+| Click "Open AI Banking Assistant" | Set `assistantOpen=true` (no auto-prompt) | No-op |
+| Click "Open WM CoPilot" | Unchanged existing behavior | Unchanged |
 
-### 3. CTA buttons (lines 503–513, 592–602)
-- Slightly larger: `text-[11px]` → `text-sm`, `py-2` → `py-2.5`
-- Remove `mt-auto` (parent flex now handles bottom-anchoring via `flex-1` spacer above)
+### Files to change
+1. **`src/components/exec-demo/ExecDemoLeftPanel.tsx`** (or wherever pills live) — pill `onClick` calls a handler from parent: `onSignalSelect(signal)`. No phone-opening side effect.
+2. **`src/components/exec-demo/ExecDemoIntelPanel.tsx`** — own the new state (`assistantOpen`, `assistantPrompt`, `promptNonce`). Implement `onSignalSelect`: always update active signal; if `assistantOpen`, also build a prompt string (e.g. `"Tell me about this customer's ${signal.label} signal and what to discuss next."`) and bump nonce.
+3. **`src/components/exec-demo/NextConversationRationale.tsx`** — "Open AI Banking Assistant" button → calls `onOpenAssistant()` prop (no longer triggered by pill).
+4. **`src/components/exec-demo/ExecDemoPhoneView.tsx`** (or whichever component renders the phone for this tab) — pass `initialMessage={assistantPrompt}` and `messageNonce={promptNonce}` through to `ConsumerAIChatView`. The existing nonce-based effect in `ConsumerAIChatView` (already implemented) will fire `sendMessage` each time nonce changes.
 
-### 4. Action pills section (Wealth column, lines 557–589)
-Keep but slightly larger pill text (`text-[10px]` → `text-[11px]`) so it doesn't look mismatched.
+### Prompt template (when pill clicked while assistant open)
+`"Walk me through this customer's {signal.label} signal — what's the recommended next conversation?"`
 
-### Verification target
-Both "Open AI Banking Assistant" (left) and "Open WM CoPilot" (right) buttons sit on the same horizontal line at the bottom of the panel, regardless of how much content each column has. Content above expands to fill, with readable (~13–14px) text.
+### Verification
+- Close phone → click 3 different pills → only columns update, phone never appears.
+- Click "Open AI Banking Assistant" → phone opens with welcome state, no auto-message.
+- With phone open → click a pill → columns update AND a new user message appears in chat with assistant response streaming back.
+- Click "Open WM CoPilot" → unchanged.
 
 ### Out of scope
-- All-Signals roll-up view (untouched)
-- Playbook content / props / data shape
+- Other tabs (Next-Offer, Next-Product)
+- Wealth column / WM CoPilot behavior
+- Pill or column styling
 
