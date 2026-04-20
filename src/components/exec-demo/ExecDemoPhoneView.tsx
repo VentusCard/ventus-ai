@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, CreditCard, Wifi, Battery, Layers } from "lucide-react";
+import { Gift, Users, Bot, Wifi, Battery, Layers } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import type { DemoCustomer } from "@/lib/demoData";
 
@@ -12,18 +12,17 @@ import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "rewards" | "product" | "relationship" | "ai";
+type ConsumerTab = "rewards" | "relationship" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
   rewards: "rewards",
-  product: "product",
+  product: "relationship",
   relationship: "ai",
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
-  { key: "product", label: "Offers", icon: CreditCard, color: "#6366f1" },
   { key: "relationship", label: "Membership", icon: Users, color: "#8b5cf6" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
@@ -79,15 +78,6 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         return (
           <div className="flex items-center justify-center h-full">
             <span className="text-[11px] text-slate-300">Personalizing rewards...</span>
-          </div>
-        );
-      case "product":
-        if (productCards && productCards.length > 0) {
-          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} />;
-        }
-        return (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-[11px] text-slate-300">Detecting life events...</span>
           </div>
         );
       case "relationship":
@@ -160,7 +150,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               TCBY Bank · {customer.profile.name.split(" ")[0]}
             </span>
           </div>
-          {(consumerTab === 'product' || consumerTab === 'ai') && <span className="text-[8px] text-slate-400 px-1">Using Bank of America product information as reference.</span>}
+          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="text-[8px] text-slate-400 px-1">Using Bank of America product information as reference.</span>}
         </div>
 
         {/* Content */}
