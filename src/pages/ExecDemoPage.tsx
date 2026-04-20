@@ -961,11 +961,13 @@ export default function ExecDemoPage() {
               activeTab={activeTab}
               phase={phase}
               showContent={activeTab !== null && phase !== "idle"}
-              generatedOffers={generatedOffers}
+            generatedOffers={generatedOffers}
               detectedLifeEvents={detectedLifeEvents}
               productCards={productCards}
               activeRollupLabel={activeRollup?.label || null}
               activeRollupPillar={activeRollup?.pillar || null}
+              enrichedTxs={classifiedRef.current}
+              riskFlags={riskFlags}
             />
           </div>
         </div>

@@ -91,7 +91,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           event_name: e.event_name,
           confidence: e.confidence,
           talking_points: e.talking_points,
-        }));
+          evidence: (e as any).evidence ?? [],
+        })) as any;
         return (
           <ConsumerAIChatView
             customer={customer}
