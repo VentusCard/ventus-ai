@@ -420,7 +420,7 @@ export default function NextConversationRationale({
   const standardActions = matchedActions.filter(a => a.tone === "standard");
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
       {/* Signal context header */}
       <div
         className="rounded-lg px-3 py-2 flex items-center gap-2"
@@ -463,9 +463,9 @@ export default function NextConversationRationale({
       )}
 
       {/* Vertical split: Regular (left) | Wealth (right) */}
-      <div className="grid grid-cols-2 gap-0">
+      <div className="grid grid-cols-2 gap-0 flex-1 min-h-0">
         {/* REGULAR CLIENT — LEFT */}
-        <div className="pr-3 space-y-2">
+        <div className="pr-3 space-y-2 flex flex-col">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
             <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
@@ -543,7 +543,7 @@ export default function NextConversationRationale({
           {/* Open AI Banking Assistant button */}
           <button
             onClick={onOpenAIAssistant}
-            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            className="w-full mt-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
               boxShadow: "0 2px 8px rgba(59,130,246,.35)",
@@ -553,7 +553,7 @@ export default function NextConversationRationale({
             <MessageSquare className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="pl-3 border-l border-slate-200 space-y-2">
+        <div className="pl-3 border-l border-slate-200 space-y-2 flex flex-col">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
             <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
@@ -632,7 +632,7 @@ export default function NextConversationRationale({
           {/* Open WM Copilot button */}
           <button
             onClick={onOpenWMCopilot}
-            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            className="w-full mt-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
               boxShadow: "0 2px 8px rgba(139,92,246,.35)",
