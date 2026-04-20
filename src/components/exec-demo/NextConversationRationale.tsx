@@ -52,6 +52,42 @@ const FALLBACK_PLAYBOOK: Playbook = {
   },
 };
 
+// Synthesized risk-appropriate actions used when no risk product card was generated.
+// Keyed loosely by the risk signal label/category. Always returns both standard + wow tones.
+function synthesizeRiskActions(label: string): CardAction[] {
+  const l = (label || "").toLowerCase();
+  const isVice = /gambl|bet|sport|adult|payday|pawn|crypto/.test(l);
+  const isIntl = /international|ofac|currency|sanction|foreign/.test(l);
+  const isAML = /aml|structur|layer|kyc/.test(l);
+
+  if (isVice) {
+    return [
+      { label: "Push: Set Merchant Block", icon: "shield", color: "slate", tone: "standard" },
+      { label: "Suppress Category Marketing", icon: "bell", color: "slate", tone: "standard" },
+      { label: "Discreet Wellness Check-in", icon: "user-check", color: "rose", tone: "wow" },
+      { label: "Personalized Spending Limit", icon: "lightbulb", color: "indigo", tone: "wow" },
+    ];
+  }
+  if (isIntl) {
+    return [
+      { label: "SMS Verification Sent", icon: "bell", color: "sky", tone: "standard" },
+      { label: "Card-Freeze Quick Action", icon: "shield", color: "slate", tone: "standard" },
+      { label: "Concierge Fraud-Team Callback", icon: "user-check", color: "rose", tone: "wow" },
+    ];
+  }
+  if (isAML) {
+    return [
+      { label: "Flag for Compliance Review", icon: "shield", color: "slate", tone: "standard" },
+      { label: "KYC Refresh Sent", icon: "bell", color: "indigo", tone: "standard" },
+      { label: "Private Compliance Liaison", icon: "user-check", color: "indigo", tone: "wow" },
+    ];
+  }
+  return [
+    { label: "Account Review Flagged", icon: "shield", color: "slate", tone: "standard" },
+    { label: "Discreet Advisor Outreach", icon: "user-check", color: "rose", tone: "wow" },
+  ];
+}
+
 // Keyed by lowercased label; substring match
 const PLAYBOOKS: Record<string, Playbook> = {
   "home buyer": {
