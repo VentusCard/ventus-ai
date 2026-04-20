@@ -1,20 +1,43 @@
 
+
 ## Goal
-On the Next-Conversation tab, remove the top clutter so only the two columns (Regular Client | Wealth Client) show.
+On the Next-Conversation tab, make each column fill the available height with the "Open" CTA button anchored to the bottom, and bump up text sizes so the content uses the space.
 
 ## Changes — `src/components/exec-demo/NextConversationRationale.tsx`
 
-Remove three blocks (lines ~425–463) above the two-column grid:
-1. **Signal context header** (lines 425–438) — "Signal: …" + "detected from … signal"
-2. **In-tab signal switcher chips** (lines 440–463) — the row of signal pills (College Preparation, Home Purchase, Gambling, etc.)
+### 1. Column containers (lines 427, 515)
+Add `h-full` and `flex-1` so each column stretches; wrap content above the button in a `flex-1` content area to push the button down.
 
-Keep:
-- The two-column split (Regular Client | Wealth Client)
-- The "ALL SIGNALS" roll-up view (separate branch, untouched)
+Structure per column:
+```
+<div className="... flex flex-col h-full">
+  <div className="flex-1 space-y-3 overflow-hidden"> ...content cards... </div>
+  <button className="w-full ..." />  ← anchored at bottom (no mt-auto needed)
+</div>
+```
 
-The container will still need `effectiveSignal` and `playbook` to drive the column content, so only the visual header/chips are deleted — logic stays.
+### 2. Larger typography
+Bump up the cramped text:
+- Section labels (`text-[10px]` → `text-xs`)
+- Card headers (`text-[10px]` → `text-sm`, semibold)
+- Subjects/triggers (`text-[10px]/[9px]` → `text-sm/text-xs`)
+- Bullet items (`text-[10px]` → `text-sm`, slightly more line-height)
+- "Knows / Can answer / Personalized prep brief includes" mini-labels (`text-[9px]` → `text-[11px]`)
+- Bullet dots: `w-1 h-1` → `w-1.5 h-1.5`
+- Card padding: `px-2.5 py-2` → `px-3 py-2.5`
+- Card spacing: `space-y-2` → `space-y-2.5`
 
-## Out of scope
-- No changes to the All-Signals view
-- No changes to column content (Automated Flow, Chatbot, Advisor Brief, action pills)
-- No prop signature changes
+### 3. CTA buttons (lines 503–513, 592–602)
+- Slightly larger: `text-[11px]` → `text-sm`, `py-2` → `py-2.5`
+- Remove `mt-auto` (parent flex now handles bottom-anchoring via `flex-1` spacer above)
+
+### 4. Action pills section (Wealth column, lines 557–589)
+Keep but slightly larger pill text (`text-[10px]` → `text-[11px]`) so it doesn't look mismatched.
+
+### Verification target
+Both "Open AI Banking Assistant" (left) and "Open WM CoPilot" (right) buttons sit on the same horizontal line at the bottom of the panel, regardless of how much content each column has. Content above expands to fill, with readable (~13–14px) text.
+
+### Out of scope
+- All-Signals roll-up view (untouched)
+- Playbook content / props / data shape
+
