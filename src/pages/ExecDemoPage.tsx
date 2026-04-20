@@ -17,6 +17,8 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { supabase } from "@/integrations/supabase/client";
+import { WMCopilotSignInDialog } from "@/components/tepilot/insights/WMCopilotSignInDialog";
+import type { SelectedSignal } from "@/components/exec-demo/NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
@@ -48,6 +50,24 @@ export default function ExecDemoPage() {
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
+  const [wmCopilotOpen, setWmCopilotOpen] = useState(false);
+  const [wmCopilotProfile, setWmCopilotProfile] = useState<import("@/types/clientProfile").ClientProfileData | null>(null);
+
+  const handleOpenWMCopilot = useCallback((firstName: string, signal: SelectedSignal | null) => {
+    // Prefer the demo customer profile (full ClientProfileData); fall back to a minimal one.
+    const demo = DEMO_CUSTOMERS[selectedIdx];
+    const baseProfile: import("@/types/clientProfile").ClientProfileData | null = demo?.profile
+      ? { ...demo.profile }
+      : null;
+
+    if (baseProfile && signal) {
+      const evt = { event: signal.label, date: new Date().toISOString().slice(0, 10) };
+      baseProfile.milestones = [evt, ...(baseProfile.milestones || [])].slice(0, 6);
+    }
+
+    setWmCopilotProfile(baseProfile);
+    setWmCopilotOpen(true);
+  }, [selectedIdx]);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
@@ -922,6 +942,7 @@ export default function ExecDemoPage() {
             activeTrigger={activeTriggerPill}
             productActions={productActions}
             actionsLoading={actionsLoading}
+            onOpenWMCopilot={handleOpenWMCopilot}
           />
         </div>
 
@@ -958,6 +979,11 @@ export default function ExecDemoPage() {
         onSelectCustomer={handleSelectCustomer}
         onRunAnalysis={handleRunAnalysis}
         onLoadCustomCsv={handleLoadCustomCsv}
+      />
+      <WMCopilotSignInDialog
+        open={wmCopilotOpen}
+        onOpenChange={setWmCopilotOpen}
+        userDemographics={wmCopilotProfile}
       />
     </div>
     </SimplePasswordGate>

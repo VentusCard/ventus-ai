@@ -52,6 +52,7 @@ interface Props {
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
+  onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -166,6 +167,7 @@ export default function ExecDemoIntelPanel({
   actionsLoading,
   riskFlags,
   riskLoading,
+  onOpenWMCopilot,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -364,9 +366,24 @@ export default function ExecDemoIntelPanel({
                 {(() => {
                   const isCollapsed = !pillsExpanded && !!activeTab;
 
+                  // When the relationship tab is active, pill clicks also drive the in-tab signal selection.
+                  const isRelTab = activeTab === "relationship";
+                  const handleRollupForRel = (r: typeof rollupStats[number]) => {
+                    onRollupClick?.(r);
+                    if (isRelTab) setSelectedSignal({ kind: "lifestyle", label: r.label });
+                  };
+                  const handleLifeEventForRel = (label: string, indices: number[]) => {
+                    onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
+                    if (isRelTab) setSelectedSignal({ kind: "lifeEvent", label });
+                  };
+                  const handleRiskForRel = (label: string, indices: number[], color: string) => {
+                    onTriggerPillClick?.(label, indices, color, "risk");
+                    if (isRelTab) setSelectedSignal({ kind: "risk", label });
+                  };
+
                   // Shared pill renderers
                   const rollupPills = rollupStats.map((r, i) => (
-                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
+                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => handleRollupForRel(r)} />
                   ));
 
                   const lifeEventPills = productsLoading ? (
@@ -389,7 +406,7 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={evt.event_name}
-                          onClick={() => onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b", "lifeEvent")}
+                          onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
                           className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
@@ -466,7 +483,7 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={pillKey}
-                          onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor, "risk")}
+                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor)}
                           title={isOfferTab ? "Not applicable for offer targeting" : undefined}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed" : ""} transition-all duration-200`}
                           style={{
@@ -697,8 +714,12 @@ export default function ExecDemoIntelPanel({
               <NextConversationRationale
                 selectedSignal={selectedSignal}
                 availableSignals={availableSignals}
-                isWealthClient={isWealthClient}
                 customerFirstName={customerFirstName}
+                productActions={productActions}
+                actionsLoading={actionsLoading}
+                productCards={productCards}
+                onSelectSignal={(s) => setSelectedSignal(s)}
+                onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
               />
             ) : (
               <div className="flex items-center justify-center h-full">
