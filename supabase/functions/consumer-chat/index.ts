@@ -189,7 +189,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { message, conversationHistory = [], context = {} } = await req.json();
+    const { message, conversationHistory = [], context = {}, kind = "general" } = await req.json();
 
     if (!message || typeof message !== "string") {
       return new Response(
@@ -199,9 +199,20 @@ serve(async (req) => {
     }
 
     const isFinancialTipMode = context.mode === "financial-tip-chat";
-    const systemPrompt = isFinancialTipMode
+    const baseSystemPrompt = isFinancialTipMode
       ? FINANCIAL_TIP_SYSTEM_PROMPT
       : CONSUMER_SYSTEM_PROMPT;
+
+    // Kind-specific guidance for the 2 follow-up action button labels
+    const kindGuidance: Record<string, string> = {
+      lifestyle: `The user clicked a LIFESTYLE/SHOPPING-PATTERN signal. The 2 action labels should be navigational shortcuts inside the banking app, e.g. "Go to Account Profile", "Go to Deals", "View Spending", "See Merchants".`,
+      lifeEvent: `The user clicked a LIFE-EVENT signal. The 2 action labels should be product/advisor calls-to-action, e.g. "Apply Today", "See Details", "Talk to Advisor", "Learn More".`,
+      risk: `The user clicked a RISK/ALERT signal. The 2 action labels should be safety-oriented, e.g. "Report This Transaction", "This Is Fine", "Freeze Card", "Contact Support".`,
+      general: `The user asked a general question. The 2 action labels should be helpful generic follow-ups, e.g. "Tell Me More", "Got It", "Show Examples", "What's Next?".`,
+    };
+    const followupGuidance = `\n\n=== FOLLOW-UP ACTIONS ===\nAfter your reply, you MUST also propose exactly 2 short follow-up action button labels (each ≤4 words, Title Case, no punctuation). ${kindGuidance[kind] || kindGuidance.general} Return BOTH the message and the 2 action labels via the respond_with_actions tool.`;
+
+    const systemPrompt = baseSystemPrompt + followupGuidance;
 
     const contextPrompt = buildContextPrompt(context);
 
@@ -222,7 +233,35 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages,
-          max_tokens: 500,
+          max_tokens: 600,
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "respond_with_actions",
+                description: "Return the assistant's reply along with exactly 2 follow-up action button labels.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description: "The assistant's reply to the user (markdown allowed).",
+                    },
+                    actions: {
+                      type: "array",
+                      description: "Exactly 2 short button labels (≤4 words each).",
+                      items: { type: "string" },
+                      minItems: 2,
+                      maxItems: 2,
+                    },
+                  },
+                  required: ["message", "actions"],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: "function", function: { name: "respond_with_actions" } },
         }),
       }
     );
@@ -246,10 +285,28 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const aiMessage = data.choices?.[0]?.message?.content ?? "I'm here to help! Could you rephrase that?";
+    const choice = data.choices?.[0]?.message;
+    let aiMessage = "I'm here to help! Could you rephrase that?";
+    let actions: string[] = [];
+
+    const toolCall = choice?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        if (typeof parsed.message === "string") aiMessage = parsed.message;
+        if (Array.isArray(parsed.actions)) {
+          actions = parsed.actions.filter((a: any) => typeof a === "string").slice(0, 2);
+        }
+      } catch (e) {
+        console.error("Failed to parse tool_call arguments:", e);
+        if (choice?.content) aiMessage = choice.content;
+      }
+    } else if (choice?.content) {
+      aiMessage = choice.content;
+    }
 
     return new Response(
-      JSON.stringify({ message: aiMessage }),
+      JSON.stringify({ message: aiMessage, actions }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
