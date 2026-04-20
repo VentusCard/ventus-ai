@@ -488,11 +488,11 @@ export default function ExecDemoIntelPanel({
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: isOfferTab
-                              ? "linear-gradient(135deg, rgba(148,163,184,.18), rgba(148,163,184,.08))"
+                              ? "#e2e8f0"
                               : isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
                               : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
-                            color: isOfferTab ? "#64748b" : isHigh ? "#991b1b" : "#92400e",
+                            color: isOfferTab ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
                             border: isOfferTab
                               ? "1.5px solid #cbd5e1"
                               : isActive
@@ -501,11 +501,14 @@ export default function ExecDemoIntelPanel({
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
                             boxShadow: isOfferTab ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
                             transform: isActive && !isOfferTab ? "scale(1.08)" : "scale(1)",
-                            opacity: isOfferTab ? 0.45 : 1,
+                            opacity: isOfferTab ? 0.65 : 1,
                             filter: isOfferTab ? "grayscale(1)" : "none",
+                            textDecoration: isOfferTab ? "line-through" : "none",
+                            textDecorationColor: isOfferTab ? "#94a3b8" : undefined,
+                            textDecorationThickness: isOfferTab ? "1.5px" : undefined,
                           }}
                         >
-                          <span style={{ color: isOfferTab ? "#94a3b8" : dotColor }}>⚠</span>
+                          <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
                           {flagLabel}
                           {flag.severity && <span className="text-[10px] uppercase opacity-60 font-normal">{flag.severity}</span>}
                         </span>
