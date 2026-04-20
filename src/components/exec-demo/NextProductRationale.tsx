@@ -327,19 +327,155 @@ function ActionPillsRow({
   );
 }
 
+/* ─── Offer details derivation (heuristic from product name + theme) ─── */
+function deriveOfferDetails(card: ProductCard, isBehavioral: boolean): {
+  headline: string;
+  benefits: string[];
+  eligibility: string;
+  cta: string;
+  ctaSub: string;
+} {
+  const name = card.product_name.toLowerCase();
+  const theme = (card.theme || "").toLowerCase();
+
+  // Travel
+  if (name.includes("travel") || theme === "travel") {
+    return {
+      headline: "Earn 2x miles on every purchase",
+      benefits: [
+        "75,000 bonus miles after $4,000 spend in 3 months",
+        "$300 annual travel credit",
+        "No foreign transaction fees · Priority Pass lounge access",
+      ],
+      eligibility: "Pre-approved · No impact to credit score to check",
+      cta: "Apply in 60 Seconds",
+      ctaSub: "Instant decision · Digital card on approval",
+    };
+  }
+  // 529 / Education
+  if (name.includes("529") || theme === "education") {
+    return {
+      headline: "Tax-advantaged college savings",
+      benefits: [
+        "Tax-free growth on qualified education expenses",
+        "State tax deduction up to $10,000 annually",
+        "Flexible — use for tuition, room & board, K-12, even student loans",
+      ],
+      eligibility: "Open with as little as $25 · No income limits",
+      cta: "Open 529 Plan",
+      ctaSub: "Funded in under 5 minutes",
+    };
+  }
+  // HYSA / Savings
+  if (name.includes("hysa") || name.includes("savings") || name.includes("high-yield")) {
+    return {
+      headline: "4.50% APY — 10x the national average",
+      benefits: [
+        "No minimum balance · No monthly fees",
+        "FDIC insured up to $250,000",
+        "Unlimited transfers to your checking account",
+      ],
+      eligibility: "Available to all primary checking customers",
+      cta: "Move Funds & Start Earning",
+      ctaSub: "Funds available next business day",
+    };
+  }
+  // Home / HELOC / Mortgage
+  if (name.includes("home equity") || name.includes("heloc") || name.includes("mortgage") || theme === "home") {
+    return {
+      headline: "Tap into your home's equity — variable rate from 7.99% APR",
+      benefits: [
+        "Borrow up to 85% of appraised value",
+        "Interest may be tax-deductible (consult tax advisor)",
+        "Draw funds as needed for 10 years",
+      ],
+      eligibility: "Pre-qualified based on relationship · Soft credit pull only",
+      cta: "Start Pre-Qualification",
+      ctaSub: "Get an estimated line in 3 minutes",
+    };
+  }
+  // Brokerage / Investing / Merrill
+  if (name.includes("brokerage") || name.includes("merrill") || name.includes("invest")) {
+    return {
+      headline: "Self-directed investing with $0 online stock trades",
+      benefits: [
+        "$0 commission on online U.S. stock & ETF trades",
+        "Preferred Rewards bonus: up to 75% off trade costs",
+        "Research from BofA Global Research at no cost",
+      ],
+      eligibility: "Open with no minimum · Linked to your checking",
+      cta: "Open Investment Account",
+      ctaSub: "Funded directly from your accounts",
+    };
+  }
+  // Retirement / IRA
+  if (name.includes("ira") || name.includes("retirement") || theme === "retirement") {
+    return {
+      headline: "Tax-advantaged retirement account",
+      benefits: [
+        "Up to $7,000 annual contribution ($8,000 if 50+)",
+        "Choice of Traditional (tax-deferred) or Roth (tax-free growth)",
+        "Wide selection of mutual funds, ETFs & target-date options",
+      ],
+      eligibility: "Eligible based on earned income · No account minimums",
+      cta: "Open IRA Account",
+      ctaSub: "Set up automatic contributions",
+    };
+  }
+  // Cash back / Credit card default
+  if (name.includes("cash") || name.includes("rewards card") || name.includes("credit card")) {
+    return {
+      headline: "Up to 3% cash back in your top spending category",
+      benefits: [
+        "$200 cash rewards bonus after $1,000 spend in 90 days",
+        "3% in your choice category · 2% groceries · 1% everywhere",
+        "Preferred Rewards customers earn 25–75% more",
+      ],
+      eligibility: "Pre-approved · Soft credit check only",
+      cta: "Claim Pre-Approval",
+      ctaSub: "Decision in seconds · Use card immediately",
+    };
+  }
+  // Business
+  if (name.includes("business") || theme === "business") {
+    return {
+      headline: "Built for owners — earn rewards on every dollar",
+      benefits: [
+        "Unlimited 1.5% cash back on all purchases",
+        "$300 statement credit after $3,000 spend in 90 days",
+        "Free employee cards with spending controls",
+      ],
+      eligibility: "Available to qualifying business banking clients",
+      cta: "Apply for Business Card",
+      ctaSub: "Decision typically within 1 business day",
+    };
+  }
+  // Generic fallback
+  return {
+    headline: isBehavioral
+      ? "A product designed around how you already spend"
+      : "Built to support this next chapter",
+    benefits: [
+      "Personalized terms based on your relationship with us",
+      "No application fee · Soft credit check only",
+      "Dedicated specialist available to walk you through it",
+    ],
+    eligibility: "Pre-qualified based on your account history",
+    cta: "Explore This Offer",
+    ctaSub: "See full terms and personalized rate",
+  };
+}
+
 /* ─── Single product card body ─── */
 function ProductCardBody({
   resolved,
-  productActions,
-  actionsLoading,
   index,
 }: {
   resolved: ResolvedCard;
-  productActions?: CardActions[] | null;
-  actionsLoading?: boolean;
   index: number;
 }) {
-  const { card, color: c, origIdx, isBehavioral } = resolved;
+  const { card, color: c, isBehavioral } = resolved;
+  const offer = deriveOfferDetails(card, isBehavioral);
   return (
     <div
       className="rounded-xl border overflow-hidden bg-white"
@@ -350,20 +486,64 @@ function ProductCardBody({
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
-      <div className="px-4 py-3.5">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
+      <div className="px-4 py-3.5 space-y-3">
+        {/* Product name + quote */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="text-[14px] font-bold text-slate-800">{card.product_name}</span>
+          </div>
+          <p className="text-[12px] text-slate-600 leading-relaxed italic">
+            "{card.quote}"
+          </p>
         </div>
-        <p className="text-[12px] text-slate-600 leading-relaxed italic">
-          "{card.quote}"
-        </p>
-        <div className="flex items-center gap-1.5 mt-2.5">
-          <ActionPillsRow
-            origIdx={origIdx}
-            isBehavioral={isBehavioral}
-            productActions={productActions}
-            actionsLoading={actionsLoading}
-          />
+
+        {/* Offer headline */}
+        <div
+          className="rounded-lg px-3 py-2"
+          style={{ background: `${c.dot}10`, border: `1px solid ${c.dot}25` }}
+        >
+          <div className="flex items-center gap-1.5 mb-1">
+            <Sparkles className="w-3 h-3" style={{ color: c.dot }} />
+            <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: c.text }}>
+              The Offer
+            </span>
+          </div>
+          <p className="text-[12px] font-semibold text-slate-800 leading-snug">
+            {offer.headline}
+          </p>
+        </div>
+
+        {/* Benefits */}
+        <div>
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+            What's Included
+          </div>
+          <ul className="space-y-1">
+            {offer.benefits.map((b, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600 leading-snug">
+                <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" style={{ color: c.dot }} />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Eligibility */}
+        <div className="flex items-start gap-1.5 text-[10px] text-slate-500 leading-snug">
+          <Shield className="w-3 h-3 mt-0.5 shrink-0 text-slate-400" />
+          <span>{offer.eligibility}</span>
+        </div>
+
+        {/* CTA */}
+        <div className="pt-1">
+          <button
+            className="w-full inline-flex items-center justify-center gap-1.5 text-[12px] font-bold text-white rounded-lg px-3 py-2.5 transition-all hover:opacity-90"
+            style={{ background: c.dot, boxShadow: `0 2px 8px ${c.dot}40` }}
+          >
+            {offer.cta}
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+          <p className="text-[10px] text-slate-400 text-center mt-1.5">{offer.ctaSub}</p>
         </div>
       </div>
     </div>
