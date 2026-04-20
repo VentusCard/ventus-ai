@@ -17,6 +17,8 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { supabase } from "@/integrations/supabase/client";
+import { WMCopilotSignInDialog } from "@/components/tepilot/insights/WMCopilotSignInDialog";
+import type { SelectedSignal } from "@/components/exec-demo/NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
