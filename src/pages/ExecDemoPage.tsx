@@ -985,11 +985,6 @@ export default function ExecDemoPage() {
         onRunAnalysis={handleRunAnalysis}
         onLoadCustomCsv={handleLoadCustomCsv}
       />
-      <WMCopilotSignInDialog
-        open={wmCopilotOpen}
-        onOpenChange={setWmCopilotOpen}
-        userDemographics={wmCopilotProfile}
-      />
     </div>
     </SimplePasswordGate>
   );
