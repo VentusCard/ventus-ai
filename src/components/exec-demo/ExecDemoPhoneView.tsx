@@ -140,17 +140,17 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Header */}
-        <div className="px-4 py-1.5 border-b border-slate-100 shrink-0">
+        <div className="px-4 py-0.5 border-b border-slate-100 shrink-0 leading-tight">
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
-            <span className="text-[10px] font-semibold text-slate-600 tracking-wide">
+            <span className="text-[10px] font-semibold text-slate-600 tracking-wide leading-tight">
               TCBY Bank · {customer.profile.name.split(" ")[0]}
             </span>
           </div>
-          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="text-[8px] text-slate-400 px-1">Using Bank of America product information as reference.</span>}
+          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight">Using Bank of America product information as reference.</span>}
         </div>
 
         {/* Content */}
