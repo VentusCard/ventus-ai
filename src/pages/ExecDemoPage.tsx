@@ -542,6 +542,7 @@ export default function ExecDemoPage() {
           persona_rollups: synthesis?.pillarRollups || [],
           pillars: pillars.slice(0, 8),
           demographics,
+          risk_flags: riskFlagsRef.current?.flags || [],
         },
       });
       if (error) throw error;
@@ -588,6 +589,7 @@ export default function ExecDemoPage() {
           life_events: events.slice(0, 3),
           demographics,
           pillars: pillars.slice(0, 6),
+          risk_flags: riskFlagsRef.current?.flags || [],
         },
       });
       if (error) throw error;
