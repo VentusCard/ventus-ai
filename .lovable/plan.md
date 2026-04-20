@@ -1,28 +1,23 @@
 
-## Goal
-On the **Next Offer** tab (executive demo intel panel), gray out all risk-related persona pills in the Behavioral Intelligence section to signal they are not applicable for offer generation.
+## Issue
+For the "Annual Hawaiian Vacations" cluster (and similar destination-specific rollups), the LLM picks outdoor brands like **Patagonia, Hydro Flask, Allbirds** that are barely travel-related and outright wrong for a tropical beach destination (Allbirds = wool shoes; Patagonia = cold-weather technical wear).
 
-## Investigation
-- `ExecDemoIntelPanel.tsx` renders the persona pills row above the tab body.
-- Pills come from multiple sources: rollup signals, life events, **risk flags** (`riskFlags.flags`), and segments.
-- Active tab state lives in the same panel (`analytics | rewards | product | relationship`). The "Next Offer" tab = `rewards`.
-- Risk pills are rendered with their own styling/handler — I need to confirm which pill block corresponds to risk and add a conditional disabled/grayed style when `activeTab === "rewards"`.
+The root cause: `SYSTEM_PROMPT` in `supabase/functions/generate-next-offers/index.ts` tells the model to "anchor to the pill label" tonally, but doesn't constrain **brand/product appropriateness** to the destination's climate, activity profile, or trip context.
 
-## Change
+## Fix
+Single edit to `supabase/functions/generate-next-offers/index.ts` — extend the `SYSTEM_PROMPT` with a new "DESTINATION & CONTEXT FIT" rule block, placed right after the existing Rule 7:
 
-### `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- Identify the risk pill render block (the one iterating over `riskFlags.flags` / driven by risk kind).
-- When `activeTab === "rewards"`:
-  - Apply grayed-out styles: `opacity-40`, `grayscale`, `cursor-not-allowed`, neutral slate background/border instead of the risk color.
-  - Disable the click handler (no-op or `pointer-events: none`).
-  - Add a `title`/tooltip: "Not applicable for offers".
-- All other tabs: pills render normally (full color, clickable).
+- **Match brand + product to the literal destination/activity in the rollup label.**
+  - Tropical / beach destinations (Hawaii, Caribbean, Mexico, Florida): pick reef-safe sunscreen, snorkel gear, beach apparel, swimwear, sandals, lightweight luggage, waterproof phone cases, sun hats, GoPro, polarized sunglasses, beach towels, dry bags, suncare, resort-friendly fashion (Tommy Bahama, Sunbum, Ray-Ban, Olukai, Reef, Vuori, Outdoor Voices, Quiksilver, Roxy, Rip Curl, Speedo, Costa).
+  - Cold/mountain destinations (Ski, Aspen, Tahoe): cold-weather gear is appropriate (Patagonia, Smartwool, Helly Hansen, Burton).
+  - Urban city trips: travel tech, luggage, premium hotels/lounges, apparel suited to city walking.
+- **Forbidden mismatches (explicit examples):**
+  - Do NOT recommend wool shoes, fleeces, insulated jackets, thermal flasks, or cold-weather technical wear for tropical/beach rollups.
+  - Specifically banned for tropical trips: Allbirds (wool shoes), Patagonia (cold-weather), Hydro Flask insulated bottles, Smartwool, North Face fleeces.
+- **Affirmative requirement:** every deal in a destination-tagged cluster MUST plausibly improve that specific trip type. If the merchant/product doesn't pass a "would a traveler pack this for [destination]?" test, replace it.
 
-No changes to other tabs, no logic changes to offer generation, no edge function edits.
-
-## Files touched
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — single conditional styling block on the risk pill map.
+I'll also tighten the few-shot example for "Annual Hawaiian Vacations" to mention 2-3 appropriate brand exemplars (e.g., Sunbum, Olukai, GoPro) so the model has a concrete anchor.
 
 ## Out of scope
-- No changes to life event / rollup / segment pills.
-- No changes to the offer generation pipeline or filtering logic.
+- No changes to life-event prompt, no UI changes, no client code.
+- No changes to deal generation count, signal logic, or rollup matching.
