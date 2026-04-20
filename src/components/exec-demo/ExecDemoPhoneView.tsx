@@ -96,7 +96,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         return (
           <ConsumerAIChatView
             customer={customer}
-            enriched={enrichedTxs ?? undefined}
+            enriched={(enrichedTxs ?? undefined) as any}
             detectedEvents={detectedEvents}
             personalizedDeals={personalizedDeals as any}
             riskFlags={riskFlags ?? undefined}
