@@ -421,47 +421,6 @@ export default function NextConversationRationale({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
-      {/* Signal context header */}
-      <div
-        className="rounded-lg px-3 py-2 flex items-center gap-2"
-        style={{ background: meta.bg, border: `1px solid ${meta.border}` }}
-      >
-        <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: meta.color }} />
-        <div className="flex-1 min-w-0">
-          <div className="text-[11px] font-bold" style={{ color: meta.color }}>
-            Signal: {effectiveSignal.label}
-          </div>
-          <div className="text-[10px] text-slate-500 leading-tight">
-            {effectiveSignal.source || playbook.signalSource}
-          </div>
-        </div>
-      </div>
-
-      {/* In-tab signal switcher chips */}
-      {availableSignals.length > 1 && (
-        <div className="flex flex-wrap gap-1">
-          {availableSignals.map((s) => {
-            const km = KIND_META[s.kind];
-            const isActive = s.kind === effectiveSignal.kind && s.label === effectiveSignal.label;
-            return (
-              <button
-                key={`${s.kind}-${s.label}`}
-                onClick={() => onSelectSignal?.(s)}
-                className="text-[10px] font-semibold px-2 py-1 rounded-full transition-all"
-                style={{
-                  background: isActive ? km.bg : "transparent",
-                  color: km.color,
-                  border: `1px solid ${isActive ? km.border : "rgba(148,163,184,.25)"}`,
-                  opacity: isActive ? 1 : 0.7,
-                }}
-              >
-                {s.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       {/* Vertical split: Regular (left) | Wealth (right) */}
       <div className="grid grid-cols-2 gap-0 flex-1 min-h-0">
         {/* REGULAR CLIENT — LEFT */}
