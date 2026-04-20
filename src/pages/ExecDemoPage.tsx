@@ -51,8 +51,14 @@ export default function ExecDemoPage() {
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [aiTabTrigger, setAiTabTrigger] = useState(0);
+  const [pendingAIPrompt, setPendingAIPrompt] = useState<{ text: string; nonce: number } | null>(null);
 
   const handleOpenAIAssistant = useCallback(() => {
+    setAiTabTrigger((n) => n + 1);
+  }, []);
+
+  const dispatchAIPrompt = useCallback((text: string) => {
+    setPendingAIPrompt({ text, nonce: Date.now() });
     setAiTabTrigger((n) => n + 1);
   }, []);
 
@@ -952,6 +958,7 @@ export default function ExecDemoPage() {
             actionsLoading={actionsLoading}
             onOpenWMCopilot={handleOpenWMCopilot}
             onOpenAIAssistant={handleOpenAIAssistant}
+            onAIPromptDispatch={dispatchAIPrompt}
           />
         </div>
 
@@ -978,6 +985,7 @@ export default function ExecDemoPage() {
               enrichedTxs={classifiedRef.current}
               riskFlags={riskFlags}
               aiTabTrigger={aiTabTrigger}
+              pendingAIPrompt={pendingAIPrompt}
             />
           </div>
         </div>
