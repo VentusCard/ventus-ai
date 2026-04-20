@@ -399,26 +399,68 @@ export default function NextConversationRationale({
   const playbook = findPlaybook(effectiveSignal.label);
   const meta = KIND_META[effectiveSignal.kind];
 
-  // Match dynamic actions from generate-product-actions to this signal
+  // 3-tier resolver: matches the selected signal to actions from generate-product-actions.
+  // Tier 1: exact/substring match on signal_label.
+  // Tier 2: token-overlap scoring against signal_label + theme (mirrors NextProductRationale).
+  // Tier 3: kind-aware fallback. For risk signals with no risk card at all, synthesize defaults.
   const matchedActions: CardAction[] = (() => {
-    if (!productActions || productActions.length === 0 || !productCards) return [];
+    if (!productCards || productCards.length === 0) {
+      return effectiveSignal.kind === "risk" ? synthesizeRiskActions(effectiveSignal.label) : [];
+    }
+    const cards = productCards as Array<ProductCard & { type?: string; theme?: string }>;
     const sigLower = effectiveSignal.label.toLowerCase();
-    let matchIdx = -1;
-    for (let i = 0; i < productCards.length; i++) {
-      const cardLabel = (productCards[i].signal_label || "").toLowerCase();
-      if (cardLabel && (cardLabel.includes(sigLower) || sigLower.includes(cardLabel))) {
-        matchIdx = i;
-        break;
+
+    // Tier 1
+    let matchIdx = cards.findIndex(c => {
+      const cl = (c.signal_label || "").toLowerCase();
+      return !!cl && (cl.includes(sigLower) || sigLower.includes(cl));
+    });
+
+    // Tier 2 — token overlap
+    if (matchIdx === -1) {
+      const STOP = new Set(["the","and","for","with","your","you","are","from","this","that","into","over","under","new","high","low"]);
+      const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2 && !STOP.has(w));
+      const sigTokens = new Set(tokenize(effectiveSignal.label));
+      let bestScore = 0;
+      cards.forEach((c, i) => {
+        const cTokens = [...tokenize(c.signal_label || ""), ...tokenize(c.theme || "")];
+        const score = cTokens.filter(t => sigTokens.has(t)).length;
+        if (score > bestScore) { bestScore = score; matchIdx = i; }
+      });
+      if (bestScore < 1) matchIdx = -1;
+    }
+
+    // Tier 3 — kind-aware fallback
+    if (matchIdx === -1) {
+      if (effectiveSignal.kind === "risk") {
+        const riskIdx = cards.findIndex(c => c.type === "risk");
+        if (riskIdx === -1) return synthesizeRiskActions(effectiveSignal.label);
+        matchIdx = riskIdx;
+      } else if (effectiveSignal.kind === "lifeEvent") {
+        matchIdx = cards.findIndex(c => c.type === "life_event");
+        if (matchIdx === -1) matchIdx = cards.findIndex(c => c.type !== "risk");
+      } else {
+        // lifestyle / segment / all
+        matchIdx = cards.findIndex(c => c.type === "behavioral");
+        if (matchIdx === -1) matchIdx = cards.findIndex(c => c.type !== "risk");
       }
     }
+
     if (matchIdx === -1) {
-      // Risk signals must NEVER fall back to a marketing card's actions.
-      if (effectiveSignal.kind === "risk") return [];
-      matchIdx = productCards[0] ? 0 : -1;
+      return effectiveSignal.kind === "risk" ? synthesizeRiskActions(effectiveSignal.label) : [];
     }
-    if (matchIdx === -1) return [];
+    if (!productActions || productActions.length === 0) {
+      return effectiveSignal.kind === "risk" && cards[matchIdx]?.type !== "risk"
+        ? synthesizeRiskActions(effectiveSignal.label)
+        : [];
+    }
     const found = productActions.find(a => a.card_index === matchIdx);
-    return found?.actions || [];
+    const actions = found?.actions || [];
+    // If we ended up on a non-risk card for a risk signal, ignore those marketing actions.
+    if (effectiveSignal.kind === "risk" && cards[matchIdx]?.type !== "risk") {
+      return synthesizeRiskActions(effectiveSignal.label);
+    }
+    return actions;
   })();
 
   const wowActions = matchedActions.filter(a => a.tone === "wow");
