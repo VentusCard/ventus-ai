@@ -443,7 +443,7 @@ export default function NextConversationRationale({
     if (!productCards || productCards.length === 0) {
       return effectiveSignal.kind === "risk" ? synthesizeRiskActions(effectiveSignal.label) : [];
     }
-    const cards = productCards as Array<ProductCard & { type?: string; theme?: string }>;
+    const cards = productCards as unknown as Array<{ signal_label?: string; theme?: string; type?: string }>;
     const sigLower = effectiveSignal.label.toLowerCase();
 
     // Tier 1
