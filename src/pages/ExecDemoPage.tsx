@@ -50,6 +50,11 @@ export default function ExecDemoPage() {
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
+  const [aiTabTrigger, setAiTabTrigger] = useState(0);
+
+  const handleOpenAIAssistant = useCallback(() => {
+    setAiTabTrigger((n) => n + 1);
+  }, []);
 
   const handleOpenWMCopilot = useCallback((firstName: string, signal: SelectedSignal | null) => {
     // Skip login — launch the Advisor Console directly with the full client profile pre-loaded.
