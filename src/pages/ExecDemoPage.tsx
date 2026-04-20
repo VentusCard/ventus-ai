@@ -54,19 +54,24 @@ export default function ExecDemoPage() {
   const [wmCopilotProfile, setWmCopilotProfile] = useState<import("@/types/clientProfile").ClientProfileData | null>(null);
 
   const handleOpenWMCopilot = useCallback((firstName: string, signal: SelectedSignal | null) => {
-    // Prefer the demo customer profile (full ClientProfileData); fall back to a minimal one.
+    // Skip login — launch the Advisor Console directly with the full client profile pre-loaded.
     const demo = DEMO_CUSTOMERS[selectedIdx];
     const baseProfile: import("@/types/clientProfile").ClientProfileData | null = demo?.profile
       ? { ...demo.profile }
       : null;
 
-    if (baseProfile && signal) {
+    if (!baseProfile) {
+      toast.error("No client profile available. Run the analysis first.");
+      return;
+    }
+
+    if (signal) {
       const evt = { event: signal.label, date: new Date().toISOString().slice(0, 10) };
       baseProfile.milestones = [evt, ...(baseProfile.milestones || [])].slice(0, 6);
     }
 
-    setWmCopilotProfile(baseProfile);
-    setWmCopilotOpen(true);
+    sessionStorage.setItem("wm_copilot_launch_client", JSON.stringify(baseProfile));
+    window.open("/tepilot/advisor-console", "_blank");
   }, [selectedIdx]);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
