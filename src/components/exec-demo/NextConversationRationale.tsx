@@ -543,7 +543,7 @@ export default function NextConversationRationale({
           {/* Open AI Banking Assistant button */}
           <button
             onClick={onOpenAIAssistant}
-            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            className="w-full mt-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
               boxShadow: "0 2px 8px rgba(59,130,246,.35)",
