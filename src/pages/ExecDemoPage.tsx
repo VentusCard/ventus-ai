@@ -462,6 +462,7 @@ export default function ExecDemoPage() {
   const fireRiskDetection = useCallback(async () => {
     setRiskLoading(true);
     setRiskFlags(null);
+    riskFlagsRef.current = null;
     try {
       const csv = customCsv || getCsvForCustomer(selectedIdx);
       if (!csv) {

@@ -410,7 +410,11 @@ export default function NextConversationRationale({
         break;
       }
     }
-    if (matchIdx === -1) matchIdx = productCards[0] ? 0 : -1;
+    if (matchIdx === -1) {
+      // Risk signals must NEVER fall back to a marketing card's actions.
+      if (effectiveSignal.kind === "risk") return [];
+      matchIdx = productCards[0] ? 0 : -1;
+    }
     if (matchIdx === -1) return [];
     const found = productActions.find(a => a.card_index === matchIdx);
     return found?.actions || [];
