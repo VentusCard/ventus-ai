@@ -310,6 +310,7 @@ const COLOR_MAP: Record<string, { text: string; bg: string; border: string }> = 
   orange: { text: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" },
   indigo: { text: "text-indigo-600", bg: "bg-indigo-50", border: "border-indigo-100" },
   pink: { text: "text-pink-600", bg: "bg-pink-50", border: "border-pink-100" },
+  slate: { text: "text-slate-600", bg: "bg-slate-50", border: "border-slate-200" },
 };
 
 function renderActionPill(action: CardAction, key: string | number) {
@@ -410,7 +411,11 @@ export default function NextConversationRationale({
         break;
       }
     }
-    if (matchIdx === -1) matchIdx = productCards[0] ? 0 : -1;
+    if (matchIdx === -1) {
+      // Risk signals must NEVER fall back to a marketing card's actions.
+      if (effectiveSignal.kind === "risk") return [];
+      matchIdx = productCards[0] ? 0 : -1;
+    }
     if (matchIdx === -1) return [];
     const found = productActions.find(a => a.card_index === matchIdx);
     return found?.actions || [];

@@ -10,12 +10,27 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { life_events, persona_rollups, pillars, demographics } = await req.json();
+    const { life_events, persona_rollups, pillars, demographics, risk_flags } = await req.json();
+    const hasRisk = Array.isArray(risk_flags) && risk_flags.length > 0;
+    // Pick the top risk (most evidence). Group by category_label and tally.
+    let topRisk: { category_group: string; category_label: string; evidence: string[] } | null = null;
+    if (hasRisk) {
+      const grouped = new Map<string, { category_group: string; category_label: string; evidence: string[] }>();
+      for (const f of risk_flags as any[]) {
+        const label = String(f.category_label || "Risk");
+        const ex = grouped.get(label) || { category_group: f.category_group || "aml", category_label: label, evidence: [] };
+        const ev = String(f.merchant_name || f.description || "").trim();
+        if (ev && !ex.evidence.includes(ev)) ex.evidence.push(ev);
+        grouped.set(label, ex);
+      }
+      const sorted = Array.from(grouped.values()).sort((a, b) => b.evidence.length - a.evidence.length);
+      topRisk = sorted[0] || null;
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate UP TO FOUR product recommendation cards that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate UP TO FOUR product recommendation cards (or up to FIVE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
 
 CARD ORDER (STRICT INTERLEAVING):
 Emit cards in exactly this order, skipping a slot only if the source doesn't exist:
@@ -23,6 +38,7 @@ Emit cards in exactly this order, skipping a slot only if the source doesn't exi
   2. Behavioral card based on persona_rollups[0] (first behavioral habit)
   3. Life Event card based on life_events[1] (second detected life event, if present)
   4. Behavioral card based on persona_rollups[1] (second behavioral habit, if present)
+  5. RISK CARD — ONLY if risk_signal is provided in the user prompt. Always last.
 
 If only 1 life event exists → emit 3 cards (life_event_1, behavioral_1, behavioral_2).
 If only 1 rollup exists → emit 3 cards (life_event_1, behavioral_1, life_event_2).
@@ -72,6 +88,31 @@ CARD 2 — LIFE EVENT:
   - The reader should feel the card is relevant without the bank explicitly stating what it knows
 - The signal_label field MUST still use the explicit event name (e.g. "College Preparation", "New Baby", "Retirement Planning")
 
+CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
+- This is NOT a marketing card. It is a wellness, transparency, and customer-care card.
+- Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
+- type: must be "risk"
+- product_name: a non-credit, wellness/safety-themed product. Examples:
+   - "Bank of America SafeBalance® Account Controls"
+   - "Bank of America Account Wellness Tools"
+   - "Bank of America Spending Limits & Merchant Controls"
+   - "Bank of America Confidential Customer Care"
+- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Gambling", "Suspicious International", "Adult Content", "AML")
+- theme: use "wellness"
+- quote: 1-2 sentences framed as care/transparency. Examples:
+   - "We make it simple to put guardrails on your spending whenever you want — no questions asked."
+   - "Account controls are here to help you stay in charge of your day-to-day banking."
+- offer_headline: focus on tools, not economics. Examples: "Tools to help you stay in control", "Confidential support whenever you need it"
+- benefits (exactly 3): non-marketing wellness/security features ONLY. Examples:
+   - "Set daily and category-level spending limits in seconds"
+   - "Block specific merchants or transaction types instantly"
+   - "Confidential 24/7 support — talk to a real person"
+   - "Pause new charges with one tap from the app"
+- eligibility: trust/availability framing. Examples: "Available to all customers · No fees", "Always on · Adjust anytime"
+- cta: care-oriented, never "Apply"/"Open". Examples: "Set Up Account Controls", "Talk to Someone Confidentially", "Adjust My Limits"
+- cta_sub: reassurance about discretion. Examples: "Confidential · No impact to credit", "Takes under a minute"
+- ABSOLUTELY FORBIDDEN: any credit card, investment, loan, or upsell language. No celebratory tone. No "rewards", "earn", "bonus", "miles", "cash back".
+
 TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
 - Conversational, warm, never corporate or pushy
@@ -118,7 +159,7 @@ OFFER DETAIL FIELDS (REQUIRED — must be personalized to THIS customer's signal
    - Small reassurance line under the CTA — speed, friction, or trust
    - Examples: "Decision in seconds · Use card immediately", "Funded in under 5 minutes", "Soft credit check only · Instant pre-qualification", "Set up automatic contributions"`;
 
-    const userPrompt = `Generate two product recommendation cards based on this customer profile.
+    const userPrompt = `Generate product recommendation cards based on this customer profile.
 
 DEMOGRAPHICS:
 ${JSON.stringify(demographics || {}, null, 2)}
@@ -150,7 +191,10 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-Return up to 4 cards in the strict interleaved order using the generate_product_cards function.`;
+${topRisk ? `RISK SIGNAL (append a RISK CARD as the LAST card; signal_label MUST equal category_label verbatim):
+${JSON.stringify(topRisk, null, 2)}` : "RISK SIGNAL: none — do NOT emit a risk card."}
+
+Return up to ${topRisk ? 5 : 4} cards in the strict interleaved order using the generate_product_cards function.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -176,13 +220,13 @@ Return up to 4 cards in the strict interleaved order using the generate_product_
                   cards: {
                     type: "array",
                     minItems: 1,
-                    maxItems: 4,
+                    maxItems: 5,
                     items: {
                       type: "object",
                       properties: {
                         type: {
                           type: "string",
-                          enum: ["behavioral", "life_event"],
+                          enum: ["behavioral", "life_event", "risk"],
                           description: "Card type",
                         },
                         product_name: {

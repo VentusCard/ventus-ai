@@ -93,6 +93,7 @@ export default function ExecDemoPage() {
   const [generatedOffers, setGeneratedOffers] = useState<RollupOfferGroup[] | null>(null);
   const [offersLoading, setOffersLoading] = useState(false);
   const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
+  const detectedLifeEventsRef = useRef<LifeEvent[] | null>(null);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
@@ -100,6 +101,7 @@ export default function ExecDemoPage() {
   const [productActions, setProductActions] = useState<CardActions[] | null>(null);
   const [actionsLoading, setActionsLoading] = useState(false);
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
+  const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -439,6 +441,7 @@ export default function ExecDemoPage() {
     try {
       const events: LifeEvent[] = preDetectedEvents ?? await detectLifeEventsOnly();
       setDetectedLifeEvents(events.slice(0, 3));
+      detectedLifeEventsRef.current = events.slice(0, 3);
       console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
       // Fire product cards generation with life events + persona data
       fireProductCards(events, personaSynthesisRef.current);
@@ -459,6 +462,7 @@ export default function ExecDemoPage() {
   const fireRiskDetection = useCallback(async () => {
     setRiskLoading(true);
     setRiskFlags(null);
+    riskFlagsRef.current = null;
     try {
       const csv = customCsv || getCsvForCustomer(selectedIdx);
       if (!csv) {
@@ -489,7 +493,14 @@ export default function ExecDemoPage() {
       });
       if (error) throw error;
       setRiskFlags(data);
+      riskFlagsRef.current = data;
       console.log("[PRELOAD] Risk detection ready:", data?.flags?.length, "flags");
+      // If product cards already generated without risk awareness, regenerate so the
+      // risk-card slot can be added (and downstream actions inherit risk context).
+      if (data?.flags?.length > 0 && classifiedRef.current && personaSynthesisRef.current) {
+        const events = (detectedLifeEventsRef.current || []) as LifeEvent[];
+        fireProductCards(events, personaSynthesisRef.current);
+      }
     } catch (err) {
       console.error("[PRELOAD] Risk detection failed:", err);
     } finally {
@@ -532,6 +543,7 @@ export default function ExecDemoPage() {
           persona_rollups: synthesis?.pillarRollups || [],
           pillars: pillars.slice(0, 8),
           demographics,
+          risk_flags: riskFlagsRef.current?.flags || [],
         },
       });
       if (error) throw error;
@@ -578,6 +590,7 @@ export default function ExecDemoPage() {
           life_events: events.slice(0, 3),
           demographics,
           pillars: pillars.slice(0, 6),
+          risk_flags: riskFlagsRef.current?.flags || [],
         },
       });
       if (error) throw error;
