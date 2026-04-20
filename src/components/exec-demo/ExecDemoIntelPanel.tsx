@@ -322,7 +322,7 @@ export default function ExecDemoIntelPanel({
     }
   }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick, personaSynthesis]);
 
-  const isOfferTab = activeTab === "analytics";
+  const isOfferTab = activeTab === "analytics" || activeTab === "product";
 
 
   return (
