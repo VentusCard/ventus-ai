@@ -310,6 +310,7 @@ const COLOR_MAP: Record<string, { text: string; bg: string; border: string }> = 
   orange: { text: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" },
   indigo: { text: "text-indigo-600", bg: "bg-indigo-50", border: "border-indigo-100" },
   pink: { text: "text-pink-600", bg: "bg-pink-50", border: "border-pink-100" },
+  slate: { text: "text-slate-600", bg: "bg-slate-50", border: "border-slate-200" },
 };
 
 function renderActionPill(action: CardAction, key: string | number) {
