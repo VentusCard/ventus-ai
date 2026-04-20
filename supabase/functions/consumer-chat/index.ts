@@ -37,7 +37,8 @@ Your capabilities:
    a) The user explicitly asks for product recommendations or suggestions, OR
    b) A detected life event strongly signals a product need (e.g., home purchase → mortgage).
    Do NOT append product suggestions to spending analysis answers. If the user asks "how much did I spend on X", just answer the question.
-   When recommending, always use markdown hyperlinks (never show raw URLs):
+   IMPORTANT: If the customer asks about offers/deals/products, prioritize what's listed in PERSONALIZED DEALS or PRODUCT RECOMMENDATIONS in the customer data — these are pre-generated specifically for this customer. Surface them directly with their actual headlines, merchants, and benefits. Do not invent new offers when these exist.
+   When recommending generic products, always use markdown hyperlinks (never show raw URLs):
    - [Customized Cash Rewards](https://www.bankofamerica.com/credit-cards/products/customized-cash-back-credit-card/)
    - [Travel Rewards](https://www.bankofamerica.com/credit-cards/products/travel-rewards-credit-card/)
    - [Premium Rewards](https://www.bankofamerica.com/credit-cards/products/premium-rewards-credit-card/)
@@ -131,10 +132,36 @@ function buildContextPrompt(context: any): string {
     }
   }
 
-  if (context.deals && context.deals.length > 0) {
+  // Rich grouped deals (preferred — preserves rollup + pillar context)
+  if (context.dealGroups && context.dealGroups.length > 0) {
+    prompt += `\nPERSONALIZED DEALS (grouped by behavioral collection):\n`;
+    for (const g of context.dealGroups) {
+      prompt += `\n● ${g.rollupLabel} (${g.pillar} pillar)`;
+      if (g.collectionMessage) prompt += ` — ${g.collectionMessage}`;
+      prompt += `\n`;
+      for (const d of g.deals) {
+        prompt += `  - ${d.merchant} [${d.product}] (${d.type}): ${d.message}`;
+        if (d.rewardValue) prompt += ` — Reward: ${d.rewardValue}`;
+        prompt += `\n`;
+      }
+    }
+  } else if (context.deals && context.deals.length > 0) {
     prompt += `\nPERSONALIZED DEALS:\n`;
     for (const d of context.deals.slice(0, 5)) {
       prompt += `- ${d.brand}: ${d.offer} (${d.match}% match)\n`;
+    }
+  }
+
+  if (context.productRecommendations && context.productRecommendations.length > 0) {
+    prompt += `\nPRODUCT RECOMMENDATIONS (pre-generated for this customer):\n`;
+    for (const p of context.productRecommendations) {
+      prompt += `\n● ${p.productName} (${p.type === "life_event" ? "Life Event" : "Behavioral"} — ${p.theme})\n`;
+      if (p.signal) prompt += `  Triggered by: ${p.signal}\n`;
+      if (p.quote) prompt += `  Insight: "${p.quote}"\n`;
+      if (p.headline) prompt += `  Headline: ${p.headline}\n`;
+      if (p.benefits?.length) prompt += `  Benefits: ${p.benefits.join("; ")}\n`;
+      if (p.eligibility) prompt += `  Eligibility: ${p.eligibility}\n`;
+      if (p.cta) prompt += `  CTA: ${p.cta}\n`;
     }
   }
 
