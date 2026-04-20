@@ -514,86 +514,88 @@ export default function NextConversationRationale({
             <MessageSquare className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="pl-3 border-l border-slate-200 space-y-2 flex flex-col">
-          <div className="flex items-center gap-1.5">
+        <div className="pl-3 border-l border-slate-200 flex flex-col h-full">
+          <div className="flex items-center gap-1.5 mb-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-            <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+            <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
               Wealth Client <span className="text-purple-400">(+)</span>
             </span>
           </div>
 
-          {/* Advisor brief */}
-          <div
-            className="rounded-lg px-2.5 py-2"
-            style={{
-              background: "rgba(139,92,246,.05)",
-              border: "1px dashed rgba(139,92,246,.32)",
-            }}
-          >
-            <div className="flex items-center gap-1.5 mb-1">
-              <Bell className="w-3 h-3" style={{ color: "#8b5cf6" }} />
-              <span className="text-[10px] font-semibold text-purple-900">
-                Advisor notification + prep brief
-              </span>
-            </div>
-            <div className="text-[10px] text-slate-600 mb-1.5">
-              <span className="font-semibold">Sent to:</span> {playbook.advisorBrief.recipient}
-            </div>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
-              Personalized prep brief includes
-            </div>
-            <ul className="space-y-0.5 mb-1.5">
-              {playbook.advisorBrief.briefBullets.map((b) => (
-                <li key={b} className="text-[10px] text-slate-600 leading-tight flex items-start gap-1">
-                  <span className="mt-[3px] w-1 h-1 rounded-full shrink-0 bg-purple-400" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-            <div className="text-[10px] text-slate-600">
-              <span className="font-semibold">Suggested outreach:</span>{" "}
-              <span className="text-purple-700 font-semibold">{playbook.advisorBrief.suggestedOutreach}</span>
-            </div>
-          </div>
-
-          {/* Concierge / Standard action pills (from generate-product-actions) */}
-          {actionsLoading && matchedActions.length === 0 ? (
-            <div className="rounded-lg px-2.5 py-2 border border-purple-100 bg-purple-50/40">
-              <div className="text-[10px] text-purple-400 italic flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 animate-pulse" /> Generating advisor actions…
+          <div className="flex-1 space-y-2.5 min-h-0">
+            {/* Advisor brief */}
+            <div
+              className="rounded-lg px-3 py-2.5"
+              style={{
+                background: "rgba(139,92,246,.05)",
+                border: "1px dashed rgba(139,92,246,.32)",
+              }}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Bell className="w-3.5 h-3.5" style={{ color: "#8b5cf6" }} />
+                <span className="text-sm font-semibold text-purple-900">
+                  Advisor notification + prep brief
+                </span>
+              </div>
+              <div className="text-sm text-slate-600 mb-2">
+                <span className="font-semibold">Sent to:</span> {playbook.advisorBrief.recipient}
+              </div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                Personalized prep brief includes
+              </div>
+              <ul className="space-y-1 mb-2">
+                {playbook.advisorBrief.briefBullets.map((b) => (
+                  <li key={b} className="text-sm text-slate-600 leading-snug flex items-start gap-1.5">
+                    <span className="mt-[6px] w-1.5 h-1.5 rounded-full shrink-0 bg-purple-400" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">Suggested outreach:</span>{" "}
+                <span className="text-purple-700 font-semibold">{playbook.advisorBrief.suggestedOutreach}</span>
               </div>
             </div>
-          ) : matchedActions.length > 0 ? (
-            <div className="rounded-lg px-2.5 py-2 space-y-1.5"
-              style={{ background: "rgba(139,92,246,.04)", border: "1px solid rgba(139,92,246,.20)" }}
-            >
-              {wowActions.length > 0 && (
-                <div>
-                  <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" /> Concierge Touch
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {wowActions.map((a, i) => renderActionPill(a, `wow-${i}`))}
-                  </div>
+
+            {/* Concierge / Standard action pills (from generate-product-actions) */}
+            {actionsLoading && matchedActions.length === 0 ? (
+              <div className="rounded-lg px-3 py-2.5 border border-purple-100 bg-purple-50/40">
+                <div className="text-[11px] text-purple-400 italic flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 animate-pulse" /> Generating advisor actions…
                 </div>
-              )}
-              {standardActions.length > 0 && (
-                <div>
-                  <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Standard Response
+              </div>
+            ) : matchedActions.length > 0 ? (
+              <div className="rounded-lg px-3 py-2.5 space-y-2"
+                style={{ background: "rgba(139,92,246,.04)", border: "1px solid rgba(139,92,246,.20)" }}
+              >
+                {wowActions.length > 0 && (
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5" /> Concierge Touch
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {wowActions.map((a, i) => renderActionPill(a, `wow-${i}`))}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {standardActions.map((a, i) => renderActionPill(a, `std-${i}`))}
+                )}
+                {standardActions.length > 0 && (
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                      Standard Response
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {standardActions.map((a, i) => renderActionPill(a, `std-${i}`))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : null}
+                )}
+              </div>
+            ) : null}
+          </div>
 
           {/* Open WM Copilot button */}
           <button
             onClick={onOpenWMCopilot}
-            className="w-full mt-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            className="w-full mt-3 inline-flex items-center justify-center gap-1.5 text-sm font-bold rounded-lg px-3 py-2.5 text-white transition-all hover:scale-[1.02] hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
               boxShadow: "0 2px 8px rgba(139,92,246,.35)",
