@@ -108,7 +108,7 @@ Generate 2-5 engagement actions for each product card.`;
                             properties: {
                               label: { type: "string", description: "Action label, 3-8 words" },
                               icon: { type: "string", enum: ["smartphone", "mail", "user-check", "calendar", "heart", "gift", "shield", "lightbulb", "star", "compass", "flower", "pen-line", "cake", "plane", "home", "briefcase", "bell"] },
-                              color: { type: "string", enum: ["blue", "amber", "violet", "teal", "emerald", "rose", "sky", "orange", "indigo", "pink"] },
+                              color: { type: "string", enum: ["blue", "amber", "violet", "teal", "emerald", "rose", "sky", "orange", "indigo", "pink", "slate"] },
                               tone: { type: "string", enum: ["standard", "wow"] },
                             },
                             required: ["label", "icon", "color", "tone"],
