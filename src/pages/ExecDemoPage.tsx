@@ -951,6 +951,7 @@ export default function ExecDemoPage() {
             productActions={productActions}
             actionsLoading={actionsLoading}
             onOpenWMCopilot={handleOpenWMCopilot}
+            onOpenAIAssistant={handleOpenAIAssistant}
           />
         </div>
 
