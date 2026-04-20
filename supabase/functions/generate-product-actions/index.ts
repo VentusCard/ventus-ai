@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { product_cards, persona_rollups, life_events, demographics, pillars } = await req.json();
+    const { product_cards, persona_rollups, life_events, demographics, pillars, risk_flags } = await req.json();
 
     if (!product_cards || !Array.isArray(product_cards) || product_cards.length === 0) {
       return new Response(JSON.stringify({ error: "product_cards required" }), {
@@ -33,9 +33,26 @@ RULES:
 - Actions must be contextually justified by the provided data — don't invent context that isn't there
 - Keep labels concise (3-8 words)
 - Icon must be one of: smartphone, mail, user-check, calendar, heart, gift, shield, lightbulb, star, compass, flower, pen-line, cake, plane, home, briefcase, bell
-- Color must be one of: blue, amber, violet, teal, emerald, rose, sky, orange, indigo, pink
+- Color must be one of: blue, amber, violet, teal, emerald, rose, sky, orange, indigo, pink, slate
 - Standard actions use: blue, amber, teal, violet
-- Wow actions use warmer/richer colors: rose, emerald, orange, pink, indigo`;
+- Wow actions use warmer/richer colors: rose, emerald, orange, pink, indigo
+
+RISK CARDS (cards where type === "risk" or signal_label matches a risk category like "Gambling", "Adult Content", "Suspicious International", "AML", "Sports Betting", "Payday Loan", "Crypto Mixing", "Structuring", "Layering"):
+- Generate ONLY risk-appropriate, wellness/safety/compliance actions. NEVER marketing, upsell, or celebratory actions.
+- Use cooler/calmer colors ONLY: standard → slate, sky, indigo; wow → rose, indigo. Never pink, orange, emerald, amber celebratory tones.
+- Prefer icons: shield, bell, user-check, lightbulb.
+- Tone: caring, discreet, professional. NEVER alarming or judgmental.
+- Examples by category:
+  - VICE (gambling/adult/sports betting/payday/crypto mixing):
+     standard → "Push: Set Merchant Block", "Suppress Category Marketing", "Notify Customer Care Team"
+     wow → "Discreet Wellness Check-in Call", "Personalized Spending Limit Setup", "Confidential Support Outreach"
+  - SUSPICIOUS INTERNATIONAL (cross-border wires, OFAC, currency anomalies):
+     standard → "SMS Verification Sent", "Card-Freeze Quick Action", "Travel Notice Reminder"
+     wow → "Concierge Fraud-Team Callback", "Travel Notice Pre-Set", "Personal Liaison Assigned"
+  - AML (structuring, layering):
+     standard → "Flag for Compliance Review", "KYC Refresh Sent", "Internal Case Notation"
+     wow → "Private Compliance Liaison Outreach", "Discreet Relationship Manager Notice"
+- Forbidden labels for risk cards: anything mentioning "rewards", "bonus", "miles", "points", "earn", "apply", "upgrade", "flowers", "gift", "celebration".`;
 
     const userPrompt = `PRODUCT CARDS:
 ${JSON.stringify(product_cards, null, 2)}
@@ -51,6 +68,9 @@ ${JSON.stringify(demographics || {}, null, 2)}
 
 TOP SPENDING PILLARS:
 ${JSON.stringify(pillars?.slice(0, 6)?.map((p: any) => ({ pillar: p.pillar, label: p.label, count: p.count, totalSpend: p.totalSpend })) || [], null, 2)}
+
+RISK FLAGS (if any card has type === "risk", use these to drive risk-appropriate actions):
+${JSON.stringify((risk_flags || []).slice(0, 8).map((f: any) => ({ category_group: f.category_group, category_label: f.category_label, merchant: f.merchant_name })), null, 2)}
 
 Generate 2-5 engagement actions for each product card.`;
 
