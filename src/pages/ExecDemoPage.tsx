@@ -43,6 +43,7 @@ export default function ExecDemoPage() {
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
   const [txPanelExpanded, setTxPanelExpanded] = useState(false);
+  const [phoneCollapsed, setPhoneCollapsed] = useState(false);
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
@@ -964,32 +965,65 @@ export default function ExecDemoPage() {
         </div>
 
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
-        <div
-          className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out"
-          style={{
-            width: activeTab === "relationship" && aiTabTrigger > 0 ? 360 : 0,
-            minWidth: activeTab === "relationship" && aiTabTrigger > 0 ? 360 : 0,
-            opacity: activeTab === "relationship" && aiTabTrigger > 0 ? 1 : 0,
-          }}
-        >
-          <div className="w-[360px] h-full">
-            <ExecDemoPhoneView
-              customer={demoCustomer}
-              activeTab={activeTab}
-              phase={phase}
-              showContent={activeTab === "relationship" && aiTabTrigger > 0 && phase !== "idle"}
-            generatedOffers={generatedOffers}
-              detectedLifeEvents={detectedLifeEvents}
-              productCards={productCards}
-              activeRollupLabel={activeRollup?.label || null}
-              activeRollupPillar={activeRollup?.pillar || null}
-              enrichedTxs={classifiedRef.current}
-              riskFlags={riskFlags}
-              aiTabTrigger={aiTabTrigger}
-              pendingAIPrompt={pendingAIPrompt}
-            />
-          </div>
-        </div>
+        {(() => {
+          const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+          const expandedW = 360;
+          const collapsedW = 40;
+          const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
+          return (
+            <div
+              className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out relative border-l border-slate-200"
+              style={{
+                width: w,
+                minWidth: w,
+                opacity: phoneVisible ? 1 : 0,
+              }}
+            >
+              {/* Sliver state */}
+              {phoneVisible && phoneCollapsed && (
+                <div
+                  className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors"
+                  onClick={() => setPhoneCollapsed(false)}
+                >
+                  <ChevronLeft className="w-4 h-4 text-slate-400 mb-2" />
+                  <span
+                    className="text-[10px] text-slate-400 font-medium tracking-wider"
+                    style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
+                  >
+                    AI Assistant
+                  </span>
+                </div>
+              )}
+
+              {/* Full phone — with collapse button */}
+              {phoneVisible && !phoneCollapsed && (
+                <div className="w-[360px] h-full relative">
+                  <button
+                    onClick={() => setPhoneCollapsed(true)}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                  </button>
+                  <ExecDemoPhoneView
+                    customer={demoCustomer}
+                    activeTab={activeTab}
+                    phase={phase}
+                    showContent={phoneVisible && phase !== "idle"}
+                    generatedOffers={generatedOffers}
+                    detectedLifeEvents={detectedLifeEvents}
+                    productCards={productCards}
+                    activeRollupLabel={activeRollup?.label || null}
+                    activeRollupPillar={activeRollup?.pillar || null}
+                    enrichedTxs={classifiedRef.current}
+                    riskFlags={riskFlags}
+                    aiTabTrigger={aiTabTrigger}
+                    pendingAIPrompt={pendingAIPrompt}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
