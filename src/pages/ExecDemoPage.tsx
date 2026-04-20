@@ -950,9 +950,9 @@ export default function ExecDemoPage() {
         <div
           className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out"
           style={{
-            width: activeTab ? 360 : 0,
-            minWidth: activeTab ? 360 : 0,
-            opacity: activeTab ? 1 : 0,
+            width: activeTab === "relationship" ? 360 : 0,
+            minWidth: activeTab === "relationship" ? 360 : 0,
+            opacity: activeTab === "relationship" ? 1 : 0,
           }}
         >
           <div className="w-[360px] h-full">
@@ -960,7 +960,7 @@ export default function ExecDemoPage() {
               customer={demoCustomer}
               activeTab={activeTab}
               phase={phase}
-              showContent={activeTab !== null && phase !== "idle"}
+              showContent={activeTab === "relationship" && phase !== "idle"}
             generatedOffers={generatedOffers}
               detectedLifeEvents={detectedLifeEvents}
               productCards={productCards}
