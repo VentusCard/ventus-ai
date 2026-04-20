@@ -485,7 +485,7 @@ function ProductCardBody({
   };
   return (
     <div
-      className="rounded-xl border overflow-hidden bg-white"
+      className="rounded-xl border overflow-hidden bg-white h-full flex flex-col"
       style={{
         borderColor: c.border,
         borderLeftWidth: 3,
@@ -493,7 +493,7 @@ function ProductCardBody({
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
-      <div className="px-4 py-3.5 space-y-3">
+      <div className="px-4 py-3.5 space-y-3 flex flex-col flex-1">
         {/* Product name + quote */}
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
@@ -534,6 +534,9 @@ function ProductCardBody({
             ))}
           </ul>
         </div>
+
+        {/* Spacer pushes eligibility + CTA to the bottom so CTAs align across cards */}
+        <div className="flex-1" />
 
         {/* Eligibility */}
         <div className="flex items-start gap-1.5 text-[10px] text-slate-500 leading-snug">
