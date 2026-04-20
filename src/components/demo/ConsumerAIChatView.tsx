@@ -9,6 +9,8 @@ import ReactMarkdown from "react-markdown";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { DetectedLifeEventResult, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
+import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
+import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -20,6 +22,8 @@ interface Props {
   enriched?: EnrichedTransaction[];
   detectedEvents?: DetectedLifeEventResult[];
   personalizedDeals?: PersonalizedDealData | null;
+  offerGroups?: RollupOfferGroup[] | null;
+  productRecommendations?: ProductCard[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
   initialMessage?: string | null;
   messageNonce?: number;
@@ -27,11 +31,11 @@ interface Props {
 }
 
 const QUICK_ACTIONS = [
+  "What offers do I have?",
   "How much did I spend on sports?",
   "Show my subscriptions",
   "Product recommendations",
   "Life event insights",
-  "Where does most of my money go?",
   "Risk factors & alerts",
 ];
 
@@ -39,7 +43,9 @@ function buildContext(
   customer: DemoCustomer,
   enriched?: EnrichedTransaction[],
   detectedEvents?: DetectedLifeEventResult[],
-  personalizedDeals?: PersonalizedDealData | null
+  personalizedDeals?: PersonalizedDealData | null,
+  offerGroups?: RollupOfferGroup[] | null,
+  productRecommendations?: ProductCard[] | null
 ) {
   const demographics = {
     name: customer.profile.name,
@@ -131,16 +137,44 @@ function buildContext(
     talkingPoints: e.talking_points,
   }));
 
+  // Rich grouped deals (preserve rollup labels & pillars)
+  const dealGroups = offerGroups?.map((g) => ({
+    rollupLabel: g.rollup,
+    pillar: g.pillar,
+    collectionMessage: g.collectionMessage,
+    deals: g.deals.map((d) => ({
+      merchant: d.merchant,
+      product: d.product,
+      message: d.message,
+      rewardValue: d.rewardValue,
+      cta: d.cta,
+      type: d.signal,
+    })),
+  })) ?? null;
+
+  // Flat fallback list (legacy field, still used by some prompts)
   const deals = personalizedDeals?.deals?.map((d) => ({
     brand: d.merchantName,
     offer: d.dealTitle,
     match: d.activationCount,
   }));
 
-  return { demographics, spendingSummary, lifeEvents, deals };
+  const productRecs = productRecommendations?.map((p) => ({
+    productName: p.product_name,
+    type: p.type,
+    theme: p.theme,
+    signal: p.signal_label,
+    quote: p.quote,
+    headline: p.offer_headline,
+    benefits: p.benefits,
+    eligibility: p.eligibility,
+    cta: p.cta,
+  })) ?? null;
+
+  return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, riskFlags, initialMessage, messageNonce, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -148,8 +182,8 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   const initialMessageSentRef = useRef(false);
 
   const context = useMemo(
-    () => buildContext(customer, enriched, detectedEvents, personalizedDeals),
-    [customer, enriched, detectedEvents, personalizedDeals]
+    () => buildContext(customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations),
+    [customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations]
   );
 
   useEffect(() => {

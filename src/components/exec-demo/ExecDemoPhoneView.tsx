@@ -116,6 +116,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             enriched={(enrichedTxs ?? undefined) as any}
             detectedEvents={detectedEvents}
             personalizedDeals={personalizedDeals as any}
+            offerGroups={generatedOffers ?? null}
+            productRecommendations={productCards ?? null}
             riskFlags={riskFlags ?? undefined}
             initialMessage={pendingAIMessage}
             messageNonce={pendingAIPrompt?.nonce}
