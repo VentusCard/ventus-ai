@@ -100,6 +100,7 @@ export default function ExecDemoPage() {
   const [productActions, setProductActions] = useState<CardActions[] | null>(null);
   const [actionsLoading, setActionsLoading] = useState(false);
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
+  const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
@@ -489,7 +490,14 @@ export default function ExecDemoPage() {
       });
       if (error) throw error;
       setRiskFlags(data);
+      riskFlagsRef.current = data;
       console.log("[PRELOAD] Risk detection ready:", data?.flags?.length, "flags");
+      // If product cards already generated without risk awareness, regenerate so the
+      // risk-card slot can be added (and downstream actions inherit risk context).
+      if (data?.flags?.length > 0 && classifiedRef.current && personaSynthesisRef.current) {
+        const events = (detectedLifeEventsRef.current || []) as LifeEvent[];
+        fireProductCards(events, personaSynthesisRef.current);
+      }
     } catch (err) {
       console.error("[PRELOAD] Risk detection failed:", err);
     } finally {
