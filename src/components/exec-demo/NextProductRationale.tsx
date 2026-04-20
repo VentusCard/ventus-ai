@@ -475,7 +475,14 @@ function ProductCardBody({
   index: number;
 }) {
   const { card, color: c, isBehavioral } = resolved;
-  const offer = deriveOfferDetails(card, isBehavioral);
+  const fallback = deriveOfferDetails(card, isBehavioral);
+  const offer = {
+    headline: card.offer_headline?.trim() || fallback.headline,
+    benefits: (card.benefits && card.benefits.length > 0) ? card.benefits : fallback.benefits,
+    eligibility: card.eligibility?.trim() || fallback.eligibility,
+    cta: card.cta?.trim() || fallback.cta,
+    ctaSub: card.cta_sub?.trim() || fallback.ctaSub,
+  };
   return (
     <div
       className="rounded-xl border overflow-hidden bg-white"
