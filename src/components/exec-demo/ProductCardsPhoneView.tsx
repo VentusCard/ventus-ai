@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { ChevronRight, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
@@ -74,15 +75,14 @@ export default function ProductCardsPhoneView({ cards }: Props) {
           const isFirst = i === 0;
 
           return (
-            <>
+            <Fragment key={i}>
               {!isFirst && (
                 <div
-                  key={`divider-${i}`}
                   className="w-px bg-slate-200 mx-1 self-stretch"
                   aria-hidden
                 />
               )}
-              <div key={`card-${i}`} className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0">
                 <div
                   className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
                   style={{
@@ -113,7 +113,7 @@ export default function ProductCardsPhoneView({ cards }: Props) {
                   </div>
                 </div>
               </div>
-            </>
+            </Fragment>
           );
         })}
       </div>
