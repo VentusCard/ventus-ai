@@ -424,85 +424,87 @@ export default function NextConversationRationale({
       {/* Vertical split: Regular (left) | Wealth (right) */}
       <div className="grid grid-cols-2 gap-0 flex-1 min-h-0">
         {/* REGULAR CLIENT — LEFT */}
-        <div className="pr-3 space-y-2 flex flex-col">
-          <div className="flex items-center gap-1.5">
+        <div className="pr-3 flex flex-col h-full">
+          <div className="flex items-center gap-1.5 mb-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-            <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+            <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
               Regular Client
             </span>
           </div>
 
-          {/* Automated flow */}
-          <div
-            className="rounded-lg px-2.5 py-2"
-            style={{
-              background: "rgba(59,130,246,.05)",
-              border: "1px solid rgba(59,130,246,.18)",
-            }}
-          >
-            <div className="flex items-center gap-1.5 mb-1">
-              <ChannelIcon channel={playbook.automatedFlow.channel} color="#3b82f6" />
-              <span className="text-[10px] font-semibold text-blue-900">
-                {playbook.automatedFlow.channel} flow
-              </span>
+          <div className="flex-1 space-y-2.5 min-h-0">
+            {/* Automated flow */}
+            <div
+              className="rounded-lg px-3 py-2.5"
+              style={{
+                background: "rgba(59,130,246,.05)",
+                border: "1px solid rgba(59,130,246,.18)",
+              }}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <ChannelIcon channel={playbook.automatedFlow.channel} color="#3b82f6" />
+                <span className="text-sm font-semibold text-blue-900">
+                  {playbook.automatedFlow.channel} flow
+                </span>
+              </div>
+              <div className="text-sm font-medium text-slate-700 mb-1 leading-snug">
+                {playbook.automatedFlow.subject}
+              </div>
+              <div className="text-xs text-slate-500 italic mb-1.5 leading-snug">
+                {playbook.automatedFlow.triggerLogic}
+              </div>
+              <ul className="space-y-1">
+                {playbook.automatedFlow.sequence.map((step, i) => (
+                  <li key={step} className="text-sm text-slate-600 leading-snug flex items-start gap-1.5">
+                    <span className="text-xs tabular-nums text-blue-400 font-bold mt-[2px]">
+                      {i + 1}.
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-[10px] font-medium text-slate-700 mb-0.5 leading-tight">
-              {playbook.automatedFlow.subject}
-            </div>
-            <div className="text-[9px] text-slate-500 italic mb-1 leading-tight">
-              {playbook.automatedFlow.triggerLogic}
-            </div>
-            <ul className="space-y-0.5">
-              {playbook.automatedFlow.sequence.map((step, i) => (
-                <li key={step} className="text-[10px] text-slate-600 leading-tight flex items-start gap-1">
-                  <span className="text-[9px] tabular-nums text-blue-400 font-bold mt-[1px]">
-                    {i + 1}.
-                  </span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          {/* Chatbot context */}
-          <div
-            className="rounded-lg px-2.5 py-2"
-            style={{
-              background: "rgba(59,130,246,.05)",
-              border: "1px solid rgba(59,130,246,.18)",
-            }}
-          >
-            <div className="flex items-center gap-1.5 mb-1">
-              <MessageSquare className="w-3 h-3" style={{ color: "#3b82f6" }} />
-              <span className="text-[10px] font-semibold text-blue-900">AI Chatbot context</span>
+            {/* Chatbot context */}
+            <div
+              className="rounded-lg px-3 py-2.5"
+              style={{
+                background: "rgba(59,130,246,.05)",
+                border: "1px solid rgba(59,130,246,.18)",
+              }}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <MessageSquare className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
+                <span className="text-sm font-semibold text-blue-900">AI Chatbot context</span>
+              </div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                Knows
+              </div>
+              <ul className="space-y-1 mb-2">
+                {playbook.chatbotContext.knows.map((k) => (
+                  <li key={k} className="text-sm text-slate-600 leading-snug flex items-start gap-1.5">
+                    <span className="mt-[6px] w-1.5 h-1.5 rounded-full shrink-0 bg-blue-400" />
+                    {k}
+                  </li>
+                ))}
+              </ul>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                Can answer
+              </div>
+              <ul className="space-y-1">
+                {playbook.chatbotContext.canAnswer.map((q) => (
+                  <li key={q} className="text-sm text-slate-600 leading-snug italic">
+                    {q}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
-              Knows
-            </div>
-            <ul className="space-y-0.5 mb-1.5">
-              {playbook.chatbotContext.knows.map((k) => (
-                <li key={k} className="text-[10px] text-slate-600 leading-tight flex items-start gap-1">
-                  <span className="mt-[3px] w-1 h-1 rounded-full shrink-0 bg-blue-400" />
-                  {k}
-                </li>
-              ))}
-            </ul>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
-              Can answer
-            </div>
-            <ul className="space-y-0.5">
-              {playbook.chatbotContext.canAnswer.map((q) => (
-                <li key={q} className="text-[10px] text-slate-600 leading-tight italic">
-                  {q}
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Open AI Banking Assistant button */}
           <button
             onClick={onOpenAIAssistant}
-            className="w-full mt-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            className="w-full mt-3 inline-flex items-center justify-center gap-1.5 text-sm font-bold rounded-lg px-3 py-2.5 text-white transition-all hover:scale-[1.02] hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
               boxShadow: "0 2px 8px rgba(59,130,246,.35)",
