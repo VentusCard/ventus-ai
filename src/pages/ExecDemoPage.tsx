@@ -977,6 +977,7 @@ export default function ExecDemoPage() {
               activeRollupPillar={activeRollup?.pillar || null}
               enrichedTxs={classifiedRef.current}
               riskFlags={riskFlags}
+              aiTabTrigger={aiTabTrigger}
             />
           </div>
         </div>
