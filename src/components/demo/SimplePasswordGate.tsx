@@ -29,14 +29,14 @@ export default function SimplePasswordGate({ children, bullets }: Props) {
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-white px-6" style={{ fontFamily: "Manrope, sans-serif" }}>
       <div className="flex flex-col items-center gap-8 w-full max-w-3xl">
-        <img src={ventusLogo} alt="Ventus AI" className="h-10 w-auto" />
+        <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
 
         {bullets && bullets.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
             {bullets.map((b, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <span className="text-[13px] font-semibold text-slate-700 tracking-tight">{b}</span>
+              <div key={i} className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-blue-500" />
+                <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{b}</span>
               </div>
             ))}
           </div>
