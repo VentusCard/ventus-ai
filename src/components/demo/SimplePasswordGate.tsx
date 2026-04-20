@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import ventusLogo from "@/assets/ventus-logo-blue.png";
+import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 
 const CORRECT_PASSWORD = "ventus2026";
 const SESSION_KEY = "demo_password_access";
