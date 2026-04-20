@@ -54,6 +54,7 @@ interface Props {
   riskLoading?: boolean;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
+  onAIPromptDispatch?: (prompt: string) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -170,6 +171,7 @@ export default function ExecDemoIntelPanel({
   riskLoading,
   onOpenWMCopilot,
   onOpenAIAssistant,
+  onAIPromptDispatch,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -372,15 +374,31 @@ export default function ExecDemoIntelPanel({
                   const isRelTab = activeTab === "relationship";
                   const handleRollupForRel = (r: typeof rollupStats[number]) => {
                     onRollupClick?.(r);
-                    if (isRelTab) setSelectedSignal({ kind: "lifestyle", label: r.label });
+                    if (isRelTab) {
+                      setSelectedSignal({ kind: "lifestyle", label: r.label });
+                      onAIPromptDispatch?.(
+                        `How much do I typically spend on ${r.label.toLowerCase()}?`
+                      );
+                    }
                   };
                   const handleLifeEventForRel = (label: string, indices: number[]) => {
                     onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
-                    if (isRelTab) setSelectedSignal({ kind: "lifeEvent", label });
+                    if (isRelTab) {
+                      setSelectedSignal({ kind: "lifeEvent", label });
+                      onAIPromptDispatch?.(
+                        `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`
+                      );
+                    }
                   };
-                  const handleRiskForRel = (label: string, indices: number[], color: string) => {
+                  const handleRiskForRel = (label: string, indices: number[], color: string, merchant?: string) => {
                     onTriggerPillClick?.(label, indices, color, "risk");
-                    if (isRelTab) setSelectedSignal({ kind: "risk", label });
+                    if (isRelTab) {
+                      setSelectedSignal({ kind: "risk", label });
+                      const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
+                      onAIPromptDispatch?.(
+                        `What is this transaction ${subject}? What is it typically associated with statistically?`
+                      );
+                    }
                   };
 
                   // Shared pill renderers
@@ -485,7 +503,7 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={pillKey}
-                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor)}
+                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor, flag.merchant)}
                           title={isOfferTab ? "Not applicable for offer targeting" : undefined}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
