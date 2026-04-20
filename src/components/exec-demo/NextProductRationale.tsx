@@ -645,8 +645,6 @@ function GroupSlideshow({
       {isSingle ? (
         <ProductCardBody
           resolved={resolvedCards[0]}
-          productActions={productActions}
-          actionsLoading={actionsLoading}
           index={0}
         />
       ) : (
@@ -660,8 +658,6 @@ function GroupSlideshow({
                 <div key={idx} className="flex-[0_0_100%] min-w-0 pr-1">
                   <ProductCardBody
                     resolved={r}
-                    productActions={productActions}
-                    actionsLoading={actionsLoading}
                     index={idx}
                   />
                 </div>
