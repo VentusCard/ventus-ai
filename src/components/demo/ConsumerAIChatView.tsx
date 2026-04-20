@@ -379,7 +379,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your spending..."
-            className="text-sm h-9 rounded-full bg-slate-50 border-slate-200"
+            className="text-sm h-9 rounded-full bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"
             disabled={isLoading}
           />
           <Button
