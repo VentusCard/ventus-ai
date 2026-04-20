@@ -40,9 +40,10 @@ interface Props {
   activeRollupPillar?: string | null;
   enrichedTxs?: EnrichedTransaction[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
+  aiTabTrigger?: number;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -52,6 +53,13 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   useEffect(() => {
     setConsumerTab(mappedTab);
   }, [mappedTab]);
+
+  // External trigger to force AI tab (e.g. from "Open AI Banking Assistant" button)
+  useEffect(() => {
+    if (aiTabTrigger && aiTabTrigger > 0) {
+      setConsumerTab("ai");
+    }
+  }, [aiTabTrigger]);
 
   const renderContent = () => {
     switch (consumerTab) {
