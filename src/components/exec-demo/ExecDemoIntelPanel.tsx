@@ -173,6 +173,7 @@ export default function ExecDemoIntelPanel({
   onOpenWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
+  assistantOpen = false,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -377,18 +378,22 @@ export default function ExecDemoIntelPanel({
                     onRollupClick?.(r);
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
-                      onAIPromptDispatch?.(
-                        `How much do I typically spend on ${r.label.toLowerCase()}?`
-                      );
+                      if (assistantOpen) {
+                        onAIPromptDispatch?.(
+                          `How much do I typically spend on ${r.label.toLowerCase()}?`
+                        );
+                      }
                     }
                   };
                   const handleLifeEventForRel = (label: string, indices: number[]) => {
                     onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifeEvent", label });
-                      onAIPromptDispatch?.(
-                        `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`
-                      );
+                      if (assistantOpen) {
+                        onAIPromptDispatch?.(
+                          `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`
+                        );
+                      }
                     }
                   };
                   const handleRiskForRel = (label: string, indices: number[], color: string, merchant?: string) => {
@@ -396,9 +401,11 @@ export default function ExecDemoIntelPanel({
                     if (isRelTab) {
                       setSelectedSignal({ kind: "risk", label });
                       const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
-                      onAIPromptDispatch?.(
-                        `What is this transaction ${subject}? What is it typically associated with statistically?`
-                      );
+                      if (assistantOpen) {
+                        onAIPromptDispatch?.(
+                          `What is this transaction ${subject}? What is it typically associated with statistically?`
+                        );
+                      }
                     }
                   };
 

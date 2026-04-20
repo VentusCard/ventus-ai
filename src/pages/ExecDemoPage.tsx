@@ -959,6 +959,7 @@ export default function ExecDemoPage() {
             onOpenWMCopilot={handleOpenWMCopilot}
             onOpenAIAssistant={handleOpenAIAssistant}
             onAIPromptDispatch={dispatchAIPrompt}
+            assistantOpen={aiTabTrigger > 0}
           />
         </div>
 
