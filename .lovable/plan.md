@@ -1,62 +1,38 @@
 
 
-## Goal
-Make each pill in the Behavioral Intelligence section (Spending Habits, Life Event Detection, Risk Factors) — when on the Next Conversation tab — open the phone's AI chat and auto-send a tailored question matching the pill type.
+## Understanding
+The Next-Product tab currently generates **4 product cards**. The user wants **only 2** displayed, side-by-side with a vertical divider (the layout I already built handles 2 side-by-side, but the upstream is producing 4 and possibly the layout isn't being seen because it's in a different view).
 
-## Behavior per pill type
+Let me look at where 4 products come from. Based on the memory note `mem://technical/edge-functions/product-card-generation`: "produces exactly two consumer-facing cards" — so the edge function returns 2. But the user says 4 are showing.
 
-| Pill type | Auto-sent prompt |
-|---|---|
-| **Lifestyle rollup** (e.g. "Annual Premium Hawaiian Vacations") | `"How much do I typically spend on annual premium hawaiian vacations?"` |
-| **Life event** (e.g. "College Prep for Dependents") | `"I'm preparing for college prep for dependents. What financial resources and products should I consider for this?"` |
-| **Risk flag** (e.g. "Vice — DraftKings") | `"What is this transaction at DraftKings? What is it typically associated with?"` (falls back to category label if no merchant) |
+Likely culprit: there are **two different views** for product cards:
+1. `ProductCardsPhoneView.tsx` (phone, already updated to 2 side-by-side)
+2. `NextProductRationale.tsx` (the right-panel intelligence view on the Next-Product tab) — this likely shows 4 product cards in a grid
 
-The existing `consumer-chat` edge function already handles these conversationally — risk pills will get a contextual statistical answer (the system prompt covers behavioral category insight); life-event pills will get product recommendations; lifestyle pills will get specific dollar amounts from the enriched data already in context.
+The user is talking about the **tab** (intelligence panel), not the phone. They want the panel itself to show just 2 cards side-by-side with a vertical divider.
 
-## Wiring
+## Plan
 
+### File: `src/components/exec-demo/NextProductRationale.tsx`
+- Slice the products array to the first 2 items
+- Replace the current grid/list layout with a 2-column flex layout
+- Add a vertical divider (`w-px bg-slate-200`) between the two cards
+- Keep existing card styling (theme color, benefits, value, CTA) but ensure each card fills its half
+
+### Layout structure
 ```text
-[Pill click on relationship tab]
-        │
-        ▼
-ExecDemoIntelPanel.handleRollup/LifeEvent/Risk
-  ├─ existing: highlight transactions
-  └─ NEW: onAIPromptDispatch(promptString)
-        │
-        ▼
-ExecDemoPage.dispatchAIPrompt
-  ├─ setPendingAIPrompt({ text, nonce })
-  └─ setAiTabTrigger(n+1)   ← already opens phone + switches to AI tab
-        │
-        ▼
-ExecDemoPhoneView (receives pendingAIPrompt)
-        │
-        ▼
-ConsumerAIChatView.initialMessage  ← already auto-sends + calls onConsumed
+┌─────────────────────────────────────────┐
+│  Next Product Recommendations           │
+├──────────────────┬──────────────────────┤
+│                  │                      │
+│   Card 1         │    Card 2            │
+│   (behavioral)   │    (life event)      │
+│                  │                      │
+└──────────────────┴──────────────────────┘
 ```
 
-A `nonce` accompanies the prompt so re-clicking the same pill re-fires the message (since `ConsumerAIChatView` uses a `initialMessageSentRef` that we need to reset per-nonce).
-
-## Files touched
-
-1. **`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-   - New optional prop: `onAIPromptDispatch?: (prompt: string) => void`.
-   - In `handleRollupForRel`, `handleLifeEventForRel`, `handleRiskForRel`: when `isRelTab`, additionally call `onAIPromptDispatch(buildPrompt(...))`. Risk handler passes the matched flag's merchant.
-
-2. **`src/pages/ExecDemoPage.tsx`**
-   - New state: `pendingAIPrompt: { text: string; nonce: number } | null`.
-   - New `dispatchAIPrompt(text)`: sets prompt + bumps `aiTabTrigger`.
-   - Pass `onAIPromptDispatch={dispatchAIPrompt}` to `ExecDemoIntelPanel`.
-   - Pass `pendingAIPrompt` to `ExecDemoPhoneView`.
-
-3. **`src/components/exec-demo/ExecDemoPhoneView.tsx`**
-   - Accept `pendingAIPrompt` prop; forward `.text` as `initialMessage` to `ConsumerAIChatView`. Use the nonce in a `key` so the chat view's `initialMessageSentRef` resets and re-fires on subsequent clicks of the same pill type. (Simpler: pass the nonce too and pop the `useEffect` dependency.)
-
-4. **`src/components/demo/ConsumerAIChatView.tsx`**
-   - Add optional `messageNonce?: number` prop; include it in the `useEffect` dependency array and reset `initialMessageSentRef.current = false` when nonce changes — so repeat clicks re-send.
-
-## Out of scope
-- No changes to `consumer-chat` edge function — its current system prompt handles all three response types.
-- No new pill UI styling.
-- No changes to non-relationship tab behavior.
+### Out of scope
+- No edge-function change (it already returns appropriate data; we just slice to 2)
+- No phone mockup change (already 2 side-by-side)
+- No changes to other tabs
 
