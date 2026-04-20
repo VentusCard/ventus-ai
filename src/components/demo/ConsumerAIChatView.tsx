@@ -365,20 +365,36 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     <Bot className="h-3 w-3 text-blue-600" />
                   </div>
                 )}
-                <div
-                  className={cn(
-                    "rounded-2xl px-3 py-2 text-[13px] max-w-[80%] overflow-hidden break-words",
-                    msg.role === "user"
-                      ? "bg-blue-600 text-white rounded-br-sm"
-                      : "bg-slate-100 text-slate-800 rounded-bl-sm"
-                  )}
-                >
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <div className={cn("flex flex-col gap-1.5 max-w-[80%]", msg.role === "user" ? "items-end" : "items-start")}>
+                  <div
+                    className={cn(
+                      "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
+                      msg.role === "user"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-slate-100 text-slate-800 rounded-bl-sm"
+                    )}
+                  >
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.actions.map((action, ai) => (
+                        <button
+                          key={`${i}-${ai}`}
+                          type="button"
+                          onClick={() => { /* visual only — not wired */ }}
+                          className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                        >
+                          {action}
+                        </button>
+                      ))}
                     </div>
-                  ) : (
-                    msg.content
                   )}
                 </div>
                 {msg.role === "user" && (
