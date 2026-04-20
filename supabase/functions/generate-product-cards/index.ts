@@ -220,13 +220,13 @@ Return up to ${topRisk ? 5 : 4} cards in the strict interleaved order using the 
                   cards: {
                     type: "array",
                     minItems: 1,
-                    maxItems: 4,
+                    maxItems: 5,
                     items: {
                       type: "object",
                       properties: {
                         type: {
                           type: "string",
-                          enum: ["behavioral", "life_event"],
+                          enum: ["behavioral", "life_event", "risk"],
                           description: "Card type",
                         },
                         product_name: {
