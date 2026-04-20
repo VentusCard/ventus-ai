@@ -50,6 +50,24 @@ export default function ExecDemoPage() {
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
+  const [wmCopilotOpen, setWmCopilotOpen] = useState(false);
+  const [wmCopilotProfile, setWmCopilotProfile] = useState<import("@/types/clientProfile").ClientProfileData | null>(null);
+
+  const handleOpenWMCopilot = useCallback((firstName: string, signal: SelectedSignal | null) => {
+    // Prefer the demo customer profile (full ClientProfileData); fall back to a minimal one.
+    const demo = DEMO_CUSTOMERS[selectedIdx];
+    const baseProfile: import("@/types/clientProfile").ClientProfileData | null = demo?.profile
+      ? { ...demo.profile }
+      : null;
+
+    if (baseProfile && signal) {
+      const evt = { event: signal.label, date: new Date().toISOString().slice(0, 10) };
+      baseProfile.milestones = [evt, ...(baseProfile.milestones || [])].slice(0, 6);
+    }
+
+    setWmCopilotProfile(baseProfile);
+    setWmCopilotOpen(true);
+  }, [selectedIdx]);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
@@ -924,6 +942,7 @@ export default function ExecDemoPage() {
             activeTrigger={activeTriggerPill}
             productActions={productActions}
             actionsLoading={actionsLoading}
+            onOpenWMCopilot={handleOpenWMCopilot}
           />
         </div>
 
