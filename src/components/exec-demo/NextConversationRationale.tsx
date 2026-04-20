@@ -549,7 +549,7 @@ export default function NextConversationRationale({
               boxShadow: "0 2px 8px rgba(59,130,246,.35)",
             }}
           >
-            Open AI Banking Assistant for {customerFirstName}
+            Open AI Banking Assistant
             <MessageSquare className="w-3.5 h-3.5" />
           </button>
         </div>
