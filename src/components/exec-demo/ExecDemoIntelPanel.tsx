@@ -366,9 +366,24 @@ export default function ExecDemoIntelPanel({
                 {(() => {
                   const isCollapsed = !pillsExpanded && !!activeTab;
 
+                  // When the relationship tab is active, pill clicks also drive the in-tab signal selection.
+                  const isRelTab = activeTab === "relationship";
+                  const handleRollupForRel = (r: typeof rollupStats[number]) => {
+                    onRollupClick?.(r);
+                    if (isRelTab) setSelectedSignal({ kind: "lifestyle", label: r.label });
+                  };
+                  const handleLifeEventForRel = (label: string, indices: number[]) => {
+                    onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
+                    if (isRelTab) setSelectedSignal({ kind: "lifeEvent", label });
+                  };
+                  const handleRiskForRel = (label: string, indices: number[], color: string) => {
+                    onTriggerPillClick?.(label, indices, color, "risk");
+                    if (isRelTab) setSelectedSignal({ kind: "risk", label });
+                  };
+
                   // Shared pill renderers
                   const rollupPills = rollupStats.map((r, i) => (
-                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
+                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => handleRollupForRel(r)} />
                   ));
 
                   const lifeEventPills = productsLoading ? (
