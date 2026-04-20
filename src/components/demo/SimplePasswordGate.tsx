@@ -32,7 +32,7 @@ export default function SimplePasswordGate({ children, bullets }: Props) {
         <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
 
         {bullets && bullets.length === 3 && (
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-10 whitespace-nowrap">
+          <div className="grid grid-cols-3 items-center gap-x-8 whitespace-nowrap">
             <div className="flex items-center gap-3 justify-end">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
               <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[0]}</span>
@@ -40,11 +40,10 @@ export default function SimplePasswordGate({ children, bullets }: Props) {
             <div className="flex items-center gap-3 justify-center">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
               <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[1]}</span>
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
             </div>
             <div className="flex items-center gap-3 justify-start">
-              <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[2]}</span>
               <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[2]}</span>
             </div>
           </div>
         )}
