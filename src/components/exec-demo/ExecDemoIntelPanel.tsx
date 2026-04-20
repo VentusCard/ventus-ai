@@ -53,6 +53,7 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
+  onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -168,6 +169,7 @@ export default function ExecDemoIntelPanel({
   riskFlags,
   riskLoading,
   onOpenWMCopilot,
+  onOpenAIAssistant,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -730,6 +732,7 @@ export default function ExecDemoIntelPanel({
                 productCards={productCards}
                 onSelectSignal={(s) => setSelectedSignal(s)}
                 onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
+                onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
               />
             ) : (
               <div className="flex items-center justify-center h-full">

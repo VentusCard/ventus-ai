@@ -338,6 +338,7 @@ interface Props {
   productCards?: ProductCard[] | null;
   onSelectSignal?: (s: SelectedSignal) => void;
   onOpenWMCopilot?: () => void;
+  onOpenAIAssistant?: () => void;
 }
 
 export default function NextConversationRationale({
@@ -349,6 +350,7 @@ export default function NextConversationRationale({
   productCards,
   onSelectSignal,
   onOpenWMCopilot,
+  onOpenAIAssistant,
 }: Props) {
   const effectiveSignal: SelectedSignal =
     selectedSignal ?? availableSignals[0] ?? { kind: "all", label: "All Signals" };
@@ -537,9 +539,20 @@ export default function NextConversationRationale({
               ))}
             </ul>
           </div>
-        </div>
 
-        {/* WEALTH CLIENT — RIGHT (vertical divider) */}
+          {/* Open AI Banking Assistant button */}
+          <button
+            onClick={onOpenAIAssistant}
+            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            style={{
+              background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+              boxShadow: "0 2px 8px rgba(59,130,246,.35)",
+            }}
+          >
+            Open AI Banking Assistant for {customerFirstName}
+            <MessageSquare className="w-3.5 h-3.5" />
+          </button>
+        </div>
         <div className="pl-3 border-l border-slate-200 space-y-2">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
