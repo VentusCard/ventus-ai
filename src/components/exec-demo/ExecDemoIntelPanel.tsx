@@ -169,6 +169,7 @@ export default function ExecDemoIntelPanel({
   riskFlags,
   riskLoading,
   onOpenWMCopilot,
+  onOpenAIAssistant,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
