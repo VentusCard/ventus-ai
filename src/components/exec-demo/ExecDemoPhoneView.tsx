@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, Wifi, Battery, Layers } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { Gift, Users, Bot, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
@@ -47,7 +46,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
-  const [focusMode, setFocusMode] = useState(true);
+  
 
   // Sync with external activeTab changes
   useEffect(() => {
@@ -73,7 +72,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={focusMode} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
@@ -193,14 +192,6 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
       </div>
 
-      {/* Focus mode toggle — only on Rewards tab when offers are loaded */}
-      {consumerTab === "rewards" && generatedOffers && generatedOffers.length > 0 && showContent && !activeRollupLabel && (
-        <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-3 py-1.5">
-          <Layers className="w-3 h-3 text-slate-500" />
-          <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider">Focus</span>
-          <Switch checked={focusMode} onCheckedChange={setFocusMode} className="scale-75 origin-center" />
-        </div>
-      )}
     </div>
   );
 }
