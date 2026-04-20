@@ -52,6 +52,42 @@ const FALLBACK_PLAYBOOK: Playbook = {
   },
 };
 
+// Synthesized risk-appropriate actions used when no risk product card was generated.
+// Keyed loosely by the risk signal label/category. Always returns both standard + wow tones.
+function synthesizeRiskActions(label: string): CardAction[] {
+  const l = (label || "").toLowerCase();
+  const isVice = /gambl|bet|sport|adult|payday|pawn|crypto/.test(l);
+  const isIntl = /international|ofac|currency|sanction|foreign/.test(l);
+  const isAML = /aml|structur|layer|kyc/.test(l);
+
+  if (isVice) {
+    return [
+      { label: "Push: Set Merchant Block", icon: "shield", color: "slate", tone: "standard" },
+      { label: "Suppress Category Marketing", icon: "bell", color: "slate", tone: "standard" },
+      { label: "Discreet Wellness Check-in", icon: "user-check", color: "rose", tone: "wow" },
+      { label: "Personalized Spending Limit", icon: "lightbulb", color: "indigo", tone: "wow" },
+    ];
+  }
+  if (isIntl) {
+    return [
+      { label: "SMS Verification Sent", icon: "bell", color: "sky", tone: "standard" },
+      { label: "Card-Freeze Quick Action", icon: "shield", color: "slate", tone: "standard" },
+      { label: "Concierge Fraud-Team Callback", icon: "user-check", color: "rose", tone: "wow" },
+    ];
+  }
+  if (isAML) {
+    return [
+      { label: "Flag for Compliance Review", icon: "shield", color: "slate", tone: "standard" },
+      { label: "KYC Refresh Sent", icon: "bell", color: "indigo", tone: "standard" },
+      { label: "Private Compliance Liaison", icon: "user-check", color: "indigo", tone: "wow" },
+    ];
+  }
+  return [
+    { label: "Account Review Flagged", icon: "shield", color: "slate", tone: "standard" },
+    { label: "Discreet Advisor Outreach", icon: "user-check", color: "rose", tone: "wow" },
+  ];
+}
+
 // Keyed by lowercased label; substring match
 const PLAYBOOKS: Record<string, Playbook> = {
   "home buyer": {
@@ -399,26 +435,68 @@ export default function NextConversationRationale({
   const playbook = findPlaybook(effectiveSignal.label);
   const meta = KIND_META[effectiveSignal.kind];
 
-  // Match dynamic actions from generate-product-actions to this signal
+  // 3-tier resolver: matches the selected signal to actions from generate-product-actions.
+  // Tier 1: exact/substring match on signal_label.
+  // Tier 2: token-overlap scoring against signal_label + theme (mirrors NextProductRationale).
+  // Tier 3: kind-aware fallback. For risk signals with no risk card at all, synthesize defaults.
   const matchedActions: CardAction[] = (() => {
-    if (!productActions || productActions.length === 0 || !productCards) return [];
+    if (!productCards || productCards.length === 0) {
+      return effectiveSignal.kind === "risk" ? synthesizeRiskActions(effectiveSignal.label) : [];
+    }
+    const cards = productCards as unknown as Array<{ signal_label?: string; theme?: string; type?: string }>;
     const sigLower = effectiveSignal.label.toLowerCase();
-    let matchIdx = -1;
-    for (let i = 0; i < productCards.length; i++) {
-      const cardLabel = (productCards[i].signal_label || "").toLowerCase();
-      if (cardLabel && (cardLabel.includes(sigLower) || sigLower.includes(cardLabel))) {
-        matchIdx = i;
-        break;
+
+    // Tier 1
+    let matchIdx = cards.findIndex(c => {
+      const cl = (c.signal_label || "").toLowerCase();
+      return !!cl && (cl.includes(sigLower) || sigLower.includes(cl));
+    });
+
+    // Tier 2 — token overlap
+    if (matchIdx === -1) {
+      const STOP = new Set(["the","and","for","with","your","you","are","from","this","that","into","over","under","new","high","low"]);
+      const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2 && !STOP.has(w));
+      const sigTokens = new Set(tokenize(effectiveSignal.label));
+      let bestScore = 0;
+      cards.forEach((c, i) => {
+        const cTokens = [...tokenize(c.signal_label || ""), ...tokenize(c.theme || "")];
+        const score = cTokens.filter(t => sigTokens.has(t)).length;
+        if (score > bestScore) { bestScore = score; matchIdx = i; }
+      });
+      if (bestScore < 1) matchIdx = -1;
+    }
+
+    // Tier 3 — kind-aware fallback
+    if (matchIdx === -1) {
+      if (effectiveSignal.kind === "risk") {
+        const riskIdx = cards.findIndex(c => c.type === "risk");
+        if (riskIdx === -1) return synthesizeRiskActions(effectiveSignal.label);
+        matchIdx = riskIdx;
+      } else if (effectiveSignal.kind === "lifeEvent") {
+        matchIdx = cards.findIndex(c => c.type === "life_event");
+        if (matchIdx === -1) matchIdx = cards.findIndex(c => c.type !== "risk");
+      } else {
+        // lifestyle / segment / all
+        matchIdx = cards.findIndex(c => c.type === "behavioral");
+        if (matchIdx === -1) matchIdx = cards.findIndex(c => c.type !== "risk");
       }
     }
+
     if (matchIdx === -1) {
-      // Risk signals must NEVER fall back to a marketing card's actions.
-      if (effectiveSignal.kind === "risk") return [];
-      matchIdx = productCards[0] ? 0 : -1;
+      return effectiveSignal.kind === "risk" ? synthesizeRiskActions(effectiveSignal.label) : [];
     }
-    if (matchIdx === -1) return [];
+    if (!productActions || productActions.length === 0) {
+      return effectiveSignal.kind === "risk" && cards[matchIdx]?.type !== "risk"
+        ? synthesizeRiskActions(effectiveSignal.label)
+        : [];
+    }
     const found = productActions.find(a => a.card_index === matchIdx);
-    return found?.actions || [];
+    const actions = found?.actions || [];
+    // If we ended up on a non-risk card for a risk signal, ignore those marketing actions.
+    if (effectiveSignal.kind === "risk" && cards[matchIdx]?.type !== "risk") {
+      return synthesizeRiskActions(effectiveSignal.label);
+    }
+    return actions;
   })();
 
   const wowActions = matchedActions.filter(a => a.tone === "wow");
