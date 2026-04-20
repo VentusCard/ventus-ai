@@ -420,7 +420,7 @@ export default function NextConversationRationale({
   const standardActions = matchedActions.filter(a => a.tone === "standard");
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
       {/* Signal context header */}
       <div
         className="rounded-lg px-3 py-2 flex items-center gap-2"
