@@ -319,11 +319,11 @@ function renderActionPill(action: CardAction, key: string | number) {
   return (
     <span
       key={key}
-      className={`inline-flex items-center gap-1.5 text-sm font-medium rounded-full px-3 py-1.5 border ${colors.text} ${colors.bg} ${colors.border}`}
+      className={`inline-flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-1 border ${colors.text} ${colors.bg} ${colors.border}`}
       style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
     >
-      {isWow && <Sparkles className="w-3 h-3 text-amber-400" />}
-      <IconComp className="w-3.5 h-3.5" />
+      {isWow && <Sparkles className="w-2.5 h-2.5 text-amber-400" />}
+      <IconComp className="w-3 h-3" />
       {action.label}
     </span>
   );
