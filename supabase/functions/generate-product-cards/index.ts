@@ -88,6 +88,31 @@ CARD 2 — LIFE EVENT:
   - The reader should feel the card is relevant without the bank explicitly stating what it knows
 - The signal_label field MUST still use the explicit event name (e.g. "College Preparation", "New Baby", "Retirement Planning")
 
+CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
+- This is NOT a marketing card. It is a wellness, transparency, and customer-care card.
+- Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
+- type: must be "risk"
+- product_name: a non-credit, wellness/safety-themed product. Examples:
+   - "Bank of America SafeBalance® Account Controls"
+   - "Bank of America Account Wellness Tools"
+   - "Bank of America Spending Limits & Merchant Controls"
+   - "Bank of America Confidential Customer Care"
+- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Gambling", "Suspicious International", "Adult Content", "AML")
+- theme: use "wellness"
+- quote: 1-2 sentences framed as care/transparency. Examples:
+   - "We make it simple to put guardrails on your spending whenever you want — no questions asked."
+   - "Account controls are here to help you stay in charge of your day-to-day banking."
+- offer_headline: focus on tools, not economics. Examples: "Tools to help you stay in control", "Confidential support whenever you need it"
+- benefits (exactly 3): non-marketing wellness/security features ONLY. Examples:
+   - "Set daily and category-level spending limits in seconds"
+   - "Block specific merchants or transaction types instantly"
+   - "Confidential 24/7 support — talk to a real person"
+   - "Pause new charges with one tap from the app"
+- eligibility: trust/availability framing. Examples: "Available to all customers · No fees", "Always on · Adjust anytime"
+- cta: care-oriented, never "Apply"/"Open". Examples: "Set Up Account Controls", "Talk to Someone Confidentially", "Adjust My Limits"
+- cta_sub: reassurance about discretion. Examples: "Confidential · No impact to credit", "Takes under a minute"
+- ABSOLUTELY FORBIDDEN: any credit card, investment, loan, or upsell language. No celebratory tone. No "rewards", "earn", "bonus", "miles", "cash back".
+
 TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
 - Conversational, warm, never corporate or pushy
@@ -134,7 +159,7 @@ OFFER DETAIL FIELDS (REQUIRED — must be personalized to THIS customer's signal
    - Small reassurance line under the CTA — speed, friction, or trust
    - Examples: "Decision in seconds · Use card immediately", "Funded in under 5 minutes", "Soft credit check only · Instant pre-qualification", "Set up automatic contributions"`;
 
-    const userPrompt = `Generate two product recommendation cards based on this customer profile.
+    const userPrompt = `Generate product recommendation cards based on this customer profile.
 
 DEMOGRAPHICS:
 ${JSON.stringify(demographics || {}, null, 2)}
@@ -151,6 +176,25 @@ ${JSON.stringify((persona_rollups || []).map((r: any) => ({
 SPENDING PILLARS (top categories):
 ${JSON.stringify((pillars || []).slice(0, 8).map((p: any) => ({
   pillar: p.pillar,
+  label: p.label,
+  count: p.count,
+  totalSpend: p.totalSpend,
+  subcategories: p.subcategories?.slice(0, 5),
+})), null, 2)}
+
+DETECTED LIFE EVENTS:
+${JSON.stringify((life_events || []).map((e: any) => ({
+  event_name: e.event_name,
+  confidence: e.confidence,
+  project_type: e.financial_projection?.project_type,
+  recommended_funding_sources: e.financial_projection?.recommended_funding_sources?.map((s: any) => s.type),
+  talking_points: e.talking_points?.slice(0, 2),
+})), null, 2)}
+
+${topRisk ? `RISK SIGNAL (append a RISK CARD as the LAST card; signal_label MUST equal category_label verbatim):
+${JSON.stringify(topRisk, null, 2)}` : "RISK SIGNAL: none — do NOT emit a risk card."}
+
+Return up to ${topRisk ? 5 : 4} cards in the strict interleaved order using the generate_product_cards function.`;
   label: p.label,
   count: p.count,
   totalSpend: p.totalSpend,
