@@ -1,48 +1,46 @@
 
 
 ## Goal
-Two changes on the Next-Conversation tab:
-1. Behavioral signal pills should ONLY update the in-tab content (the two columns) — not open the phone mockup.
-2. Phone mockup opens ONLY when "Open AI Banking Assistant" is clicked.
-3. Once the phone is open, clicking a behavioral signal pill fires a chat prompt into the assistant (not just updates content).
+Make ALL generated deals (rollup offers) AND product recommendation cards available to the AI chatbot in the phone mockup, so users can ask "what offers do I have?" or "what products are recommended for me?" and get accurate answers grounded in what's actually shown in the Rewards/Offers tabs.
 
-## Investigation needed
-I need to confirm the exact wiring before finalizing — specifically:
-- Where pill clicks are handled (likely `ExecDemoLeftPanel.tsx`)
-- Where phone mockup visibility state lives (likely `ExecDemoIntelPanel.tsx` or `ExecDemoPage.tsx`)
-- How the assistant phone view receives messages (likely the `initialMessage`/`messageNonce` pattern seen in `ConsumerAIChatView.tsx`)
+## Current State
+- `ConsumerAIChatView` already receives `personalizedDeals` and includes them in context, BUT:
+  - The deals passed are flattened from `generatedOffers` and lose the rollup grouping/pillar context.
+  - **Product cards (`productCards` from "Offers" tab) are NOT passed to the chatbot at all.**
+- `consumer-chat` edge function reads `context.deals` (max 5) but has no awareness of product recommendations.
 
 ## Plan
 
-### State model (in the parent container, likely `ExecDemoIntelPanel.tsx`)
-- `activeSignal` — set by pill clicks, drives column content
-- `assistantOpen` — boolean, only flipped true by "Open AI Banking Assistant" button
-- `assistantPrompt` + `promptNonce` — pushed into the phone chat when a pill is clicked AND assistant is already open
+### 1. `src/components/exec-demo/ExecDemoPhoneView.tsx`
+In the `case "ai":` block, build a richer payload:
+- **Deals**: pass full `generatedOffers` with rollup labels, pillars, merchant, product, message, deal type (boost/neutral) — not just flattened list of 5.
+- **Product cards**: map `productCards` into a new `productRecommendations` array with `product_name`, `signal_label`, `theme`, `quote`, `offer_headline`, `benefits`, `eligibility`, `cta`.
+- Pass both to `ConsumerAIChatView` via existing `personalizedDeals` prop (expand the type) plus a new `productRecommendations` prop.
 
-### Behavior matrix
-| Action | Assistant closed | Assistant open |
-|---|---|---|
-| Click signal pill | Update `activeSignal` only | Update `activeSignal` + push prompt to chat (bump nonce) |
-| Click "Open AI Banking Assistant" | Set `assistantOpen=true` (no auto-prompt) | No-op |
-| Click "Open WM CoPilot" | Unchanged existing behavior | Unchanged |
+### 2. `src/components/demo/ConsumerAIChatView.tsx`
+- Add `productRecommendations?: ProductCard[]` to `Props`.
+- Update `buildContext()` to:
+  - Output deals with full grouping (pillar → rollup label → list of {merchant, product, message, type}).
+  - Add a new `productRecommendations` section in context with name, theme, signal, headline, benefits, value.
+- Pass both into the `context` object sent to `consumer-chat`.
 
-### Files to change
-1. **`src/components/exec-demo/ExecDemoLeftPanel.tsx`** (or wherever pills live) — pill `onClick` calls a handler from parent: `onSignalSelect(signal)`. No phone-opening side effect.
-2. **`src/components/exec-demo/ExecDemoIntelPanel.tsx`** — own the new state (`assistantOpen`, `assistantPrompt`, `promptNonce`). Implement `onSignalSelect`: always update active signal; if `assistantOpen`, also build a prompt string (e.g. `"Tell me about this customer's ${signal.label} signal and what to discuss next."`) and bump nonce.
-3. **`src/components/exec-demo/NextConversationRationale.tsx`** — "Open AI Banking Assistant" button → calls `onOpenAssistant()` prop (no longer triggered by pill).
-4. **`src/components/exec-demo/ExecDemoPhoneView.tsx`** (or whichever component renders the phone for this tab) — pass `initialMessage={assistantPrompt}` and `messageNonce={promptNonce}` through to `ConsumerAIChatView`. The existing nonce-based effect in `ConsumerAIChatView` (already implemented) will fire `sendMessage` each time nonce changes.
+### 3. `supabase/functions/consumer-chat/index.ts`
+In `buildContextPrompt`:
+- Replace the current `context.deals.slice(0, 5)` block with a richer rollup-grouped rendering (no slice — include all).
+- Add a new section for `context.productRecommendations` listing each card's product name, headline, benefits, value, signal it was triggered by.
+- Update the system prompt's "PRODUCT RECOMMENDATIONS" rule (line 36) to say: "If the customer asks about offers/deals/products, prioritize what's listed in PERSONALIZED DEALS or PRODUCT RECOMMENDATIONS. These are pre-generated for this customer — surface them directly with their actual headlines and benefits."
 
-### Prompt template (when pill clicked while assistant open)
-`"Walk me through this customer's {signal.label} signal — what's the recommended next conversation?"`
+### 4. Quick action (optional polish)
+Add "What offers do I have?" to `QUICK_ACTIONS` in `ConsumerAIChatView` so users discover the new capability.
 
-### Verification
-- Close phone → click 3 different pills → only columns update, phone never appears.
-- Click "Open AI Banking Assistant" → phone opens with welcome state, no auto-message.
-- With phone open → click a pill → columns update AND a new user message appears in chat with assistant response streaming back.
-- Click "Open WM CoPilot" → unchanged.
+## Verification
+- Run /demo end-to-end → wait for Rewards + Offers tabs to populate → switch to AI tab.
+- Ask: "What deals do I have?" → bot should list all rollup deals with merchant + product + message.
+- Ask: "What products are you recommending for me?" → bot should list both product cards with their headlines and benefits.
+- Ask: "Why are you recommending [product]?" → bot should reference the signal/theme.
 
-### Out of scope
-- Other tabs (Next-Offer, Next-Product)
-- Wealth column / WM CoPilot behavior
-- Pill or column styling
+## Out of scope
+- Bankwide chat panel (`VentusAIChatPanel`) — separate context model.
+- Other tabs/pages.
+- Persisting chat history.
 
