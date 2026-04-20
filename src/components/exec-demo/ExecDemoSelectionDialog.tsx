@@ -5,7 +5,7 @@ import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/d
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ventusLogo from "@/assets/ventus-logo-blue.png";
+import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
