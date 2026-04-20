@@ -536,15 +536,64 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   );
 
   if (productCards && productCards.length > 0) {
-    // Resolve all cards, then split into two groups
+    // Resolve all cards, then pick exactly 2 — prefer one life-event + one behavioral
     const resolvedAll = productCards.map((card, origIdx) =>
       resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
     );
     const lifeEventResolved = resolvedAll.filter(r => !r.isBehavioral);
     const behavioralResolved = resolvedAll.filter(r => r.isBehavioral);
 
+    const pickedCards: ResolvedCard[] = [];
+    if (lifeEventResolved[0]) pickedCards.push(lifeEventResolved[0]);
+    if (behavioralResolved[0]) pickedCards.push(behavioralResolved[0]);
+    // Fill from whichever group has remaining if we have <2
+    if (pickedCards.length < 2) {
+      const remaining = resolvedAll.filter(r => !pickedCards.includes(r));
+      if (remaining[0]) pickedCards.push(remaining[0]);
+    }
+
+    const renderColumn = (resolved: ResolvedCard, idx: number) => {
+      const isActive = activeTriggerLabel === resolved.resolvedLabel;
+      return (
+        <div className="flex-1 min-w-0 space-y-2.5">
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+            {resolved.isBehavioral ? "Shopping Habit" : "Life Event"}
+          </div>
+          <div
+            className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
+            style={{
+              background: `linear-gradient(135deg, ${resolved.color.dot}10, ${resolved.color.dot}20)`,
+              color: resolved.color.text,
+              border: isActive ? `2px solid ${resolved.color.dot}` : `1.5px solid ${resolved.color.dot}80`,
+              boxShadow: isActive ? `0 0 14px ${resolved.color.dot}30` : `0 2px 8px ${resolved.color.dot}15`,
+              transition: "all 0.2s ease",
+            }}
+            onClick={() => {
+              if (resolved.isClickable && onTriggerPillClick) {
+                onTriggerPillClick(resolved.resolvedLabel, resolved.matchedIndices, resolved.color.dot, resolved.matchedKind);
+              }
+            }}
+          >
+            <span style={{ color: resolved.color.dot }}>✦</span>
+            {resolved.resolvedLabel}
+            {resolved.resolvedCount > 0 && (
+              <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
+                {resolved.resolvedCount} txns · {formatSpend(resolved.resolvedSpend)}
+              </span>
+            )}
+          </div>
+          <ProductCardBody
+            resolved={resolved}
+            productActions={productActions}
+            actionsLoading={actionsLoading}
+            index={idx}
+          />
+        </div>
+      );
+    };
+
     return (
-      <div className="px-3 py-3 space-y-5 overflow-y-auto">
+      <div className="px-3 py-3 space-y-4 overflow-y-auto">
         {/* Current holdings pills */}
         {transactions && transactions.length > 0 && (
           <CurrentHoldingsPills transactions={transactions} />
@@ -553,25 +602,14 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Life Events slideshow */}
-        <GroupSlideshow
-          title="Life Events"
-          resolvedCards={lifeEventResolved}
-          activeTriggerLabel={activeTriggerLabel}
-          onTriggerPillClick={onTriggerPillClick}
-          productActions={productActions}
-          actionsLoading={actionsLoading}
-        />
-
-        {/* Shopping Habits slideshow */}
-        <GroupSlideshow
-          title="Shopping Habits"
-          resolvedCards={behavioralResolved}
-          activeTriggerLabel={activeTriggerLabel}
-          onTriggerPillClick={onTriggerPillClick}
-          productActions={productActions}
-          actionsLoading={actionsLoading}
-        />
+        {/* Two products side-by-side with vertical divider */}
+        <div className="flex items-stretch gap-4">
+          {pickedCards[0] && renderColumn(pickedCards[0], 0)}
+          {pickedCards.length === 2 && (
+            <div className="w-px bg-slate-200 self-stretch shrink-0" />
+          )}
+          {pickedCards[1] && renderColumn(pickedCards[1], 1)}
+        </div>
 
         <style>{`
           @keyframes exec-product-reveal {
