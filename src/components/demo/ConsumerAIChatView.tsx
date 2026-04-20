@@ -15,6 +15,8 @@ import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  actions?: string[];
+  kind?: "lifestyle" | "lifeEvent" | "risk" | "general";
 }
 
 interface Props {
@@ -27,6 +29,7 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   initialMessage?: string | null;
   messageNonce?: number;
+  initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
   onInitialMessageConsumed?: () => void;
 }
 
@@ -174,7 +177,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -201,7 +204,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
-      sendMessage(initialMessage);
+      sendMessage(initialMessage, initialMessageKind);
       onInitialMessageConsumed?.();
     }
   }, [initialMessage, messageNonce]);
@@ -248,7 +251,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     return md;
   };
 
-  const sendMessage = async (text: string) => {
+  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general") => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
@@ -256,6 +259,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setIsLoading(true);
 
     const isRiskAction = text.toLowerCase().includes("risk factors");
+    const effectiveKind = kind ?? "general";
 
     try {
       if (isRiskAction) {
@@ -273,7 +277,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
           const formatted = formatRiskFlags(riskData);
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", content: formatted },
+            { role: "assistant", content: formatted, kind: "risk" },
           ]);
         } else {
           setMessages((prev) => [
@@ -287,14 +291,24 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             message: text,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
             context,
+            kind: effectiveKind,
           },
         });
 
         if (error) throw error;
 
+        const actions: string[] | undefined = Array.isArray(data?.actions) && data.actions.length > 0
+          ? data.actions.slice(0, 2)
+          : undefined;
+
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
+          {
+            role: "assistant",
+            content: data?.message || "I'm here to help! Could you rephrase that?",
+            actions,
+            kind: effectiveKind,
+          },
         ]);
       }
     } catch {
