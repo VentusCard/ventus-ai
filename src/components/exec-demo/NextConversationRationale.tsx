@@ -1,4 +1,6 @@
-import { Mail, MessageSquare, Bell, Sparkles, ChevronRight } from "lucide-react";
+import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase } from "lucide-react";
+import type { CardActions, CardAction } from "./NextProductRationale";
+import type { ProductCard } from "./ProductCardsPhoneView";
 
 export type SignalKind = "lifeEvent" | "lifestyle" | "risk" | "segment" | "all";
 
@@ -284,24 +286,69 @@ function findPlaybook(label: string): Playbook {
 
 const KIND_META: Record<SignalKind, { label: string; color: string; bg: string; border: string }> = {
   lifeEvent: { label: "Life Event", color: "#92400e", bg: "rgba(245,158,11,.10)", border: "rgba(245,158,11,.35)" },
-  lifestyle: { label: "Lifestyle", color: "#0e7490", bg: "rgba(6,182,212,.10)", border: "rgba(6,182,212,.32)" },
+  lifestyle: { label: "Spending Habit", color: "#0e7490", bg: "rgba(6,182,212,.10)", border: "rgba(6,182,212,.32)" },
   risk: { label: "Risk", color: "#991b1b", bg: "rgba(239,68,68,.10)", border: "rgba(239,68,68,.32)" },
   segment: { label: "Segment", color: "#5b21b6", bg: "rgba(139,92,246,.10)", border: "rgba(139,92,246,.32)" },
   all: { label: "All Signals", color: "#334155", bg: "rgba(100,116,139,.10)", border: "rgba(100,116,139,.32)" },
 };
 
+// Local action pill icon/color maps (mirror NextProductRationale)
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  smartphone: Smartphone, mail: Mail, "user-check": UserCheck, calendar: CalendarCheck,
+  heart: Heart, gift: Gift, shield: Shield, lightbulb: Lightbulb, star: Star,
+  compass: Compass, flower: Flower, "pen-line": PenLine, cake: Cake, plane: Plane,
+  home: Home, briefcase: Briefcase, bell: Bell,
+};
+const COLOR_MAP: Record<string, { text: string; bg: string; border: string }> = {
+  blue: { text: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+  amber: { text: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
+  violet: { text: "text-violet-600", bg: "bg-violet-50", border: "border-violet-100" },
+  teal: { text: "text-teal-600", bg: "bg-teal-50", border: "border-teal-100" },
+  emerald: { text: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
+  rose: { text: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" },
+  sky: { text: "text-sky-600", bg: "bg-sky-50", border: "border-sky-100" },
+  orange: { text: "text-orange-600", bg: "bg-orange-50", border: "border-orange-100" },
+  indigo: { text: "text-indigo-600", bg: "bg-indigo-50", border: "border-indigo-100" },
+  pink: { text: "text-pink-600", bg: "bg-pink-50", border: "border-pink-100" },
+};
+
+function renderActionPill(action: CardAction, key: string | number) {
+  const IconComp = ICON_MAP[action.icon] || Bell;
+  const colors = COLOR_MAP[action.color] || COLOR_MAP.violet;
+  const isWow = action.tone === "wow";
+  return (
+    <span
+      key={key}
+      className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2.5 py-1 border ${colors.text} ${colors.bg} ${colors.border}`}
+      style={isWow ? { boxShadow: "0 0 0 1px currentColor" } : undefined}
+    >
+      {isWow && <Sparkles className="w-2 h-2 text-amber-400" />}
+      <IconComp className="w-2.5 h-2.5" />
+      {action.label}
+    </span>
+  );
+}
+
 interface Props {
   selectedSignal?: SelectedSignal | null;
   availableSignals?: SelectedSignal[];
-  isWealthClient?: boolean;
   customerFirstName?: string;
+  productActions?: CardActions[] | null;
+  actionsLoading?: boolean;
+  productCards?: ProductCard[] | null;
+  onSelectSignal?: (s: SelectedSignal) => void;
+  onOpenWMCopilot?: () => void;
 }
 
 export default function NextConversationRationale({
   selectedSignal,
   availableSignals = [],
-  isWealthClient = true,
   customerFirstName = "the client",
+  productActions,
+  actionsLoading,
+  productCards,
+  onSelectSignal,
+  onOpenWMCopilot,
 }: Props) {
   const effectiveSignal: SelectedSignal =
     selectedSignal ?? availableSignals[0] ?? { kind: "all", label: "All Signals" };
@@ -321,9 +368,10 @@ export default function NextConversationRationale({
             const pb = findPlaybook(s.label);
             const meta = KIND_META[s.kind];
             return (
-              <div
+              <button
                 key={`${s.kind}-${s.label}`}
-                className="w-full text-left rounded-lg px-2.5 py-2 flex items-center gap-2 border border-slate-200"
+                onClick={() => onSelectSignal?.(s)}
+                className="w-full text-left rounded-lg px-2.5 py-2 flex items-center gap-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-colors"
               >
                 <span
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
@@ -334,10 +382,10 @@ export default function NextConversationRationale({
                 <span className="text-[11px] font-semibold text-slate-700">{s.label}</span>
                 <span className="text-[10px] text-slate-400 ml-auto flex items-center gap-1">
                   <ChannelIcon channel={pb.automatedFlow.channel} /> {pb.automatedFlow.channel}
-                  {isWealthClient && <> · <Bell className="w-2.5 h-2.5 inline" /> Advisor</>}
+                  <> · <Bell className="w-2.5 h-2.5 inline" /> Advisor</>
                 </span>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
-              </div>
+              </button>
             );
           })}
         </div>
@@ -347,6 +395,27 @@ export default function NextConversationRationale({
 
   const playbook = findPlaybook(effectiveSignal.label);
   const meta = KIND_META[effectiveSignal.kind];
+
+  // Match dynamic actions from generate-product-actions to this signal
+  const matchedActions: CardAction[] = (() => {
+    if (!productActions || productActions.length === 0 || !productCards) return [];
+    const sigLower = effectiveSignal.label.toLowerCase();
+    let matchIdx = -1;
+    for (let i = 0; i < productCards.length; i++) {
+      const cardLabel = (productCards[i].signal_label || "").toLowerCase();
+      if (cardLabel && (cardLabel.includes(sigLower) || sigLower.includes(cardLabel))) {
+        matchIdx = i;
+        break;
+      }
+    }
+    if (matchIdx === -1) matchIdx = productCards[0] ? 0 : -1;
+    if (matchIdx === -1) return [];
+    const found = productActions.find(a => a.card_index === matchIdx);
+    return found?.actions || [];
+  })();
+
+  const wowActions = matchedActions.filter(a => a.tone === "wow");
+  const standardActions = matchedActions.filter(a => a.tone === "standard");
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5">
@@ -365,6 +434,31 @@ export default function NextConversationRationale({
           </div>
         </div>
       </div>
+
+      {/* In-tab signal switcher chips */}
+      {availableSignals.length > 1 && (
+        <div className="flex flex-wrap gap-1">
+          {availableSignals.map((s) => {
+            const km = KIND_META[s.kind];
+            const isActive = s.kind === effectiveSignal.kind && s.label === effectiveSignal.label;
+            return (
+              <button
+                key={`${s.kind}-${s.label}`}
+                onClick={() => onSelectSignal?.(s)}
+                className="text-[10px] font-semibold px-2 py-1 rounded-full transition-all"
+                style={{
+                  background: isActive ? km.bg : "transparent",
+                  color: km.color,
+                  border: `1px solid ${isActive ? km.border : "rgba(148,163,184,.25)"}`,
+                  opacity: isActive ? 1 : 0.7,
+                }}
+              >
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Vertical split: Regular (left) | Wealth (right) */}
       <div className="grid grid-cols-2 gap-0">
@@ -454,8 +548,9 @@ export default function NextConversationRationale({
             </span>
           </div>
 
+          {/* Advisor brief */}
           <div
-            className={`rounded-lg px-2.5 py-2 ${!isWealthClient ? "opacity-60" : ""}`}
+            className="rounded-lg px-2.5 py-2"
             style={{
               background: "rgba(139,92,246,.05)",
               border: "1px dashed rgba(139,92,246,.32)",
@@ -485,12 +580,54 @@ export default function NextConversationRationale({
               <span className="font-semibold">Suggested outreach:</span>{" "}
               <span className="text-purple-700 font-semibold">{playbook.advisorBrief.suggestedOutreach}</span>
             </div>
-            {!isWealthClient && (
-              <div className="mt-1.5 text-[9px] text-slate-400 italic">
-                Not active — {customerFirstName} is a regular client
-              </div>
-            )}
           </div>
+
+          {/* Concierge / Standard action pills (from generate-product-actions) */}
+          {actionsLoading && matchedActions.length === 0 ? (
+            <div className="rounded-lg px-2.5 py-2 border border-purple-100 bg-purple-50/40">
+              <div className="text-[10px] text-purple-400 italic flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 animate-pulse" /> Generating advisor actions…
+              </div>
+            </div>
+          ) : matchedActions.length > 0 ? (
+            <div className="rounded-lg px-2.5 py-2 space-y-1.5"
+              style={{ background: "rgba(139,92,246,.04)", border: "1px solid rgba(139,92,246,.20)" }}
+            >
+              {wowActions.length > 0 && (
+                <div>
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5" /> Concierge Touch
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {wowActions.map((a, i) => renderActionPill(a, `wow-${i}`))}
+                  </div>
+                </div>
+              )}
+              {standardActions.length > 0 && (
+                <div>
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    Standard Response
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {standardActions.map((a, i) => renderActionPill(a, `std-${i}`))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {/* Open WM Copilot button */}
+          <button
+            onClick={onOpenWMCopilot}
+            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 text-white transition-all hover:scale-[1.02] hover:shadow-md"
+            style={{
+              background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+              boxShadow: "0 2px 8px rgba(139,92,246,.35)",
+            }}
+          >
+            Open WM Copilot for {customerFirstName}
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>
