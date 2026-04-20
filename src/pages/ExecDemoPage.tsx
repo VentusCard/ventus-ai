@@ -776,7 +776,16 @@ export default function ExecDemoPage() {
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
 
   const handleTabClick = useCallback((tab: TabKey) => {
-    setActiveTab(tab);
+    // Always clear pill selections when switching between the three "Next-..." tabs
+    // so each tab starts fresh.
+    setActiveTab((prev) => {
+      if (prev !== tab) {
+        setActivePillFilter(null);
+        setActiveRollup(null);
+        setActiveTriggerPill(null);
+      }
+      return tab;
+    });
   }, []);
 
   const handlePillClick = useCallback((pillar: string, label: string, isCategory?: boolean) => {
