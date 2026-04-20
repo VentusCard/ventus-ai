@@ -427,22 +427,6 @@ function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData;
                 </span>
               </div>
             )}
-            {data.velocity !== 0 && (
-              <div className="flex items-start gap-1.5">
-                {data.velocity > 0 ? (
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-[1px]" />
-                ) : (
-                  <TrendingDown className="w-3.5 h-3.5 text-red-400 shrink-0 mt-[1px]" />
-                )}
-                <span>
-                  <span className="font-semibold text-slate-700">Trend:</span>{" "}
-                  <span className={data.velocity > 0 ? "text-emerald-600 font-semibold" : "text-red-500 font-semibold"}>
-                    {data.velocity > 0 ? "+" : ""}{data.velocity}%
-                  </span>{" "}
-                  vs prior quarter
-                </span>
-              </div>
-            )}
           </div>
         );
 
