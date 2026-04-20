@@ -195,22 +195,6 @@ ${topRisk ? `RISK SIGNAL (append a RISK CARD as the LAST card; signal_label MUST
 ${JSON.stringify(topRisk, null, 2)}` : "RISK SIGNAL: none — do NOT emit a risk card."}
 
 Return up to ${topRisk ? 5 : 4} cards in the strict interleaved order using the generate_product_cards function.`;
-  label: p.label,
-  count: p.count,
-  totalSpend: p.totalSpend,
-  subcategories: p.subcategories?.slice(0, 5),
-})), null, 2)}
-
-DETECTED LIFE EVENTS:
-${JSON.stringify((life_events || []).map((e: any) => ({
-  event_name: e.event_name,
-  confidence: e.confidence,
-  project_type: e.financial_projection?.project_type,
-  recommended_funding_sources: e.financial_projection?.recommended_funding_sources?.map((s: any) => s.type),
-  talking_points: e.talking_points?.slice(0, 2),
-})), null, 2)}
-
-Return up to 4 cards in the strict interleaved order using the generate_product_cards function.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
