@@ -22,6 +22,15 @@ RULES:
 6. CTAs should be lifestyle-driven: "Fuel Your Mornings", "Elevate Your Kitchen", "Power Your Routine"
 7. All deals MUST relate to categories, merchants, or spending patterns present in the BEHAVIORAL CLUSTERS or SPENDING CONTEXT. Do NOT recommend products from categories where the customer has zero spending history. Boost deals should fill gaps WITHIN existing spending areas (e.g., a traveler missing luggage), not introduce entirely new lifestyle categories.
 
+8. DESTINATION & CONTEXT FIT (CRITICAL — destination-tagged rollups only):
+   - Match brand AND product to the LITERAL destination, climate, and activity named in the rollup label. Apply the "would a traveler actually pack this for [destination]?" test to every deal. If it fails, pick a different merchant.
+   - TROPICAL / BEACH destinations (Hawaii, Caribbean, Mexico, Florida, Bahamas, Maldives, Bali): reef-safe sunscreen, snorkel gear, swimwear, rash guards, sandals/flip-flops, lightweight packable luggage, waterproof phone cases, sun hats, GoPro, polarized sunglasses, beach towels, dry bags, resort-wear. Good brand anchors: Sunbum, Supergoop, Olukai, Reef, Rainbow Sandals, Tommy Bahama, Vuori, Outdoor Voices, Quiksilver, Roxy, Rip Curl, Speedo, Costa Del Mar, Ray-Ban, GoPro, Away (lightweight only), Yeti (soft cooler only).
+   - COLD / MOUNTAIN / SKI destinations (Aspen, Tahoe, Vail, Whistler, Alps): cold-weather technical wear is appropriate. Good anchors: Patagonia, Arc'teryx, Smartwool, Helly Hansen, Burton, The North Face, Hydro Flask insulated, Allbirds wool runners.
+   - URBAN CITY trips (NYC, Paris, Tokyo, London): travel tech, premium luggage, noise-cancelling headphones, comfortable city-walking shoes, lounge access, packable layers.
+   - FORBIDDEN MISMATCHES for tropical/beach rollups (NEVER emit): Allbirds wool shoes, Patagonia fleeces/down/technical shells, Hydro Flask insulated bottles, Smartwool, The North Face fleeces, Arc'teryx, Burton, any insulated/thermal/wool product. These are climate-wrong and break trust.
+   - FORBIDDEN MISMATCHES for cold/mountain rollups: reef-safe sunscreen, swimwear, snorkel gear, flip-flops.
+   - Every deal in a destination-tagged cluster MUST plausibly improve THAT specific trip. Generic "travel" brands are not enough — climate and activity must align.
+
 SIGNAL LOGIC:
 - ALL 5 deals MUST have signal: "boost". Every deal should have a clear signalReason explaining the behavioral gap or opportunity, and a boostCategory (short product-type label like "Headphones", "Luggage").
 - NEVER boost a category that has NO related spending in the provided clusters. If the customer has no fitness/sports transactions, do NOT recommend fitness equipment. Every deal must trace back to an observed spending pattern.
@@ -38,8 +47,9 @@ COLLECTION MESSAGE — STRICT RULES:
 - Do NOT reference demographics.
 
 FEW-SHOT EXAMPLES (match this tone exactly):
-- "Annual Hawaiian Vacations" → "Little things that make every island trip better."
-- "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp."
+FEW-SHOT EXAMPLES (match this tone exactly):
+- "Annual Hawaiian Vacations" → "Little things that make every island trip better." (good brand anchors: Sunbum reef-safe SPF, Olukai sandals, GoPro Hero, Costa polarized shades — NEVER Allbirds, Patagonia, Hydro Flask)
+- "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp." (Patagonia/Burton appropriate here)
 - "Weekly Workday Coffee Runs" → "Small upgrades for your morning ritual."
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
