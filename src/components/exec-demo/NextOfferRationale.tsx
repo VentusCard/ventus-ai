@@ -121,7 +121,7 @@ function RollupCard({ group, index, colorOverride, kindOverride }: { group: Roll
 
                 {/* Personalized message */}
                 {deal.message && (
-                  <p className="text-[11px] italic text-slate-600 leading-snug line-clamp-2">
+                  <p className="text-[11px] italic text-slate-600 leading-snug">
                     "{deal.message}"
                   </p>
                 )}
