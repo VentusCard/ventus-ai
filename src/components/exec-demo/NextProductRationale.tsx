@@ -760,8 +760,6 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           </div>
           <ProductCardBody
             resolved={resolved}
-            productActions={productActions}
-            actionsLoading={actionsLoading}
             index={idx}
           />
         </div>
