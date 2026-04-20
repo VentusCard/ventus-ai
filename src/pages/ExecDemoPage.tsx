@@ -93,6 +93,7 @@ export default function ExecDemoPage() {
   const [generatedOffers, setGeneratedOffers] = useState<RollupOfferGroup[] | null>(null);
   const [offersLoading, setOffersLoading] = useState(false);
   const [detectedLifeEvents, setDetectedLifeEvents] = useState<LifeEvent[] | null>(null);
+  const detectedLifeEventsRef = useRef<LifeEvent[] | null>(null);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
@@ -440,6 +441,7 @@ export default function ExecDemoPage() {
     try {
       const events: LifeEvent[] = preDetectedEvents ?? await detectLifeEventsOnly();
       setDetectedLifeEvents(events.slice(0, 3));
+      detectedLifeEventsRef.current = events.slice(0, 3);
       console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
       // Fire product cards generation with life events + persona data
       fireProductCards(events, personaSynthesisRef.current);
