@@ -202,8 +202,31 @@ Return up to 4 cards in the strict interleaved order using the generate_product_
                           enum: ["travel", "dining", "fitness", "shopping", "entertainment", "home", "education", "retirement", "family", "business", "wellness", "lifestyle"],
                           description: "Color/icon theme hint",
                         },
+                        offer_headline: {
+                          type: "string",
+                          description: "Bold offer line tied to product economics, 6-12 words. e.g. 'Earn 2x miles on every purchase' or '4.50% APY — 10x the national average'",
+                        },
+                        benefits: {
+                          type: "array",
+                          minItems: 3,
+                          maxItems: 3,
+                          items: { type: "string" },
+                          description: "Exactly 3 concrete BoA-style product features specific to the actual product",
+                        },
+                        eligibility: {
+                          type: "string",
+                          description: "One-line eligibility / approval note, ≤14 words",
+                        },
+                        cta: {
+                          type: "string",
+                          description: "Personalized button label (3-6 words) that ties to the customer's specific signal. NEVER generic like 'Apply Now' or 'Learn More'",
+                        },
+                        cta_sub: {
+                          type: "string",
+                          description: "Small reassurance subtext under the CTA, 4-8 words. e.g. 'Decision in seconds · Use card immediately'",
+                        },
                       },
-                      required: ["type", "product_name", "quote", "signal_label", "theme"],
+                      required: ["type", "product_name", "quote", "signal_label", "theme", "offer_headline", "benefits", "eligibility", "cta", "cta_sub"],
                       additionalProperties: false,
                     },
                   },
