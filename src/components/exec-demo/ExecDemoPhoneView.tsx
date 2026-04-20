@@ -17,7 +17,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
   rewards: "rewards",
   product: "product",
-  relationship: "relationship",
+  relationship: "ai",
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
