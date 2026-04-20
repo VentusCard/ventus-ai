@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import ventusLogo from "@/assets/ventus-logo-blue.png";
+import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 
 const CORRECT_PASSWORD = "ventus2026";
 const SESSION_KEY = "demo_password_access";
@@ -29,7 +29,7 @@ export default function SimplePasswordGate({ children, bullets }: Props) {
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-white px-6" style={{ fontFamily: "Manrope, sans-serif" }}>
       <div className="flex flex-col items-center gap-8 w-full max-w-3xl">
-        <img src={ventusLogo} alt="Ventus" className="h-7" />
+        <img src={ventusLogo} alt="Ventus AI" className="h-10 w-auto" />
 
         {bullets && bullets.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
