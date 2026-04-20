@@ -797,7 +797,7 @@ export default function ExecDemoPage() {
   }, [activePillFilter, activeRollup, activeTriggerPill, execProfile.persona.signalMap]);
 
   return (
-    <SimplePasswordGate>
+    <SimplePasswordGate bullets={["Semantic Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}>
     <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
       {/* Top bar */}
       <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
