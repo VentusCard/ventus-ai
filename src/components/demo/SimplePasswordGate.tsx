@@ -32,7 +32,7 @@ export default function SimplePasswordGate({ children, bullets }: Props) {
         <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
 
         {bullets && bullets.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
+          <div className="flex flex-nowrap items-center justify-center gap-x-10 gap-y-3 whitespace-nowrap">
             {bullets.map((b, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500" />
