@@ -47,8 +47,9 @@ COLLECTION MESSAGE — STRICT RULES:
 - Do NOT reference demographics.
 
 FEW-SHOT EXAMPLES (match this tone exactly):
-- "Annual Hawaiian Vacations" → "Little things that make every island trip better."
-- "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp."
+FEW-SHOT EXAMPLES (match this tone exactly):
+- "Annual Hawaiian Vacations" → "Little things that make every island trip better." (good brand anchors: Sunbum reef-safe SPF, Olukai sandals, GoPro Hero, Costa polarized shades — NEVER Allbirds, Patagonia, Hydro Flask)
+- "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp." (Patagonia/Burton appropriate here)
 - "Weekly Workday Coffee Runs" → "Small upgrades for your morning ritual."
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
