@@ -10,7 +10,22 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { life_events, persona_rollups, pillars, demographics } = await req.json();
+    const { life_events, persona_rollups, pillars, demographics, risk_flags } = await req.json();
+    const hasRisk = Array.isArray(risk_flags) && risk_flags.length > 0;
+    // Pick the top risk (most evidence). Group by category_label and tally.
+    let topRisk: { category_group: string; category_label: string; evidence: string[] } | null = null;
+    if (hasRisk) {
+      const grouped = new Map<string, { category_group: string; category_label: string; evidence: string[] }>();
+      for (const f of risk_flags as any[]) {
+        const label = String(f.category_label || "Risk");
+        const ex = grouped.get(label) || { category_group: f.category_group || "aml", category_label: label, evidence: [] };
+        const ev = String(f.merchant_name || f.description || "").trim();
+        if (ev && !ex.evidence.includes(ev)) ex.evidence.push(ev);
+        grouped.set(label, ex);
+      }
+      const sorted = Array.from(grouped.values()).sort((a, b) => b.evidence.length - a.evidence.length);
+      topRisk = sorted[0] || null;
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
