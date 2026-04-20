@@ -55,6 +55,7 @@ interface Props {
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string) => void;
+  assistantOpen?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
