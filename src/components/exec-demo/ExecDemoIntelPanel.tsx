@@ -167,6 +167,7 @@ export default function ExecDemoIntelPanel({
   actionsLoading,
   riskFlags,
   riskLoading,
+  onOpenWMCopilot,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -698,8 +699,12 @@ export default function ExecDemoIntelPanel({
               <NextConversationRationale
                 selectedSignal={selectedSignal}
                 availableSignals={availableSignals}
-                isWealthClient={isWealthClient}
                 customerFirstName={customerFirstName}
+                productActions={productActions}
+                actionsLoading={actionsLoading}
+                productCards={productCards}
+                onSelectSignal={(s) => setSelectedSignal(s)}
+                onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
               />
             ) : (
               <div className="flex items-center justify-center h-full">
