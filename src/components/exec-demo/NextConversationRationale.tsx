@@ -553,7 +553,7 @@ export default function NextConversationRationale({
             <MessageSquare className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="pl-3 border-l border-slate-200 space-y-2">
+        <div className="pl-3 border-l border-slate-200 space-y-2 flex flex-col">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
             <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
