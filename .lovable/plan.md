@@ -1,14 +1,46 @@
 
-## Goal
-When the user switches to the **Next Conversation** tab in the executive demo intel panel, the phone mockup should auto-switch to the **AI** tab.
+## Diagnosis
+The AI chatbot inside the executive demo's phone mockup (`ConsumerAIChatView`) is rendered with **only `customer` + `initialMessage`**. None of the enriched data flowing through `ExecDemoPage` is wired in:
 
-## Investigation
-- `ExecDemoIntelPanel.tsx` owns the tab state for the right panel (`analytics | rewards | product | relationship`).
-- `ExecDemoPhoneView.tsx` receives an `activeTab` prop and maps it to a `consumerTab` via `TAB_MAP` (currently `relationship → relationship`). It also has a local `useEffect` that syncs `consumerTab` to the mapped `activeTab` whenever it changes.
-- The phone has 4 tabs: `rewards`, `product`, `relationship`, `ai`. So we just need the relationship tab in the intel panel to map to `ai` instead of `relationship` on the phone.
+- ❌ `enriched` (transactions) — missing → AI can't cite spending
+- ❌ `detectedEvents` — missing → "Life event insights" quick action is empty
+- ❌ `personalizedDeals` — missing → "Product recommendations" has no deal context
+- ❌ `riskFlags` — missing → "Risk factors & alerts" falls back to live edge-function call
 
-## Change
-**`src/components/exec-demo/ExecDemoPhoneView.tsx`**
-- Update `TAB_MAP.relationship` from `"relationship"` to `"ai"`. That single change makes the phone jump to the AI tab whenever the user clicks the Next Conversation (relationship) tab in the intel panel, via the existing `useEffect` sync.
+Result: the chatbot is essentially answering blind from the customer profile alone, even though `ExecDemoPage` already has all of this state populated.
 
-That's it — one line change, no other files affected.
+## Fix (2 small files)
+
+### 1. `src/components/exec-demo/ExecDemoPhoneView.tsx`
+Accept and pass through 4 new props to `<ConsumerAIChatView />`:
+- `enriched: EnrichedTransaction[]` — pulled from `classifiedRef` at the page level, lifted into state
+- `detectedLifeEvents` → mapped to `detectedEvents` shape (`event_name`, `confidence`, `talking_points`)
+- `generatedOffers` → flattened to `personalizedDeals` shape (`deals: [{ merchantName, dealTitle, activationCount }]`) the chat already understands
+- `riskFlags` — passed straight through
+
+### 2. `src/pages/ExecDemoPage.tsx`
+- Add `enrichedTxs` state (mirroring `classifiedRef.current`) so it can be passed down reactively, OR pass `classifiedRef.current` directly via a recomputed value on render.
+- Add the 4 props to the `<ExecDemoPhoneView />` invocation: `enrichedTxs`, `detectedLifeEvents` (already present), `generatedOffers` (already present), `riskFlags`.
+
+### 3. Light shape adapter in `ExecDemoPhoneView`
+Since `generatedOffers` is `RollupOfferGroup[]` (not the `PersonalizedDealData` shape), do a tiny in-component flatten before passing to chat:
+```ts
+const personalizedDeals = generatedOffers
+  ? { deals: generatedOffers.flatMap(g => g.offers).map(o => ({
+      merchantName: o.merchantName, dealTitle: o.dealTitle, activationCount: o.matchScore ?? 90
+    })) }
+  : null;
+
+const detectedEvents = detectedLifeEvents?.map(e => ({
+  event_name: e.event_name, confidence: e.confidence, talking_points: e.talking_points
+}));
+```
+
+(Exact field names verified against the `LifeEvent` and offer types during implementation.)
+
+## Result
+After the fix, the in-phone AI chat will have full context to answer spending questions with real $ amounts, list subscriptions from enriched transactions, surface detected life events, recommend products tied to actual signals, and skip the redundant risk-detection call.
+
+## Out of scope
+- No edge function changes (`consumer-chat` already accepts and uses all four context fields).
+- No UI/copy changes to the chat panel itself.
