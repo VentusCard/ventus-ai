@@ -7,6 +7,11 @@ export interface ProductCard {
   quote: string;
   signal_label: string;
   theme: string;
+  offer_headline?: string;
+  benefits?: string[];
+  eligibility?: string;
+  cta?: string;
+  cta_sub?: string;
 }
 
 const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane }> = {

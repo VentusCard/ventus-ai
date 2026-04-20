@@ -76,7 +76,47 @@ TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
 - Conversational, warm, never corporate or pushy
 - No exclamation marks in quotes
-- No urgency tactics ("limited time", "act now")`;
+- No urgency tactics ("limited time", "act now")
+
+OFFER DETAIL FIELDS (REQUIRED — must be personalized to THIS customer's signal):
+
+1. offer_headline (string, 6-12 words):
+   - The bold offer hook tied to the actual product economics
+   - Specific and quantitative when possible: rates, points, percentages, dollar amounts
+   - Examples: "Earn 2x miles on every purchase", "4.50% APY — 10x the national average", "Tax-free growth on qualified education expenses"
+
+2. benefits (array, EXACTLY 3 strings, each 6-14 words):
+   - Concrete, BoA-style product features specific to the actual product
+   - Mix economics + qualitative perks (e.g., "75,000 bonus miles after $4K spend in 3 months", "No foreign transaction fees", "Priority Pass lounge access")
+   - For 529: tax growth + state deduction + flexibility
+   - For HYSA: APY + FDIC + no fees
+   - For HELOC: borrow %, rates, draw period
+   - Avoid vague phrases like "great benefits" or "rewards on spending"
+
+3. eligibility (string, ≤14 words):
+   - One-line eligibility / approval note
+   - When customer is likely an existing relationship, prefer: "Pre-approved · No impact to credit score", "Pre-qualified based on relationship", "Preferred Rewards eligible — earn 25-75% more"
+   - Otherwise: "Open with as little as $25", "FDIC insured up to $250,000", etc.
+
+4. cta (string, 3-6 words) — CRITICAL, MUST BE SIGNAL-PERSONALIZED:
+   - The button label MUST tie back to the customer's specific signal_label, NOT generic ("Apply Now", "Learn More", "Get Started" are FORBIDDEN)
+   - For LIFE EVENT cards, mirror the euphemistic life-event framing:
+     - College / Education signal → "Start Their Tuition Fund", "Build the College Fund"
+     - Retirement signal → "Build Your Next Chapter", "Plan the Next Phase"
+     - New Baby / Family signal → "Prepare for the Milestone", "Plan for What's Next"
+     - Home Purchase signal → "Unlock Your Home's Value", "Put Down Roots"
+     - Wedding signal → "Plan the Big Day", "Fund the Celebration"
+   - For BEHAVIORAL cards, tie to the vaguely-specific habit:
+     - Tropical getaways → "Plan Your Next Escape", "Pack for the Next Trip"
+     - Coffee ritual / Dining → "Make Mornings More Rewarding", "Earn on Every Sip"
+     - Weekend adventures → "Fuel the Next Adventure"
+     - Home improvement → "Power Your Next Project"
+     - Fitness → "Reward Your Routine"
+   - The CTA should feel like a natural extension of the signal_label
+
+5. cta_sub (string, 4-8 words):
+   - Small reassurance line under the CTA — speed, friction, or trust
+   - Examples: "Decision in seconds · Use card immediately", "Funded in under 5 minutes", "Soft credit check only · Instant pre-qualification", "Set up automatic contributions"`;
 
     const userPrompt = `Generate two product recommendation cards based on this customer profile.
 
@@ -162,8 +202,31 @@ Return up to 4 cards in the strict interleaved order using the generate_product_
                           enum: ["travel", "dining", "fitness", "shopping", "entertainment", "home", "education", "retirement", "family", "business", "wellness", "lifestyle"],
                           description: "Color/icon theme hint",
                         },
+                        offer_headline: {
+                          type: "string",
+                          description: "Bold offer line tied to product economics, 6-12 words. e.g. 'Earn 2x miles on every purchase' or '4.50% APY — 10x the national average'",
+                        },
+                        benefits: {
+                          type: "array",
+                          minItems: 3,
+                          maxItems: 3,
+                          items: { type: "string" },
+                          description: "Exactly 3 concrete BoA-style product features specific to the actual product",
+                        },
+                        eligibility: {
+                          type: "string",
+                          description: "One-line eligibility / approval note, ≤14 words",
+                        },
+                        cta: {
+                          type: "string",
+                          description: "Personalized button label (3-6 words) that ties to the customer's specific signal. NEVER generic like 'Apply Now' or 'Learn More'",
+                        },
+                        cta_sub: {
+                          type: "string",
+                          description: "Small reassurance subtext under the CTA, 4-8 words. e.g. 'Decision in seconds · Use card immediately'",
+                        },
                       },
-                      required: ["type", "product_name", "quote", "signal_label", "theme"],
+                      required: ["type", "product_name", "quote", "signal_label", "theme", "offer_headline", "benefits", "eligibility", "cta", "cta_sub"],
                       additionalProperties: false,
                     },
                   },
