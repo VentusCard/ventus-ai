@@ -503,7 +503,7 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={pillKey}
-                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor)}
+                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor, flag.merchant)}
                           title={isOfferTab ? "Not applicable for offer targeting" : undefined}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
