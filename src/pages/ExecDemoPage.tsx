@@ -955,13 +955,13 @@ export default function ExecDemoPage() {
           />
         </div>
 
-        {/* Col 3 — Phone mockup (expands when Next-Offer active) */}
+        {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         <div
           className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out"
           style={{
-            width: activeTab === "relationship" ? 360 : 0,
-            minWidth: activeTab === "relationship" ? 360 : 0,
-            opacity: activeTab === "relationship" ? 1 : 0,
+            width: activeTab === "relationship" && aiTabTrigger > 0 ? 360 : 0,
+            minWidth: activeTab === "relationship" && aiTabTrigger > 0 ? 360 : 0,
+            opacity: activeTab === "relationship" && aiTabTrigger > 0 ? 1 : 0,
           }}
         >
           <div className="w-[360px] h-full">
@@ -969,7 +969,7 @@ export default function ExecDemoPage() {
               customer={demoCustomer}
               activeTab={activeTab}
               phase={phase}
-              showContent={activeTab === "relationship" && phase !== "idle"}
+              showContent={activeTab === "relationship" && aiTabTrigger > 0 && phase !== "idle"}
             generatedOffers={generatedOffers}
               detectedLifeEvents={detectedLifeEvents}
               productCards={productCards}
