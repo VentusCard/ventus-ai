@@ -52,6 +52,7 @@ interface Props {
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
+  onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
