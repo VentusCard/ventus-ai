@@ -364,7 +364,19 @@ export default function ExecDemoIntelPanel({
             {synthesisTriggered && rollupStats.length > 0 ? (
               <div className="mb-2.5">
                 <div className="flex items-start justify-between">
-                  <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category spending patterns</span></p>
+                  {(() => {
+                    const headerCopy =
+                      activeTab === "analytics"
+                        ? { title: "Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
+                        : activeTab === "product"
+                        ? { title: "Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
+                        : activeTab === "relationship"
+                        ? { title: "Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
+                        : { title: "Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
+                    return (
+                      <p className="font-bold text-slate-800 mb-1.5 text-lg">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
+                    );
+                  })()}
                   <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                     <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                   </button>
