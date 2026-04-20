@@ -9,6 +9,7 @@ import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView
 import RelationshipPhoneView from "./RelationshipPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { EnrichedTransaction } from "@/types/transaction";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type ConsumerTab = "rewards" | "product" | "relationship" | "ai";
@@ -37,9 +38,11 @@ interface Props {
   productCards?: ProductCard[] | null;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  enrichedTxs?: EnrichedTransaction[] | null;
+  riskFlags?: { flags: any[]; summary: string } | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -72,8 +75,35 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         );
       case "relationship":
         return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
-      case "ai":
-        return <ConsumerAIChatView customer={customer} initialMessage={pendingAIMessage} onInitialMessageConsumed={() => setPendingAIMessage(null)} />;
+      case "ai": {
+        const personalizedDeals = generatedOffers && generatedOffers.length > 0
+          ? {
+              deals: generatedOffers.flatMap((g) =>
+                (g.deals || []).map((o) => ({
+                  merchantName: o.merchant,
+                  dealTitle: `${o.product} — ${o.message}`,
+                  activationCount: 90,
+                }))
+              ),
+            }
+          : null;
+        const detectedEvents = detectedLifeEvents?.map((e) => ({
+          event_name: e.event_name,
+          confidence: e.confidence,
+          talking_points: e.talking_points,
+        }));
+        return (
+          <ConsumerAIChatView
+            customer={customer}
+            enriched={enrichedTxs ?? undefined}
+            detectedEvents={detectedEvents}
+            personalizedDeals={personalizedDeals as any}
+            riskFlags={riskFlags ?? undefined}
+            initialMessage={pendingAIMessage}
+            onInitialMessageConsumed={() => setPendingAIMessage(null)}
+          />
+        );
+      }
       default:
         return null;
     }
