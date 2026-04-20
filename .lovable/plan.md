@@ -1,46 +1,28 @@
 
-## Diagnosis
-The AI chatbot inside the executive demo's phone mockup (`ConsumerAIChatView`) is rendered with **only `customer` + `initialMessage`**. None of the enriched data flowing through `ExecDemoPage` is wired in:
+## Goal
+On the **Next Offer** tab (executive demo intel panel), gray out all risk-related persona pills in the Behavioral Intelligence section to signal they are not applicable for offer generation.
 
-- ❌ `enriched` (transactions) — missing → AI can't cite spending
-- ❌ `detectedEvents` — missing → "Life event insights" quick action is empty
-- ❌ `personalizedDeals` — missing → "Product recommendations" has no deal context
-- ❌ `riskFlags` — missing → "Risk factors & alerts" falls back to live edge-function call
+## Investigation
+- `ExecDemoIntelPanel.tsx` renders the persona pills row above the tab body.
+- Pills come from multiple sources: rollup signals, life events, **risk flags** (`riskFlags.flags`), and segments.
+- Active tab state lives in the same panel (`analytics | rewards | product | relationship`). The "Next Offer" tab = `rewards`.
+- Risk pills are rendered with their own styling/handler — I need to confirm which pill block corresponds to risk and add a conditional disabled/grayed style when `activeTab === "rewards"`.
 
-Result: the chatbot is essentially answering blind from the customer profile alone, even though `ExecDemoPage` already has all of this state populated.
+## Change
 
-## Fix (2 small files)
+### `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- Identify the risk pill render block (the one iterating over `riskFlags.flags` / driven by risk kind).
+- When `activeTab === "rewards"`:
+  - Apply grayed-out styles: `opacity-40`, `grayscale`, `cursor-not-allowed`, neutral slate background/border instead of the risk color.
+  - Disable the click handler (no-op or `pointer-events: none`).
+  - Add a `title`/tooltip: "Not applicable for offers".
+- All other tabs: pills render normally (full color, clickable).
 
-### 1. `src/components/exec-demo/ExecDemoPhoneView.tsx`
-Accept and pass through 4 new props to `<ConsumerAIChatView />`:
-- `enriched: EnrichedTransaction[]` — pulled from `classifiedRef` at the page level, lifted into state
-- `detectedLifeEvents` → mapped to `detectedEvents` shape (`event_name`, `confidence`, `talking_points`)
-- `generatedOffers` → flattened to `personalizedDeals` shape (`deals: [{ merchantName, dealTitle, activationCount }]`) the chat already understands
-- `riskFlags` — passed straight through
+No changes to other tabs, no logic changes to offer generation, no edge function edits.
 
-### 2. `src/pages/ExecDemoPage.tsx`
-- Add `enrichedTxs` state (mirroring `classifiedRef.current`) so it can be passed down reactively, OR pass `classifiedRef.current` directly via a recomputed value on render.
-- Add the 4 props to the `<ExecDemoPhoneView />` invocation: `enrichedTxs`, `detectedLifeEvents` (already present), `generatedOffers` (already present), `riskFlags`.
-
-### 3. Light shape adapter in `ExecDemoPhoneView`
-Since `generatedOffers` is `RollupOfferGroup[]` (not the `PersonalizedDealData` shape), do a tiny in-component flatten before passing to chat:
-```ts
-const personalizedDeals = generatedOffers
-  ? { deals: generatedOffers.flatMap(g => g.offers).map(o => ({
-      merchantName: o.merchantName, dealTitle: o.dealTitle, activationCount: o.matchScore ?? 90
-    })) }
-  : null;
-
-const detectedEvents = detectedLifeEvents?.map(e => ({
-  event_name: e.event_name, confidence: e.confidence, talking_points: e.talking_points
-}));
-```
-
-(Exact field names verified against the `LifeEvent` and offer types during implementation.)
-
-## Result
-After the fix, the in-phone AI chat will have full context to answer spending questions with real $ amounts, list subscriptions from enriched transactions, surface detected life events, recommend products tied to actual signals, and skip the redundant risk-detection call.
+## Files touched
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — single conditional styling block on the risk pill map.
 
 ## Out of scope
-- No edge function changes (`consumer-chat` already accepts and uses all four context fields).
-- No UI/copy changes to the chat panel itself.
+- No changes to life event / rollup / segment pills.
+- No changes to the offer generation pipeline or filtering logic.
