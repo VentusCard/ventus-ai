@@ -255,7 +255,7 @@ txn_034,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG,4511,892.00,2025-07-01,94102
 txn_035,GRAND WAILEA RESORT,Maui resort 5 nights,7011,2450.00,2025-07-02,96753,Premium Card
 txn_036,BOSS FROG SNORKEL TOUR,Molokini snorkel excursion,7999,189.00,2025-07-04,96753,Cashback Card
 txn_037,MAMA'S FISH HOUSE MAUI,Beachside dinner,5812,215.00,2025-07-05,96779,Premium Card
-txn_038,PRIVATE MEDIA GRP LLC,Digital media subscription,5967,49.99,2025-08-02,,Cashback Card
+
 txn_039,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-08-10,94102,Cashback Card
 txn_040,LULULEMON,Tennis skirt and top,5655,134.00,2025-08-18,94102,Premium Card
 txn_041,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
