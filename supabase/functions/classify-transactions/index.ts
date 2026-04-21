@@ -174,14 +174,42 @@ SUBCATEGORY LABELS (1-3 per transaction):
 Return 1 to 3 short labels that describe what you can ACTUALLY INFER from the merchant name. These are independent tags, not a hierarchy.
 Only tag what the merchant name tells you. Do NOT guess what the customer bought if the merchant sells many things.
 
+CROSS-PILLAR LIFESTYLE TAG (optional, max 1 per transaction, counts toward the 1-3 cap):
+In addition to category-facet labels, you MAY include ONE tag from the controlled lifestyle vocabulary below when the merchant name or description makes the lifestyle context UNAMBIGUOUS. This tag tells downstream systems what life pattern this spend belongs to, even when its primary pillar is something else (e.g. a Tahoe lodge is Travel/Hotels, but the lifestyle is Ski).
+
+Apply ONLY when the signal is obvious from the merchant string itself. NEVER guess. If the merchant is generic (MARRIOTT, WHOLE FOODS, AMAZON, TARGET, DELTA), do NOT add a lifestyle tag — keep only the category-facet labels.
+
+Controlled lifestyle vocabulary (use EXACTLY these strings):
+- Activity context: "Ski", "Mountain", "Tropical Vacation", "Beach", "Coastal Resort", "Urban Hotel", "Theme Park", "Cruise", "Camping", "Roadtrip"
+- Life-event context: "Wedding", "Engagement", "New Parent", "Baby Prep", "New Home", "Moving", "Career Development", "Retirement Prep", "College Prep", "Pet Adoption"
+- Lifestyle-flavor context: "Athleisure", "Foodie", "Wellness", "Eco-Conscious", "DIY", "Luxury Lifestyle", "Family-Oriented", "Tech Enthusiast", "Outdoor", "Arts & Culture"
+
+Lifestyle-tag examples:
+- "PALISADES TAHOE LODGE" → ["Ski", "Mountain"] ✓ (Tahoe lodge — clear ski signal)
+- "VAIL RESORTS" → ["Ski"] ✓
+- "FOUR SEASONS MAUI" → ["Tropical Vacation", "Beach"] ✓ (Maui is unambiguous)
+- "HAWAIIAN AIRLINES" → ["Tropical Vacation"] ✓
+- "BANFF SPRINGS HOTEL" → ["Mountain"] ✓
+- "MARRIOTT MIDTOWN MANHATTAN" → ["Urban Hotel"] ✓
+- "DISNEY GRAND CALIFORNIAN" → ["Theme Park", "Family-Oriented"] ✓
+- "HARRY WINSTON" → ["Fine Jewelry", "Engagement"] ✓ (engagement-ring brand)
+- "BABIES R US" → ["Infant Goods", "New Parent"] ✓
+- "STANFORD GSB TUITION" → ["Tuition", "Career Development"] ✓
+- "LULULEMON" → ["Apparel", "Athleisure"] ✓
+- "MARRIOTT" → ["Full-Service"] ✗ NO lifestyle tag — could be anywhere
+- "DELTA AIR LINES" → ["Domestic"] ✗ NO lifestyle tag — generic carrier
+- "WHOLE FOODS" → ["Organic & Natural"] ✗ NO lifestyle tag — generic grocery
+- "KAY JEWELERS" → ["Fine Jewelry"] ✗ NO Engagement tag — sells broad jewelry
+- "TARGET" → ["Department Store"] ✗ NO New Parent tag even if you suspect it
+
 CLASSIFICATION EXAMPLES (Pillar / Category / Subcategory Labels):
 
 Sports & Active Living:
 - "EQUINOX" → Gym & Fitness / ["Membership"]
 - "24 HOUR FITNESS" → Gym & Fitness / ["Membership"]
-- "LULULEMON" → Gym & Fitness / ["Apparel", "Athletic"]
+- "LULULEMON" → Gym & Fitness / ["Apparel", "Athleisure"]
 - "NIKE STORE" → Gym & Fitness / ["Apparel", "Equipment"]
-- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Apparel"]
+- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Outdoor"]
 - "DICK'S SPORTING GOODS" → General / ["Equipment"]
 - "ORANGETHEORY" → Gym & Fitness / ["Classes"]
 - "TAYLORMADE" → Golf / ["Equipment"]
@@ -212,8 +240,16 @@ Food & Dining:
 Travel & Exploration:
 - "DELTA AIR LINES" → Flights / ["Domestic"]
 - "UNITED AIRLINES" → Flights / ["Domestic"]
+- "HAWAIIAN AIRLINES" → Flights / ["Domestic", "Tropical Vacation"]
 - "MARRIOTT" → Hotels & Lodging / ["Full-Service"]
 - "FOUR SEASONS" → Hotels & Lodging / ["Full-Service"]
+- "FOUR SEASONS MAUI" → Hotels & Lodging / ["Full-Service", "Tropical Vacation"]
+- "PALISADES TAHOE LODGE" → Hotels & Lodging / ["Ski", "Mountain"]
+- "VAIL RESORTS" → Hotels & Lodging / ["Ski"]
+- "BANFF SPRINGS HOTEL" → Hotels & Lodging / ["Full-Service", "Mountain"]
+- "MARRIOTT MIDTOWN MANHATTAN" → Hotels & Lodging / ["Full-Service", "Urban Hotel"]
+- "DISNEY GRAND CALIFORNIAN" → Hotels & Lodging / ["Full-Service", "Theme Park"]
+- "ROYAL CARIBBEAN" → Tours & Activities / ["Cruise"]
 - "HERTZ" → Car Rentals / ["Airport"]
 - "UBER" → Travel Transportation / ["Rideshare"]
 - "LYFT" → Travel Transportation / ["Rideshare"]
@@ -232,17 +268,22 @@ Style & Beauty:
 - "SEPHORA" → Beauty Products / ["Makeup", "Skincare"]
 - "ULTA" → Beauty Products / ["Makeup", "Skincare"]
 - "TIFFANY & CO" → Jewelry / ["Fine Jewelry"]
+- "HARRY WINSTON" → Jewelry / ["Fine Jewelry", "Engagement"]
+- "DAVID'S BRIDAL" → Clothing / ["Wedding"]
+- "THE KNOT SHOP" → Clothing / ["Wedding"]
 
 Pets:
 - "PETCO" → Pet Supplies / ["Supplies"]
 - "CHEWY.COM" → Pet Food / ["Online"]
 - "VCA ANIMAL HOSPITAL" → Veterinary Care / ["Wellness"]
+- "ASPCA ADOPTION" → Pet Services / ["Pet Adoption"]
 
 Entertainment & Culture:
 - "AMC THEATRES" → Movies & Theater / ["Cinema"]
 - "TICKETMASTER" → Concerts & Events / ["Tickets"]
 - "BARNES & NOBLE" → Books & Magazines / ["Physical"]
 - "STEAM GAMES" → Gaming / ["PC"]
+- "MET MUSEUM" → Museums & Exhibitions / ["Museum", "Arts & Culture"]
 
 Technology & Digital Life:
 - "APPLE.COM" → Electronics & Devices / ["Phone", "Computer"]
@@ -253,11 +294,15 @@ Technology & Digital Life:
 
 Family & Community:
 - "KINDERCARE" → Childcare & Education / ["Daycare"]
+- "BABIES R US" → Kids Activities / ["Infant Goods", "New Parent"]
+- "BUY BUY BABY" → Kids Activities / ["Infant Goods", "Baby Prep"]
+- "THE BUMP REGISTRY" → Kids Activities / ["Baby Prep"]
 - "RED CROSS" → Gifts & Donations / ["Charity"]
 
 Financial & Aspirational:
 - "VANGUARD" → Investments / ["Brokerage"]
-- "UDEMY" → Courses & Certifications / ["Online"]
+- "UDEMY" → Courses & Certifications / ["Online", "Career Development"]
+- "STANFORD GSB" → Courses & Certifications / ["Tuition", "Career Development"]
 - "GEICO" → Insurance / ["Auto"]
 
 CONFIDENCE EXAMPLES:
