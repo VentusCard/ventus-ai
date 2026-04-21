@@ -925,18 +925,21 @@ export default function ExecDemoPage() {
       </div>
 
       {/* Main content — 3 columns with animated collapse */}
+      {(() => {
+        const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+        return (
       <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (collapses to sliver when phone shown) */}
+        {/* Col 1 — Transaction feed (collapses to sliver only when phone is shown) */}
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
-            width: activeTab ? (txPanelExpanded ? 400 : 40) : 400,
-            minWidth: activeTab ? (txPanelExpanded ? 400 : 40) : 400,
-            overflow: activeTab && !txPanelExpanded ? "visible" : "hidden",
+            width: phoneVisible ? (txPanelExpanded ? 400 : 40) : 400,
+            minWidth: phoneVisible ? (txPanelExpanded ? 400 : 40) : 400,
+            overflow: phoneVisible && !txPanelExpanded ? "visible" : "hidden",
           }}
         >
           {/* Sliver state — narrow strip with expand button */}
-          {activeTab && !txPanelExpanded && (
+          {phoneVisible && !txPanelExpanded && (
             <div
               className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors"
               onClick={() => setTxPanelExpanded(true)}
@@ -950,9 +953,9 @@ export default function ExecDemoPage() {
             </div>
           )}
           {/* Full panel — with optional collapse button when re-expanded */}
-          {(!activeTab || txPanelExpanded) && (
+          {(!phoneVisible || txPanelExpanded) && (
             <div className="w-[400px] h-full relative">
-              {activeTab && txPanelExpanded && (
+              {phoneVisible && txPanelExpanded && (
               <button
                   onClick={() => setTxPanelExpanded(false)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
@@ -1091,6 +1094,8 @@ export default function ExecDemoPage() {
           );
         })()}
       </div>
+        );
+      })()}
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
       <ExecDemoSelectionDialog
