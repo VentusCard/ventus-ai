@@ -241,7 +241,7 @@ export default function ExecDemoPage() {
           // (with their lifestyle subcategory tags) for lifestyle-prone rollups.
           transactions: enrichedTxs.map(t => ({
             merchant_name: t.merchant_name,
-            normalized_merchant: t.normalized_merchant,
+            normalized_merchant: (t as any).normalized_merchant,
             amount: t.amount,
             date: t.date,
             pillar: t.pillar,
