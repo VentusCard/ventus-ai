@@ -238,15 +238,31 @@ function gamblingSeverityFor(
 function deterministicFlags(transactions: any[]): RiskFlag[] {
   const flags: RiskFlag[] = [];
 
-  // Pre-compute gambling aggregates so single-transaction cases don't get "high"
-  const gamblingTxs = transactions.filter(
-    (t) => String(t.mcc || "").trim() === "7995" && !isRealEstate(t.merchant_name || "", t.description || "")
-  );
-  const gamblingCount = gamblingTxs.length;
-  const gamblingTotal = gamblingTxs.reduce((s, t) => s + (Number(t.amount) || 0), 0);
-  const gSeverity = gamblingSeverity(gamblingCount, gamblingTotal);
+  // ============== Gambling subcategory pre-pass ==============
+  // Resolve every transaction (any MCC) through detectGambling. Adult-flagged ones are skipped.
+  const gamblingHits = transactions
+    .map((t) => {
+      const merchant = t.merchant_name || t.normalized_merchant || "";
+      const mcc = String(t.mcc || "").trim();
+      if (isRealEstate(merchant, t.description || "")) return null;
+      const hit = detectGambling(merchant, mcc);
+      return hit ? { tx: t, hit } : null;
+    })
+    .filter((x): x is { tx: any; hit: GamblingHit } => x !== null);
 
-  // Pre-compute adult-entertainment aggregates (MCC 5967 + keyword matches across any MCC)
+  const gamblingTotal = gamblingHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+  const subCounts = new Map<string, number>();
+  for (const { hit } of gamblingHits) {
+    subCounts.set(hit.label, (subCounts.get(hit.label) || 0) + 1);
+  }
+  // weightedScore = Σ (riskWeight × txCount per subcategory) + (totalSpend / 500)
+  const weightedScore =
+    gamblingHits.reduce((s, { hit }) => s + hit.riskWeight, 0) + gamblingTotal / 500;
+  const gamblingFlaggedIds = new Set<string>();
+
+  console.log(`[RISK] Gambling: ${gamblingHits.length} hits, total $${gamblingTotal.toFixed(2)}, weightedScore=${weightedScore.toFixed(2)}, subCounts=${JSON.stringify(Object.fromEntries(subCounts))}`);
+
+  // ============== Adult Entertainment pre-pass ==============
   const adultHits = transactions
     .map((t) => {
       const merchant = t.merchant_name || t.normalized_merchant || "";
@@ -265,7 +281,7 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     adultCount >= 3 || adultTotal >= 500 ? "high" : "medium";
   const adultFlaggedIds = new Set(adultHits.map((h) => h.tx.transaction_id));
 
-  // Emit adult-entertainment flags first
+  // Emit adult-entertainment flags first (adult > gambling priority if both somehow match)
   for (const { tx, kind, matched } of adultHits) {
     flags.push({
       transaction_id: tx.transaction_id,
@@ -279,34 +295,39 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     });
   }
 
+  // Emit gambling flags (skip adult-flagged transactions)
+  for (const { tx, hit } of gamblingHits) {
+    if (adultFlaggedIds.has(tx.transaction_id)) continue;
+    const subCount = subCounts.get(hit.label) || 1;
+    const severity = gamblingSeverityFor(hit, weightedScore, gamblingTotal, subCount);
+    const reason =
+      hit.label === "High-Risk / Offshore Gambling"
+        ? `${hit.label} — ${hit.kind}. Matched "${hit.matched}". Strong financial-distress / AML correlate.`
+        : hit.label === "Lottery & Raffles"
+          ? `${hit.label} — ${hit.kind}. Matched "${hit.matched}". Low-stakes; weak signal in isolation.`
+          : `${hit.label} — ${hit.kind}. Matched "${hit.matched}". ${subCount} of ${gamblingHits.length} gambling transactions ($${gamblingTotal.toFixed(2)} total) — weighted score ${weightedScore.toFixed(1)}.`;
+    flags.push({
+      transaction_id: tx.transaction_id,
+      category_group: "vice",
+      category_label: hit.label,
+      severity,
+      merchant: tx.merchant_name || tx.normalized_merchant || "",
+      amount: tx.amount,
+      date: tx.date,
+      reason,
+    });
+    gamblingFlaggedIds.add(tx.transaction_id);
+  }
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
     const mcc = String(t.mcc || "").trim();
 
-    // Skip real-estate transactions entirely
     if (isRealEstate(merchant, desc)) continue;
-
-    // Already handled by adult-entertainment pass
     if (adultFlaggedIds.has(t.transaction_id)) continue;
+    if (gamblingFlaggedIds.has(t.transaction_id)) continue;
 
-    // MCC 7995 → Gambling (severity scales with count + volume)
-    if (mcc === "7995") {
-      const reason = gamblingCount === 1
-        ? `MCC 7995 (Betting / Casino / Lottery) — single isolated gambling transaction of $${Number(t.amount).toFixed(2)}.`
-        : `MCC 7995 (Betting / Casino / Lottery) — ${gamblingCount} gambling transactions totaling $${gamblingTotal.toFixed(2)}.`;
-      flags.push({
-        transaction_id: t.transaction_id,
-        category_group: "vice",
-        category_label: "Gambling",
-        severity: gSeverity,
-        merchant,
-        amount: t.amount,
-        date: t.date,
-        reason,
-      });
-      continue;
-    }
 
     // International keywords + missing/non-US zip
     if (looksInternational(merchant) && nonUsZip(t.zip_code || "", t.home_zip || "")) {
