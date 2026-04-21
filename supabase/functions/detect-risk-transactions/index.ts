@@ -63,6 +63,13 @@ const ESCORT_KEYWORDS = [
   "COMPANION SVC", "VIP COMPANIONS",
 ];
 
+function matchesAny(text: string, keywords: string[]): string | null {
+  for (const kw of keywords) {
+    if (text.includes(kw)) return kw;
+  }
+  return null;
+}
+
 // ============== Gambling subcategory keyword surfaces ==============
 // Order matters: more specific / higher-risk buckets are checked first.
 
@@ -213,10 +220,18 @@ interface RiskFlag {
   reason: string;
 }
 
-function gamblingSeverity(count: number, totalAmount: number): "low" | "medium" | "high" {
-  // Severity scales with frequency AND volume. A single small transaction is low.
-  if (count >= 4 || totalAmount >= 2000) return "high";
-  if (count >= 2 || totalAmount >= 500) return "medium";
+function gamblingSeverityFor(
+  hit: GamblingHit,
+  weightedScore: number,
+  totalSpend: number,
+  subCount: number
+): "low" | "medium" | "high" {
+  // Offshore is always high — single hit is enough.
+  if (hit.label === "High-Risk / Offshore Gambling") return "high";
+  if (weightedScore >= 12 || totalSpend >= 2000) return "high";
+  if (weightedScore >= 4 || totalSpend >= 500) return "medium";
+  // ≥2 hits in a serious bucket (sports / casino) bumps to medium even at low spend
+  if (subCount >= 2 && (hit.label === "Sports Betting" || hit.label === "Casino & Table Games")) return "medium";
   return "low";
 }
 
