@@ -268,17 +268,22 @@ Style & Beauty:
 - "SEPHORA" → Beauty Products / ["Makeup", "Skincare"]
 - "ULTA" → Beauty Products / ["Makeup", "Skincare"]
 - "TIFFANY & CO" → Jewelry / ["Fine Jewelry"]
+- "HARRY WINSTON" → Jewelry / ["Fine Jewelry", "Engagement"]
+- "DAVID'S BRIDAL" → Clothing / ["Wedding"]
+- "THE KNOT SHOP" → Clothing / ["Wedding"]
 
 Pets:
 - "PETCO" → Pet Supplies / ["Supplies"]
 - "CHEWY.COM" → Pet Food / ["Online"]
 - "VCA ANIMAL HOSPITAL" → Veterinary Care / ["Wellness"]
+- "ASPCA ADOPTION" → Pet Services / ["Pet Adoption"]
 
 Entertainment & Culture:
 - "AMC THEATRES" → Movies & Theater / ["Cinema"]
 - "TICKETMASTER" → Concerts & Events / ["Tickets"]
 - "BARNES & NOBLE" → Books & Magazines / ["Physical"]
 - "STEAM GAMES" → Gaming / ["PC"]
+- "MET MUSEUM" → Museums & Exhibitions / ["Museum", "Arts & Culture"]
 
 Technology & Digital Life:
 - "APPLE.COM" → Electronics & Devices / ["Phone", "Computer"]
@@ -289,11 +294,15 @@ Technology & Digital Life:
 
 Family & Community:
 - "KINDERCARE" → Childcare & Education / ["Daycare"]
+- "BABIES R US" → Kids Activities / ["Infant Goods", "New Parent"]
+- "BUY BUY BABY" → Kids Activities / ["Infant Goods", "Baby Prep"]
+- "THE BUMP REGISTRY" → Kids Activities / ["Baby Prep"]
 - "RED CROSS" → Gifts & Donations / ["Charity"]
 
 Financial & Aspirational:
 - "VANGUARD" → Investments / ["Brokerage"]
-- "UDEMY" → Courses & Certifications / ["Online"]
+- "UDEMY" → Courses & Certifications / ["Online", "Career Development"]
+- "STANFORD GSB" → Courses & Certifications / ["Tuition", "Career Development"]
 - "GEICO" → Insurance / ["Auto"]
 
 CONFIDENCE EXAMPLES:
