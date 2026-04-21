@@ -80,6 +80,8 @@ When in doubt, skip the rollup. Life events take priority — every time.
 
 Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
+**Before you write any rollup, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
+
 **How to think about rollups:**
 
 - A rollup describes a *recurring lifestyle habit* — something you'd mention about this person at a dinner party. "She's a total fitness nut" (gym + yoga + supplements + athletic apparel). "He eats out constantly at casual spots" (fast food + casual dining + delivery).
@@ -100,6 +102,27 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
   - "[Season] [Activity]" → "Winter Ski Trips", "Summer Coastal Travel"
 - **FORBIDDEN abstract descriptors:** Never use "Enthusiast", "Fan", "Lover", "Buff", "Aspirant", "Devotee", "Vacationer", "Junkie", "Aficionado", "Connoisseur". Use concrete activity + cadence terms instead. "Premium Hawaii Vacationer" → "Premium Annual Hawaiian Vacations". "Active Alpine & Court Enthusiast" → "Tennis & Ski Seasonal Sports".
 
+- **SEMANTIC COHERENCE — TRANSACTIONS INSIDE A ROLLUP MUST MATCH ITS MEANING.**
+
+  A rollup is not just a label — it's a *promise* about what kind of activity the contributing transactions represent. Before you add a category index to a rollup, look at the merchants and subcategories listed for that index and ask: "**Do these specific purchases actually fit the lifestyle this rollup describes?**"
+
+  Categories like "Hotels & Lodging", "Airlines", "Restaurants" routinely mix incompatible lifestyles. A single "Hotels & Lodging" row can contain a Hawaii beach resort, a Tahoe ski lodge, and a midtown business hotel — those are **three different lifestyles**, not one. You must NOT bundle them under a single rollup just because they share a category.
+
+  Examples of forbidden mismatches:
+  - "Annual Hawaiian Vacations" must NOT include \`PALISADES TAHOE LODGE\`, \`ASPEN MOUNTAIN\`, \`VAIL RESORTS\`, \`WHISTLER\`, \`BRECKENRIDGE\` — those are ski-trip merchants, not Hawaii.
+  - "Seasonal Ski Trips" must NOT include \`MAUI HILTON\`, \`KONA VILLAGE\`, \`HAWAIIAN AIRLINES\`, Caribbean resorts — those are tropical-trip merchants, not skiing.
+  - "European Getaways" must NOT include domestic-only US merchants.
+  - "Premium Fine Dining Nights" must NOT include \`MCDONALD'S\` or \`CHIPOTLE\` even if they live in a "Restaurants" category.
+
+  **What to do instead:**
+  1. Read every merchant and subcategory in each candidate category.
+  2. If a category cleanly matches one lifestyle, include its index in that rollup.
+  3. If a category contains **mixed lifestyles** (some Hawaii merchants, some Tahoe ski merchants; some fine dining, some fast food), emit **separate rollups** for each coherent sub-pattern (e.g. "Annual Hawaiian Vacations" AND "Seasonal Ski Trips"). Both rollups may reference the same category index — downstream UI uses merchant-level signals to display the right transactions under each pill. Do not silently merge incompatible lifestyles to keep your output shorter.
+  4. If a single lifestyle clearly dominates a category (e.g. 6 Hawaii merchants and 1 stray ski lodge), name the rollup after the dominant lifestyle and accept that the stray transaction belongs to a separate, ungrouped behavior — do **not** stretch the label to cover both.
+  5. Generic merchants without a clear destination/activity signal (e.g. plain "Marriott", "Delta") may be included in a themed rollup only if other transactions on similar dates establish the destination context.
+
+  When in doubt, emit fewer, more honest rollups. A coherent "Annual Hawaiian Vacations" pill containing only Hawaii merchants is worth more than a bloated "Premium Travel" pill that lumps everything together.
+
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
 - **THEMATIC UNIQUENESS — ONE ROLLUP PER THEME:** Each rollup must cover a *distinct* behavioral theme. NEVER emit two rollups that describe the same underlying life pattern under different names. Forbidden duplicate pairs include (but are not limited to):
@@ -108,7 +131,7 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
   - "New Parent" + "Baby Prep" / "Growing Family"
   - "Frequent Traveler" + "Vacation Planner" / "Jetsetter"
   - "Retirement Saver" + "Pre-Retiree"
-  Pick the SINGLE best label and combine all related categories under it. If you find yourself writing two rollups about the same life pattern, merge them into one.
+  Pick the SINGLE best label and combine all related categories under it. If you find yourself writing two rollups about the same life pattern, merge them into one. (Note: "Annual Hawaiian Vacations" + "Seasonal Ski Trips" are NOT duplicates — they're distinct lifestyles and should remain separate.)
 
 - Include the exact category names combined and the [N] row indices from the input.${lifeEventSuppressionBlock}`;
 
