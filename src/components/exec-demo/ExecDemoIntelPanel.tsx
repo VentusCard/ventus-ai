@@ -564,7 +564,14 @@ export default function ExecDemoIntelPanel({
                       return (
                         <span
                           key={pillKey}
-                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor, rollup.sampleMerchant)}
+                          onClick={() => {
+                            if (!isClickable) return;
+                            const all = Array.from(rollup.merchants as Set<string>);
+                            const picked = all.length > 0
+                              ? all[Math.floor(Math.random() * all.length)]
+                              : rollup.sampleMerchant;
+                            handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
+                          }}
                           title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
