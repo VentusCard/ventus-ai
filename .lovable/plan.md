@@ -2,38 +2,72 @@
 
 ## Change
 
-Rename the vice subcategory from **"Adult Content"** to **"Adult Entertainment"** and broaden the detection to cover the wider venue + service surface (strip clubs, cam sites, adult streaming subs, escort-adjacent services), not just MCC 5967.
+Mirror what we did for Adult Entertainment: split the single **"Gambling"** label into the six subcategories you listed (plus a generic fallback), with merchant-keyword detection across any MCC and severity that scales with risk weight × frequency × volume.
 
-No data changes to Sarah's CSV. Single edge function.
+## Subcategory taxonomy & detection (most-specific wins)
+
+Order matters — the detector checks high-risk buckets first so a transaction like `STAKE.COM` doesn't fall back to generic Gambling.
+
+| Label | Risk weight | Examples (merchant keyword surface) |
+|---|---|---|
+| **High-Risk / Offshore Gambling** | 5 (highest) | Bovada, BetOnline, MyBookie, Sportsbetting.ag, BetUS, 5Dimes, Heritage Sports, Stake.com, Roobet, Cloudbet, Nitrogen Sports, Curaçao Gaming, "OFFSHORE GAMING", crypto sportsbooks |
+| **Sports Betting** | 3 | DraftKings Sportsbook, FanDuel Sportsbook, BetMGM, Caesars Sportsbook, PointsBet, BetRivers, WynnBet, Barstool, Fanatics Bet, ESPN Bet, Hard Rock Bet, PrizePicks, Underdog Fantasy |
+| **Casino & Table Games** | 3 | MGM/Bellagio/Aria/Mandalay Bay/Park MGM, Caesars Palace/Harrah's/Horseshoe, Wynn/Encore, Venetian/Palazzo, Foxwoods, Mohegan Sun, Borgata, Parx, Rivers, Pechanga; regulated online: BetMGM Casino, FanDuel Casino, DraftKings Casino, Golden Nugget Casino |
+| **Horse Racing & Pari-mutuel** | 2 | TVG, TwinSpires, Xpressbet, NYRA Bets, AmWager, Churchill Downs, Belmont Park, Saratoga, Santa Anita, Del Mar, Pimlico, "OFF TRACK BETTING", "PARI-MUTUEL" |
+| **Casual / Social Gaming** | 1 | DraftKings DFS / Fantasy, FanDuel DFS, Yahoo Fantasy, Sleeper, Chumba Casino, Stake.us, LuckyLand Slots, Funzpoints, Global Poker, Pulsz, High 5 Casino, Zynga Poker, WSOP App, PokerStars Play |
+| **Lottery & Raffles** | 1 (lowest) | Powerball, Mega Millions, scratch off / scratchers, state lottery, Jackpocket, "RAFFLE", "CHARITY RAFFLE", "50/50 RAFFLE" |
+| **Gambling** (generic fallback) | 2 | MCC 7995 with unrecognized merchant, or merchant containing CASINO/POKER/SLOTS/WAGER/BOOKIE without matching a specific bucket |
+
+**Disambiguation rules baked into the detector:**
+- `DRAFTKINGS` / `FANDUEL` alone are ambiguous → must include `SPORTSBOOK`/`SB` for Sports Betting, `CASINO` for Casino, or `DFS`/`FANTASY`/`DAILY` for Casual. A bare `DRAFTKINGS` falls through to generic Gambling.
+- `MGM` / `CAESARS` strings need property/casino qualifiers — a hotel-only stay (`MGM HOTEL` MCC 7011) shouldn't be flagged. Detector requires the casino-context keywords listed above OR MCC 7995/7993.
+- `STAKE.COM` → Offshore. `STAKE.US` → Casual / Social (sweepstakes). Order of checks handles this.
+
+## Severity scaling (per customer, applied per flag)
+
+```
+weightedScore = Σ (riskWeight × txCount per subcategory) + (totalSpend / 500)
+
+severity:
+  high   if weightedScore ≥ 12  OR  any single offshore hit  OR  totalSpend ≥ $2,000
+  medium if weightedScore ≥ 4   OR  ≥ 2 sports/casino hits   OR  totalSpend ≥ $500
+  low    otherwise (e.g. one Powerball ticket, one Chumba deposit)
+```
+
+- One Powerball ticket → **low** Lottery flag (entertainment, weak signal alone).
+- 4 DraftKings Sportsbook deposits totaling $1.2k → **medium** Sports Betting flag.
+- Any single Bovada hit → **high** Offshore flag (strong FVI signal as you called out).
+- Mixed pattern (sports + casino + offshore) upgrades all flags together via weightedScore.
+
+## Reason strings
+
+Each flag's `reason` references the bucket and matched keyword, e.g.:
+- `"Sports Betting — regulated sportsbook deposit. Matched 'DRAFTKINGS SPORTSBOOK'. 3 of 5 gambling transactions ($1,250 total) sit in this subcategory."`
+- `"High-Risk / Offshore Gambling — offshore / unregulated sportsbook. Matched 'BOVADA'. Strong financial-distress / AML correlate."`
+- `"Lottery & Raffles — scratch ticket / state lottery. Matched 'POWERBALL'. Low-stakes; weak signal in isolation."`
 
 ## Files Changed
 
-**`supabase/functions/detect-risk-transactions/index.ts`** — three coordinated updates:
+**`supabase/functions/detect-risk-transactions/index.ts`**
+1. Add the seven keyword arrays + `detectGambling(merchant, mcc)` resolver, next to the existing adult-entertainment detector.
+2. Replace the gambling branch in `deterministicFlags`: pre-compute `gamblingHits` across ALL transactions (any MCC), aggregate per-subcategory counts/amounts, compute `weightedScore`, emit one flag per matched transaction with the specific `category_label`. Drop the old single-label MCC-7995 path.
+3. System prompt: replace the "Gambling" mention in the vice paragraph with the full subcategory list; update `category_label` examples to include all six new labels; add *"Always pick the most specific gambling subcategory; only fall back to generic 'Gambling' when no merchant context disambiguates."*
+4. Extend `LABEL_ALIASES` so model-emitted variants collapse to canonical labels (`"sports betting"`, `"offshore gambling"`, `"crypto sportsbook"`, `"casino"`, `"table games"`, `"horse racing"`, `"pari-mutuel"`, `"lottery"`, `"raffle"`, `"scratch ticket"`, `"daily fantasy"`, `"dfs"`, `"sweepstakes casino"`, `"social poker"`).
 
-1. **Deterministic pre-pass (`deterministicFlags`)** — extend MCC 5967 branch and add a merchant-keyword pass:
-   - Keep MCC 5967 → label becomes `"Adult Entertainment"`.
-   - Add MCC 5813 (Drinking Places / Bars) **only when** merchant name matches strip-club keywords (`STRIP`, `GENTLEMENS`, `GENTLEMEN'S`, `CABARET`, `SPEARMINT RHINO`, `SAPPHIRE`, `RICK'S CABARET`, `SCORES`, `CRAZY HORSE`, `PENTHOUSE CLUB`) — bars alone are not flagged.
-   - Add merchant-name keyword scan across any MCC for: cam-site processors (`CHATURBATE`, `STRIPCHAT`, `CAMSODA`, `LIVEJASMIN`, `BONGACAMS`, `MYFREECAMS`, `CAM4`), adult streaming subs (`ONLYFANS`, `FENIX INTL`, `FANSLY`, `MANYVIDS`, `JUSTFORFANS`, `POSE`, `MINDGEEK`, `MG BILLING`, `PORNHUB`, `BRAZZERS`, `ADULT TIME`), adult content processors (`CCBILL`, `EPOCH.COM`, `SEGPAY`, `ROCKETGATE`, `VENDO`, `NETBILLING`, `VERIFCARD`), and escort-adjacent (`ESCORT`, `COMPANION SERVICES`, `MASSAGE PARLOR` — explicitly NOT therapeutic/medical massage; only flag when accompanied by ambiguous high-cost amount or escort keyword).
-   - Severity: `medium` for single events, `high` if ≥3 adult-entertainment hits OR aggregate spend ≥$500 in the dataset.
-   - Reason strings reference the specific signal (e.g. "Strip-club merchant pattern (MCC 5813 + 'GENTLEMENS')", "Adult streaming subscription processor (Fenix International / OnlyFans)", "Cam-site billing platform").
+**`supabase/functions/generate-product-actions/index.ts`** + **`supabase/functions/generate-product-cards/index.ts`** — extend the risk-card label lists in both prompts to include the new gambling subcategories, so downstream product cards show e.g. "Sports Betting" or "High-Risk / Offshore Gambling" instead of generic "Gambling" when applicable. Tone guidance unchanged.
 
-2. **System prompt (`SYSTEM_PROMPT`)** — under the **vice** group, replace "adult content" with:
-   > "**Adult Entertainment** — adult content subscriptions (OnlyFans, Pornhub network, Fansly), cam sites, strip clubs / gentlemen's clubs, escort-adjacent services, adult-content payment processors (CCBill, Epoch, Segpay, Fenix International)."
-   
-   Add the matching `category_label` example: `"Adult Entertainment"` (drop `"Adult Content"`).
+## Out of scope (intentionally)
 
-3. **`normalizeLabel` callers / dedupe** — no logic change; the new label flows through automatically. Add a small label-alias map so any model-emitted `"Adult Content"` is normalized to `"Adult Entertainment"` before dedupe, preventing duplicate pills if the model uses the old phrasing.
-
-## Frontend touch points to verify (no edits expected)
-
-- Risk panel in `/demo` overlays renders `category_label` as-is — will display "Adult Entertainment" automatically.
-- Search the codebase for hardcoded `"Adult Content"` strings in UI components; if any are found that filter/group by exact label, alias them or update the literal. Likely candidates: `src/components/demo/DemoDetailOverlay.tsx`, `src/components/exec-demo/NextConversationRationale.tsx` (already references `"adult"` keyword, fine). FVI module (`src/lib/fviData.ts`, `src/components/tepilot/insights/fvi/*`) uses `"Adult Content"` for its own separate dashboard — leave untouched (different feature, different surface).
+- FVI dashboard — separate feature with its own gambling categories; leave untouched.
+- No CSV / sample-data changes.
+- No client-side rendering changes — risk panels render `category_label` verbatim.
 
 ## Verification
 
-- /demo → any customer whose CSV contains MCC 5967 (e.g. Sarah's `PRIVATE MEDIA GRP LLC` until/unless removed): risk panel shows the flag labeled **"Adult Entertainment"** instead of "Adult Content".
-- Synthesize a quick test by temporarily editing one merchant in a sample CSV to e.g. `SPEARMINT RHINO LV` (MCC 5813) → confirms strip-club path fires.
-- Insert a row `CHATURBATE.COM` MCC 5969 → confirms cam-site keyword path fires regardless of MCC.
-- No regression: ordinary bars (`THE OLD FASHIONED BAR` MCC 5813) and therapeutic spas (`ELEMENTS MASSAGE` MCC 7298) are NOT flagged.
-- Edge function logs show single-pass dedupe and no duplicate "Adult Content" + "Adult Entertainment" flags on the same transaction.
+- /demo → any customer with MCC 7995 transactions → flags now show specific subcategory.
+- Insert `BOVADA LV` row → flag fires as **High-Risk / Offshore Gambling**, severity **high** even on a single hit.
+- Insert `POWERBALL TICKET` row → flag fires as **Lottery & Raffles**, severity **low**.
+- Insert `DRAFTKINGS SPORTSBOOK` + `DRAFTKINGS DFS` rows → two distinct flags (Sports Betting and Casual / Social Gaming).
+- Insert `MGM HOTEL LV` MCC 7011 → NOT flagged (hotel context, no casino/MCC qualifier).
+- Edge function logs: no duplicate flags per transaction; `weightedScore` math visible in console.
 
