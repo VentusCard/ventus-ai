@@ -1,83 +1,71 @@
 
 
-## Approach
+## The actual bug
 
-Generalize subcategories to carry **cross-pillar lifestyle tags** in addition to today's parent-category facets.
+The classifier change shipped — `PALISADES TAHOE LODGE` now carries `Ski` in its subcategories. But the rollup pill still includes it because of an architectural shortcut in the client:
 
-A transaction's `pillar` and `category` stay as the primary classification (unchanged). But `subcategories[]` can now include **one cross-pillar lifestyle tag** drawn from a controlled vocabulary — only when the merchant name or description makes it obvious. This turns `subcategories` from "facets of the parent category" into a **lifestyle signal** that downstream personas, risk detection, and offer generation can key off without re-deriving context.
+```text
+LLM returns:        { label: "Annual Hawaiian Vacations", category_indices: [3] }
+                                                                          │
+                                                                          ▼
+Client expands:     pillars[3].txIndices  →  ALL Hotels & Lodging txns
+                                              (Maui Hilton + Tahoe Lodge + Marriott Midtown)
+                                              ─────────────┬─────────────
+                                                           ▼
+Pill displays:      every hotel txn under "Annual Hawaiian Vacations"
+```
 
-### What this looks like
+The LLM is told to emit two rollups for mixed categories (Hawaii pill + Ski pill), but it has no way to say "this specific txn belongs to Hawaii, that one belongs to Ski." Its only handle is the *category* index. So both pills resolve to the full Hotels & Lodging bucket.
 
-| Merchant | Pillar / Category (unchanged) | New subcategories |
-|---|---|---|
-| `PALISADES TAHOE LODGE` | Travel / Hotels & Lodging | **`["Ski", "Mountain"]`** |
-| `MAUI HILTON` | Travel / Hotels & Lodging | **`["Tropical Vacation", "Beach"]`** |
-| `BANFF SPRINGS HOTEL` | Travel / Hotels & Lodging | **`["Mountain"]`** |
-| `MARRIOTT MIDTOWN` | Travel / Hotels & Lodging | **`["Urban Hotel"]`** |
-| `LULULEMON` | Sports / Gym & Fitness | `["Apparel", `**`"Athleisure"`**`]` |
-| `HARRY WINSTON` | Style / Jewelry | `["Fine Jewelry", `**`"Engagement"`**`]` |
-| `STANFORD GSB TUITION` | Family / Childcare & Education | `["Tuition", `**`"Career Development"`**`]` |
-| `BABIES R US` | Family / Kids Activities | `["Infant Goods", `**`"New Parent"`**`]` |
+## Fix: LLM picks transactions, not categories
 
-The cross-pillar tag is **secondary** — it never replaces the primary pillar/category. The Tahoe lodge is still a Travel transaction; we just *also* tell downstream that it's a ski trip.
+Change `synthesize-persona` to return **`transaction_indices`** instead of (or in addition to) `category_indices`. The LLM scans a numbered, per-transaction list — where each row carries merchant + subcategories (including `Ski` / `Tropical Vacation`) — and picks exactly the rows that belong to each rollup.
 
-### Controlled vocabulary
+### What changes
 
-The model needs a closed list so tags are consistent and matchable. Define in the prompt:
+**1. `supabase/functions/synthesize-persona/index.ts` — prompt + schema + input**
 
-**Activity context** (where/how the spend happens):
-`Ski`, `Mountain`, `Tropical Vacation`, `Beach`, `Coastal Resort`, `Urban Hotel`, `Theme Park`, `Cruise`, `Camping`, `Roadtrip`
+- **Input to model** changes from a per-category summary to a **numbered transaction-level list** for travel/lifestyle-prone pillars (Travel, Style, Family, Health, Sports). Each row shows: `[N] MERCHANT · $amt · YYYY-MM-DD · pillar/category · [subcategories]`. Other pillars (Utilities, Insurance, Subscriptions) stay as category summaries — no need for txn-level resolution there.
+- **Tool schema** for each rollup now returns:
+  - `label` (unchanged)
+  - `pillar` (unchanged)
+  - `transaction_indices: number[]` — the exact `[N]` rows from the numbered txn list that belong to this rollup
+  - drop `category_indices` (or keep as optional fallback)
+- **Prompt rule** strengthened: "For each rollup, list ONLY the transaction row numbers whose merchant + subcategories actually fit the rollup's lifestyle. A `Ski`-tagged transaction does NOT belong in an `Annual Hawaiian Vacations` rollup. Use the `[Ski]`, `[Tropical Vacation]`, `[Mountain]`, `[Urban Hotel]` etc. subcategory tags as your primary filter when present."
 
-**Life-event context** (what life moment the spend signals):
-`Wedding`, `Engagement`, `New Parent`, `Baby Prep`, `New Home`, `Moving`, `Career Development`, `Retirement Prep`, `College Prep`, `Pet Adoption`
+**2. `src/pages/ExecDemoPage.tsx` — consume the new field**
 
-**Lifestyle-flavor context** (cross-pillar interest):
-`Athleisure`, `Foodie`, `Wellness`, `Eco-Conscious`, `DIY`, `Luxury Lifestyle`, `Family-Oriented`, `Tech Enthusiast`, `Outdoor`, `Arts & Culture`
+- Replace the category-expansion logic at lines 261-267 with a direct read: `txIndices = r.transaction_indices` (clamped to valid range, deduped).
+- Derive `categoryIndices` from `txIndices` (so existing downstream code that wants the category set still works): `categoryIndices = unique(enrichedTxs[ti].pillar::category)` resolved back to `pillars[]` indices.
+- Keep the existing rollup filters (Rule 1: ≥2 categories, Rule 2: life-stage corroboration, Rule 3: incompatible-theme guard) — those still apply at the rollup level. **No new client-side lifestyle-tag filtering** — the LLM is the only authority on membership.
 
-Anything outside this vocabulary stays as today's category-facet tags (`Domestic`, `Full-Service`, `Membership`, `Apparel`, etc.).
+**3. No schema change to `EnrichedTransaction`**
 
-### Application rule
-
-> **CROSS-PILLAR LIFESTYLE TAG (optional, max 1 per transaction):**
-> In addition to category-facet labels, you may include ONE tag from the controlled lifestyle vocabulary above when the merchant name or description makes the lifestyle context **obvious**. This tag tells downstream systems what *life pattern* this spend belongs to, even when it primarily lives in another pillar.
->
-> Apply ONLY when the signal is unambiguous — never guess. If the merchant is generic (`MARRIOTT`, `WHOLE FOODS`, `AMAZON`, `TARGET`), do NOT apply a lifestyle tag. The tag must be deducible from the merchant string itself, not from your prior beliefs about the customer.
->
-> Examples:
-> - `PALISADES TAHOE LODGE` → `["Ski", "Mountain"]` ✓ — merchant says Tahoe Lodge, clear ski signal
-> - `MAUI HILTON` → `["Tropical Vacation", "Beach"]` ✓ — Maui is unambiguous
-> - `MARRIOTT` → `["Full-Service"]` ✗ — could be anywhere, no lifestyle tag
-> - `HARRY WINSTON` → `["Fine Jewelry", "Engagement"]` ✓ — engagement-ring brand
-> - `KAY JEWELERS` → `["Fine Jewelry"]` ✗ — sells broad jewelry, no Engagement tag
-> - `BABIES R US` → `["Infant Goods", "New Parent"]` ✓
-> - `TARGET` → `["Department Store"]` ✗ — generic, no New Parent tag even if suspected
-
-The 1-3 subcategory cap stays the same; the lifestyle tag, if used, counts toward it.
+The `subcategories[]` already carry the lifestyle tags from the classifier change. Nothing else to plumb through.
 
 ## Why this is the right cut
 
-- **No schema change** — `subcategories[]` already accepts free-form labels.
-- **No new LLM cost** — same call, same tokens.
-- **Generalizes beyond travel** — one mechanism handles ski/tropical, weddings, new parents, career pivots, etc.
-- **Downstream gets it for free** — `synthesize-persona`, `generate-next-offers`, `detect-risk-transactions`, `deal-personalization` already consume `subcategories`. New tags become usable everywhere immediately.
-- **Tight controlled vocabulary** prevents tag explosion — downstream code can match on a fixed set instead of fuzzy-matching free text.
-- **Compositional with the semantic-coherence rule** we just added to `synthesize-persona`: the rollup builder now has explicit `Ski` vs `Tropical Vacation` tags to key off, instead of inferring them from raw merchant strings every time.
+- **Single source of truth**: the LLM, not the client, decides what belongs in a rollup. No client-side guardrails — per your instruction.
+- **Uses the lifestyle tags we just shipped**: the `Ski` / `Tropical Vacation` tags become the LLM's primary filter signal. Generic merchants (Marriott, Delta) without a tag stay ambiguous and get assigned by date context, exactly as the prompt already says.
+- **The Tahoe row literally cannot end up in the Hawaii pill** — the LLM never selected it for that rollup's `transaction_indices`. No post-filter, no validation, no client logic to maintain.
+- **Existing rollup-level guardrails (≥2 categories, life-stage rules, incompatible-theme rules) keep working** — they're orthogonal to per-txn membership.
+
+## Cost / risk
+
+- Per-call token cost goes up — instead of ~12 category rows we send up to ~80-150 transaction rows (typical demo customer). Still a single Gemini Flash call. Estimated additional 2-4k input tokens per synthesize-persona call, well within budget.
+- Risk: LLM could miss transactions and shrink rollups. Mitigation: the prompt explicitly says "include every transaction whose merchant/subcategories fit the lifestyle — be inclusive within the lifestyle theme, exclusive across themes."
 
 ## Files Changed
 
-- `supabase/functions/classify-transactions/index.ts` — system prompt only. Add the controlled vocabulary section, the application rule, and 8-10 worked examples sprinkled through the existing Travel / Style / Family / Pets example blocks.
-
-No code changes, no schema changes, no client changes.
+- `supabase/functions/synthesize-persona/index.ts` — input format (numbered txn list), tool schema (`transaction_indices`), prompt update
+- `src/pages/ExecDemoPage.tsx` — replace category-expansion with direct `transaction_indices` read; derive `categoryIndices` from resolved txns
 
 ## Verification
 
-- /demo → run a customer with Tahoe + Hawaii travel, plus a Harry Winston and a Babies R Us purchase
-- Inspect the enrichment table → confirm:
-  - Tahoe lodge shows `Ski` in subcategories
-  - Maui hotel shows `Tropical Vacation`
-  - Harry Winston shows `Engagement`
-  - Babies R Us shows `New Parent`
-  - Generic Marriott / Whole Foods / Amazon show NO lifestyle tag (just facets)
-- Next-Offer pills → "Annual Hawaiian Vacations" no longer sweeps in Tahoe; a separate ski rollup emerges
-- Existing non-card cases (Maria Garcia / dogsitting → Pets, John Smith / rent → Home & Living) still classify correctly — no regressions
+- /demo → customer with Tahoe + Hawaii travel
+- Open "Annual Hawaiian Vacations" pill → contains ONLY Hawaii-themed merchants. `PALISADES TAHOE LODGE` is absent.
+- Open "Seasonal Ski Trips" pill → contains ONLY ski-themed merchants. No Maui/Hawaiian Air.
+- Console: confirm `r.transaction_indices` arrives populated; confirm `txIndices.length` matches LLM's selection (not the full category bucket size)
+- Generic Marriott on a Maui-trip date should land in Hawaii pill via date-context rule; on a Tahoe-trip date should land in Ski pill
+- Existing pills for non-travel pillars (e.g. "Style-Conscious Shopper", "Fitness Enthusiast") still resolve correctly — same mechanism, just different lifestyle tags
 
