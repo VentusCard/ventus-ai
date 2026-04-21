@@ -237,6 +237,18 @@ export default function ExecDemoPage() {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
         body: {
           pillars,
+          // Send the full enriched transaction list so the LLM can pick exact rows
+          // (with their lifestyle subcategory tags) for lifestyle-prone rollups.
+          transactions: enrichedTxs.map(t => ({
+            merchant_name: t.merchant_name,
+            normalized_merchant: (t as any).normalized_merchant,
+            amount: t.amount,
+            date: t.date,
+            pillar: t.pillar,
+            category: t.category,
+            subcategories: t.subcategories,
+            spending_tier: t.spending_tier,
+          })),
           lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
         },
       });
@@ -244,12 +256,14 @@ export default function ExecDemoPage() {
       const synthesis: PersonaSynthesis = {
         pillarRollups: (data.pillar_rollups || []).map((r: any) => {
           const catIndices: number[] = r.category_indices || [];
-          // Resolve contributing groups via index + fallback category name matching
+          const txIndicesFromAI: number[] = Array.isArray(r.transaction_indices) ? r.transaction_indices : [];
+
+          // Resolve contributing CATEGORY groups via index + fallback by name (used for downstream code
+          // that still needs categoryIndices, e.g. coherence guards)
           const matchedGroupIndices = new Set<number>();
           for (const ci of catIndices) {
             if (ci >= 0 && ci < pillars.length) matchedGroupIndices.add(ci);
           }
-          // Fallback: match by pillar + category name for any listed categories not yet matched
           if (r.categories) {
             for (const catName of r.categories) {
               const idx = pillars.findIndex(
@@ -258,23 +272,53 @@ export default function ExecDemoPage() {
               if (idx >= 0) matchedGroupIndices.add(idx);
             }
           }
-          // Deduplicate transaction indices
+
+          // PRIMARY membership source: per-transaction indices the LLM picked.
+          // These come from the numbered transaction list (with lifestyle tags) the LLM saw.
+          // Fallback: if the LLM returned no transaction_indices for this rollup
+          // (e.g. utilities / subscriptions / financial — pillars we did NOT send txn-level for),
+          // expand all transactions in the matched categories.
           const txIndicesSet = new Set<number>();
-          for (const gi of matchedGroupIndices) {
-            for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+          if (txIndicesFromAI.length > 0) {
+            for (const ti of txIndicesFromAI) {
+              if (ti >= 0 && ti < enrichedTxs.length) txIndicesSet.add(ti);
+            }
+          } else {
+            for (const gi of matchedGroupIndices) {
+              for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+            }
           }
           const txIndices = Array.from(txIndicesSet);
+
+          // Re-derive categoryIndices from the actual selected transactions so the rollup-level
+          // coherence guards (≥2 categories, life-stage rules, incompatible-theme rules)
+          // operate on what's truly inside the pill — not what the LLM claimed.
+          const derivedCatKeys = new Set<string>();
+          for (const ti of txIndices) {
+            const t = enrichedTxs[ti];
+            if (t) derivedCatKeys.add(`${t.pillar}::${t.category}`);
+          }
+          const derivedCategoryIndices: number[] = [];
+          derivedCatKeys.forEach(key => {
+            const idx = pillars.findIndex(p => `${p.pillar}::${p.label}` === key);
+            if (idx >= 0) derivedCategoryIndices.push(idx);
+          });
+          // Union with LLM-claimed categories so non-txn-level pillars (utilities etc.) still work
+          for (const gi of matchedGroupIndices) {
+            if (!derivedCategoryIndices.includes(gi)) derivedCategoryIndices.push(gi);
+          }
+
           const totalCount = txIndices.length;
-          const totalSpend = Array.from(matchedGroupIndices).reduce((s, gi) => s + pillars[gi].totalSpend, 0);
+          const totalSpend = txIndices.reduce((s, ti) => s + (enrichedTxs[ti]?.amount || 0), 0);
 
           // Collect the resolved category labels for coherence validation
-          const resolvedCategories = Array.from(matchedGroupIndices).map(gi => pillars[gi].label.toLowerCase());
+          const resolvedCategories = derivedCategoryIndices.map(gi => pillars[gi].label.toLowerCase());
 
           return {
             pillar: r.pillar,
             label: r.label,
             categories: r.categories || [],
-            categoryIndices: Array.from(matchedGroupIndices),
+            categoryIndices: derivedCategoryIndices,
             txIndices,
             totalCount,
             totalSpend,
