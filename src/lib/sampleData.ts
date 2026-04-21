@@ -225,7 +225,7 @@ txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
 txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
 txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
-txn_008,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
+txn_008,PALISADES TAHOE Ski LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
 txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
 txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,Cashback Card
 txn_011,DIGITAL ENT SVCS,Digital entertainment purchase,7995,250.00,2025-01-04,,Premium Card
