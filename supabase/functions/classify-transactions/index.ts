@@ -207,9 +207,9 @@ CLASSIFICATION EXAMPLES (Pillar / Category / Subcategory Labels):
 Sports & Active Living:
 - "EQUINOX" → Gym & Fitness / ["Membership"]
 - "24 HOUR FITNESS" → Gym & Fitness / ["Membership"]
-- "LULULEMON" → Gym & Fitness / ["Apparel", "Athletic"]
+- "LULULEMON" → Gym & Fitness / ["Apparel", "Athleisure"]
 - "NIKE STORE" → Gym & Fitness / ["Apparel", "Equipment"]
-- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Apparel"]
+- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Outdoor"]
 - "DICK'S SPORTING GOODS" → General / ["Equipment"]
 - "ORANGETHEORY" → Gym & Fitness / ["Classes"]
 - "TAYLORMADE" → Golf / ["Equipment"]
