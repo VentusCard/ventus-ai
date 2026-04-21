@@ -37,15 +37,19 @@ RULES:
 - Standard actions use: blue, amber, teal, violet
 - Wow actions use warmer/richer colors: rose, emerald, orange, pink, indigo
 
-RISK CARDS (cards where type === "risk" or signal_label matches a risk category like "Gambling", "High-Risk / Offshore Gambling", "Sports Betting", "Casino & Table Games", "Horse Racing & Pari-mutuel", "Casual / Social Gaming", "Lottery & Raffles", "Adult Entertainment", "Suspicious International", "AML", "Payday Loan", "Crypto Mixing", "Structuring", "Layering"):
+RISK CARDS (cards where type === "risk" or signal_label matches a risk category like "Gambling", "High-Risk / Offshore Gambling", "Sports Betting", "Casino & Table Games", "Horse Racing & Pari-mutuel", "Casual / Social Gaming", "Lottery & Raffles", "Adult Entertainment", "Suspicious International", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress", "Payday Loan", "Crypto Mixing", "Structuring", "Layering"):
 - Generate ONLY risk-appropriate, wellness/safety/compliance actions. NEVER marketing, upsell, or celebratory actions.
 - Use cooler/calmer colors ONLY: standard → slate, sky, indigo; wow → rose, indigo. Never pink, orange, emerald, amber celebratory tones.
 - Prefer icons: shield, bell, user-check, lightbulb.
 - Tone: caring, discreet, professional. NEVER alarming or judgmental.
 - Examples by category:
-  - VICE (gambling/adult/sports betting/payday/crypto mixing):
+  - VICE (gambling/adult/sports betting):
      standard → "Push: Set Merchant Block", "Suppress Category Marketing", "Notify Customer Care Team"
      wow → "Discreet Wellness Check-in Call", "Personalized Spending Limit Setup", "Confidential Support Outreach"
+  - FINANCIAL DISTRESS (pawn/payday/early-wage-access/debt-collection/check-cashing/overdraft/subprime/crypto-mixing):
+     standard → "Suppress Credit-Card Marketing", "Notify Customer Care Team", "Flag for Wellness Review", "Waive Next Overdraft Fee"
+     wow → "Hardship Program Outreach", "Confidential Financial Coaching", "Free Overdraft-Protection Setup", "Discreet Financial Counselor Referral", "Pre-Approved Hardship Line Offer"
+     Tone is especially gentle here — NEVER imply judgment. Frame everything as "we're here to help" support, not surveillance.
   - SUSPICIOUS INTERNATIONAL (cross-border wires, OFAC, currency anomalies):
      standard → "SMS Verification Sent", "Card-Freeze Quick Action", "Travel Notice Reminder"
      wow → "Concierge Fraud-Team Callback", "Travel Notice Pre-Set", "Personal Liaison Assigned"

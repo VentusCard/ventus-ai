@@ -133,6 +133,147 @@ const GAMBLING_GENERIC_KEYWORDS = [
   "WAGER", "BETTING", "BOOKIE", "BOOKMAKER", "TURF CLUB",
 ];
 
+// ============== Financial Distress subcategory keyword surfaces ==============
+// Order matters: checked top-to-bottom, most-specific / highest-FVI first.
+
+const DISTRESS_PAWN_PAYDAY_KEYWORDS = [
+  // Payday lenders / cash advance storefronts
+  "CHECK INTO CASH", "ACE CASH EXPRESS", "ACE CASH", "ADVANCE AMERICA",
+  "SPEEDY CASH", "MONEYMUTUAL", "CASHNETUSA", "CASH NET USA", "CHECK N GO",
+  "CHECK 'N GO", "LENDUP", "CASH STORE", "RISE CREDIT", "OPPLOANS", "OPP LOANS",
+  "NETCREDIT", "BIG PICTURE LOANS", "PLAIN GREEN LOANS", "SPOTLOAN",
+  // Title loans
+  "TITLEMAX", "TITLE MAX", "LOANMAX", "LOAN MAX", "TMX FINANCE",
+  "1-800LOANMART", "1800LOANMART", "TITLE LOAN", "TITLE LOANS",
+  // Pawn shops
+  "EZPAWN", "EZ PAWN", "CASH AMERICA PAWN", "CASH AMERICA",
+  "FIRST CASH PAWN", "FIRSTCASH", "PAWN AMERICA",
+  "PAWN SHOP", "PAWNBROKER", "PAWN-1", "MAX PAWN", "SUPERPAWN",
+  // Early wage access apps
+  "EARNIN", "EARN IN", "DAVE INC", "DAVE.COM",
+  "BRIGIT", "MONEYLION", "INSTACASH", "EMPOWER FINANCE",
+  "ALBERT SAVINGS", "KLOVER", "B9 BANK",
+  "CASH ADVANCE", "PAYDAY LOAN", "PAYDAY ADVANCE",
+];
+
+const DISTRESS_DEBT_KEYWORDS = [
+  // Third-party collectors
+  "PORTFOLIO RECOVERY", "MIDLAND CREDIT", "MIDLAND FUNDING",
+  "ENCORE CAPITAL", "LVNV FUNDING", "CAVALRY PORTFOLIO", "CAVALRY SPV",
+  "ERC ", "CONVERGENT OUTSOURCING", "RESURGENT CAPITAL",
+  "ENHANCED RECOVERY", "TRANSWORLD SYSTEMS", "ALLIED INTERSTATE",
+  "I.C. SYSTEM", "IC SYSTEM", "AFNI INC", "DIVERSIFIED CONSULTANTS",
+  "COLLECTION AGENCY", "COLLECTIONS DEPT", "DEBT COLLECTION",
+  // Debt settlement
+  "NATIONAL DEBT RELIEF", "FREEDOM DEBT RELIEF", "ACCREDITED DEBT RELIEF",
+  "CURADEBT", "CLEARONE ADVANTAGE", "PACIFIC DEBT", "DEBT SETTLEMENT",
+  "BEYOND FINANCE", "AMERICOR", "TURNBULL LAW",
+  // Bankruptcy / insolvency legal
+  "BANKRUPTCY ATTY", "BANKRUPTCY ATTORNEY", "BANKRUPTCY LAW",
+  "CH 7 ATTORNEY", "CH 13 ATTORNEY", "CHAPTER 7 ATTORNEY",
+  "CHAPTER 13 ATTORNEY", "UPSOLVE",
+];
+
+const DISTRESS_CHECK_CASHING_KEYWORDS = [
+  "ACE CHECK CASHING", "PLS CHECK CASHING", "PLS FINANCIAL",
+  "CHECK CASHING", "CHECK CASHERS", "MONEY MART", "INSTA CASH",
+  // Remittance / wire-equivalent
+  "WESTERN UNION", "WESTERNUNION", "MONEYGRAM", "MONEY GRAM",
+  "RIA MONEY TRANSFER", "RIA FINANCIAL",
+  "XOOM ", "REMITLY", "WORLDREMIT", "WORLD REMIT", "WISE TRANSFER",
+  "TRANSFERWISE", "SMALL WORLD MONEY",
+  // Prepaid reloads / cash-equivalents
+  "MONEYPAK", "RELOADIT", "VANILLA RELOAD", "PAYPAL RELOAD",
+  "GREENDOT RELOAD", "GREEN DOT RELOAD", "NETSPEND RELOAD",
+  "REPLENISH FUNDS", "CARD RELOAD",
+  "MONEY ORDER",
+];
+
+const DISTRESS_SUBPRIME_KEYWORDS = [
+  // Subprime / credit-builder cards
+  "CREDIT ONE BANK", "CREDITONE BANK",
+  "FIRST PREMIER BANK", "FIRSTPREMIER",
+  "MISSION LANE", "OPENSKY", "OPEN SKY",
+  "INDIGO CARD", "INDIGO MASTERCARD",
+  "MILESTONE CARD", "MILESTONE MASTERCARD",
+  "REFLEX CARD", "SURGE CARD", "FIT MASTERCARD", "FORTIVA",
+  "PETAL CARD", "SELF FINANCIAL",
+  // Buy-here-pay-here / subprime auto
+  "BUY HERE PAY HERE", "BUYHEREPAYHERE", "BHPH",
+  "DRIVETIME", "DRIVE TIME", "J.D. BYRIDER", "JD BYRIDER", "BYRIDER",
+  "CARMAX AUTO FINANCE", // contextual — only flagged with subprime descriptor noise
+  // Rent-to-own
+  "RENT-A-CENTER", "RENT A CENTER",
+  "AARON'S", "AARONS RENT", "BUDDY'S HOME", "BUDDYS HOME",
+  "RENT TO OWN", "RENT-TO-OWN", "RTO PAYMENT",
+];
+
+const DISTRESS_OVERDRAFT_KEYWORDS = [
+  "OVERDRAFT FEE", "OVERDRAFT CHARGE", "OD FEE",
+  "NSF FEE", "NSF CHARGE", "INSUFFICIENT FUNDS FEE", "INSUFFICIENT FUNDS",
+  "RETURNED ITEM FEE", "RETURNED CHECK FEE",
+  "EXTENDED OVERDRAFT", "SUSTAINED OVERDRAFT",
+  "UNCOLLECTED FUNDS FEE",
+];
+
+const DISTRESS_CRYPTO_MIXING_KEYWORDS = [
+  "TORNADO CASH", "WASABI WALLET", "SAMOURAI WALLET", "COINJOIN",
+  "BITCOIN MIXER", "BTC MIXER", "CRYPTO MIXER", "TUMBLER",
+  "LOCALBITCOINS", "LOCAL BITCOINS", "PAXFUL", "BISQ",
+  "MONERO EXCHANGE", "PRIVACY COIN",
+];
+
+interface DistressHit {
+  label: string;
+  kind: string;
+  matched: string;
+  riskWeight: number;
+}
+
+function detectFinancialDistress(
+  merchant: string,
+  description: string,
+  mcc: string
+): DistressHit | null {
+  const m = (merchant || "").toUpperCase();
+  const d = (description || "").toUpperCase();
+  const text = `${m} ${d}`;
+  const mccTrim = (mcc || "").trim();
+
+  // Overdraft/NSF — check description first, often appears as a bank-issued line
+  let hit = matchesAny(text, DISTRESS_OVERDRAFT_KEYWORDS);
+  if (hit) return { label: "Overdraft & NSF Activity", kind: "Overdraft / NSF / returned-item fee", matched: hit, riskWeight: 4 };
+
+  // Debt collection / bankruptcy — high weight, late-stage
+  hit = matchesAny(text, DISTRESS_DEBT_KEYWORDS);
+  if (hit) return { label: "Debt Collection & Debt Relief", kind: "Third-party collector, debt-settlement firm, or bankruptcy attorney", matched: hit, riskWeight: 5 };
+
+  // Pawn / payday / title / early wage access — strongest single FVI signal
+  hit = matchesAny(m, DISTRESS_PAWN_PAYDAY_KEYWORDS);
+  if (hit) return { label: "Pawn Shops & Short-Term Credit", kind: "Payday / title / pawn / early-wage-access advance", matched: hit, riskWeight: 5 };
+
+  // Crypto mixers / tumblers — narrow keyword surface, regulated exchanges excluded
+  hit = matchesAny(m, DISTRESS_CRYPTO_MIXING_KEYWORDS);
+  if (hit) return { label: "Crypto Mixing & High-Risk Crypto", kind: "Mixer / tumbler / P2P-cash crypto / privacy-coin desk", matched: hit, riskWeight: 4 };
+
+  // Check cashing / remittance / prepaid reloads
+  hit = matchesAny(m, DISTRESS_CHECK_CASHING_KEYWORDS);
+  if (hit) return { label: "Check Cashing & Money Services", kind: "Check cashing, remittance, or prepaid reload", matched: hit, riskWeight: 4 };
+
+  // Subprime / BHPH / rent-to-own
+  hit = matchesAny(m, DISTRESS_SUBPRIME_KEYWORDS);
+  if (hit) return { label: "Subprime Credit & Buy-Here-Pay-Here", kind: "Subprime card / buy-here-pay-here auto / rent-to-own", matched: hit, riskWeight: 3 };
+
+  // Generic fallback for quasi-cash / wire-money MCCs with no merchant match
+  if (mccTrim === "6051") {
+    return { label: "Financial Distress", kind: "MCC 6051 (Quasi-cash / non-FI), unrecognized merchant", matched: "MCC 6051", riskWeight: 2 };
+  }
+  if (mccTrim === "4829") {
+    return { label: "Financial Distress", kind: "MCC 4829 (Wire transfer / money order), unrecognized merchant", matched: "MCC 4829", riskWeight: 2 };
+  }
+  return null;
+}
+
 interface GamblingHit {
   label: string;
   kind: string;
@@ -211,7 +352,7 @@ function nonUsZip(zip: string, homeZip: string): boolean {
 
 interface RiskFlag {
   transaction_id: string;
-  category_group: "vice" | "suspicious_international" | "aml";
+  category_group: "vice" | "suspicious_international" | "aml" | "financial_distress";
   category_label: string;
   severity: "low" | "medium" | "high";
   merchant: string;
@@ -319,6 +460,97 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     gamblingFlaggedIds.add(tx.transaction_id);
   }
 
+  // ============== Financial Distress pre-pass ==============
+  // Run after adult+gambling so those keep priority on overlapping tx (extremely rare).
+  const distressHits = transactions
+    .map((t) => {
+      const merchant = t.merchant_name || t.normalized_merchant || "";
+      const desc = t.description || "";
+      const mcc = String(t.mcc || "").trim();
+      if (isRealEstate(merchant, desc)) return null;
+      if (adultFlaggedIds.has(t.transaction_id)) return null;
+      if (gamblingFlaggedIds.has(t.transaction_id)) return null;
+      const hit = detectFinancialDistress(merchant, desc, mcc);
+      return hit ? { tx: t, hit } : null;
+    })
+    .filter((x): x is { tx: any; hit: DistressHit } => x !== null);
+
+  const distressTotal = distressHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+  const distressSubCounts = new Map<string, number>();
+  for (const { hit } of distressHits) {
+    distressSubCounts.set(hit.label, (distressSubCounts.get(hit.label) || 0) + 1);
+  }
+  const hasDebtCollection = distressSubCounts.has("Debt Collection & Debt Relief");
+  const hasPawnPayday = distressSubCounts.has("Pawn Shops & Short-Term Credit");
+  // weightedScore = Σ (riskWeight × txCount) + (totalSpend / 250) + bonuses
+  const distressWeighted =
+    distressHits.reduce((s, { hit }) => s + hit.riskWeight, 0) +
+    distressTotal / 250 +
+    (hasPawnPayday ? 3 : 0) +
+    (hasDebtCollection ? 5 : 0);
+  const distressFlaggedIds = new Set<string>();
+
+  console.log(`[RISK] Financial Distress: ${distressHits.length} hits, total $${distressTotal.toFixed(2)}, weightedScore=${distressWeighted.toFixed(2)}, subCounts=${JSON.stringify(Object.fromEntries(distressSubCounts))}`);
+
+  function distressSeverity(hit: DistressHit, subCount: number): "low" | "medium" | "high" {
+    if (hit.label === "Debt Collection & Debt Relief") return "high";
+    if (distressWeighted >= 10) return "high";
+    if (hit.label === "Pawn Shops & Short-Term Credit" && subCount >= 3) return "high";
+    if (distressWeighted >= 4 || subCount >= 2) return "medium";
+    if (hit.label === "Overdraft & NSF Activity" && subCount >= 5) return "medium";
+    return "low";
+  }
+
+  // Special-case Overdraft & NSF — collapse into a single aggregated "pattern" flag
+  // rather than emitting per-fee noise (a customer with 8 overdrafts shouldn't see 8 cards).
+  const overdraftHits = distressHits.filter((h) => h.hit.label === "Overdraft & NSF Activity");
+  if (overdraftHits.length > 0) {
+    const overdraftTotal = overdraftHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+    const sevHit = overdraftHits[0].hit;
+    const sev = distressSeverity(sevHit, overdraftHits.length);
+    const last = overdraftHits[overdraftHits.length - 1];
+    flags.push({
+      transaction_id: last.tx.transaction_id,
+      category_group: "financial_distress",
+      category_label: "Overdraft & NSF Activity",
+      severity: sev,
+      merchant: last.tx.merchant_name || "Bank-issued fee",
+      amount: overdraftTotal,
+      date: last.tx.date,
+      reason: `Overdraft & NSF Activity — ${overdraftHits.length} overdraft / NSF / returned-item fees totaling $${overdraftTotal.toFixed(2)} in the analyzed period. Pattern of recurring liquidity shortfalls.`,
+    });
+    for (const h of overdraftHits) distressFlaggedIds.add(h.tx.transaction_id);
+  }
+
+  // Emit per-transaction flags for the remaining distress buckets
+  for (const { tx, hit } of distressHits) {
+    if (hit.label === "Overdraft & NSF Activity") continue;
+    if (distressFlaggedIds.has(tx.transaction_id)) continue;
+    const subCount = distressSubCounts.get(hit.label) || 1;
+    const sev = distressSeverity(hit, subCount);
+    const isFirstTimeBucket =
+      hit.label === "Pawn Shops & Short-Term Credit" && subCount === 1;
+    let reason: string;
+    if (hit.label === "Debt Collection & Debt Relief") {
+      reason = `${hit.label} — ${hit.kind}. Matched "${hit.matched}". Late-stage distress; pre-charge-off marker — clearest "customer is in trouble" signal a bank sees.`;
+    } else if (isFirstTimeBucket) {
+      reason = `${hit.label} — ${hit.kind}. Matched "${hit.matched}". First observed in this period — strongest single-hit FVI signal in consumer banking.`;
+    } else {
+      reason = `${hit.label} — ${hit.kind}. Matched "${hit.matched}". ${subCount} of ${distressHits.length} financial-distress transactions ($${distressTotal.toFixed(2)} total) — weighted score ${distressWeighted.toFixed(1)}.`;
+    }
+    flags.push({
+      transaction_id: tx.transaction_id,
+      category_group: "financial_distress",
+      category_label: hit.label,
+      severity: sev,
+      merchant: tx.merchant_name || tx.normalized_merchant || "",
+      amount: tx.amount,
+      date: tx.date,
+      reason,
+    });
+    distressFlaggedIds.add(tx.transaction_id);
+  }
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
@@ -327,6 +559,7 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     if (isRealEstate(merchant, desc)) continue;
     if (adultFlaggedIds.has(t.transaction_id)) continue;
     if (gamblingFlaggedIds.has(t.transaction_id)) continue;
+    if (distressFlaggedIds.has(t.transaction_id)) continue;
 
 
     // International keywords + missing/non-US zip
@@ -386,6 +619,55 @@ const LABEL_ALIASES: Record<string, string> = {
   "high-risk / offshore gambling": "High-Risk / Offshore Gambling",
   "crypto sportsbook": "High-Risk / Offshore Gambling",
   "unregulated gambling": "High-Risk / Offshore Gambling",
+  // Financial Distress subcategories
+  "payday loan": "Pawn Shops & Short-Term Credit",
+  "payday": "Pawn Shops & Short-Term Credit",
+  "payday lender": "Pawn Shops & Short-Term Credit",
+  "predatory loan": "Pawn Shops & Short-Term Credit",
+  "title loan": "Pawn Shops & Short-Term Credit",
+  "pawn": "Pawn Shops & Short-Term Credit",
+  "pawn shop": "Pawn Shops & Short-Term Credit",
+  "early wage access": "Pawn Shops & Short-Term Credit",
+  "cash advance": "Pawn Shops & Short-Term Credit",
+  "short-term credit": "Pawn Shops & Short-Term Credit",
+  "pawn shops & short-term credit": "Pawn Shops & Short-Term Credit",
+  "debt collection": "Debt Collection & Debt Relief",
+  "debt settlement": "Debt Collection & Debt Relief",
+  "debt relief": "Debt Collection & Debt Relief",
+  "collections": "Debt Collection & Debt Relief",
+  "collection agency": "Debt Collection & Debt Relief",
+  "bankruptcy": "Debt Collection & Debt Relief",
+  "bankruptcy attorney": "Debt Collection & Debt Relief",
+  "debt collection & debt relief": "Debt Collection & Debt Relief",
+  "check cashing": "Check Cashing & Money Services",
+  "money order": "Check Cashing & Money Services",
+  "remittance": "Check Cashing & Money Services",
+  "wire transfer service": "Check Cashing & Money Services",
+  "money services": "Check Cashing & Money Services",
+  "money transfer": "Check Cashing & Money Services",
+  "prepaid reload": "Check Cashing & Money Services",
+  "check cashing & money services": "Check Cashing & Money Services",
+  "subprime card": "Subprime Credit & Buy-Here-Pay-Here",
+  "subprime credit": "Subprime Credit & Buy-Here-Pay-Here",
+  "buy here pay here": "Subprime Credit & Buy-Here-Pay-Here",
+  "buy-here-pay-here": "Subprime Credit & Buy-Here-Pay-Here",
+  "rent to own": "Subprime Credit & Buy-Here-Pay-Here",
+  "rent-to-own": "Subprime Credit & Buy-Here-Pay-Here",
+  "subprime credit & buy-here-pay-here": "Subprime Credit & Buy-Here-Pay-Here",
+  "overdraft": "Overdraft & NSF Activity",
+  "overdraft fee": "Overdraft & NSF Activity",
+  "nsf": "Overdraft & NSF Activity",
+  "nsf fee": "Overdraft & NSF Activity",
+  "insufficient funds": "Overdraft & NSF Activity",
+  "returned item": "Overdraft & NSF Activity",
+  "overdraft & nsf activity": "Overdraft & NSF Activity",
+  "crypto mixing": "Crypto Mixing & High-Risk Crypto",
+  "crypto mixer": "Crypto Mixing & High-Risk Crypto",
+  "tumbler": "Crypto Mixing & High-Risk Crypto",
+  "coinjoin": "Crypto Mixing & High-Risk Crypto",
+  "privacy coin": "Crypto Mixing & High-Risk Crypto",
+  "crypto mixing & high-risk crypto": "Crypto Mixing & High-Risk Crypto",
+  "financial distress": "Financial Distress",
 };
 
 function normalizeLabel(label: string): string {
@@ -418,7 +700,7 @@ function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
   return out;
 }
 
-const SYSTEM_PROMPT = `You are a banking risk analysis engine. You receive RAW transaction data (merchant_name, description, mcc, amount, date, zip_code, home_zip, source). You analyze it for risk in THREE groups only:
+const SYSTEM_PROMPT = `You are a banking risk analysis engine. You receive RAW transaction data (merchant_name, description, mcc, amount, date, zip_code, home_zip, source). You analyze it for risk in FOUR groups only:
 
 1. **vice** — has multiple subcategories; pick the most specific:
    - **Gambling subcategories** (in priority order):
@@ -430,14 +712,21 @@ const SYSTEM_PROMPT = `You are a banking risk analysis engine. You receive RAW t
      • **Lottery & Raffles** — Powerball, Mega Millions, scratch tickets, state lottery, Jackpocket, charity raffles. Low-stakes; weak signal in isolation.
      • **Gambling** (generic fallback) — only when MCC 7995 fires but no merchant context disambiguates.
    - **Adult Entertainment** — adult content subscriptions (OnlyFans / Pornhub network / Fansly), cam sites (Chaturbate / Stripchat / CamSoda), strip clubs / gentlemen's clubs / cabarets, escort-adjacent or "companion" services, adult-content payment processors (CCBill / Epoch / Segpay / Fenix International / MindGeek).
-   - Payday/predatory loans, pawn shops, crypto mixing services.
 2. **suspicious_international** — Cross-border wires/processors, OFAC-sanctioned jurisdictions, international transfers inconsistent with the customer's home zip.
 3. **aml** — STRUCTURING (multiple deposits/withdrawals just below $10,000 thresholds), rapid round-number layering, repeated cash-equivalent activity. Must be a PATTERN of multiple transactions. A single large legitimate purchase is NEVER aml.
+4. **financial_distress** — Always pick the most specific subcategory:
+   • **Pawn Shops & Short-Term Credit** — payday lenders (ACE Cash Express, Advance America, Speedy Cash, CashNetUSA, Check Into Cash), title loans (TitleMax, LoanMax, TMX), pawn shops (EZPawn, Cash America Pawn, First Cash Pawn), early-wage-access apps (EarnIn, Dave, Brigit, MoneyLion Instacash, Empower, Albert, Klover). Strongest single FVI signal in consumer banking — first-time usage predicts distress better than almost anything else.
+   • **Debt Collection & Debt Relief** — third-party collectors (Portfolio Recovery, Midland Credit, Encore Capital, LVNV Funding, Cavalry, ERC, Convergent, Resurgent), debt settlement (National Debt Relief, Freedom Debt Relief, Accredited Debt Relief, CuraDebt), bankruptcy attorneys, Upsolve. Late-stage distress; pre-charge-off marker — the clearest "customer is in trouble" signal a bank sees. Flag as HIGH severity on any hit.
+   • **Check Cashing & Money Services** — check-cashing storefronts (ACE Check Cashing, PLS), remittance services (Western Union, MoneyGram, Ria, Xoom, Remitly, WorldRemit), prepaid reloads (MoneyPak, Reloadit, Vanilla Reload, GreenDot reload, NetSpend reload), money orders. Underbanked behavior + AML structuring/remittance-pattern correlate.
+   • **Subprime Credit & Buy-Here-Pay-Here** — subprime / credit-builder cards (Credit One, First Premier, Mission Lane, OpenSky, Indigo, Milestone, Reflex, Surge, Fortiva), buy-here-pay-here auto (DriveTime, J.D. Byrider), rent-to-own (Rent-A-Center, Aaron's, Buddy's Home Furnishings).
+   • **Overdraft & NSF Activity** — bank-issued overdraft, NSF, returned-item, extended-overdraft fees on the customer's own account. Volume matters more than single occurrences. Detected from description, not merchant.
+   • **Crypto Mixing & High-Risk Crypto** — mixers/tumblers (Tornado Cash, Wasabi, Samourai, CoinJoin), P2P-cash crypto (LocalBitcoins, Paxful), privacy-coin desks. Generic exchanges (Coinbase, Kraken, Gemini) are NEVER flagged here.
+   • **Financial Distress** (generic fallback) — only when MCC 6051 (quasi-cash) or MCC 4829 (wire / money order) fires but no merchant context disambiguates.
 
 For each flag, return:
 - transaction_id (use "pattern" only for multi-transaction AML patterns)
-- category_group: "vice" | "suspicious_international" | "aml"
-- category_label: a SPECIFIC human label. For gambling, use one of: "High-Risk / Offshore Gambling", "Sports Betting", "Casino & Table Games", "Horse Racing & Pari-mutuel", "Casual / Social Gaming", "Lottery & Raffles", "Gambling" (generic fallback only). Other valid labels: "Adult Entertainment", "Payday Loan", "Crypto Mixing", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering". Always pick the most specific gambling subcategory; only fall back to generic "Gambling" when no merchant context disambiguates. Always use "Adult Entertainment" — never "Adult Content".
+- category_group: "vice" | "suspicious_international" | "aml" | "financial_distress"
+- category_label: a SPECIFIC human label. For gambling, use one of: "High-Risk / Offshore Gambling", "Sports Betting", "Casino & Table Games", "Horse Racing & Pari-mutuel", "Casual / Social Gaming", "Lottery & Raffles", "Gambling" (generic fallback only). For financial distress, use one of: "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress" (generic fallback only). Other valid labels: "Adult Entertainment", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering". Always pick the most specific subcategory. Always use "Adult Entertainment" — never "Adult Content".
 - severity: "low" | "medium" | "high"
 - merchant
 - amount
