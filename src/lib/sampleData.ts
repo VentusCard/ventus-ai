@@ -226,7 +226,7 @@ txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashbac
 txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
 txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
 txn_008,PALISADES TAHOE LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
-txn_009,MARIA GARCIA,Dogsitting,,150.00,2024-12-18,94102,Zelle
+txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
 txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,Cashback Card
 txn_011,DIGITAL ENT SVCS,Digital entertainment purchase,7995,250.00,2025-01-04,,Premium Card
 txn_012,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-01-11,94102,Cashback Card
@@ -269,7 +269,6 @@ txn_048,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,94102,Zelle
 txn_049,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA,4511,948.00,2026-07-05,94102,Premium Card
 txn_050,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 `;
-
 
 export const SAMPLE_CSV_SPORTS_WELLNESS = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_s001,LULULEMON ATHLETICA,Yoga pants and sports bra,5655,189.00,2024-11-01,,Premium Card
@@ -437,12 +436,12 @@ export const SOURCE_COLORS: Record<string, string> = {
   "Cashback Card": "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
   "Travel Card": "bg-blue-500/10 text-blue-700 border-blue-500/20",
   "Premium Card": "bg-rose-500/10 text-rose-700 border-rose-500/20",
-  "Checking": "bg-slate-500/10 text-slate-700 border-slate-500/20",
-  "Checks": "bg-orange-500/10 text-orange-700 border-orange-500/20",
-  "ACH": "bg-slate-500/10 text-slate-600 border-slate-500/20",
-  "Wire": "bg-red-500/10 text-red-700 border-red-500/20",
-  "Zelle": "bg-purple-500/10 text-purple-700 border-purple-500/20",
-  "HSA": "bg-amber-500/10 text-amber-700 border-amber-500/20",
+  Checking: "bg-slate-500/10 text-slate-700 border-slate-500/20",
+  Checks: "bg-orange-500/10 text-orange-700 border-orange-500/20",
+  ACH: "bg-slate-500/10 text-slate-600 border-slate-500/20",
+  Wire: "bg-red-500/10 text-red-700 border-red-500/20",
+  Zelle: "bg-purple-500/10 text-purple-700 border-purple-500/20",
+  HSA: "bg-amber-500/10 text-amber-700 border-amber-500/20",
 };
 
 export const getSourceColor = (source: string) =>
@@ -455,12 +454,12 @@ export const PILLAR_COLORS: Record<string, string> = {
   "Travel & Exploration": "#8b5cf6",
   "Home & Living": "#ec4899",
   "Style & Beauty": "#f43f5e",
-  "Pets": "#06b6d4",
+  Pets: "#06b6d4",
   "Entertainment & Culture": "#6366f1",
   "Technology & Digital Life": "#ef4444",
   "Family & Community": "#14b8a6",
   "Financial & Aspirational": "#a855f7",
-  "Miscellaneous & Unclassified": "#64748b"
+  "Miscellaneous & Unclassified": "#64748b",
 };
 
 export const LIFESTYLE_PILLARS = [
@@ -475,7 +474,7 @@ export const LIFESTYLE_PILLARS = [
   "Technology & Digital Life",
   "Family & Community",
   "Financial & Aspirational",
-  "Miscellaneous & Unclassified"
+  "Miscellaneous & Unclassified",
 ];
 
 export const SAMPLE_CSV_TRAVEL_FAMILY_12 = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
