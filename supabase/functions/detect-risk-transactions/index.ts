@@ -63,9 +63,103 @@ const ESCORT_KEYWORDS = [
   "COMPANION SVC", "VIP COMPANIONS",
 ];
 
-function matchesAny(text: string, keywords: string[]): string | null {
-  for (const kw of keywords) {
-    if (text.includes(kw)) return kw;
+// ============== Gambling subcategory keyword surfaces ==============
+// Order matters: more specific / higher-risk buckets are checked first.
+
+const GAMBLING_OFFSHORE_KEYWORDS = [
+  "BOVADA", "BETONLINE", "MYBOOKIE", "SPORTSBETTING.AG", "BOOKMAKER.EU",
+  "BETUS", "XBET", "5DIMES", "HERITAGE SPORTS", "JAZZ SPORTS",
+  "NITROGEN SPORTS", "STAKE.COM", "ROOBET", "CLOUDBET", "CRYPTO SPORTSBOOK",
+  "OFFSHORE GAMING", "CURACAO GAMING", "WAGERWEB", "INTERTOPS",
+];
+
+const GAMBLING_HORSE_KEYWORDS = [
+  "TVG", "TWINSPIRES", "TWIN SPIRES", "XPRESSBET", "NYRA BETS", "NYRABETS",
+  "AMWAGER", "BETAMERICA", "DERBYWARS", "WATCHANDWAGER",
+  "CHURCHILL DOWNS", "BELMONT PARK", "SARATOGA RACE", "SANTA ANITA",
+  "DEL MAR RACE", "GULFSTREAM PARK", "AQUEDUCT", "PIMLICO RACE",
+  "OFF TRACK BETTING", "OTB ", "PARI-MUTUEL", "PARIMUTUEL", "1ST BET",
+];
+
+const GAMBLING_SPORTS_KEYWORDS = [
+  "DRAFTKINGS SPORTSBOOK", "DRAFTKINGS SB", "DK SPORTSBOOK",
+  "FANDUEL SPORTSBOOK", "FANDUEL SB", "FD SPORTSBOOK",
+  "BETMGM", "BET MGM", "CAESARS SPORTSBOOK", "CAESARS SB",
+  "POINTSBET", "BETRIVERS", "BET RIVERS", "WYNNBET", "WYNN BET",
+  "BARSTOOL SPORTSBOOK", "BARSTOOL SB", "FANATICS SPORTSBOOK", "FANATICS BET",
+  "ESPN BET", "ESPNBET", "HARD ROCK BET", "HARDROCK BET",
+  "PRIZEPICKS", "UNDERDOG FANTASY", "UNDERDOG SPORTS",
+  "SPORTSBOOK", "SB DEPOSIT",
+];
+
+const GAMBLING_CASINO_KEYWORDS = [
+  "MGM GRAND", "MGM RESORTS", "MGM CASINO", "BELLAGIO", "ARIA RESORT",
+  "MANDALAY BAY", "LUXOR HOTEL", "EXCALIBUR HOTEL", "PARK MGM",
+  "CAESARS PALACE", "HARRAHS", "HARRAH'S", "HORSESHOE CASINO",
+  "WYNN LAS VEGAS", "WYNN CASINO", "ENCORE CASINO",
+  "VENETIAN RESORT", "PALAZZO RESORT", "COSMOPOLITAN LAS VEGAS",
+  "FOXWOODS", "MOHEGAN SUN", "BORGATA", "OCEAN CASINO", "TROPICANA CASINO",
+  "PARX CASINO", "SUGARHOUSE", "RIVERS CASINO", "MOTORCITY CASINO",
+  "GREEKTOWN CASINO", "PECHANGA", "BARONA CASINO", "AGUA CALIENTE",
+  "BETMGM CASINO", "CAESARS CASINO", "DRAFTKINGS CASINO", "FANDUEL CASINO",
+  "GOLDEN NUGGET CASINO", "BORGATA ONLINE", "RESORTS CASINO",
+];
+
+const GAMBLING_CASUAL_KEYWORDS = [
+  "DRAFTKINGS DFS", "DRAFTKINGS DAILY", "DRAFTKINGS FANTASY",
+  "FANDUEL DFS", "FANDUEL FANTASY", "FANDUEL DAILY",
+  "YAHOO FANTASY", "SLEEPER FANTASY",
+  "CHUMBA CASINO", "STAKE.US", "LUCKYLAND SLOTS", "FUNZPOINTS",
+  "GLOBAL POKER", "PULSZ", "HIGH 5 CASINO", "WOW VEGAS", "MCLUCK",
+  "ZYNGA POKER", "WSOP APP", "WORLD SERIES OF POKER APP",
+  "POKERSTARS PLAY", "JACKPOT.COM",
+];
+
+const GAMBLING_LOTTERY_KEYWORDS = [
+  "LOTTERY", "LOTTO", "POWERBALL", "MEGA MILLIONS", "SCRATCH OFF",
+  "SCRATCH-OFF", "SCRATCHER", "STATE LOTTERY", "JACKPOCKET",
+  "LOTTERY OFFICE", "RAFFLE", "CHARITY RAFFLE", "50/50 RAFFLE",
+];
+
+const GAMBLING_GENERIC_KEYWORDS = [
+  "CASINO", "POKER", "BLACKJACK", "BACCARAT", "ROULETTE", "SLOTS ",
+  "WAGER", "BETTING", "BOOKIE", "BOOKMAKER", "TURF CLUB",
+];
+
+interface GamblingHit {
+  label: string;
+  kind: string;
+  matched: string;
+  riskWeight: number;
+}
+
+function detectGambling(merchant: string, mcc: string): GamblingHit | null {
+  const m = (merchant || "").toUpperCase();
+  if (!m) return mcc === "7995" ? { label: "Gambling", kind: "MCC 7995 with no merchant name", matched: "MCC 7995", riskWeight: 2 } : null;
+  const isGamblingMcc = mcc === "7995";
+
+  let hit = matchesAny(m, GAMBLING_OFFSHORE_KEYWORDS);
+  if (hit) return { label: "High-Risk / Offshore Gambling", kind: "Offshore / unregulated sportsbook or crypto sportsbook", matched: hit, riskWeight: 5 };
+
+  hit = matchesAny(m, GAMBLING_HORSE_KEYWORDS);
+  if (hit) return { label: "Horse Racing & Pari-mutuel", kind: "Pari-mutuel / track wagering", matched: hit, riskWeight: 2 };
+
+  hit = matchesAny(m, GAMBLING_SPORTS_KEYWORDS);
+  if (hit) return { label: "Sports Betting", kind: "Regulated sportsbook deposit", matched: hit, riskWeight: 3 };
+
+  hit = matchesAny(m, GAMBLING_CASINO_KEYWORDS);
+  if (hit) return { label: "Casino & Table Games", kind: "Casino property or regulated online casino", matched: hit, riskWeight: 3 };
+
+  hit = matchesAny(m, GAMBLING_CASUAL_KEYWORDS);
+  if (hit) return { label: "Casual / Social Gaming", kind: "Daily fantasy, sweepstakes casino, or social poker", matched: hit, riskWeight: 1 };
+
+  hit = matchesAny(m, GAMBLING_LOTTERY_KEYWORDS);
+  if (hit) return { label: "Lottery & Raffles", kind: "Lottery, scratch ticket, or raffle", matched: hit, riskWeight: 1 };
+
+  if (isGamblingMcc) {
+    hit = matchesAny(m, GAMBLING_GENERIC_KEYWORDS);
+    if (hit) return { label: "Gambling", kind: "Generic gambling merchant (MCC 7995)", matched: hit, riskWeight: 2 };
+    return { label: "Gambling", kind: "MCC 7995 (Betting / Casino / Lottery), unrecognized merchant", matched: "MCC 7995", riskWeight: 2 };
   }
   return null;
 }
@@ -81,7 +175,6 @@ function detectAdultEntertainment(merchant: string, mcc: string): { kind: string
   if (hit) return { kind: "Adult content payment processor", matched: hit };
   hit = matchesAny(m, ESCORT_KEYWORDS);
   if (hit) return { kind: "Escort-adjacent service", matched: hit };
-  // Strip clubs only when MCC is 5813 (Drinking Places) or 7299 (Misc Personal Services)
   if (mcc === "5813" || mcc === "7299") {
     hit = matchesAny(m, STRIP_CLUB_KEYWORDS);
     if (hit) return { kind: "Strip-club venue", matched: hit };
