@@ -217,12 +217,21 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
   return flags;
 }
 
+// Aliases that collapse legacy / model-emitted phrasings to canonical labels
+const LABEL_ALIASES: Record<string, string> = {
+  "adult content": "Adult Entertainment",
+  "adult": "Adult Entertainment",
+  "adult services": "Adult Entertainment",
+  "adult subscription": "Adult Entertainment",
+  "cam site": "Adult Entertainment",
+  "strip club": "Adult Entertainment",
+  "escort": "Adult Entertainment",
+};
+
 function normalizeLabel(label: string): string {
-  return String(label || "")
-    .replace(/_/g, " ")
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const cleaned = String(label || "").replace(/_/g, " ").trim().toLowerCase();
+  if (LABEL_ALIASES[cleaned]) return LABEL_ALIASES[cleaned];
+  return cleaned.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
