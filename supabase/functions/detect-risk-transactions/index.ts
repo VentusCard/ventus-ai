@@ -138,6 +138,39 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
   const gamblingTotal = gamblingTxs.reduce((s, t) => s + (Number(t.amount) || 0), 0);
   const gSeverity = gamblingSeverity(gamblingCount, gamblingTotal);
 
+  // Pre-compute adult-entertainment aggregates (MCC 5967 + keyword matches across any MCC)
+  const adultHits = transactions
+    .map((t) => {
+      const merchant = t.merchant_name || t.normalized_merchant || "";
+      const mcc = String(t.mcc || "").trim();
+      if (isRealEstate(merchant, t.description || "")) return null;
+      if (mcc === "5967") {
+        return { tx: t, kind: "MCC 5967 (Direct Marketing / adult-content processor)", matched: "MCC 5967" };
+      }
+      const hit = detectAdultEntertainment(merchant, mcc);
+      return hit ? { tx: t, kind: hit.kind, matched: hit.matched } : null;
+    })
+    .filter((x): x is { tx: any; kind: string; matched: string } => x !== null);
+  const adultCount = adultHits.length;
+  const adultTotal = adultHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+  const adultSeverity: "low" | "medium" | "high" =
+    adultCount >= 3 || adultTotal >= 500 ? "high" : "medium";
+  const adultFlaggedIds = new Set(adultHits.map((h) => h.tx.transaction_id));
+
+  // Emit adult-entertainment flags first
+  for (const { tx, kind, matched } of adultHits) {
+    flags.push({
+      transaction_id: tx.transaction_id,
+      category_group: "vice",
+      category_label: "Adult Entertainment",
+      severity: adultSeverity,
+      merchant: tx.merchant_name || tx.normalized_merchant || "",
+      amount: tx.amount,
+      date: tx.date,
+      reason: `${kind} — matched "${matched}". Adult-entertainment indicator (covers adult subs, cam sites, strip clubs, escort-adjacent services, adult-content processors).`,
+    });
+  }
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
@@ -145,6 +178,9 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
 
     // Skip real-estate transactions entirely
     if (isRealEstate(merchant, desc)) continue;
+
+    // Already handled by adult-entertainment pass
+    if (adultFlaggedIds.has(t.transaction_id)) continue;
 
     // MCC 7995 → Gambling (severity scales with count + volume)
     if (mcc === "7995") {
@@ -160,21 +196,6 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
         amount: t.amount,
         date: t.date,
         reason,
-      });
-      continue;
-    }
-
-    // MCC 5967 → Adult Content
-    if (mcc === "5967") {
-      flags.push({
-        transaction_id: t.transaction_id,
-        category_group: "vice",
-        category_label: "Adult Content",
-        severity: "medium",
-        merchant,
-        amount: t.amount,
-        date: t.date,
-        reason: `MCC 5967 (Direct Marketing / Adult Content) — definitive adult content indicator.`,
       });
       continue;
     }
