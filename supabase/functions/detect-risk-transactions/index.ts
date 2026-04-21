@@ -36,6 +36,59 @@ const REAL_ESTATE_KEYWORDS = [
 
 const INTL_KEYWORDS = ["INTL", "INTERNATIONAL", "FOREIGN", "OVERSEAS", "OFFSHORE"];
 
+// Adult Entertainment merchant keyword surface (matches across any MCC)
+const ADULT_STREAMING_KEYWORDS = [
+  "ONLYFANS", "FENIX INTL", "FENIX INTERNATIONAL", "FANSLY", "MANYVIDS",
+  "JUSTFORFANS", "MINDGEEK", "MG BILLING", "PORNHUB", "BRAZZERS", "ADULT TIME",
+  "REALITY KINGS", "DIGITAL PLAYGROUND",
+];
+const ADULT_CAMSITE_KEYWORDS = [
+  "CHATURBATE", "STRIPCHAT", "CAMSODA", "LIVEJASMIN", "BONGACAMS",
+  "MYFREECAMS", "CAM4", "FLIRT4FREE", "STREAMATE",
+];
+const ADULT_PROCESSOR_KEYWORDS = [
+  "CCBILL", "EPOCH.COM", "SEGPAY", "ROCKETGATE", "NETBILLING", "VENDO",
+  "VERIFCARD", "PROBILLER",
+];
+// Strip-club / gentlemen's-club venue keywords — only flag when paired with MCC 5813 (bars) or 7299
+const STRIP_CLUB_KEYWORDS = [
+  "STRIP CLUB", "GENTLEMENS CLUB", "GENTLEMEN'S CLUB", "CABARET",
+  "SPEARMINT RHINO", "RICK'S CABARET", "RICKS CABARET", "SAPPHIRE GENTLEMENS",
+  "SCORES", "CRAZY HORSE", "PENTHOUSE CLUB", "CHEETAHS", "FOLLIES",
+  "DEJA VU SHOWGIRLS", "TOOTSIES CABARET",
+];
+// Escort-adjacent — be conservative, require explicit term
+const ESCORT_KEYWORDS = [
+  "ESCORT SVC", "ESCORT SERVICE", "ESCORT AGENCY", "COMPANION SERVICES",
+  "COMPANION SVC", "VIP COMPANIONS",
+];
+
+function matchesAny(text: string, keywords: string[]): string | null {
+  for (const kw of keywords) {
+    if (text.includes(kw)) return kw;
+  }
+  return null;
+}
+
+function detectAdultEntertainment(merchant: string, mcc: string): { kind: string; matched: string } | null {
+  const m = (merchant || "").toUpperCase();
+  if (!m) return null;
+  let hit = matchesAny(m, ADULT_STREAMING_KEYWORDS);
+  if (hit) return { kind: "Adult streaming subscription", matched: hit };
+  hit = matchesAny(m, ADULT_CAMSITE_KEYWORDS);
+  if (hit) return { kind: "Cam-site billing", matched: hit };
+  hit = matchesAny(m, ADULT_PROCESSOR_KEYWORDS);
+  if (hit) return { kind: "Adult content payment processor", matched: hit };
+  hit = matchesAny(m, ESCORT_KEYWORDS);
+  if (hit) return { kind: "Escort-adjacent service", matched: hit };
+  // Strip clubs only when MCC is 5813 (Drinking Places) or 7299 (Misc Personal Services)
+  if (mcc === "5813" || mcc === "7299") {
+    hit = matchesAny(m, STRIP_CLUB_KEYWORDS);
+    if (hit) return { kind: "Strip-club venue", matched: hit };
+  }
+  return null;
+}
+
 function isRealEstate(merchant: string, description: string): boolean {
   const text = `${merchant} ${description}`.toUpperCase();
   return REAL_ESTATE_KEYWORDS.some((kw) => text.includes(kw));
