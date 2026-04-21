@@ -481,53 +481,91 @@ export default function ExecDemoIntelPanel({
                     </>
                   ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
                     (() => {
-                      // Client-side dedupe safety net: collapse by transaction_id + category_group
-                      // (deterministic flags win — they appear first from the backend)
-                      const seen = new Set<string>();
-                      const uniqueFlags = riskFlags.flags.filter((f: any) => {
-                        const group = String(f.category_group || f.category || "risk").toLowerCase();
-                        const txId = f.transaction_id || "pattern";
-                        const key = `${txId}::${group}`;
-                        if (seen.has(key)) return false;
-                        seen.add(key);
-                        return true;
-                      });
-                      return uniqueFlags;
-                    })().map((flag: any, i: number) => {
-                      // Prefer specific category_label; fall back to category_group, then legacy category
-                      const rawLabel = flag.category_label || flag.category_group || flag.category || flag.type || "Risk";
-                      const flagLabel = String(rawLabel).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
-                      const isActive = activeTriggerLabel === flagLabel;
-                      const isHigh = flag.severity === "high";
-                      const dotColor = isHigh ? "#ef4444" : "#f59e0b";
-
-                      // Match by transaction_id first (raw csv uses tx-N format → idx = N)
-                      let matchedIndices: number[] = [];
-                      const txId: string = flag.transaction_id || "";
-                      if (txId && txId !== "pattern" && transactions) {
-                        const m = txId.match(/^tx-(\d+)$/);
-                        if (m) {
-                          const idx = parseInt(m[1], 10);
-                          if (idx >= 0 && idx < transactions.length) matchedIndices = [idx];
+                      // Roll up flags into ONE pill per high-level group:
+                      //   - Gambling (any vice gambling subcategory)
+                      //   - Financial Vulnerability (any financial_distress subcategory)
+                      //   - Adult Entertainment
+                      //   - AML / Suspicious International also collapse to one pill each.
+                      // Severity = max severity in group; count = unique transactions.
+                      type Rollup = {
+                        key: string;
+                        label: string;
+                        severity: "low" | "medium" | "high";
+                        txIds: Set<string>;
+                        merchants: Set<string>;
+                        sampleMerchant?: string;
+                      };
+                      const SEV_RANK: Record<string, number> = { low: 1, medium: 2, high: 3 };
+                      const groupKeyFor = (f: any): { key: string; label: string } => {
+                        const grp = String(f.category_group || f.category || "").toLowerCase();
+                        const lbl = String(f.category_label || "").toLowerCase();
+                        if (grp === "vice" && lbl.includes("adult")) return { key: "adult", label: "Adult Entertainment" };
+                        if (grp === "vice") return { key: "gambling", label: "Gambling" };
+                        if (grp === "financial_distress") return { key: "financial_vulnerability", label: "Financial Vulnerability" };
+                        if (grp === "suspicious_international") return { key: "suspicious_international", label: "Suspicious International" };
+                        if (grp === "aml") return { key: "aml", label: "AML" };
+                        const raw = f.category_label || f.category_group || f.category || "Risk";
+                        return { key: String(raw).toLowerCase(), label: String(raw) };
+                      };
+                      const rollupMap = new Map<string, Rollup>();
+                      const seenTxGroup = new Set<string>();
+                      riskFlags.flags.forEach((f: any) => {
+                        const { key, label } = groupKeyFor(f);
+                        const txId = f.transaction_id || `pattern::${key}`;
+                        const dedupeKey = `${txId}::${key}`;
+                        if (seenTxGroup.has(dedupeKey)) return;
+                        seenTxGroup.add(dedupeKey);
+                        let r = rollupMap.get(key);
+                        if (!r) {
+                          r = { key, label, severity: "low", txIds: new Set(), merchants: new Set() };
+                          rollupMap.set(key, r);
                         }
-                      }
-                      // Fallback: exact merchant name match (no fuzzy word splitting)
-                      if (matchedIndices.length === 0 && flag.merchant && transactions) {
-                        const target = String(flag.merchant).toLowerCase().trim();
-                        matchedIndices = transactions
-                          .map((tx, idx) => {
-                            const m = ((tx as any).merchant_name || (tx as any).merchant || "").toLowerCase().trim();
-                            return m && m === target ? idx : -1;
-                          })
-                          .filter((idx) => idx !== -1);
+                        const sev = (f.severity || "low") as "low" | "medium" | "high";
+                        if ((SEV_RANK[sev] || 1) > (SEV_RANK[r.severity] || 1)) r.severity = sev;
+                        r.txIds.add(txId);
+                        if (f.merchant) {
+                          r.merchants.add(String(f.merchant));
+                          if (!r.sampleMerchant) r.sampleMerchant = String(f.merchant);
+                        }
+                      });
+                      const ORDER = ["gambling", "financial_vulnerability", "adult", "suspicious_international", "aml"];
+                      return Array.from(rollupMap.values()).sort((a, b) => {
+                        const ai = ORDER.indexOf(a.key); const bi = ORDER.indexOf(b.key);
+                        if (ai === -1 && bi === -1) return a.label.localeCompare(b.label);
+                        if (ai === -1) return 1;
+                        if (bi === -1) return -1;
+                        return ai - bi;
+                      });
+                    })().map((rollup: any, i: number) => {
+                      const flagLabel = rollup.label;
+                      const isActive = activeTriggerLabel === flagLabel;
+                      const isHigh = rollup.severity === "high";
+                      const dotColor = isHigh ? "#ef4444" : "#f59e0b";
+                      const txCount = rollup.txIds.size;
+
+                      // Resolve all matched transaction indices across the group
+                      let matchedIndices: number[] = [];
+                      if (transactions) {
+                        const idSet = new Set<string>(rollup.txIds);
+                        const merchantSet = new Set<string>(
+                          Array.from(rollup.merchants as Set<string>).map((m: string) => m.toLowerCase().trim())
+                        );
+                        transactions.forEach((tx: any, idx: number) => {
+                          const tid = tx.transaction_id || tx.id || "";
+                          if (tid && idSet.has(tid)) { matchedIndices.push(idx); return; }
+                          const m = String(tid).match(/^tx-(\d+)$/);
+                          if (m && idSet.has(`tx-${m[1]}`)) { matchedIndices.push(idx); return; }
+                          const mname = ((tx as any).merchant_name || (tx as any).merchant || "").toLowerCase().trim();
+                          if (mname && merchantSet.has(mname)) matchedIndices.push(idx);
+                        });
                       }
                       const isClickable = matchedIndices.length > 0 && !isOfferTab;
-                      const pillKey = `${flag.transaction_id || "pattern"}::${flagLabel}::${i}`;
+                      const pillKey = `rollup::${rollup.key}::${i}`;
                       return (
                         <span
                           key={pillKey}
-                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor, flag.merchant)}
-                          title={isOfferTab ? "Not applicable for offer targeting" : undefined}
+                          onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor, rollup.sampleMerchant)}
+                          title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: isOfferTab
@@ -553,7 +591,9 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
                           {flagLabel}
-                          {flag.severity && <span className="text-[10px] uppercase opacity-60 font-normal">{flag.severity}</span>}
+                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
+                            {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
+                          </span>
                         </span>
                       );
                     })
