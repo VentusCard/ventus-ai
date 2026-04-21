@@ -133,6 +133,147 @@ const GAMBLING_GENERIC_KEYWORDS = [
   "WAGER", "BETTING", "BOOKIE", "BOOKMAKER", "TURF CLUB",
 ];
 
+// ============== Financial Distress subcategory keyword surfaces ==============
+// Order matters: checked top-to-bottom, most-specific / highest-FVI first.
+
+const DISTRESS_PAWN_PAYDAY_KEYWORDS = [
+  // Payday lenders / cash advance storefronts
+  "CHECK INTO CASH", "ACE CASH EXPRESS", "ACE CASH", "ADVANCE AMERICA",
+  "SPEEDY CASH", "MONEYMUTUAL", "CASHNETUSA", "CASH NET USA", "CHECK N GO",
+  "CHECK 'N GO", "LENDUP", "CASH STORE", "RISE CREDIT", "OPPLOANS", "OPP LOANS",
+  "NETCREDIT", "BIG PICTURE LOANS", "PLAIN GREEN LOANS", "SPOTLOAN",
+  // Title loans
+  "TITLEMAX", "TITLE MAX", "LOANMAX", "LOAN MAX", "TMX FINANCE",
+  "1-800LOANMART", "1800LOANMART", "TITLE LOAN", "TITLE LOANS",
+  // Pawn shops
+  "EZPAWN", "EZ PAWN", "CASH AMERICA PAWN", "CASH AMERICA",
+  "FIRST CASH PAWN", "FIRSTCASH", "PAWN AMERICA",
+  "PAWN SHOP", "PAWNBROKER", "PAWN-1", "MAX PAWN", "SUPERPAWN",
+  // Early wage access apps
+  "EARNIN", "EARN IN", "DAVE INC", "DAVE.COM",
+  "BRIGIT", "MONEYLION", "INSTACASH", "EMPOWER FINANCE",
+  "ALBERT SAVINGS", "KLOVER", "B9 BANK",
+  "CASH ADVANCE", "PAYDAY LOAN", "PAYDAY ADVANCE",
+];
+
+const DISTRESS_DEBT_KEYWORDS = [
+  // Third-party collectors
+  "PORTFOLIO RECOVERY", "MIDLAND CREDIT", "MIDLAND FUNDING",
+  "ENCORE CAPITAL", "LVNV FUNDING", "CAVALRY PORTFOLIO", "CAVALRY SPV",
+  "ERC ", "CONVERGENT OUTSOURCING", "RESURGENT CAPITAL",
+  "ENHANCED RECOVERY", "TRANSWORLD SYSTEMS", "ALLIED INTERSTATE",
+  "I.C. SYSTEM", "IC SYSTEM", "AFNI INC", "DIVERSIFIED CONSULTANTS",
+  "COLLECTION AGENCY", "COLLECTIONS DEPT", "DEBT COLLECTION",
+  // Debt settlement
+  "NATIONAL DEBT RELIEF", "FREEDOM DEBT RELIEF", "ACCREDITED DEBT RELIEF",
+  "CURADEBT", "CLEARONE ADVANTAGE", "PACIFIC DEBT", "DEBT SETTLEMENT",
+  "BEYOND FINANCE", "AMERICOR", "TURNBULL LAW",
+  // Bankruptcy / insolvency legal
+  "BANKRUPTCY ATTY", "BANKRUPTCY ATTORNEY", "BANKRUPTCY LAW",
+  "CH 7 ATTORNEY", "CH 13 ATTORNEY", "CHAPTER 7 ATTORNEY",
+  "CHAPTER 13 ATTORNEY", "UPSOLVE",
+];
+
+const DISTRESS_CHECK_CASHING_KEYWORDS = [
+  "ACE CHECK CASHING", "PLS CHECK CASHING", "PLS FINANCIAL",
+  "CHECK CASHING", "CHECK CASHERS", "MONEY MART", "INSTA CASH",
+  // Remittance / wire-equivalent
+  "WESTERN UNION", "WESTERNUNION", "MONEYGRAM", "MONEY GRAM",
+  "RIA MONEY TRANSFER", "RIA FINANCIAL",
+  "XOOM ", "REMITLY", "WORLDREMIT", "WORLD REMIT", "WISE TRANSFER",
+  "TRANSFERWISE", "SMALL WORLD MONEY",
+  // Prepaid reloads / cash-equivalents
+  "MONEYPAK", "RELOADIT", "VANILLA RELOAD", "PAYPAL RELOAD",
+  "GREENDOT RELOAD", "GREEN DOT RELOAD", "NETSPEND RELOAD",
+  "REPLENISH FUNDS", "CARD RELOAD",
+  "MONEY ORDER",
+];
+
+const DISTRESS_SUBPRIME_KEYWORDS = [
+  // Subprime / credit-builder cards
+  "CREDIT ONE BANK", "CREDITONE BANK",
+  "FIRST PREMIER BANK", "FIRSTPREMIER",
+  "MISSION LANE", "OPENSKY", "OPEN SKY",
+  "INDIGO CARD", "INDIGO MASTERCARD",
+  "MILESTONE CARD", "MILESTONE MASTERCARD",
+  "REFLEX CARD", "SURGE CARD", "FIT MASTERCARD", "FORTIVA",
+  "PETAL CARD", "SELF FINANCIAL",
+  // Buy-here-pay-here / subprime auto
+  "BUY HERE PAY HERE", "BUYHEREPAYHERE", "BHPH",
+  "DRIVETIME", "DRIVE TIME", "J.D. BYRIDER", "JD BYRIDER", "BYRIDER",
+  "CARMAX AUTO FINANCE", // contextual — only flagged with subprime descriptor noise
+  // Rent-to-own
+  "RENT-A-CENTER", "RENT A CENTER",
+  "AARON'S", "AARONS RENT", "BUDDY'S HOME", "BUDDYS HOME",
+  "RENT TO OWN", "RENT-TO-OWN", "RTO PAYMENT",
+];
+
+const DISTRESS_OVERDRAFT_KEYWORDS = [
+  "OVERDRAFT FEE", "OVERDRAFT CHARGE", "OD FEE",
+  "NSF FEE", "NSF CHARGE", "INSUFFICIENT FUNDS FEE", "INSUFFICIENT FUNDS",
+  "RETURNED ITEM FEE", "RETURNED CHECK FEE",
+  "EXTENDED OVERDRAFT", "SUSTAINED OVERDRAFT",
+  "UNCOLLECTED FUNDS FEE",
+];
+
+const DISTRESS_CRYPTO_MIXING_KEYWORDS = [
+  "TORNADO CASH", "WASABI WALLET", "SAMOURAI WALLET", "COINJOIN",
+  "BITCOIN MIXER", "BTC MIXER", "CRYPTO MIXER", "TUMBLER",
+  "LOCALBITCOINS", "LOCAL BITCOINS", "PAXFUL", "BISQ",
+  "MONERO EXCHANGE", "PRIVACY COIN",
+];
+
+interface DistressHit {
+  label: string;
+  kind: string;
+  matched: string;
+  riskWeight: number;
+}
+
+function detectFinancialDistress(
+  merchant: string,
+  description: string,
+  mcc: string
+): DistressHit | null {
+  const m = (merchant || "").toUpperCase();
+  const d = (description || "").toUpperCase();
+  const text = `${m} ${d}`;
+  const mccTrim = (mcc || "").trim();
+
+  // Overdraft/NSF — check description first, often appears as a bank-issued line
+  let hit = matchesAny(text, DISTRESS_OVERDRAFT_KEYWORDS);
+  if (hit) return { label: "Overdraft & NSF Activity", kind: "Overdraft / NSF / returned-item fee", matched: hit, riskWeight: 4 };
+
+  // Debt collection / bankruptcy — high weight, late-stage
+  hit = matchesAny(text, DISTRESS_DEBT_KEYWORDS);
+  if (hit) return { label: "Debt Collection & Debt Relief", kind: "Third-party collector, debt-settlement firm, or bankruptcy attorney", matched: hit, riskWeight: 5 };
+
+  // Pawn / payday / title / early wage access — strongest single FVI signal
+  hit = matchesAny(m, DISTRESS_PAWN_PAYDAY_KEYWORDS);
+  if (hit) return { label: "Pawn Shops & Short-Term Credit", kind: "Payday / title / pawn / early-wage-access advance", matched: hit, riskWeight: 5 };
+
+  // Crypto mixers / tumblers — narrow keyword surface, regulated exchanges excluded
+  hit = matchesAny(m, DISTRESS_CRYPTO_MIXING_KEYWORDS);
+  if (hit) return { label: "Crypto Mixing & High-Risk Crypto", kind: "Mixer / tumbler / P2P-cash crypto / privacy-coin desk", matched: hit, riskWeight: 4 };
+
+  // Check cashing / remittance / prepaid reloads
+  hit = matchesAny(m, DISTRESS_CHECK_CASHING_KEYWORDS);
+  if (hit) return { label: "Check Cashing & Money Services", kind: "Check cashing, remittance, or prepaid reload", matched: hit, riskWeight: 4 };
+
+  // Subprime / BHPH / rent-to-own
+  hit = matchesAny(m, DISTRESS_SUBPRIME_KEYWORDS);
+  if (hit) return { label: "Subprime Credit & Buy-Here-Pay-Here", kind: "Subprime card / buy-here-pay-here auto / rent-to-own", matched: hit, riskWeight: 3 };
+
+  // Generic fallback for quasi-cash / wire-money MCCs with no merchant match
+  if (mccTrim === "6051") {
+    return { label: "Financial Distress", kind: "MCC 6051 (Quasi-cash / non-FI), unrecognized merchant", matched: "MCC 6051", riskWeight: 2 };
+  }
+  if (mccTrim === "4829") {
+    return { label: "Financial Distress", kind: "MCC 4829 (Wire transfer / money order), unrecognized merchant", matched: "MCC 4829", riskWeight: 2 };
+  }
+  return null;
+}
+
 interface GamblingHit {
   label: string;
   kind: string;
