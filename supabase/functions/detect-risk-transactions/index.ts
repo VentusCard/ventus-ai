@@ -348,6 +348,7 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
 
 // Aliases that collapse legacy / model-emitted phrasings to canonical labels
 const LABEL_ALIASES: Record<string, string> = {
+  // Adult Entertainment
   "adult content": "Adult Entertainment",
   "adult": "Adult Entertainment",
   "adult services": "Adult Entertainment",
@@ -355,6 +356,36 @@ const LABEL_ALIASES: Record<string, string> = {
   "cam site": "Adult Entertainment",
   "strip club": "Adult Entertainment",
   "escort": "Adult Entertainment",
+  // Gambling subcategories
+  "sports betting": "Sports Betting",
+  "sportsbook": "Sports Betting",
+  "regulated sportsbook": "Sports Betting",
+  "casino": "Casino & Table Games",
+  "casino & table games": "Casino & Table Games",
+  "table games": "Casino & Table Games",
+  "online casino": "Casino & Table Games",
+  "horse racing": "Horse Racing & Pari-mutuel",
+  "horse racing & pari-mutuel": "Horse Racing & Pari-mutuel",
+  "pari-mutuel": "Horse Racing & Pari-mutuel",
+  "parimutuel": "Horse Racing & Pari-mutuel",
+  "track wagering": "Horse Racing & Pari-mutuel",
+  "lottery": "Lottery & Raffles",
+  "lottery & raffles": "Lottery & Raffles",
+  "raffle": "Lottery & Raffles",
+  "scratch ticket": "Lottery & Raffles",
+  "scratch-off": "Lottery & Raffles",
+  "casual gaming": "Casual / Social Gaming",
+  "social gaming": "Casual / Social Gaming",
+  "casual / social gaming": "Casual / Social Gaming",
+  "daily fantasy": "Casual / Social Gaming",
+  "dfs": "Casual / Social Gaming",
+  "sweepstakes casino": "Casual / Social Gaming",
+  "social poker": "Casual / Social Gaming",
+  "offshore gambling": "High-Risk / Offshore Gambling",
+  "high-risk gambling": "High-Risk / Offshore Gambling",
+  "high-risk / offshore gambling": "High-Risk / Offshore Gambling",
+  "crypto sportsbook": "High-Risk / Offshore Gambling",
+  "unregulated gambling": "High-Risk / Offshore Gambling",
 };
 
 function normalizeLabel(label: string): string {
