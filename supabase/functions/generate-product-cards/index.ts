@@ -97,20 +97,23 @@ CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
    - "Bank of America Account Wellness Tools"
    - "Bank of America Spending Limits & Merchant Controls"
    - "Bank of America Confidential Customer Care"
-- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML")
+   - For financial-distress signals, prefer hardship-themed products such as: "Bank of America Hardship Assistance Program", "Bank of America Overdraft Protection & Fee Waivers", "Bank of America Confidential Financial Coaching", "Bank of America Balance Assist™ Short-Term Loan", "Bank of America Customized Cash Wellness Plan"
+- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress")
 - theme: use "wellness"
 - quote: 1-2 sentences framed as care/transparency. Examples:
    - "We make it simple to put guardrails on your spending whenever you want — no questions asked."
    - "Account controls are here to help you stay in charge of your day-to-day banking."
-- offer_headline: focus on tools, not economics. Examples: "Tools to help you stay in control", "Confidential support whenever you need it"
+   - For financial-distress signals: "If money's tight, we have programs to help — confidentially and with no judgment." / "A short-term cash crunch shouldn't cost you in fees. We have options."
+- offer_headline: focus on tools, not economics. Examples: "Tools to help you stay in control", "Confidential support whenever you need it", "Hardship options — discreet and judgment-free"
 - benefits (exactly 3): non-marketing wellness/security features ONLY. Examples:
    - "Set daily and category-level spending limits in seconds"
    - "Block specific merchants or transaction types instantly"
    - "Confidential 24/7 support — talk to a real person"
    - "Pause new charges with one tap from the app"
-- eligibility: trust/availability framing. Examples: "Available to all customers · No fees", "Always on · Adjust anytime"
-- cta: care-oriented, never "Apply"/"Open". Examples: "Set Up Account Controls", "Talk to Someone Confidentially", "Adjust My Limits"
-- cta_sub: reassurance about discretion. Examples: "Confidential · No impact to credit", "Takes under a minute"
+   - For financial-distress: "Waive your next overdraft fee with one tap", "Free 1-on-1 financial coaching — no upsell, ever", "Short-term hardship plans with no credit-score impact", "Lower-cost alternative to payday — funded in minutes"
+- eligibility: trust/availability framing. Examples: "Available to all customers · No fees", "Always on · Adjust anytime", "No credit check · Confidential"
+- cta: care-oriented, never "Apply"/"Open". Examples: "Set Up Account Controls", "Talk to Someone Confidentially", "Adjust My Limits", "Explore Hardship Options", "Waive a Fee", "Get Free Coaching"
+- cta_sub: reassurance about discretion. Examples: "Confidential · No impact to credit", "Takes under a minute", "Judgment-free · No sales pitch"
 - ABSOLUTELY FORBIDDEN: any credit card, investment, loan, or upsell language. No celebratory tone. No "rewards", "earn", "bonus", "miles", "cash back".
 
 TONE RULES:
