@@ -1094,6 +1094,8 @@ export default function ExecDemoPage() {
           );
         })()}
       </div>
+        );
+      })()}
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
       <ExecDemoSelectionDialog
