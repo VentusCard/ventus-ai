@@ -97,7 +97,7 @@ CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
    - "Bank of America Account Wellness Tools"
    - "Bank of America Spending Limits & Merchant Controls"
    - "Bank of America Confidential Customer Care"
-- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Gambling", "Suspicious International", "Adult Content", "AML")
+- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Gambling", "Suspicious International", "Adult Entertainment", "AML")
 - theme: use "wellness"
 - quote: 1-2 sentences framed as care/transparency. Examples:
    - "We make it simple to put guardrails on your spending whenever you want — no questions asked."

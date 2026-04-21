@@ -36,6 +36,59 @@ const REAL_ESTATE_KEYWORDS = [
 
 const INTL_KEYWORDS = ["INTL", "INTERNATIONAL", "FOREIGN", "OVERSEAS", "OFFSHORE"];
 
+// Adult Entertainment merchant keyword surface (matches across any MCC)
+const ADULT_STREAMING_KEYWORDS = [
+  "ONLYFANS", "FENIX INTL", "FENIX INTERNATIONAL", "FANSLY", "MANYVIDS",
+  "JUSTFORFANS", "MINDGEEK", "MG BILLING", "PORNHUB", "BRAZZERS", "ADULT TIME",
+  "REALITY KINGS", "DIGITAL PLAYGROUND",
+];
+const ADULT_CAMSITE_KEYWORDS = [
+  "CHATURBATE", "STRIPCHAT", "CAMSODA", "LIVEJASMIN", "BONGACAMS",
+  "MYFREECAMS", "CAM4", "FLIRT4FREE", "STREAMATE",
+];
+const ADULT_PROCESSOR_KEYWORDS = [
+  "CCBILL", "EPOCH.COM", "SEGPAY", "ROCKETGATE", "NETBILLING", "VENDO",
+  "VERIFCARD", "PROBILLER",
+];
+// Strip-club / gentlemen's-club venue keywords — only flag when paired with MCC 5813 (bars) or 7299
+const STRIP_CLUB_KEYWORDS = [
+  "STRIP CLUB", "GENTLEMENS CLUB", "GENTLEMEN'S CLUB", "CABARET",
+  "SPEARMINT RHINO", "RICK'S CABARET", "RICKS CABARET", "SAPPHIRE GENTLEMENS",
+  "SCORES", "CRAZY HORSE", "PENTHOUSE CLUB", "CHEETAHS", "FOLLIES",
+  "DEJA VU SHOWGIRLS", "TOOTSIES CABARET",
+];
+// Escort-adjacent — be conservative, require explicit term
+const ESCORT_KEYWORDS = [
+  "ESCORT SVC", "ESCORT SERVICE", "ESCORT AGENCY", "COMPANION SERVICES",
+  "COMPANION SVC", "VIP COMPANIONS",
+];
+
+function matchesAny(text: string, keywords: string[]): string | null {
+  for (const kw of keywords) {
+    if (text.includes(kw)) return kw;
+  }
+  return null;
+}
+
+function detectAdultEntertainment(merchant: string, mcc: string): { kind: string; matched: string } | null {
+  const m = (merchant || "").toUpperCase();
+  if (!m) return null;
+  let hit = matchesAny(m, ADULT_STREAMING_KEYWORDS);
+  if (hit) return { kind: "Adult streaming subscription", matched: hit };
+  hit = matchesAny(m, ADULT_CAMSITE_KEYWORDS);
+  if (hit) return { kind: "Cam-site billing", matched: hit };
+  hit = matchesAny(m, ADULT_PROCESSOR_KEYWORDS);
+  if (hit) return { kind: "Adult content payment processor", matched: hit };
+  hit = matchesAny(m, ESCORT_KEYWORDS);
+  if (hit) return { kind: "Escort-adjacent service", matched: hit };
+  // Strip clubs only when MCC is 5813 (Drinking Places) or 7299 (Misc Personal Services)
+  if (mcc === "5813" || mcc === "7299") {
+    hit = matchesAny(m, STRIP_CLUB_KEYWORDS);
+    if (hit) return { kind: "Strip-club venue", matched: hit };
+  }
+  return null;
+}
+
 function isRealEstate(merchant: string, description: string): boolean {
   const text = `${merchant} ${description}`.toUpperCase();
   return REAL_ESTATE_KEYWORDS.some((kw) => text.includes(kw));
@@ -85,6 +138,39 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
   const gamblingTotal = gamblingTxs.reduce((s, t) => s + (Number(t.amount) || 0), 0);
   const gSeverity = gamblingSeverity(gamblingCount, gamblingTotal);
 
+  // Pre-compute adult-entertainment aggregates (MCC 5967 + keyword matches across any MCC)
+  const adultHits = transactions
+    .map((t) => {
+      const merchant = t.merchant_name || t.normalized_merchant || "";
+      const mcc = String(t.mcc || "").trim();
+      if (isRealEstate(merchant, t.description || "")) return null;
+      if (mcc === "5967") {
+        return { tx: t, kind: "MCC 5967 (Direct Marketing / adult-content processor)", matched: "MCC 5967" };
+      }
+      const hit = detectAdultEntertainment(merchant, mcc);
+      return hit ? { tx: t, kind: hit.kind, matched: hit.matched } : null;
+    })
+    .filter((x): x is { tx: any; kind: string; matched: string } => x !== null);
+  const adultCount = adultHits.length;
+  const adultTotal = adultHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+  const adultSeverity: "low" | "medium" | "high" =
+    adultCount >= 3 || adultTotal >= 500 ? "high" : "medium";
+  const adultFlaggedIds = new Set(adultHits.map((h) => h.tx.transaction_id));
+
+  // Emit adult-entertainment flags first
+  for (const { tx, kind, matched } of adultHits) {
+    flags.push({
+      transaction_id: tx.transaction_id,
+      category_group: "vice",
+      category_label: "Adult Entertainment",
+      severity: adultSeverity,
+      merchant: tx.merchant_name || tx.normalized_merchant || "",
+      amount: tx.amount,
+      date: tx.date,
+      reason: `${kind} — matched "${matched}". Adult-entertainment indicator (covers adult subs, cam sites, strip clubs, escort-adjacent services, adult-content processors).`,
+    });
+  }
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
@@ -92,6 +178,9 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
 
     // Skip real-estate transactions entirely
     if (isRealEstate(merchant, desc)) continue;
+
+    // Already handled by adult-entertainment pass
+    if (adultFlaggedIds.has(t.transaction_id)) continue;
 
     // MCC 7995 → Gambling (severity scales with count + volume)
     if (mcc === "7995") {
@@ -107,21 +196,6 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
         amount: t.amount,
         date: t.date,
         reason,
-      });
-      continue;
-    }
-
-    // MCC 5967 → Adult Content
-    if (mcc === "5967") {
-      flags.push({
-        transaction_id: t.transaction_id,
-        category_group: "vice",
-        category_label: "Adult Content",
-        severity: "medium",
-        merchant,
-        amount: t.amount,
-        date: t.date,
-        reason: `MCC 5967 (Direct Marketing / Adult Content) — definitive adult content indicator.`,
       });
       continue;
     }
@@ -143,12 +217,21 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
   return flags;
 }
 
+// Aliases that collapse legacy / model-emitted phrasings to canonical labels
+const LABEL_ALIASES: Record<string, string> = {
+  "adult content": "Adult Entertainment",
+  "adult": "Adult Entertainment",
+  "adult services": "Adult Entertainment",
+  "adult subscription": "Adult Entertainment",
+  "cam site": "Adult Entertainment",
+  "strip club": "Adult Entertainment",
+  "escort": "Adult Entertainment",
+};
+
 function normalizeLabel(label: string): string {
-  return String(label || "")
-    .replace(/_/g, " ")
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const cleaned = String(label || "").replace(/_/g, " ").trim().toLowerCase();
+  if (LABEL_ALIASES[cleaned]) return LABEL_ALIASES[cleaned];
+  return cleaned.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
@@ -177,14 +260,14 @@ function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
 
 const SYSTEM_PROMPT = `You are a banking risk analysis engine. You receive RAW transaction data (merchant_name, description, mcc, amount, date, zip_code, home_zip, source). You analyze it for risk in THREE groups only:
 
-1. **vice** — Gambling, casinos, sports betting, adult content, payday/predatory loans, pawn shops, crypto mixing services.
+1. **vice** — Gambling/casinos/sports betting; **Adult Entertainment** (adult content subscriptions like OnlyFans / Pornhub network / Fansly, cam sites like Chaturbate / Stripchat / CamSoda, strip clubs / gentlemen's clubs / cabarets, escort-adjacent or "companion" services, adult-content payment processors like CCBill / Epoch / Segpay / Fenix International / MindGeek); payday/predatory loans; pawn shops; crypto mixing services.
 2. **suspicious_international** — Cross-border wires/processors, OFAC-sanctioned jurisdictions, international transfers inconsistent with the customer's home zip.
 3. **aml** — STRUCTURING (multiple deposits/withdrawals just below $10,000 thresholds), rapid round-number layering, repeated cash-equivalent activity. Must be a PATTERN of multiple transactions. A single large legitimate purchase is NEVER aml.
 
 For each flag, return:
 - transaction_id (use "pattern" only for multi-transaction AML patterns)
 - category_group: "vice" | "suspicious_international" | "aml"
-- category_label: a SPECIFIC human label such as "Gambling", "Adult Content", "Sports Betting", "Payday Loan", "Crypto Mixing", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering"
+- category_label: a SPECIFIC human label such as "Gambling", "Adult Entertainment", "Sports Betting", "Payday Loan", "Crypto Mixing", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering". Always use "Adult Entertainment" — never "Adult Content".
 - severity: "low" | "medium" | "high"
 - merchant
 - amount

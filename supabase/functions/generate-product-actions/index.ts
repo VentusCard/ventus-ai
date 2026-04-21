@@ -37,7 +37,7 @@ RULES:
 - Standard actions use: blue, amber, teal, violet
 - Wow actions use warmer/richer colors: rose, emerald, orange, pink, indigo
 
-RISK CARDS (cards where type === "risk" or signal_label matches a risk category like "Gambling", "Adult Content", "Suspicious International", "AML", "Sports Betting", "Payday Loan", "Crypto Mixing", "Structuring", "Layering"):
+RISK CARDS (cards where type === "risk" or signal_label matches a risk category like "Gambling", "Adult Entertainment", "Suspicious International", "AML", "Sports Betting", "Payday Loan", "Crypto Mixing", "Structuring", "Layering"):
 - Generate ONLY risk-appropriate, wellness/safety/compliance actions. NEVER marketing, upsell, or celebratory actions.
 - Use cooler/calmer colors ONLY: standard → slate, sky, indigo; wow → rose, indigo. Never pink, orange, emerald, amber celebratory tones.
 - Prefer icons: shield, bell, user-check, lightbulb.
