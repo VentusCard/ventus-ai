@@ -391,10 +391,33 @@ export default function ExecDemoIntelPanel({
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
                       if (assistantOpen) {
-                        onAIPromptDispatch?.(
-                          `How much do I typically spend on ${r.label.toLowerCase()}?`,
-                          "lifestyle"
-                        );
+                        // Bake ground-truth totals into the prompt so the AI doesn't have
+                        // to recompute from pillar/category aggregates (which don't know
+                        // about sub-cluster rollups like "Seasonal Ski Trips").
+                        const totalSpend = Math.round(r.totalSpend ?? 0);
+                        const totalCount = r.totalCount ?? 0;
+                        let merchantBreakdown = "";
+                        if (transactions && r.txIndices && r.txIndices.length > 0) {
+                          const mMap: Record<string, { total: number; count: number }> = {};
+                          for (const idx of r.txIndices) {
+                            const tx: any = transactions[idx];
+                            if (!tx) continue;
+                            const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
+                            const amt = typeof tx.amount === "number"
+                              ? Math.abs(tx.amount)
+                              : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                            if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
+                            mMap[name].total += amt;
+                            mMap[name].count += 1;
+                          }
+                          const top = Object.entries(mMap)
+                            .sort((a, b) => b[1].total - a[1].total)
+                            .slice(0, 5)
+                            .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
+                          if (top.length) merchantBreakdown = ` Breakdown: ${top.join("; ")}.`;
+                        }
+                        const prompt = `How much do I typically spend on ${r.label.toLowerCase()}? (Use these exact figures from my account: total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""} tagged "${r.label}".${merchantBreakdown})`;
+                        onAIPromptDispatch?.(prompt, "lifestyle");
                       }
                     }
                   };
