@@ -352,7 +352,7 @@ function nonUsZip(zip: string, homeZip: string): boolean {
 
 interface RiskFlag {
   transaction_id: string;
-  category_group: "vice" | "suspicious_international" | "aml";
+  category_group: "vice" | "suspicious_international" | "aml" | "financial_distress";
   category_label: string;
   severity: "low" | "medium" | "high";
   merchant: string;
