@@ -70,6 +70,107 @@ function matchesAny(text: string, keywords: string[]): string | null {
   return null;
 }
 
+// ============== Gambling subcategory keyword surfaces ==============
+// Order matters: more specific / higher-risk buckets are checked first.
+
+const GAMBLING_OFFSHORE_KEYWORDS = [
+  "BOVADA", "BETONLINE", "MYBOOKIE", "SPORTSBETTING.AG", "BOOKMAKER.EU",
+  "BETUS", "XBET", "5DIMES", "HERITAGE SPORTS", "JAZZ SPORTS",
+  "NITROGEN SPORTS", "STAKE.COM", "ROOBET", "CLOUDBET", "CRYPTO SPORTSBOOK",
+  "OFFSHORE GAMING", "CURACAO GAMING", "WAGERWEB", "INTERTOPS",
+];
+
+const GAMBLING_HORSE_KEYWORDS = [
+  "TVG", "TWINSPIRES", "TWIN SPIRES", "XPRESSBET", "NYRA BETS", "NYRABETS",
+  "AMWAGER", "BETAMERICA", "DERBYWARS", "WATCHANDWAGER",
+  "CHURCHILL DOWNS", "BELMONT PARK", "SARATOGA RACE", "SANTA ANITA",
+  "DEL MAR RACE", "GULFSTREAM PARK", "AQUEDUCT", "PIMLICO RACE",
+  "OFF TRACK BETTING", "OTB ", "PARI-MUTUEL", "PARIMUTUEL", "1ST BET",
+];
+
+const GAMBLING_SPORTS_KEYWORDS = [
+  "DRAFTKINGS SPORTSBOOK", "DRAFTKINGS SB", "DK SPORTSBOOK",
+  "FANDUEL SPORTSBOOK", "FANDUEL SB", "FD SPORTSBOOK",
+  "BETMGM", "BET MGM", "CAESARS SPORTSBOOK", "CAESARS SB",
+  "POINTSBET", "BETRIVERS", "BET RIVERS", "WYNNBET", "WYNN BET",
+  "BARSTOOL SPORTSBOOK", "BARSTOOL SB", "FANATICS SPORTSBOOK", "FANATICS BET",
+  "ESPN BET", "ESPNBET", "HARD ROCK BET", "HARDROCK BET",
+  "PRIZEPICKS", "UNDERDOG FANTASY", "UNDERDOG SPORTS",
+  "SPORTSBOOK", "SB DEPOSIT",
+];
+
+const GAMBLING_CASINO_KEYWORDS = [
+  "MGM GRAND", "MGM RESORTS", "MGM CASINO", "BELLAGIO", "ARIA RESORT",
+  "MANDALAY BAY", "LUXOR HOTEL", "EXCALIBUR HOTEL", "PARK MGM",
+  "CAESARS PALACE", "HARRAHS", "HARRAH'S", "HORSESHOE CASINO",
+  "WYNN LAS VEGAS", "WYNN CASINO", "ENCORE CASINO",
+  "VENETIAN RESORT", "PALAZZO RESORT", "COSMOPOLITAN LAS VEGAS",
+  "FOXWOODS", "MOHEGAN SUN", "BORGATA", "OCEAN CASINO", "TROPICANA CASINO",
+  "PARX CASINO", "SUGARHOUSE", "RIVERS CASINO", "MOTORCITY CASINO",
+  "GREEKTOWN CASINO", "PECHANGA", "BARONA CASINO", "AGUA CALIENTE",
+  "BETMGM CASINO", "CAESARS CASINO", "DRAFTKINGS CASINO", "FANDUEL CASINO",
+  "GOLDEN NUGGET CASINO", "BORGATA ONLINE", "RESORTS CASINO",
+];
+
+const GAMBLING_CASUAL_KEYWORDS = [
+  "DRAFTKINGS DFS", "DRAFTKINGS DAILY", "DRAFTKINGS FANTASY",
+  "FANDUEL DFS", "FANDUEL FANTASY", "FANDUEL DAILY",
+  "YAHOO FANTASY", "SLEEPER FANTASY",
+  "CHUMBA CASINO", "STAKE.US", "LUCKYLAND SLOTS", "FUNZPOINTS",
+  "GLOBAL POKER", "PULSZ", "HIGH 5 CASINO", "WOW VEGAS", "MCLUCK",
+  "ZYNGA POKER", "WSOP APP", "WORLD SERIES OF POKER APP",
+  "POKERSTARS PLAY", "JACKPOT.COM",
+];
+
+const GAMBLING_LOTTERY_KEYWORDS = [
+  "LOTTERY", "LOTTO", "POWERBALL", "MEGA MILLIONS", "SCRATCH OFF",
+  "SCRATCH-OFF", "SCRATCHER", "STATE LOTTERY", "JACKPOCKET",
+  "LOTTERY OFFICE", "RAFFLE", "CHARITY RAFFLE", "50/50 RAFFLE",
+];
+
+const GAMBLING_GENERIC_KEYWORDS = [
+  "CASINO", "POKER", "BLACKJACK", "BACCARAT", "ROULETTE", "SLOTS ",
+  "WAGER", "BETTING", "BOOKIE", "BOOKMAKER", "TURF CLUB",
+];
+
+interface GamblingHit {
+  label: string;
+  kind: string;
+  matched: string;
+  riskWeight: number;
+}
+
+function detectGambling(merchant: string, mcc: string): GamblingHit | null {
+  const m = (merchant || "").toUpperCase();
+  if (!m) return mcc === "7995" ? { label: "Gambling", kind: "MCC 7995 with no merchant name", matched: "MCC 7995", riskWeight: 2 } : null;
+  const isGamblingMcc = mcc === "7995";
+
+  let hit = matchesAny(m, GAMBLING_OFFSHORE_KEYWORDS);
+  if (hit) return { label: "High-Risk / Offshore Gambling", kind: "Offshore / unregulated sportsbook or crypto sportsbook", matched: hit, riskWeight: 5 };
+
+  hit = matchesAny(m, GAMBLING_HORSE_KEYWORDS);
+  if (hit) return { label: "Horse Racing & Pari-mutuel", kind: "Pari-mutuel / track wagering", matched: hit, riskWeight: 2 };
+
+  hit = matchesAny(m, GAMBLING_SPORTS_KEYWORDS);
+  if (hit) return { label: "Sports Betting", kind: "Regulated sportsbook deposit", matched: hit, riskWeight: 3 };
+
+  hit = matchesAny(m, GAMBLING_CASINO_KEYWORDS);
+  if (hit) return { label: "Casino & Table Games", kind: "Casino property or regulated online casino", matched: hit, riskWeight: 3 };
+
+  hit = matchesAny(m, GAMBLING_CASUAL_KEYWORDS);
+  if (hit) return { label: "Casual / Social Gaming", kind: "Daily fantasy, sweepstakes casino, or social poker", matched: hit, riskWeight: 1 };
+
+  hit = matchesAny(m, GAMBLING_LOTTERY_KEYWORDS);
+  if (hit) return { label: "Lottery & Raffles", kind: "Lottery, scratch ticket, or raffle", matched: hit, riskWeight: 1 };
+
+  if (isGamblingMcc) {
+    hit = matchesAny(m, GAMBLING_GENERIC_KEYWORDS);
+    if (hit) return { label: "Gambling", kind: "Generic gambling merchant (MCC 7995)", matched: hit, riskWeight: 2 };
+    return { label: "Gambling", kind: "MCC 7995 (Betting / Casino / Lottery), unrecognized merchant", matched: "MCC 7995", riskWeight: 2 };
+  }
+  return null;
+}
+
 function detectAdultEntertainment(merchant: string, mcc: string): { kind: string; matched: string } | null {
   const m = (merchant || "").toUpperCase();
   if (!m) return null;
@@ -81,7 +182,6 @@ function detectAdultEntertainment(merchant: string, mcc: string): { kind: string
   if (hit) return { kind: "Adult content payment processor", matched: hit };
   hit = matchesAny(m, ESCORT_KEYWORDS);
   if (hit) return { kind: "Escort-adjacent service", matched: hit };
-  // Strip clubs only when MCC is 5813 (Drinking Places) or 7299 (Misc Personal Services)
   if (mcc === "5813" || mcc === "7299") {
     hit = matchesAny(m, STRIP_CLUB_KEYWORDS);
     if (hit) return { kind: "Strip-club venue", matched: hit };
@@ -120,25 +220,49 @@ interface RiskFlag {
   reason: string;
 }
 
-function gamblingSeverity(count: number, totalAmount: number): "low" | "medium" | "high" {
-  // Severity scales with frequency AND volume. A single small transaction is low.
-  if (count >= 4 || totalAmount >= 2000) return "high";
-  if (count >= 2 || totalAmount >= 500) return "medium";
+function gamblingSeverityFor(
+  hit: GamblingHit,
+  weightedScore: number,
+  totalSpend: number,
+  subCount: number
+): "low" | "medium" | "high" {
+  // Offshore is always high — single hit is enough.
+  if (hit.label === "High-Risk / Offshore Gambling") return "high";
+  if (weightedScore >= 12 || totalSpend >= 2000) return "high";
+  if (weightedScore >= 4 || totalSpend >= 500) return "medium";
+  // ≥2 hits in a serious bucket (sports / casino) bumps to medium even at low spend
+  if (subCount >= 2 && (hit.label === "Sports Betting" || hit.label === "Casino & Table Games")) return "medium";
   return "low";
 }
 
 function deterministicFlags(transactions: any[]): RiskFlag[] {
   const flags: RiskFlag[] = [];
 
-  // Pre-compute gambling aggregates so single-transaction cases don't get "high"
-  const gamblingTxs = transactions.filter(
-    (t) => String(t.mcc || "").trim() === "7995" && !isRealEstate(t.merchant_name || "", t.description || "")
-  );
-  const gamblingCount = gamblingTxs.length;
-  const gamblingTotal = gamblingTxs.reduce((s, t) => s + (Number(t.amount) || 0), 0);
-  const gSeverity = gamblingSeverity(gamblingCount, gamblingTotal);
+  // ============== Gambling subcategory pre-pass ==============
+  // Resolve every transaction (any MCC) through detectGambling. Adult-flagged ones are skipped.
+  const gamblingHits = transactions
+    .map((t) => {
+      const merchant = t.merchant_name || t.normalized_merchant || "";
+      const mcc = String(t.mcc || "").trim();
+      if (isRealEstate(merchant, t.description || "")) return null;
+      const hit = detectGambling(merchant, mcc);
+      return hit ? { tx: t, hit } : null;
+    })
+    .filter((x): x is { tx: any; hit: GamblingHit } => x !== null);
 
-  // Pre-compute adult-entertainment aggregates (MCC 5967 + keyword matches across any MCC)
+  const gamblingTotal = gamblingHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+  const subCounts = new Map<string, number>();
+  for (const { hit } of gamblingHits) {
+    subCounts.set(hit.label, (subCounts.get(hit.label) || 0) + 1);
+  }
+  // weightedScore = Σ (riskWeight × txCount per subcategory) + (totalSpend / 500)
+  const weightedScore =
+    gamblingHits.reduce((s, { hit }) => s + hit.riskWeight, 0) + gamblingTotal / 500;
+  const gamblingFlaggedIds = new Set<string>();
+
+  console.log(`[RISK] Gambling: ${gamblingHits.length} hits, total $${gamblingTotal.toFixed(2)}, weightedScore=${weightedScore.toFixed(2)}, subCounts=${JSON.stringify(Object.fromEntries(subCounts))}`);
+
+  // ============== Adult Entertainment pre-pass ==============
   const adultHits = transactions
     .map((t) => {
       const merchant = t.merchant_name || t.normalized_merchant || "";
@@ -157,7 +281,7 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     adultCount >= 3 || adultTotal >= 500 ? "high" : "medium";
   const adultFlaggedIds = new Set(adultHits.map((h) => h.tx.transaction_id));
 
-  // Emit adult-entertainment flags first
+  // Emit adult-entertainment flags first (adult > gambling priority if both somehow match)
   for (const { tx, kind, matched } of adultHits) {
     flags.push({
       transaction_id: tx.transaction_id,
@@ -171,34 +295,39 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     });
   }
 
+  // Emit gambling flags (skip adult-flagged transactions)
+  for (const { tx, hit } of gamblingHits) {
+    if (adultFlaggedIds.has(tx.transaction_id)) continue;
+    const subCount = subCounts.get(hit.label) || 1;
+    const severity = gamblingSeverityFor(hit, weightedScore, gamblingTotal, subCount);
+    const reason =
+      hit.label === "High-Risk / Offshore Gambling"
+        ? `${hit.label} — ${hit.kind}. Matched "${hit.matched}". Strong financial-distress / AML correlate.`
+        : hit.label === "Lottery & Raffles"
+          ? `${hit.label} — ${hit.kind}. Matched "${hit.matched}". Low-stakes; weak signal in isolation.`
+          : `${hit.label} — ${hit.kind}. Matched "${hit.matched}". ${subCount} of ${gamblingHits.length} gambling transactions ($${gamblingTotal.toFixed(2)} total) — weighted score ${weightedScore.toFixed(1)}.`;
+    flags.push({
+      transaction_id: tx.transaction_id,
+      category_group: "vice",
+      category_label: hit.label,
+      severity,
+      merchant: tx.merchant_name || tx.normalized_merchant || "",
+      amount: tx.amount,
+      date: tx.date,
+      reason,
+    });
+    gamblingFlaggedIds.add(tx.transaction_id);
+  }
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
     const mcc = String(t.mcc || "").trim();
 
-    // Skip real-estate transactions entirely
     if (isRealEstate(merchant, desc)) continue;
-
-    // Already handled by adult-entertainment pass
     if (adultFlaggedIds.has(t.transaction_id)) continue;
+    if (gamblingFlaggedIds.has(t.transaction_id)) continue;
 
-    // MCC 7995 → Gambling (severity scales with count + volume)
-    if (mcc === "7995") {
-      const reason = gamblingCount === 1
-        ? `MCC 7995 (Betting / Casino / Lottery) — single isolated gambling transaction of $${Number(t.amount).toFixed(2)}.`
-        : `MCC 7995 (Betting / Casino / Lottery) — ${gamblingCount} gambling transactions totaling $${gamblingTotal.toFixed(2)}.`;
-      flags.push({
-        transaction_id: t.transaction_id,
-        category_group: "vice",
-        category_label: "Gambling",
-        severity: gSeverity,
-        merchant,
-        amount: t.amount,
-        date: t.date,
-        reason,
-      });
-      continue;
-    }
 
     // International keywords + missing/non-US zip
     if (looksInternational(merchant) && nonUsZip(t.zip_code || "", t.home_zip || "")) {
@@ -219,6 +348,7 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
 
 // Aliases that collapse legacy / model-emitted phrasings to canonical labels
 const LABEL_ALIASES: Record<string, string> = {
+  // Adult Entertainment
   "adult content": "Adult Entertainment",
   "adult": "Adult Entertainment",
   "adult services": "Adult Entertainment",
@@ -226,6 +356,36 @@ const LABEL_ALIASES: Record<string, string> = {
   "cam site": "Adult Entertainment",
   "strip club": "Adult Entertainment",
   "escort": "Adult Entertainment",
+  // Gambling subcategories
+  "sports betting": "Sports Betting",
+  "sportsbook": "Sports Betting",
+  "regulated sportsbook": "Sports Betting",
+  "casino": "Casino & Table Games",
+  "casino & table games": "Casino & Table Games",
+  "table games": "Casino & Table Games",
+  "online casino": "Casino & Table Games",
+  "horse racing": "Horse Racing & Pari-mutuel",
+  "horse racing & pari-mutuel": "Horse Racing & Pari-mutuel",
+  "pari-mutuel": "Horse Racing & Pari-mutuel",
+  "parimutuel": "Horse Racing & Pari-mutuel",
+  "track wagering": "Horse Racing & Pari-mutuel",
+  "lottery": "Lottery & Raffles",
+  "lottery & raffles": "Lottery & Raffles",
+  "raffle": "Lottery & Raffles",
+  "scratch ticket": "Lottery & Raffles",
+  "scratch-off": "Lottery & Raffles",
+  "casual gaming": "Casual / Social Gaming",
+  "social gaming": "Casual / Social Gaming",
+  "casual / social gaming": "Casual / Social Gaming",
+  "daily fantasy": "Casual / Social Gaming",
+  "dfs": "Casual / Social Gaming",
+  "sweepstakes casino": "Casual / Social Gaming",
+  "social poker": "Casual / Social Gaming",
+  "offshore gambling": "High-Risk / Offshore Gambling",
+  "high-risk gambling": "High-Risk / Offshore Gambling",
+  "high-risk / offshore gambling": "High-Risk / Offshore Gambling",
+  "crypto sportsbook": "High-Risk / Offshore Gambling",
+  "unregulated gambling": "High-Risk / Offshore Gambling",
 };
 
 function normalizeLabel(label: string): string {
@@ -260,14 +420,24 @@ function dedupeFlags(detFlags: RiskFlag[], modelFlags: RiskFlag[]): RiskFlag[] {
 
 const SYSTEM_PROMPT = `You are a banking risk analysis engine. You receive RAW transaction data (merchant_name, description, mcc, amount, date, zip_code, home_zip, source). You analyze it for risk in THREE groups only:
 
-1. **vice** — Gambling/casinos/sports betting; **Adult Entertainment** (adult content subscriptions like OnlyFans / Pornhub network / Fansly, cam sites like Chaturbate / Stripchat / CamSoda, strip clubs / gentlemen's clubs / cabarets, escort-adjacent or "companion" services, adult-content payment processors like CCBill / Epoch / Segpay / Fenix International / MindGeek); payday/predatory loans; pawn shops; crypto mixing services.
+1. **vice** — has multiple subcategories; pick the most specific:
+   - **Gambling subcategories** (in priority order):
+     • **High-Risk / Offshore Gambling** — Bovada, BetOnline, MyBookie, Stake.com, Roobet, crypto sportsbooks, unregulated/Curaçao operators. Strong financial-distress / AML correlate; flag as high severity even on a single hit.
+     • **Sports Betting** — DraftKings/FanDuel/BetMGM/Caesars/PointsBet/BetRivers/WynnBet/Barstool/Fanatics/ESPN Bet/Hard Rock Bet sportsbooks; PrizePicks; Underdog Fantasy.
+     • **Casino & Table Games** — MGM/Bellagio/Caesars Palace/Wynn/Foxwoods/Mohegan/Borgata properties; regulated online casinos (BetMGM Casino, FanDuel Casino, DraftKings Casino).
+     • **Horse Racing & Pari-mutuel** — TVG, TwinSpires, Xpressbet, NYRA Bets, AmWager, OTB, track wagering.
+     • **Casual / Social Gaming** — DraftKings DFS / FanDuel DFS / Yahoo Fantasy / Sleeper; sweepstakes casinos (Chumba, Stake.us, LuckyLand, Funzpoints, Pulsz); social poker (Zynga, WSOP App, PokerStars Play).
+     • **Lottery & Raffles** — Powerball, Mega Millions, scratch tickets, state lottery, Jackpocket, charity raffles. Low-stakes; weak signal in isolation.
+     • **Gambling** (generic fallback) — only when MCC 7995 fires but no merchant context disambiguates.
+   - **Adult Entertainment** — adult content subscriptions (OnlyFans / Pornhub network / Fansly), cam sites (Chaturbate / Stripchat / CamSoda), strip clubs / gentlemen's clubs / cabarets, escort-adjacent or "companion" services, adult-content payment processors (CCBill / Epoch / Segpay / Fenix International / MindGeek).
+   - Payday/predatory loans, pawn shops, crypto mixing services.
 2. **suspicious_international** — Cross-border wires/processors, OFAC-sanctioned jurisdictions, international transfers inconsistent with the customer's home zip.
 3. **aml** — STRUCTURING (multiple deposits/withdrawals just below $10,000 thresholds), rapid round-number layering, repeated cash-equivalent activity. Must be a PATTERN of multiple transactions. A single large legitimate purchase is NEVER aml.
 
 For each flag, return:
 - transaction_id (use "pattern" only for multi-transaction AML patterns)
 - category_group: "vice" | "suspicious_international" | "aml"
-- category_label: a SPECIFIC human label such as "Gambling", "Adult Entertainment", "Sports Betting", "Payday Loan", "Crypto Mixing", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering". Always use "Adult Entertainment" — never "Adult Content".
+- category_label: a SPECIFIC human label. For gambling, use one of: "High-Risk / Offshore Gambling", "Sports Betting", "Casino & Table Games", "Horse Racing & Pari-mutuel", "Casual / Social Gaming", "Lottery & Raffles", "Gambling" (generic fallback only). Other valid labels: "Adult Entertainment", "Payday Loan", "Crypto Mixing", "Suspicious International", "Cross-Border Wire", "Structuring", "Layering". Always pick the most specific gambling subcategory; only fall back to generic "Gambling" when no merchant context disambiguates. Always use "Adult Entertainment" — never "Adult Content".
 - severity: "low" | "medium" | "high"
 - merchant
 - amount
