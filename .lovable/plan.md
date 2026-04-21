@@ -1,62 +1,83 @@
 
 
-## Problem
+## Approach
 
-Pill **"Annual Premium Hawaii Vacations"** is including a **PALISADES TAHOE LODGE** transaction. That's a semantic mismatch — Hawaii vacations and ski lodging are two different lifestyles, even though both fall under "Hotels & Lodging" in the category taxonomy.
+Generalize subcategories to carry **cross-pillar lifestyle tags** in addition to today's parent-category facets.
 
-The pill labels are correct and should stay vivid ("Annual Hawaiian Vacations" is exactly the style the user wants). The fix is teaching the LLM that **the transactions placed inside a rollup must semantically match the rollup's meaning** — not just share a category code.
+A transaction's `pillar` and `category` stay as the primary classification (unchanged). But `subcategories[]` can now include **one cross-pillar lifestyle tag** drawn from a controlled vocabulary — only when the merchant name or description makes it obvious. This turns `subcategories` from "facets of the parent category" into a **lifestyle signal** that downstream personas, risk detection, and offer generation can key off without re-deriving context.
 
-## Root cause
+### What this looks like
 
-`synthesize-persona` groups transactions by `pillar::category` and sends each category as a single row `[N]` to the AI. The AI picks `category_indices` to bundle into a rollup. Because all hotel charges live in one category row, picking that index pulls in *every* hotel — Hawaii beach resorts and Tahoe ski lodges alike.
+| Merchant | Pillar / Category (unchanged) | New subcategories |
+|---|---|---|
+| `PALISADES TAHOE LODGE` | Travel / Hotels & Lodging | **`["Ski", "Mountain"]`** |
+| `MAUI HILTON` | Travel / Hotels & Lodging | **`["Tropical Vacation", "Beach"]`** |
+| `BANFF SPRINGS HOTEL` | Travel / Hotels & Lodging | **`["Mountain"]`** |
+| `MARRIOTT MIDTOWN` | Travel / Hotels & Lodging | **`["Urban Hotel"]`** |
+| `LULULEMON` | Sports / Gym & Fitness | `["Apparel", `**`"Athleisure"`**`]` |
+| `HARRY WINSTON` | Style / Jewelry | `["Fine Jewelry", `**`"Engagement"`**`]` |
+| `STANFORD GSB TUITION` | Family / Childcare & Education | `["Tuition", `**`"Career Development"`**`]` |
+| `BABIES R US` | Family / Kids Activities | `["Infant Goods", `**`"New Parent"`**`]` |
 
-Two things must change in the prompt to fix this semantically:
+The cross-pillar tag is **secondary** — it never replaces the primary pillar/category. The Tahoe lodge is still a Travel transaction; we just *also* tell downstream that it's a ski trip.
 
-1. The AI must **inspect merchants/subcategories** before picking a category index — not just the category name.
-2. The AI must understand that **a category may contain multiple distinct lifestyles**, and in that case it should either split them into separate rollups or omit the category from a rollup whose theme it doesn't fully match.
+### Controlled vocabulary
 
-## Fix — prompt-only, in `supabase/functions/synthesize-persona/index.ts`
+The model needs a closed list so tags are consistent and matchable. Define in the prompt:
 
-Add a single, strong **semantic-coherence rule**. Keep all existing destination-named labels and examples.
+**Activity context** (where/how the spend happens):
+`Ski`, `Mountain`, `Tropical Vacation`, `Beach`, `Coastal Resort`, `Urban Hotel`, `Theme Park`, `Cruise`, `Camping`, `Roadtrip`
 
-### New rule to add (after the existing "Pattern-forward naming" section)
+**Life-event context** (what life moment the spend signals):
+`Wedding`, `Engagement`, `New Parent`, `Baby Prep`, `New Home`, `Moving`, `Career Development`, `Retirement Prep`, `College Prep`, `Pet Adoption`
 
-> **SEMANTIC COHERENCE — TRANSACTIONS INSIDE A ROLLUP MUST MATCH ITS MEANING.**
+**Lifestyle-flavor context** (cross-pillar interest):
+`Athleisure`, `Foodie`, `Wellness`, `Eco-Conscious`, `DIY`, `Luxury Lifestyle`, `Family-Oriented`, `Tech Enthusiast`, `Outdoor`, `Arts & Culture`
+
+Anything outside this vocabulary stays as today's category-facet tags (`Domestic`, `Full-Service`, `Membership`, `Apparel`, etc.).
+
+### Application rule
+
+> **CROSS-PILLAR LIFESTYLE TAG (optional, max 1 per transaction):**
+> In addition to category-facet labels, you may include ONE tag from the controlled lifestyle vocabulary above when the merchant name or description makes the lifestyle context **obvious**. This tag tells downstream systems what *life pattern* this spend belongs to, even when it primarily lives in another pillar.
 >
-> A rollup is not just a label — it's a *promise* about what kind of activity the contributing transactions represent. Before you add a category index to a rollup, look at the merchants and subcategories listed for that index and ask: "**Do these specific purchases actually fit the lifestyle this rollup describes?**"
+> Apply ONLY when the signal is unambiguous — never guess. If the merchant is generic (`MARRIOTT`, `WHOLE FOODS`, `AMAZON`, `TARGET`), do NOT apply a lifestyle tag. The tag must be deducible from the merchant string itself, not from your prior beliefs about the customer.
 >
-> Categories like "Hotels & Lodging" or "Airlines" routinely mix incompatible lifestyles. A single "Hotels & Lodging" row can contain a Hawaii beach resort, a Tahoe ski lodge, and a midtown business hotel — those are **three different lifestyles**, not one. You must NOT bundle them under a single rollup just because they share a category.
->
-> Examples of forbidden mismatches:
-> - "Annual Hawaiian Vacations" must NOT include `PALISADES TAHOE LODGE`, `ASPEN MOUNTAIN`, `VAIL RESORTS` — those are ski-trip merchants, not Hawaii.
-> - "Seasonal Ski Trips" must NOT include `MAUI HILTON`, `KONA VILLAGE`, `HAWAIIAN AIRLINES` — those are tropical-trip merchants, not skiing.
-> - "Premium Fine Dining Nights" must NOT include `MCDONALD'S` or `CHIPOTLE` even if they live in a "Restaurants" category.
->
-> **What to do instead:**
-> 1. Read every merchant and subcategory in each candidate category.
-> 2. If a category cleanly matches one lifestyle, include its index in that rollup.
-> 3. If a category contains **mixed lifestyles** (some Hawaii, some Tahoe; some fine dining, some fast food), emit **separate rollups** for each coherent sub-pattern (e.g. "Annual Hawaiian Vacations" AND "Seasonal Ski Trips"), each pointing to the same category index — the UI will use merchant-level signals to display the right transactions under each pill. Do not silently merge incompatible lifestyles to keep your output shorter.
-> 4. If a single lifestyle clearly dominates (e.g. 6 Hawaii merchants and 1 stray ski lodge), name the rollup after the dominant lifestyle and accept that the stray transaction belongs to a separate, ungrouped behavior — do **not** stretch the label to cover both.
->
-> When in doubt, emit fewer, more honest rollups. A coherent "Annual Hawaiian Vacations" pill with only Hawaii merchants is worth more than a bloated "Premium Travel" pill that lumps everything together.
+> Examples:
+> - `PALISADES TAHOE LODGE` → `["Ski", "Mountain"]` ✓ — merchant says Tahoe Lodge, clear ski signal
+> - `MAUI HILTON` → `["Tropical Vacation", "Beach"]` ✓ — Maui is unambiguous
+> - `MARRIOTT` → `["Full-Service"]` ✗ — could be anywhere, no lifestyle tag
+> - `HARRY WINSTON` → `["Fine Jewelry", "Engagement"]` ✓ — engagement-ring brand
+> - `KAY JEWELERS` → `["Fine Jewelry"]` ✗ — sells broad jewelry, no Engagement tag
+> - `BABIES R US` → `["Infant Goods", "New Parent"]` ✓
+> - `TARGET` → `["Department Store"]` ✗ — generic, no New Parent tag even if suspected
 
-### Supporting tweak
+The 1-3 subcategory cap stays the same; the lifestyle tag, if used, counts toward it.
 
-In the existing "How to think about rollups" intro, add one line at the top:
+## Why this is the right cut
 
-> Before you write any rollup, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.
-
-Keep all existing destination-named examples ("Annual Hawaiian Vacations", "Winter Ski Trips", "Tennis & Ski Seasonal Sports", etc.) intact.
+- **No schema change** — `subcategories[]` already accepts free-form labels.
+- **No new LLM cost** — same call, same tokens.
+- **Generalizes beyond travel** — one mechanism handles ski/tropical, weddings, new parents, career pivots, etc.
+- **Downstream gets it for free** — `synthesize-persona`, `generate-next-offers`, `detect-risk-transactions`, `deal-personalization` already consume `subcategories`. New tags become usable everywhere immediately.
+- **Tight controlled vocabulary** prevents tag explosion — downstream code can match on a fixed set instead of fuzzy-matching free text.
+- **Compositional with the semantic-coherence rule** we just added to `synthesize-persona`: the rollup builder now has explicit `Ski` vs `Tropical Vacation` tags to key off, instead of inferring them from raw merchant strings every time.
 
 ## Files Changed
 
-- `supabase/functions/synthesize-persona/index.ts` — system prompt only (no schema, no code, no client changes)
+- `supabase/functions/classify-transactions/index.ts` — system prompt only. Add the controlled vocabulary section, the application rule, and 8-10 worked examples sprinkled through the existing Travel / Style / Family / Pets example blocks.
+
+No code changes, no schema changes, no client changes.
 
 ## Verification
 
-- /demo → run a customer with both Hawaii and Tahoe travel
-- Expect two coherent pills: **"Annual Hawaiian Vacations"** and **"Seasonal Ski Trips"** (or similar)
-- Open "Annual Hawaiian Vacations" → must contain only Hawaii-themed transactions; no Tahoe/Aspen/Vail
-- Open "Seasonal Ski Trips" → must contain only ski-themed transactions; no Maui/Kona/Hawaiian Air
-- Generic merchants (Marriott, Delta) without a clear destination signal stay out of destination-named rollups unless context establishes the destination
+- /demo → run a customer with Tahoe + Hawaii travel, plus a Harry Winston and a Babies R Us purchase
+- Inspect the enrichment table → confirm:
+  - Tahoe lodge shows `Ski` in subcategories
+  - Maui hotel shows `Tropical Vacation`
+  - Harry Winston shows `Engagement`
+  - Babies R Us shows `New Parent`
+  - Generic Marriott / Whole Foods / Amazon show NO lifestyle tag (just facets)
+- Next-Offer pills → "Annual Hawaiian Vacations" no longer sweeps in Tahoe; a separate ski rollup emerges
+- Existing non-card cases (Maria Garcia / dogsitting → Pets, John Smith / rent → Home & Living) still classify correctly — no regressions
 
