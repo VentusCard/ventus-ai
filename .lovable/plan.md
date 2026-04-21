@@ -1,73 +1,70 @@
 
 
+## Short answer
+
+**No, not really.** Financial-distress detection in `detect-risk-transactions` today is a single sentence in the LLM prompt — *"Payday/predatory loans, pawn shops, crypto mixing services"* — with no deterministic detector, no keyword surface, no severity scaling, and no coverage of debt collection, check cashing, money services, prepaid reloads, or early-wage-access apps. It's the same gap we just closed for Adult Entertainment and Gambling.
+
 ## Change
 
-Mirror what we did for Adult Entertainment: split the single **"Gambling"** label into the six subcategories you listed (plus a generic fallback), with merchant-keyword detection across any MCC and severity that scales with risk weight × frequency × volume.
+Add a **Financial Distress** category group that mirrors the gambling architecture: a deterministic merchant/MCC keyword pre-pass with a per-subcategory risk weight, and a weighted severity score. Update the LLM prompt and `LABEL_ALIASES` so model output collapses to canonical labels.
 
-## Subcategory taxonomy & detection (most-specific wins)
-
-Order matters — the detector checks high-risk buckets first so a transaction like `STAKE.COM` doesn't fall back to generic Gambling.
+## Subcategory taxonomy (most-specific wins, highest FVI weight first)
 
 | Label | Risk weight | Examples (merchant keyword surface) |
 |---|---|---|
-| **High-Risk / Offshore Gambling** | 5 (highest) | Bovada, BetOnline, MyBookie, Sportsbetting.ag, BetUS, 5Dimes, Heritage Sports, Stake.com, Roobet, Cloudbet, Nitrogen Sports, Curaçao Gaming, "OFFSHORE GAMING", crypto sportsbooks |
-| **Sports Betting** | 3 | DraftKings Sportsbook, FanDuel Sportsbook, BetMGM, Caesars Sportsbook, PointsBet, BetRivers, WynnBet, Barstool, Fanatics Bet, ESPN Bet, Hard Rock Bet, PrizePicks, Underdog Fantasy |
-| **Casino & Table Games** | 3 | MGM/Bellagio/Aria/Mandalay Bay/Park MGM, Caesars Palace/Harrah's/Horseshoe, Wynn/Encore, Venetian/Palazzo, Foxwoods, Mohegan Sun, Borgata, Parx, Rivers, Pechanga; regulated online: BetMGM Casino, FanDuel Casino, DraftKings Casino, Golden Nugget Casino |
-| **Horse Racing & Pari-mutuel** | 2 | TVG, TwinSpires, Xpressbet, NYRA Bets, AmWager, Churchill Downs, Belmont Park, Saratoga, Santa Anita, Del Mar, Pimlico, "OFF TRACK BETTING", "PARI-MUTUEL" |
-| **Casual / Social Gaming** | 1 | DraftKings DFS / Fantasy, FanDuel DFS, Yahoo Fantasy, Sleeper, Chumba Casino, Stake.us, LuckyLand Slots, Funzpoints, Global Poker, Pulsz, High 5 Casino, Zynga Poker, WSOP App, PokerStars Play |
-| **Lottery & Raffles** | 1 (lowest) | Powerball, Mega Millions, scratch off / scratchers, state lottery, Jackpocket, "RAFFLE", "CHARITY RAFFLE", "50/50 RAFFLE" |
-| **Gambling** (generic fallback) | 2 | MCC 7995 with unrecognized merchant, or merchant containing CASINO/POKER/SLOTS/WAGER/BOOKIE without matching a specific bucket |
+| **Pawn Shops & Short-Term Credit** | 5 | Payday: Check Into Cash, ACE Cash Express, Advance America, Speedy Cash, MoneyMutual, CashNetUSA, Check 'n Go, LendUp, Cash Store. Title loans: TitleMax, LoanMax, TMX Finance, 1-800LoanMart. Pawn: EZPawn, Cash America Pawn, First Cash Pawn, Pawn America, "PAWN SHOP", "PAWNBROKER". Early wage access: EarnIn, Dave (DAVE INC), Brigit, MoneyLion Instacash, Empower (EMPOWER FINANCE), Albert, Klover. MCC 6051 + payday/cash-advance keyword. |
+| **Debt Collection & Debt Relief** | 5 | Collections: Portfolio Recovery, Midland Credit, Encore Capital, LVNV Funding, Cavalry Portfolio, ERC, Convergent Outsourcing, Resurgent Capital, "COLLECTION AGENCY", "COLLECTIONS DEPT". Debt settlement: National Debt Relief, Freedom Debt Relief, Accredited Debt Relief, CuraDebt, ClearOne Advantage, Pacific Debt. Bankruptcy: anything containing "BANKRUPTCY ATTY", "BANKRUPTCY LAW", "CH 7 ATTORNEY", "CH 13 ATTORNEY", "UPSOLVE". |
+| **Check Cashing & Money Services** | 4 | Check cashing: ACE Check Cashing, PLS Check Cashing, "CHECK CASHING", "CHECK CASHERS". Remittance: Western Union (WU, WESTERN UNION), MoneyGram, Ria Money Transfer, Xoom, Remitly, WorldRemit. Prepaid reloads: GreenDot reload, NetSpend reload, "MONEYPAK", "RELOADIT", PayPal Reload, Vanilla Reload. MCC 4829 (wire transfer / money order) and MCC 6051 (non-FI quasi-cash) when paired with these keywords. |
+| **Subprime Credit & Buy-Here-Pay-Here** | 3 | Credit-builder/subprime cards: Credit One Bank, First Premier Bank, Mission Lane, OpenSky, Indigo, Milestone, Reflex, Surge. BHPH auto: "BUY HERE PAY HERE", DriveTime, J.D. Byrider, Carvana subprime financing. Rent-to-own: Rent-A-Center, Aaron's, Buddy's Home Furnishings, "RENT TO OWN", "RTO". |
+| **Overdraft & NSF Activity** | 4 | Bank-issued fees on the customer's own account: descriptions containing "OVERDRAFT FEE", "NSF FEE", "INSUFFICIENT FUNDS", "RETURNED ITEM FEE", "EXTENDED OVERDRAFT". Volume matters more than single occurrences — severity scales with count. |
+| **Crypto Mixing & High-Risk Crypto** | 4 | Mixers/tumblers: "TORNADO CASH", "WASABI WALLET", "SAMOURAI", "COINJOIN". P2P-cash crypto: LocalBitcoins, Paxful. Privacy-coin-only desks. (Generic exchanges like Coinbase / Kraken / Gemini are NOT flagged here.) |
+| **Financial Distress** (generic fallback) | 2 | MCC 6051 (quasi-cash) or MCC 4829 with no specific bucket match. |
 
-**Disambiguation rules baked into the detector:**
-- `DRAFTKINGS` / `FANDUEL` alone are ambiguous → must include `SPORTSBOOK`/`SB` for Sports Betting, `CASINO` for Casino, or `DFS`/`FANTASY`/`DAILY` for Casual. A bare `DRAFTKINGS` falls through to generic Gambling.
-- `MGM` / `CAESARS` strings need property/casino qualifiers — a hotel-only stay (`MGM HOTEL` MCC 7011) shouldn't be flagged. Detector requires the casino-context keywords listed above OR MCC 7995/7993.
-- `STAKE.COM` → Offshore. `STAKE.US` → Casual / Social (sweepstakes). Order of checks handles this.
+## Detection rules
 
-## Severity scaling (per customer, applied per flag)
-
-```
-weightedScore = Σ (riskWeight × txCount per subcategory) + (totalSpend / 500)
-
-severity:
-  high   if weightedScore ≥ 12  OR  any single offshore hit  OR  totalSpend ≥ $2,000
-  medium if weightedScore ≥ 4   OR  ≥ 2 sports/casino hits   OR  totalSpend ≥ $500
-  low    otherwise (e.g. one Powerball ticket, one Chumba deposit)
-```
-
-- One Powerball ticket → **low** Lottery flag (entertainment, weak signal alone).
-- 4 DraftKings Sportsbook deposits totaling $1.2k → **medium** Sports Betting flag.
-- Any single Bovada hit → **high** Offshore flag (strong FVI signal as you called out).
-- Mixed pattern (sports + casino + offshore) upgrades all flags together via weightedScore.
-
-## Reason strings
-
-Each flag's `reason` references the bucket and matched keyword, e.g.:
-- `"Sports Betting — regulated sportsbook deposit. Matched 'DRAFTKINGS SPORTSBOOK'. 3 of 5 gambling transactions ($1,250 total) sit in this subcategory."`
-- `"High-Risk / Offshore Gambling — offshore / unregulated sportsbook. Matched 'BOVADA'. Strong financial-distress / AML correlate."`
-- `"Lottery & Raffles — scratch ticket / state lottery. Matched 'POWERBALL'. Low-stakes; weak signal in isolation."`
+- **Disambiguation**: PayPal / Cash App by themselves are not flagged — only when descriptor contains "RELOAD", "MONEYPAK", or paired with MCC 6051. Coinbase / Kraken / Gemini → NEVER flagged in Crypto Mixing bucket.
+- **Overdraft fees** are detected from `description` field (not `merchant_name`) since they're issued by the customer's own bank.
+- **Severity scaling** (per customer, applied per flag):
+  ```
+  weightedScore = Σ (riskWeight × txCount per subcategory) + (totalSpend / 250)
+                + bonus(+3) if first-time pawn/payday/title hit (cohort-level — flagged as "first observed")
+                + bonus(+5) if any debt-collection / bankruptcy hit
+  
+  high   if any debt-collection/bankruptcy hit, OR weightedScore ≥ 10, OR ≥ 3 pawn/payday hits
+  medium if weightedScore ≥ 4, OR ≥ 2 hits in any single bucket, OR ≥ 5 overdraft fees
+  low    otherwise (e.g. one Western Union remittance, one EarnIn advance)
+  ```
+- Reason strings reference bucket + matched keyword + first-time / pattern context, e.g.:
+  - `"Pawn Shops & Short-Term Credit — payday lender. Matched 'ACE CASH EXPRESS'. First observed in this period — strongest single-hit FVI signal."`
+  - `"Debt Collection & Debt Relief — third-party collector. Matched 'PORTFOLIO RECOVERY'. Late-stage distress; pre-charge-off marker."`
+  - `"Overdraft & NSF Activity — 7 overdraft fees totaling $245 in the analyzed period. Pattern of recurring liquidity shortfalls."`
 
 ## Files Changed
 
 **`supabase/functions/detect-risk-transactions/index.ts`**
-1. Add the seven keyword arrays + `detectGambling(merchant, mcc)` resolver, next to the existing adult-entertainment detector.
-2. Replace the gambling branch in `deterministicFlags`: pre-compute `gamblingHits` across ALL transactions (any MCC), aggregate per-subcategory counts/amounts, compute `weightedScore`, emit one flag per matched transaction with the specific `category_label`. Drop the old single-label MCC-7995 path.
-3. System prompt: replace the "Gambling" mention in the vice paragraph with the full subcategory list; update `category_label` examples to include all six new labels; add *"Always pick the most specific gambling subcategory; only fall back to generic 'Gambling' when no merchant context disambiguates."*
-4. Extend `LABEL_ALIASES` so model-emitted variants collapse to canonical labels (`"sports betting"`, `"offshore gambling"`, `"crypto sportsbook"`, `"casino"`, `"table games"`, `"horse racing"`, `"pari-mutuel"`, `"lottery"`, `"raffle"`, `"scratch ticket"`, `"daily fantasy"`, `"dfs"`, `"sweepstakes casino"`, `"social poker"`).
+1. Add the seven keyword arrays + `detectFinancialDistress(merchant, description, mcc)` resolver alongside `detectGambling` and `detectAdultEntertainment`.
+2. Add a new `category_group` value: `"financial_distress"` (extend the union type from three groups to four).
+3. Insert a new pre-pass in `deterministicFlags` that runs after gambling and adult passes, skips already-flagged tx ids, aggregates per-subcategory counts/totals, computes `weightedScore` with the bonuses above, and emits one flag per matched transaction. Overdraft fees aggregate into a single "pattern" flag rather than per-transaction noise.
+4. Update `SYSTEM_PROMPT`: replace the one-line payday/pawn mention with a new `4. **financial_distress**` section listing all seven subcategories and explicit "always pick the most specific subcategory" guidance. Add `"financial_distress"` to the `category_group` enum and the new labels to the `category_label` examples.
+5. Extend `LABEL_ALIASES` so model variants collapse to canonical labels: `"payday loan"`, `"pawn"`, `"title loan"`, `"early wage access"`, `"cash advance"` → `"Pawn Shops & Short-Term Credit"`; `"debt collection"`, `"debt settlement"`, `"bankruptcy"`, `"collections"` → `"Debt Collection & Debt Relief"`; `"check cashing"`, `"money order"`, `"remittance"`, `"wire transfer service"`, `"prepaid reload"` → `"Check Cashing & Money Services"`; `"subprime card"`, `"buy here pay here"`, `"rent to own"` → `"Subprime Credit & Buy-Here-Pay-Here"`; `"overdraft"`, `"nsf"`, `"insufficient funds"` → `"Overdraft & NSF Activity"`; `"crypto mixer"`, `"tumbler"`, `"coinjoin"` → `"Crypto Mixing & High-Risk Crypto"`.
 
-**`supabase/functions/generate-product-actions/index.ts`** + **`supabase/functions/generate-product-cards/index.ts`** — extend the risk-card label lists in both prompts to include the new gambling subcategories, so downstream product cards show e.g. "Sports Betting" or "High-Risk / Offshore Gambling" instead of generic "Gambling" when applicable. Tone guidance unchanged.
+**`supabase/functions/generate-product-actions/index.ts`** + **`supabase/functions/generate-product-cards/index.ts`**
+- Extend the risk-card label lists in both system prompts to include the seven new financial-distress labels so downstream cards render the specific subcategory.
+- For the new financial-distress labels, action guidance follows the existing VICE risk-card tone (calm, discreet, never marketing): standard → "Notify Customer Care Team", "Suppress Credit-Card Marketing", "Flag for Wellness Review"; wow → "Hardship Program Outreach", "Confidential Financial Coaching", "Free Overdraft-Protection Setup", "Discreet Financial Counselor Referral". Forbidden labels list already covers "rewards/bonus/upgrade/celebration".
 
 ## Out of scope (intentionally)
 
-- FVI dashboard — separate feature with its own gambling categories; leave untouched.
+- FVI dashboard already has its own distress taxonomy (`src/lib/fviData.ts`) — leave untouched.
 - No CSV / sample-data changes.
 - No client-side rendering changes — risk panels render `category_label` verbatim.
 
 ## Verification
 
-- /demo → any customer with MCC 7995 transactions → flags now show specific subcategory.
-- Insert `BOVADA LV` row → flag fires as **High-Risk / Offshore Gambling**, severity **high** even on a single hit.
-- Insert `POWERBALL TICKET` row → flag fires as **Lottery & Raffles**, severity **low**.
-- Insert `DRAFTKINGS SPORTSBOOK` + `DRAFTKINGS DFS` rows → two distinct flags (Sports Betting and Casual / Social Gaming).
-- Insert `MGM HOTEL LV` MCC 7011 → NOT flagged (hotel context, no casino/MCC qualifier).
-- Edge function logs: no duplicate flags per transaction; `weightedScore` math visible in console.
+- `/demo` → any customer with a payday / pawn / collections / Western Union / overdraft transaction → flags now show specific subcategory under the new financial_distress group.
+- Insert `ACE CASH EXPRESS` MCC 6051 row → fires as **Pawn Shops & Short-Term Credit**, severity **high** (first-time bonus).
+- Insert `PORTFOLIO RECOVERY ASSOC` row → fires as **Debt Collection & Debt Relief**, severity **high** (auto-high on any hit).
+- Insert one `WESTERN UNION` row → fires as **Check Cashing & Money Services**, severity **low**; insert four → severity **medium**.
+- Insert seven `OVERDRAFT FEE` description rows → single aggregated **Overdraft & NSF Activity** flag, severity **medium**.
+- Insert `COINBASE` / `KRAKEN` rows → NOT flagged (excluded from Crypto Mixing bucket).
+- Edge function logs: `weightedScore` math visible per customer; no duplicate flags per transaction across adult/gambling/distress passes.
 
