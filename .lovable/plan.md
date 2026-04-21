@@ -1,42 +1,44 @@
 
 
-## Keep transaction panel full-width until the phone mockup opens
+## Fix Financial Vulnerability pill → AI chat: pass a random merchant from the rollup
 
-**Problem:** Right now the left-hand Transaction Feed shrinks to a 40px vertical sliver the moment any Intelligence Panel tab (Analytics / Rewards / Product / Relationship) is clicked. You want it to stay at full width (400px) all the way until the phone mockup actually appears — i.e. until the user clicks "Open AI Banking Assistant" inside the Relationship tab.
+**The bug:** Clicking the rolled-up "⚠ Financial Vulnerability · 3 txns · high" pill always sends the AI a prompt about *EARNIN ACTIVEHOURS* — the first merchant in the rollup (`rollup.sampleMerchant`). The AI then can't ground its answer ("I don't have records of a transaction at EARNIN…") and the demo looks broken.
 
-**Root cause:** In `src/pages/ExecDemoPage.tsx` the txn column width is bound to `activeTab`:
-
-```tsx
-width: activeTab ? (txPanelExpanded ? 400 : 40) : 400
-```
-
-The phone, however, only appears when `phoneVisible = activeTab === "relationship" && aiTabTrigger > 0`. So the panel collapses well before the phone is shown.
+**Your fix:** Instead of always picking the first merchant, pick a **random** merchant from the rollup each time the pill is clicked. This mimics a real bank-customer experience where the AI is asked about *one* of the flagged transactions in the cluster — and a fresh re-click surfaces a different one, making the demo feel alive.
 
 ### Change
 
-Bind the txn-panel collapse to `phoneVisible` instead of `activeTab`:
+**File:** `src/components/exec-demo/ExecDemoIntelPanel.tsx` (~line 567, the rollup pill `onClick`)
 
-1. Compute `phoneVisible` once at the top of the JSX (it's currently computed inside the Col 3 IIFE — lift it so Col 1 can read it too).
-2. Update Col 1's width / sliver / full-panel conditions to use `phoneVisible` everywhere `activeTab` was used as a "phone is taking space" proxy:
-   - `width: phoneVisible ? (txPanelExpanded ? 400 : 40) : 400`
-   - `minWidth` mirrors width
-   - `overflow: phoneVisible && !txPanelExpanded ? "visible" : "hidden"`
-   - Sliver render guard: `{phoneVisible && !txPanelExpanded && (...)}`
-   - Full panel render guard: `{(!phoneVisible || txPanelExpanded) && (...)}`
-   - Collapse button guard: `{phoneVisible && txPanelExpanded && (...)}`
+Today:
+```ts
+onClick={() => isClickable && handleRiskForRel(flagLabel, matchedIndices, dotColor, rollup.sampleMerchant)}
+```
 
-That's the entire change — single file, one column's width logic.
+Replace with:
+```ts
+onClick={() => {
+  if (!isClickable) return;
+  const all = Array.from(rollup.merchants as Set<string>);
+  const picked = all.length > 0
+    ? all[Math.floor(Math.random() * all.length)]
+    : rollup.sampleMerchant;
+  handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
+}}
+```
+
+`handleRiskForRel` (line 413) and the prompt template stay exactly as they are — the existing prompt *"What is this transaction at {merchant}? What is it typically associated with statistically?"* is fine, it just needs a fresh merchant each click.
 
 ### Resulting flow
 
-1. Run Semantic Enrichment → txn panel stays full 400px.
-2. Click any Intelligence tab (Analytics / Rewards / Product / Relationship) → txn panel **stays full 400px** (was: collapsed to sliver).
-3. Inside Relationship tab, click "Open AI Banking Assistant" → phone slides in from the right **and** txn panel collapses to a 40px sliver (with click-to-expand chevron, same as today).
-4. User can still re-expand the txn sliver via chevron, and collapse the phone via its own chevron — both behaviors preserved.
+- Click ⚠ **Financial Vulnerability** → AI gets asked about EarnIn, OR Western Union, OR Portfolio Recovery (random each click).
+- Click ⚠ **Gambling** → AI gets asked about DraftKings, OR Bellagio, OR STAKE.COM (random each click).
+- Click ⚠ **Adult Entertainment** (only 1 merchant) → still asks about that single merchant.
+- Re-clicking the same pill rotates to a different merchant, giving the demo a "live customer" feel.
 
 ### Files touched
 
-- `src/pages/ExecDemoPage.tsx` — Col 1 width bindings + lift `phoneVisible` outside the Col 3 IIFE.
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — single onClick handler change on the risk rollup pill.
 
-No changes to `ExecDemoLeftPanel`, `ExecDemoPhoneView`, or any edge function.
+No edge function, schema, or prompt changes.
 
