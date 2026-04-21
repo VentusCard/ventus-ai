@@ -460,6 +460,97 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     gamblingFlaggedIds.add(tx.transaction_id);
   }
 
+  // ============== Financial Distress pre-pass ==============
+  // Run after adult+gambling so those keep priority on overlapping tx (extremely rare).
+  const distressHits = transactions
+    .map((t) => {
+      const merchant = t.merchant_name || t.normalized_merchant || "";
+      const desc = t.description || "";
+      const mcc = String(t.mcc || "").trim();
+      if (isRealEstate(merchant, desc)) return null;
+      if (adultFlaggedIds.has(t.transaction_id)) return null;
+      if (gamblingFlaggedIds.has(t.transaction_id)) return null;
+      const hit = detectFinancialDistress(merchant, desc, mcc);
+      return hit ? { tx: t, hit } : null;
+    })
+    .filter((x): x is { tx: any; hit: DistressHit } => x !== null);
+
+  const distressTotal = distressHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+  const distressSubCounts = new Map<string, number>();
+  for (const { hit } of distressHits) {
+    distressSubCounts.set(hit.label, (distressSubCounts.get(hit.label) || 0) + 1);
+  }
+  const hasDebtCollection = distressSubCounts.has("Debt Collection & Debt Relief");
+  const hasPawnPayday = distressSubCounts.has("Pawn Shops & Short-Term Credit");
+  // weightedScore = Σ (riskWeight × txCount) + (totalSpend / 250) + bonuses
+  const distressWeighted =
+    distressHits.reduce((s, { hit }) => s + hit.riskWeight, 0) +
+    distressTotal / 250 +
+    (hasPawnPayday ? 3 : 0) +
+    (hasDebtCollection ? 5 : 0);
+  const distressFlaggedIds = new Set<string>();
+
+  console.log(`[RISK] Financial Distress: ${distressHits.length} hits, total $${distressTotal.toFixed(2)}, weightedScore=${distressWeighted.toFixed(2)}, subCounts=${JSON.stringify(Object.fromEntries(distressSubCounts))}`);
+
+  function distressSeverity(hit: DistressHit, subCount: number): "low" | "medium" | "high" {
+    if (hit.label === "Debt Collection & Debt Relief") return "high";
+    if (distressWeighted >= 10) return "high";
+    if (hit.label === "Pawn Shops & Short-Term Credit" && subCount >= 3) return "high";
+    if (distressWeighted >= 4 || subCount >= 2) return "medium";
+    if (hit.label === "Overdraft & NSF Activity" && subCount >= 5) return "medium";
+    return "low";
+  }
+
+  // Special-case Overdraft & NSF — collapse into a single aggregated "pattern" flag
+  // rather than emitting per-fee noise (a customer with 8 overdrafts shouldn't see 8 cards).
+  const overdraftHits = distressHits.filter((h) => h.hit.label === "Overdraft & NSF Activity");
+  if (overdraftHits.length > 0) {
+    const overdraftTotal = overdraftHits.reduce((s, h) => s + (Number(h.tx.amount) || 0), 0);
+    const sevHit = overdraftHits[0].hit;
+    const sev = distressSeverity(sevHit, overdraftHits.length);
+    const last = overdraftHits[overdraftHits.length - 1];
+    flags.push({
+      transaction_id: last.tx.transaction_id,
+      category_group: "financial_distress",
+      category_label: "Overdraft & NSF Activity",
+      severity: sev,
+      merchant: last.tx.merchant_name || "Bank-issued fee",
+      amount: overdraftTotal,
+      date: last.tx.date,
+      reason: `Overdraft & NSF Activity — ${overdraftHits.length} overdraft / NSF / returned-item fees totaling $${overdraftTotal.toFixed(2)} in the analyzed period. Pattern of recurring liquidity shortfalls.`,
+    });
+    for (const h of overdraftHits) distressFlaggedIds.add(h.tx.transaction_id);
+  }
+
+  // Emit per-transaction flags for the remaining distress buckets
+  for (const { tx, hit } of distressHits) {
+    if (hit.label === "Overdraft & NSF Activity") continue;
+    if (distressFlaggedIds.has(tx.transaction_id)) continue;
+    const subCount = distressSubCounts.get(hit.label) || 1;
+    const sev = distressSeverity(hit, subCount);
+    const isFirstTimeBucket =
+      hit.label === "Pawn Shops & Short-Term Credit" && subCount === 1;
+    let reason: string;
+    if (hit.label === "Debt Collection & Debt Relief") {
+      reason = `${hit.label} — ${hit.kind}. Matched "${hit.matched}". Late-stage distress; pre-charge-off marker — clearest "customer is in trouble" signal a bank sees.`;
+    } else if (isFirstTimeBucket) {
+      reason = `${hit.label} — ${hit.kind}. Matched "${hit.matched}". First observed in this period — strongest single-hit FVI signal in consumer banking.`;
+    } else {
+      reason = `${hit.label} — ${hit.kind}. Matched "${hit.matched}". ${subCount} of ${distressHits.length} financial-distress transactions ($${distressTotal.toFixed(2)} total) — weighted score ${distressWeighted.toFixed(1)}.`;
+    }
+    flags.push({
+      transaction_id: tx.transaction_id,
+      category_group: "financial_distress",
+      category_label: hit.label,
+      severity: sev,
+      merchant: tx.merchant_name || tx.normalized_merchant || "",
+      amount: tx.amount,
+      date: tx.date,
+      reason,
+    });
+    distressFlaggedIds.add(tx.transaction_id);
+  }
+
   for (const t of transactions) {
     const merchant = t.merchant_name || t.normalized_merchant || "";
     const desc = t.description || "";
@@ -468,6 +559,7 @@ function deterministicFlags(transactions: any[]): RiskFlag[] {
     if (isRealEstate(merchant, desc)) continue;
     if (adultFlaggedIds.has(t.transaction_id)) continue;
     if (gamblingFlaggedIds.has(t.transaction_id)) continue;
+    if (distressFlaggedIds.has(t.transaction_id)) continue;
 
 
     // International keywords + missing/non-US zip
