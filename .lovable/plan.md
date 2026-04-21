@@ -1,70 +1,64 @@
 
 
-## Short answer
+## Sarah's CSV — 3 Gambling + 3 Financial Vulnerability transactions, woven into the timeline (clean renumbering)
 
-**No, not really.** Financial-distress detection in `detect-risk-transactions` today is a single sentence in the LLM prompt — *"Payday/predatory loans, pawn shops, crypto mixing services"* — with no deterministic detector, no keyword surface, no severity scaling, and no coverage of debt collection, check cashing, money services, prepaid reloads, or early-wage-access apps. It's the same gap we just closed for Adult Entertainment and Gambling.
+Replace the single `txn_011` (DIGITAL ENT SVCS) and add 5 more rows so Sarah ends up with **3 gambling** + **3 financial vulnerability** transactions, woven chronologically across her 18-month timeline. Renumber every row after each insertion so IDs stay sequential — no `txn_011a` style suffixes. Final CSV grows from 50 → 55 rows.
 
-## Change
+Adult Entertainment row (`PRIVATE MEDIA GRP LLC`) stays untouched.
 
-Add a **Financial Distress** category group that mirrors the gambling architecture: a deterministic merchant/MCC keyword pre-pass with a per-subcategory risk weight, and a weighted severity score. Update the LLM prompt and `LABEL_ALIASES` so model output collapses to canonical labels.
+## Edit (single file: `src/lib/sampleData.ts`, lines ~220–271)
 
-## Subcategory taxonomy (most-specific wins, highest FVI weight first)
+### The 6 risk rows (3 gambling + 3 distress), in chronological order
 
-| Label | Risk weight | Examples (merchant keyword surface) |
-|---|---|---|
-| **Pawn Shops & Short-Term Credit** | 5 | Payday: Check Into Cash, ACE Cash Express, Advance America, Speedy Cash, MoneyMutual, CashNetUSA, Check 'n Go, LendUp, Cash Store. Title loans: TitleMax, LoanMax, TMX Finance, 1-800LoanMart. Pawn: EZPawn, Cash America Pawn, First Cash Pawn, Pawn America, "PAWN SHOP", "PAWNBROKER". Early wage access: EarnIn, Dave (DAVE INC), Brigit, MoneyLion Instacash, Empower (EMPOWER FINANCE), Albert, Klover. MCC 6051 + payday/cash-advance keyword. |
-| **Debt Collection & Debt Relief** | 5 | Collections: Portfolio Recovery, Midland Credit, Encore Capital, LVNV Funding, Cavalry Portfolio, ERC, Convergent Outsourcing, Resurgent Capital, "COLLECTION AGENCY", "COLLECTIONS DEPT". Debt settlement: National Debt Relief, Freedom Debt Relief, Accredited Debt Relief, CuraDebt, ClearOne Advantage, Pacific Debt. Bankruptcy: anything containing "BANKRUPTCY ATTY", "BANKRUPTCY LAW", "CH 7 ATTORNEY", "CH 13 ATTORNEY", "UPSOLVE". |
-| **Check Cashing & Money Services** | 4 | Check cashing: ACE Check Cashing, PLS Check Cashing, "CHECK CASHING", "CHECK CASHERS". Remittance: Western Union (WU, WESTERN UNION), MoneyGram, Ria Money Transfer, Xoom, Remitly, WorldRemit. Prepaid reloads: GreenDot reload, NetSpend reload, "MONEYPAK", "RELOADIT", PayPal Reload, Vanilla Reload. MCC 4829 (wire transfer / money order) and MCC 6051 (non-FI quasi-cash) when paired with these keywords. |
-| **Subprime Credit & Buy-Here-Pay-Here** | 3 | Credit-builder/subprime cards: Credit One Bank, First Premier Bank, Mission Lane, OpenSky, Indigo, Milestone, Reflex, Surge. BHPH auto: "BUY HERE PAY HERE", DriveTime, J.D. Byrider, Carvana subprime financing. Rent-to-own: Rent-A-Center, Aaron's, Buddy's Home Furnishings, "RENT TO OWN", "RTO". |
-| **Overdraft & NSF Activity** | 4 | Bank-issued fees on the customer's own account: descriptions containing "OVERDRAFT FEE", "NSF FEE", "INSUFFICIENT FUNDS", "RETURNED ITEM FEE", "EXTENDED OVERDRAFT". Volume matters more than single occurrences — severity scales with count. |
-| **Crypto Mixing & High-Risk Crypto** | 4 | Mixers/tumblers: "TORNADO CASH", "WASABI WALLET", "SAMOURAI", "COINJOIN". P2P-cash crypto: LocalBitcoins, Paxful. Privacy-coin-only desks. (Generic exchanges like Coinbase / Kraken / Gemini are NOT flagged here.) |
-| **Financial Distress** (generic fallback) | 2 | MCC 6051 (quasi-cash) or MCC 4829 with no specific bucket match. |
+| New ID | merchant_name | description | mcc | amount | date | source | Subcategory |
+|---|---|---|---|---|---|---|---|
+| txn_011 | `DRAFTKINGS SPORTSBOOK` | Sportsbook deposit | 7995 | $250 | 2025-01-04 | Premium Card | **Sports Betting** (gambling 1) |
+| txn_020 | `EARNIN ACTIVEHOURS` | Early wage access advance | 6051 | $100 | 2025-03-05 | Cashback Card | **Pawn Shops & Short-Term Credit** (distress 1) |
+| txn_026 | `BELLAGIO CASINO LV` | Casino floor charge | 7995 | $480 | 2025-04-19 | Premium Card (zip 89109) | **Casino & Table Games** (gambling 2) |
+| txn_032 | `WESTERN UNION*MTO 8821` | Money transfer fee | 4829 | $400 | 2025-05-28 | Cashback Card | **Check Cashing & Money Services** (distress 2 — *obfuscated*) |
+| txn_044 | `STAKE.COM*PROC LV` | Online wager processor | 6051 | $185 | 2025-09-13 | Premium Card | **High-Risk / Offshore Gambling** (gambling 3 — *obfuscated*) |
+| txn_049 | `PORTFOLIO RECOVERY ASSOC` | Past-due account payment | 6012 | $325 | 2025-10-25 | Checks | **Debt Collection & Debt Relief** (distress 3) |
 
-## Detection rules
+### Renumbering map (50 → 55 rows, all dates already chronological)
 
-- **Disambiguation**: PayPal / Cash App by themselves are not flagged — only when descriptor contains "RELOAD", "MONEYPAK", or paired with MCC 6051. Coinbase / Kraken / Gemini → NEVER flagged in Crypto Mixing bucket.
-- **Overdraft fees** are detected from `description` field (not `merchant_name`) since they're issued by the customer's own bank.
-- **Severity scaling** (per customer, applied per flag):
-  ```
-  weightedScore = Σ (riskWeight × txCount per subcategory) + (totalSpend / 250)
-                + bonus(+3) if first-time pawn/payday/title hit (cohort-level — flagged as "first observed")
-                + bonus(+5) if any debt-collection / bankruptcy hit
-  
-  high   if any debt-collection/bankruptcy hit, OR weightedScore ≥ 10, OR ≥ 3 pawn/payday hits
-  medium if weightedScore ≥ 4, OR ≥ 2 hits in any single bucket, OR ≥ 5 overdraft fees
-  low    otherwise (e.g. one Western Union remittance, one EarnIn advance)
-  ```
-- Reason strings reference bucket + matched keyword + first-time / pattern context, e.g.:
-  - `"Pawn Shops & Short-Term Credit — payday lender. Matched 'ACE CASH EXPRESS'. First observed in this period — strongest single-hit FVI signal."`
-  - `"Debt Collection & Debt Relief — third-party collector. Matched 'PORTFOLIO RECOVERY'. Late-stage distress; pre-charge-off marker."`
-  - `"Overdraft & NSF Activity — 7 overdraft fees totaling $245 in the analyzed period. Pattern of recurring liquidity shortfalls."`
+```text
+Old txn_011 (DIGITAL ENT SVCS) → REMOVED
+Old txn_012..019 (Costco → Spotify)        →  txn_012..019 unchanged
+NEW DRAFTKINGS                              →  txn_011 (Jan 4 2025)
+                                              [shift later rows down by net +1 from this point]
+Old txn_020..025 (intl proc → CVS)         →  txn_021..026 (becomes 022..027 after EARNIN insert)
+NEW EARNIN ACTIVEHOURS                      →  txn_020 (Mar 5 2025)
+Old txn_026..031 (Stanford → Hawaiian Air)  →  shifted +2
+NEW BELLAGIO CASINO LV                      →  txn_026 (Apr 19 2025)
+Old txn_032..037 (Grand Wailea → Lululemon) →  shifted +3
+NEW WESTERN UNION*MTO 8821                  →  txn_032 (May 28 2025)
+Old txn_038..043 (SF Tennis → Palisades)    →  shifted +4
+NEW STAKE.COM*PROC LV                       →  txn_044 (Sep 13 2025) — sits between summer league & Chewy
+Old txn_044..050 (Chewy → Hilton Waikoloa)  →  shifted +5
+NEW PORTFOLIO RECOVERY ASSOC                →  txn_049 (Oct 25 2025) — between Petco & Zillow mortgage
+Final row: HILTON WAIKOLOA VILLAGE          →  txn_055 (Jul 6 2026)
+```
 
-## Files Changed
+After renumbering: a single sequential `txn_001 … txn_055` block, fully chronological, with the 6 new rows organically interleaved among groceries, tennis, Chewy/Petco, ski trips, college prep, and the home-purchase arc.
 
-**`supabase/functions/detect-risk-transactions/index.ts`**
-1. Add the seven keyword arrays + `detectFinancialDistress(merchant, description, mcc)` resolver alongside `detectGambling` and `detectAdultEntertainment`.
-2. Add a new `category_group` value: `"financial_distress"` (extend the union type from three groups to four).
-3. Insert a new pre-pass in `deterministicFlags` that runs after gambling and adult passes, skips already-flagged tx ids, aggregates per-subcategory counts/totals, computes `weightedScore` with the bonuses above, and emits one flag per matched transaction. Overdraft fees aggregate into a single "pattern" flag rather than per-transaction noise.
-4. Update `SYSTEM_PROMPT`: replace the one-line payday/pawn mention with a new `4. **financial_distress**` section listing all seven subcategories and explicit "always pick the most specific subcategory" guidance. Add `"financial_distress"` to the `category_group` enum and the new labels to the `category_label` examples.
-5. Extend `LABEL_ALIASES` so model variants collapse to canonical labels: `"payday loan"`, `"pawn"`, `"title loan"`, `"early wage access"`, `"cash advance"` → `"Pawn Shops & Short-Term Credit"`; `"debt collection"`, `"debt settlement"`, `"bankruptcy"`, `"collections"` → `"Debt Collection & Debt Relief"`; `"check cashing"`, `"money order"`, `"remittance"`, `"wire transfer service"`, `"prepaid reload"` → `"Check Cashing & Money Services"`; `"subprime card"`, `"buy here pay here"`, `"rent to own"` → `"Subprime Credit & Buy-Here-Pay-Here"`; `"overdraft"`, `"nsf"`, `"insufficient funds"` → `"Overdraft & NSF Activity"`; `"crypto mixer"`, `"tumbler"`, `"coinjoin"` → `"Crypto Mixing & High-Risk Crypto"`.
+## Why these picks
 
-**`supabase/functions/generate-product-actions/index.ts`** + **`supabase/functions/generate-product-cards/index.ts`**
-- Extend the risk-card label lists in both system prompts to include the seven new financial-distress labels so downstream cards render the specific subcategory.
-- For the new financial-distress labels, action guidance follows the existing VICE risk-card tone (calm, discreet, never marketing): standard → "Notify Customer Care Team", "Suppress Credit-Card Marketing", "Flag for Wellness Review"; wow → "Hardship Program Outreach", "Confidential Financial Coaching", "Free Overdraft-Protection Setup", "Discreet Financial Counselor Referral". Forbidden labels list already covers "rewards/bonus/upgrade/celebration".
+- **Three distinct gambling subcategories** (Sports Betting / Casino / Offshore) and **three distinct distress subcategories** (EWA / Money Services / Debt Collection) — surfaces the full new taxonomies in the demo, not three of the same flavor.
+- **Woven, not clustered**: rows sprinkled Jan → Oct 2025, sandwiched between Sarah's existing tennis/Chewy/Petco/admissions cadence — reads like real life.
+- **Obfuscated descriptors are realistic**: `STAKE.COM*PROC LV` and `WESTERN UNION*MTO 8821` mirror how processor-aggregated descriptors appear on actual bank statements (merchant + asterisk + reference suffix) — opaque to a human, but still contain the literal keyword the deterministic detector matches on.
+- **Storyline tension**: EWA hit lands the same month as Kaplan SAT prep (Mar 8); debt collection lands two weeks after admissions consulting (Oct 5). Believable "parent stretching to fund college prep" narrative the FVI panel can build on.
 
-## Out of scope (intentionally)
+## Out of scope
 
-- FVI dashboard already has its own distress taxonomy (`src/lib/fviData.ts`) — leave untouched.
-- No CSV / sample-data changes.
-- No client-side rendering changes — risk panels render `category_label` verbatim.
+- No edge-function changes — gambling + distress detectors already shipped.
+- `PRIVATE MEDIA GRP LLC` Adult Entertainment row stays.
+- No client-side rendering changes.
 
 ## Verification
 
-- `/demo` → any customer with a payday / pawn / collections / Western Union / overdraft transaction → flags now show specific subcategory under the new financial_distress group.
-- Insert `ACE CASH EXPRESS` MCC 6051 row → fires as **Pawn Shops & Short-Term Credit**, severity **high** (first-time bonus).
-- Insert `PORTFOLIO RECOVERY ASSOC` row → fires as **Debt Collection & Debt Relief**, severity **high** (auto-high on any hit).
-- Insert one `WESTERN UNION` row → fires as **Check Cashing & Money Services**, severity **low**; insert four → severity **medium**.
-- Insert seven `OVERDRAFT FEE` description rows → single aggregated **Overdraft & NSF Activity** flag, severity **medium**.
-- Insert `COINBASE` / `KRAKEN` rows → NOT flagged (excluded from Crypto Mixing bucket).
-- Edge function logs: `weightedScore` math visible per customer; no duplicate flags per transaction across adult/gambling/distress passes.
+- Reload `/demo` → Sarah Mitchell → six new risk pills render: 3 gambling subcategories + 3 distress subcategories.
+- Offshore (STAKE.COM) and Debt Collection (Portfolio Recovery) each fire **severity high** on single hit.
+- Adult Entertainment pill from `PRIVATE MEDIA GRP LLC` still renders unchanged.
+- Engine transaction list shows 55 rows numbered `txn_001 … txn_055` in chronological order, with the 6 new rows interleaved (not stacked together).
+- Edge function logs show weighted scores: gambling ≈ 14.8 (high); distress ≈ 22.3 (high).
 
