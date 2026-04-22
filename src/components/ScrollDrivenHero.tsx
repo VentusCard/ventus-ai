@@ -293,6 +293,7 @@ const ScrollDrivenHero = () => {
                 style={{
                   background: `${p.color}0a`,
                   border: `1px solid ${p.color}25`,
+                  width: 210,
                 }}
               >
                 <div className="font-semibold text-[13px]" style={{ color: p.color }}>
@@ -301,7 +302,7 @@ const ScrollDrivenHero = () => {
               </div>
             );
 
-            const Connector = (
+            const VerticalConnector = (
               <svg width="2" height="16" className="self-center" style={{ overflow: "visible" }}>
                 <line
                   x1="1"
@@ -330,6 +331,7 @@ const ScrollDrivenHero = () => {
                 style={{
                   background: `${p.color}08`,
                   border: `1px dashed ${p.color}55`,
+                  width: 210,
                 }}
               >
                 <div
@@ -343,19 +345,70 @@ const ScrollDrivenHero = () => {
               </div>
             );
 
-            const Stack = (
-              <div className="flex flex-col items-stretch" style={{ width: 210 }}>
-                {actionAbove ? (
+            // Horizontal connector pointing from label bubble toward the card
+            const HorizontalConnector =
+              pos.side === "left" ? (
+                <svg width="48" height="2" className="shrink-0 self-center" style={{ overflow: "visible" }}>
+                  <line
+                    x1="0"
+                    y1="1"
+                    x2="40"
+                    y2="1"
+                    stroke={p.color}
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
+                    opacity="0.5"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="-14"
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <circle cx="43" cy="1" r="3" fill={p.color} opacity="0.7">
+                    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
+              ) : (
+                <svg width="48" height="2" className="shrink-0 self-center" style={{ overflow: "visible" }}>
+                  <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
+                    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                  <line
+                    x1="8"
+                    y1="1"
+                    x2="48"
+                    y2="1"
+                    stroke={p.color}
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
+                    opacity="0.5"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="14"
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                </svg>
+              );
+
+            // Label row = label bubble + horizontal connector glued to its side
+            const LabelRow = (
+              <div className="flex items-center">
+                {pos.side === "left" ? (
                   <>
-                    {ActionBubble}
-                    {Connector}
                     {LabelBubble}
+                    {HorizontalConnector}
                   </>
                 ) : (
                   <>
+                    {HorizontalConnector}
                     {LabelBubble}
-                    {Connector}
-                    {ActionBubble}
                   </>
                 )}
               </div>
@@ -364,9 +417,10 @@ const ScrollDrivenHero = () => {
             return (
               <div
                 key={p.id}
-                className="hidden lg:flex absolute items-start pointer-events-none"
+                className="hidden lg:flex absolute flex-col pointer-events-none"
                 style={{
                   ...pos,
+                  alignItems: pos.side === "left" ? "flex-end" : "flex-start",
                   opacity: isActive ? 1 : 0,
                   transform: isActive
                     ? "translateX(0) scale(1)"
@@ -376,60 +430,17 @@ const ScrollDrivenHero = () => {
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
-                {pos.side === "left" && (
+                {actionAbove ? (
                   <>
-                    {Stack}
-                    <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible", marginTop: actionAbove ? 90 : 20 }}>
-                      <line
-                        x1="0"
-                        y1="1"
-                        x2="40"
-                        y2="1"
-                        stroke={p.color}
-                        strokeWidth="1.5"
-                        strokeDasharray="4 3"
-                        opacity="0.5"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="0"
-                          to="-14"
-                          dur="1.5s"
-                          repeatCount="indefinite"
-                        />
-                      </line>
-                      <circle cx="43" cy="1" r="3" fill={p.color} opacity="0.7">
-                        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
-                      </circle>
-                    </svg>
+                    <div style={{ width: 210 }}>{ActionBubble}</div>
+                    <div style={{ width: 210 }}>{VerticalConnector}</div>
+                    {LabelRow}
                   </>
-                )}
-                {pos.side === "right" && (
+                ) : (
                   <>
-                    <svg width="48" height="2" className="shrink-0 mt-5" style={{ overflow: "visible" }}>
-                      <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
-                        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
-                      </circle>
-                      <line
-                        x1="8"
-                        y1="1"
-                        x2="48"
-                        y2="1"
-                        stroke={p.color}
-                        strokeWidth="1.5"
-                        strokeDasharray="4 3"
-                        opacity="0.5"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="0"
-                          to="14"
-                          dur="1.5s"
-                          repeatCount="indefinite"
-                        />
-                      </line>
-                    </svg>
-                    {Stack}
+                    {LabelRow}
+                    <div style={{ width: 210 }}>{VerticalConnector}</div>
+                    <div style={{ width: 210 }}>{ActionBubble}</div>
                   </>
                 )}
               </div>
