@@ -11,7 +11,7 @@ const rawTransactions = [
   "TRAVELCARD DELTA AIR 0062139 $428.00",
   "SQ *CARTERS STORE 992 $124.50",
   "PAYPL *LA FITNESS DUE $45.00",
-  
+
   "WIRE OUT PAYMENT COLLEGE COUNSELOR $850.00",
   "SQ *BUY BUY BABY 1120 $234.50",
   "CHECKCARD RIMOWA NYC FLAGSHIP $895.00",
@@ -59,7 +59,7 @@ const inferRail = (raw: string): { rail: Rail; railLabel: string; railColor: str
     return { rail: "ZELLE", railLabel: "Checking · Zelle", railColor: "#a855f7" };
   }
   if (r.startsWith("WIRE")) {
-    return { rail: "WIRE", railLabel: "Brokerage · Wire", railColor: "#ef4444" };
+    return { rail: "WIRE", railLabel: "Saving · Wire", railColor: "#ef4444" };
   }
   if (r.startsWith("ACH ")) {
     return { rail: "ACH", railLabel: "Checking · ACH", railColor: "#3b82f6" };
