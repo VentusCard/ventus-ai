@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
               p.id === "travel"
                 ? { right: "calc(50% + 228px)", top: 20, side: "left" as const }
                 : p.id === "parent"
-                  ? { right: "calc(50% + 228px)", top: 110, side: "left" as const }
+                  ? { right: "calc(50% + 228px)", top: 230, side: "left" as const }
                   : { left: "calc(50% + 228px)", top: 60, side: "right" as const };
 
             const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
@@ -285,142 +285,69 @@ const ScrollDrivenHero = () => {
                   ? "Activate family flow: 529 plan nudge, life insurance review, kids' debit card invite"
                   : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + AI-assisted advisor prep";
 
-            const actionAbove = p.id === "parent";
-
-            const LabelBubble = (
-              <div
-                className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-                style={{
-                  background: `${p.color}0a`,
-                  border: `1px solid ${p.color}25`,
-                  width: 210,
-                }}
-              >
-                <div className="font-semibold text-[13px]" style={{ color: p.color }}>
-                  {emoji} {p.label}
-                </div>
-              </div>
-            );
-
-            const VerticalConnector = (
-              <svg width="2" height="16" className="self-center" style={{ overflow: "visible" }}>
-                <line
-                  x1="1"
-                  y1="0"
-                  x2="1"
-                  y2="16"
-                  stroke={p.color}
-                  strokeWidth="1.5"
-                  strokeDasharray="3 3"
-                  opacity="0.5"
-                >
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from="0"
-                    to="-12"
-                    dur="1.5s"
-                    repeatCount="indefinite"
-                  />
-                </line>
-              </svg>
-            );
-
-            const ActionBubble = (
-              <div
-                className="rounded-xl px-3 py-2.5"
-                style={{
-                  background: `${p.color}08`,
-                  border: `1px dashed ${p.color}55`,
-                  width: 210,
-                }}
-              >
+            const Stack = (
+              <div className="flex flex-col items-stretch" style={{ width: 210 }}>
+                {/* Label bubble */}
                 <div
-                  className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wide mb-1"
-                  style={{ color: p.color }}
+                  className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+                  style={{
+                    background: `${p.color}0a`,
+                    border: `1px solid ${p.color}25`,
+                  }}
                 >
-                  <span>⚡</span>
-                  <span>Action</span>
+                  <div className="font-semibold text-[13px]" style={{ color: p.color }}>
+                    {emoji} {p.label}
+                  </div>
                 </div>
-                <div className="text-[11px] leading-snug text-gray-700">{action}</div>
-              </div>
-            );
 
-            // Horizontal connector pointing from label bubble toward the card
-            const HorizontalConnector =
-              pos.side === "left" ? (
-                <svg width="48" height="2" className="shrink-0 self-center" style={{ overflow: "visible" }}>
+                {/* Vertical dashed connector */}
+                <svg width="2" height="16" className="self-center" style={{ overflow: "visible" }}>
                   <line
-                    x1="0"
-                    y1="1"
-                    x2="40"
-                    y2="1"
+                    x1="1"
+                    y1="0"
+                    x2="1"
+                    y2="16"
                     stroke={p.color}
                     strokeWidth="1.5"
-                    strokeDasharray="4 3"
+                    strokeDasharray="3 3"
                     opacity="0.5"
                   >
                     <animate
                       attributeName="stroke-dashoffset"
                       from="0"
-                      to="-14"
-                      dur="1.5s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                  <circle cx="43" cy="1" r="3" fill={p.color} opacity="0.7">
-                    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
-                  </circle>
-                </svg>
-              ) : (
-                <svg width="48" height="2" className="shrink-0 self-center" style={{ overflow: "visible" }}>
-                  <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
-                    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
-                  </circle>
-                  <line
-                    x1="8"
-                    y1="1"
-                    x2="48"
-                    y2="1"
-                    stroke={p.color}
-                    strokeWidth="1.5"
-                    strokeDasharray="4 3"
-                    opacity="0.5"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to="14"
+                      to="-12"
                       dur="1.5s"
                       repeatCount="indefinite"
                     />
                   </line>
                 </svg>
-              );
 
-            // Label row = label bubble + horizontal connector glued to its side
-            const LabelRow = (
-              <div className="flex items-center">
-                {pos.side === "left" ? (
-                  <>
-                    {LabelBubble}
-                    {HorizontalConnector}
-                  </>
-                ) : (
-                  <>
-                    {HorizontalConnector}
-                    {LabelBubble}
-                  </>
-                )}
+                {/* Action sub-bubble */}
+                <div
+                  className="rounded-xl px-3 py-2.5"
+                  style={{
+                    background: `${p.color}08`,
+                    border: `1px dashed ${p.color}55`,
+                  }}
+                >
+                  <div
+                    className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wide mb-1"
+                    style={{ color: p.color }}
+                  >
+                    <span>⚡</span>
+                    <span>Action</span>
+                  </div>
+                  <div className="text-[11px] leading-snug text-gray-700">{action}</div>
+                </div>
               </div>
             );
 
             return (
               <div
                 key={p.id}
-                className="hidden lg:flex absolute flex-col pointer-events-none"
+                className="hidden lg:flex absolute items-start pointer-events-none"
                 style={{
                   ...pos,
-                  alignItems: pos.side === "left" ? "flex-end" : "flex-start",
                   opacity: isActive ? 1 : 0,
                   transform: isActive
                     ? "translateX(0) scale(1)"
@@ -430,17 +357,60 @@ const ScrollDrivenHero = () => {
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
-                {actionAbove ? (
+                {pos.side === "left" && (
                   <>
-                    <div style={{ width: 210 }}>{ActionBubble}</div>
-                    <div style={{ width: 210 }}>{VerticalConnector}</div>
-                    {LabelRow}
+                    {Stack}
+                    <svg width="48" height="2" className="shrink-0 mt-5" style={{ overflow: "visible" }}>
+                      <line
+                        x1="0"
+                        y1="1"
+                        x2="40"
+                        y2="1"
+                        stroke={p.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                      </line>
+                      <circle cx="43" cy="1" r="3" fill={p.color} opacity="0.7">
+                        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                      </circle>
+                    </svg>
                   </>
-                ) : (
+                )}
+                {pos.side === "right" && (
                   <>
-                    {LabelRow}
-                    <div style={{ width: 210 }}>{VerticalConnector}</div>
-                    <div style={{ width: 210 }}>{ActionBubble}</div>
+                    <svg width="48" height="2" className="shrink-0 mt-5" style={{ overflow: "visible" }}>
+                      <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
+                        <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                      </circle>
+                      <line
+                        x1="8"
+                        y1="1"
+                        x2="48"
+                        y2="1"
+                        stroke={p.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                      </line>
+                    </svg>
+                    {Stack}
                   </>
                 )}
               </div>

@@ -1,27 +1,54 @@
 
 
-## Fix parent callout position and broken connector
+## Add "action" sub-bubbles connected to each persona callout
 
-The Young Parent callout is sitting too far down because its `top` offset (230) was sized for a stack that extended downward — but now the stack extends upward (action bubble is above the label). The horizontal dashed line that points from the stack to the card is also no longer aligned with the label bubble, so it appears broken.
+Each persona callout (Leisure Traveler, Young Parent, College-Bound Child) will get a second smaller bubble attached just below it, connected by a short vertical dashed line. This sub-bubble shows what the bank can *do* with that insight — turning each callout from a label into an insight → action pair.
 
-### Changes (only in `src/components/ScrollDrivenHero.tsx`)
+### Visual structure (per persona)
 
-1. **Move Young Parent back up**
-   - Change parent `top` from `230` → `110`.
-   - Rationale: with the action bubble now above the label, the label sits roughly 95px below the stack's top. Setting `top: 110` puts the label at ~205px — in line with the parent-tagged transaction rows in the card.
+```text
+ ┌─────────────────────────┐
+ │ ✈ Leisure Traveler      │   ← existing label bubble
+ └────────────┬────────────┘
+              ┊                  ← short vertical dashed line (animated)
+ ┌────────────┴────────────┐
+ │ ⚡ Action                │   ← new sub-bubble (smaller, lighter)
+ │ Send noise-cancelling   │
+ │ headphone offer + lounge│
+ │ access upsell           │
+ └─────────────────────────┘
+```
 
-2. **Re-align the horizontal connector for Young Parent**
-   - The horizontal dashed line + dot must point at the **label bubble**, not the stack's top edge.
-   - Replace the rough `marginTop: actionAbove ? 90 : 20` math with a structural fix: render the horizontal connector as a sibling of the **label bubble row** instead of a sibling of the whole stack.
-   - Approach: wrap the label bubble in a flex row that includes the horizontal connector, so they always stay vertically centered together regardless of whether the action bubble is above or below. The action bubble + vertical connector then live above (parent) or below (others) that row, and the line stays glued to the label.
+Both bubbles share the persona color. The label bubble keeps its current solid-ish look; the action bubble is one tone lighter (more transparent background, dashed border) so it reads as a downstream effect, not a peer.
 
-3. **Travel + College stay as-is** (action below, top offsets 20 and 60). Their horizontal lines already align correctly with their top label bubble.
+### Action copy per persona
 
-### Result
+- **Leisure Traveler** — "Trigger pre-trip offer flow: noise-cancelling headphones, lounge pass, FX-free card upsell"
+- **Young Parent** — "Activate family financial flow: 529 plan nudge, life insurance review, kids' debit card invite"
+- **College-Bound Child** — "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + AI-assisted advisor prep"
 
-- All three callouts visually anchor on their label bubble at roughly the same vertical band as the matching transaction rows in the card.
-- The dashed line from the parent label to the card is unbroken and centered on the bubble.
-- The action bubble for parent floats above the label; for travel/college it hangs below.
+(Final copy can be tightened during implementation — these are the directional messages.)
 
-No timing, copy, or styling changes — only layout/position fixes.
+### Layout adjustments
+
+- Each callout becomes a **vertical stack** (label bubble on top, connector line, action bubble on bottom) instead of a single bubble.
+- The horizontal dashed connector from each stack to the card stays as-is (still anchors the persona to its rows in the card).
+- Top offsets for the three callouts will be re-spaced so the taller stacks don't overlap:
+  - Travel: `top: 20`
+  - Parent: `top: 230`
+  - College (right side): `top: 60`
+- Action bubble width matches label bubble (~210px) so the vertical connector lines up cleanly.
+- All sub-bubbles fade/slide in together with their parent callout (same `isActive` gate, no extra timing logic).
+
+### Styling
+
+- **Label bubble** (unchanged): `bg = color @ 4% alpha`, `border = color @ 25% alpha`, bold persona name.
+- **Action bubble** (new): `bg = color @ 3% alpha`, `border = 1px dashed color @ 30%`, smaller 11px text, prefixed with a small ⚡ icon in persona color, body text in `text-gray-700`.
+- **Vertical connector**: 2px wide, ~14px tall, dashed line in persona color at 50% opacity, matching the existing horizontal connector style.
+
+### File touched
+
+- `src/components/ScrollDrivenHero.tsx` — only the persona callouts `.map()` block (~lines 270–370). Wrap each side's content in a vertical flex column containing `[label bubble] → [vertical dashed line] → [action bubble]`, and update the three `top` offsets.
+
+No new components, no data model changes, no scroll-timing changes.
 
