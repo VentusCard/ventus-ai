@@ -379,7 +379,7 @@ const ScrollDrivenHero = () => {
           <div
             className="rounded-2xl overflow-hidden transition-all duration-700 ease-out"
             style={{
-              width: 440,
+              width: 520,
               maxWidth: "calc(100vw - 48px)",
               background: "#0A1628",
               boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
@@ -427,7 +427,7 @@ const ScrollDrivenHero = () => {
                 return (
                   <span
                     key={p.id}
-                    className="inline-flex items-center rounded-full px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-semibold transition-all duration-[400ms]"
+                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-[400ms]"
                     style={{
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,
