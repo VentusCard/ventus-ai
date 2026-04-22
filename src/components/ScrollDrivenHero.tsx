@@ -334,10 +334,7 @@ const ScrollDrivenHero = () => {
                     className="flex items-center gap-1.5 font-semibold text-[10px] uppercase tracking-wide mb-1"
                     style={{ color: p.color }}
                   >
-                    <span
-                      className="flex items-center justify-center w-3.5 h-3.5 rounded-[3px] text-white font-black text-[9px] leading-none"
-                      style={{ background: p.color }}
-                    >
+                    <span className="flex items-center justify-center w-3.5 h-3.5 rounded-[3px] bg-blue-600 text-white font-black text-[9px] leading-none">
                       V
                     </span>
                     <span>Orchestration</span>
