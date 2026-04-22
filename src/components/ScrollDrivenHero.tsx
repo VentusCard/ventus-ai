@@ -270,10 +270,9 @@ const ScrollDrivenHero = () => {
                         width: 210,
                       }}
                     >
-                      <div className="font-semibold mb-1 text-[13px]" style={{ color: p.color }}>
+                      <div className="font-semibold text-[13px]" style={{ color: p.color }}>
                         {emoji} {p.label}
                       </div>
-                      <div style={{ color: "#6b7280", fontSize: 11 }}>{p.callout}</div>
                     </div>
                     <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
                       <line x1="0" y1="1" x2="40" y2="1" stroke={p.color} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.5">
