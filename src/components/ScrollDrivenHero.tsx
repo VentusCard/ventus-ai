@@ -36,7 +36,7 @@ const rawTransactions = [
   "CHECKCARD BABIES R US $156.00",
 ];
 
-type Rail = "CARD" | "ACH" | "CHECK" | "ZELLE" | "WIRE";
+type Rail = "CARD" | "TRAVEL" | "ACH" | "CHECK" | "ZELLE" | "WIRE";
 
 interface EnrichedRow {
   raw: string;
@@ -63,6 +63,9 @@ const inferRail = (raw: string): { rail: Rail; railLabel: string; railColor: str
   }
   if (r.startsWith("ACH ")) {
     return { rail: "ACH", railLabel: "Checking · ACH", railColor: "#3b82f6" };
+  }
+  if (r.startsWith("TRAVELCARD")) {
+    return { rail: "TRAVEL", railLabel: "Travel Card", railColor: "#0ea5e9" };
   }
   return { rail: "CARD", railLabel: "Cashback Card", railColor: "#94a3b8" };
 };
