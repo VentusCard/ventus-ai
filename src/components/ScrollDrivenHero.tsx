@@ -103,14 +103,6 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "Carter's", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("LA FITNESS"))
     return { ...base, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
-  if (r.includes("YALE"))
-    return {
-      ...base,
-      merchant: "Yale University",
-      category: "Education",
-      categoryColor: "#f59e0b",
-      persona: "college",
-    };
   if (r.includes("COLLEGE COUNSELOR"))
     return { ...base, merchant: "College Counselor", category: "N/A", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("BUY BUY BABY"))
