@@ -271,17 +271,81 @@ const ScrollDrivenHero = () => {
             const isActive = stage === 3 && activePersona?.id === p.id;
             const pos =
               p.id === "travel"
-                ? { right: "calc(50% + 228px)", top: 60, side: "left" as const }
+                ? { right: "calc(50% + 228px)", top: 20, side: "left" as const }
                 : p.id === "parent"
-                  ? { right: "calc(50% + 228px)", top: 180, side: "left" as const }
-                  : { left: "calc(50% + 228px)", top: 100, side: "right" as const };
+                  ? { right: "calc(50% + 228px)", top: 230, side: "left" as const }
+                  : { left: "calc(50% + 228px)", top: 60, side: "right" as const };
 
             const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
+
+            const action =
+              p.id === "travel"
+                ? "Trigger pre-trip offer flow: noise-cancelling headphones, lounge pass, FX-free card upsell"
+                : p.id === "parent"
+                  ? "Activate family flow: 529 plan nudge, life insurance review, kids' debit card invite"
+                  : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + AI-assisted advisor prep";
+
+            const Stack = (
+              <div className="flex flex-col items-stretch" style={{ width: 210 }}>
+                {/* Label bubble */}
+                <div
+                  className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+                  style={{
+                    background: `${p.color}0a`,
+                    border: `1px solid ${p.color}25`,
+                  }}
+                >
+                  <div className="font-semibold text-[13px]" style={{ color: p.color }}>
+                    {emoji} {p.label}
+                  </div>
+                </div>
+
+                {/* Vertical dashed connector */}
+                <svg width="2" height="16" className="self-center" style={{ overflow: "visible" }}>
+                  <line
+                    x1="1"
+                    y1="0"
+                    x2="1"
+                    y2="16"
+                    stroke={p.color}
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                    opacity="0.5"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="-12"
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                </svg>
+
+                {/* Action sub-bubble */}
+                <div
+                  className="rounded-xl px-3 py-2.5"
+                  style={{
+                    background: `${p.color}08`,
+                    border: `1px dashed ${p.color}55`,
+                  }}
+                >
+                  <div
+                    className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wide mb-1"
+                    style={{ color: p.color }}
+                  >
+                    <span>⚡</span>
+                    <span>Action</span>
+                  </div>
+                  <div className="text-[11px] leading-snug text-gray-700">{action}</div>
+                </div>
+              </div>
+            );
 
             return (
               <div
                 key={p.id}
-                className="hidden lg:flex absolute items-center pointer-events-none"
+                className="hidden lg:flex absolute items-start pointer-events-none"
                 style={{
                   ...pos,
                   opacity: isActive ? 1 : 0,
@@ -291,24 +355,12 @@ const ScrollDrivenHero = () => {
                       ? "translateX(16px) scale(0.95)"
                       : "translateX(-16px) scale(0.95)",
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                  flexDirection: pos.side === "left" ? "row" : "row",
                 }}
               >
                 {pos.side === "left" && (
                   <>
-                    <div
-                      className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-                      style={{
-                        background: `${p.color}0a`,
-                        border: `1px solid ${p.color}25`,
-                        width: 210,
-                      }}
-                    >
-                      <div className="font-semibold text-[13px]" style={{ color: p.color }}>
-                        {emoji} {p.label}
-                      </div>
-                    </div>
-                    <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
+                    {Stack}
+                    <svg width="48" height="2" className="shrink-0 mt-5" style={{ overflow: "visible" }}>
                       <line
                         x1="0"
                         y1="1"
@@ -335,7 +387,7 @@ const ScrollDrivenHero = () => {
                 )}
                 {pos.side === "right" && (
                   <>
-                    <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
+                    <svg width="48" height="2" className="shrink-0 mt-5" style={{ overflow: "visible" }}>
                       <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
                         <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
                       </circle>
@@ -358,18 +410,7 @@ const ScrollDrivenHero = () => {
                         />
                       </line>
                     </svg>
-                    <div
-                      className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-                      style={{
-                        background: `${p.color}0a`,
-                        border: `1px solid ${p.color}25`,
-                        width: 210,
-                      }}
-                    >
-                      <div className="font-semibold text-[13px]" style={{ color: p.color }}>
-                        {emoji} {p.label}
-                      </div>
-                    </div>
+                    {Stack}
                   </>
                 )}
               </div>
