@@ -228,7 +228,8 @@ const ScrollDrivenHero = () => {
 
   // Stage 3: persona highlight index
   const personaProgress = stage === 3 ? (scrollProgress - 0.4) / 0.6 : 0;
-  const activePersonaIndex = personaProgress < 0.33 ? 0 : personaProgress < 0.66 ? 1 : 2;
+  const activePersonaIndex =
+    personaProgress < 0.25 ? 0 : personaProgress < 0.5 ? 1 : 2;
   const activePersona = stage === 3 ? personas[activePersonaIndex] : null;
 
   // Sort enriched data: persona-tagged rows first, then others — show more evidence.
