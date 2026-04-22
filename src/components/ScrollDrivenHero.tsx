@@ -89,12 +89,12 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "Olive Garden", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("WHLFDS") || r.includes("WHOLE FOODS"))
     return { ...base, merchant: "Whole Foods Market", category: "Grocery", categoryColor: "#22c55e" };
-  if (r.includes("PRINCETN") || r.includes("PRINCETON"))
+  if (r.includes("KAPLAN"))
     return {
       ...base,
-      merchant: "Princeton Review",
-      category: "Education",
-      categoryColor: "#f59e0b",
+      merchant: "Kaplan",
+      category: "Books",
+      categoryColor: "#8b5cf6",
       persona: "college",
     };
   if (r.includes("DELTA AIR"))
