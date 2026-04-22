@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
               p.id === "travel"
                 ? { right: "calc(50% + 228px)", top: 20, side: "left" as const }
                 : p.id === "parent"
-                  ? { right: "calc(50% + 228px)", top: 230, side: "left" as const }
+                  ? { right: "calc(50% + 228px)", top: 110, side: "left" as const }
                   : { left: "calc(50% + 228px)", top: 60, side: "right" as const };
 
             const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
