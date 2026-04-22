@@ -1,58 +1,28 @@
 
 
-## Replace "⚡ Action" with "■ V Orchestration" in persona sub-bubbles
+## Make Stage 2 arrive earlier; split Stage 3 evenly across 3 personas
 
-Swap the lightning bolt + "Action" label in each persona sub-bubble for the **Ventus V block + "Orchestration"** label. This reinforces that Ventus AI is the actor turning each insight into a downstream flow — and it visually ties the hero to the V branding used everywhere else (sidebar, chat panel, floating button).
+The hero's scroll-driven animation currently spends a lot of scroll runway in Stage 1 (raw transactions, 0–20%) and Stage 2 (profile build, 20–40%) before it ever gets to the persona walkthrough in Stage 3 (40–100%). You want Stage 2 to land earlier so the persona reveals get more breathing room — and you want each of the 3 personas in Stage 3 to take an equal share of the remaining scroll.
 
-### Visual change
+### New scroll allocation
 
-**Before:**
-```text
-┌──────────────────────────┐
-│ ⚡ ACTION                 │
-│ Trigger pre-trip offer…   │
-└──────────────────────────┘
-```
+| Stage | Old window | New window | Share |
+|-------|-----------|-----------|-------|
+| Stage 1 (raw feed) | 0% – 20% | **0% – 10%** | 10% |
+| Stage 2 (profile built) | 20% – 40% | **10% – 20%** | 10% |
+| Stage 3 — Persona 1 (Travel) | 40% – 60% | **20% – ~46.7%** | ~26.7% |
+| Stage 3 — Persona 2 (Parent) | 60% – 80% | **~46.7% – ~73.3%** | ~26.7% |
+| Stage 3 — Persona 3 (College) | 80% – 100% | **~73.3% – 100%** | ~26.7% |
 
-**After:**
-```text
-┌──────────────────────────┐
-│ [V] ORCHESTRATION         │
-│ Trigger pre-trip offer…   │
-└──────────────────────────┘
-```
-
-### Styling spec
-
-- **V block**: 14×14px rounded square (`rounded-[3px]`), background = persona color, white bold "V" text inside (10px, font-black)
-- **Label**: "Orchestration" — same uppercase 10px tracking-wide treatment as before
-- Per-persona color stays — the V block tints to match the persona (travel blue, parent green, college purple), so each callout still feels distinct
-- Action body copy stays unchanged
-
-### Why this works in context
-
-1. Reinforces V branding the user already established in the dashboard sidebar, chat panel, floating button
-2. Names Ventus as the actor performing the orchestration — clearer cause→effect than a generic ⚡
-3. "Orchestration" is more accurate than "Action" — these aren't single actions, they're multi-step flows (529 nudge + insurance review + debit card invite)
-4. Visual weight is similar to the lightning bolt, so the layout doesn't shift
+Net effect: viewers see the enriched profile + persona pills almost immediately, then spend 80% of the scroll on the persona walkthrough — with each persona getting equal stage time.
 
 ### File touched
 
-- `src/components/ScrollDrivenHero.tsx` — only lines 333–339 (the label header inside each sub-bubble). Replace the `<span>⚡</span>` + `<span>Action</span>` with a small colored V-block + `<span>Orchestration</span>`.
+- `src/components/ScrollDrivenHero.tsx` — stage math at lines 225–232 only:
+  - `stage = scrollProgress < 0.1 ? 1 : scrollProgress < 0.2 ? 2 : 3`
+  - `stage2Progress = (scrollProgress - 0.1) / 0.1`
+  - `personaProgress = (scrollProgress - 0.2) / 0.8`
+  - `activePersonaIndex = personaProgress < 1/3 ? 0 : personaProgress < 2/3 ? 1 : 2`
 
-### Technical detail
-
-```tsx
-<div className="flex items-center gap-1.5 font-semibold text-[10px] uppercase tracking-wide mb-1" style={{ color: p.color }}>
-  <span
-    className="flex items-center justify-center w-3.5 h-3.5 rounded-[3px] text-white font-black text-[9px] leading-none"
-    style={{ background: p.color }}
-  >
-    V
-  </span>
-  <span>Orchestration</span>
-</div>
-```
-
-No layout changes, no new components, no scroll-timing changes.
+No other edits needed — the rest of the component reads off `stage`, `stage2Progress`, and `activePersonaIndex`, so the new pacing flows through automatically (pills, callouts, sub-bubbles, row dimming, etc.).
 
