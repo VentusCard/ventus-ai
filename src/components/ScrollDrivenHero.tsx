@@ -4,19 +4,19 @@ import { Button } from "@/components/ui/button";
 
 const rawTransactions = [
   "PAYPL *POTTRY BRN KDS 4829 $234.50",
-  "SQ *MARRIOTT HTL MIA 8821 $285.00",
+  "TRAVELCARD *MARRIOTT HTL MIA $285.00",
   "TST* OLIVE GARDEN #2241 $58.20",
   "CHECKCARD WHLFDS MKT #1023 $87.40",
   "ACH DEBIT PRINCETN REVW EDU $1,299.00",
-  "DELTA AIR 0062139847221 $428.00",
+  "TRAVELCARD DELTA AIR 0062139 $428.00",
   "SQ *CARTERS STORE 992 $124.50",
   "PAYPL *LA FITNESS DUE $45.00",
   "CHECK #1247 YALE UNIV $32.00",
   "ZELLE PAYMENT COLLEGE COUNSELOR $850.00",
   "SQ *BUY BUY BABY 1120 $234.50",
-  "CHECKCARD STANFORD GST HS $210.00",
+  "CHECKCARD RIMOWA NYC FLAGSHIP $895.00",
   "PAYPL *COMMONAPP FEE $75.00",
-  "WN SOUTHWEST 5261849 $312.00",
+  "APPLPAY GLOBAL ENTRY GOV $100.00",
   "DD *DOORDASH SF $34.10",
   "TARGET T-2847 $89.00",
   "CHECKCARD COSTCO WHSE #4821 $142.30",
@@ -31,12 +31,12 @@ const rawTransactions = [
   "CVS/PHARMACY #4201 $24.50",
   "CHECK #1252 SAT PREP TUTOR $400.00",
   "PAYPL *GYMBOREE PLAY $89.00",
-  "SQ *HILTON GARDEN INN $195.00",
+  "CHECKCARD VIATOR *PRVT TOUR $385.00",
   "ZELLE TO NANNY SERVICES $320.00",
   "CHECKCARD BABIES R US $156.00",
 ];
 
-type Rail = "CARD" | "ACH" | "CHECK" | "ZELLE" | "WIRE";
+type Rail = "CARD" | "TRAVEL" | "ACH" | "CHECK" | "ZELLE" | "WIRE";
 
 interface EnrichedRow {
   raw: string;
@@ -63,6 +63,9 @@ const inferRail = (raw: string): { rail: Rail; railLabel: string; railColor: str
   }
   if (r.startsWith("ACH ")) {
     return { rail: "ACH", railLabel: "Checking · ACH", railColor: "#3b82f6" };
+  }
+  if (r.startsWith("TRAVELCARD")) {
+    return { rail: "TRAVEL", railLabel: "Travel Card", railColor: "#0ea5e9" };
   }
   return { rail: "CARD", railLabel: "Cashback Card", railColor: "#94a3b8" };
 };
@@ -94,12 +97,12 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "College Counselor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("BUY BUY BABY"))
     return { ...base, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
-  if (r.includes("STANFORD"))
-    return { ...base, merchant: "Stanford Guest House", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("RIMOWA"))
+    return { ...base, merchant: "Rimowa", category: "Travel Gear", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("COMMONAPP"))
     return { ...base, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
-  if (r.includes("SOUTHWEST"))
-    return { ...base, merchant: "Southwest Airlines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("GLOBAL ENTRY"))
+    return { ...base, merchant: "Global Entry", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("DOORDASH"))
     return { ...base, merchant: "DoorDash", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("TARGET"))
@@ -128,8 +131,8 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("GYMBOREE"))
     return { ...base, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
-  if (r.includes("HILTON"))
-    return { ...base, merchant: "Hilton Garden Inn", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("VIATOR"))
+    return { ...base, merchant: "Viator", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("NANNY"))
     return { ...base, merchant: "Nanny Services", category: "Childcare", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("BABIES R US"))
@@ -148,7 +151,7 @@ const personaCounts = {
 };
 
 const personas = [
-  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", count: personaCounts.travel, callout: `${personaCounts.travel} travel transactions · Hotels, flights, campus visits` },
+  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", count: personaCounts.travel, callout: `${personaCounts.travel} transactions · Flights, lodging, premium luggage, Global Entry, tours` },
   { id: "parent" as const, label: "Young Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", count: personaCounts.parent, callout: `${personaCounts.parent} transactions · Childcare, baby gear, kids clothing` },
   { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", count: personaCounts.college, callout: `${personaCounts.college} transactions · Test prep, apps, counseling` },
 ];
