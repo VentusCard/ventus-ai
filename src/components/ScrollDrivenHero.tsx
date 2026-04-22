@@ -285,60 +285,79 @@ const ScrollDrivenHero = () => {
                   ? "Activate family flow: 529 plan nudge, life insurance review, kids' debit card invite"
                   : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + AI-assisted advisor prep";
 
+            const actionAbove = p.id === "parent";
+
+            const LabelBubble = (
+              <div
+                className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
+                style={{
+                  background: `${p.color}0a`,
+                  border: `1px solid ${p.color}25`,
+                }}
+              >
+                <div className="font-semibold text-[13px]" style={{ color: p.color }}>
+                  {emoji} {p.label}
+                </div>
+              </div>
+            );
+
+            const Connector = (
+              <svg width="2" height="16" className="self-center" style={{ overflow: "visible" }}>
+                <line
+                  x1="1"
+                  y1="0"
+                  x2="1"
+                  y2="16"
+                  stroke={p.color}
+                  strokeWidth="1.5"
+                  strokeDasharray="3 3"
+                  opacity="0.5"
+                >
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    from="0"
+                    to="-12"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </line>
+              </svg>
+            );
+
+            const ActionBubble = (
+              <div
+                className="rounded-xl px-3 py-2.5"
+                style={{
+                  background: `${p.color}08`,
+                  border: `1px dashed ${p.color}55`,
+                }}
+              >
+                <div
+                  className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wide mb-1"
+                  style={{ color: p.color }}
+                >
+                  <span>⚡</span>
+                  <span>Action</span>
+                </div>
+                <div className="text-[11px] leading-snug text-gray-700">{action}</div>
+              </div>
+            );
+
             const Stack = (
               <div className="flex flex-col items-stretch" style={{ width: 210 }}>
-                {/* Label bubble */}
-                <div
-                  className="rounded-xl px-4 py-3 text-[12px] leading-relaxed"
-                  style={{
-                    background: `${p.color}0a`,
-                    border: `1px solid ${p.color}25`,
-                  }}
-                >
-                  <div className="font-semibold text-[13px]" style={{ color: p.color }}>
-                    {emoji} {p.label}
-                  </div>
-                </div>
-
-                {/* Vertical dashed connector */}
-                <svg width="2" height="16" className="self-center" style={{ overflow: "visible" }}>
-                  <line
-                    x1="1"
-                    y1="0"
-                    x2="1"
-                    y2="16"
-                    stroke={p.color}
-                    strokeWidth="1.5"
-                    strokeDasharray="3 3"
-                    opacity="0.5"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to="-12"
-                      dur="1.5s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                </svg>
-
-                {/* Action sub-bubble */}
-                <div
-                  className="rounded-xl px-3 py-2.5"
-                  style={{
-                    background: `${p.color}08`,
-                    border: `1px dashed ${p.color}55`,
-                  }}
-                >
-                  <div
-                    className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wide mb-1"
-                    style={{ color: p.color }}
-                  >
-                    <span>⚡</span>
-                    <span>Action</span>
-                  </div>
-                  <div className="text-[11px] leading-snug text-gray-700">{action}</div>
-                </div>
+                {actionAbove ? (
+                  <>
+                    {ActionBubble}
+                    {Connector}
+                    {LabelBubble}
+                  </>
+                ) : (
+                  <>
+                    {LabelBubble}
+                    {Connector}
+                    {ActionBubble}
+                  </>
+                )}
               </div>
             );
 
