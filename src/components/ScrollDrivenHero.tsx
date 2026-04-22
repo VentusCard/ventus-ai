@@ -379,7 +379,7 @@ const ScrollDrivenHero = () => {
                 {pos.side === "left" && (
                   <>
                     {Stack}
-                    <svg width="48" height="2" className="shrink-0 mt-5" style={{ overflow: "visible" }}>
+                    <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible", marginTop: actionAbove ? 90 : 20 }}>
                       <line
                         x1="0"
                         y1="1"
