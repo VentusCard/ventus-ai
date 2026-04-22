@@ -1,74 +1,66 @@
 
 
-## Fix lifestyle rollup pill → AI chat: bake exact totals into the prompt
+## Hero animation: keep existing format, just enrich each row inline
 
-**The bug:** Clicking the "✦ **Seasonal Ski Trips** · 4 txns · $1.0k" rollup pill sends the AI the prompt *"How much do I typically spend on seasonal ski trips?"* — and the AI replies *"$537 across 3 transactions"* instead of the real *$1.0k across 4 transactions*.
+Keep the current `ScrollDrivenHero` 3-stage scroll exactly as-is — same card, same flow, same persona highlight. The only change is what each transaction row **looks like** in Stage 2/3, plus a small data refresh so the three capabilities are visible inside that single row.
 
-**Root cause:** The chat context (`buildContext` in `ConsumerAIChatView.tsx` → `consumer-chat`) only ships **pillar / category** aggregates. But the rollup label "Seasonal Ski Trips" is a **sub-cluster** computed by the persona-synthesis step (it groups Palisades Tahoe lift tickets, ski rentals, ski apparel, etc. across multiple categories). The AI has no way to recompute that exact cluster from the categories it sees, so it guesses based on whatever single ski-related category looks closest — and gets a smaller, wrong number.
+### New row format
 
-The pill itself **already knows** the right answer: `r.totalSpend`, `r.totalCount`, and `r.txIndices` are right there on the rollup. We just need to inject them into the prompt.
+Each enriched row becomes a single line carrying all three signals:
 
-### Change
-
-**File:** `src/components/exec-demo/ExecDemoIntelPanel.tsx` — `handleRollupForRel` (~line 389)
-
-Replace the bare prompt with one that bakes in the rollup's ground-truth totals + a top-merchant breakdown derived from `r.txIndices` against the `transactions` array already in scope:
-
-```ts
-const handleRollupForRel = (r: typeof rollupStats[number]) => {
-  onRollupClick?.(r);
-  if (!isRelTab) return;
-  setSelectedSignal({ kind: "lifestyle", label: r.label });
-  if (!assistantOpen) return;
-
-  const totalSpend = Math.round(r.totalSpend ?? 0);
-  const totalCount = r.totalCount ?? 0;
-
-  // Top-merchant breakdown for this exact cluster
-  let merchantBreakdown = "";
-  if (transactions && r.txIndices?.length) {
-    const mMap: Record<string, { total: number; count: number }> = {};
-    for (const idx of r.txIndices) {
-      const tx: any = transactions[idx];
-      if (!tx) continue;
-      const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
-      const amt = typeof tx.amount === "number"
-        ? Math.abs(tx.amount)
-        : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
-      mMap[name] ??= { total: 0, count: 0 };
-      mMap[name].total += amt;
-      mMap[name].count += 1;
-    }
-    const top = Object.entries(mMap)
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 5)
-      .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
-    if (top.length) merchantBreakdown = ` Breakdown: ${top.join("; ")}.`;
-  }
-
-  const prompt =
-    `How much do I typically spend on ${r.label.toLowerCase()}? ` +
-    `(Use these exact figures from my account: total $${totalSpend.toLocaleString()} ` +
-    `across ${totalCount} transaction${totalCount !== 1 ? "s" : ""} tagged "${r.label}".` +
-    `${merchantBreakdown})`;
-
-  onAIPromptDispatch?.(prompt, "lifestyle");
-};
+```
+Pottery Barn Kids   PAYPL *POTTRY BRN KDS 4829   Cashback Card   #parent
 ```
 
-### Why this works
+Visually (left → right inside the existing row, no new columns, no new height):
 
-The `consumer-chat` system prompt already says *"never fabricate transaction data"* and *"always cite specific dollar amounts and merchant names"*. By feeding the AI the exact total + merchant breakdown for the cluster as part of the user message, it will quote those numbers verbatim in its reply — matching the pill exactly.
+- **`Pottery Barn Kids`** — clean merchant name. White, semibold, 12px. *(descriptor cleaning)*
+- **`PAYPL *POTTRY BRN KDS 4829`** — raw descriptor. Mono, 9px, gray-500, opacity 0.55, truncates first when space is tight. *(provenance / proves the cleaning)*
+- **`Cashback Card`** / **`Checking · ACH`** / **`Checking · Check #1247`** / **`Checking · Zelle`** — rail + funding source. Mono, 9px, colored pill matching the rail. *(cross-rail intelligence)*
+- **Category pill** — unchanged, far right. *(existing)*
 
-### Resulting flow
+So a viewer reads: *clean name → the gibberish we cleaned → which rail it came from → what bucket it fell into.* All on one line. No new stage, no new banner, no new animation.
 
-- Click ✦ **Seasonal Ski Trips · 4 txns · $1.0k** → AI replies *"You spent **$1,037** across **4 transactions** on seasonal ski trips, primarily at Palisades Tahoe ($720, 2x)…"* — matches the pill.
-- Same fix automatically corrects every other lifestyle rollup pill (Annual Hawaiian Vacations, Tennis & Court Sports, etc.) — they all use this same handler.
-- Life-event and risk pills are unaffected (separate handlers).
+### Three capabilities, inline
+
+**1. Descriptor cleaning** — every row now shows the raw descriptor as a faint subline beside the clean merchant. The sample set is curated so each visible row demonstrates a real cleaning pattern:
+
+| Raw (shown faint) | Clean (shown bold) |
+|---|---|
+| `PAYPL *POTTRY BRN KDS 4829` | Pottery Barn Kids |
+| `SQ *MARRIOTT HTL MIA 8821` | Marriott Miami |
+| `TST* OLIVE GARDEN #2241` | Olive Garden |
+| `CHECKCARD WHLFDS MKT #1023` | Whole Foods Market |
+| `ACH DEBIT PRINCETN REVW EDU` | Princeton Review |
+| `DD *DOORDASH SF` | DoorDash |
+
+**2. Cross-rail intelligence** — the funding-source label on each row is one of:
+- `Cashback Card` (gray)
+- `Checking · ACH` (blue)
+- `Checking · Check #1247` (amber)
+- `Checking · Zelle` (purple)
+- `Brokerage · Wire` (red)
+
+Inferred from the raw descriptor (`CHECK #` → Check, `ZELLE` → Zelle, `ACH ` / `WIRE ` → ACH/Wire, else Card). Two rows are added so checks, Zelle, ACH, and a wire are all visible at once: `CHECK #1247 YALE UNIV $32.00`, `ZELLE PAYMENT COLLEGE COUNSELOR $850`, `ACH CREDIT IRS REFUND $2,847`, `WIRE OUT MORGAN STANLEY $5,000`.
+
+**3. More supporting evidence per signal (3–5)** — when a persona is active in Stage 3, that persona's matching rows float to the top of the list (animated reorder, ~300ms). Non-matching rows dim to 0.08 as today. Card transaction-list height bumps from `200px` → `255px` so all 3–5 supporting rows clear the gradient fade. The active persona pill echoes the count: `Frequent Traveler · 5 txns`. Sample data is tuned so each persona has exactly 5 clearly-named supporting transactions across at least 2 rails.
+
+### Stage behavior — unchanged
+
+- Stage 1: raw stream scrolls (same as today).
+- Stage 2: raw stream swaps to the new enriched row format above.
+- Stage 3: persona reorder + dim, floating callouts unchanged.
+
+No new stages. No new banners. No new section. Just a richer row inside the existing card.
 
 ### Files touched
 
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — only `handleRollupForRel` body.
+- `src/components/ScrollDrivenHero.tsx` — only file. Changes:
+  - Curate `rawTransactions` (swap ~6 rows for cleaning-pattern examples; add 2–3 cross-rail rows).
+  - Extend `EnrichedRow` with `rail: "CARD" | "ACH" | "CHECK" | "ZELLE" | "WIRE"`, `railLabel: string`, `railColor: string`. Infer from raw.
+  - Update the Stage 2/3 row template to render: clean merchant · faint raw · rail pill · existing category pill, all on one line (flex with min-width / truncate on the raw segment).
+  - Bump list height `200 → 255`. Add Stage 3 reorder so active persona's rows float to top.
+  - Echo `· N txns` in the active persona pill.
 
-No edge function, schema, or `consumer-chat` prompt changes.
+No new files, no data sources, no edge functions, no schema work.
 
