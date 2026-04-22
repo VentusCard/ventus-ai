@@ -104,7 +104,13 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
   if (r.includes("LA FITNESS"))
     return { ...base, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("COLLEGE COUNSELOR"))
-    return { ...base, merchant: "College Counselor", category: "N/A", categoryColor: "#f59e0b", persona: "college" };
+    return {
+      ...base,
+      merchant: "College Counselor",
+      category: "Edu Service",
+      categoryColor: "#f59e0b",
+      persona: "college",
+    };
   if (r.includes("BUY BUY BABY"))
     return { ...base, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("RIMOWA"))
@@ -131,7 +137,13 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "Trader Joe's", category: "Grocery", categoryColor: "#22c55e" };
   if (r.includes("CVS")) return { ...base, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("SAT PREP"))
-    return { ...base, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return {
+      ...base,
+      merchant: "SAT Prep Tutor",
+      category: "Edu Service",
+      categoryColor: "#f59e0b",
+      persona: "college",
+    };
   if (r.includes("GYMBOREE"))
     return { ...base, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("VIATOR"))
