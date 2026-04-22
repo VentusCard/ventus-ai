@@ -97,12 +97,12 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "College Counselor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("BUY BUY BABY"))
     return { ...base, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
-  if (r.includes("STANFORD"))
-    return { ...base, merchant: "Stanford Guest House", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("RIMOWA"))
+    return { ...base, merchant: "Rimowa", category: "Travel Gear", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("COMMONAPP"))
     return { ...base, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
-  if (r.includes("SOUTHWEST"))
-    return { ...base, merchant: "Southwest Airlines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("GLOBAL ENTRY"))
+    return { ...base, merchant: "Global Entry", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("DOORDASH"))
     return { ...base, merchant: "DoorDash", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("TARGET"))
