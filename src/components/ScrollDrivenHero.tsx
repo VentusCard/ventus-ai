@@ -94,7 +94,7 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
       ...base,
       merchant: "Kaplan",
       category: "Books",
-      categoryColor: "#8b5cf6",
+      categoryColor: "#f59e0b",
       persona: "college",
     };
   if (r.includes("DELTA AIR"))
