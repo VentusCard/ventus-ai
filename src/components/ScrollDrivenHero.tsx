@@ -302,10 +302,9 @@ const ScrollDrivenHero = () => {
                         width: 210,
                       }}
                     >
-                      <div className="font-semibold mb-1 text-[13px]" style={{ color: p.color }}>
+                      <div className="font-semibold text-[13px]" style={{ color: p.color }}>
                         {emoji} {p.label}
                       </div>
-                      <div style={{ color: "#6b7280", fontSize: 11 }}>{p.callout}</div>
                     </div>
                   </>
                 )}
