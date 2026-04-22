@@ -427,7 +427,7 @@ const ScrollDrivenHero = () => {
                 return (
                   <span
                     key={p.id}
-                    className="inline-flex items-center rounded-full px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-semibold transition-all duration-[400ms]"
+                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-[400ms]"
                     style={{
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,
