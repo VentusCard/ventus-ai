@@ -280,10 +280,10 @@ const ScrollDrivenHero = () => {
 
             const action =
               p.id === "travel"
-                ? "Trigger pre-trip offer flow: noise-cancelling headphones, lounge pass, FX-free card upsell"
+                ? "Curate leisure travel deal collection: noise-cancelling headphones, lounge pass, premium rental car..."
                 : p.id === "parent"
-                  ? "Activate family flow: 529 plan nudge, life insurance review, kids' debit card invite"
-                  : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + AI-assisted advisor prep";
+                  ? "Activate family planning flow: Financial planning nudge, life insurance review, wealth management invite..."
+                  : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + Advisor notified with AI-assisted meeting prep";
 
             const Stack = (
               <div className="flex flex-col items-stretch" style={{ width: 210 }}>
