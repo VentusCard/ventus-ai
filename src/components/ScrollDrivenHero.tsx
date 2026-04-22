@@ -151,7 +151,7 @@ const personaCounts = {
 };
 
 const personas = [
-  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", count: personaCounts.travel, callout: `${personaCounts.travel} transactions · Flights, lodging, premium luggage, Global Entry, tours` },
+  { id: "travel" as const, label: "Leisure Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", count: personaCounts.travel, callout: `${personaCounts.travel} transactions · Flights, lodging, premium luggage, Global Entry, tours` },
   { id: "parent" as const, label: "Young Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", count: personaCounts.parent, callout: `${personaCounts.parent} transactions · Childcare, baby gear, kids clothing` },
   { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", count: personaCounts.college, callout: `${personaCounts.college} transactions · Test prep, apps, counseling` },
 ];
