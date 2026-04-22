@@ -415,7 +415,7 @@ const ScrollDrivenHero = () => {
 
             {/* Persona pills — Stage 2+ */}
             <div
-              className="flex flex-wrap gap-1.5 md:gap-2 px-5 pt-3 transition-all duration-[400ms]"
+              className="flex gap-1.5 px-5 pt-3 transition-all duration-[400ms]"
               style={{
                 maxHeight: stage >= 2 ? 80 : 0,
                 opacity: stage >= 2 ? 1 : 0,
@@ -427,7 +427,7 @@ const ScrollDrivenHero = () => {
                 return (
                   <span
                     key={p.id}
-                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-[400ms]"
+                    className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
                     style={{
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,
@@ -435,6 +435,7 @@ const ScrollDrivenHero = () => {
                       opacity: stage2Progress > i * 0.3 ? 1 : 0,
                       transform: stage2Progress > i * 0.3 ? "translateY(0)" : "translateY(8px)",
                       transitionDelay: `${i * 200}ms`,
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {p.label}
