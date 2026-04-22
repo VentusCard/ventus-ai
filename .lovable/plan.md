@@ -1,25 +1,41 @@
 
 
-# Fix False Positive in Risk Detection Prompt
+## Collapse persona callouts to a single "V Orchestration" bubble
 
-## Problem
-"ADMISSIONS CONSULTING GRP" ($2,500, category: Childcare & Education) is being flagged — likely because "consulting" + round number triggers the model. Rather than adding a hard exclusion list, we should improve the prompt logic to make the model use the **category and pillar context** it already receives.
+Remove the top label bubble (e.g. "✈ Leisure Traveler") and the vertical dashed connector that links it to the action bubble below. Each persona callout becomes a single bubble — the V Orchestration action bubble — anchored to its rows in the card by the existing horizontal dashed line.
 
-## Change
+The persona name is already visible as a highlighted pill inside the dark card during Stage 3, so repeating it in the callout was redundant.
 
-### `supabase/functions/detect-risk-transactions/index.ts` — System prompt update
+### Visual change
 
-Add a rule to the IMPORTANT RULES section instructing the model to **use the enriched category/pillar data** when evaluating transactions, and to weight merchant name keywords only when the category context supports suspicion:
-
-**Add after the existing "Only flag transactions with CLEAR evidence..." rule:**
-
+**Before** (per persona):
+```text
+┌──────────────────────────┐
+│ ✈ Leisure Traveler        │   ← removed
+└────────────┬─────────────┘
+             ┊                     ← removed
+┌────────────┴─────────────┐
+│ [V] ORCHESTRATION         │   ← kept (only bubble)
+│ Curate leisure travel…    │
+└──────────────────────────┘
 ```
-- USE the provided category and pillar context. A merchant name containing words like "consulting", "services", or "group" is NOT suspicious if the transaction's category clearly maps to a benign domain (e.g., Childcare & Education, Healthcare, Home Improvement). Merchant name keywords alone are never sufficient — the category must also be consistent with risk.
-- A round dollar amount alone is NOT an AML indicator. Structuring requires a PATTERN of multiple transactions deliberately staying below reporting thresholds, not a single payment at a round number.
+
+**After**:
+```text
+┌──────────────────────────┐
+│ [V] ORCHESTRATION         │
+│ Curate leisure travel…    │
+└──────────────────────────┘
 ```
 
-This teaches the model to cross-reference the enriched category data it already receives rather than relying on surface-level keyword matching, without hard-coding any exclusions.
+### File touched
 
-### Single file change
-- `supabase/functions/detect-risk-transactions/index.ts`
+- `src/components/ScrollDrivenHero.tsx` (lines ~288–344)
+  - Delete the top label bubble (`rounded-xl` with emoji + persona name)
+  - Delete the vertical dashed `<svg>` connector
+  - Keep the action bubble exactly as-is — V block, "Orchestration" label, action copy
+  - The wrapping `<div className="flex flex-col items-stretch">` becomes a single child; that's fine, no further restructuring needed
+  - The horizontal connector line + pulsing endpoint that anchors the callout to the card stays unchanged
+
+No layout, color, or animation changes beyond removing the two elements. The remaining bubble keeps its persona-tinted text, dashed border, and Ventus blue V block.
 

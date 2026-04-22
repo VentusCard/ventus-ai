@@ -5,7 +5,7 @@ import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/d
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ventusLogo from "@/assets/ventus-logo-blue.png";
+import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
@@ -113,7 +113,7 @@ export default function ExecDemoSelectionDialog({
         {/* Header */}
         <div className="px-6 py-3 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
-            <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
+            <img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto" />
             <span className="text-[13px] text-slate-400">·</span>
             <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
               Select a Customer Profile

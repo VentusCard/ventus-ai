@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown, Calendar, Flame, BarChart3 } from "lucide-react";
+import { Calendar, MapPin, TrendingUp, TrendingDown, Repeat, Tag, DollarSign, Clock } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
-import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
+import type { PersonaSynthesis, PillarRollup } from "./ExecDemoIntelPanel";
 import type { Transaction, SignalEntry } from "./execDemoData";
 import NextOfferRationale from "./NextOfferRationale";
 import type { RollupOfferGroup } from "./NextOfferRationale";
@@ -14,6 +14,13 @@ interface ChipData {
   frequency?: string;
 }
 
+interface ActiveTrigger {
+  label: string;
+  indices: number[];
+  color: string;
+  kind: "lifeEvent" | "risk";
+}
+
 interface Props {
   chips: ChipData[];
   transactions: Transaction[];
@@ -21,312 +28,555 @@ interface Props {
   personaSynthesis?: PersonaSynthesis | null;
   generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
+  activeRollup?: PillarRollup | null;
+  activeTriggerLabel?: string | null;
+  activeTrigger?: ActiveTrigger | null;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const CURRENT_MONTH = new Date().getMonth();
 
-function parseMonth(dateStr: string): number | null {
+function parseDate(dateStr: string): Date | null {
   if (!dateStr) return null;
-  if (dateStr.includes("-")) {
-    const m = parseInt(dateStr.split("-")[1], 10);
-    return isNaN(m) ? null : m - 1;
+  const s = String(dateStr).trim();
+  if (!s) return null;
+  // ISO: yyyy-mm-dd
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
   }
-  const m = parseInt(dateStr.split("/")[0], 10);
-  return isNaN(m) ? null : m - 1;
+  // mm/dd/yy or mm/dd/yyyy (also m/d/yy)
+  const parts = s.split("/");
+  if (parts.length === 3) {
+    let [mm, dd, yy] = parts;
+    let year = yy;
+    if (yy.length === 2) {
+      const n = parseInt(yy, 10);
+      // Window: 00-69 → 2000s, 70-99 → 1900s
+      year = (n <= 69 ? 2000 + n : 1900 + n).toString();
+    }
+    const d = new Date(`${year}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  // Last resort
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 }
 
-function formatSpend(amount: number): string {
-  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
-  return `$${Math.round(amount)}`;
+function parseAmount(amount: any): number {
+  return parseFloat(String(amount).replace(/[$,]/g, "")) || 0;
 }
 
-interface SeasonalRow {
+interface SubcategoryStat {
+  name: string;
+  count: number;
+  spend: number;
+  pct: number; // share of count, 0–100
+}
+
+interface CadenceData {
   label: string;
   pillar: string;
-  monthlySpend: number[];
-  peak: number;
-  monthsUntilPeak: number;
+  totalCount: number;
   totalSpend: number;
-  count: number;
-  velocity: number;
-  concentration: { months: string; pct: number } | null;
+  avgTicket: number;
+  topMerchant: { name: string; count: number } | null;
+  topSubcategories: SubcategoryStat[];
+  firstSeen: Date | null;
+  lastSeen: Date | null;
+  activeSpan: string | null;          // e.g. "Mar 2024 → today (14 mo)"
+  cadence: string | null;             // e.g. "every ~28 days (12 visits/yr)"
+  cadenceCategory: "weekly" | "monthly" | "quarterly" | "annual" | "irregular" | null;
+  seasonality: string | null;         // e.g. "annually in July" or "summer-heavy (Jun–Aug)"
+  velocity: number;                   // % change recent vs prior quarter
+  monthlyTrend: number[];             // length 12, normalized 0–1
+  summaryLine: string;                // plain-English headline
 }
 
+const GENERIC_SUBCATS = new Set([
+  "other", "miscellaneous", "misc", "unclassified", "general", "general retail", "uncategorized",
+]);
 
+function titleCase(s: string): string {
+  return s.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
 
+function buildCadence(
+  rollup: PillarRollup,
+  transactions: Transaction[],
+  signalMap: Record<number, SignalEntry>
+): CadenceData | null {
+  const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
+  const txs = indices
+    .map(i => transactions[i])
+    .filter((t): t is Transaction => !!t);
 
-export default function PurchaseCycleTimeline({ chips, transactions, signalMap, personaSynthesis, generatedOffers, offersLoading }: Props) {
-  const rows: SeasonalRow[] = useMemo(() => {
-    const rollups = personaSynthesis?.pillarRollups;
+  if (txs.length === 0) return null;
 
-    // If we have persona rollups, group by rollup label
-    if (rollups && rollups.length > 0) {
-      return rollups
-        .map(rollup => {
-          const months = new Array(12).fill(0);
-          let total = 0;
-          let count = 0;
-
-          // Use txIndices if available, otherwise categoryIndices mapped through signalMap
-          const indices = rollup.txIndices ?? rollup.categoryIndices ?? [];
-          indices.forEach(idx => {
-            const tx = transactions[idx];
-            if (!tx) return;
-            const month = parseMonth(tx.date);
-            if (month === null) return;
-            const amount = parseFloat(String(tx.amount).replace(/[$,]/g, "")) || 0;
-            months[month] += amount;
-            total += amount;
-            count += 1;
-          });
-
-          if (count < 2) return null;
-
-          const peak = months.indexOf(Math.max(...months));
-          const monthsUntil = peak >= CURRENT_MONTH ? peak - CURRENT_MONTH : 12 - CURRENT_MONTH + peak;
-
-          const recentMonths = [0, 1, 2].map(i => months[(CURRENT_MONTH - i + 12) % 12]);
-          const priorMonths = [3, 4, 5].map(i => months[(CURRENT_MONTH - i + 12) % 12]);
-          const recentAvg = recentMonths.reduce((a, b) => a + b, 0) / 3;
-          const priorAvg = priorMonths.reduce((a, b) => a + b, 0) / 3;
-          const velocity = priorAvg > 0 ? Math.round(((recentAvg - priorAvg) / priorAvg) * 100) : 0;
-
-          let bestSum = 0, bestStart = 0;
-          for (let s = 0; s < 12; s++) {
-            const sum3 = months[s] + months[(s + 1) % 12] + months[(s + 2) % 12];
-            if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
-          }
-          const pct = total > 0 ? Math.round((bestSum / total) * 100) : 0;
-          const concentration = pct >= 40 ? {
-            months: `${MONTHS[bestStart]}-${MONTHS[(bestStart + 2) % 12]}`,
-            pct,
-          } : null;
-
-          return {
-            label: rollup.label,
-            pillar: rollup.pillar,
-            monthlySpend: months,
-            peak,
-            monthsUntilPeak: monthsUntil === 0 ? 0 : monthsUntil,
-            totalSpend: total,
-            count,
-            velocity,
-            concentration,
-          };
-        })
-        .filter((r): r is SeasonalRow => r !== null)
-        .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak)
-        .slice(0, 7);
-    }
-
-    // Fallback: group by signal pillar::label (original behavior)
-    const categoryMonthly = new Map<string, { pillar: string; months: number[]; total: number; count: number }>();
-
-    transactions.forEach((tx, idx) => {
-      const signal = signalMap[idx];
-      if (!signal) return;
-      const month = parseMonth(tx.date);
-      if (month === null) return;
-      const amount = parseFloat(String(tx.amount).replace(/[$,]/g, "")) || 0;
-      const key = `${signal.pillar}::${signal.label}`;
-
-      let entry = categoryMonthly.get(key);
-      if (!entry) {
-        entry = { pillar: signal.pillar, months: new Array(12).fill(0), total: 0, count: 0 };
-        categoryMonthly.set(key, entry);
-      }
-      entry.months[month] += amount;
-      entry.total += amount;
-      entry.count += 1;
-    });
-
-    return Array.from(categoryMonthly.entries())
-      .filter(([, v]) => v.count >= 2)
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 7)
-      .map(([key, data]) => {
-        const label = key.split("::")[1];
-        const peak = data.months.indexOf(Math.max(...data.months));
-        const monthsUntil = peak >= CURRENT_MONTH ? peak - CURRENT_MONTH : 12 - CURRENT_MONTH + peak;
-
-        const recentMonths = [0, 1, 2].map(i => data.months[(CURRENT_MONTH - i + 12) % 12]);
-        const priorMonths = [3, 4, 5].map(i => data.months[(CURRENT_MONTH - i + 12) % 12]);
-        const recentAvg = recentMonths.reduce((a, b) => a + b, 0) / 3;
-        const priorAvg = priorMonths.reduce((a, b) => a + b, 0) / 3;
-        const velocity = priorAvg > 0 ? Math.round(((recentAvg - priorAvg) / priorAvg) * 100) : 0;
-
-        let bestSum = 0, bestStart = 0;
-        for (let s = 0; s < 12; s++) {
-          const sum3 = data.months[s] + data.months[(s + 1) % 12] + data.months[(s + 2) % 12];
-          if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
-        }
-        const pct = data.total > 0 ? Math.round((bestSum / data.total) * 100) : 0;
-        const concentration = pct >= 40 ? {
-          months: `${MONTHS[bestStart]}-${MONTHS[(bestStart + 2) % 12]}`,
-          pct,
-        } : null;
-
-        return {
-          label,
-          pillar: data.pillar,
-          monthlySpend: data.months,
-          peak,
-          monthsUntilPeak: monthsUntil === 0 ? 0 : monthsUntil,
-          totalSpend: data.total,
-          count: data.count,
-          velocity,
-          concentration,
-        };
-      })
-      .sort((a, b) => a.monthsUntilPeak - b.monthsUntilPeak);
-  }, [transactions, signalMap, personaSynthesis]);
-
-
-
-
-  if (rows.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-[11px] text-slate-300">Analyzing seasonal patterns...</span>
-      </div>
-    );
+  // ---- Top merchant ----
+  const merchantCounts = new Map<string, number>();
+  for (const t of txs) {
+    const m = ((t as any).merchant_name || (t as any).merchant || "").trim();
+    if (!m) continue;
+    merchantCounts.set(m, (merchantCounts.get(m) || 0) + 1);
+  }
+  let topMerchant: { name: string; count: number } | null = null;
+  for (const [name, count] of merchantCounts) {
+    if (!topMerchant || count > topMerchant.count) topMerchant = { name, count };
   }
 
-  const globalMax = Math.max(...rows.flatMap(r => r.monthlySpend), 1);
+  // ---- Date analysis ----
+  const dates = txs
+    .map(t => parseDate(t.date))
+    .filter((d): d is Date => !!d)
+    .sort((a, b) => a.getTime() - b.getTime());
 
+  let cadence: string | null = null;
+  let cadenceCategory: CadenceData["cadenceCategory"] = null;
+  if (dates.length >= 2) {
+    const intervals: number[] = [];
+    for (let i = 1; i < dates.length; i++) {
+      intervals.push((dates[i].getTime() - dates[i - 1].getTime()) / (1000 * 60 * 60 * 24));
+    }
+    const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const perYear = Math.max(1, Math.round(365 / avg));
+    if (avg <= 10) {
+      cadenceCategory = "weekly";
+      cadence = `every ~${Math.round(avg)} days (${perYear}+ visits/yr)`;
+    } else if (avg <= 45) {
+      cadenceCategory = "monthly";
+      cadence = `every ~${Math.round(avg)} days (${perYear} visits/yr)`;
+    } else if (avg <= 120) {
+      cadenceCategory = "quarterly";
+      cadence = `every ~${Math.round(avg)} days (${perYear}× / year)`;
+    } else if (avg <= 270) {
+      cadenceCategory = "annual";
+      cadence = `every ~${Math.round(avg / 30)} months`;
+    } else {
+      cadenceCategory = "annual";
+      cadence = `roughly once a year`;
+    }
+  }
 
+  // ---- Seasonality (count-weighted, more reliable than spend) ----
+  const monthCounts = new Array(12).fill(0);
+  const monthSpend = new Array(12).fill(0);
+  let totalSpend = 0;
+  // Compute totalSpend from ALL txs (independent of date parsing)
+  for (const t of txs) totalSpend += parseAmount(t.amount);
+  // Fill monthly buckets only when date parses
+  for (const t of txs) {
+    const d = parseDate(t.date);
+    if (!d) continue;
+    const m = d.getMonth();
+    monthCounts[m] += 1;
+    monthSpend[m] += parseAmount(t.amount);
+  }
 
+  let seasonality: string | null = null;
+  const totalDated = monthCounts.reduce((a, b) => a + b, 0);
+  if (totalDated > 0) {
+    const peakMonth = monthCounts.indexOf(Math.max(...monthCounts));
+    const peakPct = monthCounts[peakMonth] / totalDated;
+    if (peakPct >= 0.5 && monthCounts[peakMonth] >= 1) {
+      // Annual single-month → "annually in Jul"
+      if (cadenceCategory === "annual" || totalDated <= 4) {
+        seasonality = `annually in ${MONTHS[peakMonth]}`;
+      } else {
+        seasonality = `concentrated in ${MONTHS[peakMonth]}`;
+      }
+    } else {
+      let bestSum = 0, bestStart = 0;
+      for (let s = 0; s < 12; s++) {
+        const sum3 = monthCounts[s] + monthCounts[(s + 1) % 12] + monthCounts[(s + 2) % 12];
+        if (sum3 > bestSum) { bestSum = sum3; bestStart = s; }
+      }
+      const bucketPct = bestSum / totalDated;
+      if (bucketPct >= 0.45) {
+        seasonality = `${MONTHS[bestStart]}–${MONTHS[(bestStart + 2) % 12]} heavy`;
+      } else {
+        seasonality = "year-round";
+      }
+    }
+  }
 
+  // ---- Velocity (recent 3 months vs prior 3 months) ----
+  const now = new Date();
+  const ms30 = 30 * 24 * 60 * 60 * 1000;
+  let recentSpend = 0, priorSpend = 0;
+  for (let i = 0; i < txs.length; i++) {
+    const d = parseDate(txs[i].date);
+    if (!d) continue;
+    const ageDays = (now.getTime() - d.getTime()) / ms30;
+    const amt = parseAmount(txs[i].amount);
+    if (ageDays < 3) recentSpend += amt;
+    else if (ageDays < 6) priorSpend += amt;
+  }
+  const velocity = priorSpend > 0 ? Math.round(((recentSpend - priorSpend) / priorSpend) * 100) : 0;
+
+  // ---- Subcategory mix (from signalMap) ----
+  const subMap = new Map<string, { count: number; spend: number; display: string }>();
+  for (const idx of indices) {
+    const sig = signalMap[idx];
+    const tx = transactions[idx];
+    if (!tx) continue;
+    const raw = (sig?.label || sig?.category || "").trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (GENERIC_SUBCATS.has(key)) continue;
+    const display = titleCase(raw);
+    const cur = subMap.get(key) || { count: 0, spend: 0, display };
+    cur.count += 1;
+    cur.spend += parseAmount(tx.amount);
+    subMap.set(key, cur);
+  }
+  const subTotal = Array.from(subMap.values()).reduce((a, s) => a + s.count, 0) || txs.length;
+  const topSubcategories: SubcategoryStat[] = Array.from(subMap.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map(s => ({
+      name: s.display,
+      count: s.count,
+      spend: s.spend,
+      pct: Math.round((s.count / subTotal) * 100),
+    }));
+
+  // ---- Active span ----
+  const firstSeen = dates[0] ?? null;
+  const lastSeen = dates[dates.length - 1] ?? null;
+  let activeSpan: string | null = null;
+  if (firstSeen && lastSeen) {
+    const spanDays = (lastSeen.getTime() - firstSeen.getTime()) / (1000 * 60 * 60 * 24);
+    if (spanDays >= 60) {
+      const fmt = (d: Date) => `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      const months = Math.max(1, Math.round(spanDays / 30));
+      const isRecent = (now.getTime() - lastSeen.getTime()) / (1000 * 60 * 60 * 24) < 45;
+      const endLabel = isRecent ? "today" : fmt(lastSeen);
+      activeSpan = `${fmt(firstSeen)} → ${endLabel} (${months} mo)`;
+    }
+  }
+
+  // ---- 12-month trend (counts per month, ending at lastSeen or now) ----
+  const trendCounts = new Array(12).fill(0);
+  const anchor = lastSeen || now;
+  const anchorMonthIdx = anchor.getFullYear() * 12 + anchor.getMonth();
+  for (const d of dates) {
+    const mi = d.getFullYear() * 12 + d.getMonth();
+    const offset = anchorMonthIdx - mi;
+    if (offset >= 0 && offset < 12) {
+      trendCounts[11 - offset] += 1;
+    }
+  }
+  const maxTrend = Math.max(...trendCounts, 1);
+  const monthlyTrend = trendCounts.map(c => c / maxTrend);
+
+  const avgTicket = txs.length > 0 ? totalSpend / txs.length : 0;
+
+  // ---- Summary line ----
+  const cadenceWord =
+    cadenceCategory === "weekly" ? "Weekly" :
+    cadenceCategory === "monthly" ? "Monthly" :
+    cadenceCategory === "quarterly" ? "Quarterly" :
+    cadenceCategory === "annual" ? "Annual" : "Recurring";
+
+  const dominantSub = topSubcategories[0] && topSubcategories[0].pct >= 40
+    ? topSubcategories[0].name.toLowerCase()
+    : null;
+  const subjectBase = rollup.label.toLowerCase();
+  const subject = dominantSub && !subjectBase.includes(dominantSub)
+    ? `${dominantSub} ${subjectBase}`
+    : subjectBase;
+
+  let summaryLine = rollup.label;
+  const annualMonth =
+    seasonality && seasonality.startsWith("annually in ") ? seasonality.replace("annually in ", "") :
+    seasonality && seasonality.startsWith("concentrated in ") ? seasonality.replace("concentrated in ", "") :
+    null;
+
+  if (cadenceCategory === "annual" && annualMonth) {
+    summaryLine = topMerchant
+      ? `Annual ${subject} every ${annualMonth}, mostly at ${topMerchant.name}`
+      : `Annual ${subject} every ${annualMonth}`;
+  } else if (topMerchant && cadenceCategory) {
+    summaryLine = `${cadenceWord} ${subject} at ${topMerchant.name}`;
+  } else if (cadenceCategory) {
+    summaryLine = `${cadenceWord} ${subject} pattern`;
+  } else if (topMerchant) {
+    summaryLine = `${rollup.label} — primarily at ${topMerchant.name}`;
+  }
+
+  return {
+    label: rollup.label,
+    pillar: rollup.pillar,
+    totalCount: txs.length,
+    totalSpend,
+    avgTicket,
+    topMerchant,
+    topSubcategories,
+    firstSeen,
+    lastSeen,
+    activeSpan,
+    cadence,
+    cadenceCategory,
+    seasonality,
+    velocity,
+    monthlyTrend,
+    summaryLine,
+  };
+}
+
+function fmtCurrency(n: number): string {
+  if (n >= 1000) return `$${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
+  return `$${Math.round(n).toLocaleString()}`;
+}
+
+function Sparkline({ values, color }: { values: number[]; color: string }) {
+  const W = 140, H = 24, pad = 1;
+  if (values.length === 0) return null;
+  const step = (W - pad * 2) / (values.length - 1 || 1);
+  const points = values.map((v, i) => {
+    const x = pad + i * step;
+    const y = H - pad - v * (H - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const path = `M ${points.join(" L ")}`;
+  const areaPath = `${path} L ${(W - pad).toFixed(1)},${(H - pad).toFixed(1)} L ${pad},${(H - pad).toFixed(1)} Z`;
+  const last = values[values.length - 1];
+  const lastX = pad + (values.length - 1) * step;
+  const lastY = H - pad - last * (H - pad * 2);
   return (
-    <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
-      <div className="flex items-center gap-1.5 mb-2.5">
-        <Calendar className="w-3.5 h-3.5 text-blue-400" />
-        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-          Seasonal Spend Intelligence
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
+      <path d={areaPath} fill={color} fillOpacity={0.12} />
+      <path d={path} stroke={color} strokeOpacity={0.7} strokeWidth={1.25} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={lastX} cy={lastY} r={2} fill={color} />
+    </svg>
+  );
+}
+
+function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData; colorOverride?: string; headerSuffix?: string }) {
+  const c = getColor(data.pillar);
+  const accent = colorOverride || c.dot;
+  const headerColor = colorOverride || c.text;
+  return (
+    <div
+      className="rounded-xl border border-slate-100 bg-white px-4 py-3"
+      style={{
+        borderTopWidth: 3,
+        borderTopColor: accent,
+        animation: "exec-card-reveal 0.4s ease-out",
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-1.5 mb-1">
+        <span style={{ color: accent }}>✦</span>
+        <span
+          className="text-[11px] font-bold uppercase tracking-wider"
+          style={{ color: headerColor }}
+        >
+          {data.label} · {headerSuffix || "Shopping Pattern"}
         </span>
       </div>
 
-      {/* Month legend bar + Rows with vertical "now" line */}
-      <div className="relative">
-        <div className="flex gap-px mb-2 px-[74px]">
-          {MONTHS.map((m) => (
-            <span
-              key={m}
-              className="flex-1 text-center text-[7px] font-medium"
-              style={{ color: "#94a3b8" }}
-            >
-              {m}
-            </span>
-          ))}
-        </div>
+      <div className="mb-2" />
 
-        {/* Rows */}
-        <div className="space-y-1">
-          {rows.map((row, ri) => {
-            const c = getColor(row.pillar);
-            const isAtPeak = row.monthsUntilPeak === 0;
-            const isNearPeak = row.monthsUntilPeak <= 2;
-            const rowMax = Math.max(...row.monthlySpend, 1);
+      {(() => {
+        const hasTiming =
+          !!data.cadence ||
+          !!data.activeSpan ||
+          (!!data.seasonality && data.seasonality !== "year-round") ||
+          data.velocity !== 0 ||
+          data.monthlyTrend.some(v => v > 0);
 
-            return (
-              <div
-                key={`${row.pillar}::${row.label}`}
-                className="flex items-center gap-2"
-                style={{ animation: `exec-card-reveal 0.35s ease-out ${ri * 0.06}s both` }}
-              >
-                <div className="w-[130px] shrink-0 text-right pr-1">
-                  <span className="text-[10px] font-semibold block leading-tight" style={{ color: c.text }}>
-                    {row.label}
+        const LeftCol = (
+          <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
+            {data.topMerchant && (
+              <div className="flex items-start gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Top spot:</span>{" "}
+                  {data.topMerchant.name}{" "}
+                  <span className="text-slate-400">
+                    ({data.topMerchant.count} of {data.totalCount})
                   </span>
-                </div>
-
-                <div className="flex gap-px flex-1 h-[18px] items-end">
-                  {row.monthlySpend.map((val, mi) => {
-                    const norm = rowMax > 0 ? val / rowMax : 0;
-                    const isPeak = mi === row.peak && val > 0;
-                    const isEmpty = val === 0;
-                    return (
-                      <div
-                        key={mi}
-                        className="flex-1 rounded-sm relative"
-                        style={{
-                          height: isEmpty ? "3px" : `${Math.max(20, norm * 100)}%`,
-                          background: isEmpty
-                            ? "#e2e8f0"
-                            : isPeak
-                            ? c.dot
-                            : `${c.dot}${Math.round(norm * 40 + 10).toString(16).padStart(2, "0")}`,
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-
-                <div className="w-[72px] shrink-0 flex items-center gap-1">
-                  {isAtPeak ? (
-                    <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{
-                        background: `${c.dot}20`,
-                        color: c.dot,
-                        animation: "purchase-pulse 2s ease-in-out infinite",
-                      }}
-                    >
-                      <Flame className="w-2.5 h-2.5" /> PEAK
-                    </span>
-                  ) : isNearPeak ? (
-                    <span className="text-[9px] font-semibold text-amber-600">
-                      ↑ {row.monthsUntilPeak}mo
-                    </span>
-                  ) : (
-                    <span className="text-[9px] text-slate-400">
-                      {row.monthsUntilPeak}mo
-                    </span>
-                  )}
-
-                  {row.velocity !== 0 && (
-                    row.velocity >= 0 ? (
-                      <span className="inline-flex items-center text-[8px] font-bold text-emerald-600">
-                        <TrendingUp className="w-2.5 h-2.5" />+{row.velocity}%
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center text-[8px] font-bold text-red-400">
-                        <TrendingDown className="w-2.5 h-2.5" />{row.velocity}%
-                      </span>
-                    )
-                  )}
-                </div>
+                </span>
               </div>
-            );
-          })}
-        </div>
+            )}
+            {data.topSubcategories.length > 0 && (
+              <div className="flex items-start gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Top types:</span>{" "}
+                  {data.topSubcategories.map((s, i) => (
+                    <span key={s.name}>
+                      {i > 0 && <span className="text-slate-300"> · </span>}
+                      <span className="text-slate-700">{s.name}</span>{" "}
+                      <span className="text-slate-400">{s.pct}%</span>
+                    </span>
+                  ))}
+                </span>
+              </div>
+            )}
+            {data.totalSpend > 0 && (
+              <div className="flex items-start gap-1.5">
+                <DollarSign className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Lifetime:</span>{" "}
+                  {fmtCurrency(data.totalSpend)}
+                  {data.avgTicket > 0 && (
+                    <span className="text-slate-400"> · avg {fmtCurrency(data.avgTicket)}/visit</span>
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+        );
 
-        {/* Vertical "Now" line */}
+        const RightCol = (
+          <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
+            {data.cadence && (
+              <div className="flex items-start gap-1.5">
+                <Repeat className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Cadence:</span> {data.cadence}
+                </span>
+              </div>
+            )}
+            {data.activeSpan && (
+              <div className="flex items-start gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Active:</span> {data.activeSpan}
+                </span>
+              </div>
+            )}
+            {data.seasonality && data.seasonality !== "year-round" && (
+              <div className="flex items-start gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-[1px]" />
+                <span>
+                  <span className="font-semibold text-slate-700">Seasonality:</span> {data.seasonality}
+                </span>
+              </div>
+            )}
+            {data.monthlyTrend.some(v => v > 0) && (
+              <div className="pt-1 flex items-center gap-2">
+                <Sparkline values={data.monthlyTrend} color={accent} />
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
+              </div>
+            )}
+          </div>
+        );
+
+        if (!hasTiming) return LeftCol;
+
+        return (
+          <div className="grid grid-cols-2 divide-x divide-slate-100">
+            <div className="pr-3">{LeftCol}</div>
+            <div className="pl-3">{RightCol}</div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+export default function PurchaseCycleTimeline({
+  chips,
+  transactions,
+  signalMap,
+  personaSynthesis,
+  generatedOffers,
+  offersLoading,
+  activeRollup,
+  activeTriggerLabel,
+  activeTrigger,
+}: Props) {
+  const rollups = personaSynthesis?.pillarRollups || [];
+
+  // Pick the active rollup — defaults handled by parent, but defensive fallback here too
+  const selectedRollup: PillarRollup | null = useMemo(() => {
+    if (activeRollup) return activeRollup;
+    if (rollups.length > 0) return rollups[0];
+    return null;
+  }, [activeRollup, rollups]);
+
+  // Build cadence: trigger wins if it has indices; otherwise fall back to rollup
+  const cadenceData = useMemo(() => {
+    if (activeTrigger && activeTrigger.indices.length > 0) {
+      const syntheticRollup: PillarRollup = {
+        label: activeTrigger.label,
+        pillar: activeTrigger.kind === "lifeEvent" ? "Life Event" : "Risk",
+        txIndices: activeTrigger.indices,
+      } as PillarRollup;
+      return buildCadence(syntheticRollup, transactions, signalMap);
+    }
+    if (!selectedRollup || activeTrigger) return null;
+    return buildCadence(selectedRollup, transactions, signalMap);
+  }, [activeTrigger, selectedRollup, transactions, signalMap]);
+
+  // What label to filter offers by — trigger takes precedence if active
+  const activeOfferLabel = activeTrigger?.label || activeTriggerLabel || selectedRollup?.label || null;
+  const activeOfferPillar = activeTrigger
+    ? (activeTrigger.kind === "lifeEvent" ? "Life Event" : "Risk")
+    : (activeTriggerLabel ? "Life Event" : selectedRollup?.pillar || null);
+
+  // Color override + header label for trigger-driven cadence
+  const cardColorOverride = activeTrigger ? activeTrigger.color : undefined;
+  const cardHeaderSuffix = activeTrigger
+    ? (activeTrigger.kind === "lifeEvent" ? "Life Event Pattern" : "Risk Pattern")
+    : undefined;
+
+  // Empty-state callout when trigger is active but no transactions matched
+  const triggerCalloutColor = activeTrigger?.color || "#f59e0b";
+  const triggerCalloutKind = activeTrigger?.kind || "lifeEvent";
+  const triggerCalloutLabel = activeTrigger?.label || activeTriggerLabel;
+
+  return (
+    <div style={{ animation: "exec-card-reveal 0.4s ease-out" }}>
+      {/* ═══ SHOPPING CADENCE CARD ═══ */}
+      {cadenceData ? (
+        <CadenceCard data={cadenceData} colorOverride={cardColorOverride} headerSuffix={cardHeaderSuffix} />
+      ) : triggerCalloutLabel ? (
         <div
-          className="absolute top-0 bottom-0 pointer-events-none flex flex-col items-center"
+          className="rounded-xl border px-4 py-3"
           style={{
-            left: `calc(74px + (100% - 74px - 80px) * ${(CURRENT_MONTH + 0.5) / 12})`,
-            width: "1px",
+            borderColor: `${triggerCalloutColor}66`,
+            background: `${triggerCalloutColor}14`,
           }}
         >
-          <span className="text-[6px] font-bold text-blue-500 -translate-x-1/2 whitespace-nowrap mb-0.5">Now</span>
-          <div className="flex-1 w-px" style={{ background: "rgba(59,130,246,0.5)", backgroundImage: "repeating-linear-gradient(to bottom, #3b82f6 0px, #3b82f6 3px, transparent 3px, transparent 6px)" }} />
+          <div className="flex items-center gap-1.5 mb-1">
+            <span style={{ color: triggerCalloutColor }}>✦</span>
+            <span
+              className="text-[11px] font-bold uppercase tracking-wider"
+              style={{ color: triggerCalloutColor }}
+            >
+              {triggerCalloutLabel} · {triggerCalloutKind === "lifeEvent" ? "Life Event Trigger" : "Risk Trigger"}
+            </span>
+          </div>
+          <p className="text-[12px] text-slate-600 leading-snug">
+            {triggerCalloutKind === "lifeEvent"
+              ? "Targeted offers below are matched to this life event."
+              : "Flagged transaction has no recurring pattern. See offers below."}
+          </p>
         </div>
-      </div>
+      ) : (
+        <div className="flex items-center justify-center h-32">
+          <span className="text-[11px] text-slate-300">Select a persona pill above to see shopping patterns</span>
+        </div>
+      )}
 
-
-
-
-      {/* ═══ NEXT-OFFER RECOMMENDATIONS ═══ */}
-      <div className="mt-4">
-        <NextOfferRationale offers={generatedOffers || null} personaSynthesis={personaSynthesis || null} loading={!!offersLoading} />
+      {/* ═══ NEXT-OFFER RECOMMENDATIONS (filtered to active persona) ═══ */}
+      <div className="mt-3">
+        <NextOfferRationale
+          offers={generatedOffers || null}
+          personaSynthesis={personaSynthesis || null}
+          loading={!!offersLoading}
+          activeRollupLabel={activeOfferLabel}
+          activeRollupPillar={activeOfferPillar}
+          colorOverride={cardColorOverride}
+          kindOverride={activeTrigger?.kind}
+        />
       </div>
 
       <style>{`
-        @keyframes purchase-pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); box-shadow: 0 0 8px currentColor; }
-        }
         @keyframes exec-card-reveal {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }

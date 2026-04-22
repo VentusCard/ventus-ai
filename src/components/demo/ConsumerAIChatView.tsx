@@ -9,10 +9,14 @@ import ReactMarkdown from "react-markdown";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { DetectedLifeEventResult, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
+import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
+import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  actions?: string[];
+  kind?: "lifestyle" | "lifeEvent" | "risk" | "general";
 }
 
 interface Props {
@@ -20,17 +24,21 @@ interface Props {
   enriched?: EnrichedTransaction[];
   detectedEvents?: DetectedLifeEventResult[];
   personalizedDeals?: PersonalizedDealData | null;
+  offerGroups?: RollupOfferGroup[] | null;
+  productRecommendations?: ProductCard[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
   initialMessage?: string | null;
+  messageNonce?: number;
+  initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
   onInitialMessageConsumed?: () => void;
 }
 
 const QUICK_ACTIONS = [
+  "What offers do I have?",
   "How much did I spend on sports?",
   "Show my subscriptions",
   "Product recommendations",
   "Life event insights",
-  "Where does most of my money go?",
   "Risk factors & alerts",
 ];
 
@@ -38,7 +46,9 @@ function buildContext(
   customer: DemoCustomer,
   enriched?: EnrichedTransaction[],
   detectedEvents?: DetectedLifeEventResult[],
-  personalizedDeals?: PersonalizedDealData | null
+  personalizedDeals?: PersonalizedDealData | null,
+  offerGroups?: RollupOfferGroup[] | null,
+  productRecommendations?: ProductCard[] | null
 ) {
   const demographics = {
     name: customer.profile.name,
@@ -130,16 +140,44 @@ function buildContext(
     talkingPoints: e.talking_points,
   }));
 
+  // Rich grouped deals (preserve rollup labels & pillars)
+  const dealGroups = offerGroups?.map((g) => ({
+    rollupLabel: g.rollup,
+    pillar: g.pillar,
+    collectionMessage: g.collectionMessage,
+    deals: g.deals.map((d) => ({
+      merchant: d.merchant,
+      product: d.product,
+      message: d.message,
+      rewardValue: d.rewardValue,
+      cta: d.cta,
+      type: d.signal,
+    })),
+  })) ?? null;
+
+  // Flat fallback list (legacy field, still used by some prompts)
   const deals = personalizedDeals?.deals?.map((d) => ({
     brand: d.merchantName,
     offer: d.dealTitle,
     match: d.activationCount,
   }));
 
-  return { demographics, spendingSummary, lifeEvents, deals };
+  const productRecs = productRecommendations?.map((p) => ({
+    productName: p.product_name,
+    type: p.type,
+    theme: p.theme,
+    signal: p.signal_label,
+    quote: p.quote,
+    headline: p.offer_headline,
+    benefits: p.benefits,
+    eligibility: p.eligibility,
+    cta: p.cta,
+  })) ?? null;
+
+  return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, riskFlags, initialMessage, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -147,8 +185,8 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   const initialMessageSentRef = useRef(false);
 
   const context = useMemo(
-    () => buildContext(customer, enriched, detectedEvents, personalizedDeals),
-    [customer, enriched, detectedEvents, personalizedDeals]
+    () => buildContext(customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations),
+    [customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations]
   );
 
   useEffect(() => {
@@ -158,12 +196,18 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   }, [messages]);
 
   useEffect(() => {
+    // Reset the "already sent" guard whenever the nonce changes so repeat
+    // clicks of the same pill re-fire the message.
+    initialMessageSentRef.current = false;
+  }, [messageNonce]);
+
+  useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
-      sendMessage(initialMessage);
+      sendMessage(initialMessage, initialMessageKind);
       onInitialMessageConsumed?.();
     }
-  }, [initialMessage]);
+  }, [initialMessage, messageNonce]);
 
   const formatRiskFlags = (data: { flags: any[]; summary: string }): string => {
     if (!data.flags || data.flags.length === 0) {
@@ -207,7 +251,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     return md;
   };
 
-  const sendMessage = async (text: string) => {
+  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general") => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
@@ -215,6 +259,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setIsLoading(true);
 
     const isRiskAction = text.toLowerCase().includes("risk factors");
+    const effectiveKind = kind ?? "general";
 
     try {
       if (isRiskAction) {
@@ -232,7 +277,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
           const formatted = formatRiskFlags(riskData);
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", content: formatted },
+            { role: "assistant", content: formatted, kind: "risk" },
           ]);
         } else {
           setMessages((prev) => [
@@ -246,14 +291,24 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             message: text,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
             context,
+            kind: effectiveKind,
           },
         });
 
         if (error) throw error;
 
+        const actions: string[] | undefined = Array.isArray(data?.actions) && data.actions.length > 0
+          ? data.actions.slice(0, 2)
+          : undefined;
+
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: data?.message || "I'm here to help! Could you rephrase that?" },
+          {
+            role: "assistant",
+            content: data?.message || "I'm here to help! Could you rephrase that?",
+            actions,
+            kind: effectiveKind,
+          },
         ]);
       }
     } catch {
@@ -310,20 +365,36 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     <Bot className="h-3 w-3 text-blue-600" />
                   </div>
                 )}
-                <div
-                  className={cn(
-                    "rounded-2xl px-3 py-2 text-[13px] max-w-[80%] overflow-hidden break-words",
-                    msg.role === "user"
-                      ? "bg-blue-600 text-white rounded-br-sm"
-                      : "bg-slate-100 text-slate-800 rounded-bl-sm"
-                  )}
-                >
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <div className={cn("flex flex-col gap-1.5 max-w-[80%]", msg.role === "user" ? "items-end" : "items-start")}>
+                  <div
+                    className={cn(
+                      "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
+                      msg.role === "user"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-slate-100 text-slate-800 rounded-bl-sm"
+                    )}
+                  >
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.actions.map((action, ai) => (
+                        <button
+                          key={`${i}-${ai}`}
+                          type="button"
+                          onClick={() => { /* visual only — not wired */ }}
+                          className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                        >
+                          {action}
+                        </button>
+                      ))}
                     </div>
-                  ) : (
-                    msg.content
                   )}
                 </div>
                 {msg.role === "user" && (
@@ -379,7 +450,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your spending..."
-            className="text-sm h-9 rounded-full bg-slate-50 border-slate-200"
+            className="text-sm h-9 rounded-full bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"
             disabled={isLoading}
           />
           <Button

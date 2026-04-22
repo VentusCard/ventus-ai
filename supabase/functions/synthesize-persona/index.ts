@@ -25,11 +25,39 @@ function cadenceHint(dates: string[]): string {
   return `~${perWeek.toFixed(1)}x/wk over ${Math.round(spanWeeks)}wk`;
 }
 
+/** Pillars where merchant-level lifestyle context (Ski/Tropical/Wedding/etc) really matters.
+ * For these we send the full numbered transaction list to the model so it can pick exact rows.
+ * Other pillars stay as category summaries. */
+const TXN_LEVEL_PILLARS = new Set([
+  "Travel & Exploration",
+  "Style & Beauty",
+  "Family & Community",
+  "Health & Wellness",
+  "Sports & Active Living",
+  "Entertainment & Culture",
+  "Food & Dining",
+]);
+
+interface IncomingTxn {
+  merchant_name?: string;
+  normalized_merchant?: string;
+  amount?: number;
+  date?: string;
+  pillar?: string;
+  category?: string;
+  subcategories?: string[];
+  spending_tier?: string;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars } = await req.json();
+    const { pillars, lifeEvents, transactions } = await req.json() as {
+      pillars: any[];
+      lifeEvents?: { event_name?: string }[];
+      transactions?: IncomingTxn[];
+    };
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
         status: 400,
@@ -37,11 +65,16 @@ serve(async (req) => {
       });
     }
 
+    const detectedEventNames: string[] = Array.isArray(lifeEvents)
+      ? lifeEvents.map((e: { event_name?: string }) => e?.event_name).filter((n): n is string => !!n)
+      : [];
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const distinctPillars = [...new Set(pillars.map((p: { pillar: string }) => p.pillar))] as string[];
 
+    // ---- Per-category summary block (unchanged) ----
     const pillarSummary = pillars
       .map((p: { pillar: string; label: string; count: number; totalSpend: number; frequency?: string; topMerchants?: string[]; spendingTier?: string; subcategories?: string[]; dates?: string[] }, i: number) => {
         const merchants = p.topMerchants?.length ? ` merchants: ${p.topMerchants.slice(0, 5).join(", ")}` : "";
@@ -53,9 +86,48 @@ serve(async (req) => {
       })
       .join("\n");
 
+    // ---- Per-transaction numbered block for lifestyle-prone pillars ----
+    // Each row: [T<n>] MERCHANT · $amt · YYYY-MM-DD · pillar/category · [subcategories]
+    // Only include transactions whose pillar is in TXN_LEVEL_PILLARS — keeps token cost bounded
+    // and gives the model the merchant + lifestyle-tag context it needs to assign membership precisely.
+    const txns: IncomingTxn[] = Array.isArray(transactions) ? transactions : [];
+    const txnLines: string[] = [];
+    txns.forEach((t, idx) => {
+      if (!t.pillar || !TXN_LEVEL_PILLARS.has(t.pillar)) return;
+      const merchant = (t.normalized_merchant || t.merchant_name || "?").slice(0, 40);
+      const amt = typeof t.amount === "number" ? `$${t.amount.toFixed(0)}` : "?";
+      const date = t.date || "?";
+      const subs = t.subcategories?.length ? `[${t.subcategories.join(", ")}]` : "[]";
+      txnLines.push(`[T${idx}] ${merchant} · ${amt} · ${date} · ${t.pillar} > ${t.category ?? "?"} · ${subs}`);
+    });
+    const txnBlock = txnLines.length
+      ? `\n\nLifestyle-relevant transactions (use these to build transaction_indices for rollups in Travel, Style, Family, Health, Sports, Entertainment, Food pillars):\n${txnLines.join("\n")}`
+      : "";
+
+    const lifeEventSuppressionBlock = detectedEventNames.length > 0
+      ? `
+
+**CRITICAL — LIFE EVENTS ALWAYS WIN:**
+The following life events have already been detected for this customer and will be shown separately: ${detectedEventNames.map(n => `"${n}"`).join(", ")}.
+
+Life events carry richer context (funding sources, timing, product fit) and are surfaced in their own dedicated UI section. When a behavioral pattern thematically overlaps with a detected life event, **DROP the behavioral rollup entirely** — do NOT try to "complement" the life event with a parallel rollup on the same theme. Redundant pills make the UI feel duplicated and dilute both signals.
+
+Examples of forbidden overlaps:
+- If "New Home Transition" or any home-purchase event is detected → do NOT produce "Aspiring Homeowner", "Home Buyer", "Nesting Phase", "New Homeowner", or any home-purchase / moving / nesting themed rollup.
+- If "College Preparation for Dependent" or any education event is detected → do NOT produce "College Bound", "Education Investor", or similar education-themed rollup.
+- If "New Baby" or family-expansion event is detected → do NOT produce "New Parent", "Baby Prep", or similar.
+- If "Retirement Planning" is detected → do NOT produce retirement-themed rollups.
+- If "Wedding" is detected → do NOT produce engagement / wedding-themed rollups.
+
+When in doubt, skip the rollup. Life events take priority — every time.
+`
+      : "";
+
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
 Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
+
+**Before you write any rollup, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
 
 **How to think about rollups:**
 
@@ -69,11 +141,56 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - Never mention brand or merchant names in rollup labels. Labels should describe the behavior or lifestyle habit, not the stores. Nordstrom + Sephora + Warby Parker = "Style-Conscious Shopper", not "Nordstrom & Sephora Loyalist." If subcategories say "Golf", say "Weekend Golfer", not "Sports Enthusiast."
 
-- When a category shows a clear repeat cadence (shown in parentheses), bake it into the label naturally — "workday coffee runs", "weekly grocery runs", "annual hawaii trips". Don't use raw stats like "3.2x/wk" — describe it the way a friend would.
+- When a category shows a clear repeat cadence (shown in parentheses), explicitly encode cadence in the label — "Annual Hawaiian Vacations" (not "Hawaii Vacationer"), "Tennis & Ski Seasonal Sports" (not "Alpine & Court Enthusiast"), "Weekly Workday Coffee Runs". Don't use raw stats like "3.2x/wk".
+
+- **Pattern-forward naming (REQUIRED when cadence is clear):** Labels must explicitly state the behavioral pattern. Use one of these formats:
+  - "[Frequency] [Activity]" → "Annual Hawaiian Vacations", "Weekly Workday Coffee Runs", "Monthly Fine Dining Nights"
+  - "[Activity] [Pattern]" → "Tennis & Ski Seasonal Sports", "Casual Dining Regular", "Grocery Run Weekly"
+  - "[Season] [Activity]" → "Winter Ski Trips", "Summer Coastal Travel"
+- **FORBIDDEN abstract descriptors:** Never use "Enthusiast", "Fan", "Lover", "Buff", "Aspirant", "Devotee", "Vacationer", "Junkie", "Aficionado", "Connoisseur". Use concrete activity + cadence terms instead. "Premium Hawaii Vacationer" → "Premium Annual Hawaiian Vacations". "Active Alpine & Court Enthusiast" → "Tennis & Ski Seasonal Sports".
+
+- **SEMANTIC COHERENCE — TRANSACTIONS INSIDE A ROLLUP MUST MATCH ITS MEANING.**
+
+  A rollup is not just a label — it's a *promise* about what specific transactions belong inside it. You will return **transaction_indices** (the [T<n>] row numbers from the lifestyle-relevant transactions list) listing the EXACT transactions that fit this rollup's lifestyle. The downstream UI displays only these transactions under the pill — nothing more, nothing less.
+
+  Categories like "Hotels & Lodging", "Airlines", "Restaurants" routinely mix incompatible lifestyles. A single "Hotels & Lodging" category can contain a Hawaii beach resort, a Tahoe ski lodge, and a midtown business hotel — those are **three different lifestyles**, not one. Do NOT bundle them together.
+
+  **Use the subcategory tags as your primary filter signal.** The classifier attaches lifestyle tags like \`Ski\`, \`Mountain\`, \`Tropical Vacation\`, \`Beach\`, \`Urban Hotel\`, \`Theme Park\`, \`Cruise\`, \`Wedding\`, \`Engagement\`, \`New Parent\`, \`Career Development\`, \`Athleisure\`, \`Foodie\`, \`Wellness\`, \`Family-Oriented\`, etc. When these tags are present on a transaction, they are the ground truth for lifestyle membership.
+
+  Examples of forbidden mismatches:
+  - "Annual Hawaiian Vacations" must NOT include a transaction tagged \`[Ski]\` or \`[Mountain]\` (PALISADES TAHOE LODGE, ASPEN MOUNTAIN, VAIL RESORTS, WHISTLER, BRECKENRIDGE).
+  - "Seasonal Ski Trips" must NOT include a transaction tagged \`[Tropical Vacation]\` or \`[Beach]\` (MAUI HILTON, KONA VILLAGE, HAWAIIAN AIRLINES, Caribbean resorts).
+  - "European Getaways" must NOT include domestic-only US merchants.
+  - "Premium Fine Dining Nights" must NOT include MCDONALD'S or CHIPOTLE rows even if they live in a "Restaurants" category.
+
+  **What to do:**
+  1. Read every transaction in the lifestyle-relevant transactions list — merchant name, date, and especially the [subcategory tags].
+  2. For each rollup, decide which exact [T<n>] rows fit the lifestyle. Include EVERY transaction that fits; exclude every one that doesn't.
+  3. If a category contains **mixed lifestyles** (some Hawaii merchants, some Tahoe ski merchants), emit **separate rollups** for each coherent sub-pattern (e.g. "Annual Hawaiian Vacations" AND "Seasonal Ski Trips"). Each rollup gets its own \`transaction_indices\` listing only the matching rows.
+  4. Generic merchants without a clear destination/activity tag (plain "Marriott", "Delta") may be assigned to a themed rollup ONLY if other transactions on similar dates establish the destination context. Otherwise leave them out.
+  5. Do NOT include a transaction in two rollups that contradict each other. A transaction can appear in at most one lifestyle-themed rollup.
+
+  Be inclusive WITHIN a lifestyle theme (don't drop matching transactions), exclusive ACROSS themes (don't bleed Tahoe into Hawaii).
+
+  When in doubt, emit fewer, more honest rollups. A coherent "Annual Hawaiian Vacations" pill containing only Hawaii-tagged transactions is worth more than a bloated "Premium Travel" pill that lumps everything together.
+
+- **For pillars NOT in the lifestyle-relevant transactions list** (Home & Living utilities, Financial Services, Technology subscriptions, Pets, Transportation, etc.), you don't need transaction_indices — just provide \`category_indices\` from the per-category summary. Use \`transaction_indices: []\` for those rollups.
 
 - Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
 
-- Include the exact category names combined and the [N] row indices from the input.`;
+- **THEMATIC UNIQUENESS — ONE ROLLUP PER THEME:** Each rollup must cover a *distinct* behavioral theme. NEVER emit two rollups that describe the same underlying life pattern under different names. Forbidden duplicate pairs include (but are not limited to):
+  - "Aspiring Homeowner" + "New Home Transition" / "Home Buyer" / "Nesting Phase"
+  - "College Bound" + "Education Investor" / "Tuition Planner"
+  - "New Parent" + "Baby Prep" / "Growing Family"
+  - "Frequent Traveler" + "Vacation Planner" / "Jetsetter"
+  - "Retirement Saver" + "Pre-Retiree"
+  Pick the SINGLE best label and combine all related categories under it. If you find yourself writing two rollups about the same life pattern, merge them into one. (Note: "Annual Hawaiian Vacations" + "Seasonal Ski Trips" are NOT duplicates — they're distinct lifestyles and should remain separate.)
+
+- Always include the exact category names combined and the [N] row indices from the per-category input. For lifestyle-prone pillars also include the [T<n>] transaction_indices from the per-transaction list.
+
+- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}`;
+
+    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -85,14 +202,14 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Spending signals:\n${pillarSummary}` },
+          { role: "user", content: userContent },
         ],
         tools: [
           {
             type: "function",
             function: {
               name: "return_persona",
-              description: "Return the per-pillar rollup labels",
+              description: "Return the per-pillar rollup labels with exact transaction membership",
               parameters: {
                 type: "object",
                 properties: {
@@ -111,13 +228,18 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
                         category_indices: {
                           type: "array",
                           items: { type: "number" },
-                          description: "The [N] row indices from the numbered input that this rollup covers",
+                          description: "The [N] row indices from the per-category input that this rollup covers",
+                        },
+                        transaction_indices: {
+                          type: "array",
+                          items: { type: "number" },
+                          description: "For lifestyle-prone pillars (Travel, Style, Family, Health, Sports, Entertainment, Food): the EXACT [T<n>] row indices from the per-transaction list that belong in this rollup. Use the [subcategory] tags (Ski / Tropical Vacation / Wedding / etc.) as your primary filter. NEVER include a transaction whose subcategory tags contradict the rollup's theme (no Ski-tagged txn in a Hawaii rollup, no Tropical-tagged txn in a Ski rollup). For pillars without per-transaction data, return an empty array.",
                         },
                       },
-                      required: ["pillar", "label", "categories", "category_indices"],
+                      required: ["pillar", "label", "categories", "category_indices", "transaction_indices"],
                       additionalProperties: false,
                     },
-                    description: "Per-pillar rollup labels. Only group categories that genuinely share a behavioral theme. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event, OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
                   },
                 },
                 required: ["pillar_rollups"],
@@ -167,6 +289,7 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
         label: r.label,
         categories: r.categories || [],
         category_indices: r.category_indices || [],
+        transaction_indices: r.transaction_indices || [],
       })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

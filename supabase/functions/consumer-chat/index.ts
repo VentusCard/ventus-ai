@@ -37,7 +37,8 @@ Your capabilities:
    a) The user explicitly asks for product recommendations or suggestions, OR
    b) A detected life event strongly signals a product need (e.g., home purchase → mortgage).
    Do NOT append product suggestions to spending analysis answers. If the user asks "how much did I spend on X", just answer the question.
-   When recommending, always use markdown hyperlinks (never show raw URLs):
+   IMPORTANT: If the customer asks about offers/deals/products, prioritize what's listed in PERSONALIZED DEALS or PRODUCT RECOMMENDATIONS in the customer data — these are pre-generated specifically for this customer. Surface them directly with their actual headlines, merchants, and benefits. Do not invent new offers when these exist.
+   When recommending generic products, always use markdown hyperlinks (never show raw URLs):
    - [Customized Cash Rewards](https://www.bankofamerica.com/credit-cards/products/customized-cash-back-credit-card/)
    - [Travel Rewards](https://www.bankofamerica.com/credit-cards/products/travel-rewards-credit-card/)
    - [Premium Rewards](https://www.bankofamerica.com/credit-cards/products/premium-rewards-credit-card/)
@@ -131,10 +132,36 @@ function buildContextPrompt(context: any): string {
     }
   }
 
-  if (context.deals && context.deals.length > 0) {
+  // Rich grouped deals (preferred — preserves rollup + pillar context)
+  if (context.dealGroups && context.dealGroups.length > 0) {
+    prompt += `\nPERSONALIZED DEALS (grouped by behavioral collection):\n`;
+    for (const g of context.dealGroups) {
+      prompt += `\n● ${g.rollupLabel} (${g.pillar} pillar)`;
+      if (g.collectionMessage) prompt += ` — ${g.collectionMessage}`;
+      prompt += `\n`;
+      for (const d of g.deals) {
+        prompt += `  - ${d.merchant} [${d.product}] (${d.type}): ${d.message}`;
+        if (d.rewardValue) prompt += ` — Reward: ${d.rewardValue}`;
+        prompt += `\n`;
+      }
+    }
+  } else if (context.deals && context.deals.length > 0) {
     prompt += `\nPERSONALIZED DEALS:\n`;
     for (const d of context.deals.slice(0, 5)) {
       prompt += `- ${d.brand}: ${d.offer} (${d.match}% match)\n`;
+    }
+  }
+
+  if (context.productRecommendations && context.productRecommendations.length > 0) {
+    prompt += `\nPRODUCT RECOMMENDATIONS (pre-generated for this customer):\n`;
+    for (const p of context.productRecommendations) {
+      prompt += `\n● ${p.productName} (${p.type === "life_event" ? "Life Event" : "Behavioral"} — ${p.theme})\n`;
+      if (p.signal) prompt += `  Triggered by: ${p.signal}\n`;
+      if (p.quote) prompt += `  Insight: "${p.quote}"\n`;
+      if (p.headline) prompt += `  Headline: ${p.headline}\n`;
+      if (p.benefits?.length) prompt += `  Benefits: ${p.benefits.join("; ")}\n`;
+      if (p.eligibility) prompt += `  Eligibility: ${p.eligibility}\n`;
+      if (p.cta) prompt += `  CTA: ${p.cta}\n`;
     }
   }
 
@@ -162,7 +189,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { message, conversationHistory = [], context = {} } = await req.json();
+    const { message, conversationHistory = [], context = {}, kind = "general" } = await req.json();
 
     if (!message || typeof message !== "string") {
       return new Response(
@@ -172,9 +199,20 @@ serve(async (req) => {
     }
 
     const isFinancialTipMode = context.mode === "financial-tip-chat";
-    const systemPrompt = isFinancialTipMode
+    const baseSystemPrompt = isFinancialTipMode
       ? FINANCIAL_TIP_SYSTEM_PROMPT
       : CONSUMER_SYSTEM_PROMPT;
+
+    // Kind-specific guidance for the 2 follow-up action button labels
+    const kindGuidance: Record<string, string> = {
+      lifestyle: `The user clicked a LIFESTYLE/SHOPPING-PATTERN signal. The 2 action labels should be navigational shortcuts inside the banking app, e.g. "Go to Account Profile", "Go to Deals", "View Spending", "See Merchants".`,
+      lifeEvent: `The user clicked a LIFE-EVENT signal. The 2 action labels should be product/advisor calls-to-action, e.g. "Apply Today", "See Details", "Talk to Advisor", "Learn More".`,
+      risk: `The user clicked a RISK/ALERT signal. The 2 action labels should be safety-oriented, e.g. "Report This Transaction", "This Is Fine", "Freeze Card", "Contact Support".`,
+      general: `The user asked a general question. The 2 action labels should be helpful generic follow-ups, e.g. "Tell Me More", "Got It", "Show Examples", "What's Next?".`,
+    };
+    const followupGuidance = `\n\n=== FOLLOW-UP ACTIONS ===\nAfter your reply, you MUST also propose exactly 2 short follow-up action button labels (each ≤4 words, Title Case, no punctuation). ${kindGuidance[kind] || kindGuidance.general} Return BOTH the message and the 2 action labels via the respond_with_actions tool.`;
+
+    const systemPrompt = baseSystemPrompt + followupGuidance;
 
     const contextPrompt = buildContextPrompt(context);
 
@@ -195,7 +233,35 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages,
-          max_tokens: 500,
+          max_tokens: 600,
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "respond_with_actions",
+                description: "Return the assistant's reply along with exactly 2 follow-up action button labels.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description: "The assistant's reply to the user (markdown allowed).",
+                    },
+                    actions: {
+                      type: "array",
+                      description: "Exactly 2 short button labels (≤4 words each).",
+                      items: { type: "string" },
+                      minItems: 2,
+                      maxItems: 2,
+                    },
+                  },
+                  required: ["message", "actions"],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: "function", function: { name: "respond_with_actions" } },
         }),
       }
     );
@@ -219,10 +285,28 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const aiMessage = data.choices?.[0]?.message?.content ?? "I'm here to help! Could you rephrase that?";
+    const choice = data.choices?.[0]?.message;
+    let aiMessage = "I'm here to help! Could you rephrase that?";
+    let actions: string[] = [];
+
+    const toolCall = choice?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        if (typeof parsed.message === "string") aiMessage = parsed.message;
+        if (Array.isArray(parsed.actions)) {
+          actions = parsed.actions.filter((a: any) => typeof a === "string").slice(0, 2);
+        }
+      } catch (e) {
+        console.error("Failed to parse tool_call arguments:", e);
+        if (choice?.content) aiMessage = choice.content;
+      }
+    } else if (choice?.content) {
+      aiMessage = choice.content;
+    }
 
     return new Response(
-      JSON.stringify({ message: aiMessage }),
+      JSON.stringify({ message: aiMessage, actions }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

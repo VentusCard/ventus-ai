@@ -70,6 +70,88 @@ async function runWithConcurrency<T, R>(
   return results;
 }
 
+// ============================================================
+// Non-card / description-first classification helpers
+// ============================================================
+
+const NON_CARD_SOURCES = new Set([
+  "ach", "zelle", "venmo", "cash app", "cashapp", "paypal",
+  "wire", "check", "checks", "bill pay", "billpay",
+  "transfer", "direct deposit", "directdeposit",
+]);
+
+function isNonCardSource(source?: string): boolean {
+  if (!source) return false;
+  const s = source.toLowerCase().trim();
+  if (s.includes("card")) return false; // "Credit Card", "Debit Card", "Cashback Card", "Travel Card", "Premium Card"
+  return NON_CARD_SOURCES.has(s) || /zelle|venmo|cash\s?app|paypal|ach|wire|check|bill\s?pay|transfer/.test(s);
+}
+
+/**
+ * Map a free-text payment description to a (pillar, category, subcategory).
+ * Used as a deterministic override when AI returns Misc/General for non-card txns.
+ */
+function classifyByDescription(description: string): { pillar: string; category: string; subcategory: string } | null {
+  const d = description.toLowerCase();
+  const rules: Array<[RegExp, string, string, string]> = [
+    // Pets
+    [/dog\s?sit|dog\s?walk|pet\s?sit|cat\s?sit|pet\s?care|grooming/, "Pets", "Pet Services", "Pet Care"],
+    [/vet\b|veterinar/, "Pets", "Veterinary", "Vet"],
+    [/pet\s?food|dog\s?food|cat\s?food/, "Pets", "Pet Supplies", "Pet Food"],
+    // Home & Living
+    [/\brent\b|mortgage|landlord|lease payment/, "Home & Living", "Rent & Mortgage", "Rent"],
+    [/hoa|condo fee/, "Home & Living", "Rent & Mortgage", "HOA"],
+    [/electric|pg&e|pge|con\s?ed|utility|utilities/, "Home & Living", "Utilities", "Electric"],
+    [/gas bill|natural gas/, "Home & Living", "Utilities", "Gas"],
+    [/water bill|sewer/, "Home & Living", "Utilities", "Water"],
+    [/landscap|garden|lawn|yard work/, "Home & Living", "Home Improvement", "Landscaping"],
+    [/clean(ing|er)|housekeep|maid/, "Home & Living", "Home Services", "Cleaning"],
+    [/handyman|plumb|electric(ian)?|hvac|repair/, "Home & Living", "Home Improvement", "Repairs"],
+    [/furnitur|home decor|ikea/, "Home & Living", "Furniture & Decor", "Furniture"],
+    // Tech / Digital
+    [/internet|comcast|xfinity|verizon fios|fiber|wifi/, "Technology & Digital Life", "Internet & Phone", "Internet"],
+    [/phone bill|cell|wireless|t-?mobile|at&t/, "Technology & Digital Life", "Internet & Phone", "Phone"],
+    [/streaming|netflix|hulu|spotify|disney/, "Technology & Digital Life", "Subscriptions", "Streaming"],
+    // Family & Community
+    [/tuition|school fee|college|university/, "Family & Community", "Childcare & Education", "Tuition"],
+    [/babysit|nanny|daycare|childcare|preschool/, "Family & Community", "Childcare & Education", "Childcare"],
+    [/tutor|lessons?\b/, "Family & Community", "Childcare & Education", "Tutoring"],
+    [/gift|birthday|wedding|baby shower/, "Family & Community", "Gifts & Donations", "Gift"],
+    [/donation|charity|tithe|church/, "Family & Community", "Gifts & Donations", "Donation"],
+    // Sports / Active
+    [/yoga|pilates|barre|spin class|crossfit|gym/, "Sports & Active Living", "Gym & Fitness", "Classes"],
+    [/personal train|coach/, "Sports & Active Living", "Gym & Fitness", "Training"],
+    [/golf|tennis|ski lesson|surf lesson/, "Sports & Active Living", "Recreation", "Lessons"],
+    // Health & Wellness
+    [/therap(y|ist)|counsel|psycholog/, "Health & Wellness", "Mental Health", "Therapy"],
+    [/massage|spa|facial/, "Health & Wellness", "Personal Care", "Spa"],
+    [/dental|dentist|orthodont/, "Health & Wellness", "Dental", "Dental"],
+    [/doctor|medical|copay|prescription|pharmacy/, "Health & Wellness", "Medical", "Medical"],
+    // Food & Dining
+    [/groceries|grocery|costco|safeway|whole foods/, "Food & Dining", "Groceries", "Groceries"],
+    [/dinner|lunch|brunch|restaurant|takeout/, "Food & Dining", "Restaurants", "Meal"],
+    [/coffee|espresso/, "Food & Dining", "Coffee & Cafes", "Coffee"],
+    // Transportation
+    [/uber|lyft|taxi|rideshare/, "Transportation", "Rideshare", "Rideshare"],
+    [/parking|garage/, "Transportation", "Parking & Tolls", "Parking"],
+    [/car payment|auto loan/, "Transportation", "Auto Loan", "Car Payment"],
+    [/auto insur|car insur/, "Financial Services", "Insurance", "Auto Insurance"],
+    // Travel
+    [/hotel|airbnb|vrbo|lodging/, "Travel & Experiences", "Lodging", "Hotel"],
+    [/flight|airline|airfare/, "Travel & Experiences", "Flights", "Flight"],
+    // Financial
+    [/loan payment|student loan/, "Financial Services", "Loans", "Loan Payment"],
+    [/insurance/, "Financial Services", "Insurance", "Insurance"],
+    [/savings|investment|brokerage|401k|ira/, "Financial Services", "Investments", "Investment"],
+    // Beauty / Personal Care
+    [/haircut|salon|barber|nail/, "Health & Wellness", "Personal Care", "Salon"],
+  ];
+  for (const [re, pillar, category, subcategory] of rules) {
+    if (re.test(d)) return { pillar, category, subcategory };
+  }
+  return null;
+}
+
 // Classification Prompt with Examples
 const CLASSIFICATION_PROMPT = `Classify transactions into lifestyle pillars, categories, and subcategory labels based on merchant names.
 
@@ -92,14 +174,42 @@ SUBCATEGORY LABELS (1-3 per transaction):
 Return 1 to 3 short labels that describe what you can ACTUALLY INFER from the merchant name. These are independent tags, not a hierarchy.
 Only tag what the merchant name tells you. Do NOT guess what the customer bought if the merchant sells many things.
 
+CROSS-PILLAR LIFESTYLE TAG (optional, max 1 per transaction, counts toward the 1-3 cap):
+In addition to category-facet labels, you MAY include ONE tag from the controlled lifestyle vocabulary below when the merchant name or description makes the lifestyle context UNAMBIGUOUS. This tag tells downstream systems what life pattern this spend belongs to, even when its primary pillar is something else (e.g. a Tahoe lodge is Travel/Hotels, but the lifestyle is Ski).
+
+Apply ONLY when the signal is obvious from the merchant string itself. NEVER guess. If the merchant is generic (MARRIOTT, WHOLE FOODS, AMAZON, TARGET, DELTA), do NOT add a lifestyle tag — keep only the category-facet labels.
+
+Controlled lifestyle vocabulary (use EXACTLY these strings):
+- Activity context: "Ski", "Mountain", "Tropical Vacation", "Beach", "Coastal Resort", "Urban Hotel", "Theme Park", "Cruise", "Camping", "Roadtrip"
+- Life-event context: "Wedding", "Engagement", "New Parent", "Baby Prep", "New Home", "Moving", "Career Development", "Retirement Prep", "College Prep", "Pet Adoption"
+- Lifestyle-flavor context: "Athleisure", "Foodie", "Wellness", "Eco-Conscious", "DIY", "Luxury Lifestyle", "Family-Oriented", "Tech Enthusiast", "Outdoor", "Arts & Culture"
+
+Lifestyle-tag examples:
+- "PALISADES TAHOE LODGE" → ["Ski", "Mountain"] ✓ (Tahoe lodge — clear ski signal)
+- "VAIL RESORTS" → ["Ski"] ✓
+- "FOUR SEASONS MAUI" → ["Tropical Vacation", "Beach"] ✓ (Maui is unambiguous)
+- "HAWAIIAN AIRLINES" → ["Tropical Vacation"] ✓
+- "BANFF SPRINGS HOTEL" → ["Mountain"] ✓
+- "MARRIOTT MIDTOWN MANHATTAN" → ["Urban Hotel"] ✓
+- "DISNEY GRAND CALIFORNIAN" → ["Theme Park", "Family-Oriented"] ✓
+- "HARRY WINSTON" → ["Fine Jewelry", "Engagement"] ✓ (engagement-ring brand)
+- "BABIES R US" → ["Infant Goods", "New Parent"] ✓
+- "STANFORD GSB TUITION" → ["Tuition", "Career Development"] ✓
+- "LULULEMON" → ["Apparel", "Athleisure"] ✓
+- "MARRIOTT" → ["Full-Service"] ✗ NO lifestyle tag — could be anywhere
+- "DELTA AIR LINES" → ["Domestic"] ✗ NO lifestyle tag — generic carrier
+- "WHOLE FOODS" → ["Organic & Natural"] ✗ NO lifestyle tag — generic grocery
+- "KAY JEWELERS" → ["Fine Jewelry"] ✗ NO Engagement tag — sells broad jewelry
+- "TARGET" → ["Department Store"] ✗ NO New Parent tag even if you suspect it
+
 CLASSIFICATION EXAMPLES (Pillar / Category / Subcategory Labels):
 
 Sports & Active Living:
 - "EQUINOX" → Gym & Fitness / ["Membership"]
 - "24 HOUR FITNESS" → Gym & Fitness / ["Membership"]
-- "LULULEMON" → Gym & Fitness / ["Apparel", "Athletic"]
+- "LULULEMON" → Gym & Fitness / ["Apparel", "Athleisure"]
 - "NIKE STORE" → Gym & Fitness / ["Apparel", "Equipment"]
-- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Apparel"]
+- "REI CO-OP" → Outdoor & Adventure / ["Equipment", "Outdoor"]
 - "DICK'S SPORTING GOODS" → General / ["Equipment"]
 - "ORANGETHEORY" → Gym & Fitness / ["Classes"]
 - "TAYLORMADE" → Golf / ["Equipment"]
@@ -130,8 +240,16 @@ Food & Dining:
 Travel & Exploration:
 - "DELTA AIR LINES" → Flights / ["Domestic"]
 - "UNITED AIRLINES" → Flights / ["Domestic"]
+- "HAWAIIAN AIRLINES" → Flights / ["Domestic", "Tropical Vacation"]
 - "MARRIOTT" → Hotels & Lodging / ["Full-Service"]
 - "FOUR SEASONS" → Hotels & Lodging / ["Full-Service"]
+- "FOUR SEASONS MAUI" → Hotels & Lodging / ["Full-Service", "Tropical Vacation"]
+- "PALISADES TAHOE LODGE" → Hotels & Lodging / ["Ski", "Mountain"]
+- "VAIL RESORTS" → Hotels & Lodging / ["Ski"]
+- "BANFF SPRINGS HOTEL" → Hotels & Lodging / ["Full-Service", "Mountain"]
+- "MARRIOTT MIDTOWN MANHATTAN" → Hotels & Lodging / ["Full-Service", "Urban Hotel"]
+- "DISNEY GRAND CALIFORNIAN" → Hotels & Lodging / ["Full-Service", "Theme Park"]
+- "ROYAL CARIBBEAN" → Tours & Activities / ["Cruise"]
 - "HERTZ" → Car Rentals / ["Airport"]
 - "UBER" → Travel Transportation / ["Rideshare"]
 - "LYFT" → Travel Transportation / ["Rideshare"]
@@ -150,17 +268,22 @@ Style & Beauty:
 - "SEPHORA" → Beauty Products / ["Makeup", "Skincare"]
 - "ULTA" → Beauty Products / ["Makeup", "Skincare"]
 - "TIFFANY & CO" → Jewelry / ["Fine Jewelry"]
+- "HARRY WINSTON" → Jewelry / ["Fine Jewelry", "Engagement"]
+- "DAVID'S BRIDAL" → Clothing / ["Wedding"]
+- "THE KNOT SHOP" → Clothing / ["Wedding"]
 
 Pets:
 - "PETCO" → Pet Supplies / ["Supplies"]
 - "CHEWY.COM" → Pet Food / ["Online"]
 - "VCA ANIMAL HOSPITAL" → Veterinary Care / ["Wellness"]
+- "ASPCA ADOPTION" → Pet Services / ["Pet Adoption"]
 
 Entertainment & Culture:
 - "AMC THEATRES" → Movies & Theater / ["Cinema"]
 - "TICKETMASTER" → Concerts & Events / ["Tickets"]
 - "BARNES & NOBLE" → Books & Magazines / ["Physical"]
 - "STEAM GAMES" → Gaming / ["PC"]
+- "MET MUSEUM" → Museums & Exhibitions / ["Museum", "Arts & Culture"]
 
 Technology & Digital Life:
 - "APPLE.COM" → Electronics & Devices / ["Phone", "Computer"]
@@ -171,11 +294,15 @@ Technology & Digital Life:
 
 Family & Community:
 - "KINDERCARE" → Childcare & Education / ["Daycare"]
+- "BABIES R US" → Kids Activities / ["Infant Goods", "New Parent"]
+- "BUY BUY BABY" → Kids Activities / ["Infant Goods", "Baby Prep"]
+- "THE BUMP REGISTRY" → Kids Activities / ["Baby Prep"]
 - "RED CROSS" → Gifts & Donations / ["Charity"]
 
 Financial & Aspirational:
 - "VANGUARD" → Investments / ["Brokerage"]
-- "UDEMY" → Courses & Certifications / ["Online"]
+- "UDEMY" → Courses & Certifications / ["Online", "Career Development"]
+- "STANFORD GSB" → Courses & Certifications / ["Tuition", "Career Development"]
 - "GEICO" → Insurance / ["Auto"]
 
 CONFIDENCE EXAMPLES:
@@ -193,6 +320,20 @@ These deserve lower confidence:
 MERCHANT PARSING:
 • Remove payment prefixes: Apple Pay, PayPal, Venmo, SQ, Cash App, Zelle
 • Extract true merchant (e.g., "SQ *Chipotle" → "Chipotle")
+
+NON-CARD TRANSACTIONS (Zelle, Venmo, Cash App, PayPal, ACH, Wire, Check, Bill Pay, Transfer):
+• CRITICAL RULE: Whenever the transaction's "source" field is NOT a card (i.e. anything other than "Credit Card" / "Debit Card" — including Zelle, Venmo, Cash App, PayPal, ACH, Wire, Check, Bill Pay, Direct Deposit, Transfer), the "description" field is the PRIMARY classification signal. The merchant name (often a person's name, a bank, or a generic processor) should be IGNORED in favor of the description.
+• Apply this rule even if the merchant name looks recognizable — non-card payments route through intermediaries, so the description is what reveals the actual purpose.
+• Examples:
+  - merchant "MARIA GARCIA" + description "Dogsitting" + source "Zelle" → Pets / Pet Services / ["Dogsitting"] (0.9)
+  - merchant "JOHN SMITH" + description "Rent payment" + source "Zelle" → Home & Living / Rent & Mortgage / ["Rent"] (0.9)
+  - merchant "SARAH LEE" + description "Yoga class" + source "Venmo" → Sports & Active Living / Gym & Fitness / ["Classes"] (0.9)
+  - merchant "MIKE CHEN" + description "Birthday gift" + source "Cash App" → Family & Community / Gifts & Donations / ["Gift"] (0.9)
+  - merchant "ACH DEBIT" + description "Comcast Internet" + source "ACH" → Technology & Digital Life / Internet & Phone / ["Internet"] (0.9)
+  - merchant "BILL PAY" + description "PG&E electric" + source "Bill Pay" → Home & Living / Utilities / ["Electric"] (0.9)
+  - merchant "WIRE TRANSFER" + description "Tuition Stanford" + source "Wire" → Family & Community / Childcare & Education / ["Tuition"] (0.9)
+  - merchant "CHECK 1234" + description "Landscaping" + source "Check" → Home & Living / Home Improvement / ["Landscaping"] (0.9)
+• If the description is empty or uninformative for a non-card transfer, fall back to Miscellaneous / General with low confidence (0.3).
 
 CATEGORY RULES:
 • The category is the PRIMARY behavioral identifier — for Sports it's the sport, for Food it's the venue type, for Travel it's the transport/stay type
@@ -541,6 +682,8 @@ Deno.serve(async (req) => {
     const transactionSummary = transactions.map((t) => ({
       id: t.transaction_id,
       merchant: t.merchant_name,
+      ...(t.description && { description: t.description }),
+      ...(t.source && { source: t.source }),
       amount: t.amount,
       date: t.date,
       ...(t.zip_code && { zip: t.zip_code }),
@@ -589,7 +732,28 @@ Deno.serve(async (req) => {
           const enrichedTransactions = transactions.map((original) => {
             const classification = allClassifications.find((c: any) => c.transaction_id === original.transaction_id);
 
+            // DETERMINISTIC OVERRIDE: For non-card transactions with a meaningful description,
+            // prefer description-driven classification when AI returned nothing or Miscellaneous.
+            const isNonCard = isNonCardSource((original as any).source);
+            const desc = ((original as any).description || "").trim();
+            const descOverride = isNonCard && desc ? classifyByDescription(desc) : null;
+
             if (!classification) {
+              if (descOverride) {
+                return {
+                  ...original,
+                  normalized_merchant: original.merchant_name,
+                  pillar: descOverride.pillar,
+                  category: descOverride.category,
+                  subcategories: [descOverride.subcategory],
+                  subcategory: descOverride.subcategory,
+                  confidence: 0.85,
+                  spending_tier: "N/A",
+                  purchase_frequency: "Occasional",
+                  explanation: `Description-driven fallback for non-card (${(original as any).source || "transfer"}) transaction.`,
+                  enriched_at: new Date().toISOString(),
+                };
+              }
               return {
                 ...original,
                 normalized_merchant: original.merchant_name,
@@ -609,17 +773,34 @@ Deno.serve(async (req) => {
               ? classification.subcategories
               : [classification.subcategory || "General"];
 
+            let pillar = classification.pillar;
+            let category = classification.category || "General";
+            let finalSubs = subs;
+            let confidence = classification.confidence || 0.8;
+            let explanation = classification.explanation || "";
+
+            const looksMisc = /miscellaneous|unclassified/i.test(pillar || "") ||
+              /unclear|unknown|^general$/i.test(category || "");
+            if (descOverride && looksMisc) {
+              pillar = descOverride.pillar;
+              category = descOverride.category;
+              finalSubs = [descOverride.subcategory];
+              confidence = 0.85;
+              explanation = `Description-driven override for non-card (${(original as any).source || "transfer"}) transaction.`;
+              console.log(`[OVERRIDE] ${original.merchant_name} + "${desc}" (${(original as any).source}) → ${pillar}/${category}`);
+            }
+
             return {
               ...original,
               normalized_merchant: classification.normalized_merchant || original.merchant_name,
-              pillar: classification.pillar,
-              category: classification.category || "General",
-              subcategories: subs,
-              subcategory: subs[0],
-              confidence: classification.confidence || 0.8,
+              pillar,
+              category,
+              subcategories: finalSubs,
+              subcategory: finalSubs[0],
+              confidence,
               spending_tier: classification.spending_tier || "N/A",
               purchase_frequency: classification.purchase_frequency || "One-Time",
-              explanation: classification.explanation || "",
+              explanation,
               enriched_at: new Date().toISOString(),
             };
           });

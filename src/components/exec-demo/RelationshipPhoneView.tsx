@@ -1,8 +1,7 @@
-import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, CheckCircle2, AlertTriangle, Lightbulb, MessageSquare, Sparkles, MapPin, Clock } from "lucide-react";
+import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, MapPin, Clock, Sparkles } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
-import { generateFinancialTip } from "@/lib/wellnessIntelligenceEngine";
-import { useState } from "react";
+import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import advisor1 from "@/assets/advisors/advisor-1.jpg";
 import advisor2 from "@/assets/advisors/advisor-2.jpg";
 import advisor3 from "@/assets/advisors/advisor-3.jpg";
@@ -15,6 +14,7 @@ import advisor8 from "@/assets/advisors/advisor-8.jpg";
 interface Props {
   customer: DemoCustomer;
   detectedLifeEvents?: LifeEvent[] | null;
+  productCards?: ProductCard[] | null;
   onGoToAI: (message: string) => void;
 }
 
@@ -53,27 +53,12 @@ function getAdvisor(customerId: string) {
   return ADVISORS[Math.abs(hash) % ADVISORS.length];
 }
 
-function computeWellness(holdings: Record<string, string | undefined>) {
-  const savings = parseCurrency(holdings.deposit || "$0");
-  const credit = parseCurrency(holdings.credit || "$0");
-  const items = [
-    { label: "Emergency fund", ok: savings > 5000, goodText: "Strong", badText: "Build up" },
-    { label: "Debt ratio", ok: credit < savings * 0.4, goodText: "Healthy", badText: "Improving" },
-    { label: "Savings", ok: true, goodText: "On track", badText: "Needs focus" },
-  ];
-  const score = Math.round(50 + (items.filter(i => i.ok).length + 1) * 12.5);
-  return { score, items };
-}
-
-export default function RelationshipPhoneView({ customer, detectedLifeEvents, onGoToAI }: Props) {
+export default function RelationshipPhoneView({ customer, detectedLifeEvents, productCards, onGoToAI }: Props) {
   const firstName = customer.profile.name.split(" ")[0];
   const holdings = customer.profile.holdings ?? {};
   const eventName = detectedLifeEvents?.[0]?.event_name ?? "financial goals";
-  const tip = generateFinancialTip([]);
-  const [tipDismissed, setTipDismissed] = useState(false);
 
   const holdingValues = HOLDING_META.map(h => ({ ...h, value: parseCurrency(holdings[h.key] || "$0") }));
-  const wellness = computeWellness(holdings);
   const advisor = getAdvisor(customer.id);
 
   return (
@@ -112,42 +97,19 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
           </div>
         </div>
 
-        {/* Wellness Card */}
-        <div className="grid grid-cols-1 gap-1.5">
-          {/* Financial Wellness */}
-          <div className="rounded-xl bg-slate-50 border border-slate-100 p-2.5 flex flex-col gap-1.5">
-            <div className="flex items-center gap-1 mb-1">
-              <Sparkles className="w-3 h-3 text-indigo-500" />
-              <span className="text-[8px] font-bold text-slate-700">Financial Wellness</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              {/* Donut score */}
-              <div className="relative w-10 h-10 shrink-0">
-                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                  <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="3.5" />
-                  <circle cx="18" cy="18" r="14" fill="none"
-                    stroke={wellness.score >= 75 ? "#22c55e" : wellness.score >= 50 ? "#f59e0b" : "#ef4444"}
-                    strokeWidth="3.5" strokeLinecap="round"
-                    strokeDasharray={`${(wellness.score / 100) * 88} 88`} />
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-slate-800">
-                  {wellness.score}
-                </span>
-              </div>
-              {/* Status items */}
-              <div className="space-y-1 flex-1">
-                {wellness.items.map((item, i) => (
-                  <div key={i} className="flex items-center gap-1">
-                    <span className={`w-1 h-1 rounded-full shrink-0 ${item.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
-                    <span className="text-[7px] text-slate-500">{item.label}:</span>
-                    <span className={`text-[7px] font-semibold ${item.ok ? "text-emerald-600" : "text-amber-600"}`}>
-                      {item.ok ? item.goodText : item.badText}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Recommended for You — product slider */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5 px-1">
+            <Sparkles className="w-3 h-3 text-indigo-500" />
+            <span className="text-[10px] font-bold text-slate-700">Recommended for You</span>
           </div>
+          {productCards && productCards.length > 0 ? (
+            <ProductCardsPhoneView cards={productCards} compact />
+          ) : (
+            <div className="px-2 py-4 text-center">
+              <span className="text-[10px] text-slate-300">Personalized offers loading…</span>
+            </div>
+          )}
         </div>
 
         {/* Your Local Branch */}
@@ -183,45 +145,6 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, on
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Pinned AI Financial Tip */}
-      <div className="shrink-0 px-3 py-2.5 border-t border-slate-100 bg-white">
-        {!tipDismissed ? (
-          <div className="rounded-xl bg-amber-50 border border-amber-100 p-3">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Lightbulb className="w-3 h-3 text-amber-600" />
-              <span className="text-[9px] font-bold text-amber-800 uppercase tracking-wider">Smart Financial Tip</span>
-            </div>
-            <p className="text-[10px] text-amber-900 leading-snug">{tip.message}</p>
-            {tip.potentialSavings && (
-              <span className="inline-block mt-1 text-[8px] font-semibold text-amber-700 bg-amber-100 rounded px-1.5 py-0.5">
-                Save {tip.potentialSavings}
-              </span>
-            )}
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => setTipDismissed(true)}
-                className="flex items-center gap-1 text-[8px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1 hover:bg-emerald-100 transition-colors"
-              >
-                <CheckCircle2 className="w-2.5 h-2.5" /> Got it
-              </button>
-              <button
-                onClick={() => onGoToAI(`I need help with this: ${tip.message}`)}
-                className="flex items-center gap-1 text-[8px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 rounded-lg px-2 py-1 hover:bg-blue-100 transition-colors"
-              >
-                <MessageSquare className="w-2.5 h-2.5" /> Ask AI
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            onClick={() => setTipDismissed(false)}
-            className="w-full flex items-center justify-center gap-1.5 text-[9px] font-medium text-amber-600 hover:text-amber-700 py-1"
-          >
-            <Lightbulb className="w-3 h-3" /> Show financial tip
-          </button>
-        )}
       </div>
     </div>
   );

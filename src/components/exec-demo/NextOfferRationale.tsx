@@ -27,11 +27,26 @@ interface Props {
   offers: RollupOfferGroup[] | null;
   personaSynthesis: PersonaSynthesis | null;
   loading: boolean;
+  activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
+  colorOverride?: string;
+  kindOverride?: "lifeEvent" | "risk";
+}
+
+/* ─── Color helper for trigger overrides ─── */
+function buildOverrideColor(hex: string) {
+  return {
+    bg: `${hex}15`,
+    text: hex,
+    dot: hex,
+    border: `${hex}55`,
+  };
 }
 
 /* ─── Single rollup card with horizontal deal tiles ─── */
-function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }) {
-  const c = getColor(group.pillar);
+function RollupCard({ group, index, colorOverride, kindOverride }: { group: RollupOfferGroup; index: number; colorOverride?: string; kindOverride?: "lifeEvent" | "risk" }) {
+  const c = colorOverride ? buildOverrideColor(colorOverride) : getColor(group.pillar);
+  const typeLabel = kindOverride === "lifeEvent" ? "Life Event" : kindOverride === "risk" ? "Risk Signal" : null;
 
   const suppressedCats = group.suppressedCategories || [];
   const boostCats = [...new Set(
@@ -48,51 +63,84 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
       }}
     >
       {/* Card header */}
-      <div className="flex items-center gap-1.5 flex-wrap px-3 pt-2.5 pb-1.5">
+      <div className="px-4 pt-3 pb-2">
+        <div className="font-bold text-base text-slate-900 mb-2">
+          Behavioral Based Deal Collection
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+        {typeLabel && (
+          <span className="text-[11px] font-bold shrink-0" style={{ color: c.dot }}>
+            {typeLabel}:
+          </span>
+        )}
         <span
-          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full"
+          className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
           style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
         >
           <span style={{ color: c.dot }}>✦</span>
           {group.rollup}
         </span>
         {suppressedCats.map(cat => (
-          <span key={cat} className="inline-flex items-center gap-1 text-[9px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-full">
-            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+          <span key={cat} className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full">
+            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
             {cat}
           </span>
         ))}
         {boostCats.map(cat => (
-          <span key={cat} className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
-            <TrendingUp className="w-2.5 h-2.5 text-emerald-500" />
+          <span key={cat} className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+            <TrendingUp className="w-3 h-3 text-emerald-500" />
             {cat}
           </span>
         ))}
+        </div>
       </div>
 
-      {/* Horizontal deal tiles */}
+      {/* Deal tiles — 2 per row, full info */}
       {group.deals.length > 0 && (
-        <div className="grid grid-cols-5 gap-1.5 px-3 pb-2.5">
+        <div className="grid grid-cols-5 gap-2 px-4 pb-4">
           {group.deals.map(deal => (
-            <div
-              key={deal.id}
-              className="min-w-0 flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-2"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-800 truncate">{deal.merchant}</span>
-                <TrendingUp className="w-2.5 h-2.5 text-emerald-500 shrink-0" />
-              </div>
-              <span className="text-[8px] whitespace-normal leading-relaxed text-emerald-700">
-                ↑ {deal.signalReason}
-              </span>
-              <button
-                className="mt-auto text-[8px] font-semibold px-2 py-0.5 rounded-full text-center"
-                style={{ background: c.bg, color: c.text }}
+              <div
+                key={deal.id}
+                className="min-w-0 min-h-[180px] flex flex-col gap-2 rounded-lg border border-slate-200 bg-white p-3"
               >
-                {deal.cta}
-              </button>
-            </div>
-          ))}
+                {/* Merchant + trend */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] font-bold text-slate-800 truncate">{deal.merchant}</span>
+                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                </div>
+
+                {/* Reward pill */}
+                {deal.rewardValue && (
+                  <span
+                    className="self-start inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+                  >
+                    {deal.rewardValue}
+                  </span>
+                )}
+
+                {/* Personalized message */}
+                {deal.message && (
+                  <p className="text-[11px] italic text-slate-600 leading-snug">
+                    "{deal.message}"
+                  </p>
+                )}
+
+                {/* Signal reason (kept) */}
+                <span className="text-[10.5px] leading-snug text-emerald-700">
+                  ↑ {deal.signalReason}
+                </span>
+
+                {/* CTA */}
+                <button
+                  className="mt-auto w-full inline-flex items-center justify-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+                  style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+                >
+                  {deal.cta}
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
         </div>
       )}
     </div>
@@ -101,7 +149,7 @@ function RollupCard({ group, index }: { group: RollupOfferGroup; index: number }
 
 
 /* ─── Main component ─── */
-export default function NextOfferRationale({ offers, personaSynthesis, loading }: Props) {
+export default function NextOfferRationale({ offers, personaSynthesis, loading, activeRollupLabel, activeRollupPillar, colorOverride, kindOverride }: Props) {
   if (loading || !offers) {
     return (
       <div className="px-3 py-4 space-y-3">
@@ -120,37 +168,72 @@ export default function NextOfferRationale({ offers, personaSynthesis, loading }
     );
   }
 
-  const totalDeals = offers.reduce((sum, g) => sum + g.deals.length, 0);
-  const totalBoosted = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "boost").length, 0);
-  const totalSuppressed = offers.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "suppress").length, 0);
+  const scopedOffers = !activeRollupPillar
+    ? offers
+    : offers.filter(group =>
+        activeRollupPillar === "Life Event"
+          ? group.pillar === "Life Event"
+          : group.pillar !== "Life Event"
+      );
+
+  // Filter to only the active persona's offer group with conservative fuzzy matching
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const STOPWORDS = new Set(["the","a","an","of","for","to","and","in","on","at","with","new","my","your"]);
+  const tokenize = (s: string) => norm(s).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.has(t));
+  const target = activeRollupLabel ? norm(activeRollupLabel) : null;
+  const targetTokens = activeRollupLabel ? new Set(tokenize(activeRollupLabel)) : new Set<string>();
+
+  const filtered = !target
+    ? scopedOffers
+    : (() => {
+        // 1. exact (case-insensitive) match
+        let hits = scopedOffers.filter(g => norm(g.rollup) === target);
+        if (hits.length > 0) return hits;
+        // 2. substring match either direction
+        hits = scopedOffers.filter(g => {
+          const r = norm(g.rollup);
+          return r.includes(target) || target.includes(r);
+        });
+        if (hits.length > 0) return hits;
+        // 3. token-overlap (≥1 shared significant word like "home", "college", "retirement")
+        hits = scopedOffers.filter(g => tokenize(g.rollup).some(t => targetTokens.has(t)));
+        return hits;
+      })();
+
+  if (filtered.length === 0) {
+    if (activeRollupLabel) {
+      // Diagnostic: surface the label drift so we can spot it
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[NextOfferRationale] No offer group matched "${activeRollupLabel}" (pillar=${activeRollupPillar}). Available:`,
+        scopedOffers.map(g => `${g.pillar}::${g.rollup}`)
+      );
+    }
+    return (
+      <div className="px-3 py-6 text-center">
+        <span className="text-[11px] text-slate-400 italic">
+          {activeRollupLabel
+            ? activeRollupPillar === "Life Event"
+              ? `Generating offers for "${activeRollupLabel}"…`
+              : `No offers generated for "${activeRollupLabel}" yet.`
+            : "Select a persona pill above to see targeted offers."}
+        </span>
+      </div>
+    );
+  }
+
+  const totalDeals = filtered.reduce((sum, g) => sum + g.deals.length, 0);
+  const totalBoosted = filtered.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "boost").length, 0);
+  const totalSuppressed = filtered.reduce((sum, g) => sum + g.deals.filter(d => d.signal === "suppress").length, 0);
 
   return (
     <div className="px-3 py-3 space-y-2.5">
 
-      {/* Strategy header */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[11px] font-semibold text-slate-500">
-          {offers.length} behavioral clusters
-        </span>
-        <ArrowRight className="w-3 h-3 text-slate-300" />
-        <span className="text-[11px] font-bold text-emerald-600">
-          {totalDeals} deals
-        </span>
-        <span className="text-[9px] text-slate-400">
-          ({totalBoosted} boosted · {totalSuppressed} suppressed)
-        </span>
-      </div>
 
-      {/* Rollup cards */}
-      {[...offers]
-        .sort((a, b) => {
-          const aLife = a.pillar === "Life Event" ? 1 : 0;
-          const bLife = b.pillar === "Life Event" ? 1 : 0;
-          return aLife - bLife;
-        })
-        .map((group, gi) => (
-          <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} />
-        ))}
+      {/* Rollup cards (just one when filtered) */}
+      {filtered.map((group, gi) => (
+        <RollupCard key={`${group.pillar}::${group.rollup}`} group={group} index={gi} colorOverride={colorOverride} kindOverride={kindOverride} />
+      ))}
 
       <style>{`
         @keyframes offer-card-in {

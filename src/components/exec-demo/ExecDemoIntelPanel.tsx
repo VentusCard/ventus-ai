@@ -4,7 +4,7 @@ import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./ex
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
 import NextProductRationale from "./NextProductRationale";
-import NextConversationRationale from "./NextConversationRationale";
+import NextConversationRationale, { type SelectedSignal } from "./NextConversationRationale";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
@@ -45,12 +45,17 @@ interface Props {
   detectedLifeEvents?: LifeEvent[] | null;
   productsLoading?: boolean;
   productCards?: ProductCard[] | null;
-  onTriggerPillClick?: (label: string, txIndices: number[], color: string) => void;
+  onTriggerPillClick?: (label: string, txIndices: number[], color: string, kind?: "lifeEvent" | "risk") => void;
   activeTriggerLabel?: string | null;
+  activeTrigger?: { label: string; indices: number[]; color: string; kind: "lifeEvent" | "risk" } | null;
   productActions?: import("./NextProductRationale").CardActions[] | null;
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
+  onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
+  onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
+  onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk") => void;
+  assistantOpen?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -160,10 +165,15 @@ export default function ExecDemoIntelPanel({
   productCards,
   onTriggerPillClick,
   activeTriggerLabel,
+  activeTrigger,
   productActions,
   actionsLoading,
   riskFlags,
   riskLoading,
+  onOpenWMCopilot,
+  onOpenAIAssistant,
+  onAIPromptDispatch,
+  assistantOpen = false,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -252,6 +262,75 @@ export default function ExecDemoIntelPanel({
 
   const hasSynthesis = personaSynthesis && personaSynthesis.pillarRollups && personaSynthesis.pillarRollups.length > 0;
 
+  // ---- Next Conversation: build available signals + selection state ----
+  const customerSegment = (persona as any)?.profile?.segment || (persona as any)?.segment || "Preferred";
+  const isWealthClient = customerSegment === "Private" || customerSegment === "Premium" || customerSegment === "Premier";
+  const customerFirstName = (((persona as any)?.profile?.name || (persona as any)?.name || "the client") as string).split(" ")[0];
+
+  const availableSignals = useMemo<SelectedSignal[]>(() => {
+    const out: SelectedSignal[] = [];
+    (detectedLifeEvents || []).forEach((evt) => {
+      out.push({ kind: "lifeEvent", label: evt.event_name });
+    });
+    if (riskFlags && riskFlags.flags) {
+      const seen = new Set<string>();
+      riskFlags.flags.forEach((f: any) => {
+        const group = String(f.category_group || f.category || "risk").toLowerCase();
+        const txId = f.transaction_id || "pattern";
+        const key = `${txId}::${group}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        const rawLabel = f.category_label || f.category_group || f.category || f.type || "Risk";
+        const label = String(rawLabel).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+        out.push({ kind: "risk", label });
+      });
+    }
+    rollupStats.forEach((r) => {
+      out.push({ kind: "lifestyle", label: r.label });
+    });
+    out.push({ kind: "segment", label: `${customerSegment} Client` });
+    return out;
+  }, [detectedLifeEvents, riskFlags, rollupStats, customerSegment]);
+
+  const [selectedSignal, setSelectedSignal] = useState<SelectedSignal | null>(null);
+
+  useEffect(() => {
+    if (activeTab === "relationship" && !selectedSignal && availableSignals.length > 0) {
+      setSelectedSignal(availableSignals[0]);
+    }
+    if (activeTab !== "relationship") {
+      setSelectedSignal(null);
+    }
+  }, [activeTab, availableSignals, selectedSignal]);
+
+  // Auto-select first lifestyle rollup pill ONCE when entering Next-Offer tab
+  // (do NOT re-run when activeRollup is cleared by a life-event/risk pill click —
+  //  that would overwrite the user's selection in an infinite loop).
+  const autoSelectedTabRef = useRef<TabKey | null>(null);
+  // Reset auto-default memo whenever the persona itself changes (new customer / re-run)
+  useEffect(() => {
+    autoSelectedTabRef.current = null;
+  }, [personaSynthesis]);
+  useEffect(() => {
+    // Reset memo when leaving the tab so re-entering can default again
+    if (activeTab !== "analytics") {
+      autoSelectedTabRef.current = null;
+      return;
+    }
+    if (activeTab === "analytics"
+      && autoSelectedTabRef.current !== "analytics"
+      && !activeRollup
+      && !activeTriggerLabel
+      && rollupStats.length > 0
+    ) {
+      autoSelectedTabRef.current = "analytics";
+      onRollupClick?.(rollupStats[0]);
+    }
+  }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick, personaSynthesis]);
+
+  const isOfferTab = activeTab === "analytics" || activeTab === "product";
+
+
   return (
     <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
       {/* Persona section */}
@@ -285,7 +364,19 @@ export default function ExecDemoIntelPanel({
             {synthesisTriggered && rollupStats.length > 0 ? (
               <div className="mb-2.5">
                 <div className="flex items-start justify-between">
-                  <p className="font-bold text-slate-800 mb-1.5 text-lg">Behavioral Intelligence: <span className="text-slate-500 font-semibold">Personas = Multi-category spending patterns</span></p>
+                  {(() => {
+                    const headerCopy =
+                      activeTab === "analytics"
+                        ? { title: "Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
+                        : activeTab === "product"
+                        ? { title: "Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
+                        : activeTab === "relationship"
+                        ? { title: "Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
+                        : { title: "Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
+                    return (
+                      <p className="font-bold text-slate-800 mb-1.5 text-lg">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
+                    );
+                  })()}
                   <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                     <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                   </button>
@@ -293,9 +384,72 @@ export default function ExecDemoIntelPanel({
                 {(() => {
                   const isCollapsed = !pillsExpanded && !!activeTab;
 
+                  // When the relationship tab is active, pill clicks also drive the in-tab signal selection.
+                  const isRelTab = activeTab === "relationship";
+                  const handleRollupForRel = (r: typeof rollupStats[number]) => {
+                    onRollupClick?.(r);
+                    if (isRelTab) {
+                      setSelectedSignal({ kind: "lifestyle", label: r.label });
+                      if (assistantOpen) {
+                        // Bake ground-truth totals into the prompt so the AI doesn't have
+                        // to recompute from pillar/category aggregates (which don't know
+                        // about sub-cluster rollups like "Seasonal Ski Trips").
+                        const totalSpend = Math.round(r.totalSpend ?? 0);
+                        const totalCount = r.totalCount ?? 0;
+                        let merchantBreakdown = "";
+                        if (transactions && r.txIndices && r.txIndices.length > 0) {
+                          const mMap: Record<string, { total: number; count: number }> = {};
+                          for (const idx of r.txIndices) {
+                            const tx: any = transactions[idx];
+                            if (!tx) continue;
+                            const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
+                            const amt = typeof tx.amount === "number"
+                              ? Math.abs(tx.amount)
+                              : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                            if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
+                            mMap[name].total += amt;
+                            mMap[name].count += 1;
+                          }
+                          const top = Object.entries(mMap)
+                            .sort((a, b) => b[1].total - a[1].total)
+                            .slice(0, 5)
+                            .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
+                          if (top.length) merchantBreakdown = ` Breakdown: ${top.join("; ")}.`;
+                        }
+                        const prompt = `How much do I typically spend on ${r.label.toLowerCase()}? (Use these exact figures from my account: total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""} tagged "${r.label}".${merchantBreakdown})`;
+                        onAIPromptDispatch?.(prompt, "lifestyle");
+                      }
+                    }
+                  };
+                  const handleLifeEventForRel = (label: string, indices: number[]) => {
+                    onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
+                    if (isRelTab) {
+                      setSelectedSignal({ kind: "lifeEvent", label });
+                      if (assistantOpen) {
+                        onAIPromptDispatch?.(
+                          `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
+                          "lifeEvent"
+                        );
+                      }
+                    }
+                  };
+                  const handleRiskForRel = (label: string, indices: number[], color: string, merchant?: string) => {
+                    onTriggerPillClick?.(label, indices, color, "risk");
+                    if (isRelTab) {
+                      setSelectedSignal({ kind: "risk", label });
+                      const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
+                      if (assistantOpen) {
+                        onAIPromptDispatch?.(
+                          `What is this transaction ${subject}? What is it typically associated with statistically?`,
+                          "risk"
+                        );
+                      }
+                    }
+                  };
+
                   // Shared pill renderers
                   const rollupPills = rollupStats.map((r, i) => (
-                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => onRollupClick?.(r)} />
+                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => handleRollupForRel(r)} />
                   ));
 
                   const lifeEventPills = productsLoading ? (
@@ -313,14 +467,13 @@ export default function ExecDemoIntelPanel({
                             return evidenceMerchants.some(em => m.includes(em) || em.includes(m)) ? idx : -1;
                           }).filter(idx => idx !== -1)
                         : [];
-                      const isClickable = matchedIndices.length > 0;
                       const confidence = evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
                       const evCount = evt.evidence?.length ?? 0;
                       return (
                         <span
                           key={evt.event_name}
-                          onClick={() => isClickable && onTriggerPillClick?.(evt.event_name, matchedIndices, "#f59e0b")}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -350,47 +503,127 @@ export default function ExecDemoIntelPanel({
                       <span className="h-6 w-24 rounded-full bg-red-100 animate-pulse" />
                     </>
                   ) : riskFlags && riskFlags.flags && riskFlags.flags.length > 0 ? (
-                    riskFlags.flags.map((flag: any, i: number) => {
-                      const rawLabel = flag.category || flag.type || "Risk";
-                      const flagLabel = rawLabel.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+                    (() => {
+                      // Roll up flags into ONE pill per high-level group:
+                      //   - Gambling (any vice gambling subcategory)
+                      //   - Financial Vulnerability (any financial_distress subcategory)
+                      //   - Adult Entertainment
+                      //   - AML / Suspicious International also collapse to one pill each.
+                      // Severity = max severity in group; count = unique transactions.
+                      type Rollup = {
+                        key: string;
+                        label: string;
+                        severity: "low" | "medium" | "high";
+                        txIds: Set<string>;
+                        merchants: Set<string>;
+                        sampleMerchant?: string;
+                      };
+                      const SEV_RANK: Record<string, number> = { low: 1, medium: 2, high: 3 };
+                      const groupKeyFor = (f: any): { key: string; label: string } => {
+                        const grp = String(f.category_group || f.category || "").toLowerCase();
+                        const lbl = String(f.category_label || "").toLowerCase();
+                        if (grp === "vice" && lbl.includes("adult")) return { key: "adult", label: "Adult Entertainment" };
+                        if (grp === "vice") return { key: "gambling", label: "Gambling" };
+                        if (grp === "financial_distress") return { key: "financial_vulnerability", label: "Financial Vulnerability" };
+                        if (grp === "suspicious_international") return { key: "suspicious_international", label: "Suspicious International" };
+                        if (grp === "aml") return { key: "aml", label: "AML" };
+                        const raw = f.category_label || f.category_group || f.category || "Risk";
+                        return { key: String(raw).toLowerCase(), label: String(raw) };
+                      };
+                      const rollupMap = new Map<string, Rollup>();
+                      const seenTxGroup = new Set<string>();
+                      riskFlags.flags.forEach((f: any) => {
+                        const { key, label } = groupKeyFor(f);
+                        const txId = f.transaction_id || `pattern::${key}`;
+                        const dedupeKey = `${txId}::${key}`;
+                        if (seenTxGroup.has(dedupeKey)) return;
+                        seenTxGroup.add(dedupeKey);
+                        let r = rollupMap.get(key);
+                        if (!r) {
+                          r = { key, label, severity: "low", txIds: new Set(), merchants: new Set() };
+                          rollupMap.set(key, r);
+                        }
+                        const sev = (f.severity || "low") as "low" | "medium" | "high";
+                        if ((SEV_RANK[sev] || 1) > (SEV_RANK[r.severity] || 1)) r.severity = sev;
+                        r.txIds.add(txId);
+                        if (f.merchant) {
+                          r.merchants.add(String(f.merchant));
+                          if (!r.sampleMerchant) r.sampleMerchant = String(f.merchant);
+                        }
+                      });
+                      const ORDER = ["gambling", "financial_vulnerability", "adult", "suspicious_international", "aml"];
+                      return Array.from(rollupMap.values()).sort((a, b) => {
+                        const ai = ORDER.indexOf(a.key); const bi = ORDER.indexOf(b.key);
+                        if (ai === -1 && bi === -1) return a.label.localeCompare(b.label);
+                        if (ai === -1) return 1;
+                        if (bi === -1) return -1;
+                        return ai - bi;
+                      });
+                    })().map((rollup: any, i: number) => {
+                      const flagLabel = rollup.label;
                       const isActive = activeTriggerLabel === flagLabel;
-                      const isHigh = flag.severity === "high";
+                      const isHigh = rollup.severity === "high";
                       const dotColor = isHigh ? "#ef4444" : "#f59e0b";
-                      const flagKeywords = (flag.merchant_patterns || []).map((p: string) => p.toLowerCase());
-                      // Use the merchant name from the flag itself as a keyword
-                      if (flag.merchant) {
-                        const merchantWords = flag.merchant.toLowerCase().split(/[\s]+/).filter((w: string) => w.length > 2);
-                        flagKeywords.push(...merchantWords);
+                      const txCount = rollup.txIds.size;
+
+                      // Resolve all matched transaction indices across the group
+                      let matchedIndices: number[] = [];
+                      if (transactions) {
+                        const idSet = new Set<string>(rollup.txIds);
+                        const merchantSet = new Set<string>(
+                          Array.from(rollup.merchants as Set<string>).map((m: string) => m.toLowerCase().trim())
+                        );
+                        transactions.forEach((tx: any, idx: number) => {
+                          const tid = tx.transaction_id || tx.id || "";
+                          if (tid && idSet.has(tid)) { matchedIndices.push(idx); return; }
+                          const m = String(tid).match(/^tx-(\d+)$/);
+                          if (m && idSet.has(`tx-${m[1]}`)) { matchedIndices.push(idx); return; }
+                          const mname = ((tx as any).merchant_name || (tx as any).merchant || "").toLowerCase().trim();
+                          if (mname && merchantSet.has(mname)) matchedIndices.push(idx);
+                        });
                       }
-                      if (flagKeywords.length === 0 && flag.category) {
-                        flagKeywords.push(...flag.category.toLowerCase().split(/[\s/&,]+/).filter((w: string) => w.length > 3));
-                      }
-                      const matchedIndices = transactions
-                        ? transactions.map((tx, idx) => {
-                            const m = ((tx as any).merchant_name || (tx as any).merchant || (tx as any).normalized_merchant || "").toLowerCase();
-                            return flagKeywords.some((kw: string) => m.includes(kw)) ? idx : -1;
-                          }).filter(idx => idx !== -1)
-                        : [];
-                      const isClickable = matchedIndices.length > 0;
+                      const isClickable = matchedIndices.length > 0 && !isOfferTab;
+                      const pillKey = `rollup::${rollup.key}::${i}`;
                       return (
                         <span
-                          key={flag.category || i}
-                          onClick={() => isClickable && onTriggerPillClick?.(flagLabel, matchedIndices, dotColor)}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : ""} transition-all duration-200`}
+                          key={pillKey}
+                          onClick={() => {
+                            if (!isClickable) return;
+                            const all = Array.from(rollup.merchants as Set<string>);
+                            const picked = all.length > 0
+                              ? all[Math.floor(Math.random() * all.length)]
+                              : rollup.sampleMerchant;
+                            handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
+                          }}
+                          title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
-                            background: isActive
+                            background: isOfferTab
+                              ? "#e2e8f0"
+                              : isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
                               : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
-                            color: isHigh ? "#991b1b" : "#92400e",
-                            border: isActive ? `2px solid ${dotColor}` : `1.5px solid ${dotColor}`,
+                            color: isOfferTab ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
+                            border: isOfferTab
+                              ? "1.5px solid #cbd5e1"
+                              : isActive
+                              ? `2px solid ${dotColor}`
+                              : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
-                            boxShadow: isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
-                            transform: isActive ? "scale(1.08)" : "scale(1)",
+                            boxShadow: isOfferTab ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
+                            transform: isActive && !isOfferTab ? "scale(1.08)" : "scale(1)",
+                            opacity: isOfferTab ? 0.65 : 1,
+                            filter: isOfferTab ? "grayscale(1)" : "none",
+                            textDecoration: isOfferTab ? "line-through" : "none",
+                            textDecorationColor: isOfferTab ? "#94a3b8" : undefined,
+                            textDecorationThickness: isOfferTab ? "1.5px" : undefined,
                           }}
                         >
-                          <span style={{ color: dotColor }}>⚠</span>
+                          <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
                           {flagLabel}
-                          {flag.severity && <span className="text-[10px] uppercase opacity-60 font-normal">{flag.severity}</span>}
+                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
+                            {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
+                          </span>
                         </span>
                       );
                     })
@@ -423,7 +656,7 @@ export default function ExecDemoIntelPanel({
                   return (
                     <>
                        <div className="mb-1.5">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Patterns</p>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Habits</p>
                         <div className="flex flex-wrap gap-2">{rollupPills}</div>
                       </div>
                       <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
@@ -448,29 +681,6 @@ export default function ExecDemoIntelPanel({
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                 </button>
               </div>
-              {/* Synthesize button — appears when AI data ready, pills done animating, and not yet triggered */}
-              {hasSynthesis && !synthesisTriggered && phase === "hold" && (
-                <button
-                  onClick={() => setSynthesisTriggered(true)}
-                  className="flex items-center gap-2 mx-auto mt-2 mb-3 px-5 py-2.5 rounded-lg text-[12px] font-bold tracking-wide uppercase transition-all duration-300 hover:scale-[1.03]"
-                  style={{
-                    background: "rgba(15,23,42,.92)",
-                    color: "#67e8f9",
-                    border: "1px solid rgba(6,182,212,.45)",
-                    boxShadow: "0 0 20px rgba(6,182,212,.2), inset 0 1px 0 rgba(6,182,212,.1)",
-                    animation: "intel-ready-pulse 2.5s ease-in-out infinite",
-                    letterSpacing: "0.08em",
-                  }}
-                >
-                  <Cpu className="w-4.5 h-4.5" style={{ color: "#22d3ee" }} />
-                  <span style={{ color: "#e0f2fe" }} className="text-[12px]">Behavioral Intelligence:</span>
-                  <span style={{ color: "#22d3ee", marginLeft: "-2px" }} className="text-[12px]">Ready</span>
-                  <span className="relative flex h-2 w-2 ml-1">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "#22d3ee" }} />
-                    <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#06b6d4" }} />
-                  </span>
-                </button>
-              )}
               </>
             )}
 
@@ -478,10 +688,25 @@ export default function ExecDemoIntelPanel({
               <div
                 className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
               >
+                {/* Header row */}
+                <div className="flex items-center py-2 px-2 border-b border-slate-300 sticky top-0 bg-slate-100 z-10 rounded-t-md">
+                  <div className="w-[115px] shrink-0 pr-2 text-[12px] font-bold uppercase tracking-wider text-slate-900">
+                    Pillar
+                  </div>
+                  <div className="flex-1 text-[12px] font-bold uppercase tracking-wider text-slate-900">
+                    (Category) Subcategory, Amount
+                  </div>
+                  <div className="w-[70px] shrink-0 pl-2 text-right text-[12px] font-bold uppercase tracking-wider text-slate-900">
+                    Total
+                  </div>
+                </div>
                 {(() => {
                   const entries = Array.from(chipsByPillarCategory.entries());
                   return entries.map(([pillar, categoriesMap], pillarIdx) => {
                     const c = getColor(pillar);
+                    const pillarTotal = Array.from(categoriesMap.values())
+                      .flat()
+                      .reduce((sum, chip) => sum + chip.totalSpend, 0);
                     return (
                       <div
                         key={pillar}
@@ -492,7 +717,7 @@ export default function ExecDemoIntelPanel({
                           <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
                           <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
                         </div>
-                        {/* Right column — categories + subcategory pills */}
+                        {/* Middle column — categories + subcategory pills */}
                         <div className="flex-1 flex flex-wrap items-center gap-1.5">
                           {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
                             <React.Fragment key={category}>
@@ -531,6 +756,10 @@ export default function ExecDemoIntelPanel({
                               })}
                             </React.Fragment>
                           ))}
+                        </div>
+                        {/* Right column — pillar total */}
+                        <div className="w-[70px] shrink-0 pl-2 pt-[3px] text-right text-[12px] font-semibold tabular-nums" style={{ color: c.text }}>
+                          {formatSpend(pillarTotal)}
                         </div>
                       </div>
                     );
@@ -601,11 +830,21 @@ export default function ExecDemoIntelPanel({
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
             {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} />
+              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} activeTrigger={activeTrigger} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} />
             ) : activeTab === "relationship" ? (
-              <NextConversationRationale />
+              <NextConversationRationale
+                selectedSignal={selectedSignal}
+                availableSignals={availableSignals}
+                customerFirstName={customerFirstName}
+                productActions={productActions}
+                actionsLoading={actionsLoading}
+                productCards={productCards}
+                onSelectSignal={(s) => setSelectedSignal(s)}
+                onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
+                onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
+              />
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
@@ -621,6 +860,30 @@ export default function ExecDemoIntelPanel({
       {phase === "idle" && (
         <div className="flex-1 flex items-center justify-center">
           <span className="text-[12px] text-slate-300">Select a customer & run analysis</span>
+        </div>
+      )}
+
+      {/* Synthesize button — anchored at the bottom of the card */}
+      {hasSynthesis && !synthesisTriggered && phase === "hold" && (
+        <div className="mt-auto pt-3">
+          <button
+            onClick={() => setSynthesisTriggered(true)}
+            className="w-full flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl text-[13px] font-bold tracking-wide uppercase text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+            style={{
+              background: "linear-gradient(135deg, hsl(217 91% 55%) 0%, hsl(217 91% 60%) 50%, hsl(199 89% 48%) 100%)",
+              boxShadow: "0 4px 20px hsl(217 91% 60% / 0.45), inset 0 1px 0 hsl(0 0% 100% / 0.25)",
+              animation: "intel-ready-pulse 2.5s ease-in-out infinite",
+              letterSpacing: "0.08em",
+            }}
+          >
+            <Cpu className="w-4 h-4 text-white" />
+            <span>Behavioral Intelligence:</span>
+            <span className="text-cyan-200">Ready</span>
+            <span className="relative flex h-2 w-2 ml-1">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70 bg-cyan-300" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-200" />
+            </span>
+          </button>
         </div>
       )}
 

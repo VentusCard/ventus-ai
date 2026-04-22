@@ -1,4 +1,5 @@
-import { ChevronRight, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
+import { useState, useEffect, useRef, TouchEvent } from "react";
+import { ChevronRight, ChevronLeft, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
   type: "behavioral" | "life_event";
@@ -6,6 +7,11 @@ export interface ProductCard {
   quote: string;
   signal_label: string;
   theme: string;
+  offer_headline?: string;
+  benefits?: string[];
+  eligibility?: string;
+  cta?: string;
+  cta_sub?: string;
 }
 
 const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane }> = {
@@ -24,94 +30,178 @@ const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof 
 };
 
 const THEME_BENEFITS: Record<string, string[]> = {
-  travel: ["3X points on travel & dining", "No foreign transaction fees", "$100 annual travel credit"],
-  dining: ["4X points at restaurants", "Complimentary DashPass", "$50 dining credit annually"],
-  fitness: ["Gym membership credits", "Wellness reward multipliers", "Wearable purchase cashback"],
-  shopping: ["5% cashback on select retail", "Extended warranty protection", "Price-match guarantee"],
-  entertainment: ["3X on streaming & events", "Early-access concert tickets", "Annual entertainment credit"],
-  home: ["Competitive HELOC rates", "No closing costs", "Rate lock guarantee"],
-  education: ["Tax-advantaged growth", "Flexible investment options", "Low account minimums"],
-  retirement: ["Tax-efficient withdrawals", "Personalized glide path", "Fee-free advisory sessions"],
-  family: ["Family spending insights", "Child account linking", "College savings match"],
-  business: ["2% cashback on operations", "Expense management tools", "Higher credit limits"],
-  wellness: ["HSA contribution matching", "Preventive care rewards", "Mental health benefits"],
-  lifestyle: ["Preferred rates across products", "Priority customer service", "Annual loyalty bonus"],
+  travel: ["3X points on travel", "No FX fees", "$100 travel credit"],
+  dining: ["4X at restaurants", "DashPass included", "$50 dining credit"],
+  fitness: ["Gym credits", "Wellness multipliers", "Wearable cashback"],
+  shopping: ["5% select retail", "Extended warranty", "Price-match"],
+  entertainment: ["3X streaming & events", "Early ticket access", "Annual credit"],
+  home: ["Competitive HELOC", "No closing costs", "Rate lock"],
+  education: ["Tax-advantaged growth", "Flexible options", "Low minimums"],
+  retirement: ["Tax-efficient withdrawals", "Custom glide path", "Fee-free advice"],
+  family: ["Family insights", "Child accounts", "529 match"],
+  business: ["2% cashback", "Expense tools", "Higher limits"],
+  wellness: ["HSA matching", "Preventive rewards", "Mental health"],
+  lifestyle: ["Preferred rates", "Priority service", "Loyalty bonus"],
 };
 
 const THEME_VALUE: Record<string, string> = {
-  travel: "$450–$680/yr in travel rewards",
-  dining: "$220–$340/yr in dining cashback",
-  fitness: "$180–$260/yr in wellness credits",
-  shopping: "$300–$520/yr in retail cashback",
-  entertainment: "$200–$380/yr in entertainment value",
-  home: "Save $3,200+ in closing costs",
-  education: "Tax-free growth up to $10K/yr",
-  retirement: "Save $1,800+/yr in advisory fees",
-  family: "$280–$450/yr in family benefits",
-  business: "$600–$1,200/yr in cashback",
-  wellness: "$240–$400/yr in health savings",
-  lifestyle: "$150–$300/yr in loyalty rewards",
+  travel: "$450–$680/yr",
+  dining: "$220–$340/yr",
+  fitness: "$180–$260/yr",
+  shopping: "$300–$520/yr",
+  entertainment: "$200–$380/yr",
+  home: "Save $3,200+",
+  education: "$10K/yr tax-free",
+  retirement: "Save $1,800+/yr",
+  family: "$280–$450/yr",
+  business: "$600–$1,200/yr",
+  wellness: "$240–$400/yr",
+  lifestyle: "$150–$300/yr",
 };
 
 interface Props {
   cards: ProductCard[];
-  customerName: string;
+  customerName?: string;
+  compact?: boolean;
 }
 
-export default function ProductCardsPhoneView({ cards, customerName }: Props) {
-  const firstName = customerName.split(" ")[0];
-  const sortedCards = [...cards].sort((a, b) => a.type === 'life_event' ? -1 : b.type === 'life_event' ? 1 : 0);
+export default function ProductCardsPhoneView({ cards, compact = false }: Props) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  const total = cards.length;
+
+  // Auto-advance
+  useEffect(() => {
+    if (paused || total <= 1) return;
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % total);
+    }, 6000);
+    return () => clearInterval(id);
+  }, [paused, total]);
+
+  // Reset index if card list shrinks
+  useEffect(() => {
+    if (index >= total) setIndex(0);
+  }, [total, index]);
+
+  if (!cards.length) return null;
+
+  const goTo = (i: number) => {
+    setPaused(true);
+    setIndex(((i % total) + total) % total);
+  };
+  const next = () => goTo(index + 1);
+  const prev = () => goTo(index - 1);
+
+  const onTouchStart = (e: TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) next();
+      else prev();
+    }
+    touchStartX.current = null;
+  };
 
   return (
-    <div className="px-3 py-3 space-y-3">
-
-      {/* Cards */}
-      {sortedCards.map((card, i) => {
-        const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-        const Icon = style.icon;
-        const benefits = THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle;
-        const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
-
-        return (
+    <div className={compact ? "px-2 py-1" : "px-2 py-3"}>
+      <div className="relative">
+        {/* Slider viewport */}
+        <div
+          className="overflow-hidden"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
           <div
-            key={i}
-            className="bg-white rounded-2xl shadow-sm overflow-hidden"
-            style={{
-              borderLeft: `3px solid ${style.accent}`,
-              animation: `phone-card-reveal 0.4s ease-out ${i * 0.18}s both`,
-            }}
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${index * 100}%)` }}
           >
-            <div className="p-3.5">
-              <p className="text-[13px] font-bold text-slate-800 leading-snug mb-1">{card.product_name}</p>
-              <p className="text-[11px] text-slate-500 italic leading-relaxed mb-2">"{card.quote}"</p>
-              <div className="space-y-1.5 mb-2">
-                {benefits.map((b, bi) => (
-                  <div key={bi} className="flex items-start gap-2">
-                    <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                    <span className="text-[11px] text-slate-600 leading-snug">{b}</span>
+            {cards.map((card, i) => {
+              const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
+              const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
+
+              return (
+                <div key={i} className="w-full shrink-0 px-1">
+                  <div
+                    className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
+                    style={{ borderTop: `3px solid ${style.accent}` }}
+                  >
+                    <div className={`${compact ? "p-2.5" : "p-3"} flex flex-col flex-1`}>
+                      <p className="text-[12px] font-bold text-slate-800 leading-tight mb-1 line-clamp-2">{card.product_name}</p>
+                      <p className="text-[10px] text-slate-500 italic leading-snug mb-2 line-clamp-3">"{card.quote}"</p>
+                      <div className="space-y-1 mb-2 flex-1">
+                        {benefits.map((b, bi) => (
+                          <div key={bi} className="flex items-start gap-1.5">
+                            <Check className="w-3 h-3 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                            <span className="text-[10px] text-slate-600 leading-snug">{b}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[10px] font-bold mb-1.5 leading-tight" style={{ color: style.accent }}>
+                        Est. {value}
+                      </p>
+                      <button
+                        className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5"
+                        style={{ background: style.accent }}
+                      >
+                        Learn More <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <p className="text-[11px] font-bold mb-2.5" style={{ color: style.accent }}>Est. value: {value}</p>
-              <button className="w-full py-2 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1" style={{ background: style.accent }}>
-                Learn More <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
 
-      {/* Disclaimer */}
-      <p className="text-[9px] text-slate-300 text-center px-4">
-        Recommendations based on your financial profile
-      </p>
+        {/* Chevrons */}
+        {total > 1 && (
+          <>
+            <button
+              onClick={prev}
+              aria-label="Previous"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-white"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
+            </button>
+            <button
+              onClick={next}
+              aria-label="Next"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-white"
+            >
+              <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+            </button>
+          </>
+        )}
+      </div>
 
-      <style>{`
-        @keyframes phone-card-reveal {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {/* Dots */}
+      {total > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-2">
+          {cards.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Go to card ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all ${i === index ? "w-4 bg-slate-700" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {!compact && (
+        <p className="text-[9px] text-slate-300 text-center px-4 mt-2">
+          Recommendations based on your financial profile
+        </p>
+      )}
     </div>
   );
 }

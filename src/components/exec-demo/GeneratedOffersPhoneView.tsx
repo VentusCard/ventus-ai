@@ -82,23 +82,62 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926
 
 function getCollectionImage(rollup: string, pillar?: string): string {
   const theme = (rollup + " " + (pillar || "")).toLowerCase();
+  const buster = `&t=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   for (const entry of COLLECTION_IMAGES) {
-    if (entry.keywords.some(k => theme.includes(k))) return entry.url;
+    if (entry.keywords.some(k => theme.includes(k))) return entry.url + buster;
   }
-  return DEFAULT_IMAGE;
+  return DEFAULT_IMAGE + buster;
 }
 
 interface Props {
   offerGroups: RollupOfferGroup[];
   customerName: string;
+  focusMode?: boolean;
+  activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName }: Props) {
+// ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
+const STOPWORDS = new Set(["the","a","an","of","for","to","and","in","on","at","with","new","my","your"]);
+const normLabel = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const tokenizeLabel = (s: string) => normLabel(s).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.has(t));
+
+function findGroupForLabel(label: string, pillar: string | null | undefined, groups: RollupOfferGroup[]): RollupOfferGroup | null {
+  const scoped = !pillar
+    ? groups
+    : groups.filter(g => pillar === "Life Event" ? g.pillar === "Life Event" : g.pillar !== "Life Event");
+  const target = normLabel(label);
+  const targetTokens = new Set(tokenizeLabel(label));
+  // 1. exact
+  let hit = scoped.find(g => normLabel(g.rollup) === target);
+  if (hit) return hit;
+  // 2. substring
+  hit = scoped.find(g => {
+    const r = normLabel(g.rollup);
+    return r.includes(target) || target.includes(r);
+  });
+  if (hit) return hit;
+  // 3. token overlap
+  hit = scoped.find(g => tokenizeLabel(g.rollup).some(t => targetTokens.has(t)));
+  return hit || null;
+}
+
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
 
   const firstName = customerName.split(" ")[0];
+
+  // Sync expandedGroup with active persona pill selection
+  useEffect(() => {
+    if (!activeRollupLabel) {
+      setExpandedGroup(null);
+      return;
+    }
+    const matched = findGroupForLabel(activeRollupLabel, activeRollupPillar, offerGroups);
+    setExpandedGroup(matched);
+  }, [activeRollupLabel, activeRollupPillar, offerGroups]);
 
   // Semantic search
   const { searchQuery, isSearching, handleSearchChange, clearSearch, matchingDealIds, searchReasoning } = useSemanticDealSearch();
@@ -186,27 +225,29 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
         </div>
 
         <div className="px-3 pt-2.5 pb-1">
-          <p className="text-[13px] font-bold text-slate-800">{expandedGroup.rollup}</p>
-          <p className="text-[10px] text-slate-500">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
+          {expandedGroup.collectionMessage && (
+            <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
+          )}
+          <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
-              className="rounded-xl border border-slate-100 bg-white p-3 flex items-start justify-between gap-2"
+              className="rounded-xl border border-slate-100 bg-white p-3 flex items-stretch justify-between gap-2"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchant}</p>
-                {deal.product && <p className="text-[11px] text-slate-500 truncate">{deal.product}</p>}
-                {deal.message && <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{deal.message}</p>}
+                <p className="text-[12px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
+                {deal.product && <p className="text-[11px] text-slate-500 leading-snug">{deal.product}</p>}
+                {deal.message && <p className="text-[10.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
               </div>
-              <div className="flex flex-col items-end gap-1.5 shrink-0">
-                {deal.rewardValue && (
+              <div className="flex flex-col items-end justify-between gap-1.5 shrink-0">
+                {deal.rewardValue ? (
                   <span className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: c.dot }}>
                     {deal.rewardValue}
                   </span>
-                )}
+                ) : <span />}
                 <button
                   className="text-[9px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
                   style={{ borderColor: c.dot, color: c.dot }}
@@ -239,6 +280,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
+        {!focusMode && (
+        <>
         {/* ── Savings Summary Bar ── */}
         <div className="rounded-xl px-3 py-2 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #eff6ff, #eef2ff)" }}>
           <div className="flex items-center gap-1.5">
@@ -345,6 +388,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName }: 
               })}
             </div>
           </div>
+        )}
+        </>
         )}
 
         {/* ── Collection Carousel ── */}

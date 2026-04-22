@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, CreditCard, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
@@ -8,20 +8,20 @@ import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView
 import RelationshipPhoneView from "./RelationshipPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
+import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "rewards" | "product" | "relationship" | "ai";
+type ConsumerTab = "rewards" | "relationship" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
   rewards: "rewards",
-  product: "product",
-  relationship: "relationship",
+  product: "relationship",
+  relationship: "ai",
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
-  { key: "product", label: "Offers", icon: CreditCard, color: "#6366f1" },
   { key: "relationship", label: "Membership", icon: Users, color: "#8b5cf6" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
@@ -34,49 +34,94 @@ interface Props {
   generatedOffers?: RollupOfferGroup[] | null;
   detectedLifeEvents?: LifeEvent[] | null;
   productCards?: ProductCard[] | null;
+  activeRollupLabel?: string | null;
+  activeRollupPillar?: string | null;
+  enrichedTxs?: EnrichedTransaction[] | null;
+  riskFlags?: { flags: any[]; summary: string } | null;
+  aiTabTrigger?: number;
+  pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk" } | null;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
+  
 
   // Sync with external activeTab changes
   useEffect(() => {
     setConsumerTab(mappedTab);
   }, [mappedTab]);
 
+  // External trigger to force AI tab (e.g. from "Open AI Banking Assistant" button or pill clicks)
+  useEffect(() => {
+    if (aiTabTrigger && aiTabTrigger > 0) {
+      setConsumerTab("ai");
+    }
+  }, [aiTabTrigger]);
+
+  // When a pill dispatches a new prompt, queue it for the chat view and switch to AI tab
+  useEffect(() => {
+    if (pendingAIPrompt && pendingAIPrompt.text) {
+      setPendingAIMessage(pendingAIPrompt.text);
+      setConsumerTab("ai");
+    }
+  }, [pendingAIPrompt]);
+
   const renderContent = () => {
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
             <span className="text-[11px] text-slate-300">Personalizing rewards...</span>
           </div>
         );
-      case "product":
-        if (productCards && productCards.length > 0) {
-          return <ProductCardsPhoneView cards={productCards} customerName={customer.profile.name} />;
-        }
-        return (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-[11px] text-slate-300">Detecting life events...</span>
-          </div>
-        );
       case "relationship":
-        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
-      case "ai":
-        return <ConsumerAIChatView customer={customer} initialMessage={pendingAIMessage} onInitialMessageConsumed={() => setPendingAIMessage(null)} />;
+        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+      case "ai": {
+        const personalizedDeals = generatedOffers && generatedOffers.length > 0
+          ? {
+              deals: generatedOffers.flatMap((g) =>
+                (g.deals || []).map((o) => ({
+                  merchantName: o.merchant,
+                  dealTitle: `${o.product} — ${o.message}`,
+                  activationCount: 90,
+                }))
+              ),
+            }
+          : null;
+        const detectedEvents = detectedLifeEvents?.map((e) => ({
+          event_name: e.event_name,
+          confidence: e.confidence,
+          talking_points: e.talking_points,
+          evidence: (e as any).evidence ?? [],
+        })) as any;
+        return (
+          <ConsumerAIChatView
+            customer={customer}
+            enriched={(enrichedTxs ?? undefined) as any}
+            detectedEvents={detectedEvents}
+            personalizedDeals={personalizedDeals as any}
+            offerGroups={generatedOffers ?? null}
+            productRecommendations={productCards ?? null}
+            riskFlags={riskFlags ?? undefined}
+            initialMessage={pendingAIMessage}
+            messageNonce={pendingAIPrompt?.nonce}
+            initialMessageKind={pendingAIPrompt?.kind}
+            onInitialMessageConsumed={() => setPendingAIMessage(null)}
+          />
+        );
+      }
       default:
         return null;
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-full py-4">
+    <div className="relative flex items-center justify-center h-full py-4">
       {/* iPhone frame */}
       <div
         className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
@@ -95,17 +140,17 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Header */}
-        <div className="px-4 py-1.5 border-b border-slate-100 shrink-0">
+        <div className="px-4 py-0.5 border-b border-slate-100 shrink-0 leading-tight">
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
-            <span className="text-[10px] font-semibold text-slate-600 tracking-wide">
+            <span className="text-[10px] font-semibold text-slate-600 tracking-wide leading-tight">
               TCBY Bank · {customer.profile.name.split(" ")[0]}
             </span>
           </div>
-          {(consumerTab === 'product' || consumerTab === 'ai') && <span className="text-[8px] text-slate-400 px-1">Using Bank of America product information as reference.</span>}
+          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight">Using Bank of America product information as reference.</span>}
         </div>
 
         {/* Content */}
@@ -147,6 +192,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-24 h-1 rounded-full bg-slate-200" />
         </div>
       </div>
+
     </div>
   );
 }
