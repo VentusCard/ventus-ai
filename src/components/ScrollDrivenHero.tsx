@@ -131,8 +131,8 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
     return { ...base, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("GYMBOREE"))
     return { ...base, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
-  if (r.includes("HILTON"))
-    return { ...base, merchant: "Hilton Garden Inn", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("VIATOR"))
+    return { ...base, merchant: "Viator", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("NANNY"))
     return { ...base, merchant: "Nanny Services", category: "Childcare", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("BABIES R US"))
