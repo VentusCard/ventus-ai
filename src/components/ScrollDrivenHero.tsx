@@ -76,63 +76,74 @@ const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
   const base = { raw, ...railInfo };
 
   if (r.includes("POTTRY BRN") || r.includes("POTTERY BARN"))
-    return { ...base, merchant: "Pottery Barn Kids", category: "Home & Kids", categoryColor: "#22c55e", persona: "parent" };
+    return {
+      ...base,
+      merchant: "Pottery Barn Kids",
+      category: "Home & Kids",
+      categoryColor: "#22c55e",
+      persona: "parent",
+    };
   if (r.includes("MARRIOTT"))
-    return { ...base, merchant: "Marriott Miami", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Marriott Miami", category: "Hotel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("OLIVE GARDEN"))
     return { ...base, merchant: "Olive Garden", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("WHLFDS") || r.includes("WHOLE FOODS"))
     return { ...base, merchant: "Whole Foods Market", category: "Grocery", categoryColor: "#22c55e" };
   if (r.includes("PRINCETN") || r.includes("PRINCETON"))
-    return { ...base, merchant: "Princeton Review", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return {
+      ...base,
+      merchant: "Princeton Review",
+      category: "Education",
+      categoryColor: "#f59e0b",
+      persona: "college",
+    };
   if (r.includes("DELTA AIR"))
-    return { ...base, merchant: "Delta Air Lines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Delta Air Lines", category: "Airlines", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("CARTER"))
     return { ...base, merchant: "Carter's", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("LA FITNESS"))
     return { ...base, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("YALE"))
-    return { ...base, merchant: "Yale University", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return {
+      ...base,
+      merchant: "Yale University",
+      category: "Education",
+      categoryColor: "#f59e0b",
+      persona: "college",
+    };
   if (r.includes("COLLEGE COUNSELOR"))
-    return { ...base, merchant: "College Counselor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { ...base, merchant: "College Counselor", category: "N/A", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("BUY BUY BABY"))
     return { ...base, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("RIMOWA"))
-    return { ...base, merchant: "Rimowa", category: "Travel Gear", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Rimowa", category: "Luggage", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("COMMONAPP"))
     return { ...base, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("GLOBAL ENTRY"))
-    return { ...base, merchant: "Global Entry", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
-  if (r.includes("DOORDASH"))
-    return { ...base, merchant: "DoorDash", category: "Dining", categoryColor: "#f59e0b" };
-  if (r.includes("TARGET"))
-    return { ...base, merchant: "Target", category: "Retail", categoryColor: "#ef4444" };
-  if (r.includes("COSTCO"))
-    return { ...base, merchant: "Costco", category: "Retail", categoryColor: "#ef4444" };
-  if (r.includes("STARBUCKS"))
-    return { ...base, merchant: "Starbucks", category: "Dining", categoryColor: "#f59e0b" };
+    return { ...base, merchant: "Global Entry", category: "Gov Service", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("DOORDASH")) return { ...base, merchant: "DoorDash", category: "Dining", categoryColor: "#f59e0b" };
+  if (r.includes("TARGET")) return { ...base, merchant: "Target", category: "Retail", categoryColor: "#ef4444" };
+  if (r.includes("COSTCO")) return { ...base, merchant: "Costco", category: "Wholesale", categoryColor: "#ef4444" };
+  if (r.includes("STARBUCKS")) return { ...base, merchant: "Starbucks", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("ZELLE") && r.includes("MARIA"))
     return { ...base, merchant: "Zelle — Maria G.", category: "Transfer", categoryColor: "#6b7280" };
-  if (r.includes("AMZN"))
-    return { ...base, merchant: "Amazon", category: "Shopping", categoryColor: "#ef4444" };
+  if (r.includes("AMZN")) return { ...base, merchant: "Amazon", category: "Shopping", categoryColor: "#ef4444" };
   if (r.includes("IRS REFUND"))
     return { ...base, merchant: "IRS Refund", category: "Income", categoryColor: "#10b981" };
-  if (r.includes("SHELL"))
-    return { ...base, merchant: "Shell Oil", category: "Auto", categoryColor: "#6b7280" };
+  if (r.includes("SHELL")) return { ...base, merchant: "Shell Oil", category: "Auto", categoryColor: "#6b7280" };
   if (r.includes("NETFLIX"))
     return { ...base, merchant: "Netflix", category: "Entertainment", categoryColor: "#8b5cf6" };
   if (r.includes("MORGAN STANLEY"))
     return { ...base, merchant: "Morgan Stanley", category: "Investment", categoryColor: "#6366f1" };
   if (r.includes("TRADER JOE"))
     return { ...base, merchant: "Trader Joe's", category: "Grocery", categoryColor: "#22c55e" };
-  if (r.includes("CVS"))
-    return { ...base, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
+  if (r.includes("CVS")) return { ...base, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("SAT PREP"))
     return { ...base, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("GYMBOREE"))
     return { ...base, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("VIATOR"))
-    return { ...base, merchant: "Viator", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Viator", category: "Travel Agency", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("NANNY"))
     return { ...base, merchant: "Nanny Services", category: "Childcare", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("BABIES R US"))
@@ -145,15 +156,36 @@ const stripAmount = (raw: string) => raw.replace(/\s*\$[\d,]+\.\d{2}\s*$/, "").t
 
 // Persona transaction counts (computed from data)
 const personaCounts = {
-  travel: enrichedData.filter(r => r.persona === "travel").length,
-  parent: enrichedData.filter(r => r.persona === "parent").length,
-  college: enrichedData.filter(r => r.persona === "college").length,
+  travel: enrichedData.filter((r) => r.persona === "travel").length,
+  parent: enrichedData.filter((r) => r.persona === "parent").length,
+  college: enrichedData.filter((r) => r.persona === "college").length,
 };
 
 const personas = [
-  { id: "travel" as const, label: "Leisure Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", count: personaCounts.travel, callout: `${personaCounts.travel} transactions · Flights, lodging, premium luggage, Global Entry, tours` },
-  { id: "parent" as const, label: "Young Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", count: personaCounts.parent, callout: `${personaCounts.parent} transactions · Childcare, baby gear, kids clothing` },
-  { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", count: personaCounts.college, callout: `${personaCounts.college} transactions · Test prep, apps, counseling` },
+  {
+    id: "travel" as const,
+    label: "Leisure Traveler",
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,0.15)",
+    count: personaCounts.travel,
+    callout: `${personaCounts.travel} transactions · Flights, lodging, premium luggage, Global Entry, tours`,
+  },
+  {
+    id: "parent" as const,
+    label: "Young Parent",
+    color: "#22c55e",
+    bg: "rgba(34,197,94,0.15)",
+    count: personaCounts.parent,
+    callout: `${personaCounts.parent} transactions · Childcare, baby gear, kids clothing`,
+  },
+  {
+    id: "college" as const,
+    label: "College-Bound Child",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.15)",
+    count: personaCounts.college,
+    callout: `${personaCounts.college} transactions · Test prep, apps, counseling`,
+  },
 ];
 
 const ScrollDrivenHero = () => {
@@ -198,12 +230,12 @@ const ScrollDrivenHero = () => {
   // Sort enriched data: persona-tagged rows first, then others — show more evidence.
   // In stage 3, float the active persona's rows to the very top.
   const enrichedSorted = useMemo(() => {
-    const withPersona = enrichedData.filter(r => r.persona);
-    const without = enrichedData.filter(r => !r.persona);
+    const withPersona = enrichedData.filter((r) => r.persona);
+    const without = enrichedData.filter((r) => !r.persona);
     const base = [...withPersona, ...without].slice(0, 14);
     if (activePersona) {
-      const active = base.filter(r => r.persona === activePersona.id);
-      const rest = base.filter(r => r.persona !== activePersona.id);
+      const active = base.filter((r) => r.persona === activePersona.id);
+      const rest = base.filter((r) => r.persona !== activePersona.id);
       return [...active, ...rest];
     }
     return base;
@@ -213,11 +245,7 @@ const ScrollDrivenHero = () => {
   const scrollOffset = useMemo(() => scrollProgress * 200, [scrollProgress]);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative"
-      style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}
-    >
+    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}>
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-36 overflow-visible">
         {/* Centered Headline */}
@@ -228,21 +256,20 @@ const ScrollDrivenHero = () => {
             transform: loaded ? "translateY(0)" : "translateY(24px)",
           }}
         >
-          Turn transaction data into{" "}
-          <span className="italic text-blue-600">behavioral intelligence</span>
+          Turn transaction data into <span className="italic text-blue-600">behavioral intelligence</span>
         </h1>
 
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
-
           {/* Floating callouts — only visible when persona is active in stage 3 */}
           {personas.map((p) => {
             const isActive = stage === 3 && activePersona?.id === p.id;
-            const pos = p.id === "travel"
-              ? { right: "calc(50% + 228px)", top: 60, side: "left" as const }
-              : p.id === "parent"
-              ? { right: "calc(50% + 228px)", top: 180, side: "left" as const }
-              : { left: "calc(50% + 228px)", top: 100, side: "right" as const };
+            const pos =
+              p.id === "travel"
+                ? { right: "calc(50% + 228px)", top: 60, side: "left" as const }
+                : p.id === "parent"
+                  ? { right: "calc(50% + 228px)", top: 180, side: "left" as const }
+                  : { left: "calc(50% + 228px)", top: 100, side: "right" as const };
 
             const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
 
@@ -255,7 +282,9 @@ const ScrollDrivenHero = () => {
                   opacity: isActive ? 1 : 0,
                   transform: isActive
                     ? "translateX(0) scale(1)"
-                    : pos.side === "left" ? "translateX(16px) scale(0.95)" : "translateX(-16px) scale(0.95)",
+                    : pos.side === "left"
+                      ? "translateX(16px) scale(0.95)"
+                      : "translateX(-16px) scale(0.95)",
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
                   flexDirection: pos.side === "left" ? "row" : "row",
                 }}
@@ -275,8 +304,23 @@ const ScrollDrivenHero = () => {
                       </div>
                     </div>
                     <svg width="48" height="2" className="shrink-0" style={{ overflow: "visible" }}>
-                      <line x1="0" y1="1" x2="40" y2="1" stroke={p.color} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.5">
-                        <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="1.5s" repeatCount="indefinite" />
+                      <line
+                        x1="0"
+                        y1="1"
+                        x2="40"
+                        y2="1"
+                        stroke={p.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
                       </line>
                       <circle cx="43" cy="1" r="3" fill={p.color} opacity="0.7">
                         <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
@@ -290,8 +334,23 @@ const ScrollDrivenHero = () => {
                       <circle cx="5" cy="1" r="3" fill={p.color} opacity="0.7">
                         <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
                       </circle>
-                      <line x1="8" y1="1" x2="48" y2="1" stroke={p.color} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.5">
-                        <animate attributeName="stroke-dashoffset" from="0" to="14" dur="1.5s" repeatCount="indefinite" />
+                      <line
+                        x1="8"
+                        y1="1"
+                        x2="48"
+                        y2="1"
+                        stroke={p.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
                       </line>
                     </svg>
                     <div
@@ -369,8 +428,8 @@ const ScrollDrivenHero = () => {
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,
                       border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
-                      opacity: stage2Progress > (i * 0.3) ? 1 : 0,
-                      transform: stage2Progress > (i * 0.3) ? "translateY(0)" : "translateY(8px)",
+                      opacity: stage2Progress > i * 0.3 ? 1 : 0,
+                      transform: stage2Progress > i * 0.3 ? "translateY(0)" : "translateY(8px)",
                       transitionDelay: `${i * 200}ms`,
                     }}
                   >
@@ -384,10 +443,7 @@ const ScrollDrivenHero = () => {
             {/* Transaction list with gradient fade */}
             <div className="relative px-4 py-2 overflow-hidden" style={{ height: 255 }}>
               {stage === 1 ? (
-                <div
-                  className="space-y-0 transition-transform"
-                  style={{ transform: `translateY(-${scrollOffset}px)` }}
-                >
+                <div className="space-y-0 transition-transform" style={{ transform: `translateY(-${scrollOffset}px)` }}>
                   {rawTransactions.map((tx, i) => (
                     <div
                       key={i}
