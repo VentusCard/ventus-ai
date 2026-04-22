@@ -1,27 +1,34 @@
 
+## Make persona pills truly sequential instead of all visible at once
 
-## Smoother, more even persona reveal as you scroll
+Right now the pill reveal is still tied to `stage2Progress > i * 0.3`, which means all three can become visible during Stage 2 before the Stage 3 walkthrough begins. That is why they still appear together. The fix is to move visibility control fully onto the Stage 3 active-persona progression.
 
-Right now the 3 personas reveal/highlight in jumpy thirds of Stage 3 (40–53%, 53–66%, 66–100%) — the third one gets twice as much scroll runway as the first two, so the pacing feels uneven and the last persona drags. We'll redistribute Stage 3's scroll range into 4 equal beats so each persona gets the same amount of scroll-time, plus a final "all-three-visible" beat at the end to let the viewer absorb the full profile.
+### What to change
 
-### New scroll choreography
+- Update the persona pill visibility logic in `src/components/ScrollDrivenHero.tsx`
+- Replace the current Stage 2-based reveal gate:
+  - `opacity: stage2Progress > i * 0.3 ? 1 : 0`
+  - `transform: stage2Progress > i * 0.3 ? "translateY(0)" : "translateY(8px)"`
+  - `transitionDelay: \`${i * 200}ms\``
+- With Stage 3 sequential reveal logic:
+  - `const isRevealed = stage === 3 && activePersonaIndex >= i`
+  - Use `isRevealed` for opacity/transform
+  - Remove the fixed stagger delay so reveal timing comes only from scroll progress
 
-Stage 3 spans scroll progress 0.4 → 1.0 (60% of the page). Split into 4 equal beats of 15% each:
+### Resulting behavior
 
-| Scroll range | Active persona | Pills visible |
-|---|---|---|
-| 0.40 – 0.55 | Leisure Traveler | 1 |
-| 0.55 – 0.70 | Young Parent | 2 |
-| 0.70 – 0.85 | College-Bound Child | 3 |
-| 0.85 – 1.00 | College-Bound Child (held) | 3 |
-
-This gives the eye equal time on each persona and a calm closing beat where the full picture sits assembled before the user scrolls past.
+- **Stage 1:** No pills visible
+- **Stage 2:** Still no pills visible
+- **Stage 3 / beat 1:** Only Leisure Traveler appears
+- **Stage 3 / beat 2:** Young Parent appears, Leisure Traveler remains visible
+- **Stage 3 / beat 3+:** College-Bound Child appears, all three remain visible
+- The active border/count styling keeps rotating as it already does now
 
 ### File touched
 
-- `src/components/ScrollDrivenHero.tsx` — only the Stage 3 progress math (~lines 229–232):
-  - Replace `personaProgress < 0.33 ? 0 : personaProgress < 0.66 ? 1 : 2` with even quartile thresholds (`< 0.25`, `< 0.5`, `< 0.75`, else 2)
-  - Pill reveal logic (`activePersonaIndex >= i`) already keys off this index, so it picks up the smoother pacing automatically — no other edits needed.
+- `src/components/ScrollDrivenHero.tsx`
+  - Only the persona pill `.map()` block in the card header area
 
-No new files, no animation tweaks, no layout changes.
+### Technical detail
 
+The pacing math for `activePersonaIndex` is already set up to advance evenly through Stage 3. The only issue is that the pill rendering still listens to `stage2Progress`, so the reveal logic and the walkthrough logic are currently disconnected. This change reconnects them so the UI matches the intended scroll narrative.
