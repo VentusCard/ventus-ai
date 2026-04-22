@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const rawTransactions = [
-  "PAYPL *POTTERY BARN KD 4829 $234.50",
+  "PAYPL *POTTRY BRN KDS 4829 $234.50",
   "SQ *MARRIOTT HTL MIA 8821 $285.00",
-  "APPLPAY MCDONALD'S F3421 $9.75",
-  "CHECKCARD WHOLE FOODS #123 $87.40",
-  "PAYPL *PRINCETON REVW $1,299.00",
+  "TST* OLIVE GARDEN #2241 $58.20",
+  "CHECKCARD WHLFDS MKT #1023 $87.40",
+  "ACH DEBIT PRINCETN REVW EDU $1,299.00",
   "DELTA AIR 0062139847221 $428.00",
   "SQ *CARTERS STORE 992 $124.50",
   "PAYPL *LA FITNESS DUE $45.00",
@@ -17,17 +17,18 @@ const rawTransactions = [
   "CHECKCARD STANFORD GST HS $210.00",
   "PAYPL *COMMONAPP FEE $75.00",
   "WN SOUTHWEST 5261849 $312.00",
+  "DD *DOORDASH SF $34.10",
   "TARGET T-2847 $89.00",
   "CHECKCARD COSTCO WHSE #4821 $142.30",
   "APPLPAY STARBUCKS #9924 $6.45",
   "ZELLE TO MARIA G $50.00",
   "AMZN MKTP US*2K9F81 $67.80",
+  "ACH CREDIT IRS REFUND $2,847.00",
   "SHELL OIL 57442389201 $48.20",
   "NETFLIX.COM 8883297631 $15.99",
-  "SPOTIFY USA $9.99",
+  "WIRE OUT MORGAN STANLEY $5,000.00",
   "SQ *TRADER JOES #219 $93.10",
   "CVS/PHARMACY #4201 $24.50",
-  "UBER *TRIP HLPN2 $18.40",
   "CHECK #1252 SAT PREP TUTOR $400.00",
   "PAYPL *GYMBOREE PLAY $89.00",
   "SQ *HILTON GARDEN INN $195.00",
@@ -35,83 +36,121 @@ const rawTransactions = [
   "CHECKCARD BABIES R US $156.00",
 ];
 
+type Rail = "CARD" | "ACH" | "CHECK" | "ZELLE" | "WIRE";
+
 interface EnrichedRow {
   raw: string;
   merchant: string;
   category: string;
   categoryColor: string;
+  rail: Rail;
+  railLabel: string;
+  railColor: string;
   persona?: "travel" | "parent" | "college";
 }
 
+const inferRail = (raw: string): { rail: Rail; railLabel: string; railColor: string } => {
+  const r = raw.toUpperCase();
+  if (/CHECK\s*#(\d+)/.test(r)) {
+    const m = r.match(/CHECK\s*#(\d+)/);
+    return { rail: "CHECK", railLabel: `Checking · Check #${m?.[1] ?? ""}`, railColor: "#f59e0b" };
+  }
+  if (r.startsWith("ZELLE") || r.includes(" ZELLE ")) {
+    return { rail: "ZELLE", railLabel: "Checking · Zelle", railColor: "#a855f7" };
+  }
+  if (r.startsWith("WIRE")) {
+    return { rail: "WIRE", railLabel: "Brokerage · Wire", railColor: "#ef4444" };
+  }
+  if (r.startsWith("ACH ")) {
+    return { rail: "ACH", railLabel: "Checking · ACH", railColor: "#3b82f6" };
+  }
+  return { rail: "CARD", railLabel: "Cashback Card", railColor: "#94a3b8" };
+};
+
 const enrichedData: EnrichedRow[] = rawTransactions.map((raw) => {
   const r = raw.toUpperCase();
-  if (r.includes("POTTERY BARN"))
-    return { raw, merchant: "Pottery Barn Kids", category: "Home & Kids", categoryColor: "#22c55e", persona: "parent" };
+  const railInfo = inferRail(raw);
+  const base = { raw, ...railInfo };
+
+  if (r.includes("POTTRY BRN") || r.includes("POTTERY BARN"))
+    return { ...base, merchant: "Pottery Barn Kids", category: "Home & Kids", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("MARRIOTT"))
-    return { raw, merchant: "Marriott Hotels", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
-  if (r.includes("MCDONALD"))
-    return { raw, merchant: "McDonald's", category: "Dining", categoryColor: "#f59e0b" };
-  if (r.includes("WHOLE FOODS"))
-    return { raw, merchant: "Whole Foods Market", category: "Grocery", categoryColor: "#22c55e" };
-  if (r.includes("PRINCETON"))
-    return { raw, merchant: "Princeton Review", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { ...base, merchant: "Marriott Miami", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("OLIVE GARDEN"))
+    return { ...base, merchant: "Olive Garden", category: "Dining", categoryColor: "#f59e0b" };
+  if (r.includes("WHLFDS") || r.includes("WHOLE FOODS"))
+    return { ...base, merchant: "Whole Foods Market", category: "Grocery", categoryColor: "#22c55e" };
+  if (r.includes("PRINCETN") || r.includes("PRINCETON"))
+    return { ...base, merchant: "Princeton Review", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("DELTA AIR"))
-    return { raw, merchant: "Delta Air Lines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Delta Air Lines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("CARTER"))
-    return { raw, merchant: "Carter's", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+    return { ...base, merchant: "Carter's", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("LA FITNESS"))
-    return { raw, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
+    return { ...base, merchant: "LA Fitness", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("YALE"))
-    return { raw, merchant: "Yale University", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { ...base, merchant: "Yale University", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("COLLEGE COUNSELOR"))
-    return { raw, merchant: "College Counselor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { ...base, merchant: "College Counselor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("BUY BUY BABY"))
-    return { raw, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+    return { ...base, merchant: "Buy Buy Baby", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("STANFORD"))
-    return { raw, merchant: "Stanford Guest House", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Stanford Guest House", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("COMMONAPP"))
-    return { raw, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { ...base, merchant: "Common App Fee", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("SOUTHWEST"))
-    return { raw, merchant: "Southwest Airlines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Southwest Airlines", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+  if (r.includes("DOORDASH"))
+    return { ...base, merchant: "DoorDash", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("TARGET"))
-    return { raw, merchant: "Target", category: "Retail", categoryColor: "#ef4444" };
+    return { ...base, merchant: "Target", category: "Retail", categoryColor: "#ef4444" };
   if (r.includes("COSTCO"))
-    return { raw, merchant: "Costco", category: "Retail", categoryColor: "#ef4444" };
+    return { ...base, merchant: "Costco", category: "Retail", categoryColor: "#ef4444" };
   if (r.includes("STARBUCKS"))
-    return { raw, merchant: "Starbucks", category: "Dining", categoryColor: "#f59e0b" };
+    return { ...base, merchant: "Starbucks", category: "Dining", categoryColor: "#f59e0b" };
   if (r.includes("ZELLE") && r.includes("MARIA"))
-    return { raw, merchant: "Zelle — Maria G.", category: "Transfer", categoryColor: "#6b7280" };
+    return { ...base, merchant: "Zelle — Maria G.", category: "Transfer", categoryColor: "#6b7280" };
   if (r.includes("AMZN"))
-    return { raw, merchant: "Amazon", category: "Shopping", categoryColor: "#ef4444" };
+    return { ...base, merchant: "Amazon", category: "Shopping", categoryColor: "#ef4444" };
+  if (r.includes("IRS REFUND"))
+    return { ...base, merchant: "IRS Refund", category: "Income", categoryColor: "#10b981" };
   if (r.includes("SHELL"))
-    return { raw, merchant: "Shell Oil", category: "Auto", categoryColor: "#6b7280" };
+    return { ...base, merchant: "Shell Oil", category: "Auto", categoryColor: "#6b7280" };
   if (r.includes("NETFLIX"))
-    return { raw, merchant: "Netflix", category: "Entertainment", categoryColor: "#8b5cf6" };
-  if (r.includes("SPOTIFY"))
-    return { raw, merchant: "Spotify", category: "Entertainment", categoryColor: "#8b5cf6" };
+    return { ...base, merchant: "Netflix", category: "Entertainment", categoryColor: "#8b5cf6" };
+  if (r.includes("MORGAN STANLEY"))
+    return { ...base, merchant: "Morgan Stanley", category: "Investment", categoryColor: "#6366f1" };
   if (r.includes("TRADER JOE"))
-    return { raw, merchant: "Trader Joe's", category: "Grocery", categoryColor: "#22c55e" };
+    return { ...base, merchant: "Trader Joe's", category: "Grocery", categoryColor: "#22c55e" };
   if (r.includes("CVS"))
-    return { raw, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
-  if (r.includes("UBER"))
-    return { raw, merchant: "Uber", category: "Transport", categoryColor: "#6b7280" };
+    return { ...base, merchant: "CVS Pharmacy", category: "Health", categoryColor: "#8b5cf6" };
   if (r.includes("SAT PREP"))
-    return { raw, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
+    return { ...base, merchant: "SAT Prep Tutor", category: "Education", categoryColor: "#f59e0b", persona: "college" };
   if (r.includes("GYMBOREE"))
-    return { raw, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+    return { ...base, merchant: "Gymboree Play", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("HILTON"))
-    return { raw, merchant: "Hilton Garden Inn", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
+    return { ...base, merchant: "Hilton Garden Inn", category: "Travel", categoryColor: "#3b82f6", persona: "travel" };
   if (r.includes("NANNY"))
-    return { raw, merchant: "Nanny Services", category: "Childcare", categoryColor: "#22c55e", persona: "parent" };
+    return { ...base, merchant: "Nanny Services", category: "Childcare", categoryColor: "#22c55e", persona: "parent" };
   if (r.includes("BABIES R US"))
-    return { raw, merchant: "Babies R Us", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
-  return { raw, merchant: raw.split("$")[0].trim(), category: "Other", categoryColor: "#6b7280" };
+    return { ...base, merchant: "Babies R Us", category: "Kids & Baby", categoryColor: "#22c55e", persona: "parent" };
+  return { ...base, merchant: raw.split("$")[0].trim(), category: "Other", categoryColor: "#6b7280" };
 });
 
+// Strip trailing "$amount" from raw descriptor for display
+const stripAmount = (raw: string) => raw.replace(/\s*\$[\d,]+\.\d{2}\s*$/, "").trim();
+
+// Persona transaction counts (computed from data)
+const personaCounts = {
+  travel: enrichedData.filter(r => r.persona === "travel").length,
+  parent: enrichedData.filter(r => r.persona === "parent").length,
+  college: enrichedData.filter(r => r.persona === "college").length,
+};
+
 const personas = [
-  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", callout: "5 travel transactions · Hotels, flights, campus visits" },
-  { id: "parent" as const, label: "Young Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", callout: "6 transactions · Childcare, baby gear, kids clothing" },
-  { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", callout: "5 transactions · Test prep, apps, counseling" },
+  { id: "travel" as const, label: "Frequent Traveler", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", count: personaCounts.travel, callout: `${personaCounts.travel} travel transactions · Hotels, flights, campus visits` },
+  { id: "parent" as const, label: "Young Parent", color: "#22c55e", bg: "rgba(34,197,94,0.15)", count: personaCounts.parent, callout: `${personaCounts.parent} transactions · Childcare, baby gear, kids clothing` },
+  { id: "college" as const, label: "College-Bound Child", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", count: personaCounts.college, callout: `${personaCounts.college} transactions · Test prep, apps, counseling` },
 ];
 
 const ScrollDrivenHero = () => {
@@ -153,12 +192,19 @@ const ScrollDrivenHero = () => {
   const activePersonaIndex = personaProgress < 0.33 ? 0 : personaProgress < 0.66 ? 1 : 2;
   const activePersona = stage === 3 ? personas[activePersonaIndex] : null;
 
-  // Sort enriched data: persona-tagged rows first, then others — show more evidence
+  // Sort enriched data: persona-tagged rows first, then others — show more evidence.
+  // In stage 3, float the active persona's rows to the very top.
   const enrichedSorted = useMemo(() => {
     const withPersona = enrichedData.filter(r => r.persona);
     const without = enrichedData.filter(r => !r.persona);
-    return [...withPersona, ...without].slice(0, 14);
-  }, []);
+    const base = [...withPersona, ...without].slice(0, 14);
+    if (activePersona) {
+      const active = base.filter(r => r.persona === activePersona.id);
+      const rest = base.filter(r => r.persona !== activePersona.id);
+      return [...active, ...rest];
+    }
+    return base;
+  }, [activePersona]);
 
   // Scroll offset for raw text
   const scrollOffset = useMemo(() => scrollProgress * 200, [scrollProgress]);
@@ -328,13 +374,14 @@ const ScrollDrivenHero = () => {
                     }}
                   >
                     {p.label}
+                    {isActive && <span className="ml-1 opacity-70">· {p.count} txns</span>}
                   </span>
                 );
               })}
             </div>
 
             {/* Transaction list with gradient fade */}
-            <div className="relative px-4 py-2 overflow-hidden" style={{ height: 200 }}>
+            <div className="relative px-4 py-2 overflow-hidden" style={{ height: 255 }}>
               {stage === 1 ? (
                 <div
                   className="space-y-0 transition-transform"
@@ -352,36 +399,58 @@ const ScrollDrivenHero = () => {
                 </div>
               ) : (
                 <div className="space-y-0">
-                  {enrichedSorted.map((row, i) => {
+                  {enrichedSorted.map((row) => {
                     const isHighlighted = stage === 3 && activePersona && row.persona === activePersona.id;
                     const isDimmed = stage === 3 && activePersona && row.persona !== activePersona.id;
                     return (
                       <div
-                        key={i}
-                        className="flex items-center justify-between py-[3px] transition-all duration-[400ms]"
+                        // Stable key on raw so the row physically reorders (with transition) instead of remounting
+                        key={row.raw}
+                        className="flex items-center justify-between gap-2 py-[3px] transition-all duration-[400ms]"
                         style={{
                           opacity: isDimmed ? 0.08 : 1,
                           borderLeft: isHighlighted ? `3px solid ${activePersona!.color}` : "3px solid transparent",
                           paddingLeft: 8,
                         }}
                       >
-                        <div className="min-w-0 mr-3">
+                        {/* Left: clean merchant + faint raw descriptor */}
+                        <div className="min-w-0 flex-1 flex items-baseline gap-1.5 overflow-hidden">
                           <span
-                            className="text-[11px] truncate block transition-colors duration-[400ms]"
-                            style={{ color: isHighlighted ? "#e2e8f0" : "rgba(203,213,225,0.8)" }}
+                            className="text-[11px] font-semibold shrink-0 transition-colors duration-[400ms]"
+                            style={{ color: isHighlighted ? "#ffffff" : "#e2e8f0" }}
                           >
                             {row.merchant}
                           </span>
+                          <span
+                            className="font-mono text-[9px] truncate min-w-0"
+                            style={{ color: "rgba(148,163,184,0.55)" }}
+                          >
+                            {stripAmount(row.raw)}
+                          </span>
                         </div>
-                        <span
-                          className="shrink-0 text-[9px] font-semibold px-2 py-0.5 rounded-full"
-                          style={{
-                            background: `${row.categoryColor}20`,
-                            color: row.categoryColor,
-                          }}
-                        >
-                          {row.category}
-                        </span>
+
+                        {/* Right: rail pill + category pill */}
+                        <div className="shrink-0 flex items-center gap-1">
+                          <span
+                            className="text-[8.5px] font-mono font-semibold px-1.5 py-0.5 rounded"
+                            style={{
+                              background: `${row.railColor}1f`,
+                              color: row.railColor,
+                              border: `1px solid ${row.railColor}33`,
+                            }}
+                          >
+                            {row.railLabel}
+                          </span>
+                          <span
+                            className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+                            style={{
+                              background: `${row.categoryColor}20`,
+                              color: row.categoryColor,
+                            }}
+                          >
+                            {row.category}
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
