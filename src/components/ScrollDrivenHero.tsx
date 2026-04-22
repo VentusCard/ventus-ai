@@ -222,14 +222,14 @@ const ScrollDrivenHero = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Stage logic
-  const stage = scrollProgress < 0.2 ? 1 : scrollProgress < 0.4 ? 2 : 3;
-  const stage2Progress = stage >= 2 ? Math.min(1, (scrollProgress - 0.2) / 0.15) : 0;
+  // Stage logic — Stage 2 arrives earlier; Stage 3 splits its window evenly across 3 personas
+  const stage = scrollProgress < 0.1 ? 1 : scrollProgress < 0.2 ? 2 : 3;
+  const stage2Progress = stage >= 2 ? Math.min(1, (scrollProgress - 0.1) / 0.1) : 0;
 
-  // Stage 3: persona highlight index
-  const personaProgress = stage === 3 ? (scrollProgress - 0.4) / 0.6 : 0;
+  // Stage 3 spans 0.2 → 1.0 (80% of total scroll), split evenly across 3 personas
+  const personaProgress = stage === 3 ? (scrollProgress - 0.2) / 0.8 : 0;
   const activePersonaIndex =
-    personaProgress < 0.25 ? 0 : personaProgress < 0.5 ? 1 : 2;
+    personaProgress < 1 / 3 ? 0 : personaProgress < 2 / 3 ? 1 : 2;
   const activePersona = stage === 3 ? personas[activePersonaIndex] : null;
 
   // Sort enriched data: persona-tagged rows first, then others — show more evidence.
