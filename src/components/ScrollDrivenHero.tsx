@@ -425,6 +425,7 @@ const ScrollDrivenHero = () => {
             >
               {personas.map((p, i) => {
                 const isActive = stage === 3 && activePersona?.id === p.id;
+                const isRevealed = stage === 3 && activePersonaIndex >= i;
                 return (
                   <span
                     key={p.id}
@@ -433,9 +434,8 @@ const ScrollDrivenHero = () => {
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,
                       border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
-                      opacity: stage2Progress > i * 0.3 ? 1 : 0,
-                      transform: stage2Progress > i * 0.3 ? "translateY(0)" : "translateY(8px)",
-                      transitionDelay: `${i * 200}ms`,
+                      opacity: isRevealed ? 1 : 0,
+                      transform: isRevealed ? "translateY(0)" : "translateY(8px)",
                       whiteSpace: "nowrap",
                     }}
                   >
