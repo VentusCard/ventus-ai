@@ -417,7 +417,7 @@ const ScrollDrivenHero = () => {
                   className="text-[11px] font-mono transition-colors duration-[400ms]"
                   style={{ color: stage >= 2 ? "#22c55e" : "#6b7280" }}
                 >
-                  {stage >= 2 ? "Profile Built" : "Analyzing..."}
+                  {stage >= 2 ? "Ventus AI" : "Analyzing..."}
                 </span>
               </div>
             </div>
