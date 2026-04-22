@@ -1,66 +1,49 @@
 
 
-## Hero animation: keep existing format, just enrich each row inline
+## Diversify the Frequent Traveler signal — show lifestyle, not just bookings
 
-Keep the current `ScrollDrivenHero` 3-stage scroll exactly as-is — same card, same flow, same persona highlight. The only change is what each transaction row **looks like** in Stage 2/3, plus a small data refresh so the three capabilities are visible inside that single row.
+Right now all 5 travel-tagged rows are flights and hotels (Delta, Southwest, Marriott, Hilton, Stanford Guest House), which makes "Frequent Traveler" read like *"this person books trips"* instead of a full lifestyle signal. We'll keep the bookings but route them through a dedicated **Travel Card** rail, and replace 3 of them with broader, higher-ticket travel-lifestyle merchants so the cluster of evidence reads richer.
 
-### New row format
+### New travel evidence set (5 rows)
 
-Each enriched row becomes a single line carrying all three signals:
+| Raw descriptor | Clean merchant | Rail | Why it matters |
+|---|---|---|---|
+| `TRAVELCARD *MARRIOTT HTL MIA` | Marriott Miami | **Travel Card** | Booking — premium card use |
+| `TRAVELCARD DELTA AIR 0062139` | Delta Air Lines | **Travel Card** | Booking — airline loyalty |
+| `CHECKCARD RIMOWA NYC FLAGSHIP` | Rimowa | Cashback Card | Premium luggage ($800+) — frequent traveler upgrades gear |
+| `APPLPAY GLOBAL ENTRY GOV` | Global Entry | Cashback Card | International infrastructure (5-year membership, $100) |
+| `CHECKCARD VIATOR *PRVT TOUR` | Viator | Cashback Card | In-destination experiences ($200–500 per booking) |
 
-```
-Pottery Barn Kids   PAYPL *POTTRY BRN KDS 4829   Cashback Card   #parent
-```
+Removed from the travel cluster: Southwest Airlines, Stanford Guest House, Hilton Garden Inn — replaced by Rimowa, Global Entry, Viator.
 
-Visually (left → right inside the existing row, no new columns, no new height):
+### Why this works
 
-- **`Pottery Barn Kids`** — clean merchant name. White, semibold, 12px. *(descriptor cleaning)*
-- **`PAYPL *POTTRY BRN KDS 4829`** — raw descriptor. Mono, 9px, gray-500, opacity 0.55, truncates first when space is tight. *(provenance / proves the cleaning)*
-- **`Cashback Card`** / **`Checking · ACH`** / **`Checking · Check #1247`** / **`Checking · Zelle`** — rail + funding source. Mono, 9px, colored pill matching the rail. *(cross-rail intelligence)*
-- **Category pill** — unchanged, far right. *(existing)*
+- **3 of 5 rows are non-bookings** — proves we detect travel as a *lifestyle pattern*, not just by hotel/airline MCCs. Anyone can flag "DELTA AIR" as travel; recognizing Rimowa + Global Entry + Viator as the *same* persona is the differentiator.
+- **Lifestyle ladder visible** — gear (Rimowa) → infrastructure (Global Entry) → in-destination spend (Viator). That's the full traveler journey on one card, not just bookings.
+- **The 2 booking rows now show "Travel Card"** as their funding source — reinforces the cross-rail story and looks more realistic (premium customers route flights/hotels to a travel-rewards card).
+- **Same row count (5), same callout layout** — no structural changes.
 
-So a viewer reads: *clean name → the gibberish we cleaned → which rail it came from → what bucket it fell into.* All on one line. No new stage, no new banner, no new animation.
+### New rail type
 
-### Three capabilities, inline
+Add `"TRAVEL"` to the `Rail` union and to `inferRail`:
+- Detect descriptors starting with `TRAVELCARD` → `{ rail: "TRAVEL", railLabel: "Travel Card", railColor: "#0ea5e9" }` (sky-blue, distinct from the gray Cashback Card and the darker-blue ACH).
 
-**1. Descriptor cleaning** — every row now shows the raw descriptor as a faint subline beside the clean merchant. The sample set is curated so each visible row demonstrates a real cleaning pattern:
+### Updated floating callout copy
 
-| Raw (shown faint) | Clean (shown bold) |
-|---|---|
-| `PAYPL *POTTRY BRN KDS 4829` | Pottery Barn Kids |
-| `SQ *MARRIOTT HTL MIA 8821` | Marriott Miami |
-| `TST* OLIVE GARDEN #2241` | Olive Garden |
-| `CHECKCARD WHLFDS MKT #1023` | Whole Foods Market |
-| `ACH DEBIT PRINCETN REVW EDU` | Princeton Review |
-| `DD *DOORDASH SF` | DoorDash |
+Change:
+> *"5 travel transactions · Hotels, flights, campus visits"*
 
-**2. Cross-rail intelligence** — the funding-source label on each row is one of:
-- `Cashback Card` (gray)
-- `Checking · ACH` (blue)
-- `Checking · Check #1247` (amber)
-- `Checking · Zelle` (purple)
-- `Brokerage · Wire` (red)
-
-Inferred from the raw descriptor (`CHECK #` → Check, `ZELLE` → Zelle, `ACH ` / `WIRE ` → ACH/Wire, else Card). Two rows are added so checks, Zelle, ACH, and a wire are all visible at once: `CHECK #1247 YALE UNIV $32.00`, `ZELLE PAYMENT COLLEGE COUNSELOR $850`, `ACH CREDIT IRS REFUND $2,847`, `WIRE OUT MORGAN STANLEY $5,000`.
-
-**3. More supporting evidence per signal (3–5)** — when a persona is active in Stage 3, that persona's matching rows float to the top of the list (animated reorder, ~300ms). Non-matching rows dim to 0.08 as today. Card transaction-list height bumps from `200px` → `255px` so all 3–5 supporting rows clear the gradient fade. The active persona pill echoes the count: `Frequent Traveler · 5 txns`. Sample data is tuned so each persona has exactly 5 clearly-named supporting transactions across at least 2 rails.
-
-### Stage behavior — unchanged
-
-- Stage 1: raw stream scrolls (same as today).
-- Stage 2: raw stream swaps to the new enriched row format above.
-- Stage 3: persona reorder + dim, floating callouts unchanged.
-
-No new stages. No new banners. No new section. Just a richer row inside the existing card.
+To:
+> *"5 transactions · Flights, lodging, premium luggage, Global Entry, tours"*
 
 ### Files touched
 
-- `src/components/ScrollDrivenHero.tsx` — only file. Changes:
-  - Curate `rawTransactions` (swap ~6 rows for cleaning-pattern examples; add 2–3 cross-rail rows).
-  - Extend `EnrichedRow` with `rail: "CARD" | "ACH" | "CHECK" | "ZELLE" | "WIRE"`, `railLabel: string`, `railColor: string`. Infer from raw.
-  - Update the Stage 2/3 row template to render: clean merchant · faint raw · rail pill · existing category pill, all on one line (flex with min-width / truncate on the raw segment).
-  - Bump list height `200 → 255`. Add Stage 3 reorder so active persona's rows float to top.
-  - Echo `· N txns` in the active persona pill.
+- `src/components/ScrollDrivenHero.tsx` only:
+  - `rawTransactions` — swap 3 rows + relabel 2 booking rows with `TRAVELCARD` prefix
+  - `Rail` type — add `"TRAVEL"`
+  - `inferRail` — add `TRAVELCARD` branch
+  - `enrichedData` map — add cases for Rimowa, Global Entry, Viator (all `persona: "travel"`); Marriott/Delta keep `persona: "travel"`
+  - `personas[0].callout` — new copy
 
-No new files, no data sources, no edge functions, no schema work.
+No new files, no schema, no edge-function work.
 
