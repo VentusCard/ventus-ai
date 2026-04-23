@@ -9,6 +9,7 @@ const lifeEvents = [
     color: "#22C55E",
     name: "New Parent",
     confidence: "95%",
+    topSignals: "Buy Buy Baby, Pottery Barn Kids, Carter's",
     evidence: [
       { merchant: "Buy Buy Baby", amount: "$234.50" },
       { merchant: "Pottery Barn Kids", amount: "$189.00" },
@@ -20,6 +21,7 @@ const lifeEvents = [
     color: "#F59E0B",
     name: "College-Bound Child",
     confidence: "91%",
+    topSignals: "Princeton Review, Yale Admissions, College Essay Advisor",
     evidence: [
       { merchant: "Princeton Review", amount: "$1,299.00" },
       { merchant: "Yale Admissions", amount: "$32.00" },
@@ -31,6 +33,7 @@ const lifeEvents = [
     color: "#3B82F6",
     name: "Home Purchase",
     confidence: "87%",
+    topSignals: "Chicago Title, Home Depot, Lowe's",
     evidence: [
       { merchant: "Chicago Title Company", amount: "$1,200" },
       { merchant: "Home Depot", amount: "$847" },
@@ -42,6 +45,7 @@ const lifeEvents = [
     color: "#8B5CF6",
     name: "Retirement Planning",
     confidence: "84%",
+    topSignals: "Fidelity, AARP, Estate Attorney",
     evidence: [
       { merchant: "Fidelity", amount: "$2,400" },
       { merchant: "AARP", amount: "$45" },
@@ -50,6 +54,14 @@ const lifeEvents = [
     products: ["IRA Rollover", "Wealth Management Consultation"],
   },
 ];
+
+// Small upward-trending sparkline
+const Sparkline = ({ color }: { color: string }) => (
+  <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+    <path d="M2 20 Q 18 19, 28 16 T 50 10 T 72 4" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    <circle cx="72" cy="4" r="2.5" fill={color} />
+  </svg>
+);
 
 const flowSteps = [
   { label: "Detect", desc: "Identify spending signals" },
