@@ -10,7 +10,6 @@ type Product = {
   reason: string;
   cta: string;
   ctaColor: string;
-  icon: string;
 };
 
 type EventData = {

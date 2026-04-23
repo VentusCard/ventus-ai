@@ -92,9 +92,9 @@ const NextOfferPage = () => {
       {/* Visual proof — richer demo-style layout */}
       <section ref={proof.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-6xl mx-auto" style={revealStyle(proof.visible, 0)}>
-          {/* Persona header */}
+          {/* Unified customer profile card */}
           <div
-            className="rounded-xl bg-white p-6 mb-6"
+            className="rounded-xl bg-white p-6 mb-8"
             style={{ border: "1px solid #E5E7EB", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
           >
             <p className="text-xs font-mono text-gray-400 mb-3">
@@ -108,55 +108,54 @@ const NextOfferPage = () => {
                 Monthly Travel · 14 txns · $1,338
               </span>
             </div>
-            {/* Shopping pattern analysis */}
-            <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 pt-4 mb-4">
               <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-2">Shopping Pattern</p>
               <p className="text-sm text-gray-700 leading-relaxed">
                 Top spot: <span className="font-semibold text-gray-900">DELTA AIR LINES</span> (8 of 14) · Cadence: every ~26 days · Active: Jan 2025 – Present · Lifetime: <span className="font-semibold text-gray-900">$1,338</span> · avg $428/trip
               </p>
             </div>
-          </div>
 
-          {/* Evidence transaction feed */}
-          <div
-            className="rounded-xl bg-white p-5 mb-6"
-            style={{ border: "1px solid #E5E7EB", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}
-          >
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Evidence Transactions</p>
-            <div className="space-y-1.5">
-              {evidenceFeed.map((t, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-md px-3 py-2 text-sm"
-                  style={{
-                    background: t.ok ? "#F9FAFB" : "#FEF3C7",
-                    border: t.ok ? "1px solid #F3F4F6" : "1px solid #FDE68A",
-                    animation: "fade-in 0.4s ease-out both",
-                    animationDelay: `${i * 80}ms`,
-                  }}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="font-mono text-xs text-gray-700 truncate">{t.raw}</span>
-                    <span className="font-mono text-xs text-gray-900 font-semibold">{t.amount}</span>
+            {/* Divider */}
+            <div className="border-t border-gray-200 pt-4">
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Evidence Transactions</p>
+              <div className="space-y-1.5">
+                {evidenceFeed.map((t, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-md px-3 py-2 text-sm"
+                    style={{
+                      background: t.ok ? "#F9FAFB" : "#FEF3C7",
+                      border: t.ok ? "1px solid #F3F4F6" : "1px solid #FDE68A",
+                      animation: proof.visible ? "fade-in 0.4s ease-out both" : "none",
+                      animationDelay: `${i * 80}ms`,
+                      opacity: proof.visible ? undefined : 0,
+                    }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="font-mono text-xs text-gray-700 truncate">{t.raw}</span>
+                      <span className="font-mono text-xs text-gray-900 font-semibold">{t.amount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-gray-300">→</span>
+                      {t.ok ? (
+                        <span className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                          <span>✓</span> {t.label}
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#B45309" }}>
+                          <span>✗</span> {t.label}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-gray-300">→</span>
-                    {t.ok ? (
-                      <span className="text-xs font-semibold text-green-700 flex items-center gap-1">
-                        <span>✓</span> {t.label}
-                      </span>
-                    ) : (
-                      <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#B45309" }}>
-                        <span>✗</span> {t.label}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <p className="text-[11px] text-gray-500 mt-3 italic">
+                The amber gap above is what triggered the Away Luggage offer below.
+              </p>
             </div>
-            <p className="text-[11px] text-gray-500 mt-3 italic">
-              The amber gap above is what triggered the Away Luggage offer below.
-            </p>
           </div>
 
           {/* Behavioral Based Deal Collection */}
