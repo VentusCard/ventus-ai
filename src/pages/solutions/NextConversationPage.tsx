@@ -213,6 +213,74 @@ const NextConversationPage = () => {
         </div>
       </section>
 
+      {/* Conversation block — text + phone */}
+      <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 60 }}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div style={revealStyle(conversation.visible, 0)}>
+            <h2 className="font-bold text-gray-900 mb-4" style={{ fontSize: 36 }}>
+              A conversation, not a campaign.
+            </h2>
+            <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>
+              The AI assistant turns detected signals into a real-time dialogue with your customer.
+            </p>
+            <p className="text-gray-500 leading-relaxed" style={{ fontSize: 16 }}>
+              It knows their spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, the assistant answers, and the right product surfaces in the moment.
+            </p>
+          </div>
+
+          <div style={revealStyle(conversation.visible, 150)} className="flex justify-center">
+            <div
+              className="relative bg-gray-50 overflow-hidden"
+              style={{
+                width: 240,
+                height: 480,
+                borderRadius: 32,
+                border: "7px solid #1F2937",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
+              }}
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-gray-900 rounded-b-2xl z-10" />
+
+              <div className="h-full overflow-y-auto px-3 pt-9 pb-4 space-y-3 text-left">
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
+                    What products fit my situation?
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-1.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
+                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
+                    Based on your spending, you have strong fitness habits and travel regularly. You might benefit from a travel rewards card — you have 8 Delta purchases this year with no travel card detected. Want me to show you options?
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
+                    Yes show me
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-1.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
+                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
+                    Here are 3 cards matched to your profile...
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5 pl-7">
+                  {["Delta SkyMiles · 60k bonus miles", "Chase Sapphire · 3x travel pts", "Amex Gold · 4x dining"].map((c) => (
+                    <div key={c} className="bg-white px-2.5 py-2 rounded-lg border border-gray-200 text-[10px] font-semibold text-gray-800 shadow-sm">
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Flow steps */}
       <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div style={revealStyle(flow.visible, 0)}>
