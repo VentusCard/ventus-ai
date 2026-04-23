@@ -4,10 +4,42 @@ import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle, slideRightStyle } from "@/hooks/useSectionReveal";
 
-const offers = [
-  { name: "Delta SkyMiles Card", desc: "matches your travel spend", tag: "Travel & Exploration", color: "#3B82F6" },
-  { name: "Whole Foods 5% Back", desc: "3x weekly grocery visits", tag: "Food & Dining", color: "#22C55E" },
-  { name: "REI Co-op Card", desc: "active lifestyle detected", tag: "Sports & Fitness", color: "#F59E0B" },
+const dealCards = [
+  {
+    brand: "Away Luggage",
+    discount: "15% Off",
+    quote: "Find your perfect travel companion",
+    reason: "Customer travels monthly, no luggage spend detected",
+    cta: "Shop Away",
+  },
+  {
+    brand: "Bose",
+    discount: "10% Off",
+    quote: "Make every flight disappear",
+    reason: "Frequent flyer with no headphone spend",
+    cta: "Tune In",
+  },
+  {
+    brand: "Delta SkyMiles Card",
+    discount: "Bonus miles",
+    quote: "Earn on every flight you already take",
+    reason: "8 Delta purchases in 12 months",
+    cta: "Apply Now",
+  },
+  {
+    brand: "Allbirds",
+    discount: "20% Off",
+    quote: "Comfort from gate to gate",
+    reason: "Active lifestyle, travel-ready footwear gap detected",
+    cta: "Walk Lighter",
+  },
+  {
+    brand: "Calm",
+    discount: "3 months free",
+    quote: "Your pre-flight ritual",
+    reason: "Regular traveler, no wellness app spend",
+    cta: "Start Calm",
+  },
 ];
 
 const stats = [
@@ -48,47 +80,67 @@ const NextOfferPage = () => {
         </div>
       </section>
 
-      {/* Visual proof */}
+      {/* Visual proof — richer demo-style layout */}
       <section ref={proof.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <div style={revealStyle(proof.visible, 0)}>
-            <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Example</p>
-            <h2 className="font-bold text-gray-900 leading-tight mb-6" style={{ fontSize: 36 }}>
-              A Frequent Traveler profile generates travel-specific offers automatically.
-            </h2>
-            <div className="space-y-3 text-gray-600" style={{ fontSize: 18 }}>
-              <p>● 14 travel transactions detected across Delta, Marriott, Uber</p>
-              <p>● Lifestyle pillar: Travel & Exploration — $1,338 spend</p>
-              <p>● Offer surfaced: Delta SkyMiles Card — matched before customer searched</p>
+        <div className="max-w-6xl mx-auto" style={revealStyle(proof.visible, 0)}>
+          {/* Persona header */}
+          <div
+            className="rounded-xl bg-white p-6 mb-6"
+            style={{ border: "1px solid #E5E7EB", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}
+          >
+            <p className="text-xs font-mono text-gray-400 mb-3">
+              cust_013 · <span className="text-blue-600 font-semibold">Frequent Traveler</span>
+            </p>
+            <div className="flex flex-wrap gap-2 mb-5">
+              <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-gray-50 text-gray-700 border border-gray-200">
+                Weekly Boutique Fitness & Training · 31 txns · $4.0k
+              </span>
+              <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-gray-50 text-gray-700 border border-gray-200">
+                Monthly Travel · 14 txns · $1,338
+              </span>
+            </div>
+            {/* Shopping pattern analysis */}
+            <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-2">Shopping Pattern</p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Top spot: <span className="font-semibold text-gray-900">DELTA AIR LINES</span> (8 of 14) · Cadence: every ~26 days · Active: Jan 2025 – Present · Lifetime: <span className="font-semibold text-gray-900">$1,338</span> · avg $428/trip
+              </p>
             </div>
           </div>
-          <div style={revealStyle(proof.visible, 100)}>
-            <div
-              className="rounded-xl p-6"
-              style={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-              }}
-            >
-              <p className="text-xs font-mono text-gray-400 mb-4">
-                cust_013 · <span className="text-blue-600 font-semibold">Frequent Traveler</span>
-              </p>
-              <div className="space-y-0">
-                {offers.map((o, i) => (
-                  <div key={o.name} style={slideRightStyle(proof.visible, 200 + i * 150)}>
-                    <div className="rounded-lg p-4 flex items-start gap-3 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]" style={{ borderLeft: `3px solid ${o.color}` }}>
-                      <div className="flex-1">
-                        <p className="text-gray-900 text-sm font-semibold">{o.name}</p>
-                        <p className="text-gray-500 text-xs mt-0.5">{o.desc}</p>
-                      </div>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: `${o.color}15`, color: o.color }}>{o.tag}</span>
-                    </div>
-                    {i < offers.length - 1 && <div className="border-b border-gray-200 mx-4" />}
-                  </div>
-                ))}
+
+          {/* Behavioral Based Deal Collection */}
+          <div className="flex items-center gap-3 mb-5">
+            <h3 className="text-lg font-bold text-gray-900">Behavioral Based Deal Collection</h3>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#22C55E15", color: "#15803D" }}>
+              Frequent Traveler
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {dealCards.map((d, i) => (
+              <div
+                key={d.brand}
+                className="rounded-xl bg-white p-4 flex flex-col"
+                style={{
+                  ...slideRightStyle(proof.visible, 100 + i * 100),
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+                }}
+              >
+                <p className="text-sm font-bold text-gray-900 leading-snug mb-2">{d.brand}</p>
+                <span className="self-start text-[11px] font-semibold px-2 py-0.5 rounded-full mb-3" style={{ background: "#22C55E15", color: "#15803D" }}>
+                  {d.discount}
+                </span>
+                <p className="text-sm italic text-gray-700 leading-snug mb-3">"{d.quote}"</p>
+                <p className="text-[11px] text-gray-500 leading-snug mb-4 flex-1">{d.reason}</p>
+                <button
+                  className="text-xs font-semibold text-white px-3 py-2 rounded-lg transition-colors w-full"
+                  style={{ backgroundColor: "#16A34A" }}
+                >
+                  {d.cta} →
+                </button>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
