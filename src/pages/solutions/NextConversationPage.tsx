@@ -44,83 +44,6 @@ const NextConversationPage = () => {
         </div>
       </section>
 
-      {/* Advisor alert */}
-      <section ref={alert.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
-        <div className="max-w-7xl mx-auto">
-          <h2 style={{ ...revealStyle(alert.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-12 text-center">
-            What an advisor sees.
-          </h2>
-          <div className="grid md:grid-cols-2 gap-16 items-start">
-            <div style={revealStyle(alert.visible, 100)}>
-              <p className="text-gray-500 leading-relaxed mb-6" style={{ fontSize: 18 }}>
-                Every alert includes everything an advisor needs to have a meaningful conversation — before they pick up the phone.
-              </p>
-              <div className="space-y-3 text-gray-600" style={{ fontSize: 18 }}>
-                <p>● Life event detected with confidence score and evidence</p>
-                <p>● Pre-written talking points tailored to the customer</p>
-                <p>● Recommended products and next steps</p>
-                <p>● Financial projections if relevant</p>
-              </div>
-            </div>
-            {/* Light advisor alert card */}
-            <div
-              style={{
-                ...revealStyle(alert.visible, 200),
-                border: "1px solid #E5E7EB",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-                borderRadius: 12,
-              }}
-              className="p-6 bg-white"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-mono" style={{ color: "#111827" }}>
-                  Advisor Alert · <span className="font-semibold">cust_013</span>
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus AI</span>
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
-                  </span>
-                </div>
-              </div>
-              <span
-                className="text-sm font-semibold px-3 py-1 rounded-full inline-block"
-                style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}
-              >
-                College-Bound Child — 91% confidence
-              </span>
-
-              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
-                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#2563EB" }}>Talking Points</p>
-                <div className="space-y-2">
-                  {[
-                    "Significant college application spending detected Jan–Feb 2026",
-                    "Child applying to Harvard, MIT, Yale, Stanford",
-                    "Over $3,000 in test prep, essays, and campus visits",
-                  ].map((p, i) => (
-                    <p key={i} className="text-sm" style={{ color: "#374151" }}>● {p}</p>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
-                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#2563EB" }}>Recommended Action</p>
-                <button
-                  className="text-sm font-semibold text-white px-4 py-2 rounded-lg transition-colors"
-                  style={{ backgroundColor: "#16A34A" }}
-                >
-                  Schedule college savings consultation →
-                </button>
-                <p className="text-xs mt-3" style={{ color: "#6B7280" }}>
-                  Estimated cost: $240,000 over 4 years · Suggested monthly contribution: $2,500
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Regular vs Wealth Client */}
       <section ref={segments.ref} className="bg-white px-6" style={{ paddingTop: 60, paddingBottom: 80 }}>
         <div className="max-w-7xl mx-auto">
@@ -207,6 +130,83 @@ const NextConversationPage = () => {
                     Send curated insights
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Advisor alert */}
+      <section ref={alert.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div className="max-w-7xl mx-auto">
+          <h2 style={{ ...revealStyle(alert.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-12 text-center">
+            What an advisor sees.
+          </h2>
+          <div className="grid md:grid-cols-2 gap-16 items-start">
+            <div style={revealStyle(alert.visible, 100)}>
+              <p className="text-gray-500 leading-relaxed mb-6" style={{ fontSize: 18 }}>
+                Every alert includes everything an advisor needs to have a meaningful conversation — before they pick up the phone.
+              </p>
+              <div className="space-y-3 text-gray-600" style={{ fontSize: 18 }}>
+                <p>● Life event detected with confidence score and evidence</p>
+                <p>● Pre-written talking points tailored to the customer</p>
+                <p>● Recommended products and next steps</p>
+                <p>● Financial projections if relevant</p>
+              </div>
+            </div>
+            {/* Light advisor alert card */}
+            <div
+              style={{
+                ...revealStyle(alert.visible, 200),
+                border: "1px solid #E5E7EB",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+                borderRadius: 12,
+              }}
+              className="p-6 bg-white"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-mono" style={{ color: "#111827" }}>
+                  Advisor Alert · <span className="font-semibold">cust_013</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus AI</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+                  </span>
+                </div>
+              </div>
+              <span
+                className="text-sm font-semibold px-3 py-1 rounded-full inline-block"
+                style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}
+              >
+                College-Bound Child — 91% confidence
+              </span>
+
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#2563EB" }}>Talking Points</p>
+                <div className="space-y-2">
+                  {[
+                    "Significant college application spending detected Jan–Feb 2026",
+                    "Child applying to Harvard, MIT, Yale, Stanford",
+                    "Over $3,000 in test prep, essays, and campus visits",
+                  ].map((p, i) => (
+                    <p key={i} className="text-sm" style={{ color: "#374151" }}>● {p}</p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#2563EB" }}>Recommended Action</p>
+                <button
+                  className="text-sm font-semibold text-white px-4 py-2 rounded-lg transition-colors"
+                  style={{ backgroundColor: "#16A34A" }}
+                >
+                  Schedule college savings consultation →
+                </button>
+                <p className="text-xs mt-3" style={{ color: "#6B7280" }}>
+                  Estimated cost: $240,000 over 4 years · Suggested monthly contribution: $2,500
+                </p>
               </div>
             </div>
           </div>
