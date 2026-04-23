@@ -10,7 +10,6 @@ type Product = {
   reason: string;
   cta: string;
   ctaColor: string;
-  icon: string;
 };
 
 type EventData = {
@@ -39,21 +38,18 @@ const events: EventData[] = [
     ],
     products: [
       {
-        icon: "👶",
         title: "Family Rewards Card",
         reason: "Earn 3% on baby essentials · Based on 8 purchases at baby retailers",
         cta: "Apply Now →",
         ctaColor: "#16A34A",
       },
       {
-        icon: "🎓",
         title: "529 College Plan",
         reason: "Start saving from day one · $2,450 detected in baby spend suggests planning mindset",
         cta: "Open Plan →",
         ctaColor: "#2563EB",
       },
       {
-        icon: "🛡",
         title: "Life Insurance Review",
         reason: "Protect what matters most",
         cta: "Schedule Review →",
@@ -75,21 +71,18 @@ const events: EventData[] = [
     ],
     products: [
       {
-        icon: "🎓",
         title: "529 College Savings Plan",
         reason: "Tax-advantaged growth · $3,000+ already invested in admissions prep",
         cta: "Open Plan →",
         ctaColor: "#16A34A",
       },
       {
-        icon: "💰",
         title: "Student Loan Planning",
         reason: "Compare federal and private options before tuition is due",
         cta: "Get Started →",
         ctaColor: "#2563EB",
       },
       {
-        icon: "📊",
         title: "Tuition Payment Strategy",
         reason: "Optimize cash flow across four years",
         cta: "Schedule Review →",
@@ -111,21 +104,18 @@ const events: EventData[] = [
     ],
     products: [
       {
-        icon: "🏠",
         title: "Home Equity Line",
         reason: "Tap into new equity for renovations · $2,670 in home improvement spend detected",
         cta: "Apply Now →",
         ctaColor: "#16A34A",
       },
       {
-        icon: "🛡",
         title: "Homeowners Insurance",
         reason: "Protect your largest asset with bundled coverage",
         cta: "Get Quote →",
         ctaColor: "#2563EB",
       },
       {
-        icon: "📋",
         title: "Mortgage Review",
         reason: "Refinance options when rates move",
         cta: "Schedule Review →",
@@ -207,14 +197,15 @@ const NextProductPage = () => {
           </div>
 
           {/* Two column: detection card + recommended products */}
-          <div className="grid md:grid-cols-2 gap-8 items-start">
-            {/* Left — detection card (static) */}
+          <div key={active.id} className="grid md:grid-cols-2 gap-8 items-start animate-fade-in">
+            {/* Left — detection card */}
             <div
               className="rounded-xl p-7 bg-white"
               style={{
                 border: "1.5px solid #E5E7EB",
-                borderLeft: `3px solid ${active.color}`,
+                borderLeft: `4px solid ${active.color}`,
                 boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+                transition: "border-left-color 300ms ease",
               }}
             >
               <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -245,38 +236,31 @@ const NextProductPage = () => {
               </div>
             </div>
 
-            {/* Right — Recommended products (animated on tab change) */}
-            <div key={active.id} className="space-y-4 animate-fade-in">
+            {/* Right — Recommended products (compact) */}
+            <div className="space-y-3">
               <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600 mb-1">
                 Recommended Products
               </p>
               {active.products.map((p, i) => (
                 <div
                   key={p.title}
-                  className="rounded-xl p-5 bg-white flex gap-4 items-start"
+                  className="rounded-xl bg-white"
                   style={{
+                    padding: 16,
                     border: "1.5px solid #E5E7EB",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                    animation: `fade-in 0.4s ease-out both`,
-                    animationDelay: `${i * 80}ms`,
+                    animation: `fade-in 0.35s ease-out both`,
+                    animationDelay: `${i * 70}ms`,
                   }}
                 >
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
-                    style={{ background: `${active.color}10` }}
+                  <p className="text-sm font-bold text-gray-900 mb-1">{p.title}</p>
+                  <p className="text-xs text-gray-500 leading-relaxed mb-3">{p.reason}</p>
+                  <button
+                    className="text-xs font-semibold text-white px-3 py-1.5 rounded-lg transition-colors"
+                    style={{ backgroundColor: p.ctaColor }}
                   >
-                    {p.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 mb-1">{p.title}</p>
-                    <p className="text-xs text-gray-500 leading-relaxed mb-3">{p.reason}</p>
-                    <button
-                      className="text-xs font-semibold text-white px-3 py-2 rounded-lg transition-colors"
-                      style={{ backgroundColor: p.ctaColor }}
-                    >
-                      {p.cta}
-                    </button>
-                  </div>
+                    {p.cta}
+                  </button>
                 </div>
               ))}
             </div>

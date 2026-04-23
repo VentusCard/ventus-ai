@@ -31,10 +31,10 @@ const NextConversationPage = () => {
         <div className="max-w-3xl mx-auto text-center">
           <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Conversation</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
-            Give every advisor a warm lead every morning.
+            Every signal becomes the right conversation.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events in your customers' transaction data and alerts advisors instantly — who to call, why it matters, and exactly what to say.
+            Ventus detects life events in transaction data and triggers the right response — whether that's an advisor prep brief, a personalized email, or an AI-powered chat.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
@@ -121,77 +121,6 @@ const NextConversationPage = () => {
         </div>
       </section>
 
-      {/* Conversation block — text + phone */}
-      <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 40 }}>
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div style={revealStyle(conversation.visible, 0)}>
-            <h2 className="font-bold text-gray-900 mb-4" style={{ fontSize: 36 }}>
-              A conversation, not a campaign.
-            </h2>
-            <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>
-              The AI assistant turns detected signals into a real-time dialogue with your customer.
-            </p>
-            <p className="text-gray-500 leading-relaxed" style={{ fontSize: 16 }}>
-              It knows their spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, the assistant answers, and the right product surfaces in the moment.
-            </p>
-          </div>
-
-          <div style={revealStyle(conversation.visible, 150)} className="flex justify-center">
-            <div
-              className="relative bg-gray-50 overflow-hidden"
-              style={{
-                width: 240,
-                height: 480,
-                borderRadius: 32,
-                border: "7px solid #1F2937",
-                boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
-              }}
-            >
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-gray-900 rounded-b-2xl z-10" />
-
-              <div className="h-full overflow-y-auto px-3 pt-9 pb-4 space-y-3 text-left">
-                {/* User bubble */}
-                <div className="flex justify-end">
-                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
-                    What products fit my situation?
-                  </div>
-                </div>
-
-                {/* AI bubble */}
-                <div className="flex items-start gap-1.5">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
-                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
-                    Based on your spending, you have strong fitness habits and travel regularly. You might benefit from a travel rewards card — you have 8 Delta purchases this year with no travel card detected. Want me to show you options?
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
-                    Yes show me
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-1.5">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
-                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
-                    Here are 3 cards matched to your profile...
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5 pl-7">
-                  {["Delta SkyMiles · 60k bonus miles", "Chase Sapphire · 3x travel pts", "Amex Gold · 4x dining"].map((c) => (
-                    <div key={c} className="bg-white px-2.5 py-2 rounded-lg border border-gray-200 text-[10px] font-semibold text-gray-800 shadow-sm">
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Regular vs Wealth Client */}
       <section ref={segments.ref} className="bg-white px-6" style={{ paddingTop: 60, paddingBottom: 80 }}>
         <div className="max-w-7xl mx-auto">
@@ -208,6 +137,7 @@ const NextConversationPage = () => {
               style={{
                 ...revealStyle(segments.visible, 200),
                 border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #2563EB",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
               }}
               className="rounded-xl bg-white p-7 flex flex-col"
@@ -245,8 +175,9 @@ const NextConversationPage = () => {
             {/* Wealth Client card */}
             <div
               style={{
-                ...revealStyle(segments.visible, 300),
+                ...revealStyle(segments.visible, 350),
                 border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #16A34A",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
               }}
               className="rounded-xl bg-white p-7 flex flex-col"
@@ -275,6 +206,74 @@ const NextConversationPage = () => {
                   <span className="text-xs font-semibold px-4 py-2 rounded-full bg-white text-green-700 border border-green-200">
                     Send curated insights
                   </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Conversation block — text + phone */}
+      <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 60 }}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div style={revealStyle(conversation.visible, 0)}>
+            <h2 className="font-bold text-gray-900 mb-4" style={{ fontSize: 36 }}>
+              A conversation, not a campaign.
+            </h2>
+            <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>
+              The AI assistant turns detected signals into a real-time dialogue with your customer.
+            </p>
+            <p className="text-gray-500 leading-relaxed" style={{ fontSize: 16 }}>
+              It knows their spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, the assistant answers, and the right product surfaces in the moment.
+            </p>
+          </div>
+
+          <div style={revealStyle(conversation.visible, 150)} className="flex justify-center">
+            <div
+              className="relative bg-gray-50 overflow-hidden"
+              style={{
+                width: 240,
+                height: 480,
+                borderRadius: 32,
+                border: "7px solid #1F2937",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
+              }}
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-gray-900 rounded-b-2xl z-10" />
+
+              <div className="h-full overflow-y-auto px-3 pt-9 pb-4 space-y-3 text-left">
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
+                    What products fit my situation?
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-1.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
+                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
+                    Based on your spending, you have strong fitness habits and travel regularly. You might benefit from a travel rewards card — you have 8 Delta purchases this year with no travel card detected. Want me to show you options?
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
+                    Yes show me
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-1.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
+                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
+                    Here are 3 cards matched to your profile...
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5 pl-7">
+                  {["Delta SkyMiles · 60k bonus miles", "Chase Sapphire · 3x travel pts", "Amex Gold · 4x dining"].map((c) => (
+                    <div key={c} className="bg-white px-2.5 py-2 rounded-lg border border-gray-200 text-[10px] font-semibold text-gray-800 shadow-sm">
+                      {c}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
