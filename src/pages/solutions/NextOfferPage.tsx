@@ -2,7 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
-import { useSectionReveal, revealStyle, slideRightStyle } from "@/hooks/useSectionReveal";
+import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
+
+const evidenceFeed = [
+  { raw: "DELTA AIR LINES", amount: "$428.00", label: "Travel detected", ok: true },
+  { raw: "SQ *MARRIOTT HTL", amount: "$285.00", label: "Lodging detected", ok: true },
+  { raw: "UBER", amount: "$34.50", label: "Ground transport", ok: true },
+  { raw: "DELTA AIR LINES", amount: "$312.00", label: "Travel detected", ok: true },
+  { raw: "SOUTHWEST AIRLINES", amount: "$198.00", label: "Travel detected", ok: true },
+  { raw: "AWAY LUGGAGE", amount: "$0.00", label: "No luggage spend", ok: false },
+];
 
 const dealCards = [
   {
@@ -108,6 +117,48 @@ const NextOfferPage = () => {
             </div>
           </div>
 
+          {/* Evidence transaction feed */}
+          <div
+            className="rounded-xl bg-white p-5 mb-6"
+            style={{ border: "1px solid #E5E7EB", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}
+          >
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Evidence Transactions</p>
+            <div className="space-y-1.5">
+              {evidenceFeed.map((t, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-md px-3 py-2 text-sm"
+                  style={{
+                    background: t.ok ? "#F9FAFB" : "#FEF3C7",
+                    border: t.ok ? "1px solid #F3F4F6" : "1px solid #FDE68A",
+                    animation: "fade-in 0.4s ease-out both",
+                    animationDelay: `${i * 80}ms`,
+                  }}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="font-mono text-xs text-gray-700 truncate">{t.raw}</span>
+                    <span className="font-mono text-xs text-gray-900 font-semibold">{t.amount}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-gray-300">→</span>
+                    {t.ok ? (
+                      <span className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                        <span>✓</span> {t.label}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-semibold flex items-center gap-1" style={{ color: "#B45309" }}>
+                        <span>✗</span> {t.label}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-gray-500 mt-3 italic">
+              The amber gap above is what triggered the Away Luggage offer below.
+            </p>
+          </div>
+
           {/* Behavioral Based Deal Collection */}
           <div className="flex items-center gap-3 mb-5">
             <h3 className="text-lg font-bold text-gray-900">Behavioral Based Deal Collection</h3>
@@ -120,11 +171,12 @@ const NextOfferPage = () => {
             {dealCards.map((d, i) => (
               <div
                 key={d.brand}
-                className="rounded-xl bg-white p-4 flex flex-col"
+                className="rounded-xl bg-white p-5 flex flex-col"
                 style={{
-                  ...slideRightStyle(proof.visible, 100 + i * 100),
                   border: "1px solid #E5E7EB",
                   boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+                  animation: "fade-in 0.5s ease-out both",
+                  animationDelay: `${600 + i * 100}ms`,
                 }}
               >
                 <p className="text-sm font-bold text-gray-900 leading-snug mb-2">{d.brand}</p>
@@ -132,7 +184,8 @@ const NextOfferPage = () => {
                   {d.discount}
                 </span>
                 <p className="text-sm italic text-gray-700 leading-snug mb-3">"{d.quote}"</p>
-                <p className="text-[11px] text-gray-500 leading-snug mb-4 flex-1">{d.reason}</p>
+                <p className="text-[11px] text-gray-500 leading-snug mb-1 flex-1">{d.reason}</p>
+                <p className="text-[10px] text-gray-400 italic mb-4">Why this offer</p>
                 <button
                   className="text-xs font-semibold text-white px-3 py-2 rounded-lg transition-colors w-full"
                   style={{ backgroundColor: "#16A34A" }}
