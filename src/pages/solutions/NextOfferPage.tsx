@@ -4,10 +4,42 @@ import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle, slideRightStyle } from "@/hooks/useSectionReveal";
 
-const offers = [
-  { name: "Delta SkyMiles Card", desc: "matches your travel spend", tag: "Travel & Exploration", color: "#3B82F6" },
-  { name: "Whole Foods 5% Back", desc: "3x weekly grocery visits", tag: "Food & Dining", color: "#22C55E" },
-  { name: "REI Co-op Card", desc: "active lifestyle detected", tag: "Sports & Fitness", color: "#F59E0B" },
+const dealCards = [
+  {
+    brand: "Away Luggage",
+    discount: "15% Off",
+    quote: "Find your perfect travel companion",
+    reason: "Customer travels monthly, no luggage spend detected",
+    cta: "Shop Away",
+  },
+  {
+    brand: "Bose",
+    discount: "10% Off",
+    quote: "Make every flight disappear",
+    reason: "Frequent flyer with no headphone spend",
+    cta: "Tune In",
+  },
+  {
+    brand: "Delta SkyMiles Card",
+    discount: "Bonus miles",
+    quote: "Earn on every flight you already take",
+    reason: "8 Delta purchases in 12 months",
+    cta: "Apply Now",
+  },
+  {
+    brand: "Allbirds",
+    discount: "20% Off",
+    quote: "Comfort from gate to gate",
+    reason: "Active lifestyle, travel-ready footwear gap detected",
+    cta: "Walk Lighter",
+  },
+  {
+    brand: "Calm",
+    discount: "3 months free",
+    quote: "Your pre-flight ritual",
+    reason: "Regular traveler, no wellness app spend",
+    cta: "Start Calm",
+  },
 ];
 
 const stats = [
