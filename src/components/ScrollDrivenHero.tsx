@@ -278,12 +278,19 @@ const ScrollDrivenHero = () => {
 
             const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
 
-            const action =
+            const actionTitle =
               p.id === "travel"
-                ? "Curate leisure travel deal collection: noise-cancelling headphones, lounge pass, premium rental car..."
+                ? "Curate travel deal collection"
                 : p.id === "parent"
-                  ? "Activate family planning flow: Financial planning nudge, life insurance review, wealth management invite..."
-                  : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + Advisor notified with AI-assisted meeting prep";
+                  ? "Activate family planning flow"
+                  : "Trigger college savings outreach";
+
+            const actionItems =
+              p.id === "travel"
+                ? ["Noise-cancelling headphones", "Airport lounge pass", "Premium rental car"]
+                : p.id === "parent"
+                  ? ["Financial planning nudge", "Life insurance review", "Wealth management invite"]
+                  : ["Standard: automated 529 / HYSA flow", "Wealth: advisor notified", "AI-assisted meeting prep"];
 
             const Stack = (
               <div className="flex flex-col items-stretch" style={{ width: 240 }}>
@@ -315,8 +322,21 @@ const ScrollDrivenHero = () => {
                     />
                   </div>
                   {/* Body */}
-                  <div className="px-3 py-2.5 text-[11px] leading-relaxed text-gray-700">
-                    {action}
+                  <div className="px-3 py-2.5">
+                    <div className="text-[11px] font-semibold text-gray-900 mb-1.5 leading-snug">
+                      {actionTitle}
+                    </div>
+                    <ul className="space-y-1">
+                      {actionItems.map((item) => (
+                        <li key={item} className="flex items-start gap-1.5 text-[10.5px] leading-snug text-gray-600">
+                          <span
+                            className="mt-1 w-1 h-1 rounded-full flex-shrink-0"
+                            style={{ background: p.color }}
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </div>
