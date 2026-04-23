@@ -19,7 +19,8 @@ const flowSteps = [
 const NextConversationPage = () => {
   const hero = useSectionReveal();
   const alert = useSectionReveal();
-  
+  const segments = useSectionReveal();
+  const phone = useSectionReveal();
   const flow = useSectionReveal();
   const statsSection = useSectionReveal();
 
