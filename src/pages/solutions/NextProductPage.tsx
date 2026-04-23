@@ -107,32 +107,77 @@ const NextProductPage = () => {
           <h2 style={{ ...revealStyle(events.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
             Every life event is a product opportunity.
           </h2>
-          <p style={{ ...revealStyle(events.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-12">
+          <p style={{ ...revealStyle(events.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-10">
             20+ life events detected from transaction patterns alone.
           </p>
+
+          {/* Behavioral signal summary */}
+          <div
+            className="rounded-xl bg-white p-6 mb-10 mx-auto max-w-5xl"
+            style={{ ...revealStyle(events.visible, 150), border: "1px solid #E5E7EB", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}
+          >
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-4 text-center">
+              From these transactions, Ventus detected:
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {lifeEvents.map((evt) => (
+                <span
+                  key={evt.name}
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full"
+                  style={{ background: `${evt.color}15`, color: evt.color, border: `1px solid ${evt.color}30` }}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: evt.color }} />
+                  {evt.name}
+                  <span className="text-xs font-bold opacity-80">{evt.confidence}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6">
             {lifeEvents.map((evt, i) => (
-              <div key={evt.name} className="rounded-lg p-5 bg-white" style={{ ...revealStyle(events.visible, 200 + i * 150), borderLeft: `3px solid ${evt.color}` }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: evt.color }} />
-                  <p className="font-bold text-gray-900 text-sm">{evt.name}</p>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${evt.color}15`, color: evt.color }}>
-                    {evt.confidence} confidence
-                  </span>
+              <div
+                key={evt.name}
+                className="rounded-xl p-7 bg-white"
+                style={{
+                  ...revealStyle(events.visible, 250 + i * 150),
+                  border: "1.5px solid #E5E7EB",
+                  borderLeft: `3px solid ${evt.color}`,
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+                }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: evt.color }} />
+                    <p className="font-bold text-gray-900 text-sm">{evt.name}</p>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${evt.color}15`, color: evt.color }}>
+                      {evt.confidence} confidence
+                    </span>
+                  </div>
+                  <Sparkline color={evt.color} />
                 </div>
-                <div className="space-y-1 mb-4">
+
+                <p className="text-xs text-gray-500 mb-4">
+                  <span className="font-semibold text-gray-700">Top signals:</span> {evt.topSignals}
+                </p>
+
+                <div className="space-y-1 mb-5">
                   {evt.evidence.map((e) => (
                     <p key={e.merchant} className="text-xs font-mono text-gray-500">
-                      {e.merchant} <span className="text-gray-900 font-semibold">{e.amount}</span>
+                      {e.merchant} · <span className="text-gray-900 font-semibold">{e.amount}</span>
                     </p>
                   ))}
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {evt.products.map((p) => (
-                    <span key={p} className="text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-                      → {p}
-                    </span>
-                  ))}
+
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600 mb-3">Recommended Products</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {evt.products.map((p) => (
+                      <span key={p} className="text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                        → {p}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
