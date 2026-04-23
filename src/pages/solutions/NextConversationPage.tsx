@@ -31,10 +31,10 @@ const NextConversationPage = () => {
         <div className="max-w-3xl mx-auto text-center">
           <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Conversation</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
-            Give every advisor a warm lead every morning.
+            Every signal becomes the right conversation.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events in your customers' transaction data and alerts advisors instantly — who to call, why it matters, and exactly what to say.
+            Ventus detects life events in transaction data and triggers the right response — whether that's an advisor prep brief, a personalized email, or an AI-powered chat.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
