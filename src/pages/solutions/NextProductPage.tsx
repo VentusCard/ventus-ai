@@ -38,21 +38,18 @@ const events: EventData[] = [
     ],
     products: [
       {
-        icon: "👶",
         title: "Family Rewards Card",
         reason: "Earn 3% on baby essentials · Based on 8 purchases at baby retailers",
         cta: "Apply Now →",
         ctaColor: "#16A34A",
       },
       {
-        icon: "🎓",
         title: "529 College Plan",
         reason: "Start saving from day one · $2,450 detected in baby spend suggests planning mindset",
         cta: "Open Plan →",
         ctaColor: "#2563EB",
       },
       {
-        icon: "🛡",
         title: "Life Insurance Review",
         reason: "Protect what matters most",
         cta: "Schedule Review →",
@@ -74,21 +71,18 @@ const events: EventData[] = [
     ],
     products: [
       {
-        icon: "🎓",
         title: "529 College Savings Plan",
         reason: "Tax-advantaged growth · $3,000+ already invested in admissions prep",
         cta: "Open Plan →",
         ctaColor: "#16A34A",
       },
       {
-        icon: "💰",
         title: "Student Loan Planning",
         reason: "Compare federal and private options before tuition is due",
         cta: "Get Started →",
         ctaColor: "#2563EB",
       },
       {
-        icon: "📊",
         title: "Tuition Payment Strategy",
         reason: "Optimize cash flow across four years",
         cta: "Schedule Review →",
@@ -110,21 +104,18 @@ const events: EventData[] = [
     ],
     products: [
       {
-        icon: "🏠",
         title: "Home Equity Line",
         reason: "Tap into new equity for renovations · $2,670 in home improvement spend detected",
         cta: "Apply Now →",
         ctaColor: "#16A34A",
       },
       {
-        icon: "🛡",
         title: "Homeowners Insurance",
         reason: "Protect your largest asset with bundled coverage",
         cta: "Get Quote →",
         ctaColor: "#2563EB",
       },
       {
-        icon: "📋",
         title: "Mortgage Review",
         reason: "Refinance options when rates move",
         cta: "Schedule Review →",
