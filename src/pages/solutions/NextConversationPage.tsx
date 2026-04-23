@@ -208,6 +208,7 @@ const NextConversationPage = () => {
               style={{
                 ...revealStyle(segments.visible, 200),
                 border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #2563EB",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
               }}
               className="rounded-xl bg-white p-7 flex flex-col"
@@ -245,8 +246,9 @@ const NextConversationPage = () => {
             {/* Wealth Client card */}
             <div
               style={{
-                ...revealStyle(segments.visible, 300),
+                ...revealStyle(segments.visible, 350),
                 border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #16A34A",
                 boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
               }}
               className="rounded-xl bg-white p-7 flex flex-col"
