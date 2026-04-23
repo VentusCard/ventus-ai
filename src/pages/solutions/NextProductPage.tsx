@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
@@ -145,6 +145,17 @@ const NextProductPage = () => {
   const [activeId, setActiveId] = useState(events[0].id);
   const active = events.find((e) => e.id === activeId)!;
 
+  // Auto-rotate tabs every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveId((current) => {
+        const idx = events.findIndex((e) => e.id === current);
+        return events[(idx + 1) % events.length].id;
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="bg-white min-h-screen">
       {/* Hero */}
@@ -186,7 +197,7 @@ const NextProductPage = () => {
                   className="text-sm font-semibold px-5 py-2.5 rounded-full transition-all"
                   style={
                     isActive
-                      ? { backgroundColor: "#0A1628", color: "#FFFFFF", border: "1px solid #0A1628" }
+                      ? { backgroundColor: "#2563EB", color: "#FFFFFF", border: "1px solid #2563EB" }
                       : { backgroundColor: "transparent", color: "#374151", border: "1px solid #D1D5DB" }
                   }
                 >
