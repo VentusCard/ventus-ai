@@ -340,7 +340,6 @@ const ScrollDrivenHero = () => {
                   </div>
                 </div>
               </div>
-              </div>
             );
 
             return (
